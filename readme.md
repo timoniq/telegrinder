@@ -1,7 +1,5 @@
 # telegrinder
 
-> lightweight tool to build telegram bots
-
 ## Example
 
 ```python
@@ -17,3 +15,7 @@ async def start(event: dict):
 
 bot.run_forever()
 ```
+
+## Community
+
+Join our [telegram chat](https://t.me/telegrinder_en).
