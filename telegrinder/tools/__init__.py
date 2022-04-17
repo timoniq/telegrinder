@@ -1,2 +1,2 @@
 from .result import Result
-from .keyboard import Keyboard, Button, InlineButton
+from .keyboard import Keyboard, Button, InlineButton, InlineKeyboard

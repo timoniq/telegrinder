@@ -1,6 +1,26 @@
 import typing
 import inspect
-from pydantic import BaseModel
+import pydantic
+from telegrinder.modules import json
+
+
+def convert(d: typing.Any) -> typing.Any:
+    if isinstance(d, BaseModel):
+        return json.dumps(d.get_dict())
+    elif isinstance(d, dict):
+        return {k: convert(v) for k, v in d.items() if v is not None}
+    elif isinstance(d, list):
+        li = [convert(el) for el in d]
+        return li
+    return d
+
+
+class BaseModel(pydantic.BaseModel):
+    def get_dict(
+        self
+    ) -> dict:
+        d = self.dict()
+        return {k: convert(v) for k, v in d.items() if v is not None}
 
 
 class Error(BaseModel):
@@ -112,6 +132,8 @@ class Message(BaseModel):
     poll: typing.Optional["Poll"] = None
     venue: typing.Optional["Venue"] = None
     location: typing.Optional["Location"] = None
+    new_chat_participant: typing.Optional["User"] = None
+    left_chat_participant: typing.Optional["User"] = None
     new_chat_members: typing.Optional[typing.List["User"]] = None
     left_chat_member: typing.Optional["User"] = None
     new_chat_title: typing.Optional[str] = None
@@ -430,7 +452,7 @@ class ChatAdministratorRights(BaseModel):
 
 
 class ChatMember(BaseModel):
-    pass
+    status: str
 
 
 class ChatMemberOwner(BaseModel):
@@ -1361,4 +1383,6 @@ __all__ = (
     "Game",
     "CallbackGame",
     "GameHighScore",
+    "BaseModel",
+    "convert",
 )

@@ -1,14 +1,15 @@
 import logging
+import typing
 
 from choicelib import choice_in_order
 from typing_extensions import Protocol
 
 
 class JSONModule(Protocol):
-    def loads(self, s: str) -> dict:
+    def loads(self, s: str) -> typing.Union[dict, list]:
         ...
 
-    def dumps(self, o: dict) -> str:
+    def dumps(self, o: typing.Union[dict, list]) -> str:
         ...
 
 

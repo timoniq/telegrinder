@@ -1,3 +1,5 @@
+import asyncio
+
 from .abc import ABCDispatch
 from abc import ABC, abstractmethod
 from telegrinder.bot.rules import ABCRule
@@ -46,6 +48,7 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
 class Dispatch(ABCDispatch):
     def __init__(self):
         self.handlers: typing.List[ABCHandler] = []
+        self.loop = asyncio.get_event_loop()
 
     def handle(
         self, *rules: ABCRule, is_blocking: bool = False, dataclass: typing.Any = dict
@@ -62,7 +65,7 @@ class Dispatch(ABCDispatch):
             result = await handler.check(event)
             if result:
                 found = True
-                await handler.run(event)
+                self.loop.create_task(handler.run(event))
                 if handler.is_blocking:
                     return True
         return found

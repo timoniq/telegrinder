@@ -1,6 +1,8 @@
+import json
 from typing import List, Optional
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from telegrinder.types.objects import InlineKeyboardMarkup
 
 from .buttons import Button, InlineButton
 
@@ -14,6 +16,17 @@ class KeyboardModel:
 
 
 class ABCMarkup(ABC, KeyboardModel):
+    def __init__(
+        self,
+        resize_keyboard: bool = False,
+        one_time_keyboard: bool = False,
+        selective: Optional[bool] = None,
+    ):
+        self.keyboard = [[]]
+        self.resize_keyboard = resize_keyboard
+        self.one_time_keyboard = one_time_keyboard
+        self.selective = selective
+
     @abstractmethod
     def add(self, button) -> "ABCMarkup":
         pass
@@ -28,17 +41,6 @@ class ABCMarkup(ABC, KeyboardModel):
 
 
 class Keyboard(ABCMarkup):
-    def __init__(
-        self,
-        resize_keyboard: bool = False,
-        one_time_keyboard: bool = False,
-        selective: Optional[bool] = None,
-    ):
-        self.keyboard = [[]]
-        self.resize_keyboard = resize_keyboard
-        self.one_time_keyboard = one_time_keyboard
-        self.selective = selective
-
     def row(self) -> "Keyboard":
         if len(self.keyboard) and not len(self.keyboard[-1]):
             raise RuntimeError("Last row is empty!")
@@ -58,8 +60,6 @@ class Keyboard(ABCMarkup):
 
 
 class InlineKeyboard(ABCMarkup):
-    keyboard: List[List[dict]] = [[]]
-
     def row(self) -> "InlineKeyboard":
         if len(self.keyboard) and not len(self.keyboard[-1]):
             raise RuntimeError("Last row is empty!")
@@ -76,3 +76,6 @@ class InlineKeyboard(ABCMarkup):
 
     def dict(self) -> dict:
         return dict(inline_keyboard=self.keyboard)
+
+    def get_markup(self) -> InlineKeyboardMarkup:
+        return InlineKeyboardMarkup(**self.dict())
