@@ -58,6 +58,7 @@ class Text(ABCRule):
         self.texts = texts
 
     async def check(self, event: dict, ctx: dict) -> bool:
+        print(event)
         return event["message"]["text"] in self.texts
 
 
