@@ -1,5 +1,7 @@
 # telegrinder
 
+# Getting started
+
 ## Example
 
 ```python
@@ -23,6 +25,13 @@ async def start(update: Update):
 bot.run_forever()
 ```
 
-## Community
+# Community
 
 Join our [telegram chat](https://t.me/telegrinder_en).
+
+# [Contributing](https://github.com/timoniq/telegrinder/blob/main/contributing.md)
+
+# License
+
+Telegrinder is [MIT licensed](./LICENSE)  
+Copyright © 2022 [timoniq](https://github.com/timoniq)
