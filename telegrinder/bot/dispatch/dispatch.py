@@ -24,27 +24,32 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
         func: typing.Callable,
         rules: typing.List[ABCRule],
         is_blocking: bool = True,
+        dataclass: typing.Any = dict
     ):
         self.func = func
         self.is_blocking = is_blocking
         self.rules = rules
+        self.dataclass = dataclass
         self.ctx = {}
 
     async def check(self, event: T) -> bool:
         self.ctx = {}
-        return all([(await rule.check(event, self.ctx)) for rule in self.rules])
+        for rule in self.rules:
+            if not await rule.check(event, self.ctx):
+                return False
+        return True
 
     async def run(self, event: T) -> typing.Any:
-        return await self.func(event, **self.ctx)
+        return await self.func(self.dataclass(**event), **self.ctx)
 
 
 class Dispatch(ABCDispatch):
     def __init__(self):
         self.handlers: typing.List[ABCHandler] = []
 
-    def handle(self, *rules: ABCRule, is_blocking: bool = False):
+    def handle(self, *rules: ABCRule, is_blocking: bool = False, dataclass: typing.Any = dict):
         def wrapper(func: typing.Callable):
-            self.handlers.append(FuncHandler(func, list(rules), is_blocking))
+            self.handlers.append(FuncHandler(func, list(rules), is_blocking, dataclass))
             return func
 
         return wrapper

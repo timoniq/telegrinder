@@ -58,8 +58,17 @@ class Text(ABCRule):
         self.texts = texts
 
     async def check(self, event: dict, ctx: dict) -> bool:
-        print(event)
-        return event["message"]["text"] in self.texts
+        return event["message"].get("text") in self.texts
+
+
+class IsPrivate(ABCRule):
+    async def check(self, event: T, ctx: dict) -> bool:
+        return event["message"]["chat"]["id"] > 0
+
+
+class IsChat(ABCRule):
+    async def check(self, event: T, ctx: dict) -> bool:
+        return event["message"]["chat"]["id"] < 0
 
 
 class Markup(ABCRule):
@@ -81,4 +90,4 @@ class Markup(ABCRule):
         return False
 
 
-__all__ = (ABCRule, AndRule, OrRule, IsMessage, Text, Markup)
+__all__ = (ABCRule, AndRule, OrRule, IsMessage, Text, Markup, IsPrivate, IsChat)

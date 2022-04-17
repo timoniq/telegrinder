@@ -4,6 +4,7 @@ from telegrinder.api import ABCAPI
 from telegrinder.bot.polling import ABCPolling, Polling
 from telegrinder.bot.dispatch import ABCDispatch, Dispatch
 from telegrinder.bot.rules import ABCRule, IsMessage
+from telegrinder.types import Update
 import typing
 
 
@@ -19,7 +20,7 @@ class Telegrinder:
         self.dispatch = dispatch or Dispatch()
 
     def on_message(self, *rules: ABCRule, is_blocking: bool = True):
-        return self.dispatch.handle(IsMessage(), *rules, is_blocking=is_blocking)
+        return self.dispatch.handle(IsMessage(), *rules, is_blocking=is_blocking, dataclass=Update)
 
     async def run_polling(self, offset: int = 0) -> None:
         self.polling.offset = offset
