@@ -1,1 +1,1 @@
-from telegrinder.types.constructors import *
+from telegrinder.types.objects import *

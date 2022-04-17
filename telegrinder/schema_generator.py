@@ -1,36 +1,40 @@
+import logging
 import os
 import requests
 
-URL = "https://core.telegram.org/schema/json"
+URL = "https://ark0f.github.io/tg-bot-api/openapi.json"
 TYPES = {
-    "int": "int",
+    "integer": "int",
     "string": "str",
     "long": "int",
     "bytes": "bytes",
-    "Bool": "bool",
-    "double": "float",
+    "boolean": "bool",
+    "number": "float",
     "true": "bool",
     "false": "bool",
 }
 SPACES = "    "
 
 
-def convert_type(t: str) -> str:
-    if "?" in t:
-        t = t.split("?")[-1]
-    if t == "!X":
-        return "X"
-    if t == "#":
-        return "typing.List[str]"
-    if t in TYPES:
-        return TYPES[t]
-    elif t.startswith("Vector"):
-        nt = t[7:-1]
-        return "typing.List[" + convert_type(nt) + "]"
+def convert_type(d: dict) -> str:
+    if "type" in d:
+        t = d["type"]
+        if t in TYPES:
+            return TYPES[t]
+        elif t == "array":
+            nt = convert_type(d["items"])
+            return "typing.List[" + nt + "]"
+        else:
+            if "." in t:
+                t = t.split(".")[-1]
+            return repr(t)
+    elif "$ref" in d:
+        n = d["$ref"].split("/")[-1]
+        return repr(n)
+    elif "anyOf" in d:
+        return "typing.Union[" + ", ".join(convert_type(ut) for ut in d["anyOf"]) + "]"
     else:
-        if "." in t:
-            t = t.split(".")[-1]
-        return repr(t)
+        logging.error(f"cannot handle {d}")
 
 
 def to_snakecase(s: str) -> str:
@@ -43,60 +47,56 @@ def to_snakecase(s: str) -> str:
     return ns.replace("__", "_")
 
 
+def get_lines_for_object(name: str, properties: dict):
+    return [
+        "\n\n",
+        "class {}(BaseModel):\n".format(name),
+        *(
+            [SPACES + "pass\n"]
+            if not properties
+            else (
+                SPACES
+                + "{}: {}\n".format(
+                    name
+                    if name not in ("json", "from")
+                    else name + "_",
+                    "typing.Optional["
+                    + convert_type(param)
+                    + "] = None",
+                )
+                for (name, param) in properties.items()
+                if name != "flags"
+            )
+        ),
+    ]
+
+
 def generate(path: str, schema_url: str = URL) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
 
     schema = requests.get(schema_url).json()
-    methods = schema["methods"]
-    constructors = schema["constructors"]
-    names = {}
+
+    paths = schema["paths"]
+    objects = schema["components"]["schemas"]
 
     with open(path + "/__init__.py", "w") as file:
-        file.writelines("from telegrinder.types.constructors import *\n")
+        file.writelines("from telegrinder.types.objects import *\n")
 
-    for constructor in constructors:
-        if constructor["type"] in ("Bool", "True", "Vector t", "Null", "Error"):
-            continue
-        constructor["type"] = constructor["type"].split(".")[-1]
-        if constructor["type"] in names:
-            for p in constructor["params"]:
-                if p["name"] not in (a["name"] for a in names[constructor["type"]]):
-                    names[constructor["type"]].append(p)
-        else:
-            names[constructor["type"]] = constructor["params"]
-
-    with open(path + "/constructors.py", "w") as file:
+    with open(path + "/objects.py", "w") as file:
         file.writelines(
             ["import typing\n", "import inspect\n", "from pydantic import BaseModel\n"]
         )
-    for (name, params) in names.items():
-        with open(path + "/constructors.py", "a") as file:
+
+    for name, obj in objects.items():
+        t, properties = obj.get("type", "object"), obj.get("properties", [])
+
+        with open(path + "/objects.py", "a") as file:
             file.writelines(
-                [
-                    "\n\n",
-                    "class {}(BaseModel):\n".format(name),
-                    *(
-                        [SPACES + "pass\n"]
-                        if not params
-                        else (
-                            SPACES
-                            + "{}: {}\n".format(
-                                param["name"]
-                                if param["name"] not in ("json",)
-                                else param["name"] + "_",
-                                "typing.Optional["
-                                + convert_type(param["type"])
-                                + "] = None",
-                            )
-                            for param in params
-                            if param["name"] != "flags"
-                        )
-                    ),
-                ]
+                get_lines_for_object(name, properties)
             )
 
-    with open(path + "/constructors.py", "a") as file:
+    with open(path + "/objects.py", "a") as file:
         file.writelines(
             [
                 "\n\n",
@@ -106,7 +106,7 @@ def generate(path: str, schema_url: str = URL) -> None:
                 "\n\n",
                 "__all__ = (\n",
             ]
-            + [SPACES + repr(n) + ",\n" for n in names]
+            + [SPACES + repr(n) + ",\n" for n in objects]
             + [")\n"]
         )
 
@@ -114,7 +114,7 @@ def generate(path: str, schema_url: str = URL) -> None:
         file.writelines(
             [
                 "import typing\n",
-                "from .constructors import *\n",
+                "from .objects import *\n",
                 "from telegrinder.tools import Result\n",
                 "from telegrinder.api.error import APIError\n\n",
                 "if typing.TYPE_CHECKING:\n",
@@ -137,16 +137,21 @@ def generate(path: str, schema_url: str = URL) -> None:
             ]
         )
 
-    for method in methods:
+    for ps in paths:
+        method = paths[ps]
+        if "requestBody" not in method["post"]:
+            props = {}
+        else:
+            props = list(method["post"]["requestBody"]["content"].values())[-1]["schema"]["properties"]
+
         lines = []
-        method_name = method["method"].split(".")[-1]
+        method_name = ps[1:]
+        result = list(method["post"]["responses"]["200"]["content"].values())[-1]["schema"]["properties"]["result"]
+        response = convert_type(result)
         name = to_snakecase(method_name)
-        params = method["params"]
-        response = convert_type(method["type"])
         lines.append(f"async def {name}(\n        self,\n")
-        for param in params:
-            n = param["name"]
-            t = convert_type(param["type"])
+        for n, prop in props.items():
+            t = convert_type(prop)
             lines.append(SPACES + f"{n}: typing.Optional[{t}] = None,\n")
         lines.append(SPACES + "**other\n")
         lines.append(f") -> Result[{response}, APIError]:\n")
