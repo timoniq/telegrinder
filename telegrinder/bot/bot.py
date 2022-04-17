@@ -12,7 +12,7 @@ class Telegrinder:
         self,
         api: ABCAPI,
         polling: typing.Optional[ABCPolling] = None,
-        dispatch: typing.Optional[ABCDispatch] = None
+        dispatch: typing.Optional[ABCDispatch] = None,
     ):
         self.api = api
         self.polling = polling or Polling(api)

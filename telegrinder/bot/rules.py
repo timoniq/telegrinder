@@ -67,8 +67,7 @@ class Markup(ABCRule):
         if not isinstance(patterns, list):
             patterns = [patterns]
         self.patterns = [
-            vbml.Pattern(pattern)
-            if isinstance(pattern, str) else pattern
+            vbml.Pattern(pattern) if isinstance(pattern, str) else pattern
             for pattern in patterns
         ]
 
@@ -82,11 +81,4 @@ class Markup(ABCRule):
         return False
 
 
-__all__ = (
-    ABCRule,
-    AndRule,
-    OrRule,
-    IsMessage,
-    Text,
-    Markup
-)
+__all__ = (ABCRule, AndRule, OrRule, IsMessage, Text, Markup)

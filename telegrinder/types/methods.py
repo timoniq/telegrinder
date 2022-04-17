@@ -15,13 +15,16 @@ class APIMethods:
 
     @staticmethod
     def get_params(loc: dict) -> dict:
-        n = {k: v for k, v in loc.items() if k not in ("self", "other") and v is not None}
-        n.update(loc['other'])
+        n = {
+            k: v for k, v in loc.items() if k not in ("self", "other") and v is not None
+        }
+        n.update(loc["other"])
         return n
 
     @staticmethod
     def get_response(r: dict) -> dict:
-        if 'json' in r: r['json_'] = r['json']
+        if "json" in r:
+            r["json_"] = r["json"]
         return r
 
     async def invoke_after_msg(
@@ -29,7 +32,7 @@ class APIMethods:
         msg_id: typing.Optional[int] = None,
         query: typing.Optional[X] = None,
         **other
-    ) -> Result['X', APIError]:
+    ) -> Result["X", APIError]:
         result = await self.api.request("invokeAfterMsg", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=X(**self.get_response(result.unwrap())))
@@ -40,7 +43,7 @@ class APIMethods:
         msg_ids: typing.Optional[typing.List[int]] = None,
         query: typing.Optional[X] = None,
         **other
-    ) -> Result['X', APIError]:
+    ) -> Result["X", APIError]:
         result = await self.api.request("invokeAfterMsgs", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=X(**self.get_response(result.unwrap())))
@@ -51,9 +54,9 @@ class APIMethods:
         phone_number: typing.Optional[str] = None,
         api_id: typing.Optional[int] = None,
         api_hash: typing.Optional[str] = None,
-        settings: typing.Optional['CodeSettings'] = None,
+        settings: typing.Optional["CodeSettings"] = None,
         **other
-    ) -> Result['SentCode', APIError]:
+    ) -> Result["SentCode", APIError]:
         result = await self.api.request("sendCode", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=SentCode(**self.get_response(result.unwrap())))
@@ -66,10 +69,12 @@ class APIMethods:
         first_name: typing.Optional[str] = None,
         last_name: typing.Optional[str] = None,
         **other
-    ) -> Result['Authorization', APIError]:
+    ) -> Result["Authorization", APIError]:
         result = await self.api.request("signUp", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=Authorization(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=Authorization(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def sign_in(
@@ -78,38 +83,38 @@ class APIMethods:
         phone_code_hash: typing.Optional[str] = None,
         phone_code: typing.Optional[str] = None,
         **other
-    ) -> Result['Authorization', APIError]:
+    ) -> Result["Authorization", APIError]:
         result = await self.api.request("signIn", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=Authorization(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=Authorization(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
-    async def log_out(
-        self,
-        **other
-    ) -> Result['LoggedOut', APIError]:
+    async def log_out(self, **other) -> Result["LoggedOut", APIError]:
         result = await self.api.request("logOut", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=LoggedOut(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
-    async def reset_authorizations(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
-        result = await self.api.request("resetAuthorizations", self.get_params(locals()))
+    async def reset_authorizations(self, **other) -> Result[bool, APIError]:
+        result = await self.api.request(
+            "resetAuthorizations", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def export_authorization(
-        self,
-        dc_id: typing.Optional[int] = None,
-        **other
-    ) -> Result['ExportedAuthorization', APIError]:
-        result = await self.api.request("exportAuthorization", self.get_params(locals()))
+        self, dc_id: typing.Optional[int] = None, **other
+    ) -> Result["ExportedAuthorization", APIError]:
+        result = await self.api.request(
+            "exportAuthorization", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ExportedAuthorization(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ExportedAuthorization(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def import_authorization(
@@ -117,10 +122,14 @@ class APIMethods:
         id: typing.Optional[int] = None,
         bytes: typing.Optional[bytes] = None,
         **other
-    ) -> Result['Authorization', APIError]:
-        result = await self.api.request("importAuthorization", self.get_params(locals()))
+    ) -> Result["Authorization", APIError]:
+        result = await self.api.request(
+            "importAuthorization", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=Authorization(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=Authorization(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def bind_temp_auth_key(
@@ -166,30 +175,31 @@ class APIMethods:
 
     async def update_notify_settings(
         self,
-        peer: typing.Optional['InputNotifyPeer'] = None,
-        settings: typing.Optional['InputPeerNotifySettings'] = None,
+        peer: typing.Optional["InputNotifyPeer"] = None,
+        settings: typing.Optional["InputPeerNotifySettings"] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("updateNotifySettings", self.get_params(locals()))
+        result = await self.api.request(
+            "updateNotifySettings", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_notify_settings(
-        self,
-        peer: typing.Optional['InputNotifyPeer'] = None,
-        **other
-    ) -> Result['PeerNotifySettings', APIError]:
+        self, peer: typing.Optional["InputNotifyPeer"] = None, **other
+    ) -> Result["PeerNotifySettings", APIError]:
         result = await self.api.request("getNotifySettings", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=PeerNotifySettings(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=PeerNotifySettings(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
-    async def reset_notify_settings(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
-        result = await self.api.request("resetNotifySettings", self.get_params(locals()))
+    async def reset_notify_settings(self, **other) -> Result[bool, APIError]:
+        result = await self.api.request(
+            "resetNotifySettings", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -201,16 +211,14 @@ class APIMethods:
         last_name: typing.Optional[str] = None,
         about: typing.Optional[str] = None,
         **other
-    ) -> Result['User', APIError]:
+    ) -> Result["User", APIError]:
         result = await self.api.request("updateProfile", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=User(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def update_status(
-        self,
-        offline: typing.Optional[bool] = None,
-        **other
+        self, offline: typing.Optional[bool] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("updateStatus", self.get_params(locals()))
         if result.is_ok:
@@ -218,10 +226,8 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_wall_papers(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['WallPapers', APIError]:
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["WallPapers", APIError]:
         result = await self.api.request("getWallPapers", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=WallPapers(**self.get_response(result.unwrap())))
@@ -229,8 +235,8 @@ class APIMethods:
 
     async def report_peer(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        reason: typing.Optional['ReportReason'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        reason: typing.Optional["ReportReason"] = None,
         message: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -240,29 +246,23 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_users(
-        self,
-        id: typing.Optional[typing.List['InputUser']] = None,
-        **other
-    ) -> Result[typing.List['User'], APIError]:
+        self, id: typing.Optional[typing.List["InputUser"]] = None, **other
+    ) -> Result[typing.List["User"], APIError]:
         result = await self.api.request("getUsers", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_full_user(
-        self,
-        id: typing.Optional['InputUser'] = None,
-        **other
-    ) -> Result['UserFull', APIError]:
+        self, id: typing.Optional["InputUser"] = None, **other
+    ) -> Result["UserFull", APIError]:
         result = await self.api.request("getFullUser", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=UserFull(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_contact_i_ds(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
+        self, hash: typing.Optional[int] = None, **other
     ) -> Result[typing.List[int], APIError]:
         result = await self.api.request("getContactIDs", self.get_params(locals()))
         if result.is_ok:
@@ -270,48 +270,41 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_statuses(
-        self,
-        **other
-    ) -> Result[typing.List['ContactStatus'], APIError]:
+        self, **other
+    ) -> Result[typing.List["ContactStatus"], APIError]:
         result = await self.api.request("getStatuses", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_contacts(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['Contacts', APIError]:
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["Contacts", APIError]:
         result = await self.api.request("getContacts", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Contacts(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def import_contacts(
-        self,
-        contacts: typing.Optional[typing.List['InputContact']] = None,
-        **other
-    ) -> Result['ImportedContacts', APIError]:
+        self, contacts: typing.Optional[typing.List["InputContact"]] = None, **other
+    ) -> Result["ImportedContacts", APIError]:
         result = await self.api.request("importContacts", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=ImportedContacts(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ImportedContacts(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def delete_contacts(
-        self,
-        id: typing.Optional[typing.List['InputUser']] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, id: typing.Optional[typing.List["InputUser"]] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("deleteContacts", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def delete_by_phones(
-        self,
-        phones: typing.Optional[typing.List[str]] = None,
-        **other
+        self, phones: typing.Optional[typing.List[str]] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("deleteByPhones", self.get_params(locals()))
         if result.is_ok:
@@ -319,9 +312,7 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def block(
-        self,
-        id: typing.Optional['InputPeer'] = None,
-        **other
+        self, id: typing.Optional["InputPeer"] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("block", self.get_params(locals()))
         if result.is_ok:
@@ -329,9 +320,7 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def unblock(
-        self,
-        id: typing.Optional['InputPeer'] = None,
-        **other
+        self, id: typing.Optional["InputPeer"] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("unblock", self.get_params(locals()))
         if result.is_ok:
@@ -343,17 +332,15 @@ class APIMethods:
         offset: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['Blocked', APIError]:
+    ) -> Result["Blocked", APIError]:
         result = await self.api.request("getBlocked", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Blocked(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_messages(
-        self,
-        id: typing.Optional[typing.List['InputMessage']] = None,
-        **other
-    ) -> Result['Messages', APIError]:
+        self, id: typing.Optional[typing.List["InputMessage"]] = None, **other
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("getMessages", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
@@ -366,11 +353,11 @@ class APIMethods:
         folder_id: typing.Optional[int] = None,
         offset_date: typing.Optional[int] = None,
         offset_id: typing.Optional[int] = None,
-        offset_peer: typing.Optional['InputPeer'] = None,
+        offset_peer: typing.Optional["InputPeer"] = None,
         limit: typing.Optional[int] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['Dialogs', APIError]:
+    ) -> Result["Dialogs", APIError]:
         result = await self.api.request("getDialogs", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Dialogs(**self.get_response(result.unwrap())))
@@ -378,7 +365,7 @@ class APIMethods:
 
     async def get_history(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         offset_id: typing.Optional[int] = None,
         offset_date: typing.Optional[int] = None,
         add_offset: typing.Optional[int] = None,
@@ -387,7 +374,7 @@ class APIMethods:
         min_id: typing.Optional[int] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("getHistory", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
@@ -396,11 +383,11 @@ class APIMethods:
     async def search(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         q: typing.Optional[str] = None,
-        from_id: typing.Optional['InputPeer'] = None,
+        from_id: typing.Optional["InputPeer"] = None,
         top_msg_id: typing.Optional[int] = None,
-        filter: typing.Optional['MessagesFilter'] = None,
+        filter: typing.Optional["MessagesFilter"] = None,
         min_date: typing.Optional[int] = None,
         max_date: typing.Optional[int] = None,
         offset_id: typing.Optional[int] = None,
@@ -410,7 +397,7 @@ class APIMethods:
         min_id: typing.Optional[int] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("search", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
@@ -418,13 +405,15 @@ class APIMethods:
 
     async def read_history(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         max_id: typing.Optional[int] = None,
         **other
-    ) -> Result['AffectedMessages', APIError]:
+    ) -> Result["AffectedMessages", APIError]:
         result = await self.api.request("readHistory", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=AffectedMessages(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedMessages(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def delete_history(
@@ -432,15 +421,17 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         just_clear: typing.Optional[bool] = None,
         revoke: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         max_id: typing.Optional[int] = None,
         min_date: typing.Optional[int] = None,
         max_date: typing.Optional[int] = None,
         **other
-    ) -> Result['AffectedHistory', APIError]:
+    ) -> Result["AffectedHistory", APIError]:
         result = await self.api.request("deleteHistory", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=AffectedHistory(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedHistory(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def delete_messages(
@@ -449,17 +440,17 @@ class APIMethods:
         revoke: typing.Optional[bool] = None,
         id: typing.Optional[typing.List[int]] = None,
         **other
-    ) -> Result['AffectedMessages', APIError]:
+    ) -> Result["AffectedMessages", APIError]:
         result = await self.api.request("deleteMessages", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=AffectedMessages(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedMessages(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def received_messages(
-        self,
-        max_id: typing.Optional[int] = None,
-        **other
-    ) -> Result[typing.List['ReceivedNotifyMessage'], APIError]:
+        self, max_id: typing.Optional[int] = None, **other
+    ) -> Result[typing.List["ReceivedNotifyMessage"], APIError]:
         result = await self.api.request("receivedMessages", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
@@ -468,9 +459,9 @@ class APIMethods:
     async def set_typing(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         top_msg_id: typing.Optional[int] = None,
-        action: typing.Optional['SendMessageAction'] = None,
+        action: typing.Optional["SendMessageAction"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("setTyping", self.get_params(locals()))
@@ -486,16 +477,16 @@ class APIMethods:
         background: typing.Optional[bool] = None,
         clear_draft: typing.Optional[bool] = None,
         noforwards: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         reply_to_msg_id: typing.Optional[int] = None,
         message: typing.Optional[str] = None,
         random_id: typing.Optional[int] = None,
-        reply_markup: typing.Optional['ReplyMarkup'] = None,
-        entities: typing.Optional[typing.List['MessageEntity']] = None,
+        reply_markup: typing.Optional["ReplyMarkup"] = None,
+        entities: typing.Optional[typing.List["MessageEntity"]] = None,
         schedule_date: typing.Optional[int] = None,
-        send_as: typing.Optional['InputPeer'] = None,
+        send_as: typing.Optional["InputPeer"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("sendMessage", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -508,17 +499,17 @@ class APIMethods:
         background: typing.Optional[bool] = None,
         clear_draft: typing.Optional[bool] = None,
         noforwards: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         reply_to_msg_id: typing.Optional[int] = None,
-        media: typing.Optional['InputMedia'] = None,
+        media: typing.Optional["InputMedia"] = None,
         message: typing.Optional[str] = None,
         random_id: typing.Optional[int] = None,
-        reply_markup: typing.Optional['ReplyMarkup'] = None,
-        entities: typing.Optional[typing.List['MessageEntity']] = None,
+        reply_markup: typing.Optional["ReplyMarkup"] = None,
+        entities: typing.Optional[typing.List["MessageEntity"]] = None,
         schedule_date: typing.Optional[int] = None,
-        send_as: typing.Optional['InputPeer'] = None,
+        send_as: typing.Optional["InputPeer"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("sendMedia", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -533,23 +524,21 @@ class APIMethods:
         drop_author: typing.Optional[bool] = None,
         drop_media_captions: typing.Optional[bool] = None,
         noforwards: typing.Optional[bool] = None,
-        from_peer: typing.Optional['InputPeer'] = None,
+        from_peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[typing.List[int]] = None,
         random_id: typing.Optional[typing.List[int]] = None,
-        to_peer: typing.Optional['InputPeer'] = None,
+        to_peer: typing.Optional["InputPeer"] = None,
         schedule_date: typing.Optional[int] = None,
-        send_as: typing.Optional['InputPeer'] = None,
+        send_as: typing.Optional["InputPeer"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("forwardMessages", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def report_spam(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
+        self, peer: typing.Optional["InputPeer"] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("reportSpam", self.get_params(locals()))
         if result.is_ok:
@@ -557,20 +546,20 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_peer_settings(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
-    ) -> Result['PeerSettings', APIError]:
+        self, peer: typing.Optional["InputPeer"] = None, **other
+    ) -> Result["PeerSettings", APIError]:
         result = await self.api.request("getPeerSettings", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=PeerSettings(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=PeerSettings(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def report(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[typing.List[int]] = None,
-        reason: typing.Optional['ReportReason'] = None,
+        reason: typing.Optional["ReportReason"] = None,
         message: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -580,20 +569,16 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_chats(
-        self,
-        id: typing.Optional[typing.List[int]] = None,
-        **other
-    ) -> Result['Chats', APIError]:
+        self, id: typing.Optional[typing.List[int]] = None, **other
+    ) -> Result["Chats", APIError]:
         result = await self.api.request("getChats", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Chats(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_full_chat(
-        self,
-        chat_id: typing.Optional[int] = None,
-        **other
-    ) -> Result['ChatFull', APIError]:
+        self, chat_id: typing.Optional[int] = None, **other
+    ) -> Result["ChatFull", APIError]:
         result = await self.api.request("getFullChat", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=ChatFull(**self.get_response(result.unwrap())))
@@ -604,7 +589,7 @@ class APIMethods:
         chat_id: typing.Optional[int] = None,
         title: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editChatTitle", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -613,9 +598,9 @@ class APIMethods:
     async def edit_chat_photo(
         self,
         chat_id: typing.Optional[int] = None,
-        photo: typing.Optional['InputChatPhoto'] = None,
+        photo: typing.Optional["InputChatPhoto"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editChatPhoto", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -624,10 +609,10 @@ class APIMethods:
     async def add_chat_user(
         self,
         chat_id: typing.Optional[int] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         fwd_limit: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("addChatUser", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -638,9 +623,9 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         revoke_history: typing.Optional[bool] = None,
         chat_id: typing.Optional[int] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("deleteChatUser", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -648,19 +633,16 @@ class APIMethods:
 
     async def create_chat(
         self,
-        users: typing.Optional[typing.List['InputUser']] = None,
+        users: typing.Optional[typing.List["InputUser"]] = None,
         title: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("createChat", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
-    async def get_state(
-        self,
-        **other
-    ) -> Result['State', APIError]:
+    async def get_state(self, **other) -> Result["State", APIError]:
         result = await self.api.request("getState", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=State(**self.get_response(result.unwrap())))
@@ -674,17 +656,15 @@ class APIMethods:
         date: typing.Optional[int] = None,
         qts: typing.Optional[int] = None,
         **other
-    ) -> Result['Difference', APIError]:
+    ) -> Result["Difference", APIError]:
         result = await self.api.request("getDifference", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Difference(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def update_profile_photo(
-        self,
-        id: typing.Optional['InputPhoto'] = None,
-        **other
-    ) -> Result['Photo', APIError]:
+        self, id: typing.Optional["InputPhoto"] = None, **other
+    ) -> Result["Photo", APIError]:
         result = await self.api.request("updateProfilePhoto", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Photo(**self.get_response(result.unwrap())))
@@ -693,20 +673,18 @@ class APIMethods:
     async def upload_profile_photo(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        file: typing.Optional['InputFile'] = None,
-        video: typing.Optional['InputFile'] = None,
+        file: typing.Optional["InputFile"] = None,
+        video: typing.Optional["InputFile"] = None,
         video_start_ts: typing.Optional[float] = None,
         **other
-    ) -> Result['Photo', APIError]:
+    ) -> Result["Photo", APIError]:
         result = await self.api.request("uploadProfilePhoto", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Photo(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def delete_photos(
-        self,
-        id: typing.Optional[typing.List['InputPhoto']] = None,
-        **other
+        self, id: typing.Optional[typing.List["InputPhoto"]] = None, **other
     ) -> Result[typing.List[int], APIError]:
         result = await self.api.request("deletePhotos", self.get_params(locals()))
         if result.is_ok:
@@ -730,48 +708,37 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         precise: typing.Optional[bool] = None,
         cdn_supported: typing.Optional[bool] = None,
-        location: typing.Optional['InputFileLocation'] = None,
+        location: typing.Optional["InputFileLocation"] = None,
         offset: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['File', APIError]:
+    ) -> Result["File", APIError]:
         result = await self.api.request("getFile", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=File(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
-    async def get_config(
-        self,
-        **other
-    ) -> Result['Config', APIError]:
+    async def get_config(self, **other) -> Result["Config", APIError]:
         result = await self.api.request("getConfig", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Config(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
-    async def get_nearest_dc(
-        self,
-        **other
-    ) -> Result['NearestDc', APIError]:
+    async def get_nearest_dc(self, **other) -> Result["NearestDc", APIError]:
         result = await self.api.request("getNearestDc", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=NearestDc(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_app_update(
-        self,
-        source: typing.Optional[str] = None,
-        **other
-    ) -> Result['AppUpdate', APIError]:
+        self, source: typing.Optional[str] = None, **other
+    ) -> Result["AppUpdate", APIError]:
         result = await self.api.request("getAppUpdate", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=AppUpdate(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
-    async def get_invite_text(
-        self,
-        **other
-    ) -> Result['InviteText', APIError]:
+    async def get_invite_text(self, **other) -> Result["InviteText", APIError]:
         result = await self.api.request("getInviteText", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=InviteText(**self.get_response(result.unwrap())))
@@ -779,12 +746,12 @@ class APIMethods:
 
     async def get_user_photos(
         self,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         offset: typing.Optional[int] = None,
         max_id: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['Photos', APIError]:
+    ) -> Result["Photos", APIError]:
         result = await self.api.request("getUserPhotos", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Photos(**self.get_response(result.unwrap())))
@@ -795,7 +762,7 @@ class APIMethods:
         version: typing.Optional[int] = None,
         random_length: typing.Optional[int] = None,
         **other
-    ) -> Result['DhConfig', APIError]:
+    ) -> Result["DhConfig", APIError]:
         result = await self.api.request("getDhConfig", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=DhConfig(**self.get_response(result.unwrap())))
@@ -803,26 +770,30 @@ class APIMethods:
 
     async def request_encryption(
         self,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         random_id: typing.Optional[int] = None,
         g_a: typing.Optional[bytes] = None,
         **other
-    ) -> Result['EncryptedChat', APIError]:
+    ) -> Result["EncryptedChat", APIError]:
         result = await self.api.request("requestEncryption", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=EncryptedChat(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=EncryptedChat(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def accept_encryption(
         self,
-        peer: typing.Optional['InputEncryptedChat'] = None,
+        peer: typing.Optional["InputEncryptedChat"] = None,
         g_b: typing.Optional[bytes] = None,
         key_fingerprint: typing.Optional[int] = None,
         **other
-    ) -> Result['EncryptedChat', APIError]:
+    ) -> Result["EncryptedChat", APIError]:
         result = await self.api.request("acceptEncryption", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=EncryptedChat(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=EncryptedChat(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def discard_encryption(
@@ -839,7 +810,7 @@ class APIMethods:
 
     async def set_encrypted_typing(
         self,
-        peer: typing.Optional['InputEncryptedChat'] = None,
+        peer: typing.Optional["InputEncryptedChat"] = None,
         typing: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -850,11 +821,13 @@ class APIMethods:
 
     async def read_encrypted_history(
         self,
-        peer: typing.Optional['InputEncryptedChat'] = None,
+        peer: typing.Optional["InputEncryptedChat"] = None,
         max_date: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("readEncryptedHistory", self.get_params(locals()))
+        result = await self.api.request(
+            "readEncryptedHistory", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -863,47 +836,53 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         silent: typing.Optional[bool] = None,
-        peer: typing.Optional['InputEncryptedChat'] = None,
+        peer: typing.Optional["InputEncryptedChat"] = None,
         random_id: typing.Optional[int] = None,
         data: typing.Optional[bytes] = None,
         **other
-    ) -> Result['SentEncryptedMessage', APIError]:
+    ) -> Result["SentEncryptedMessage", APIError]:
         result = await self.api.request("sendEncrypted", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=SentEncryptedMessage(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=SentEncryptedMessage(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def send_encrypted_file(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         silent: typing.Optional[bool] = None,
-        peer: typing.Optional['InputEncryptedChat'] = None,
+        peer: typing.Optional["InputEncryptedChat"] = None,
         random_id: typing.Optional[int] = None,
         data: typing.Optional[bytes] = None,
-        file: typing.Optional['InputEncryptedFile'] = None,
+        file: typing.Optional["InputEncryptedFile"] = None,
         **other
-    ) -> Result['SentEncryptedMessage', APIError]:
+    ) -> Result["SentEncryptedMessage", APIError]:
         result = await self.api.request("sendEncryptedFile", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=SentEncryptedMessage(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=SentEncryptedMessage(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def send_encrypted_service(
         self,
-        peer: typing.Optional['InputEncryptedChat'] = None,
+        peer: typing.Optional["InputEncryptedChat"] = None,
         random_id: typing.Optional[int] = None,
         data: typing.Optional[bytes] = None,
         **other
-    ) -> Result['SentEncryptedMessage', APIError]:
-        result = await self.api.request("sendEncryptedService", self.get_params(locals()))
+    ) -> Result["SentEncryptedMessage", APIError]:
+        result = await self.api.request(
+            "sendEncryptedService", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=SentEncryptedMessage(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=SentEncryptedMessage(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def received_queue(
-        self,
-        max_qts: typing.Optional[int] = None,
-        **other
+        self, max_qts: typing.Optional[int] = None, **other
     ) -> Result[typing.List[int], APIError]:
         result = await self.api.request("receivedQueue", self.get_params(locals()))
         if result.is_ok:
@@ -911,11 +890,11 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def report_encrypted_spam(
-        self,
-        peer: typing.Optional['InputEncryptedChat'] = None,
-        **other
+        self, peer: typing.Optional["InputEncryptedChat"] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("reportEncryptedSpam", self.get_params(locals()))
+        result = await self.api.request(
+            "reportEncryptedSpam", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -943,39 +922,36 @@ class APIMethods:
         system_lang_code: typing.Optional[str] = None,
         lang_pack: typing.Optional[str] = None,
         lang_code: typing.Optional[str] = None,
-        proxy: typing.Optional['InputClientProxy'] = None,
-        params: typing.Optional['JSONValue'] = None,
+        proxy: typing.Optional["InputClientProxy"] = None,
+        params: typing.Optional["JSONValue"] = None,
         query: typing.Optional[X] = None,
         **other
-    ) -> Result['X', APIError]:
+    ) -> Result["X", APIError]:
         result = await self.api.request("initConnection", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=X(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
-    async def get_support(
-        self,
-        **other
-    ) -> Result['Support', APIError]:
+    async def get_support(self, **other) -> Result["Support", APIError]:
         result = await self.api.request("getSupport", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Support(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def read_message_contents(
-        self,
-        id: typing.Optional[typing.List[int]] = None,
-        **other
-    ) -> Result['AffectedMessages', APIError]:
-        result = await self.api.request("readMessageContents", self.get_params(locals()))
+        self, id: typing.Optional[typing.List[int]] = None, **other
+    ) -> Result["AffectedMessages", APIError]:
+        result = await self.api.request(
+            "readMessageContents", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=AffectedMessages(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedMessages(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def check_username(
-        self,
-        username: typing.Optional[str] = None,
-        **other
+        self, username: typing.Optional[str] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("checkUsername", self.get_params(locals()))
         if result.is_ok:
@@ -983,10 +959,8 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def update_username(
-        self,
-        username: typing.Optional[str] = None,
-        **other
-    ) -> Result['User', APIError]:
+        self, username: typing.Optional[str] = None, **other
+    ) -> Result["User", APIError]:
         result = await self.api.request("updateUsername", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=User(**self.get_response(result.unwrap())))
@@ -997,56 +971,53 @@ class APIMethods:
         q: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['Found', APIError]:
+    ) -> Result["Found", APIError]:
         result = await self.api.request("search", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Found(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_privacy(
-        self,
-        key: typing.Optional['InputPrivacyKey'] = None,
-        **other
-    ) -> Result['PrivacyRules', APIError]:
+        self, key: typing.Optional["InputPrivacyKey"] = None, **other
+    ) -> Result["PrivacyRules", APIError]:
         result = await self.api.request("getPrivacy", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=PrivacyRules(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=PrivacyRules(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def set_privacy(
         self,
-        key: typing.Optional['InputPrivacyKey'] = None,
-        rules: typing.Optional[typing.List['InputPrivacyRule']] = None,
+        key: typing.Optional["InputPrivacyKey"] = None,
+        rules: typing.Optional[typing.List["InputPrivacyRule"]] = None,
         **other
-    ) -> Result['PrivacyRules', APIError]:
+    ) -> Result["PrivacyRules", APIError]:
         result = await self.api.request("setPrivacy", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=PrivacyRules(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=PrivacyRules(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def delete_account(
-        self,
-        reason: typing.Optional[str] = None,
-        **other
+        self, reason: typing.Optional[str] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("deleteAccount", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def get_account_t_t_l(
-        self,
-        **other
-    ) -> Result['AccountDaysTTL', APIError]:
+    async def get_account_t_t_l(self, **other) -> Result["AccountDaysTTL", APIError]:
         result = await self.api.request("getAccountTTL", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=AccountDaysTTL(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AccountDaysTTL(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def set_account_t_t_l(
-        self,
-        ttl: typing.Optional['AccountDaysTTL'] = None,
-        **other
+        self, ttl: typing.Optional["AccountDaysTTL"] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("setAccountTTL", self.get_params(locals()))
         if result.is_ok:
@@ -1058,29 +1029,31 @@ class APIMethods:
         layer: typing.Optional[int] = None,
         query: typing.Optional[X] = None,
         **other
-    ) -> Result['X', APIError]:
+    ) -> Result["X", APIError]:
         result = await self.api.request("invokeWithLayer", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=X(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def resolve_username(
-        self,
-        username: typing.Optional[str] = None,
-        **other
-    ) -> Result['ResolvedPeer', APIError]:
+        self, username: typing.Optional[str] = None, **other
+    ) -> Result["ResolvedPeer", APIError]:
         result = await self.api.request("resolveUsername", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=ResolvedPeer(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ResolvedPeer(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def send_change_phone_code(
         self,
         phone_number: typing.Optional[str] = None,
-        settings: typing.Optional['CodeSettings'] = None,
+        settings: typing.Optional["CodeSettings"] = None,
         **other
-    ) -> Result['SentCode', APIError]:
-        result = await self.api.request("sendChangePhoneCode", self.get_params(locals()))
+    ) -> Result["SentCode", APIError]:
+        result = await self.api.request(
+            "sendChangePhoneCode", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=SentCode(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -1091,7 +1064,7 @@ class APIMethods:
         phone_code_hash: typing.Optional[str] = None,
         phone_code: typing.Optional[str] = None,
         **other
-    ) -> Result['User', APIError]:
+    ) -> Result["User", APIError]:
         result = await self.api.request("changePhone", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=User(**self.get_response(result.unwrap())))
@@ -1102,26 +1075,22 @@ class APIMethods:
         emoticon: typing.Optional[str] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['Stickers', APIError]:
+    ) -> Result["Stickers", APIError]:
         result = await self.api.request("getStickers", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Stickers(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_all_stickers(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['AllStickers', APIError]:
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["AllStickers", APIError]:
         result = await self.api.request("getAllStickers", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=AllStickers(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def update_device_locked(
-        self,
-        period: typing.Optional[int] = None,
-        **other
+        self, period: typing.Optional[int] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("updateDeviceLocked", self.get_params(locals()))
         if result.is_ok:
@@ -1135,110 +1104,119 @@ class APIMethods:
         api_hash: typing.Optional[str] = None,
         bot_auth_token: typing.Optional[str] = None,
         **other
-    ) -> Result['Authorization', APIError]:
-        result = await self.api.request("importBotAuthorization", self.get_params(locals()))
+    ) -> Result["Authorization", APIError]:
+        result = await self.api.request(
+            "importBotAuthorization", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=Authorization(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=Authorization(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_web_page_preview(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         message: typing.Optional[str] = None,
-        entities: typing.Optional[typing.List['MessageEntity']] = None,
+        entities: typing.Optional[typing.List["MessageEntity"]] = None,
         **other
-    ) -> Result['MessageMedia', APIError]:
+    ) -> Result["MessageMedia", APIError]:
         result = await self.api.request("getWebPagePreview", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=MessageMedia(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=MessageMedia(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
-    async def get_authorizations(
-        self,
-        **other
-    ) -> Result['Authorizations', APIError]:
+    async def get_authorizations(self, **other) -> Result["Authorizations", APIError]:
         result = await self.api.request("getAuthorizations", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=Authorizations(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=Authorizations(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def reset_authorization(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
+        self, hash: typing.Optional[int] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("resetAuthorization", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def get_password(
-        self,
-        **other
-    ) -> Result['Password', APIError]:
+    async def get_password(self, **other) -> Result["Password", APIError]:
         result = await self.api.request("getPassword", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Password(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_password_settings(
-        self,
-        password: typing.Optional['InputCheckPasswordSRP'] = None,
-        **other
-    ) -> Result['PasswordSettings', APIError]:
-        result = await self.api.request("getPasswordSettings", self.get_params(locals()))
+        self, password: typing.Optional["InputCheckPasswordSRP"] = None, **other
+    ) -> Result["PasswordSettings", APIError]:
+        result = await self.api.request(
+            "getPasswordSettings", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=PasswordSettings(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=PasswordSettings(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def update_password_settings(
         self,
-        password: typing.Optional['InputCheckPasswordSRP'] = None,
-        new_settings: typing.Optional['PasswordInputSettings'] = None,
+        password: typing.Optional["InputCheckPasswordSRP"] = None,
+        new_settings: typing.Optional["PasswordInputSettings"] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("updatePasswordSettings", self.get_params(locals()))
+        result = await self.api.request(
+            "updatePasswordSettings", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def check_password(
-        self,
-        password: typing.Optional['InputCheckPasswordSRP'] = None,
-        **other
-    ) -> Result['Authorization', APIError]:
+        self, password: typing.Optional["InputCheckPasswordSRP"] = None, **other
+    ) -> Result["Authorization", APIError]:
         result = await self.api.request("checkPassword", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=Authorization(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=Authorization(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def request_password_recovery(
-        self,
-        **other
-    ) -> Result['PasswordRecovery', APIError]:
-        result = await self.api.request("requestPasswordRecovery", self.get_params(locals()))
+        self, **other
+    ) -> Result["PasswordRecovery", APIError]:
+        result = await self.api.request(
+            "requestPasswordRecovery", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=PasswordRecovery(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=PasswordRecovery(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def recover_password(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         code: typing.Optional[str] = None,
-        new_settings: typing.Optional['PasswordInputSettings'] = None,
+        new_settings: typing.Optional["PasswordInputSettings"] = None,
         **other
-    ) -> Result['Authorization', APIError]:
+    ) -> Result["Authorization", APIError]:
         result = await self.api.request("recoverPassword", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=Authorization(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=Authorization(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def invoke_without_updates(
-        self,
-        query: typing.Optional[X] = None,
-        **other
-    ) -> Result['X', APIError]:
-        result = await self.api.request("invokeWithoutUpdates", self.get_params(locals()))
+        self, query: typing.Optional[X] = None, **other
+    ) -> Result["X", APIError]:
+        result = await self.api.request(
+            "invokeWithoutUpdates", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=X(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -1248,32 +1226,30 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         legacy_revoke_permanent: typing.Optional[bool] = None,
         request_needed: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         expire_date: typing.Optional[int] = None,
         usage_limit: typing.Optional[int] = None,
         title: typing.Optional[str] = None,
         **other
-    ) -> Result['ExportedChatInvite', APIError]:
+    ) -> Result["ExportedChatInvite", APIError]:
         result = await self.api.request("exportChatInvite", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=ExportedChatInvite(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ExportedChatInvite(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def check_chat_invite(
-        self,
-        hash: typing.Optional[str] = None,
-        **other
-    ) -> Result['ChatInvite', APIError]:
+        self, hash: typing.Optional[str] = None, **other
+    ) -> Result["ChatInvite", APIError]:
         result = await self.api.request("checkChatInvite", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=ChatInvite(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def import_chat_invite(
-        self,
-        hash: typing.Optional[str] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, hash: typing.Optional[str] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("importChatInvite", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1281,10 +1257,10 @@ class APIMethods:
 
     async def get_sticker_set(
         self,
-        stickerset: typing.Optional['InputStickerSet'] = None,
+        stickerset: typing.Optional["InputStickerSet"] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['StickerSet', APIError]:
+    ) -> Result["StickerSet", APIError]:
         result = await self.api.request("getStickerSet", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=StickerSet(**self.get_response(result.unwrap())))
@@ -1292,43 +1268,44 @@ class APIMethods:
 
     async def install_sticker_set(
         self,
-        stickerset: typing.Optional['InputStickerSet'] = None,
+        stickerset: typing.Optional["InputStickerSet"] = None,
         archived: typing.Optional[bool] = None,
         **other
-    ) -> Result['StickerSetInstallResult', APIError]:
+    ) -> Result["StickerSetInstallResult", APIError]:
         result = await self.api.request("installStickerSet", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=StickerSetInstallResult(**self.get_response(result.unwrap())))
+            return Result(
+                True,
+                value=StickerSetInstallResult(**self.get_response(result.unwrap())),
+            )
         return Result(False, error=result.error)
 
     async def uninstall_sticker_set(
-        self,
-        stickerset: typing.Optional['InputStickerSet'] = None,
-        **other
+        self, stickerset: typing.Optional["InputStickerSet"] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("uninstallStickerSet", self.get_params(locals()))
+        result = await self.api.request(
+            "uninstallStickerSet", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def start_bot(
         self,
-        bot: typing.Optional['InputUser'] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        bot: typing.Optional["InputUser"] = None,
+        peer: typing.Optional["InputPeer"] = None,
         random_id: typing.Optional[int] = None,
         start_param: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("startBot", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_app_changelog(
-        self,
-        prev_app_version: typing.Optional[str] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, prev_app_version: typing.Optional[str] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("getAppChangelog", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1336,19 +1313,21 @@ class APIMethods:
 
     async def get_messages_views(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[typing.List[int]] = None,
         increment: typing.Optional[bool] = None,
         **other
-    ) -> Result['MessageViews', APIError]:
+    ) -> Result["MessageViews", APIError]:
         result = await self.api.request("getMessagesViews", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=MessageViews(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=MessageViews(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def read_history(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         max_id: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -1359,19 +1338,21 @@ class APIMethods:
 
     async def delete_messages(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         id: typing.Optional[typing.List[int]] = None,
         **other
-    ) -> Result['AffectedMessages', APIError]:
+    ) -> Result["AffectedMessages", APIError]:
         result = await self.api.request("deleteMessages", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=AffectedMessages(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedMessages(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def report_spam(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        participant: typing.Optional['InputPeer'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        participant: typing.Optional["InputPeer"] = None,
         id: typing.Optional[typing.List[int]] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -1382,10 +1363,10 @@ class APIMethods:
 
     async def get_messages(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        id: typing.Optional[typing.List['InputMessage']] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        id: typing.Optional[typing.List["InputMessage"]] = None,
         **other
-    ) -> Result['Messages', APIError]:
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("getMessages", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
@@ -1393,44 +1374,44 @@ class APIMethods:
 
     async def get_participants(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        filter: typing.Optional['ChannelParticipantsFilter'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        filter: typing.Optional["ChannelParticipantsFilter"] = None,
         offset: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['ChannelParticipants', APIError]:
+    ) -> Result["ChannelParticipants", APIError]:
         result = await self.api.request("getParticipants", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=ChannelParticipants(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ChannelParticipants(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_participant(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        participant: typing.Optional['InputPeer'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        participant: typing.Optional["InputPeer"] = None,
         **other
-    ) -> Result['ChannelParticipant', APIError]:
+    ) -> Result["ChannelParticipant", APIError]:
         result = await self.api.request("getParticipant", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=ChannelParticipant(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ChannelParticipant(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_channels(
-        self,
-        id: typing.Optional[typing.List['InputChannel']] = None,
-        **other
-    ) -> Result['Chats', APIError]:
+        self, id: typing.Optional[typing.List["InputChannel"]] = None, **other
+    ) -> Result["Chats", APIError]:
         result = await self.api.request("getChannels", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Chats(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_full_channel(
-        self,
-        channel: typing.Optional['InputChannel'] = None,
-        **other
-    ) -> Result['ChatFull', APIError]:
+        self, channel: typing.Optional["InputChannel"] = None, **other
+    ) -> Result["ChatFull", APIError]:
         result = await self.api.request("getFullChannel", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=ChatFull(**self.get_response(result.unwrap())))
@@ -1444,10 +1425,10 @@ class APIMethods:
         for_import: typing.Optional[bool] = None,
         title: typing.Optional[str] = None,
         about: typing.Optional[str] = None,
-        geo_point: typing.Optional['InputGeoPoint'] = None,
+        geo_point: typing.Optional["InputGeoPoint"] = None,
         address: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("createChannel", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1455,12 +1436,12 @@ class APIMethods:
 
     async def edit_admin(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        user_id: typing.Optional['InputUser'] = None,
-        admin_rights: typing.Optional['ChatAdminRights'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        user_id: typing.Optional["InputUser"] = None,
+        admin_rights: typing.Optional["ChatAdminRights"] = None,
         rank: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editAdmin", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1468,10 +1449,10 @@ class APIMethods:
 
     async def edit_title(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         title: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editTitle", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1479,10 +1460,10 @@ class APIMethods:
 
     async def edit_photo(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        photo: typing.Optional['InputChatPhoto'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        photo: typing.Optional["InputChatPhoto"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editPhoto", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1490,7 +1471,7 @@ class APIMethods:
 
     async def check_username(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         username: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -1501,7 +1482,7 @@ class APIMethods:
 
     async def update_username(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         username: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -1511,20 +1492,16 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def join_channel(
-        self,
-        channel: typing.Optional['InputChannel'] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, channel: typing.Optional["InputChannel"] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("joinChannel", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def leave_channel(
-        self,
-        channel: typing.Optional['InputChannel'] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, channel: typing.Optional["InputChannel"] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("leaveChannel", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1532,20 +1509,18 @@ class APIMethods:
 
     async def invite_to_channel(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        users: typing.Optional[typing.List['InputUser']] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        users: typing.Optional[typing.List["InputUser"]] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("inviteToChannel", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def delete_channel(
-        self,
-        channel: typing.Optional['InputChannel'] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, channel: typing.Optional["InputChannel"] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("deleteChannel", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1555,21 +1530,25 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         force: typing.Optional[bool] = None,
-        channel: typing.Optional['InputChannel'] = None,
-        filter: typing.Optional['ChannelMessagesFilter'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        filter: typing.Optional["ChannelMessagesFilter"] = None,
         pts: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['ChannelDifference', APIError]:
-        result = await self.api.request("getChannelDifference", self.get_params(locals()))
+    ) -> Result["ChannelDifference", APIError]:
+        result = await self.api.request(
+            "getChannelDifference", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ChannelDifference(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ChannelDifference(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def edit_chat_admin(
         self,
         chat_id: typing.Optional[int] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         is_admin: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -1579,10 +1558,8 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def migrate_chat(
-        self,
-        chat_id: typing.Optional[int] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, chat_id: typing.Optional[int] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("migrateChat", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1593,15 +1570,15 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         folder_id: typing.Optional[int] = None,
         q: typing.Optional[str] = None,
-        filter: typing.Optional['MessagesFilter'] = None,
+        filter: typing.Optional["MessagesFilter"] = None,
         min_date: typing.Optional[int] = None,
         max_date: typing.Optional[int] = None,
         offset_rate: typing.Optional[int] = None,
-        offset_peer: typing.Optional['InputPeer'] = None,
+        offset_peer: typing.Optional["InputPeer"] = None,
         offset_id: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("searchGlobal", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
@@ -1625,17 +1602,15 @@ class APIMethods:
         size: typing.Optional[int] = None,
         mime_type: typing.Optional[str] = None,
         **other
-    ) -> Result['Document', APIError]:
+    ) -> Result["Document", APIError]:
         result = await self.api.request("getDocumentByHash", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Document(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_saved_gifs(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['SavedGifs', APIError]:
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["SavedGifs", APIError]:
         result = await self.api.request("getSavedGifs", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=SavedGifs(**self.get_response(result.unwrap())))
@@ -1643,7 +1618,7 @@ class APIMethods:
 
     async def save_gif(
         self,
-        id: typing.Optional['InputDocument'] = None,
+        id: typing.Optional["InputDocument"] = None,
         unsave: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -1655,14 +1630,16 @@ class APIMethods:
     async def get_inline_bot_results(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        bot: typing.Optional['InputUser'] = None,
-        peer: typing.Optional['InputPeer'] = None,
-        geo_point: typing.Optional['InputGeoPoint'] = None,
+        bot: typing.Optional["InputUser"] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        geo_point: typing.Optional["InputGeoPoint"] = None,
         query: typing.Optional[str] = None,
         offset: typing.Optional[str] = None,
         **other
-    ) -> Result['BotResults', APIError]:
-        result = await self.api.request("getInlineBotResults", self.get_params(locals()))
+    ) -> Result["BotResults", APIError]:
+        result = await self.api.request(
+            "getInlineBotResults", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=BotResults(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -1673,13 +1650,15 @@ class APIMethods:
         gallery: typing.Optional[bool] = None,
         private: typing.Optional[bool] = None,
         query_id: typing.Optional[int] = None,
-        results: typing.Optional[typing.List['InputBotInlineResult']] = None,
+        results: typing.Optional[typing.List["InputBotInlineResult"]] = None,
         cache_time: typing.Optional[int] = None,
         next_offset: typing.Optional[str] = None,
-        switch_pm: typing.Optional['InlineBotSwitchPM'] = None,
+        switch_pm: typing.Optional["InlineBotSwitchPM"] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("setInlineBotResults", self.get_params(locals()))
+        result = await self.api.request(
+            "setInlineBotResults", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -1691,16 +1670,18 @@ class APIMethods:
         background: typing.Optional[bool] = None,
         clear_draft: typing.Optional[bool] = None,
         hide_via: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         reply_to_msg_id: typing.Optional[int] = None,
         random_id: typing.Optional[int] = None,
         query_id: typing.Optional[int] = None,
         id: typing.Optional[str] = None,
         schedule_date: typing.Optional[int] = None,
-        send_as: typing.Optional['InputPeer'] = None,
+        send_as: typing.Optional["InputPeer"] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("sendInlineBotResult", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "sendInlineBotResult", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -1710,21 +1691,23 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         grouped: typing.Optional[bool] = None,
         thread: typing.Optional[bool] = None,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         id: typing.Optional[int] = None,
         **other
-    ) -> Result['ExportedMessageLink', APIError]:
+    ) -> Result["ExportedMessageLink", APIError]:
         result = await self.api.request("exportMessageLink", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=ExportedMessageLink(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ExportedMessageLink(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def toggle_signatures(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         enabled: typing.Optional[bool] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("toggleSignatures", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1735,7 +1718,7 @@ class APIMethods:
         phone_number: typing.Optional[str] = None,
         phone_code_hash: typing.Optional[str] = None,
         **other
-    ) -> Result['SentCode', APIError]:
+    ) -> Result["SentCode", APIError]:
         result = await self.api.request("resendCode", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=SentCode(**self.get_response(result.unwrap())))
@@ -1754,28 +1737,30 @@ class APIMethods:
 
     async def get_message_edit_data(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[int] = None,
         **other
-    ) -> Result['MessageEditData', APIError]:
+    ) -> Result["MessageEditData", APIError]:
         result = await self.api.request("getMessageEditData", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=MessageEditData(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=MessageEditData(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def edit_message(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         no_webpage: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[int] = None,
         message: typing.Optional[str] = None,
-        media: typing.Optional['InputMedia'] = None,
-        reply_markup: typing.Optional['ReplyMarkup'] = None,
-        entities: typing.Optional[typing.List['MessageEntity']] = None,
+        media: typing.Optional["InputMedia"] = None,
+        reply_markup: typing.Optional["ReplyMarkup"] = None,
+        entities: typing.Optional[typing.List["MessageEntity"]] = None,
         schedule_date: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editMessage", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -1785,14 +1770,16 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         no_webpage: typing.Optional[bool] = None,
-        id: typing.Optional['InputBotInlineMessageID'] = None,
+        id: typing.Optional["InputBotInlineMessageID"] = None,
         message: typing.Optional[str] = None,
-        media: typing.Optional['InputMedia'] = None,
-        reply_markup: typing.Optional['ReplyMarkup'] = None,
-        entities: typing.Optional[typing.List['MessageEntity']] = None,
+        media: typing.Optional["InputMedia"] = None,
+        reply_markup: typing.Optional["ReplyMarkup"] = None,
+        entities: typing.Optional[typing.List["MessageEntity"]] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("editInlineBotMessage", self.get_params(locals()))
+        result = await self.api.request(
+            "editInlineBotMessage", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -1801,15 +1788,19 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         game: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         data: typing.Optional[bytes] = None,
-        password: typing.Optional['InputCheckPasswordSRP'] = None,
+        password: typing.Optional["InputCheckPasswordSRP"] = None,
         **other
-    ) -> Result['BotCallbackAnswer', APIError]:
-        result = await self.api.request("getBotCallbackAnswer", self.get_params(locals()))
+    ) -> Result["BotCallbackAnswer", APIError]:
+        result = await self.api.request(
+            "getBotCallbackAnswer", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=BotCallbackAnswer(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=BotCallbackAnswer(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def set_bot_callback_answer(
@@ -1822,7 +1813,9 @@ class APIMethods:
         cache_time: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("setBotCallbackAnswer", self.get_params(locals()))
+        result = await self.api.request(
+            "setBotCallbackAnswer", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -1842,7 +1835,7 @@ class APIMethods:
         limit: typing.Optional[int] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['TopPeers', APIError]:
+    ) -> Result["TopPeers", APIError]:
         result = await self.api.request("getTopPeers", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=TopPeers(**self.get_response(result.unwrap())))
@@ -1850,8 +1843,8 @@ class APIMethods:
 
     async def reset_top_peer_rating(
         self,
-        category: typing.Optional['TopPeerCategory'] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        category: typing.Optional["TopPeerCategory"] = None,
+        peer: typing.Optional["InputPeer"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("resetTopPeerRating", self.get_params(locals()))
@@ -1860,10 +1853,8 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_peer_dialogs(
-        self,
-        peers: typing.Optional[typing.List['InputDialogPeer']] = None,
-        **other
-    ) -> Result['PeerDialogs', APIError]:
+        self, peers: typing.Optional[typing.List["InputDialogPeer"]] = None, **other
+    ) -> Result["PeerDialogs", APIError]:
         result = await self.api.request("getPeerDialogs", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=PeerDialogs(**self.get_response(result.unwrap())))
@@ -1874,9 +1865,9 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         no_webpage: typing.Optional[bool] = None,
         reply_to_msg_id: typing.Optional[int] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         message: typing.Optional[str] = None,
-        entities: typing.Optional[typing.List['MessageEntity']] = None,
+        entities: typing.Optional[typing.List["MessageEntity"]] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("saveDraft", self.get_params(locals()))
@@ -1884,31 +1875,30 @@ class APIMethods:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def get_all_drafts(
-        self,
-        **other
-    ) -> Result['Updates', APIError]:
+    async def get_all_drafts(self, **other) -> Result["Updates", APIError]:
         result = await self.api.request("getAllDrafts", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_featured_stickers(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['FeaturedStickers', APIError]:
-        result = await self.api.request("getFeaturedStickers", self.get_params(locals()))
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["FeaturedStickers", APIError]:
+        result = await self.api.request(
+            "getFeaturedStickers", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=FeaturedStickers(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=FeaturedStickers(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def read_featured_stickers(
-        self,
-        id: typing.Optional[typing.List[int]] = None,
-        **other
+        self, id: typing.Optional[typing.List[int]] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("readFeaturedStickers", self.get_params(locals()))
+        result = await self.api.request(
+            "readFeaturedStickers", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -1919,17 +1909,19 @@ class APIMethods:
         attached: typing.Optional[bool] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['RecentStickers', APIError]:
+    ) -> Result["RecentStickers", APIError]:
         result = await self.api.request("getRecentStickers", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=RecentStickers(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=RecentStickers(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def save_recent_sticker(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         attached: typing.Optional[bool] = None,
-        id: typing.Optional['InputDocument'] = None,
+        id: typing.Optional["InputDocument"] = None,
         unsave: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -1944,7 +1936,9 @@ class APIMethods:
         attached: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("clearRecentStickers", self.get_params(locals()))
+        result = await self.api.request(
+            "clearRecentStickers", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -1956,19 +1950,25 @@ class APIMethods:
         offset_id: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['ArchivedStickers', APIError]:
-        result = await self.api.request("getArchivedStickers", self.get_params(locals()))
+    ) -> Result["ArchivedStickers", APIError]:
+        result = await self.api.request(
+            "getArchivedStickers", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ArchivedStickers(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ArchivedStickers(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def send_confirm_phone_code(
         self,
         hash: typing.Optional[str] = None,
-        settings: typing.Optional['CodeSettings'] = None,
+        settings: typing.Optional["CodeSettings"] = None,
         **other
-    ) -> Result['SentCode', APIError]:
-        result = await self.api.request("sendConfirmPhoneCode", self.get_params(locals()))
+    ) -> Result["SentCode", APIError]:
+        result = await self.api.request(
+            "sendConfirmPhoneCode", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=SentCode(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -1990,36 +1990,34 @@ class APIMethods:
         by_location: typing.Optional[bool] = None,
         check_limit: typing.Optional[bool] = None,
         **other
-    ) -> Result['Chats', APIError]:
-        result = await self.api.request("getAdminedPublicChannels", self.get_params(locals()))
+    ) -> Result["Chats", APIError]:
+        result = await self.api.request(
+            "getAdminedPublicChannels", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Chats(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_mask_stickers(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['AllStickers', APIError]:
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["AllStickers", APIError]:
         result = await self.api.request("getMaskStickers", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=AllStickers(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_attached_stickers(
-        self,
-        media: typing.Optional['InputStickeredMedia'] = None,
-        **other
-    ) -> Result[typing.List['StickerSetCovered'], APIError]:
-        result = await self.api.request("getAttachedStickers", self.get_params(locals()))
+        self, media: typing.Optional["InputStickeredMedia"] = None, **other
+    ) -> Result[typing.List["StickerSetCovered"], APIError]:
+        result = await self.api.request(
+            "getAttachedStickers", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def drop_temp_auth_keys(
-        self,
-        except_auth_keys: typing.Optional[typing.List[int]] = None,
-        **other
+        self, except_auth_keys: typing.Optional[typing.List[int]] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("dropTempAuthKeys", self.get_params(locals()))
         if result.is_ok:
@@ -2031,12 +2029,12 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         edit_message: typing.Optional[bool] = None,
         force: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[int] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         score: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("setGameScore", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -2047,8 +2045,8 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         edit_message: typing.Optional[bool] = None,
         force: typing.Optional[bool] = None,
-        id: typing.Optional['InputBotInlineMessageID'] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        id: typing.Optional["InputBotInlineMessageID"] = None,
+        user_id: typing.Optional["InputUser"] = None,
         score: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -2059,11 +2057,11 @@ class APIMethods:
 
     async def get_game_high_scores(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[int] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         **other
-    ) -> Result['HighScores', APIError]:
+    ) -> Result["HighScores", APIError]:
         result = await self.api.request("getGameHighScores", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=HighScores(**self.get_response(result.unwrap())))
@@ -2071,32 +2069,32 @@ class APIMethods:
 
     async def get_inline_game_high_scores(
         self,
-        id: typing.Optional['InputBotInlineMessageID'] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        id: typing.Optional["InputBotInlineMessageID"] = None,
+        user_id: typing.Optional["InputUser"] = None,
         **other
-    ) -> Result['HighScores', APIError]:
-        result = await self.api.request("getInlineGameHighScores", self.get_params(locals()))
+    ) -> Result["HighScores", APIError]:
+        result = await self.api.request(
+            "getInlineGameHighScores", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=HighScores(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_common_chats(
         self,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         max_id: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['Chats', APIError]:
+    ) -> Result["Chats", APIError]:
         result = await self.api.request("getCommonChats", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Chats(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_all_chats(
-        self,
-        except_ids: typing.Optional[typing.List[int]] = None,
-        **other
-    ) -> Result['Chats', APIError]:
+        self, except_ids: typing.Optional[typing.List[int]] = None, **other
+    ) -> Result["Chats", APIError]:
         result = await self.api.request("getAllChats", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Chats(**self.get_response(result.unwrap())))
@@ -2108,7 +2106,9 @@ class APIMethods:
         message: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("setBotUpdatesStatus", self.get_params(locals()))
+        result = await self.api.request(
+            "setBotUpdatesStatus", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -2118,7 +2118,7 @@ class APIMethods:
         url: typing.Optional[str] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['WebPage', APIError]:
+    ) -> Result["WebPage", APIError]:
         result = await self.api.request("getWebPage", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=WebPage(**self.get_response(result.unwrap())))
@@ -2128,7 +2128,7 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         pinned: typing.Optional[bool] = None,
-        peer: typing.Optional['InputDialogPeer'] = None,
+        peer: typing.Optional["InputDialogPeer"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("toggleDialogPin", self.get_params(locals()))
@@ -2141,19 +2141,19 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         force: typing.Optional[bool] = None,
         folder_id: typing.Optional[int] = None,
-        order: typing.Optional[typing.List['InputDialogPeer']] = None,
+        order: typing.Optional[typing.List["InputDialogPeer"]] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("reorderPinnedDialogs", self.get_params(locals()))
+        result = await self.api.request(
+            "reorderPinnedDialogs", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_pinned_dialogs(
-        self,
-        folder_id: typing.Optional[int] = None,
-        **other
-    ) -> Result['PeerDialogs', APIError]:
+        self, folder_id: typing.Optional[int] = None, **other
+    ) -> Result["PeerDialogs", APIError]:
         result = await self.api.request("getPinnedDialogs", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=PeerDialogs(**self.get_response(result.unwrap())))
@@ -2162,9 +2162,9 @@ class APIMethods:
     async def send_custom_request(
         self,
         custom_method: typing.Optional[str] = None,
-        params: typing.Optional['DataJSON'] = None,
+        params: typing.Optional["DataJSON"] = None,
         **other
-    ) -> Result['DataJSON', APIError]:
+    ) -> Result["DataJSON", APIError]:
         result = await self.api.request("sendCustomRequest", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=DataJSON(**self.get_response(result.unwrap())))
@@ -2173,21 +2173,23 @@ class APIMethods:
     async def answer_webhook_j_s_o_n_query(
         self,
         query_id: typing.Optional[int] = None,
-        data: typing.Optional['DataJSON'] = None,
+        data: typing.Optional["DataJSON"] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("answerWebhookJSONQuery", self.get_params(locals()))
+        result = await self.api.request(
+            "answerWebhookJSONQuery", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_web_file(
         self,
-        location: typing.Optional['InputWebFileLocation'] = None,
+        location: typing.Optional["InputWebFileLocation"] = None,
         offset: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['WebFile', APIError]:
+    ) -> Result["WebFile", APIError]:
         result = await self.api.request("getWebFile", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=WebFile(**self.get_response(result.unwrap())))
@@ -2196,11 +2198,11 @@ class APIMethods:
     async def get_payment_form(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
-        theme_params: typing.Optional['DataJSON'] = None,
+        theme_params: typing.Optional["DataJSON"] = None,
         **other
-    ) -> Result['PaymentForm', APIError]:
+    ) -> Result["PaymentForm", APIError]:
         result = await self.api.request("getPaymentForm", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=PaymentForm(**self.get_response(result.unwrap())))
@@ -2208,61 +2210,66 @@ class APIMethods:
 
     async def get_payment_receipt(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         **other
-    ) -> Result['PaymentReceipt', APIError]:
+    ) -> Result["PaymentReceipt", APIError]:
         result = await self.api.request("getPaymentReceipt", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=PaymentReceipt(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=PaymentReceipt(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def validate_requested_info(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         save: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
-        info: typing.Optional['PaymentRequestedInfo'] = None,
+        info: typing.Optional["PaymentRequestedInfo"] = None,
         **other
-    ) -> Result['ValidatedRequestedInfo', APIError]:
-        result = await self.api.request("validateRequestedInfo", self.get_params(locals()))
+    ) -> Result["ValidatedRequestedInfo", APIError]:
+        result = await self.api.request(
+            "validateRequestedInfo", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ValidatedRequestedInfo(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ValidatedRequestedInfo(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def send_payment_form(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         form_id: typing.Optional[int] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         requested_info_id: typing.Optional[str] = None,
         shipping_option_id: typing.Optional[str] = None,
-        credentials: typing.Optional['InputPaymentCredentials'] = None,
+        credentials: typing.Optional["InputPaymentCredentials"] = None,
         tip_amount: typing.Optional[int] = None,
         **other
-    ) -> Result['PaymentResult', APIError]:
+    ) -> Result["PaymentResult", APIError]:
         result = await self.api.request("sendPaymentForm", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=PaymentResult(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=PaymentResult(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_tmp_password(
         self,
-        password: typing.Optional['InputCheckPasswordSRP'] = None,
+        password: typing.Optional["InputCheckPasswordSRP"] = None,
         period: typing.Optional[int] = None,
         **other
-    ) -> Result['TmpPassword', APIError]:
+    ) -> Result["TmpPassword", APIError]:
         result = await self.api.request("getTmpPassword", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=TmpPassword(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
-    async def get_saved_info(
-        self,
-        **other
-    ) -> Result['SavedInfo', APIError]:
+    async def get_saved_info(self, **other) -> Result["SavedInfo", APIError]:
         result = await self.api.request("getSavedInfo", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=SavedInfo(**self.get_response(result.unwrap())))
@@ -2285,10 +2292,12 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         query_id: typing.Optional[int] = None,
         error: typing.Optional[str] = None,
-        shipping_options: typing.Optional[typing.List['ShippingOption']] = None,
+        shipping_options: typing.Optional[typing.List["ShippingOption"]] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("setBotShippingResults", self.get_params(locals()))
+        result = await self.api.request(
+            "setBotShippingResults", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -2301,7 +2310,9 @@ class APIMethods:
         error: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("setBotPrecheckoutResults", self.get_params(locals()))
+        result = await self.api.request(
+            "setBotPrecheckoutResults", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -2312,46 +2323,48 @@ class APIMethods:
         masks: typing.Optional[bool] = None,
         animated: typing.Optional[bool] = None,
         videos: typing.Optional[bool] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         title: typing.Optional[str] = None,
         short_name: typing.Optional[str] = None,
-        thumb: typing.Optional['InputDocument'] = None,
-        stickers: typing.Optional[typing.List['InputStickerSetItem']] = None,
+        thumb: typing.Optional["InputDocument"] = None,
+        stickers: typing.Optional[typing.List["InputStickerSetItem"]] = None,
         software: typing.Optional[str] = None,
         **other
-    ) -> Result['StickerSet', APIError]:
+    ) -> Result["StickerSet", APIError]:
         result = await self.api.request("createStickerSet", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=StickerSet(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def remove_sticker_from_set(
-        self,
-        sticker: typing.Optional['InputDocument'] = None,
-        **other
-    ) -> Result['StickerSet', APIError]:
-        result = await self.api.request("removeStickerFromSet", self.get_params(locals()))
+        self, sticker: typing.Optional["InputDocument"] = None, **other
+    ) -> Result["StickerSet", APIError]:
+        result = await self.api.request(
+            "removeStickerFromSet", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=StickerSet(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def change_sticker_position(
         self,
-        sticker: typing.Optional['InputDocument'] = None,
+        sticker: typing.Optional["InputDocument"] = None,
         position: typing.Optional[int] = None,
         **other
-    ) -> Result['StickerSet', APIError]:
-        result = await self.api.request("changeStickerPosition", self.get_params(locals()))
+    ) -> Result["StickerSet", APIError]:
+        result = await self.api.request(
+            "changeStickerPosition", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=StickerSet(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def add_sticker_to_set(
         self,
-        stickerset: typing.Optional['InputStickerSet'] = None,
-        sticker: typing.Optional['InputStickerSetItem'] = None,
+        stickerset: typing.Optional["InputStickerSet"] = None,
+        sticker: typing.Optional["InputStickerSetItem"] = None,
         **other
-    ) -> Result['StickerSet', APIError]:
+    ) -> Result["StickerSet", APIError]:
         result = await self.api.request("addStickerToSet", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=StickerSet(**self.get_response(result.unwrap())))
@@ -2359,19 +2372,18 @@ class APIMethods:
 
     async def upload_media(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        media: typing.Optional['InputMedia'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        media: typing.Optional["InputMedia"] = None,
         **other
-    ) -> Result['MessageMedia', APIError]:
+    ) -> Result["MessageMedia", APIError]:
         result = await self.api.request("uploadMedia", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=MessageMedia(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=MessageMedia(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
-    async def get_call_config(
-        self,
-        **other
-    ) -> Result['DataJSON', APIError]:
+    async def get_call_config(self, **other) -> Result["DataJSON", APIError]:
         result = await self.api.request("getCallConfig", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=DataJSON(**self.get_response(result.unwrap())))
@@ -2381,12 +2393,12 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         video: typing.Optional[bool] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         random_id: typing.Optional[int] = None,
         g_a_hash: typing.Optional[bytes] = None,
-        protocol: typing.Optional['PhoneCallProtocol'] = None,
+        protocol: typing.Optional["PhoneCallProtocol"] = None,
         **other
-    ) -> Result['PhoneCall', APIError]:
+    ) -> Result["PhoneCall", APIError]:
         result = await self.api.request("requestCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=PhoneCall(**self.get_response(result.unwrap())))
@@ -2394,11 +2406,11 @@ class APIMethods:
 
     async def accept_call(
         self,
-        peer: typing.Optional['InputPhoneCall'] = None,
+        peer: typing.Optional["InputPhoneCall"] = None,
         g_b: typing.Optional[bytes] = None,
-        protocol: typing.Optional['PhoneCallProtocol'] = None,
+        protocol: typing.Optional["PhoneCallProtocol"] = None,
         **other
-    ) -> Result['PhoneCall', APIError]:
+    ) -> Result["PhoneCall", APIError]:
         result = await self.api.request("acceptCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=PhoneCall(**self.get_response(result.unwrap())))
@@ -2406,21 +2418,19 @@ class APIMethods:
 
     async def confirm_call(
         self,
-        peer: typing.Optional['InputPhoneCall'] = None,
+        peer: typing.Optional["InputPhoneCall"] = None,
         g_a: typing.Optional[bytes] = None,
         key_fingerprint: typing.Optional[int] = None,
-        protocol: typing.Optional['PhoneCallProtocol'] = None,
+        protocol: typing.Optional["PhoneCallProtocol"] = None,
         **other
-    ) -> Result['PhoneCall', APIError]:
+    ) -> Result["PhoneCall", APIError]:
         result = await self.api.request("confirmCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=PhoneCall(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def received_call(
-        self,
-        peer: typing.Optional['InputPhoneCall'] = None,
-        **other
+        self, peer: typing.Optional["InputPhoneCall"] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("receivedCall", self.get_params(locals()))
         if result.is_ok:
@@ -2431,12 +2441,12 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         video: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPhoneCall'] = None,
+        peer: typing.Optional["InputPhoneCall"] = None,
         duration: typing.Optional[int] = None,
-        reason: typing.Optional['PhoneCallDiscardReason'] = None,
+        reason: typing.Optional["PhoneCallDiscardReason"] = None,
         connection_id: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("discardCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -2446,11 +2456,11 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         user_initiative: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPhoneCall'] = None,
+        peer: typing.Optional["InputPhoneCall"] = None,
         rating: typing.Optional[int] = None,
         comment: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("setCallRating", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -2458,8 +2468,8 @@ class APIMethods:
 
     async def save_call_debug(
         self,
-        peer: typing.Optional['InputPhoneCall'] = None,
-        debug: typing.Optional['DataJSON'] = None,
+        peer: typing.Optional["InputPhoneCall"] = None,
+        debug: typing.Optional["DataJSON"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("saveCallDebug", self.get_params(locals()))
@@ -2473,7 +2483,7 @@ class APIMethods:
         offset: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['CdnFile', APIError]:
+    ) -> Result["CdnFile", APIError]:
         result = await self.api.request("getCdnFile", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=CdnFile(**self.get_response(result.unwrap())))
@@ -2484,16 +2494,13 @@ class APIMethods:
         file_token: typing.Optional[bytes] = None,
         request_token: typing.Optional[bytes] = None,
         **other
-    ) -> Result[typing.List['FileHash'], APIError]:
+    ) -> Result[typing.List["FileHash"], APIError]:
         result = await self.api.request("reuploadCdnFile", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def get_cdn_config(
-        self,
-        **other
-    ) -> Result['CdnConfig', APIError]:
+    async def get_cdn_config(self, **other) -> Result["CdnConfig", APIError]:
         result = await self.api.request("getCdnConfig", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=CdnConfig(**self.get_response(result.unwrap())))
@@ -2504,10 +2511,12 @@ class APIMethods:
         lang_pack: typing.Optional[str] = None,
         lang_code: typing.Optional[str] = None,
         **other
-    ) -> Result['LangPackDifference', APIError]:
+    ) -> Result["LangPackDifference", APIError]:
         result = await self.api.request("getLangPack", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=LangPackDifference(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=LangPackDifference(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_strings(
@@ -2516,7 +2525,7 @@ class APIMethods:
         lang_code: typing.Optional[str] = None,
         keys: typing.Optional[typing.List[str]] = None,
         **other
-    ) -> Result[typing.List['LangPackString'], APIError]:
+    ) -> Result[typing.List["LangPackString"], APIError]:
         result = await self.api.request("getStrings", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
@@ -2528,17 +2537,17 @@ class APIMethods:
         lang_code: typing.Optional[str] = None,
         from_version: typing.Optional[int] = None,
         **other
-    ) -> Result['LangPackDifference', APIError]:
+    ) -> Result["LangPackDifference", APIError]:
         result = await self.api.request("getDifference", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=LangPackDifference(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=LangPackDifference(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_languages(
-        self,
-        lang_pack: typing.Optional[str] = None,
-        **other
-    ) -> Result[typing.List['LangPackLanguage'], APIError]:
+        self, lang_pack: typing.Optional[str] = None, **other
+    ) -> Result[typing.List["LangPackLanguage"], APIError]:
         result = await self.api.request("getLanguages", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
@@ -2546,11 +2555,11 @@ class APIMethods:
 
     async def edit_banned(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        participant: typing.Optional['InputPeer'] = None,
-        banned_rights: typing.Optional['ChatBannedRights'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        participant: typing.Optional["InputPeer"] = None,
+        banned_rights: typing.Optional["ChatBannedRights"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editBanned", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -2559,18 +2568,20 @@ class APIMethods:
     async def get_admin_log(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         q: typing.Optional[str] = None,
-        events_filter: typing.Optional['ChannelAdminLogEventsFilter'] = None,
-        admins: typing.Optional[typing.List['InputUser']] = None,
+        events_filter: typing.Optional["ChannelAdminLogEventsFilter"] = None,
+        admins: typing.Optional[typing.List["InputUser"]] = None,
         max_id: typing.Optional[int] = None,
         min_id: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['AdminLogResults', APIError]:
+    ) -> Result["AdminLogResults", APIError]:
         result = await self.api.request("getAdminLog", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=AdminLogResults(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AdminLogResults(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_cdn_file_hashes(
@@ -2578,7 +2589,7 @@ class APIMethods:
         file_token: typing.Optional[bytes] = None,
         offset: typing.Optional[int] = None,
         **other
-    ) -> Result[typing.List['FileHash'], APIError]:
+    ) -> Result[typing.List["FileHash"], APIError]:
         result = await self.api.request("getCdnFileHashes", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
@@ -2586,20 +2597,22 @@ class APIMethods:
 
     async def send_screenshot_notification(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         reply_to_msg_id: typing.Optional[int] = None,
         random_id: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("sendScreenshotNotification", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "sendScreenshotNotification", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def set_stickers(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        stickerset: typing.Optional['InputStickerSet'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        stickerset: typing.Optional["InputStickerSet"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("setStickers", self.get_params(locals()))
@@ -2608,18 +2621,18 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_faved_stickers(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['FavedStickers', APIError]:
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["FavedStickers", APIError]:
         result = await self.api.request("getFavedStickers", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=FavedStickers(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=FavedStickers(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def fave_sticker(
         self,
-        id: typing.Optional['InputDocument'] = None,
+        id: typing.Optional["InputDocument"] = None,
         unfave: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -2630,19 +2643,18 @@ class APIMethods:
 
     async def read_message_contents(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         id: typing.Optional[typing.List[int]] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("readMessageContents", self.get_params(locals()))
+        result = await self.api.request(
+            "readMessageContents", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def reset_saved(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
+    async def reset_saved(self, **other) -> Result[bool, APIError]:
         result = await self.api.request("resetSaved", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
@@ -2650,14 +2662,14 @@ class APIMethods:
 
     async def get_unread_mentions(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         offset_id: typing.Optional[int] = None,
         add_offset: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         max_id: typing.Optional[int] = None,
         min_id: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("getUnreadMentions", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
@@ -2665,7 +2677,7 @@ class APIMethods:
 
     async def delete_history(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         max_id: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -2675,43 +2687,45 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_recent_me_urls(
-        self,
-        referer: typing.Optional[str] = None,
-        **other
-    ) -> Result['RecentMeUrls', APIError]:
+        self, referer: typing.Optional[str] = None, **other
+    ) -> Result["RecentMeUrls", APIError]:
         result = await self.api.request("getRecentMeUrls", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=RecentMeUrls(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=RecentMeUrls(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def toggle_pre_history_hidden(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         enabled: typing.Optional[bool] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("togglePreHistoryHidden", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "togglePreHistoryHidden", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def read_mentions(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
-    ) -> Result['AffectedHistory', APIError]:
+        self, peer: typing.Optional["InputPeer"] = None, **other
+    ) -> Result["AffectedHistory", APIError]:
         result = await self.api.request("readMentions", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=AffectedHistory(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedHistory(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_recent_locations(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         limit: typing.Optional[int] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("getRecentLocations", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
@@ -2724,13 +2738,13 @@ class APIMethods:
         background: typing.Optional[bool] = None,
         clear_draft: typing.Optional[bool] = None,
         noforwards: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         reply_to_msg_id: typing.Optional[int] = None,
-        multi_media: typing.Optional[typing.List['InputSingleMedia']] = None,
+        multi_media: typing.Optional[typing.List["InputSingleMedia"]] = None,
         schedule_date: typing.Optional[int] = None,
-        send_as: typing.Optional['InputPeer'] = None,
+        send_as: typing.Optional["InputPeer"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("sendMultiMedia", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -2738,39 +2752,45 @@ class APIMethods:
 
     async def upload_encrypted_file(
         self,
-        peer: typing.Optional['InputEncryptedChat'] = None,
-        file: typing.Optional['InputEncryptedFile'] = None,
+        peer: typing.Optional["InputEncryptedChat"] = None,
+        file: typing.Optional["InputEncryptedFile"] = None,
         **other
-    ) -> Result['EncryptedFile', APIError]:
-        result = await self.api.request("uploadEncryptedFile", self.get_params(locals()))
+    ) -> Result["EncryptedFile", APIError]:
+        result = await self.api.request(
+            "uploadEncryptedFile", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=EncryptedFile(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=EncryptedFile(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_web_authorizations(
-        self,
-        **other
-    ) -> Result['WebAuthorizations', APIError]:
-        result = await self.api.request("getWebAuthorizations", self.get_params(locals()))
+        self, **other
+    ) -> Result["WebAuthorizations", APIError]:
+        result = await self.api.request(
+            "getWebAuthorizations", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=WebAuthorizations(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=WebAuthorizations(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def reset_web_authorization(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
+        self, hash: typing.Optional[int] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("resetWebAuthorization", self.get_params(locals()))
+        result = await self.api.request(
+            "resetWebAuthorization", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def reset_web_authorizations(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
-        result = await self.api.request("resetWebAuthorizations", self.get_params(locals()))
+    async def reset_web_authorizations(self, **other) -> Result[bool, APIError]:
+        result = await self.api.request(
+            "resetWebAuthorizations", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -2782,56 +2802,58 @@ class APIMethods:
         q: typing.Optional[str] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['FoundStickerSets', APIError]:
+    ) -> Result["FoundStickerSets", APIError]:
         result = await self.api.request("searchStickerSets", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=FoundStickerSets(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=FoundStickerSets(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_file_hashes(
         self,
-        location: typing.Optional['InputFileLocation'] = None,
+        location: typing.Optional["InputFileLocation"] = None,
         offset: typing.Optional[int] = None,
         **other
-    ) -> Result[typing.List['FileHash'], APIError]:
+    ) -> Result[typing.List["FileHash"], APIError]:
         result = await self.api.request("getFileHashes", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_terms_of_service_update(
-        self,
-        **other
-    ) -> Result['TermsOfServiceUpdate', APIError]:
-        result = await self.api.request("getTermsOfServiceUpdate", self.get_params(locals()))
+        self, **other
+    ) -> Result["TermsOfServiceUpdate", APIError]:
+        result = await self.api.request(
+            "getTermsOfServiceUpdate", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=TermsOfServiceUpdate(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=TermsOfServiceUpdate(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def accept_terms_of_service(
-        self,
-        id: typing.Optional['DataJSON'] = None,
-        **other
+        self, id: typing.Optional["DataJSON"] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("acceptTermsOfService", self.get_params(locals()))
+        result = await self.api.request(
+            "acceptTermsOfService", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_all_secure_values(
-        self,
-        **other
-    ) -> Result[typing.List['SecureValue'], APIError]:
+        self, **other
+    ) -> Result[typing.List["SecureValue"], APIError]:
         result = await self.api.request("getAllSecureValues", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_secure_value(
-        self,
-        types: typing.Optional[typing.List['SecureValueType']] = None,
-        **other
-    ) -> Result[typing.List['SecureValue'], APIError]:
+        self, types: typing.Optional[typing.List["SecureValueType"]] = None, **other
+    ) -> Result[typing.List["SecureValue"], APIError]:
         result = await self.api.request("getSecureValue", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
@@ -2839,19 +2861,17 @@ class APIMethods:
 
     async def save_secure_value(
         self,
-        value: typing.Optional['InputSecureValue'] = None,
+        value: typing.Optional["InputSecureValue"] = None,
         secure_secret_id: typing.Optional[int] = None,
         **other
-    ) -> Result['SecureValue', APIError]:
+    ) -> Result["SecureValue", APIError]:
         result = await self.api.request("saveSecureValue", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=SecureValue(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def delete_secure_value(
-        self,
-        types: typing.Optional[typing.List['SecureValueType']] = None,
-        **other
+        self, types: typing.Optional[typing.List["SecureValueType"]] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("deleteSecureValue", self.get_params(locals()))
         if result.is_ok:
@@ -2860,11 +2880,13 @@ class APIMethods:
 
     async def set_secure_value_errors(
         self,
-        id: typing.Optional['InputUser'] = None,
-        errors: typing.Optional[typing.List['SecureValueError']] = None,
+        id: typing.Optional["InputUser"] = None,
+        errors: typing.Optional[typing.List["SecureValueError"]] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("setSecureValueErrors", self.get_params(locals()))
+        result = await self.api.request(
+            "setSecureValueErrors", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -2875,10 +2897,14 @@ class APIMethods:
         scope: typing.Optional[str] = None,
         public_key: typing.Optional[str] = None,
         **other
-    ) -> Result['AuthorizationForm', APIError]:
-        result = await self.api.request("getAuthorizationForm", self.get_params(locals()))
+    ) -> Result["AuthorizationForm", APIError]:
+        result = await self.api.request(
+            "getAuthorizationForm", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=AuthorizationForm(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AuthorizationForm(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def accept_authorization(
@@ -2886,11 +2912,13 @@ class APIMethods:
         bot_id: typing.Optional[int] = None,
         scope: typing.Optional[str] = None,
         public_key: typing.Optional[str] = None,
-        value_hashes: typing.Optional[typing.List['SecureValueHash']] = None,
-        credentials: typing.Optional['SecureCredentialsEncrypted'] = None,
+        value_hashes: typing.Optional[typing.List["SecureValueHash"]] = None,
+        credentials: typing.Optional["SecureCredentialsEncrypted"] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("acceptAuthorization", self.get_params(locals()))
+        result = await self.api.request(
+            "acceptAuthorization", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -2898,10 +2926,12 @@ class APIMethods:
     async def send_verify_phone_code(
         self,
         phone_number: typing.Optional[str] = None,
-        settings: typing.Optional['CodeSettings'] = None,
+        settings: typing.Optional["CodeSettings"] = None,
         **other
-    ) -> Result['SentCode', APIError]:
-        result = await self.api.request("sendVerifyPhoneCode", self.get_params(locals()))
+    ) -> Result["SentCode", APIError]:
+        result = await self.api.request(
+            "sendVerifyPhoneCode", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=SentCode(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -2919,13 +2949,15 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def send_verify_email_code(
-        self,
-        email: typing.Optional[str] = None,
-        **other
-    ) -> Result['SentEmailCode', APIError]:
-        result = await self.api.request("sendVerifyEmailCode", self.get_params(locals()))
+        self, email: typing.Optional[str] = None, **other
+    ) -> Result["SentEmailCode", APIError]:
+        result = await self.api.request(
+            "sendVerifyEmailCode", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=SentEmailCode(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=SentEmailCode(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def verify_email(
@@ -2940,29 +2972,24 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_deep_link_info(
-        self,
-        path: typing.Optional[str] = None,
-        **other
-    ) -> Result['DeepLinkInfo', APIError]:
+        self, path: typing.Optional[str] = None, **other
+    ) -> Result["DeepLinkInfo", APIError]:
         result = await self.api.request("getDeepLinkInfo", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=DeepLinkInfo(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=DeepLinkInfo(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
-    async def get_saved(
-        self,
-        **other
-    ) -> Result[typing.List['SavedContact'], APIError]:
+    async def get_saved(self, **other) -> Result[typing.List["SavedContact"], APIError]:
         result = await self.api.request("getSaved", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_left_channels(
-        self,
-        offset: typing.Optional[int] = None,
-        **other
-    ) -> Result['Chats', APIError]:
+        self, offset: typing.Optional[int] = None, **other
+    ) -> Result["Chats", APIError]:
         result = await self.api.request("getLeftChannels", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Chats(**self.get_response(result.unwrap())))
@@ -2979,7 +3006,7 @@ class APIMethods:
         files: typing.Optional[bool] = None,
         file_max_size: typing.Optional[int] = None,
         **other
-    ) -> Result['Takeout', APIError]:
+    ) -> Result["Takeout", APIError]:
         result = await self.api.request("initTakeoutSession", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Takeout(**self.get_response(result.unwrap())))
@@ -2991,15 +3018,16 @@ class APIMethods:
         success: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("finishTakeoutSession", self.get_params(locals()))
+        result = await self.api.request(
+            "finishTakeoutSession", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_split_ranges(
-        self,
-        **other
-    ) -> Result[typing.List['MessageRange'], APIError]:
+        self, **other
+    ) -> Result[typing.List["MessageRange"], APIError]:
         result = await self.api.request("getSplitRanges", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
@@ -3007,11 +3035,13 @@ class APIMethods:
 
     async def invoke_with_messages_range(
         self,
-        range: typing.Optional['MessageRange'] = None,
+        range: typing.Optional["MessageRange"] = None,
         query: typing.Optional[X] = None,
         **other
-    ) -> Result['X', APIError]:
-        result = await self.api.request("invokeWithMessagesRange", self.get_params(locals()))
+    ) -> Result["X", APIError]:
+        result = await self.api.request(
+            "invokeWithMessagesRange", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=X(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -3021,7 +3051,7 @@ class APIMethods:
         takeout_id: typing.Optional[int] = None,
         query: typing.Optional[X] = None,
         **other
-    ) -> Result['X', APIError]:
+    ) -> Result["X", APIError]:
         result = await self.api.request("invokeWithTakeout", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=X(**self.get_response(result.unwrap())))
@@ -3031,7 +3061,7 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         unread: typing.Optional[bool] = None,
-        peer: typing.Optional['InputDialogPeer'] = None,
+        peer: typing.Optional["InputDialogPeer"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("markDialogUnread", self.get_params(locals()))
@@ -3040,46 +3070,37 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_dialog_unread_marks(
-        self,
-        **other
-    ) -> Result[typing.List['DialogPeer'], APIError]:
-        result = await self.api.request("getDialogUnreadMarks", self.get_params(locals()))
+        self, **other
+    ) -> Result[typing.List["DialogPeer"], APIError]:
+        result = await self.api.request(
+            "getDialogUnreadMarks", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def toggle_top_peers(
-        self,
-        enabled: typing.Optional[bool] = None,
-        **other
+        self, enabled: typing.Optional[bool] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("toggleTopPeers", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def clear_all_drafts(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
+    async def clear_all_drafts(self, **other) -> Result[bool, APIError]:
         result = await self.api.request("clearAllDrafts", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def get_app_config(
-        self,
-        **other
-    ) -> Result['JSONValue', APIError]:
+    async def get_app_config(self, **other) -> Result["JSONValue", APIError]:
         result = await self.api.request("getAppConfig", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=JSONValue(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def save_app_log(
-        self,
-        events: typing.Optional[typing.List['InputAppEvent']] = None,
-        **other
+        self, events: typing.Optional[typing.List["InputAppEvent"]] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("saveAppLog", self.get_params(locals()))
         if result.is_ok:
@@ -3087,13 +3108,13 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_passport_config(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['PassportConfig', APIError]:
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["PassportConfig", APIError]:
         result = await self.api.request("getPassportConfig", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=PassportConfig(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=PassportConfig(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_language(
@@ -3101,10 +3122,12 @@ class APIMethods:
         lang_pack: typing.Optional[str] = None,
         lang_code: typing.Optional[str] = None,
         **other
-    ) -> Result['LangPackLanguage', APIError]:
+    ) -> Result["LangPackLanguage", APIError]:
         result = await self.api.request("getLanguage", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=LangPackLanguage(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=LangPackLanguage(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def update_pinned_message(
@@ -3113,57 +3136,52 @@ class APIMethods:
         silent: typing.Optional[bool] = None,
         unpin: typing.Optional[bool] = None,
         pm_oneside: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("updatePinnedMessage", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "updatePinnedMessage", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def confirm_password_email(
-        self,
-        code: typing.Optional[str] = None,
-        **other
+        self, code: typing.Optional[str] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("confirmPasswordEmail", self.get_params(locals()))
+        result = await self.api.request(
+            "confirmPasswordEmail", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def resend_password_email(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
-        result = await self.api.request("resendPasswordEmail", self.get_params(locals()))
+    async def resend_password_email(self, **other) -> Result[bool, APIError]:
+        result = await self.api.request(
+            "resendPasswordEmail", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def cancel_password_email(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
-        result = await self.api.request("cancelPasswordEmail", self.get_params(locals()))
+    async def cancel_password_email(self, **other) -> Result[bool, APIError]:
+        result = await self.api.request(
+            "cancelPasswordEmail", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def get_support_name(
-        self,
-        **other
-    ) -> Result['SupportName', APIError]:
+    async def get_support_name(self, **other) -> Result["SupportName", APIError]:
         result = await self.api.request("getSupportName", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=SupportName(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_user_info(
-        self,
-        user_id: typing.Optional['InputUser'] = None,
-        **other
-    ) -> Result['UserInfo', APIError]:
+        self, user_id: typing.Optional["InputUser"] = None, **other
+    ) -> Result["UserInfo", APIError]:
         result = await self.api.request("getUserInfo", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=UserInfo(**self.get_response(result.unwrap())))
@@ -3171,31 +3189,30 @@ class APIMethods:
 
     async def edit_user_info(
         self,
-        user_id: typing.Optional['InputUser'] = None,
+        user_id: typing.Optional["InputUser"] = None,
         message: typing.Optional[str] = None,
-        entities: typing.Optional[typing.List['MessageEntity']] = None,
+        entities: typing.Optional[typing.List["MessageEntity"]] = None,
         **other
-    ) -> Result['UserInfo', APIError]:
+    ) -> Result["UserInfo", APIError]:
         result = await self.api.request("editUserInfo", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=UserInfo(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
-    async def get_contact_sign_up_notification(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
-        result = await self.api.request("getContactSignUpNotification", self.get_params(locals()))
+    async def get_contact_sign_up_notification(self, **other) -> Result[bool, APIError]:
+        result = await self.api.request(
+            "getContactSignUpNotification", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def set_contact_sign_up_notification(
-        self,
-        silent: typing.Optional[bool] = None,
-        **other
+        self, silent: typing.Optional[bool] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("setContactSignUpNotification", self.get_params(locals()))
+        result = await self.api.request(
+            "setContactSignUpNotification", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -3204,21 +3221,23 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         compare_sound: typing.Optional[bool] = None,
-        peer: typing.Optional['InputNotifyPeer'] = None,
+        peer: typing.Optional["InputNotifyPeer"] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("getNotifyExceptions", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "getNotifyExceptions", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def send_vote(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         options: typing.Optional[typing.List[bytes]] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("sendVote", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -3226,20 +3245,18 @@ class APIMethods:
 
     async def get_poll_results(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("getPollResults", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_onlines(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
-    ) -> Result['ChatOnlines', APIError]:
+        self, peer: typing.Optional["InputPeer"] = None, **other
+    ) -> Result["ChatOnlines", APIError]:
         result = await self.api.request("getOnlines", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=ChatOnlines(**self.get_response(result.unwrap())))
@@ -3247,7 +3264,7 @@ class APIMethods:
 
     async def edit_chat_about(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         about: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -3258,20 +3275,20 @@ class APIMethods:
 
     async def edit_chat_default_banned_rights(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        banned_rights: typing.Optional['ChatBannedRights'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        banned_rights: typing.Optional["ChatBannedRights"] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("editChatDefaultBannedRights", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "editChatDefaultBannedRights", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_wall_paper(
-        self,
-        wallpaper: typing.Optional['InputWallPaper'] = None,
-        **other
-    ) -> Result['WallPaper', APIError]:
+        self, wallpaper: typing.Optional["InputWallPaper"] = None, **other
+    ) -> Result["WallPaper", APIError]:
         result = await self.api.request("getWallPaper", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=WallPaper(**self.get_response(result.unwrap())))
@@ -3279,11 +3296,11 @@ class APIMethods:
 
     async def upload_wall_paper(
         self,
-        file: typing.Optional['InputFile'] = None,
+        file: typing.Optional["InputFile"] = None,
         mime_type: typing.Optional[str] = None,
-        settings: typing.Optional['WallPaperSettings'] = None,
+        settings: typing.Optional["WallPaperSettings"] = None,
         **other
-    ) -> Result['WallPaper', APIError]:
+    ) -> Result["WallPaper", APIError]:
         result = await self.api.request("uploadWallPaper", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=WallPaper(**self.get_response(result.unwrap())))
@@ -3291,9 +3308,9 @@ class APIMethods:
 
     async def save_wall_paper(
         self,
-        wallpaper: typing.Optional['InputWallPaper'] = None,
+        wallpaper: typing.Optional["InputWallPaper"] = None,
         unsave: typing.Optional[bool] = None,
-        settings: typing.Optional['WallPaperSettings'] = None,
+        settings: typing.Optional["WallPaperSettings"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("saveWallPaper", self.get_params(locals()))
@@ -3303,8 +3320,8 @@ class APIMethods:
 
     async def install_wall_paper(
         self,
-        wallpaper: typing.Optional['InputWallPaper'] = None,
-        settings: typing.Optional['WallPaperSettings'] = None,
+        wallpaper: typing.Optional["InputWallPaper"] = None,
+        settings: typing.Optional["WallPaperSettings"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("installWallPaper", self.get_params(locals()))
@@ -3312,22 +3329,22 @@ class APIMethods:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def reset_wall_papers(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
+    async def reset_wall_papers(self, **other) -> Result[bool, APIError]:
         result = await self.api.request("resetWallPapers", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_auto_download_settings(
-        self,
-        **other
-    ) -> Result['AutoDownloadSettings', APIError]:
-        result = await self.api.request("getAutoDownloadSettings", self.get_params(locals()))
+        self, **other
+    ) -> Result["AutoDownloadSettings", APIError]:
+        result = await self.api.request(
+            "getAutoDownloadSettings", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=AutoDownloadSettings(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AutoDownloadSettings(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def save_auto_download_settings(
@@ -3335,22 +3352,25 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         low: typing.Optional[bool] = None,
         high: typing.Optional[bool] = None,
-        settings: typing.Optional['AutoDownloadSettings'] = None,
+        settings: typing.Optional["AutoDownloadSettings"] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("saveAutoDownloadSettings", self.get_params(locals()))
+        result = await self.api.request(
+            "saveAutoDownloadSettings", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_emoji_keywords(
-        self,
-        lang_code: typing.Optional[str] = None,
-        **other
-    ) -> Result['EmojiKeywordsDifference', APIError]:
+        self, lang_code: typing.Optional[str] = None, **other
+    ) -> Result["EmojiKeywordsDifference", APIError]:
         result = await self.api.request("getEmojiKeywords", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=EmojiKeywordsDifference(**self.get_response(result.unwrap())))
+            return Result(
+                True,
+                value=EmojiKeywordsDifference(**self.get_response(result.unwrap())),
+            )
         return Result(False, error=result.error)
 
     async def get_emoji_keywords_difference(
@@ -3358,27 +3378,30 @@ class APIMethods:
         lang_code: typing.Optional[str] = None,
         from_version: typing.Optional[int] = None,
         **other
-    ) -> Result['EmojiKeywordsDifference', APIError]:
-        result = await self.api.request("getEmojiKeywordsDifference", self.get_params(locals()))
+    ) -> Result["EmojiKeywordsDifference", APIError]:
+        result = await self.api.request(
+            "getEmojiKeywordsDifference", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=EmojiKeywordsDifference(**self.get_response(result.unwrap())))
+            return Result(
+                True,
+                value=EmojiKeywordsDifference(**self.get_response(result.unwrap())),
+            )
         return Result(False, error=result.error)
 
     async def get_emoji_keywords_languages(
-        self,
-        lang_codes: typing.Optional[typing.List[str]] = None,
-        **other
-    ) -> Result[typing.List['EmojiLanguage'], APIError]:
-        result = await self.api.request("getEmojiKeywordsLanguages", self.get_params(locals()))
+        self, lang_codes: typing.Optional[typing.List[str]] = None, **other
+    ) -> Result[typing.List["EmojiLanguage"], APIError]:
+        result = await self.api.request(
+            "getEmojiKeywordsLanguages", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_emoji_u_r_l(
-        self,
-        lang_code: typing.Optional[str] = None,
-        **other
-    ) -> Result['EmojiURL', APIError]:
+        self, lang_code: typing.Optional[str] = None, **other
+    ) -> Result["EmojiURL", APIError]:
         result = await self.api.request("getEmojiURL", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=EmojiURL(**self.get_response(result.unwrap())))
@@ -3386,19 +3409,17 @@ class APIMethods:
 
     async def edit_peer_folders(
         self,
-        folder_peers: typing.Optional[typing.List['InputFolderPeer']] = None,
+        folder_peers: typing.Optional[typing.List["InputFolderPeer"]] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editPeerFolders", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def delete_folder(
-        self,
-        folder_id: typing.Optional[int] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, folder_id: typing.Optional[int] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("deleteFolder", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -3406,28 +3427,27 @@ class APIMethods:
 
     async def get_search_counters(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        filters: typing.Optional[typing.List['MessagesFilter']] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        filters: typing.Optional[typing.List["MessagesFilter"]] = None,
         **other
-    ) -> Result[typing.List['SearchCounter'], APIError]:
+    ) -> Result[typing.List["SearchCounter"], APIError]:
         result = await self.api.request("getSearchCounters", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def get_groups_for_discussion(
-        self,
-        **other
-    ) -> Result['Chats', APIError]:
-        result = await self.api.request("getGroupsForDiscussion", self.get_params(locals()))
+    async def get_groups_for_discussion(self, **other) -> Result["Chats", APIError]:
+        result = await self.api.request(
+            "getGroupsForDiscussion", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Chats(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def set_discussion_group(
         self,
-        broadcast: typing.Optional['InputChannel'] = None,
-        group: typing.Optional['InputChannel'] = None,
+        broadcast: typing.Optional["InputChannel"] = None,
+        group: typing.Optional["InputChannel"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("setDiscussionGroup", self.get_params(locals()))
@@ -3438,38 +3458,42 @@ class APIMethods:
     async def request_url_auth(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         button_id: typing.Optional[int] = None,
         url: typing.Optional[str] = None,
         **other
-    ) -> Result['UrlAuthResult', APIError]:
+    ) -> Result["UrlAuthResult", APIError]:
         result = await self.api.request("requestUrlAuth", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=UrlAuthResult(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=UrlAuthResult(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def accept_url_auth(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         write_allowed: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         button_id: typing.Optional[int] = None,
         url: typing.Optional[str] = None,
         **other
-    ) -> Result['UrlAuthResult', APIError]:
+    ) -> Result["UrlAuthResult", APIError]:
         result = await self.api.request("acceptUrlAuth", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=UrlAuthResult(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=UrlAuthResult(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def hide_peer_settings_bar(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
+        self, peer: typing.Optional["InputPeer"] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("hidePeerSettingsBar", self.get_params(locals()))
+        result = await self.api.request(
+            "hidePeerSettingsBar", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -3478,22 +3502,20 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         add_phone_privacy_exception: typing.Optional[bool] = None,
-        id: typing.Optional['InputUser'] = None,
+        id: typing.Optional["InputUser"] = None,
         first_name: typing.Optional[str] = None,
         last_name: typing.Optional[str] = None,
         phone: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("addContact", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def accept_contact(
-        self,
-        id: typing.Optional['InputUser'] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, id: typing.Optional["InputUser"] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("acceptContact", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -3501,11 +3523,11 @@ class APIMethods:
 
     async def edit_creator(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        user_id: typing.Optional['InputUser'] = None,
-        password: typing.Optional['InputCheckPasswordSRP'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        user_id: typing.Optional["InputUser"] = None,
+        password: typing.Optional["InputCheckPasswordSRP"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editCreator", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -3515,10 +3537,10 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         background: typing.Optional[bool] = None,
-        geo_point: typing.Optional['InputGeoPoint'] = None,
+        geo_point: typing.Optional["InputGeoPoint"] = None,
         self_expires: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("getLocated", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -3526,8 +3548,8 @@ class APIMethods:
 
     async def edit_location(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        geo_point: typing.Optional['InputGeoPoint'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        geo_point: typing.Optional["InputGeoPoint"] = None,
         address: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -3538,10 +3560,10 @@ class APIMethods:
 
     async def toggle_slow_mode(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         seconds: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("toggleSlowMode", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -3549,44 +3571,52 @@ class APIMethods:
 
     async def get_scheduled_history(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
-        result = await self.api.request("getScheduledHistory", self.get_params(locals()))
+    ) -> Result["Messages", APIError]:
+        result = await self.api.request(
+            "getScheduledHistory", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_scheduled_messages(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[typing.List[int]] = None,
         **other
-    ) -> Result['Messages', APIError]:
-        result = await self.api.request("getScheduledMessages", self.get_params(locals()))
+    ) -> Result["Messages", APIError]:
+        result = await self.api.request(
+            "getScheduledMessages", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def send_scheduled_messages(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[typing.List[int]] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("sendScheduledMessages", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "sendScheduledMessages", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def delete_scheduled_messages(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[typing.List[int]] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("deleteScheduledMessages", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "deleteScheduledMessages", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -3594,12 +3624,12 @@ class APIMethods:
     async def upload_theme(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        file: typing.Optional['InputFile'] = None,
-        thumb: typing.Optional['InputFile'] = None,
+        file: typing.Optional["InputFile"] = None,
+        thumb: typing.Optional["InputFile"] = None,
         file_name: typing.Optional[str] = None,
         mime_type: typing.Optional[str] = None,
         **other
-    ) -> Result['Document', APIError]:
+    ) -> Result["Document", APIError]:
         result = await self.api.request("uploadTheme", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Document(**self.get_response(result.unwrap())))
@@ -3610,10 +3640,10 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         slug: typing.Optional[str] = None,
         title: typing.Optional[str] = None,
-        document: typing.Optional['InputDocument'] = None,
-        settings: typing.Optional[typing.List['InputThemeSettings']] = None,
+        document: typing.Optional["InputDocument"] = None,
+        settings: typing.Optional[typing.List["InputThemeSettings"]] = None,
         **other
-    ) -> Result['Theme', APIError]:
+    ) -> Result["Theme", APIError]:
         result = await self.api.request("createTheme", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Theme(**self.get_response(result.unwrap())))
@@ -3623,13 +3653,13 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         format: typing.Optional[str] = None,
-        theme: typing.Optional['InputTheme'] = None,
+        theme: typing.Optional["InputTheme"] = None,
         slug: typing.Optional[str] = None,
         title: typing.Optional[str] = None,
-        document: typing.Optional['InputDocument'] = None,
-        settings: typing.Optional[typing.List['InputThemeSettings']] = None,
+        document: typing.Optional["InputDocument"] = None,
+        settings: typing.Optional[typing.List["InputThemeSettings"]] = None,
         **other
-    ) -> Result['Theme', APIError]:
+    ) -> Result["Theme", APIError]:
         result = await self.api.request("updateTheme", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Theme(**self.get_response(result.unwrap())))
@@ -3637,7 +3667,7 @@ class APIMethods:
 
     async def save_theme(
         self,
-        theme: typing.Optional['InputTheme'] = None,
+        theme: typing.Optional["InputTheme"] = None,
         unsave: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -3650,9 +3680,9 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         dark: typing.Optional[bool] = None,
-        theme: typing.Optional['InputTheme'] = None,
+        theme: typing.Optional["InputTheme"] = None,
         format: typing.Optional[str] = None,
-        base_theme: typing.Optional['BaseTheme'] = None,
+        base_theme: typing.Optional["BaseTheme"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("installTheme", self.get_params(locals()))
@@ -3663,10 +3693,10 @@ class APIMethods:
     async def get_theme(
         self,
         format: typing.Optional[str] = None,
-        theme: typing.Optional['InputTheme'] = None,
+        theme: typing.Optional["InputTheme"] = None,
         document_id: typing.Optional[int] = None,
         **other
-    ) -> Result['Theme', APIError]:
+    ) -> Result["Theme", APIError]:
         result = await self.api.request("getTheme", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Theme(**self.get_response(result.unwrap())))
@@ -3677,7 +3707,7 @@ class APIMethods:
         format: typing.Optional[str] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['Themes', APIError]:
+    ) -> Result["Themes", APIError]:
         result = await self.api.request("getThemes", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Themes(**self.get_response(result.unwrap())))
@@ -3689,30 +3719,28 @@ class APIMethods:
         api_hash: typing.Optional[str] = None,
         except_ids: typing.Optional[typing.List[int]] = None,
         **other
-    ) -> Result['LoginToken', APIError]:
+    ) -> Result["LoginToken", APIError]:
         result = await self.api.request("exportLoginToken", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=LoginToken(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def import_login_token(
-        self,
-        token: typing.Optional[bytes] = None,
-        **other
-    ) -> Result['LoginToken', APIError]:
+        self, token: typing.Optional[bytes] = None, **other
+    ) -> Result["LoginToken", APIError]:
         result = await self.api.request("importLoginToken", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=LoginToken(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def accept_login_token(
-        self,
-        token: typing.Optional[bytes] = None,
-        **other
-    ) -> Result['Authorization', APIError]:
+        self, token: typing.Optional[bytes] = None, **other
+    ) -> Result["Authorization", APIError]:
         result = await self.api.request("acceptLoginToken", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=Authorization(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=Authorization(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def set_content_settings(
@@ -3727,28 +3755,28 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_content_settings(
-        self,
-        **other
-    ) -> Result['ContentSettings', APIError]:
+        self, **other
+    ) -> Result["ContentSettings", APIError]:
         result = await self.api.request("getContentSettings", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=ContentSettings(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ContentSettings(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
-    async def get_inactive_channels(
-        self,
-        **other
-    ) -> Result['InactiveChats', APIError]:
-        result = await self.api.request("getInactiveChannels", self.get_params(locals()))
+    async def get_inactive_channels(self, **other) -> Result["InactiveChats", APIError]:
+        result = await self.api.request(
+            "getInactiveChannels", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=InactiveChats(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=InactiveChats(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_multi_wall_papers(
-        self,
-        wallpapers: typing.Optional[typing.List['InputWallPaper']] = None,
-        **other
-    ) -> Result[typing.List['WallPaper'], APIError]:
+        self, wallpapers: typing.Optional[typing.List["InputWallPaper"]] = None, **other
+    ) -> Result[typing.List["WallPaper"], APIError]:
         result = await self.api.request("getMultiWallPapers", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
@@ -3757,13 +3785,13 @@ class APIMethods:
     async def get_poll_votes(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[int] = None,
         option: typing.Optional[bytes] = None,
         offset: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['VotesList', APIError]:
+    ) -> Result["VotesList", APIError]:
         result = await self.api.request("getPollVotes", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=VotesList(**self.get_response(result.unwrap())))
@@ -3775,7 +3803,7 @@ class APIMethods:
         uninstall: typing.Optional[bool] = None,
         archive: typing.Optional[bool] = None,
         unarchive: typing.Optional[bool] = None,
-        stickersets: typing.Optional[typing.List['InputStickerSet']] = None,
+        stickersets: typing.Optional[typing.List["InputStickerSet"]] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("toggleStickerSets", self.get_params(locals()))
@@ -3784,29 +3812,29 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_bank_card_data(
-        self,
-        number: typing.Optional[str] = None,
-        **other
-    ) -> Result['BankCardData', APIError]:
+        self, number: typing.Optional[str] = None, **other
+    ) -> Result["BankCardData", APIError]:
         result = await self.api.request("getBankCardData", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=BankCardData(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=BankCardData(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_dialog_filters(
-        self,
-        **other
-    ) -> Result[typing.List['DialogFilter'], APIError]:
+        self, **other
+    ) -> Result[typing.List["DialogFilter"], APIError]:
         result = await self.api.request("getDialogFilters", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_suggested_dialog_filters(
-        self,
-        **other
-    ) -> Result[typing.List['DialogFilterSuggested'], APIError]:
-        result = await self.api.request("getSuggestedDialogFilters", self.get_params(locals()))
+        self, **other
+    ) -> Result[typing.List["DialogFilterSuggested"], APIError]:
+        result = await self.api.request(
+            "getSuggestedDialogFilters", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -3815,7 +3843,7 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         id: typing.Optional[int] = None,
-        filter: typing.Optional['DialogFilter'] = None,
+        filter: typing.Optional["DialogFilter"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("updateDialogFilter", self.get_params(locals()))
@@ -3824,11 +3852,11 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def update_dialog_filters_order(
-        self,
-        order: typing.Optional[typing.List[int]] = None,
-        **other
+        self, order: typing.Optional[typing.List[int]] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("updateDialogFiltersOrder", self.get_params(locals()))
+        result = await self.api.request(
+            "updateDialogFiltersOrder", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -3837,12 +3865,14 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         dark: typing.Optional[bool] = None,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         **other
-    ) -> Result['BroadcastStats', APIError]:
+    ) -> Result["BroadcastStats", APIError]:
         result = await self.api.request("getBroadcastStats", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=BroadcastStats(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=BroadcastStats(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def load_async_graph(
@@ -3851,7 +3881,7 @@ class APIMethods:
         token: typing.Optional[str] = None,
         x: typing.Optional[int] = None,
         **other
-    ) -> Result['StatsGraph', APIError]:
+    ) -> Result["StatsGraph", APIError]:
         result = await self.api.request("loadAsyncGraph", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=StatsGraph(**self.get_response(result.unwrap())))
@@ -3859,10 +3889,10 @@ class APIMethods:
 
     async def set_sticker_set_thumb(
         self,
-        stickerset: typing.Optional['InputStickerSet'] = None,
-        thumb: typing.Optional['InputDocument'] = None,
+        stickerset: typing.Optional["InputStickerSet"] = None,
+        thumb: typing.Optional["InputDocument"] = None,
         **other
-    ) -> Result['StickerSet', APIError]:
+    ) -> Result["StickerSet", APIError]:
         result = await self.api.request("setStickerSetThumb", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=StickerSet(**self.get_response(result.unwrap())))
@@ -3870,9 +3900,9 @@ class APIMethods:
 
     async def set_bot_commands(
         self,
-        scope: typing.Optional['BotCommandScope'] = None,
+        scope: typing.Optional["BotCommandScope"] = None,
         lang_code: typing.Optional[str] = None,
-        commands: typing.Optional[typing.List['BotCommand']] = None,
+        commands: typing.Optional[typing.List["BotCommand"]] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("setBotCommands", self.get_params(locals()))
@@ -3886,25 +3916,24 @@ class APIMethods:
         limit: typing.Optional[int] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['FeaturedStickers', APIError]:
-        result = await self.api.request("getOldFeaturedStickers", self.get_params(locals()))
+    ) -> Result["FeaturedStickers", APIError]:
+        result = await self.api.request(
+            "getOldFeaturedStickers", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=FeaturedStickers(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=FeaturedStickers(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
-    async def get_promo_data(
-        self,
-        **other
-    ) -> Result['PromoData', APIError]:
+    async def get_promo_data(self, **other) -> Result["PromoData", APIError]:
         result = await self.api.request("getPromoData", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=PromoData(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def hide_promo_data(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
+        self, peer: typing.Optional["InputPeer"] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("hidePromoData", self.get_params(locals()))
         if result.is_ok:
@@ -3913,7 +3942,7 @@ class APIMethods:
 
     async def send_signaling_data(
         self,
-        peer: typing.Optional['InputPhoneCall'] = None,
+        peer: typing.Optional["InputPhoneCall"] = None,
         data: typing.Optional[bytes] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -3926,36 +3955,43 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         dark: typing.Optional[bool] = None,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         **other
-    ) -> Result['MegagroupStats', APIError]:
+    ) -> Result["MegagroupStats", APIError]:
         result = await self.api.request("getMegagroupStats", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=MegagroupStats(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=MegagroupStats(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_global_privacy_settings(
-        self,
-        **other
-    ) -> Result['GlobalPrivacySettings', APIError]:
-        result = await self.api.request("getGlobalPrivacySettings", self.get_params(locals()))
+        self, **other
+    ) -> Result["GlobalPrivacySettings", APIError]:
+        result = await self.api.request(
+            "getGlobalPrivacySettings", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=GlobalPrivacySettings(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=GlobalPrivacySettings(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def set_global_privacy_settings(
-        self,
-        settings: typing.Optional['GlobalPrivacySettings'] = None,
-        **other
-    ) -> Result['GlobalPrivacySettings', APIError]:
-        result = await self.api.request("setGlobalPrivacySettings", self.get_params(locals()))
+        self, settings: typing.Optional["GlobalPrivacySettings"] = None, **other
+    ) -> Result["GlobalPrivacySettings", APIError]:
+        result = await self.api.request(
+            "setGlobalPrivacySettings", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=GlobalPrivacySettings(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=GlobalPrivacySettings(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def dismiss_suggestion(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         suggestion: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -3969,15 +4005,17 @@ class APIMethods:
         lang_code: typing.Optional[str] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['CountriesList', APIError]:
+    ) -> Result["CountriesList", APIError]:
         result = await self.api.request("getCountriesList", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=CountriesList(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=CountriesList(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_replies(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         offset_id: typing.Optional[int] = None,
         offset_date: typing.Optional[int] = None,
@@ -3987,7 +4025,7 @@ class APIMethods:
         min_id: typing.Optional[int] = None,
         hash: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("getReplies", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
@@ -3995,18 +4033,22 @@ class APIMethods:
 
     async def get_discussion_message(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         **other
-    ) -> Result['DiscussionMessage', APIError]:
-        result = await self.api.request("getDiscussionMessage", self.get_params(locals()))
+    ) -> Result["DiscussionMessage", APIError]:
+        result = await self.api.request(
+            "getDiscussionMessage", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=DiscussionMessage(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=DiscussionMessage(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def read_discussion(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         read_max_id: typing.Optional[int] = None,
         **other
@@ -4024,7 +4066,7 @@ class APIMethods:
         report_spam: typing.Optional[bool] = None,
         msg_id: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("blockFromReplies", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -4032,15 +4074,17 @@ class APIMethods:
 
     async def get_message_public_forwards(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         msg_id: typing.Optional[int] = None,
         offset_rate: typing.Optional[int] = None,
-        offset_peer: typing.Optional['InputPeer'] = None,
+        offset_peer: typing.Optional["InputPeer"] = None,
         offset_id: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
-        result = await self.api.request("getMessagePublicForwards", self.get_params(locals()))
+    ) -> Result["Messages", APIError]:
+        result = await self.api.request(
+            "getMessagePublicForwards", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -4049,35 +4093,37 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         dark: typing.Optional[bool] = None,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         msg_id: typing.Optional[int] = None,
         **other
-    ) -> Result['MessageStats', APIError]:
+    ) -> Result["MessageStats", APIError]:
         result = await self.api.request("getMessageStats", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=MessageStats(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=MessageStats(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def unpin_all_messages(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
-    ) -> Result['AffectedHistory', APIError]:
+        self, peer: typing.Optional["InputPeer"] = None, **other
+    ) -> Result["AffectedHistory", APIError]:
         result = await self.api.request("unpinAllMessages", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=AffectedHistory(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedHistory(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def create_group_call(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         rtmp_stream: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         random_id: typing.Optional[int] = None,
         title: typing.Optional[str] = None,
         schedule_date: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("createGroupCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -4088,12 +4134,12 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         muted: typing.Optional[bool] = None,
         video_stopped: typing.Optional[bool] = None,
-        call: typing.Optional['InputGroupCall'] = None,
-        join_as: typing.Optional['InputPeer'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
+        join_as: typing.Optional["InputPeer"] = None,
         invite_hash: typing.Optional[str] = None,
-        params: typing.Optional['DataJSON'] = None,
+        params: typing.Optional["DataJSON"] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("joinGroupCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -4101,10 +4147,10 @@ class APIMethods:
 
     async def leave_group_call(
         self,
-        call: typing.Optional['InputGroupCall'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
         source: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("leaveGroupCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -4112,20 +4158,18 @@ class APIMethods:
 
     async def invite_to_group_call(
         self,
-        call: typing.Optional['InputGroupCall'] = None,
-        users: typing.Optional[typing.List['InputUser']] = None,
+        call: typing.Optional["InputGroupCall"] = None,
+        users: typing.Optional[typing.List["InputUser"]] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("inviteToGroupCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def discard_group_call(
-        self,
-        call: typing.Optional['InputGroupCall'] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, call: typing.Optional["InputGroupCall"] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("discardGroupCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -4135,21 +4179,23 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         reset_invite_hash: typing.Optional[bool] = None,
-        call: typing.Optional['InputGroupCall'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
         join_muted: typing.Optional[bool] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("toggleGroupCallSettings", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "toggleGroupCallSettings", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_group_call(
         self,
-        call: typing.Optional['InputGroupCall'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['GroupCall', APIError]:
+    ) -> Result["GroupCall", APIError]:
         result = await self.api.request("getGroupCall", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=GroupCall(**self.get_response(result.unwrap())))
@@ -4157,21 +4203,25 @@ class APIMethods:
 
     async def get_group_participants(
         self,
-        call: typing.Optional['InputGroupCall'] = None,
-        ids: typing.Optional[typing.List['InputPeer']] = None,
+        call: typing.Optional["InputGroupCall"] = None,
+        ids: typing.Optional[typing.List["InputPeer"]] = None,
         sources: typing.Optional[typing.List[int]] = None,
         offset: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['GroupParticipants', APIError]:
-        result = await self.api.request("getGroupParticipants", self.get_params(locals()))
+    ) -> Result["GroupParticipants", APIError]:
+        result = await self.api.request(
+            "getGroupParticipants", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=GroupParticipants(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=GroupParticipants(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def check_group_call(
         self,
-        call: typing.Optional['InputGroupCall'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
         sources: typing.Optional[typing.List[int]] = None,
         **other
     ) -> Result[typing.List[int], APIError]:
@@ -4181,9 +4231,7 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def delete_chat(
-        self,
-        chat_id: typing.Optional[int] = None,
-        **other
+        self, chat_id: typing.Optional[int] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("deleteChat", self.get_params(locals()))
         if result.is_ok:
@@ -4195,50 +4243,60 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         revoke: typing.Optional[bool] = None,
         **other
-    ) -> Result['AffectedFoundMessages', APIError]:
-        result = await self.api.request("deletePhoneCallHistory", self.get_params(locals()))
+    ) -> Result["AffectedFoundMessages", APIError]:
+        result = await self.api.request(
+            "deletePhoneCallHistory", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=AffectedFoundMessages(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedFoundMessages(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def check_history_import(
-        self,
-        import_head: typing.Optional[str] = None,
-        **other
-    ) -> Result['HistoryImportParsed', APIError]:
+        self, import_head: typing.Optional[str] = None, **other
+    ) -> Result["HistoryImportParsed", APIError]:
         result = await self.api.request("checkHistoryImport", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=HistoryImportParsed(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=HistoryImportParsed(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def init_history_import(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        file: typing.Optional['InputFile'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        file: typing.Optional["InputFile"] = None,
         media_count: typing.Optional[int] = None,
         **other
-    ) -> Result['HistoryImport', APIError]:
+    ) -> Result["HistoryImport", APIError]:
         result = await self.api.request("initHistoryImport", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=HistoryImport(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=HistoryImport(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def upload_imported_media(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         import_id: typing.Optional[int] = None,
         file_name: typing.Optional[str] = None,
-        media: typing.Optional['InputMedia'] = None,
+        media: typing.Optional["InputMedia"] = None,
         **other
-    ) -> Result['MessageMedia', APIError]:
-        result = await self.api.request("uploadImportedMedia", self.get_params(locals()))
+    ) -> Result["MessageMedia", APIError]:
+        result = await self.api.request(
+            "uploadImportedMedia", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=MessageMedia(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=MessageMedia(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def start_history_import(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         import_id: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -4251,101 +4309,123 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         revoked: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
-        admin_id: typing.Optional['InputUser'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        admin_id: typing.Optional["InputUser"] = None,
         offset_date: typing.Optional[int] = None,
         offset_link: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['ExportedChatInvites', APIError]:
-        result = await self.api.request("getExportedChatInvites", self.get_params(locals()))
+    ) -> Result["ExportedChatInvites", APIError]:
+        result = await self.api.request(
+            "getExportedChatInvites", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ExportedChatInvites(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ExportedChatInvites(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_exported_chat_invite(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         link: typing.Optional[str] = None,
         **other
-    ) -> Result['ExportedChatInvite', APIError]:
-        result = await self.api.request("getExportedChatInvite", self.get_params(locals()))
+    ) -> Result["ExportedChatInvite", APIError]:
+        result = await self.api.request(
+            "getExportedChatInvite", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ExportedChatInvite(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ExportedChatInvite(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def edit_exported_chat_invite(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         revoked: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         link: typing.Optional[str] = None,
         expire_date: typing.Optional[int] = None,
         usage_limit: typing.Optional[int] = None,
         request_needed: typing.Optional[bool] = None,
         title: typing.Optional[str] = None,
         **other
-    ) -> Result['ExportedChatInvite', APIError]:
-        result = await self.api.request("editExportedChatInvite", self.get_params(locals()))
+    ) -> Result["ExportedChatInvite", APIError]:
+        result = await self.api.request(
+            "editExportedChatInvite", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ExportedChatInvite(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ExportedChatInvite(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def delete_revoked_exported_chat_invites(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        admin_id: typing.Optional['InputUser'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        admin_id: typing.Optional["InputUser"] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("deleteRevokedExportedChatInvites", self.get_params(locals()))
+        result = await self.api.request(
+            "deleteRevokedExportedChatInvites", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def delete_exported_chat_invite(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         link: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("deleteExportedChatInvite", self.get_params(locals()))
+        result = await self.api.request(
+            "deleteExportedChatInvite", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_admins_with_invites(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
-    ) -> Result['ChatAdminsWithInvites', APIError]:
-        result = await self.api.request("getAdminsWithInvites", self.get_params(locals()))
+        self, peer: typing.Optional["InputPeer"] = None, **other
+    ) -> Result["ChatAdminsWithInvites", APIError]:
+        result = await self.api.request(
+            "getAdminsWithInvites", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ChatAdminsWithInvites(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ChatAdminsWithInvites(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_chat_invite_importers(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         requested: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         link: typing.Optional[str] = None,
         q: typing.Optional[str] = None,
         offset_date: typing.Optional[int] = None,
-        offset_user: typing.Optional['InputUser'] = None,
+        offset_user: typing.Optional["InputUser"] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['ChatInviteImporters', APIError]:
-        result = await self.api.request("getChatInviteImporters", self.get_params(locals()))
+    ) -> Result["ChatInviteImporters", APIError]:
+        result = await self.api.request(
+            "getChatInviteImporters", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ChatInviteImporters(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ChatInviteImporters(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def set_history_t_t_l(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         period: typing.Optional[int] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("setHistoryTTL", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -4353,9 +4433,9 @@ class APIMethods:
 
     async def report_profile_photo(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        photo_id: typing.Optional['InputPhoto'] = None,
-        reason: typing.Optional['ReportReason'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        photo_id: typing.Optional["InputPhoto"] = None,
+        reason: typing.Optional["ReportReason"] = None,
         message: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -4365,23 +4445,24 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def convert_to_gigagroup(
-        self,
-        channel: typing.Optional['InputChannel'] = None,
-        **other
-    ) -> Result['Updates', APIError]:
+        self, channel: typing.Optional["InputChannel"] = None, **other
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("convertToGigagroup", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def check_history_import_peer(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
-    ) -> Result['CheckedHistoryImportPeer', APIError]:
-        result = await self.api.request("checkHistoryImportPeer", self.get_params(locals()))
+        self, peer: typing.Optional["InputPeer"] = None, **other
+    ) -> Result["CheckedHistoryImportPeer", APIError]:
+        result = await self.api.request(
+            "checkHistoryImportPeer", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=CheckedHistoryImportPeer(**self.get_response(result.unwrap())))
+            return Result(
+                True,
+                value=CheckedHistoryImportPeer(**self.get_response(result.unwrap())),
+            )
         return Result(False, error=result.error)
 
     async def toggle_group_call_record(
@@ -4389,12 +4470,14 @@ class APIMethods:
         flags: typing.Optional[typing.List[str]] = None,
         start: typing.Optional[bool] = None,
         video: typing.Optional[bool] = None,
-        call: typing.Optional['InputGroupCall'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
         title: typing.Optional[str] = None,
         video_portrait: typing.Optional[bool] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("toggleGroupCallRecord", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "toggleGroupCallRecord", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -4402,8 +4485,8 @@ class APIMethods:
     async def edit_group_call_participant(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        call: typing.Optional['InputGroupCall'] = None,
-        participant: typing.Optional['InputPeer'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
+        participant: typing.Optional["InputPeer"] = None,
         muted: typing.Optional[bool] = None,
         volume: typing.Optional[int] = None,
         raise_hand: typing.Optional[bool] = None,
@@ -4411,28 +4494,28 @@ class APIMethods:
         video_paused: typing.Optional[bool] = None,
         presentation_paused: typing.Optional[bool] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("editGroupCallParticipant", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "editGroupCallParticipant", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def edit_group_call_title(
         self,
-        call: typing.Optional['InputGroupCall'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
         title: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("editGroupCallTitle", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_group_call_join_as(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
-    ) -> Result['JoinAsPeers', APIError]:
+        self, peer: typing.Optional["InputPeer"] = None, **other
+    ) -> Result["JoinAsPeers", APIError]:
         result = await self.api.request("getGroupCallJoinAs", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=JoinAsPeers(**self.get_response(result.unwrap())))
@@ -4442,71 +4525,80 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         can_self_unmute: typing.Optional[bool] = None,
-        call: typing.Optional['InputGroupCall'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
         **other
-    ) -> Result['ExportedGroupCallInvite', APIError]:
-        result = await self.api.request("exportGroupCallInvite", self.get_params(locals()))
+    ) -> Result["ExportedGroupCallInvite", APIError]:
+        result = await self.api.request(
+            "exportGroupCallInvite", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=ExportedGroupCallInvite(**self.get_response(result.unwrap())))
+            return Result(
+                True,
+                value=ExportedGroupCallInvite(**self.get_response(result.unwrap())),
+            )
         return Result(False, error=result.error)
 
     async def toggle_group_call_start_subscription(
         self,
-        call: typing.Optional['InputGroupCall'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
         subscribed: typing.Optional[bool] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("toggleGroupCallStartSubscription", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "toggleGroupCallStartSubscription", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def start_scheduled_group_call(
-        self,
-        call: typing.Optional['InputGroupCall'] = None,
-        **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("startScheduledGroupCall", self.get_params(locals()))
+        self, call: typing.Optional["InputGroupCall"] = None, **other
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "startScheduledGroupCall", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def save_default_group_call_join_as(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        join_as: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        join_as: typing.Optional["InputPeer"] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("saveDefaultGroupCallJoinAs", self.get_params(locals()))
+        result = await self.api.request(
+            "saveDefaultGroupCallJoinAs", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def join_group_call_presentation(
         self,
-        call: typing.Optional['InputGroupCall'] = None,
-        params: typing.Optional['DataJSON'] = None,
+        call: typing.Optional["InputGroupCall"] = None,
+        params: typing.Optional["DataJSON"] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("joinGroupCallPresentation", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "joinGroupCallPresentation", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def leave_group_call_presentation(
-        self,
-        call: typing.Optional['InputGroupCall'] = None,
-        **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("leaveGroupCallPresentation", self.get_params(locals()))
+        self, call: typing.Optional["InputGroupCall"] = None, **other
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "leaveGroupCallPresentation", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def check_short_name(
-        self,
-        short_name: typing.Optional[str] = None,
-        **other
+        self, short_name: typing.Optional[str] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("checkShortName", self.get_params(locals()))
         if result.is_ok:
@@ -4514,18 +4606,18 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def suggest_short_name(
-        self,
-        title: typing.Optional[str] = None,
-        **other
-    ) -> Result['SuggestedShortName', APIError]:
+        self, title: typing.Optional[str] = None, **other
+    ) -> Result["SuggestedShortName", APIError]:
         result = await self.api.request("suggestShortName", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=SuggestedShortName(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=SuggestedShortName(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def reset_bot_commands(
         self,
-        scope: typing.Optional['BotCommandScope'] = None,
+        scope: typing.Optional["BotCommandScope"] = None,
         lang_code: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -4536,48 +4628,44 @@ class APIMethods:
 
     async def get_bot_commands(
         self,
-        scope: typing.Optional['BotCommandScope'] = None,
+        scope: typing.Optional["BotCommandScope"] = None,
         lang_code: typing.Optional[str] = None,
         **other
-    ) -> Result[typing.List['BotCommand'], APIError]:
+    ) -> Result[typing.List["BotCommand"], APIError]:
         result = await self.api.request("getBotCommands", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
-    async def reset_password(
-        self,
-        **other
-    ) -> Result['ResetPasswordResult', APIError]:
+    async def reset_password(self, **other) -> Result["ResetPasswordResult", APIError]:
         result = await self.api.request("resetPassword", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=ResetPasswordResult(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ResetPasswordResult(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
-    async def decline_password_reset(
-        self,
-        **other
-    ) -> Result[bool, APIError]:
-        result = await self.api.request("declinePasswordReset", self.get_params(locals()))
+    async def decline_password_reset(self, **other) -> Result[bool, APIError]:
+        result = await self.api.request(
+            "declinePasswordReset", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def check_recovery_password(
-        self,
-        code: typing.Optional[str] = None,
-        **other
+        self, code: typing.Optional[str] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("checkRecoveryPassword", self.get_params(locals()))
+        result = await self.api.request(
+            "checkRecoveryPassword", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_chat_themes(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['Themes', APIError]:
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["Themes", APIError]:
         result = await self.api.request("getChatThemes", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Themes(**self.get_response(result.unwrap())))
@@ -4585,10 +4673,10 @@ class APIMethods:
 
     async def set_chat_theme(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         emoticon: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("setChatTheme", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -4596,71 +4684,87 @@ class APIMethods:
 
     async def view_sponsored_message(
         self,
-        channel: typing.Optional['InputChannel'] = None,
+        channel: typing.Optional["InputChannel"] = None,
         random_id: typing.Optional[bytes] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("viewSponsoredMessage", self.get_params(locals()))
+        result = await self.api.request(
+            "viewSponsoredMessage", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_sponsored_messages(
-        self,
-        channel: typing.Optional['InputChannel'] = None,
-        **other
-    ) -> Result['SponsoredMessages', APIError]:
-        result = await self.api.request("getSponsoredMessages", self.get_params(locals()))
+        self, channel: typing.Optional["InputChannel"] = None, **other
+    ) -> Result["SponsoredMessages", APIError]:
+        result = await self.api.request(
+            "getSponsoredMessages", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=SponsoredMessages(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=SponsoredMessages(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_message_read_participants(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         **other
     ) -> Result[typing.List[int], APIError]:
-        result = await self.api.request("getMessageReadParticipants", self.get_params(locals()))
+        result = await self.api.request(
+            "getMessageReadParticipants", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def get_search_results_calendar(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        filter: typing.Optional['MessagesFilter'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        filter: typing.Optional["MessagesFilter"] = None,
         offset_id: typing.Optional[int] = None,
         offset_date: typing.Optional[int] = None,
         **other
-    ) -> Result['SearchResultsCalendar', APIError]:
-        result = await self.api.request("getSearchResultsCalendar", self.get_params(locals()))
+    ) -> Result["SearchResultsCalendar", APIError]:
+        result = await self.api.request(
+            "getSearchResultsCalendar", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=SearchResultsCalendar(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=SearchResultsCalendar(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_search_results_positions(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        filter: typing.Optional['MessagesFilter'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        filter: typing.Optional["MessagesFilter"] = None,
         offset_id: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['SearchResultsPositions', APIError]:
-        result = await self.api.request("getSearchResultsPositions", self.get_params(locals()))
+    ) -> Result["SearchResultsPositions", APIError]:
+        result = await self.api.request(
+            "getSearchResultsPositions", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=SearchResultsPositions(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=SearchResultsPositions(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def hide_chat_join_request(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         approved: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
-        user_id: typing.Optional['InputUser'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        user_id: typing.Optional["InputUser"] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("hideChatJoinRequest", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "hideChatJoinRequest", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -4669,21 +4773,23 @@ class APIMethods:
         self,
         flags: typing.Optional[typing.List[str]] = None,
         approved: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         link: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("hideAllChatJoinRequests", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "hideAllChatJoinRequests", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def toggle_no_forwards(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         enabled: typing.Optional[bool] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("toggleNoForwards", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -4691,8 +4797,8 @@ class APIMethods:
 
     async def save_default_send_as(
         self,
-        peer: typing.Optional['InputPeer'] = None,
-        send_as: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
+        send_as: typing.Optional["InputPeer"] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("saveDefaultSendAs", self.get_params(locals()))
@@ -4701,21 +4807,19 @@ class APIMethods:
         return Result(False, error=result.error)
 
     async def get_send_as(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
-    ) -> Result['SendAsPeers', APIError]:
+        self, peer: typing.Optional["InputPeer"] = None, **other
+    ) -> Result["SendAsPeers", APIError]:
         result = await self.api.request("getSendAs", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=SendAsPeers(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def set_authorization_t_t_l(
-        self,
-        authorization_ttl_days: typing.Optional[int] = None,
-        **other
+        self, authorization_ttl_days: typing.Optional[int] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("setAuthorizationTTL", self.get_params(locals()))
+        result = await self.api.request(
+            "setAuthorizationTTL", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
@@ -4728,31 +4832,37 @@ class APIMethods:
         call_requests_disabled: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request("changeAuthorizationSettings", self.get_params(locals()))
+        result = await self.api.request(
+            "changeAuthorizationSettings", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=result.unwrap())
         return Result(False, error=result.error)
 
     async def delete_participant_history(
         self,
-        channel: typing.Optional['InputChannel'] = None,
-        participant: typing.Optional['InputPeer'] = None,
+        channel: typing.Optional["InputChannel"] = None,
+        participant: typing.Optional["InputPeer"] = None,
         **other
-    ) -> Result['AffectedHistory', APIError]:
-        result = await self.api.request("deleteParticipantHistory", self.get_params(locals()))
+    ) -> Result["AffectedHistory", APIError]:
+        result = await self.api.request(
+            "deleteParticipantHistory", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=AffectedHistory(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedHistory(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def send_reaction(
         self,
         flags: typing.Optional[typing.List[str]] = None,
         big: typing.Optional[bool] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         reaction: typing.Optional[str] = None,
         **other
-    ) -> Result['Updates', APIError]:
+    ) -> Result["Updates", APIError]:
         result = await self.api.request("sendReaction", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
@@ -4760,11 +4870,13 @@ class APIMethods:
 
     async def get_messages_reactions(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[typing.List[int]] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("getMessagesReactions", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "getMessagesReactions", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
@@ -4772,43 +4884,49 @@ class APIMethods:
     async def get_message_reactions_list(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         id: typing.Optional[int] = None,
         reaction: typing.Optional[str] = None,
         offset: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['MessageReactionsList', APIError]:
-        result = await self.api.request("getMessageReactionsList", self.get_params(locals()))
+    ) -> Result["MessageReactionsList", APIError]:
+        result = await self.api.request(
+            "getMessageReactionsList", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=MessageReactionsList(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=MessageReactionsList(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def set_chat_available_reactions(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         available_reactions: typing.Optional[typing.List[str]] = None,
         **other
-    ) -> Result['Updates', APIError]:
-        result = await self.api.request("setChatAvailableReactions", self.get_params(locals()))
+    ) -> Result["Updates", APIError]:
+        result = await self.api.request(
+            "setChatAvailableReactions", self.get_params(locals())
+        )
         if result.is_ok:
             return Result(True, value=Updates(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def get_available_reactions(
-        self,
-        hash: typing.Optional[int] = None,
-        **other
-    ) -> Result['AvailableReactions', APIError]:
-        result = await self.api.request("getAvailableReactions", self.get_params(locals()))
+        self, hash: typing.Optional[int] = None, **other
+    ) -> Result["AvailableReactions", APIError]:
+        result = await self.api.request(
+            "getAvailableReactions", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=AvailableReactions(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AvailableReactions(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def set_default_reaction(
-        self,
-        reaction: typing.Optional[str] = None,
-        **other
+        self, reaction: typing.Optional[str] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request("setDefaultReaction", self.get_params(locals()))
         if result.is_ok:
@@ -4818,81 +4936,90 @@ class APIMethods:
     async def translate_text(
         self,
         flags: typing.Optional[typing.List[str]] = None,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         msg_id: typing.Optional[int] = None,
         text: typing.Optional[str] = None,
         from_lang: typing.Optional[str] = None,
         to_lang: typing.Optional[str] = None,
         **other
-    ) -> Result['TranslatedText', APIError]:
+    ) -> Result["TranslatedText", APIError]:
         result = await self.api.request("translateText", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=TranslatedText(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=TranslatedText(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_unread_reactions(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         offset_id: typing.Optional[int] = None,
         add_offset: typing.Optional[int] = None,
         limit: typing.Optional[int] = None,
         max_id: typing.Optional[int] = None,
         min_id: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("getUnreadReactions", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
         return Result(False, error=result.error)
 
     async def read_reactions(
-        self,
-        peer: typing.Optional['InputPeer'] = None,
-        **other
-    ) -> Result['AffectedHistory', APIError]:
+        self, peer: typing.Optional["InputPeer"] = None, **other
+    ) -> Result["AffectedHistory", APIError]:
         result = await self.api.request("readReactions", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=AffectedHistory(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=AffectedHistory(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def resolve_phone(
-        self,
-        phone: typing.Optional[str] = None,
-        **other
-    ) -> Result['ResolvedPeer', APIError]:
+        self, phone: typing.Optional[str] = None, **other
+    ) -> Result["ResolvedPeer", APIError]:
         result = await self.api.request("resolvePhone", self.get_params(locals()))
         if result.is_ok:
-            return Result(True, value=ResolvedPeer(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=ResolvedPeer(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def get_group_call_stream_channels(
-        self,
-        call: typing.Optional['InputGroupCall'] = None,
-        **other
-    ) -> Result['GroupCallStreamChannels', APIError]:
-        result = await self.api.request("getGroupCallStreamChannels", self.get_params(locals()))
+        self, call: typing.Optional["InputGroupCall"] = None, **other
+    ) -> Result["GroupCallStreamChannels", APIError]:
+        result = await self.api.request(
+            "getGroupCallStreamChannels", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=GroupCallStreamChannels(**self.get_response(result.unwrap())))
+            return Result(
+                True,
+                value=GroupCallStreamChannels(**self.get_response(result.unwrap())),
+            )
         return Result(False, error=result.error)
 
     async def get_group_call_stream_rtmp_url(
         self,
-        peer: typing.Optional['InputPeer'] = None,
+        peer: typing.Optional["InputPeer"] = None,
         revoke: typing.Optional[bool] = None,
         **other
-    ) -> Result['GroupCallStreamRtmpUrl', APIError]:
-        result = await self.api.request("getGroupCallStreamRtmpUrl", self.get_params(locals()))
+    ) -> Result["GroupCallStreamRtmpUrl", APIError]:
+        result = await self.api.request(
+            "getGroupCallStreamRtmpUrl", self.get_params(locals())
+        )
         if result.is_ok:
-            return Result(True, value=GroupCallStreamRtmpUrl(**self.get_response(result.unwrap())))
+            return Result(
+                True, value=GroupCallStreamRtmpUrl(**self.get_response(result.unwrap()))
+            )
         return Result(False, error=result.error)
 
     async def search_sent_media(
         self,
         q: typing.Optional[str] = None,
-        filter: typing.Optional['MessagesFilter'] = None,
+        filter: typing.Optional["MessagesFilter"] = None,
         limit: typing.Optional[int] = None,
         **other
-    ) -> Result['Messages', APIError]:
+    ) -> Result["Messages", APIError]:
         result = await self.api.request("searchSentMedia", self.get_params(locals()))
         if result.is_ok:
             return Result(True, value=Messages(**self.get_response(result.unwrap())))
