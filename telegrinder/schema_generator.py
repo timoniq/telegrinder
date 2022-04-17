@@ -57,12 +57,8 @@ def get_lines_for_object(name: str, properties: dict):
             else (
                 SPACES
                 + "{}: {}\n".format(
-                    name
-                    if name not in ("json", "from")
-                    else name + "_",
-                    "typing.Optional["
-                    + convert_type(param)
-                    + "] = None",
+                    name if name not in ("json", "from") else name + "_",
+                    "typing.Optional[" + convert_type(param) + "] = None",
                 )
                 for (name, param) in properties.items()
                 if name != "flags"
@@ -92,9 +88,7 @@ def generate(path: str, schema_url: str = URL) -> None:
         t, properties = obj.get("type", "object"), obj.get("properties", [])
 
         with open(path + "/objects.py", "a") as file:
-            file.writelines(
-                get_lines_for_object(name, properties)
-            )
+            file.writelines(get_lines_for_object(name, properties))
 
     with open(path + "/objects.py", "a") as file:
         file.writelines(
@@ -142,11 +136,15 @@ def generate(path: str, schema_url: str = URL) -> None:
         if "requestBody" not in method["post"]:
             props = {}
         else:
-            props = list(method["post"]["requestBody"]["content"].values())[-1]["schema"]["properties"]
+            props = list(method["post"]["requestBody"]["content"].values())[-1][
+                "schema"
+            ]["properties"]
 
         lines = []
         method_name = ps[1:]
-        result = list(method["post"]["responses"]["200"]["content"].values())[-1]["schema"]["properties"]["result"]
+        result = list(method["post"]["responses"]["200"]["content"].values())[-1][
+            "schema"
+        ]["properties"]["result"]
         response = convert_type(result)
         name = to_snakecase(method_name)
         lines.append(f"async def {name}(\n        self,\n")

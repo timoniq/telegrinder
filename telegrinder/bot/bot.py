@@ -20,7 +20,9 @@ class Telegrinder:
         self.dispatch = dispatch or Dispatch()
 
     def on_message(self, *rules: ABCRule, is_blocking: bool = True):
-        return self.dispatch.handle(IsMessage(), *rules, is_blocking=is_blocking, dataclass=Update)
+        return self.dispatch.handle(
+            IsMessage(), *rules, is_blocking=is_blocking, dataclass=Update
+        )
 
     async def run_polling(self, offset: int = 0) -> None:
         self.polling.offset = offset

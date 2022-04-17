@@ -24,7 +24,7 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
         func: typing.Callable,
         rules: typing.List[ABCRule],
         is_blocking: bool = True,
-        dataclass: typing.Any = dict
+        dataclass: typing.Any = dict,
     ):
         self.func = func
         self.is_blocking = is_blocking
@@ -47,7 +47,9 @@ class Dispatch(ABCDispatch):
     def __init__(self):
         self.handlers: typing.List[ABCHandler] = []
 
-    def handle(self, *rules: ABCRule, is_blocking: bool = False, dataclass: typing.Any = dict):
+    def handle(
+        self, *rules: ABCRule, is_blocking: bool = False, dataclass: typing.Any = dict
+    ):
         def wrapper(func: typing.Callable):
             self.handlers.append(FuncHandler(func, list(rules), is_blocking, dataclass))
             return func
