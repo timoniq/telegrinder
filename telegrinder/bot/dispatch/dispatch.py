@@ -54,7 +54,10 @@ class Dispatch(ABCDispatch):
         self.loop = asyncio.get_event_loop()
 
     def handle(
-        self, *rules: ABCRule, is_blocking: bool = False, dataclass: typing.Any = DEFAULT_DATACLASS
+        self,
+        *rules: ABCRule,
+        is_blocking: bool = True,
+        dataclass: typing.Any = DEFAULT_DATACLASS
     ):
         def wrapper(func: typing.Callable):
             self.handlers.append(FuncHandler(func, list(rules), is_blocking, dataclass))

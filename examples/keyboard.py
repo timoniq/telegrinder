@@ -11,9 +11,7 @@ kb = (Keyboard().add(Button("Button 1")).add(Button("Button 2"))).dict()
 @bot.on_message(Text("/start"))
 async def start(update: Update):
     await api.send_message(
-        chat_id=update.message.chat.id,
-        reply_markup=kb,
-        text="Hello!"
+        chat_id=update.message.chat.id, reply_markup=kb, text="Hello!"
     )
 
 

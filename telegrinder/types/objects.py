@@ -16,9 +16,7 @@ def convert(d: typing.Any) -> typing.Any:
 
 
 class BaseModel(pydantic.BaseModel):
-    def get_dict(
-        self
-    ) -> dict:
+    def get_dict(self) -> dict:
         d = self.dict()
         return {k: convert(v) for k, v in d.items() if v is not None}
 

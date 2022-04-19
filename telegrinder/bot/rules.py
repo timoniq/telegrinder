@@ -91,7 +91,9 @@ class Markup(ABCRule):
 
 
 class FuncRule(ABCRule, typing.Generic[T]):
-    def __init__(self, func: typing.Callable[[T, dict], bool], dataclass: typing.Type[T] = dict):
+    def __init__(
+        self, func: typing.Callable[[T, dict], bool], dataclass: typing.Type[T] = dict
+    ):
         self.func = func
         self.dataclass = dataclass
 
@@ -99,4 +101,14 @@ class FuncRule(ABCRule, typing.Generic[T]):
         return self.func(self.dataclass(**event), ctx)
 
 
-__all__ = (ABCRule, AndRule, OrRule, IsMessage, Text, Markup, IsPrivate, IsChat, FuncRule)
+__all__ = (
+    ABCRule,
+    AndRule,
+    OrRule,
+    IsMessage,
+    Text,
+    Markup,
+    IsPrivate,
+    IsChat,
+    FuncRule,
+)
