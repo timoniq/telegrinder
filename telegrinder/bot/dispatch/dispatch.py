@@ -3,9 +3,12 @@ import asyncio
 from .abc import ABCDispatch
 from abc import ABC, abstractmethod
 from telegrinder.bot.rules import ABCRule
+from telegrinder.types import Update
 import typing
 
 T = typing.TypeVar("T")
+
+DEFAULT_DATACLASS = Update
 
 
 class ABCHandler(ABC, typing.Generic[T]):
@@ -51,7 +54,7 @@ class Dispatch(ABCDispatch):
         self.loop = asyncio.get_event_loop()
 
     def handle(
-        self, *rules: ABCRule, is_blocking: bool = False, dataclass: typing.Any = dict
+        self, *rules: ABCRule, is_blocking: bool = False, dataclass: typing.Any = DEFAULT_DATACLASS
     ):
         def wrapper(func: typing.Callable):
             self.handlers.append(FuncHandler(func, list(rules), is_blocking, dataclass))
