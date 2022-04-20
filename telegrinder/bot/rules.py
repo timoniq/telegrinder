@@ -5,8 +5,12 @@ import vbml
 T = typing.TypeVar("T")
 patcher = vbml.Patcher()
 
+AnyDataclass = 0x00_01
+
 
 class ABCRule(ABC, typing.Generic[T]):
+    __dataclass__ = AnyDataclass
+
     @abstractmethod
     async def check(self, event: T, ctx: dict) -> bool:
         pass
@@ -47,11 +51,15 @@ class OrRule(ABCRule):
 
 
 class IsMessage(ABCRule):
+    __dataclass__ = dict
+
     async def check(self, event: dict, ctx: dict) -> bool:
         return "message" in event
 
 
 class Text(ABCRule):
+    __dataclass__ = dict
+
     def __init__(self, texts: typing.Union[str, typing.List[str]]):
         if not isinstance(texts, list):
             texts = [texts]
@@ -62,16 +70,22 @@ class Text(ABCRule):
 
 
 class IsPrivate(ABCRule):
+    __dataclass__ = dict
+
     async def check(self, event: T, ctx: dict) -> bool:
         return event["message"]["chat"]["id"] > 0
 
 
 class IsChat(ABCRule):
+    __dataclass__ = dict
+
     async def check(self, event: T, ctx: dict) -> bool:
         return event["message"]["chat"]["id"] < 0
 
 
 class Markup(ABCRule):
+    __dataclass__ = dict
+
     def __init__(self, patterns: typing.Union[str, typing.List[str]]):
         if not isinstance(patterns, list):
             patterns = [patterns]

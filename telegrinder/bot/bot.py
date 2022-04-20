@@ -3,8 +3,6 @@ import asyncio
 from telegrinder.api import ABCAPI
 from telegrinder.bot.polling import ABCPolling, Polling
 from telegrinder.bot.dispatch import ABCDispatch, Dispatch
-from telegrinder.bot.rules import ABCRule, IsMessage
-from telegrinder.types import Update
 import typing
 
 
@@ -19,15 +17,14 @@ class Telegrinder:
         self.polling = polling or Polling(api)
         self.dispatch = dispatch or Dispatch()
 
-    def on_message(self, *rules: ABCRule, is_blocking: bool = True):
-        return self.dispatch.handle(
-            IsMessage(), *rules, is_blocking=is_blocking, dataclass=Update
-        )
+    @property
+    def on(self) -> Dispatch:
+        return self.dispatch  # type: ignore
 
     async def run_polling(self, offset: int = 0) -> None:
         self.polling.offset = offset
         async for update in self.polling.listen():
-            await self.dispatch.feed(update)
+            await self.dispatch.feed(update, self.api)
 
     def run_forever(self, offset: int = 0) -> None:
         loop = asyncio.get_event_loop()

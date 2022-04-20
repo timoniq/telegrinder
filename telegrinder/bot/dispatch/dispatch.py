@@ -3,7 +3,10 @@ import asyncio
 from .abc import ABCDispatch
 from abc import ABC, abstractmethod
 from telegrinder.bot.rules import ABCRule
+from .handler import ABCHandler, FuncHandler
 from telegrinder.types import Update
+from telegrinder.api.abc import ABCAPI
+from .view import ABCView, MessageView
 import typing
 
 T = typing.TypeVar("T")
@@ -11,47 +14,12 @@ T = typing.TypeVar("T")
 DEFAULT_DATACLASS = Update
 
 
-class ABCHandler(ABC, typing.Generic[T]):
-    is_blocking: bool
-
-    @abstractmethod
-    async def run(self, event: T) -> typing.Any:
-        pass
-
-    @abstractmethod
-    async def check(self, event: T) -> bool:
-        pass
-
-
-class FuncHandler(ABCHandler, typing.Generic[T]):
-    def __init__(
-        self,
-        func: typing.Callable,
-        rules: typing.List[ABCRule],
-        is_blocking: bool = True,
-        dataclass: typing.Any = dict,
-    ):
-        self.func = func
-        self.is_blocking = is_blocking
-        self.rules = rules
-        self.dataclass = dataclass
-        self.ctx = {}
-
-    async def check(self, event: T) -> bool:
-        self.ctx = {}
-        for rule in self.rules:
-            if not await rule.check(event, self.ctx):
-                return False
-        return True
-
-    async def run(self, event: T) -> typing.Any:
-        return await self.func(self.dataclass(**event), **self.ctx)
-
-
 class Dispatch(ABCDispatch):
     def __init__(self):
-        self.handlers: typing.List[ABCHandler] = []
+        self.default_handlers: typing.List[ABCHandler] = []
         self.loop = asyncio.get_event_loop()
+        self.message = MessageView()
+        self.views = ["message"]
 
     def handle(
         self,
@@ -60,14 +28,26 @@ class Dispatch(ABCDispatch):
         dataclass: typing.Any = DEFAULT_DATACLASS
     ):
         def wrapper(func: typing.Callable):
-            self.handlers.append(FuncHandler(func, list(rules), is_blocking, dataclass))
+            self.default_handlers.append(FuncHandler(func, list(rules), is_blocking, dataclass))
             return func
 
         return wrapper
 
-    async def feed(self, event: dict) -> bool:
+    def get_views(self) -> typing.Iterator[ABCView]:
+        for view_name in self.views:
+            view = getattr(self, view_name)
+            assert view, f"View {view_name} is undefined in dispatch"
+            yield view
+
+    async def feed(self, event: dict, api: ABCAPI) -> bool:
+
+        for view in self.get_views():
+            if await view.check(event):
+                await view.process(event, api)
+                return True
+
         found = False
-        for handler in self.handlers:
+        for handler in self.default_handlers:
             result = await handler.check(event)
             if result:
                 found = True
