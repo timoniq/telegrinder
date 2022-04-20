@@ -25,10 +25,12 @@ class Dispatch(ABCDispatch):
         self,
         *rules: ABCRule,
         is_blocking: bool = True,
-        dataclass: typing.Any = DEFAULT_DATACLASS
+        dataclass: typing.Any = DEFAULT_DATACLASS,
     ):
         def wrapper(func: typing.Callable):
-            self.default_handlers.append(FuncHandler(func, list(rules), is_blocking, dataclass))
+            self.default_handlers.append(
+                FuncHandler(func, list(rules), is_blocking, dataclass)
+            )
             return func
 
         return wrapper

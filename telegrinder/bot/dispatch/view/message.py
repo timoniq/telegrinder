@@ -17,8 +17,11 @@ class MessageView(ABCView):
 
     def __call__(self, *rules: ABCRule, is_blocking: bool = True):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):
-            self.handlers.append(FuncHandler(func, list(rules), is_blocking, dataclass=None))
+            self.handlers.append(
+                FuncHandler(func, list(rules), is_blocking, dataclass=None)
+            )
             return func
+
         return wrapper
 
     async def check(self, event: dict) -> bool:

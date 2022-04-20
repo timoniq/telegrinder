@@ -17,7 +17,9 @@ async def start(message: Message):
     if m.text.lower() == "fine":
         await m.reply("Cool!")
     elif m.text.lower() == "bad":
-        await m.reply("Oh, i wish i could help you with that. May be some rest will help")
+        await m.reply(
+            "Oh, i wish i could help you with that. May be some rest will help"
+        )
 
 
 @bot.on.message(Markup("/reverse <text>"))

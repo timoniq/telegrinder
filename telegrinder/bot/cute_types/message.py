@@ -1,6 +1,10 @@
 from telegrinder.types import (
-    Message, MessageEntity, InlineKeyboardMarkup,
-    ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+    Message,
+    MessageEntity,
+    InlineKeyboardMarkup,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+    ForceReply,
 )
 from telegrinder.types.methods import APIMethods
 from telegrinder.api import API, APIError
@@ -13,7 +17,7 @@ class MessageCute(Message):
 
     @property
     def ctx_api(self) -> API:
-        return getattr(self, "unprep_ctx_api") # type: ignore
+        return getattr(self, "unprep_ctx_api")  # type: ignore
 
     async def answer(
         self,
@@ -58,4 +62,6 @@ class MessageCute(Message):
         **other
     ) -> Result["Message", APIError]:
         params = APIMethods.get_params(locals())
-        return await self.ctx_api.send_message(chat_id=self.chat.id, reply_to_message_id=self.message_id, **params)
+        return await self.ctx_api.send_message(
+            chat_id=self.chat.id, reply_to_message_id=self.message_id, **params
+        )
