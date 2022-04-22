@@ -24,7 +24,7 @@ class Telegrinder:
     async def run_polling(self, offset: int = 0) -> None:
         self.polling.offset = offset
         async for update in self.polling.listen():
-            await self.dispatch.feed(update, self.api)
+            self.dispatch.loop.create_task(self.dispatch.feed(update, self.api))
 
     def run_forever(self, offset: int = 0) -> None:
         loop = asyncio.get_event_loop()
