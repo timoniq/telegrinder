@@ -37,7 +37,7 @@ class MessageView(ABCView):
             ctx = {}
 
             for rule in waiter.rules:
-                if not await rule.check(event, ctx):
+                if not await rule.check(msg, ctx):
                     if not waiter.default:
                         return
                     elif isinstance(waiter.default, str):

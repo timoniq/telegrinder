@@ -106,13 +106,16 @@ class Markup(ABCRule):
 
 class FuncRule(ABCRule, typing.Generic[T]):
     def __init__(
-        self, func: typing.Callable[[T, dict], bool], dataclass: typing.Type[T] = dict
+        self,
+        func: typing.Callable[[T, dict], bool],
+        dataclass: typing.Optional[typing.Type[T]] = None
     ):
         self.func = func
         self.dataclass = dataclass
 
     async def check(self, event: dict, ctx: dict) -> bool:
-        return self.func(self.dataclass(**event), ctx)
+        return self.func(self.dataclass(**event) if self.dataclass else event, ctx)
+
 
 
 __all__ = (

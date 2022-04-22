@@ -3,7 +3,7 @@ import typing
 from telegrinder.tools import Result
 from telegrinder.http import ABCClient, AiohttpClient
 from telegrinder.types.methods import APIMethods
-from telegrinder.types.objects import BaseModel
+from telegrinder.types.objects import BaseModel, convert
 from telegrinder.modules import json, logger
 
 
@@ -34,11 +34,7 @@ class API(ABCAPI, APIMethods):
         method: str,
         data: typing.Optional[dict] = None,
     ) -> Result[typing.Union[dict, list, bool], APIError]:
-        data = {
-            k: (v if not isinstance(v, BaseModel) else v.get_dict())
-            for k, v in data.items()
-            if v is not None
-        }
+        data = convert(data)
         logger.info("Making API request {}: {}".format(method, data))
         response = await self.http.request_json(self._request_url + method, json=data)
         logger.info("Got response: {}".format(response))
