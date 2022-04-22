@@ -20,7 +20,7 @@ class Dispatch(ABCDispatch):
         self.loop = asyncio.get_event_loop()
         self.message = MessageView()
         self.callback_query = CallbackQueryView()
-        self.views = ["message"]
+        self.views = ["message", "callback_query"]
 
     def handle(
         self,
