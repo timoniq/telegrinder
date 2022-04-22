@@ -60,13 +60,20 @@ class IsMessage(ABCRule):
 class Text(ABCRule):
     __dataclass__ = dict
 
-    def __init__(self, texts: typing.Union[str, typing.List[str]]):
+    def __init__(
+        self,
+        texts: typing.Union[str, typing.List[str]],
+        ignore_case: bool = False
+    ):
         if not isinstance(texts, list):
             texts = [texts]
         self.texts = texts
+        self.ignore_case = ignore_case
 
     async def check(self, event: dict, ctx: dict) -> bool:
-        return event["message"].get("text") in self.texts
+        if self.ignore_case:
+            return event["message"].get("text", "").lower() in list(map(str.lower, self.texts))
+        return event["message"].get("text", "") in self.texts
 
 
 class IsPrivate(ABCRule):
