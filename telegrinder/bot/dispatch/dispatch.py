@@ -45,7 +45,7 @@ class Dispatch(ABCDispatch):
 
         for view in self.get_views():
             if await view.check(event):
-                await view.process(event, api)
+                self.loop.create_task(view.process(event, api))
                 return True
 
         found = False
