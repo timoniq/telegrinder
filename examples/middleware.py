@@ -19,4 +19,3 @@ async def testme(m: Message):
 
 bot.dispatch.message.middlewares.append(NoBotMiddleware())
 bot.run_forever()
-

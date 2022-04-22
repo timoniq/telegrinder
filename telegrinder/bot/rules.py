@@ -61,9 +61,7 @@ class Text(ABCRule):
     __dataclass__ = dict
 
     def __init__(
-        self,
-        texts: typing.Union[str, typing.List[str]],
-        ignore_case: bool = False
+        self, texts: typing.Union[str, typing.List[str]], ignore_case: bool = False
     ):
         if not isinstance(texts, list):
             texts = [texts]
@@ -72,7 +70,9 @@ class Text(ABCRule):
 
     async def check(self, event: dict, ctx: dict) -> bool:
         if self.ignore_case:
-            return event["message"].get("text", "").lower() in list(map(str.lower, self.texts))
+            return event["message"].get("text", "").lower() in list(
+                map(str.lower, self.texts)
+            )
         return event["message"].get("text", "") in self.texts
 
 
@@ -115,14 +115,13 @@ class FuncRule(ABCRule, typing.Generic[T]):
     def __init__(
         self,
         func: typing.Callable[[T, dict], bool],
-        dataclass: typing.Optional[typing.Type[T]] = None
+        dataclass: typing.Optional[typing.Type[T]] = None,
     ):
         self.func = func
         self.dataclass = dataclass
 
     async def check(self, event: dict, ctx: dict) -> bool:
         return self.func(self.dataclass(**event) if self.dataclass else event, ctx)
-
 
 
 __all__ = (

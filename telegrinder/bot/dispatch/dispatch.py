@@ -6,7 +6,7 @@ from telegrinder.bot.rules import ABCRule
 from .handler import ABCHandler, FuncHandler
 from telegrinder.types import Update
 from telegrinder.api.abc import ABCAPI
-from .view import ABCView, MessageView
+from .view import ABCView, MessageView, CallbackQueryView
 import typing
 
 T = typing.TypeVar("T")
@@ -19,6 +19,7 @@ class Dispatch(ABCDispatch):
         self.default_handlers: typing.List[ABCHandler] = []
         self.loop = asyncio.get_event_loop()
         self.message = MessageView()
+        self.callback_query = CallbackQueryView()
         self.views = ["message"]
 
     def handle(

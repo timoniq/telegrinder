@@ -6,8 +6,9 @@ from .dispatch import (
     ABCView,
     FuncHandler,
     MessageView,
+    CallbackQueryView,
     ABCMiddleware,
 )
 from .bot import Telegrinder
-from .cute_types import MessageCute
+from .cute_types import MessageCute, CallbackQueryCute
 from .rules import ABCRule

@@ -10,10 +10,13 @@ from .bot import (
     ABCView,
     ABCHandler,
     MessageView,
+    CallbackQueryView,
     FuncHandler,
     MessageCute,
+    CallbackQueryCute,
     ABCMiddleware,
 )
 from .tools import Result, Keyboard, Button, InlineButton, InlineKeyboard
 
 Message = MessageCute
+CallbackQuery = CallbackQueryCute
