@@ -12,6 +12,7 @@ from .bot import (
     MessageView,
     FuncHandler,
     MessageCute,
+    ABCMiddleware,
 )
 from .tools import Result, Keyboard, Button, InlineButton, InlineKeyboard
 

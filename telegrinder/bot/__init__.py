@@ -6,6 +6,7 @@ from .dispatch import (
     ABCView,
     FuncHandler,
     MessageView,
+    ABCMiddleware,
 )
 from .bot import Telegrinder
 from .cute_types import MessageCute

@@ -1,7 +1,8 @@
 from .abc import ABCView
 from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler
 from telegrinder.bot.dispatch.waiter import Waiter, wait
-from telegrinder.bot.rules import ABCRule, AnyDataclass
+from telegrinder.bot.dispatch.middleware import ABCMiddleware
+from telegrinder.bot.rules import ABCRule
 from telegrinder.bot.cute_types import MessageCute
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.waiter import DefaultWaiterHandler
@@ -12,6 +13,7 @@ import asyncio
 class MessageView(ABCView):
     def __init__(self):
         self.handlers: typing.List[ABCHandler[MessageCute]] = []
+        self.middlewares: typing.List[ABCMiddleware[MessageCute]] = []
         self.short_waiters: typing.Dict[int, Waiter] = {}
         self.loop = asyncio.get_event_loop()
 
@@ -49,14 +51,26 @@ class MessageView(ABCView):
             waiter.event.set()
             return
 
+        ctx = {}
+
+        for middleware in self.middlewares:
+            if not await middleware.pre(msg, ctx):
+                return False
+
         found = False
+        responses = []
         for handler in self.handlers:
             result = await handler.check(event)
             if result:
+                handler.ctx.update(ctx)
                 found = True
-                self.loop.create_task(handler.run(msg))
+                response = await handler.run(msg)
+                responses.append(response)
                 if handler.is_blocking:
-                    return True
+                    break
+
+        for middleware in self.middlewares:
+            await middleware.post(msg, responses, ctx)
 
         return found
 
