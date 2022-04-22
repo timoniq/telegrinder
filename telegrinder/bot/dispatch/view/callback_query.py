@@ -14,7 +14,7 @@ class CallbackQueryView(ABCView):
     def __init__(self):
         self.handlers: typing.List[ABCHandler[CallbackQueryCute]] = []
         self.middlewares: typing.List[ABCMiddleware[CallbackQueryCute]] = []
-        self.short_waiters: typing.Dict[str, Waiter] = {}
+        self.short_waiters: typing.Dict[int, Waiter] = {}
         self.loop = asyncio.get_event_loop()
 
     def __call__(self, *rules: ABCRule, is_blocking: bool = True):
@@ -32,12 +32,12 @@ class CallbackQueryView(ABCView):
     async def process(self, event: dict, api: ABCAPI):
         query = CallbackQueryCute(**event["callback_query"], unprep_ctx_api=api)
 
-        if query.id in self.short_waiters:
-            waiter = self.short_waiters[query.id]
+        if query.from_.id in self.short_waiters:
+            waiter = self.short_waiters[query.from_.id]
             ctx = {}
 
             for rule in waiter.rules:
-                chk_event = query.id
+                chk_event = query
                 if rule.__dataclass__ == dict:
                     chk_event = event
                 if not await rule.check(chk_event, ctx):
@@ -49,7 +49,7 @@ class CallbackQueryView(ABCView):
                         await waiter.default(query)
                     return
 
-            self.short_waiters.pop(query.id)
+            self.short_waiters.pop(query.from_.id)
             setattr(waiter.event, "e", (query, ctx))
             waiter.event.set()
             return
@@ -79,11 +79,11 @@ class CallbackQueryView(ABCView):
 
     async def wait_for_answer(
         self,
-        query_id: str,
+        chat_id: int,
         *rules: ABCRule,
         default: typing.Optional[typing.Union[DefaultWaiterHandler, str]] = None
     ) -> typing.Tuple[CallbackQueryCute, dict]:
         event = asyncio.Event()
         waiter = Waiter(rules, event, default)
-        self.short_waiters[query_id] = waiter
+        self.short_waiters[chat_id] = waiter
         return await wait(waiter)
