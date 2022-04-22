@@ -6,7 +6,7 @@ from telegrinder.modules import json
 
 def convert(d: typing.Any) -> typing.Any:
     if isinstance(d, BaseModel):
-        return json.dumps(d.get_dict())
+        return d.get_dict()
     elif isinstance(d, dict):
         return {k: convert(v) for k, v in d.items() if v is not None}
     elif isinstance(d, list):
