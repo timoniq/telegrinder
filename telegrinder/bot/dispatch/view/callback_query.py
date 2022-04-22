@@ -57,7 +57,7 @@ class CallbackQueryView(ABCView):
         ctx = {}
 
         for middleware in self.middlewares:
-            if not await middleware.pre(query, ctx):
+            if await middleware.pre(query, ctx) is False:
                 return False
 
         found = False

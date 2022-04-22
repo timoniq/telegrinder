@@ -57,7 +57,7 @@ class MessageView(ABCView):
         ctx = {}
 
         for middleware in self.middlewares:
-            if not await middleware.pre(msg, ctx):
+            if await middleware.pre(msg, ctx) is False:
                 return False
 
         found = False
