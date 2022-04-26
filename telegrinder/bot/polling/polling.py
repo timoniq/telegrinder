@@ -47,7 +47,7 @@ class Polling(ABCPolling):
                 updates = await self.get_updates()
                 for update in updates:
                     self.offset = updates[0]["update_id"] + 1
-                    logger.info(f"Received update: {update}")
+                    logger.debug(f"Received update: {update}")
                     yield update
             except BaseException as e:
                 traceback.print_exc()

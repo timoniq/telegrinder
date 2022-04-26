@@ -35,9 +35,9 @@ class API(ABCAPI, APIMethods):
         data: typing.Optional[dict] = None,
     ) -> Result[typing.Union[dict, list, bool], APIError]:
         data = convert(data)
-        logger.info("Making API request {}: {}".format(method, data))
+        logger.debug("Making API request {}: {}".format(method, data))
         response = await self.http.request_json(self._request_url + method, json=data)
-        logger.info("Got response: {}".format(response))
+        logger.debug("Got response: {}".format(response))
         if response.get("ok"):
             assert "result" in response
             return Result(True, value=alias(response["result"]))
