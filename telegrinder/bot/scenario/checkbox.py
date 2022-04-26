@@ -51,7 +51,7 @@ class Checkbox(ABCScenario):
         kb = InlineKeyboard(resize_keyboard=True)
         choices = self.choices.copy()
         while choices:
-            while len(kb.keyboard[-1]) < 3:
+            while len(kb.keyboard[-1]) < 3 and choices:
                 choice = choices.pop(0)
                 kb.add(
                     InlineButton(
