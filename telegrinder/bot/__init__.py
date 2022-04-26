@@ -12,3 +12,4 @@ from .dispatch import (
 from .bot import Telegrinder
 from .cute_types import MessageCute, CallbackQueryCute
 from .rules import ABCRule
+from .scenario import ABCScenario, Checkbox

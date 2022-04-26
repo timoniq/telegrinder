@@ -161,5 +161,5 @@ __all__ = (
     IsChat,
     FuncRule,
     CallbackDataEq,
-    CallbackDataJsonEq
+    CallbackDataJsonEq,
 )
