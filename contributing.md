@@ -8,4 +8,4 @@ BTC: `bc1qxc4g6m0qz0kkfa24yxegnl6hz94h8u5k9swd3k`
 
 ## For developers
 
-PRs are welcome, feel free to contibute.
+PRs are welcome, feel free to contribute.
