@@ -16,7 +16,7 @@ from .bot import (
     CallbackQueryCute,
     ABCMiddleware,
 )
-from .tools import Result, Keyboard, Button, InlineButton, InlineKeyboard
+from .tools import Result, Keyboard, Button, InlineButton, InlineKeyboard, VarUnset, magic_bundle
 
 Message = MessageCute
 CallbackQuery = CallbackQueryCute

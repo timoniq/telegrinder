@@ -1,5 +1,7 @@
 import typing
+import types
 from telegrinder.bot.rules import ABCRule, AnyDataclass
+from telegrinder.tools import magic_bundle
 from .abc import ABCHandler
 
 T = typing.TypeVar("T")
@@ -8,7 +10,7 @@ T = typing.TypeVar("T")
 class FuncHandler(ABCHandler, typing.Generic[T]):
     def __init__(
         self,
-        func: typing.Callable,
+        func: typing.Union[types.FunctionType, typing.Callable],
         rules: typing.List[ABCRule],
         is_blocking: bool = True,
         dataclass: typing.Optional[typing.Any] = dict,
@@ -34,4 +36,4 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
     async def run(self, event: T) -> typing.Any:
         if self.dataclass:
             event = self.dataclass(**event)
-        return await self.func(event, **self.ctx)
+        return await self.func(event, **magic_bundle(self.func, self.ctx))
