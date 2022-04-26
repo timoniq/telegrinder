@@ -5,12 +5,7 @@ AnyMock = type("Any", (object,), {"__str__": lambda _: "Any"})
 
 
 class VarUnset(BaseException):
-    def __init__(
-        self,
-        name: str,
-        t: typing.Any,
-        handler: types.FunctionType
-    ):
+    def __init__(self, name: str, t: typing.Any, handler: types.FunctionType):
         self.name = name
         self.t = t
         self.handler = handler
@@ -25,15 +20,12 @@ class VarUnset(BaseException):
         return self.__repr__()
 
 
-def resolve_arg_names(
-    func: types.FunctionType
-) -> typing.Tuple[str, ...]:
-    return func.__code__.co_varnames[1:func.__code__.co_argcount]
+def resolve_arg_names(func: types.FunctionType) -> typing.Tuple[str, ...]:
+    return func.__code__.co_varnames[1 : func.__code__.co_argcount]
 
 
 def magic_bundle(
-    handler: types.FunctionType,
-    kw: typing.Dict[str, typing.Any]
+    handler: types.FunctionType, kw: typing.Dict[str, typing.Any]
 ) -> typing.Dict[str, typing.Any]:
     arg_names = resolve_arg_names(handler)
     hints = typing.get_type_hints(handler)
