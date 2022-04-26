@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from telegrinder.modules import json
 import typing
 import vbml
 
@@ -124,6 +125,31 @@ class FuncRule(ABCRule, typing.Generic[T]):
         return self.func(self.dataclass(**event) if self.dataclass else event, ctx)
 
 
+class CallbackDataEq(ABCRule):
+    __dataclass__ = dict
+
+    def __init__(self, value: str):
+        self.value = value
+
+    async def check(self, event: dict, ctx: dict) -> bool:
+        return event["callback_query"].get("data") == self.value
+
+
+class CallbackDataJsonEq(ABCRule):
+    __dataclass__ = dict
+
+    def __init__(self, d: dict):
+        self.d = d
+
+    async def check(self, event: dict, ctx: dict) -> bool:
+        if "data" not in event["callback_query"]:
+            return False
+        try:
+            return json.loads(event["callback_query"]["data"]) == self.d
+        except:
+            return False
+
+
 __all__ = (
     ABCRule,
     AndRule,
@@ -134,4 +160,6 @@ __all__ = (
     IsPrivate,
     IsChat,
     FuncRule,
+    CallbackDataEq,
+    CallbackDataJsonEq
 )
