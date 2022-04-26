@@ -10,3 +10,7 @@ class ABCPolling(ABC):
     @abstractmethod
     async def listen(self) -> typing.AsyncIterator[dict]:
         pass
+
+    @abstractmethod
+    def stop(self) -> None:
+        pass
