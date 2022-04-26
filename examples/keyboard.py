@@ -5,7 +5,7 @@ from telegrinder.types import Update
 api = API(token=Token("..."))
 bot = Telegrinder(api)
 
-kb = (Keyboard().add(Button("Button 1")).add(Button("Button 2"))).dict()
+kb = (Keyboard().add(Button("Button 1")).add(Button("Button 2"))).get_markup()
 
 
 @bot.dispatch.handle(IsMessage(), Text("/start"))
