@@ -1,6 +1,6 @@
 import asyncio
 
-from telegrinder.api import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.polling import ABCPolling, Polling
 from telegrinder.bot.dispatch import ABCDispatch, Dispatch
 import typing
@@ -9,7 +9,7 @@ import typing
 class Telegrinder:
     def __init__(
         self,
-        api: ABCAPI,
+        api: API,
         polling: typing.Optional[ABCPolling] = None,
         dispatch: typing.Optional[ABCDispatch] = None,
     ):

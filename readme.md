@@ -9,7 +9,7 @@ from telegrinder import Telegrinder, API, Token, Message
 from telegrinder.bot.rules import Text
 import logging
 
-api = API(token=Token("123:token"))
+api = API(token=Token("123:token")) # recommended to use Token.from_env()
 bot = Telegrinder(api)
 logging.basicConfig(level=logging.INFO)
 

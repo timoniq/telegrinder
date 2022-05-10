@@ -4,7 +4,7 @@ from telegrinder import Telegrinder, API, Token, Message, ABCMiddleware
 from telegrinder.bot.rules import Text, IsChat, IsPrivate
 import logging
 
-api = API(token=Token("..."))
+api = API(token=Token.from_env())
 bot = Telegrinder(api)
 logging.basicConfig(level=logging.INFO)
 

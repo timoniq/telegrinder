@@ -26,6 +26,9 @@ from .tools import (
     InlineKeyboard,
     VarUnset,
     magic_bundle,
+    KeyboardSetBase,
+    KeyboardSetYAML,
+    AnyMarkup
 )
 
 Message = MessageCute

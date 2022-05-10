@@ -4,7 +4,15 @@ from telegrinder.http import ABCClient
 from telegrinder.tools import Result
 from telegrinder.api.error import APIError
 
-Token = typing.NewType("Token", str)
+from envparse import env
+
+
+class Token(str):
+    @classmethod
+    def from_env(cls, var_name: str = "BOT_TOKEN", is_read: bool = False) -> "Token":
+        if not is_read:
+            env.read_envfile()
+        return cls(env.str(var_name))
 
 
 class ABCAPI(ABC):

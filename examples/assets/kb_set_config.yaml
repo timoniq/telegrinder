@@ -1,0 +1,14 @@
+menu:
+  buttons:
+    - text: "Choose"
+    - text: "Edit"
+yes_no:
+  one_time_keyboard: on
+  buttons:
+    - text: "Yes"
+    -
+    - text: "No"
+edit:
+  buttons:
+    - text: "Edit"
+      callback_data: "edit"
