@@ -28,7 +28,7 @@ from .tools import (
     magic_bundle,
     KeyboardSetBase,
     KeyboardSetYAML,
-    AnyMarkup
+    AnyMarkup,
 )
 
 Message = MessageCute

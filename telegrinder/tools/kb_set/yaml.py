@@ -23,7 +23,9 @@ class KeyboardSetYAML(KeyboardSetBase):
 
             short_name = g.group(1)
             if short_name not in config:
-                raise KeyboardSetError(f"Keyboard {short_name!r} is undefined in config")
+                raise KeyboardSetError(
+                    f"Keyboard {short_name!r} is undefined in config"
+                )
 
             kb_config = config[short_name]
 
@@ -32,8 +34,10 @@ class KeyboardSetYAML(KeyboardSetBase):
                 or "buttons" not in kb_config
                 or not isinstance(kb_config["buttons"], list)
             ):
-                raise KeyboardSetError("Keyboard should be dict with field buttons which must be a list, "
-                                       "check documentation")
+                raise KeyboardSetError(
+                    "Keyboard should be dict with field buttons which must be a list, "
+                    "check documentation"
+                )
 
             buttons = kb_config.pop("buttons")
             new_keyboard: typing.Union[Keyboard, InlineKeyboard] = hint(**kb_config)

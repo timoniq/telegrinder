@@ -1,6 +1,15 @@
 import random
 
-from telegrinder import Telegrinder, Token, API, KeyboardSetYAML, InlineKeyboard, Keyboard, Message, CallbackQuery
+from telegrinder import (
+    Telegrinder,
+    Token,
+    API,
+    KeyboardSetYAML,
+    InlineKeyboard,
+    Keyboard,
+    Message,
+    CallbackQuery,
+)
 from telegrinder.bot.rules import Text, CallbackDataEq
 
 
@@ -21,8 +30,7 @@ bot = Telegrinder(api=api)
 @bot.on.message(Text("/menu"))
 async def menu_handler(m: Message):
     await m.answer(
-        text="You are in menu",
-        reply_markup=KeyboardSet.KEYBOARD_MENU.get_markup()
+        text="You are in menu", reply_markup=KeyboardSet.KEYBOARD_MENU.get_markup()
     )
 
 
@@ -30,12 +38,12 @@ async def menu_handler(m: Message):
 async def choose_handler(m: Message):
     await m.answer(
         text="Do you like making important decisions?",
-        reply_markup=KeyboardSet.KEYBOARD_YES_NO.get_markup()
+        reply_markup=KeyboardSet.KEYBOARD_YES_NO.get_markup(),
     )
     answer, _ = await bot.on.message.wait_for_message(
         m.chat.id,
         Text(["yes", "no"], True),
-        default="Please make a decision: Yes or No. This is extremely important!"
+        default="Please make a decision: Yes or No. This is extremely important!",
     )
     if answer.text.lower() == "yes":
         await answer.reply("Cool.")
@@ -47,7 +55,7 @@ async def choose_handler(m: Message):
 async def edit_handler(m: Message):
     await m.answer(
         text="You can push this button and message will change!",
-        reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup()
+        reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup(),
     )
 
 
@@ -60,7 +68,8 @@ async def edit_callback_handler(cb: CallbackQuery):
         cb.message.chat.id,
         cb.message.message_id,
         text="".join(chars),
-        reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup()
+        reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup(),
     )
+
 
 bot.run_forever()
