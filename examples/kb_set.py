@@ -46,9 +46,9 @@ async def choose_handler(m: Message):
         default="Please make a decision: Yes or No. This is extremely important!",
     )
     if answer.text.lower() == "yes":
-        await answer.reply("Cool.")
-    else:
         await answer.reply("Rockets have been launched.")
+    else:
+        await answer.reply(":(( maybe you need some psychological help")
 
 
 @bot.on.message(Text(["/edit", "Edit"]))

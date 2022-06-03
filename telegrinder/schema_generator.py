@@ -67,6 +67,32 @@ def get_lines_for_object(name: str, properties: dict):
     ]
 
 
+def parse_response(rt: str):
+    if rt.startswith("'"):
+        return "return Result(True, value=" + rt[1:-1] + "(**self.get_response(u)))"
+    elif rt.startswith("typing"):
+        if rt.startswith("typing.Union"):
+            ts = rt[len("typing.Union")+1:-1].split(", ")
+            ts_prim = [t for t in ts if not t.startswith("'")]
+            s = ""
+            for prim in ts_prim:
+                s += f"if isinstance(u, {prim}): return Result(True, value=u)\n"
+            comp = [t for t in ts if t not in ts_prim]
+            print(comp, ts, ts_prim)
+            if len(comp) > 1:
+                print("cannot parse", rt)
+                exit(0)
+            s += "return Result(True, value=" + comp[0][1:-1] + "(**self.get_response(u)))"
+            return s
+        elif rt.startswith("typing.List"):
+            n = rt[len("typing.List")+1:-1]
+            if not n.startswith("'"):
+                print("no instruction to parse list of", n)
+                exit(0)
+            return f"return Result(True, value=[{n[1:-1]}(**self.get_response(e)) for e in u])"
+    return "return Result(True, value=u)"
+
+
 def generate(path: str, schema_url: str = URL) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
@@ -81,7 +107,7 @@ def generate(path: str, schema_url: str = URL) -> None:
 
     with open(path + "/objects.py", "w") as file:
         file.writelines(
-            ["import typing\n", "import inspect\n", "from pydantic import BaseModel\n"]
+            ["import typing\n", "import inspect\n", "from telegrinder.tbase import *\n"]
         )
 
     for name, obj in objects.items():
@@ -146,6 +172,7 @@ def generate(path: str, schema_url: str = URL) -> None:
             "schema"
         ]["properties"]["result"]
         response = convert_type(result)
+        print(response)
         name = to_snakecase(method_name)
         lines.append(f"async def {name}(\n        self,\n")
         for n, prop in props.items():
@@ -161,14 +188,8 @@ def generate(path: str, schema_url: str = URL) -> None:
                         '"' + method_name + '"'
                     ),
                     "if result.is_ok:\n",
-                    SPACES
-                    + "return Result(True, value="
-                    + (
-                        response[1:-1] + "(**self.get_response(result.unwrap()))"
-                        if response.startswith("'")
-                        else "result.unwrap()"
-                    )
-                    + ")\n",
+                    SPACES + "u = result.unwrap()\n",
+                    SPACES + ("\n" + SPACES + SPACES + SPACES).join(parse_response(response).split("\n")) + "\n",
                     "return Result(False, error=result.error)",
                 )
             ]

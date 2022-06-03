@@ -1,5 +1,5 @@
 import typing
-from telegrinder.http.abc import ABCClient
+from telegrinder.http_.abc import ABCClient
 from aiohttp import ClientSession, TCPConnector
 from telegrinder.modules import json, JSONModule
 
