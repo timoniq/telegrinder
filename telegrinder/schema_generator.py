@@ -72,7 +72,7 @@ def parse_response(rt: str):
         return "return Result(True, value=" + rt[1:-1] + "(**self.get_response(u)))"
     elif rt.startswith("typing"):
         if rt.startswith("typing.Union"):
-            ts = rt[len("typing.Union")+1:-1].split(", ")
+            ts = rt[len("typing.Union") + 1 : -1].split(", ")
             ts_prim = [t for t in ts if not t.startswith("'")]
             s = ""
             for prim in ts_prim:
@@ -81,10 +81,14 @@ def parse_response(rt: str):
             if len(comp) > 1:
                 print("cannot parse", rt)
                 exit(0)
-            s += "return Result(True, value=" + comp[0][1:-1] + "(**self.get_response(u)))"
+            s += (
+                "return Result(True, value="
+                + comp[0][1:-1]
+                + "(**self.get_response(u)))"
+            )
             return s
         elif rt.startswith("typing.List"):
-            n = rt[len("typing.List")+1:-1]
+            n = rt[len("typing.List") + 1 : -1]
             if not n.startswith("'"):
                 print("no instruction to parse list of", n)
                 exit(0)
@@ -188,7 +192,11 @@ def generate(path: str, schema_url: str = URL) -> None:
                     ),
                     "if result.is_ok:\n",
                     SPACES + "u = result.unwrap()\n",
-                    SPACES + ("\n" + SPACES + SPACES + SPACES).join(parse_response(response).split("\n")) + "\n",
+                    SPACES
+                    + ("\n" + SPACES + SPACES + SPACES).join(
+                        parse_response(response).split("\n")
+                    )
+                    + "\n",
                     "return Result(False, error=result.error)",
                 )
             ]

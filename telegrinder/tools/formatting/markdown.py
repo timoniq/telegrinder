@@ -40,13 +40,17 @@ class MarkdownFormatter(ABCFormatter):
         return wrap_md("~", self)
 
     def link(self, href: str) -> "MarkdownFormatter":
-        return MarkdownFormatter(f"[{self.escape()}]({MarkdownFormatter(href).escape_link()})")
+        return MarkdownFormatter(
+            f"[{self.escape()}]({MarkdownFormatter(href).escape_link()})"
+        )
 
     def code_block(self) -> "MarkdownFormatter":
         return MarkdownFormatter(f"```\n{self.escape_code()}\n```")
 
     def code_block_with_lang(self, lang: str) -> "MarkdownFormatter":
-        return MarkdownFormatter(f"```{MarkdownFormatter(lang).escape()}\n{self.escape_code()}\n```")
+        return MarkdownFormatter(
+            f"```{MarkdownFormatter(lang).escape()}\n{self.escape_code()}\n```"
+        )
 
     def code_inline(self) -> "MarkdownFormatter":
         return MarkdownFormatter(f"`{self.escape_code()}`")

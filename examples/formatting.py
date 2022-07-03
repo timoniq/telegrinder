@@ -13,13 +13,15 @@ formatter = MarkdownFormatter
 async def formatting(m: Message):
     await m.answer(
         formatter("bold italic").bold().italic()
-        + " and " +
-        formatter("strike link").link("https://github.com/timoniq/telegrinder").strike(),
-        parse_mode=formatter.PARSE_MODE
+        + " and "
+        + formatter("strike link")
+        .link("https://github.com/timoniq/telegrinder")
+        .strike(),
+        parse_mode=formatter.PARSE_MODE,
     )
     await m.answer(
         "this is " + formatter("mention").mention(m.from_.id),
-        parse_mode=formatter.PARSE_MODE
+        parse_mode=formatter.PARSE_MODE,
     )
 
 
@@ -28,5 +30,6 @@ async def change(m: Message):
     global formatter
     formatter = HTMLFormatter if formatter == MarkdownFormatter else MarkdownFormatter
     await m.answer(f"Formatter changed to {formatter.__name__}")
+
 
 bot.run_forever()

@@ -38,7 +38,7 @@ class MessageView(ABCView):
 
             for rule in waiter.rules:
                 chk_event = msg
-                if rule.__dataclass__ == dict:
+                if rule.__event__ is None:
                     chk_event = event
                 if not await rule.check(chk_event, ctx):
                     if not waiter.default:

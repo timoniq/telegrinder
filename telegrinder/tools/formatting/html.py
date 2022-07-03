@@ -2,10 +2,12 @@ from .abc import ABCFormatter
 import typing
 from telegrinder.tools.parse_mode import ParseMode
 
-QUOT_MARK = "\""
+QUOT_MARK = '"'
 
 
-def wrap_tag(tag_name: str, content: str, data: typing.Optional[dict] = None) -> "HTMLFormatter":
+def wrap_tag(
+    tag_name: str, content: str, data: typing.Optional[dict] = None
+) -> "HTMLFormatter":
     s = "<" + tag_name
     if data:
         for k, v in data.items():
@@ -18,12 +20,7 @@ class HTMLFormatter(ABCFormatter):
     PARSE_MODE = ParseMode.HTML
 
     def escape(self) -> "HTMLFormatter":
-        return (
-            self
-            .replace("&", "&amp;")
-            .replace(">", "&gt;")
-            .replace("<", "&lt;")
-        )
+        return self.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;")
 
     def bold(self) -> "HTMLFormatter":
         return wrap_tag("b", self)
@@ -41,7 +38,7 @@ class HTMLFormatter(ABCFormatter):
         return wrap_tag(
             "a",
             self.escape(),
-            data={"href": QUOT_MARK + HTMLFormatter(href).escape() + QUOT_MARK}
+            data={"href": QUOT_MARK + HTMLFormatter(href).escape() + QUOT_MARK},
         )
 
     def code_block(self) -> "HTMLFormatter":
@@ -49,8 +46,7 @@ class HTMLFormatter(ABCFormatter):
 
     def code_block_with_lang(self, lang: str) -> "HTMLFormatter":
         return wrap_tag(
-            "pre",
-            wrap_tag("code", self.escape(), data={"class": f"language-{lang}"})
+            "pre", wrap_tag("code", self.escape(), data={"class": f"language-{lang}"})
         )
 
     def code_inline(self) -> "HTMLFormatter":

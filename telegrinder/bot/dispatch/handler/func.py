@@ -1,6 +1,6 @@
 import typing
 import types
-from telegrinder.bot.rules import ABCRule, AnyDataclass
+from telegrinder.bot.rules import ABCRule
 from telegrinder.tools import magic_bundle
 from .abc import ABCHandler
 
@@ -24,12 +24,13 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
     async def check(self, event: dict) -> bool:
         self.ctx = {}
         for rule in self.rules:
-            e = event
-            if rule.__dataclass__ in (AnyDataclass, dict):
+            if rule.__event__ is None:
                 pass
             else:
-                e = rule.__dataclass__(**event)
-            if not await rule.check(e, self.ctx):
+                if rule.__event__.name not in event:
+                    return False
+                event = rule.__event__.dataclass(**event[rule.__event__.name])
+            if not await rule.check(event, self.ctx):
                 return False
         return True
 

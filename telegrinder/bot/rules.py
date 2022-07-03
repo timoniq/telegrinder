@@ -1,16 +1,19 @@
 from abc import ABC, abstractmethod
 from telegrinder.modules import json
+from telegrinder.bot.cute_types import MessageCute
 import typing
+import collections
 import vbml
 
 T = typing.TypeVar("T")
 patcher = vbml.Patcher()
 
-AnyDataclass = 0x00_01
+Message = MessageCute
+EventScheme = collections.namedtuple("EventScheme", ["name", "dataclass"])
 
 
 class ABCRule(ABC, typing.Generic[T]):
-    __dataclass__ = AnyDataclass
+    __event__: typing.Optional[EventScheme] = None
 
     @abstractmethod
     async def check(self, event: T, ctx: dict) -> bool:
@@ -51,16 +54,20 @@ class OrRule(ABCRule):
         return True
 
 
-class IsMessage(ABCRule):
-    __dataclass__ = dict
+class ABCMessageRule(ABCRule, ABC):
+    __event__ = EventScheme("message", Message)
 
+    @abstractmethod
+    async def check(self, message: Message, ctx: dict) -> bool:
+        ...
+
+
+class IsMessage(ABCRule):
     async def check(self, event: dict, ctx: dict) -> bool:
         return "message" in event
 
 
-class Text(ABCRule):
-    __dataclass__ = dict
-
+class Text(ABCMessageRule):
     def __init__(
         self, texts: typing.Union[str, typing.List[str]], ignore_case: bool = False
     ):
@@ -69,31 +76,23 @@ class Text(ABCRule):
         self.texts = texts
         self.ignore_case = ignore_case
 
-    async def check(self, event: dict, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: dict) -> bool:
         if self.ignore_case:
-            return event["message"].get("text", "").lower() in list(
-                map(str.lower, self.texts)
-            )
-        return event["message"].get("text", "") in self.texts
+            return message.text.lower() in list(map(str.lower, self.texts))
+        return message.text in self.texts
 
 
-class IsPrivate(ABCRule):
-    __dataclass__ = dict
-
-    async def check(self, event: T, ctx: dict) -> bool:
-        return event["message"]["chat"]["id"] > 0
+class IsPrivate(ABCMessageRule):
+    async def check(self, message: Message, ctx: dict) -> bool:
+        return message.chat.id > 0
 
 
 class IsChat(ABCRule):
-    __dataclass__ = dict
-
-    async def check(self, event: T, ctx: dict) -> bool:
-        return event["message"]["chat"]["id"] < 0
+    async def check(self, message: Message, ctx: dict) -> bool:
+        return message.chat.id < 0
 
 
-class Markup(ABCRule):
-    __dataclass__ = dict
-
+class Markup(ABCMessageRule):
     def __init__(self, patterns: typing.Union[str, typing.List[str]]):
         if not isinstance(patterns, list):
             patterns = [patterns]
@@ -102,9 +101,9 @@ class Markup(ABCRule):
             for pattern in patterns
         ]
 
-    async def check(self, event: dict, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: dict) -> bool:
         for pattern in self.patterns:
-            response = patcher.check(pattern, event["message"]["text"])
+            response = patcher.check(pattern, message.text)
             if response is False:
                 continue
             ctx.update(response)
@@ -126,8 +125,6 @@ class FuncRule(ABCRule, typing.Generic[T]):
 
 
 class CallbackDataEq(ABCRule):
-    __dataclass__ = dict
-
     def __init__(self, value: str):
         self.value = value
 
@@ -136,8 +133,6 @@ class CallbackDataEq(ABCRule):
 
 
 class CallbackDataJsonEq(ABCRule):
-    __dataclass__ = dict
-
     def __init__(self, d: dict):
         self.d = d
 
@@ -152,6 +147,7 @@ class CallbackDataJsonEq(ABCRule):
 
 __all__ = (
     ABCRule,
+    ABCMessageRule,
     AndRule,
     OrRule,
     IsMessage,
