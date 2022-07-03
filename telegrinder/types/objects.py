@@ -1,6 +1,6 @@
 import typing
 import inspect
-from telegrinder.tbase import *
+from telegrinder.model import *
 
 
 class Error(BaseModel):

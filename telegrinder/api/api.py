@@ -3,7 +3,7 @@ import typing
 from telegrinder.tools import Result
 from telegrinder.http_ import ABCClient, AiohttpClient
 from telegrinder.types.methods import APIMethods
-from telegrinder.tbase import convert
+from telegrinder.model import convert
 from telegrinder.modules import logger
 
 

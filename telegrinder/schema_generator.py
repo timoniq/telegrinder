@@ -78,7 +78,6 @@ def parse_response(rt: str):
             for prim in ts_prim:
                 s += f"if isinstance(u, {prim}): return Result(True, value=u)\n"
             comp = [t for t in ts if t not in ts_prim]
-            print(comp, ts, ts_prim)
             if len(comp) > 1:
                 print("cannot parse", rt)
                 exit(0)
@@ -107,7 +106,7 @@ def generate(path: str, schema_url: str = URL) -> None:
 
     with open(path + "/objects.py", "w") as file:
         file.writelines(
-            ["import typing\n", "import inspect\n", "from telegrinder.tbase import *\n"]
+            ["import typing\n", "import inspect\n", "from telegrinder.model import *\n"]
         )
 
     for name, obj in objects.items():
