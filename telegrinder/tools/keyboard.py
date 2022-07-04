@@ -23,7 +23,7 @@ class ABCMarkup(ABC, KeyboardModel):
 
     def __init__(
         self,
-        resize_keyboard: bool = False,
+        resize_keyboard: bool = True,
         one_time_keyboard: bool = False,
         selective: Optional[bool] = None,
     ):
