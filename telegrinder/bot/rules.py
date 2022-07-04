@@ -129,13 +129,24 @@ class FuncRule(ABCRule, typing.Generic[T]):
     def __init__(
         self,
         func: typing.Callable[[T, dict], bool],
-        dataclass: typing.Optional[typing.Type[T]] = None,
+        event_scheme: typing.Optional[
+            typing.Union[
+                EventScheme,
+                typing.Tuple[str, typing.Type[T]]
+            ]
+        ] = None,
     ):
         self.func = func
-        self.dataclass = dataclass
+        if isinstance(event_scheme, tuple):
+            event_scheme = EventScheme(*event_scheme)
+        self.event_scheme = event_scheme
 
     async def check(self, event: dict, ctx: dict) -> bool:
-        return self.func(self.dataclass(**event) if self.dataclass else event, ctx)
+        if self.event_scheme:
+            if self.event_scheme.name not in event:
+                return False
+            event = self.event_scheme.dataclass(**event[self.event_scheme.name])
+        return self.func(event, ctx)
 
 
 class CallbackDataEq(ABCRule):
