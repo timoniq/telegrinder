@@ -24,13 +24,14 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
     async def check(self, event: dict) -> bool:
         self.ctx = {}
         for rule in self.rules:
+            e = event
             if rule.__event__ is None:
                 pass
             else:
                 if rule.__event__.name not in event:
                     return False
-                event = rule.__event__.dataclass(**event[rule.__event__.name])
-            if not await rule.check(event, self.ctx):
+                e = rule.__event__.dataclass(**event[rule.__event__.name])
+            if not await rule.check(e, self.ctx):
                 return False
         return True
 
