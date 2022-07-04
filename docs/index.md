@@ -6,3 +6,4 @@ Work in progress
 
 * [Checkbox](sheets/checkbox.md)
 * [Keyboard Set](sheets/keyboard_set.md)
+* [Formatting](sheets/formatting.md)
