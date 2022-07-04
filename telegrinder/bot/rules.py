@@ -30,11 +30,16 @@ class AndRule(ABCRule):
     def __init__(self, *rules: ABCRule):
         self.rules = rules
 
-    async def check(self, event: T, ctx: dict) -> bool:
+    async def check(self, event: dict, ctx: dict) -> bool:
         ctx_copy = ctx.copy()
-        r = all((await rule.check(event, ctx_copy)) for rule in self.rules)
-        if not r:
-            return False
+        for rule in self.rules:
+            e = event
+            if rule.__event__:
+                if rule.__event__.name not in event:
+                    return False
+                e = rule.__event__.dataclass(**event[rule.__event__.name])
+            if not await rule.check(e, ctx_copy):
+                return False
         ctx.clear()
         ctx.update(ctx_copy)
         return True
@@ -46,12 +51,21 @@ class OrRule(ABCRule):
 
     async def check(self, event: T, ctx: dict) -> bool:
         ctx_copy = ctx.copy()
-        r = any([(await rule.check(event, ctx_copy)) for rule in self.rules])
-        if not r:
-            return False
+        found = False
+
+        for rule in self.rules:
+            e = event
+            if rule.__event__:
+                if rule.__event__.name not in event:
+                    continue
+                e = rule.__event__.dataclass(**event[rule.__event__.name])
+            if await rule.check(e, ctx_copy):
+                found = True
+                break
+
         ctx.clear()
         ctx.update(ctx_copy)
-        return True
+        return found
 
 
 class ABCMessageRule(ABCRule, ABC):
