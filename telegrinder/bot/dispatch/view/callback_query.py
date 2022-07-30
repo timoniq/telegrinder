@@ -77,6 +77,10 @@ class CallbackQueryView(ABCView):
 
         return found
 
+    def load(self, external: "CallbackQueryView"):
+        self.handlers.extend(external.handlers)
+        self.middlewares.extend(external.middlewares)
+
     async def wait_for_answer(
         self,
         chat_id: int,

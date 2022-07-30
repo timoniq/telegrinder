@@ -10,3 +10,7 @@ class ABCView(ABC):
     @abstractmethod
     async def process(self, event: dict, api: ABCAPI):
         pass
+
+    @abstractmethod
+    async def load(self, external: "ABCView"):
+        pass

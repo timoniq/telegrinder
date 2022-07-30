@@ -23,8 +23,11 @@ class MessageView(ABCView):
                 FuncHandler(func, list(rules), is_blocking, dataclass=None)
             )
             return func
-
         return wrapper
+
+    def load(self, external: "MessageView"):
+        self.handlers.extend(external.handlers)
+        self.middlewares.extend(external.middlewares)
 
     async def check(self, event: dict) -> bool:
         return "message" in event
