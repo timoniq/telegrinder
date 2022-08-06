@@ -32,6 +32,10 @@ class ABCFormatter(ABC, str):
     def link(self: T, href: str) -> T:
         ...
 
+    @abstractmethod
+    def spoiler(self: T) -> T:
+        ...
+
     def mention(self: T, user_id: int) -> T:
         return self.link(get_mention_link(user_id))
 
