@@ -1,8 +1,7 @@
 from .abc import ABCFormatter
-import typing
 from telegrinder.tools.parse_mode import ParseMode
 
-FMT_CHARS = "\\`*_{}[]()#+-!"
+FMT_CHARS = "\\`*_{}[]()#+-=!.@~|"
 
 
 def wrap_md(wrapper: str, s: str) -> "MarkdownFormatter":
@@ -13,13 +12,10 @@ class MarkdownFormatter(ABCFormatter):
     PARSE_MODE = ParseMode.MARKDOWNV2
 
     def escape(self) -> "MarkdownFormatter":
-        ns = ""
-        for c in self:
-            if c in FMT_CHARS:
-                ns += "\\"
-            ns += c
-        ns = ns.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        return MarkdownFormatter(ns)
+        return MarkdownFormatter(
+            "".join("\\" + x if x in FMT_CHARS else x for x in self)
+            .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        )
 
     def escape_code(self) -> "MarkdownFormatter":
         return self.replace("\\", "\\\\").replace("`", "\\`")
@@ -38,12 +34,15 @@ class MarkdownFormatter(ABCFormatter):
 
     def strike(self) -> "MarkdownFormatter":
         return wrap_md("~", self)
+    
+    def spoiler(self) -> "MarkdownFormatter":
+        return wrap_md("||", self)
 
     def link(self, href: str) -> "MarkdownFormatter":
         return MarkdownFormatter(
             f"[{self.escape()}]({MarkdownFormatter(href).escape_link()})"
         )
-
+    
     def code_block(self) -> "MarkdownFormatter":
         return MarkdownFormatter(f"```\n{self.escape_code()}\n```")
 

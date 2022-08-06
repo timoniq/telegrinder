@@ -33,6 +33,9 @@ class HTMLFormatter(ABCFormatter):
 
     def strike(self) -> "HTMLFormatter":
         return wrap_tag("s", self)
+    
+    def spoiler(self) -> "HTMLFormatter":
+        return wrap_tag("tg-spoiler", self)
 
     def link(self, href: str) -> "HTMLFormatter":
         return wrap_tag(
