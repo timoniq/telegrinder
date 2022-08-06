@@ -17,6 +17,7 @@ Formatter is derived from `str` and always implements these methods:
 * `.italic()`
 * `.underline()`
 * `.strike()`
+* `.spoiler()`
 * `.link(href: str)`
 * `.mention(user_id: int)`
 * `.code_block()`
