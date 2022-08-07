@@ -5,7 +5,7 @@ from telegrinder.bot.rules import ABCRule
 from .handler import ABCHandler, FuncHandler
 from telegrinder.types import Update
 from telegrinder.api.abc import ABCAPI
-from .view import ABCView, MessageView, CallbackQueryView
+from .view import ABCView, MessageView, CallbackQueryView, InlineQueryView
 import typing
 
 T = typing.TypeVar("T")
@@ -19,7 +19,8 @@ class Dispatch(ABCDispatch):
         self.loop = asyncio.get_event_loop()
         self.message = MessageView()
         self.callback_query = CallbackQueryView()
-        self.views = ["message", "callback_query"]
+        self.inline_query = InlineQueryView()
+        self.views = ["message", "callback_query", "inline_query"]
 
     def handle(
         self,
@@ -40,6 +41,13 @@ class Dispatch(ABCDispatch):
             view = getattr(self, view_name)
             assert view, f"View {view_name} is undefined in dispatch"
             yield view
+
+    def get_view(self, view_t: typing.Type[T], name: str) -> typing.Optional[T]:
+        if name not in self.views:
+            return None
+        view = getattr(self, name)
+        assert isinstance(view, view_t)
+        return view  # type: ignore
 
     def load(self, external: "Dispatch"):
         for view_name in self.views:
@@ -65,3 +73,7 @@ class Dispatch(ABCDispatch):
                 if handler.is_blocking:
                     return True
         return found
+
+    def mount(self, view_t: typing.Type["ABCView"], name: str):
+        self.views.append(name)
+        setattr(self, name, view_t)
