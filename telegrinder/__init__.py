@@ -15,6 +15,7 @@ from .bot import (
     FuncHandler,
     MessageCute,
     CallbackQueryCute,
+    InlineQueryCute,
     ABCMiddleware,
     ABCScenario,
     Checkbox,
@@ -34,3 +35,4 @@ from .tools import (
 
 Message = MessageCute
 CallbackQuery = CallbackQueryCute
+InlineQuery = InlineQueryCute

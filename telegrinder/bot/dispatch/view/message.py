@@ -1,16 +1,17 @@
 from .abc import ABCView
 from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler
-from telegrinder.bot.dispatch.waiter import Waiter, wait
+from telegrinder.bot.dispatch.waiter import Waiter
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
 from telegrinder.bot.rules import ABCRule
 from telegrinder.bot.cute_types import MessageCute
 from telegrinder.api.abc import ABCAPI
-from telegrinder.bot.dispatch.waiter import DefaultWaiterHandler
+from telegrinder.bot.dispatch.waiter import WithWaiter, DefaultWaiterHandler
+from telegrinder.bot.dispatch.process import process_waiters, process_inner
 import typing
 import asyncio
 
 
-class MessageView(ABCView):
+class MessageView(ABCView, WithWaiter[int, MessageCute]):
     def __init__(self):
         self.handlers: typing.List[ABCHandler[MessageCute]] = []
         self.middlewares: typing.List[ABCMiddleware[MessageCute]] = []
@@ -35,58 +36,15 @@ class MessageView(ABCView):
     async def process(self, event: dict, api: ABCAPI):
         msg = MessageCute(**event["message"], unprep_ctx_api=api)
 
-        if msg.chat.id in self.short_waiters:
-            waiter = self.short_waiters[msg.chat.id]
-            ctx = {}
-
-            for rule in waiter.rules:
-                chk_event = msg
-                if rule.__event__ is None:
-                    chk_event = event
-                if not await rule.check(chk_event, ctx):
-                    if not waiter.default:
-                        return
-                    elif isinstance(waiter.default, str):
-                        await msg.answer(waiter.default)
-                    else:
-                        await waiter.default(msg)
-                    return
-
-            self.short_waiters.pop(msg.chat.id)
-            setattr(waiter.event, "e", (msg, ctx))
-            waiter.event.set()
+        if await process_waiters(self.short_waiters, msg.chat.id, msg, event, msg.answer):
             return
 
-        ctx = {}
-
-        for middleware in self.middlewares:
-            if await middleware.pre(msg, ctx) is False:
-                return False
-
-        found = False
-        responses = []
-        for handler in self.handlers:
-            result = await handler.check(event)
-            if result:
-                handler.ctx.update(ctx)
-                found = True
-                response = await handler.run(msg)
-                responses.append(response)
-                if handler.is_blocking:
-                    break
-
-        for middleware in self.middlewares:
-            await middleware.post(msg, responses, ctx)
-
-        return found
+        return await process_inner(msg, event, self.middlewares, self.handlers)
 
     async def wait_for_message(
         self,
         chat_id: int,
         *rules: ABCRule,
         default: typing.Optional[typing.Union[DefaultWaiterHandler, str]] = None
-    ) -> typing.Tuple[MessageCute, dict]:
-        event = asyncio.Event()
-        waiter = Waiter(rules, event, default)
-        self.short_waiters[chat_id] = waiter
-        return await wait(waiter)
+    ) -> typing.Tuple["MessageCute", dict]:
+        return await self.wait_for_answer(chat_id, *rules, default=default)

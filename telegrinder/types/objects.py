@@ -683,10 +683,6 @@ class InlineQuery(BaseModel):
     location: typing.Optional['Location'] = None
 
 
-class InlineQueryResult(BaseModel):
-    pass
-
-
 class InlineQueryResultArticle(BaseModel):
     type: typing.Optional[str] = None
     id: typing.Optional[str] = None
@@ -961,6 +957,10 @@ class InlineQueryResultCachedAudio(BaseModel):
     caption_entities: typing.Optional[typing.List['MessageEntity']] = None
     reply_markup: typing.Optional['InlineKeyboardMarkup'] = None
     input_message_content: typing.Optional['InputMessageContent'] = None
+
+
+class InlineQueryResult(InlineQueryResultArticle, InlineQueryResultAudio): # ...
+    pass
 
 
 class InputMessageContent(BaseModel):
