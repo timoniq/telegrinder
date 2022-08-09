@@ -1,29 +1,32 @@
 # telegrinder
 
+Framework for effective and reliable telegram bot building.
+
+Still in development.
+
 # Getting started
 
-## Example
+Install using PyPI:
+
+```
+pip install telegrinder
+```
+
+Basic example:
 
 ```python
 from telegrinder import Telegrinder, API, Token, Message
 from telegrinder.bot.rules import Text
 import logging
 
-api = API(token=Token("123:token")) # recommended to use Token.from_env()
+api = API(token=Token("123:token"))
 bot = Telegrinder(api)
 logging.basicConfig(level=logging.INFO)
 
 @bot.on.message(Text("/start"))
 async def start(message: Message):
-    me = (await api.get_me()).unwrap().first_name
-    await message.answer(
-        "Hello, {}! It's {}. How are you today?".format(message.from_.first_name, me),
-    )
-    m, _ = await bot.on.message.wait_for_message(message.chat.id)
-    if m.text.lower() == "fine":
-        await m.reply("Cool!")
-    elif m.text.lower() == "bad":
-        await m.reply("Oh, i wish i could help you with that. May be some sleep will help")
+    me = (await api.get_me()).unwrap()
+    await message.answer(f"Hello, {me.first_name}")
 
 bot.run_forever()
 ```

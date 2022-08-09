@@ -14,7 +14,9 @@ class MarkdownFormatter(ABCFormatter):
     def escape(self) -> "MarkdownFormatter":
         return MarkdownFormatter(
             "".join("\\" + x if x in FMT_CHARS else x for x in self)
-            .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
         )
 
     def escape_code(self) -> "MarkdownFormatter":
@@ -34,7 +36,7 @@ class MarkdownFormatter(ABCFormatter):
 
     def strike(self) -> "MarkdownFormatter":
         return wrap_md("~", self)
-    
+
     def spoiler(self) -> "MarkdownFormatter":
         return wrap_md("||", self)
 
@@ -42,7 +44,7 @@ class MarkdownFormatter(ABCFormatter):
         return MarkdownFormatter(
             f"[{self.escape()}]({MarkdownFormatter(href).escape_link()})"
         )
-    
+
     def code_block(self) -> "MarkdownFormatter":
         return MarkdownFormatter(f"```\n{self.escape_code()}\n```")
 

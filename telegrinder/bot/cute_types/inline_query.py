@@ -1,4 +1,4 @@
-from telegrinder.types import InlineQuery, InlineQueryResult
+from telegrinder.types import InlineQuery
 from telegrinder.api import API, APIError
 from telegrinder.tools import Result
 import typing
@@ -27,5 +27,5 @@ class InlineQueryCute(InlineQuery):
             is_personal=is_personal,
             next_offset=next_offset,
             switch_pm_text=switch_pm_text,
-            switch_pm_parameter=switch_pm_parameter
+            switch_pm_parameter=switch_pm_parameter,
         )
