@@ -13,7 +13,7 @@ async def process_waiters(
     key: T,
     event: typing.Optional[E],
     raw_event: dict,
-    str_handler: typing.Callable
+    str_handler: typing.Callable,
 ) -> bool:
     if key not in waiters:
         return False
@@ -29,7 +29,7 @@ async def process_waiters(
             if not waiter.default:
                 return True
             elif isinstance(waiter.default, str):
-                await str_handler(event, waiter.default)
+                await str_handler(waiter.default)
             else:
                 await waiter.default(event)
             return True
@@ -44,7 +44,7 @@ async def process_inner(
     event: T,
     raw_event: dict,
     middlewares: typing.List[ABCMiddleware[T]],
-    handlers: typing.List[ABCHandler[T]]
+    handlers: typing.List[ABCHandler[T]],
 ) -> bool:
     ctx = {}
 

@@ -33,7 +33,9 @@ class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
     async def process(self, event: dict, api: ABCAPI):
         query = CallbackQueryCute(**event["callback_query"], unprep_ctx_api=api)
 
-        if await process_waiters(self.short_waiters, query.from_.id, query, event, query.answer):
+        if await process_waiters(
+            self.short_waiters, query.from_.id, query, event, query.answer
+        ):
             return
 
         return await process_inner(query, event, self.middlewares, self.handlers)
@@ -41,3 +43,4 @@ class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
     def load(self, external: "CallbackQueryView"):
         self.handlers.extend(external.handlers)
         self.middlewares.extend(external.middlewares)
+        external.short_waiters = self.short_waiters

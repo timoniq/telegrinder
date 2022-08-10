@@ -24,11 +24,13 @@ class MessageView(ABCView, WithWaiter[int, MessageCute]):
                 FuncHandler(func, list(rules), is_blocking, dataclass=None)
             )
             return func
+
         return wrapper
 
     def load(self, external: "MessageView"):
         self.handlers.extend(external.handlers)
         self.middlewares.extend(external.middlewares)
+        external.short_waiters = self.short_waiters
 
     async def check(self, event: dict) -> bool:
         return "message" in event
@@ -36,7 +38,9 @@ class MessageView(ABCView, WithWaiter[int, MessageCute]):
     async def process(self, event: dict, api: ABCAPI):
         msg = MessageCute(**event["message"], unprep_ctx_api=api)
 
-        if await process_waiters(self.short_waiters, msg.chat.id, msg, event, msg.answer):
+        if await process_waiters(
+            self.short_waiters, msg.chat.id, msg, event, msg.answer
+        ):
             return
 
         return await process_inner(msg, event, self.middlewares, self.handlers)
