@@ -29,7 +29,7 @@ async def process_waiters(
             if not waiter.default:
                 return True
             elif isinstance(waiter.default, str):
-                await str_handler(event, waiter.default)
+                await str_handler(waiter.default)
             else:
                 await waiter.default(event)
             return True
