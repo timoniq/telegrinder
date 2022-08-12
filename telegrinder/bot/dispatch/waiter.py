@@ -27,11 +27,11 @@ class WithWaiter(typing.Generic[T, E]):
 
     async def wait_for_answer(
         self,
-        chat_id: int,
+        key: T,
         *rules: ABCRule,
         default: typing.Optional[typing.Union[DefaultWaiterHandler, str]] = None
     ) -> typing.Tuple[E, dict]:
         event = asyncio.Event()
         waiter = Waiter(rules, event, default)
-        self.short_waiters[chat_id] = waiter
+        self.short_waiters[key] = waiter
         return await wait(waiter)
