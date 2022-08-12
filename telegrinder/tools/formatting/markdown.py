@@ -20,10 +20,10 @@ class MarkdownFormatter(ABCFormatter):
         )
 
     def escape_code(self) -> "MarkdownFormatter":
-        return self.replace("\\", "\\\\").replace("`", "\\`")
+        return MarkdownFormatter(self.replace("\\", "\\\\").replace("`", "\\`"))
 
     def escape_link(self) -> "MarkdownFormatter":
-        return self.replace("`", "\\`").replace(")", "\\)")
+        return MarkdownFormatter(self.replace("`", "\\`").replace(")", "\\)"))
 
     def bold(self) -> "MarkdownFormatter":
         return wrap_md("*", self)
