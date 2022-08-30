@@ -39,7 +39,6 @@ class Polling(ABCPolling):
             "getUpdates",
             {"offset": self.offset, "allowed_updates": self.allowed_updates},
         )
-        print(raw_updates)
         if not raw_updates.is_ok and raw_updates.error.code == 404:
             logger.fatal("Token seems to be invalid")
             exit(6)
