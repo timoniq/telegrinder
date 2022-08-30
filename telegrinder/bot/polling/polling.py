@@ -39,6 +39,7 @@ class Polling(ABCPolling):
             "getUpdates",
             {"offset": self.offset, "allowed_updates": self.allowed_updates},
         )
+        print(raw_updates)
         if not raw_updates.is_ok and raw_updates.error.code == 404:
             logger.fatal("Token seems to be invalid")
             exit(6)
@@ -49,7 +50,7 @@ class Polling(ABCPolling):
             try:
                 updates = await self.get_updates()
                 for update in updates:
-                    self.offset = updates[0]["update_id"] + 1
+                    self.offset = updates[-1]["update_id"] + 1
                     logger.debug(f"Received update: {update}")
                     yield update
             except BaseException as e:
