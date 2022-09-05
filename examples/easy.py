@@ -33,4 +33,4 @@ async def reverse(message: Message, text: str):
         )
 
 
-bot.run_forever()
+bot.run_forever(skip_updates=True)

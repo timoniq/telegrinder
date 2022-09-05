@@ -17,8 +17,9 @@ class Markup(ABCMessageRule):
     async def check(self, message: Message, ctx: dict) -> bool:
         for pattern in self.patterns:
             response = patcher.check(pattern, message.text)
-            if response is False:
+            if response in (False, None):
                 continue
-            ctx.update(response)
+            elif isinstance(response, dict):
+                ctx.update(response)
             return True
         return False
