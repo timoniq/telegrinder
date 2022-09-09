@@ -1,18 +1,18 @@
 import re
-from typing import List, Union
+from typing import List, Pattern, Union
 
 from .abc import ABCMessageRule, Message
 
 
 class Regex(ABCMessageRule):
-    def __init__(self,
-                 regexp: Union[str, List[str], re.Pattern, List[re.Pattern]]):
+    def __init__(self, regexp: Union[str, List[str], Pattern, List[Pattern]]):
         if isinstance(regexp, re.Pattern):
             regexp = [regexp]
         elif isinstance(regexp, str):
             regexp = [re.compile(regexp)]
-        elif isinstance(regexp, list):
-            regexp = [re.compile(exp) for exp in regexp]
+        else:
+            regexp = [re.compile(regexp) if isinstance(
+                regexp, str) else regexp for regexp in regexp]
 
         self.regexp = regexp
 
