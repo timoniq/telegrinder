@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import typing
-from telegrinder.http_ import ABCClient
+from telegrinder.client import ABCClient
 from telegrinder.tools import Result
 from telegrinder.api.error import APIError
 

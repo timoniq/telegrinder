@@ -1,5 +1,5 @@
 from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.bot.rules import Text, Markup
+from telegrinder.bot.rules import Text, Markup, FuzzyText
 import logging
 
 api = API(token=Token.from_env())
@@ -32,5 +32,9 @@ async def reverse(message: Message, text: str):
             text="Wow.. Seems like this is a palindrome.",
         )
 
+
+@bot.on.message(FuzzyText("hello"))
+async def hello(message: Message):
+    await message.reply("Hi!")
 
 bot.run_forever(skip_updates=True)
