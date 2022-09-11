@@ -1,10 +1,11 @@
 import re
 from typing import List, Pattern, Union
 
-from .abc import ABCMessageRule, Message
+from .abc import Message
+from .text import ABCTextMessageRule
 
 
-class Regex(ABCMessageRule):
+class Regex(ABCTextMessageRule):
     def __init__(self, regexp: Union[str, List[str], Pattern, List[Pattern]]):
         if isinstance(regexp, re.Pattern):
             regexp = [regexp]

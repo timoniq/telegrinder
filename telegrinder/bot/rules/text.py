@@ -1,8 +1,17 @@
-from .abc import ABCMessageRule, Message
+from .abc import ABC, ABCMessageRule, Message
 import typing
 
 
-class Text(ABCMessageRule):
+class HasText(ABCMessageRule):
+    async def check(self, message: Message, ctx: dict) -> bool:
+        return bool(message.text)
+
+
+class ABCTextMessageRule(ABCMessageRule, ABC):
+    require = [HasText()]
+
+
+class Text(ABCTextMessageRule):
     def __init__(
         self, texts: typing.Union[str, typing.List[str]], ignore_case: bool = False
     ):

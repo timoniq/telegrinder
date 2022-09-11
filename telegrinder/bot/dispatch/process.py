@@ -25,7 +25,7 @@ async def process_waiters(
         chk_event = event
         if rule.__event__ is None:
             chk_event = raw_event
-        if not await rule.check(chk_event, ctx):
+        if not await rule.run_check(chk_event, ctx):
             if not waiter.default:
                 return True
             elif isinstance(waiter.default, str):

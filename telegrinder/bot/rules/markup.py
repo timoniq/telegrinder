@@ -1,11 +1,12 @@
-from .abc import ABCMessageRule, Message, patcher
+from .abc import Message, patcher
+from .text import ABCTextMessageRule
 import typing
 import vbml
 
 PatternLike = typing.Union[str, vbml.Pattern]
 
 
-class Markup(ABCMessageRule):
+class Markup(ABCTextMessageRule):
     def __init__(self, patterns: typing.Union[PatternLike, typing.List[PatternLike]]):
         if not isinstance(patterns, list):
             patterns = [patterns]
