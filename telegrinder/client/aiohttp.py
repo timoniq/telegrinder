@@ -1,6 +1,6 @@
 import ssl
 import typing
-from telegrinder.http_.abc import ABCClient
+from telegrinder.client.abc import ABCClient
 from aiohttp import ClientSession, TCPConnector
 from telegrinder.modules import json, JSONModule
 import certifi
