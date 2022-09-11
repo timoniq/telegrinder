@@ -34,7 +34,7 @@ class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
         query = CallbackQueryCute(**event["callback_query"], unprep_ctx_api=api)
 
         if await process_waiters(
-            self.short_waiters, query.from_.id, query, event, query.answer
+            self.short_waiters, query.message.message_id, query, event, query.answer
         ):
             return
 
