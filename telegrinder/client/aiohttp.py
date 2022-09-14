@@ -1,5 +1,8 @@
 import ssl
 import typing
+
+import aiohttp
+
 from telegrinder.client.abc import ABCClient
 from aiohttp import ClientSession, TCPConnector
 from telegrinder.modules import json, JSONModule
@@ -15,12 +18,14 @@ class AiohttpClient(ABCClient):
         loop: typing.Optional[ClientSession] = None,
         session: typing.Optional[ClientSession] = None,
         json_processing_module: typing.Optional[JSONModule] = None,
+        timeout: typing.Optional[aiohttp.ClientTimeout] = None,
         **session_params
     ):
         self.loop = loop
         self.session = session
         self.json_processing_module = json_processing_module or json
         self.session_params = session_params
+        self.timeout = timeout or aiohttp.ClientTimeout(total=0)
 
     async def request_raw(
         self,
@@ -38,7 +43,11 @@ class AiohttpClient(ABCClient):
                 **self.session_params,
             )
         async with self.session.request(
-            url=url, method=method, data=data, **kwargs
+            url=url,
+            method=method,
+            data=data,
+            timeout=self.timeout,
+            **kwargs
         ) as response:
             await response.read()
             return response

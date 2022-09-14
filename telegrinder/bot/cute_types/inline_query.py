@@ -1,4 +1,4 @@
-from telegrinder.types import InlineQuery
+from telegrinder.types import InlineQuery, User
 from telegrinder.api import API, APIError
 from telegrinder.tools import Result
 import typing
@@ -6,6 +6,10 @@ import typing
 
 class InlineQueryCute(InlineQuery):
     unprep_ctx_api: typing.Optional[typing.Any] = None
+
+    @property
+    def from_user(self) -> User:
+        return self.from_
 
     @property
     def ctx_api(self) -> API:

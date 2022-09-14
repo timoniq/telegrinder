@@ -1,5 +1,6 @@
 from telegrinder.types import (
     Message,
+    User,
     MessageEntity,
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
@@ -14,6 +15,10 @@ import typing
 
 class MessageCute(Message):
     unprep_ctx_api: typing.Optional[typing.Any] = None
+
+    @property
+    def from_user(self) -> User:
+        return self.from_
 
     @property
     def ctx_api(self) -> API:
