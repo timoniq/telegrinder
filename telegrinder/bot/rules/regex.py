@@ -22,5 +22,5 @@ class Regex(ABCTextMessageRule):
             match = re.match(regexp, message.text)
             if match:
                 ctx.update({"match": match.groups()})
-            return True
+                return True
         return False
