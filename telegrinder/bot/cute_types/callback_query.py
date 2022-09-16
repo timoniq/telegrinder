@@ -1,4 +1,4 @@
-from telegrinder.types import CallbackQuery
+from telegrinder.types import CallbackQuery, User
 from telegrinder.types.methods import APIMethods
 from telegrinder.api import API, APIError
 from telegrinder.tools import Result
@@ -7,6 +7,10 @@ import typing
 
 class CallbackQueryCute(CallbackQuery):
     unprep_ctx_api: typing.Optional[typing.Any] = None
+
+    @property
+    def from_user(self) -> User:
+        return self.from_
 
     @property
     def ctx_api(self) -> API:

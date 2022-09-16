@@ -31,7 +31,7 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
                 if rule.__event__.name not in event:
                     return False
                 e = rule.__event__.dataclass(**event[rule.__event__.name])
-            if not await rule.check(e, self.ctx):
+            if not await rule.run_check(e, self.ctx):
                 return False
         return True
 

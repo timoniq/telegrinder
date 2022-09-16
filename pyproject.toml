@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "telegrinder"
-version = "0.1.dev5"
+version = "0.1.dev6"
 description = "Grinding telegram events – customizable tool to build telegram bots"
 authors = ["timoniq <tesseradecades@mail.ru>"]
 license = "MIT"
