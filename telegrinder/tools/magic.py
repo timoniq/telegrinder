@@ -1,5 +1,6 @@
-import typing
+import inspect
 import types
+import typing
 
 AnyMock = type("Any", (object,), {"__str__": lambda _: "Any"})
 
@@ -24,10 +25,16 @@ def resolve_arg_names(func: types.FunctionType) -> typing.Tuple[str, ...]:
     return func.__code__.co_varnames[1 : func.__code__.co_argcount]
 
 
+def get_default_args(func: types.FunctionType) -> typing.Tuple[str, ...]:
+    fspec = inspect.getfullargspec(func)
+    return tuple(fspec.args[::-1][:len(fspec.defaults or tuple())])[::-1]
+
+
 def magic_bundle(
     handler: types.FunctionType, kw: typing.Dict[str, typing.Any]
 ) -> typing.Dict[str, typing.Any]:
-    arg_names = resolve_arg_names(handler)
+    default_args = get_default_args(handler)
+    arg_names = filter(lambda a: a not in default_args, resolve_arg_names(handler))
     hints = typing.get_type_hints(handler)
     kw_new = {}
     for name in arg_names:
