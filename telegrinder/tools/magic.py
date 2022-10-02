@@ -33,7 +33,8 @@ def get_default_args(func: types.FunctionType) -> typing.Dict[str, typing.Any]:
 def magic_bundle(
     handler: types.FunctionType, kw: typing.Dict[str, typing.Any]
 ) -> typing.Dict[str, typing.Any]:
-    args = get_default_args(handler) | kw
+    args = get_default_args(handler)
+    args.update(kw)
     arg_names = resolve_arg_names(handler)
     hints = typing.get_type_hints(handler)
     kw_new = {}
