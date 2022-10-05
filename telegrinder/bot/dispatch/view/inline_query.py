@@ -7,6 +7,7 @@ from telegrinder.bot.cute_types import InlineQueryCute
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.waiter import WithWaiter
 from telegrinder.bot.dispatch.process import process_waiters, process_inner
+from telegrinder.types import Update
 import typing
 import asyncio
 
@@ -32,11 +33,11 @@ class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
         self.middlewares.extend(external.middlewares)
         external.short_waiters = self.short_waiters
 
-    async def check(self, event: dict) -> bool:
-        return "inline_query" in event
+    async def check(self, event: Update) -> bool:
+        return bool(event.inline_query)
 
-    async def process(self, event: dict, api: ABCAPI):
-        query = InlineQueryCute(**event["inline_query"], unprep_ctx_api=api)
+    async def process(self, event: Update, api: ABCAPI):
+        query = InlineQueryCute(**event.inline_query.to_dict(), unprep_ctx_api=api)
 
         if await process_waiters(
             self.short_waiters, query.id, query, event, query.answer

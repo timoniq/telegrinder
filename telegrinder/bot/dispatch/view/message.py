@@ -7,6 +7,7 @@ from telegrinder.bot.cute_types import MessageCute
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.waiter import WithWaiter, DefaultWaiterHandler
 from telegrinder.bot.dispatch.process import process_waiters, process_inner
+from telegrinder.types import Update
 import typing
 import asyncio
 
@@ -32,11 +33,11 @@ class MessageView(ABCView, WithWaiter[int, MessageCute]):
         self.middlewares.extend(external.middlewares)
         external.short_waiters = self.short_waiters
 
-    async def check(self, event: dict) -> bool:
-        return "message" in event
+    async def check(self, event: Update) -> bool:
+        return bool(event.message)
 
-    async def process(self, event: dict, api: ABCAPI):
-        msg = MessageCute(**event["message"], unprep_ctx_api=api)
+    async def process(self, event: Update, api: ABCAPI):
+        msg = MessageCute(**event.message.to_dict(), unprep_ctx_api=api)
 
         if await process_waiters(
             self.short_waiters, msg.chat.id, msg, event, msg.answer

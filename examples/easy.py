@@ -14,15 +14,15 @@ logging.basicConfig(level=logging.INFO)
 async def start(message: Message):
     me = (await api.get_me()).unwrap().first_name
     await message.answer(
-        "Hello, {}! It's {}. How are you today?".format(message.from_user.first_name, me),
+        "Hello, {}! It's {}. How are you today?".format(
+            message.from_user.first_name, me
+        ),
     )
     m, _ = await bot.on.message.wait_for_message(message.chat.id)
     if m.text.lower() == "fine":
         await m.reply("Cool!")
     elif m.text.lower() == "bad":
-        await m.reply(
-            "Oh, i wish i could help you with that. May be some rest will help"
-        )
+        await m.reply("Damn")
 
 
 @bot.on.message(Markup("/reverse <text>"))
@@ -50,5 +50,6 @@ async def predict(message: Message, thing: typing.Optional[str] = None):
 @bot.on.message(FuzzyText("hello"))
 async def hello(message: Message):
     await message.reply("Hi!")
+
 
 bot.run_forever(skip_updates=True)

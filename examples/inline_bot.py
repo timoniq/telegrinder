@@ -16,9 +16,10 @@ async def reverse_inline(q: InlineQuery):
                 "type": "article",
                 "id": "1",
                 "title": "Send reversed",
-                "input_message_content": dict(message_text=q.query[::-1])
+                "input_message_content": dict(message_text=q.query[::-1]),
             }
         ]
     )
+
 
 bot.run_forever()

@@ -12,8 +12,10 @@ class Regex(ABCTextMessageRule):
         elif isinstance(regexp, str):
             regexp = [re.compile(regexp)]
         else:
-            regexp = [re.compile(regexp) if isinstance(
-                regexp, str) else regexp for regexp in regexp]
+            regexp = [
+                re.compile(regexp) if isinstance(regexp, str) else regexp
+                for regexp in regexp
+            ]
 
         self.regexp = regexp
 

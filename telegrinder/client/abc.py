@@ -38,6 +38,16 @@ class ABCClient(ABC):
         pass
 
     @abstractmethod
+    async def request_bytes(
+        self,
+        url: str,
+        method: str = "GET",
+        data: typing.Optional[dict] = None,
+        **kwargs
+    ) -> bytes:
+        pass
+
+    @abstractmethod
     async def close(self) -> None:
         pass
 

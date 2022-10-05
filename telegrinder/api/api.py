@@ -1,9 +1,12 @@
+import msgspec
+
 from .abc import ABCAPI, APIError, Token
 import typing
 from telegrinder.tools import Result
 from telegrinder.client import ABCClient, AiohttpClient
 from telegrinder.types.methods import APIMethods
 from telegrinder.model import convert
+from telegrinder.api.response import APIResponse
 from telegrinder.modules import logger
 
 
@@ -44,3 +47,15 @@ class API(ABCAPI, APIMethods):
 
         code, msg = response.get("error_code"), response.get("description")
         return Result(False, error=APIError(code, msg))
+
+    async def request_raw(
+        self, method: str, data: typing.Optional[dict] = None
+    ) -> Result[msgspec.Raw, APIError]:
+        data = convert(data)
+        response_bytes = await self.http.request_bytes(
+            self._request_url + method, json=data
+        )
+        response_skeleton: APIResponse = msgspec.json.decode(
+            response_bytes, type=APIResponse
+        )
+        return response_skeleton.to_result()

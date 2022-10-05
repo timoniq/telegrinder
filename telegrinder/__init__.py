@@ -1,5 +1,5 @@
 from .client import ABCClient, AiohttpClient
-from .api import ABCAPI, Token, API
+from .api import ABCAPI, Token, API, APIError, APIResponse
 from .bot import (
     ABCPolling,
     Polling,

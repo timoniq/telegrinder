@@ -2,6 +2,7 @@ import typing
 import types
 from telegrinder.bot.rules import ABCRule
 from telegrinder.tools import magic_bundle
+from telegrinder.types import Update
 from .abc import ABCHandler
 
 T = typing.TypeVar("T")
@@ -21,16 +22,19 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
         self.dataclass = dataclass
         self.ctx = {}
 
-    async def check(self, event: dict) -> bool:
+    async def check(self, event: Update) -> bool:
         self.ctx = {}
         for rule in self.rules:
             e = event
             if rule.__event__ is None:
                 pass
             else:
-                if rule.__event__.name not in event:
+                event_dict = event.to_dict()
+                if rule.__event__.name not in event_dict:
                     return False
-                e = rule.__event__.dataclass(**event[rule.__event__.name])
+                e = rule.__event__.dataclass(
+                    **event_dict[rule.__event__.name].to_dict()
+                )
             if not await rule.run_check(e, self.ctx):
                 return False
         return True

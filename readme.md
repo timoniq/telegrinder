@@ -4,6 +4,12 @@ Framework for effective and reliable telegram bot building.
 
 Still in development.
 
+* Type hinted
+* Customizable and extensible
+* Ready to use scenarios and rules
+* Fast models built on msgspec
+* Both low-level and high-level API
+
 # Getting started
 
 Install using PyPI:

@@ -32,8 +32,9 @@ class Telegrinder:
             await self.reset_webhook()
             await self.api.delete_webhook(drop_pending_updates=True)
         self.polling.offset = offset
-        async for update in self.polling.listen():
-            self.dispatch.loop.create_task(self.dispatch.feed(update, self.api))
+        async for updates in self.polling.listen():
+            for update in updates:
+                self.dispatch.loop.create_task(self.dispatch.feed(update, self.api))
 
     def run_forever(self, offset: int = 0, skip_updates: bool = False) -> None:
         loop = asyncio.get_event_loop()

@@ -16,13 +16,25 @@ TYPES = {
 SPACES = "    "
 
 
-def convert_type(d: dict) -> str:
+def convert_optional(func):
+    def wrapper(d: dict, forward_ref: bool = True):
+        t = func(d, forward_ref)
+        # if "description" in d:
+        #     if "*Optional*" in d["description"]:
+        #        t = "typing.Optional[" + t + "] = None"
+        return t
+
+    return wrapper
+
+
+@convert_optional
+def convert_type(d: dict, forward_ref: bool = True) -> str:
     if "type" in d:
         t = d["type"]
         if t in TYPES:
             return TYPES[t]
         elif t == "array":
-            nt = convert_type(d["items"])
+            nt = convert_type(d["items"], forward_ref)
             return "typing.List[" + nt + "]"
         else:
             if "." in t:
@@ -30,9 +42,16 @@ def convert_type(d: dict) -> str:
             return repr(t)
     elif "$ref" in d:
         n = d["$ref"].split("/")[-1]
-        return repr(n)
+        if forward_ref:
+            return '"' + n + '"'
+        else:
+            return n
     elif "anyOf" in d:
-        return "typing.Union[" + ", ".join(convert_type(ut) for ut in d["anyOf"]) + "]"
+        return (
+            "typing.Union["
+            + ", ".join(convert_type(ut, forward_ref) for ut in d["anyOf"])
+            + "]"
+        )
     else:
         logging.error(f"cannot handle {d}")
 
@@ -50,15 +69,15 @@ def to_snakecase(s: str) -> str:
 def get_lines_for_object(name: str, properties: dict):
     return [
         "\n\n",
-        "class {}(BaseModel):\n".format(name),
+        "class {}(Model):\n".format(name),
         *(
             [SPACES + "pass\n"]
             if not properties
             else (
                 SPACES
-                + "{}: {}\n".format(
+                + "{}: typing.Optional[{}] = None\n".format(
                     name if name not in ("json", "from") else name + "_",
-                    "typing.Optional[" + convert_type(param) + "] = None",
+                    convert_type(param),
                 )
                 for (name, param) in properties.items()
                 if name != "flags"
@@ -68,32 +87,9 @@ def get_lines_for_object(name: str, properties: dict):
 
 
 def parse_response(rt: str):
-    if rt.startswith("'"):
-        return "return Result(True, value=" + rt[1:-1] + "(**self.get_response(u)))"
-    elif rt.startswith("typing"):
-        if rt.startswith("typing.Union"):
-            ts = rt[len("typing.Union") + 1 : -1].split(", ")
-            ts_prim = [t for t in ts if not t.startswith("'")]
-            s = ""
-            for prim in ts_prim:
-                s += f"if isinstance(u, {prim}): return Result(True, value=u)\n"
-            comp = [t for t in ts if t not in ts_prim]
-            if len(comp) > 1:
-                print("cannot parse", rt)
-                exit(0)
-            s += (
-                "return Result(True, value="
-                + comp[0][1:-1]
-                + "(**self.get_response(u)))"
-            )
-            return s
-        elif rt.startswith("typing.List"):
-            n = rt[len("typing.List") + 1 : -1]
-            if not n.startswith("'"):
-                print("no instruction to parse list of", n)
-                exit(0)
-            return f"return Result(True, value=[{n[1:-1]}(**self.get_response(e)) for e in u])"
-    return "return Result(True, value=u)"
+    if rt.startswith('"'):
+        rt = rt[1:-1]
+    return f"return full_result(result, {rt})"
 
 
 def generate(path: str, schema_url: str = URL) -> None:
@@ -109,9 +105,7 @@ def generate(path: str, schema_url: str = URL) -> None:
         file.writelines("from telegrinder.types.objects import *\n")
 
     with open(path + "/objects.py", "w") as file:
-        file.writelines(
-            ["import typing\n", "import inspect\n", "from telegrinder.model import *\n"]
-        )
+        file.writelines(["import typing\n", "from telegrinder.model import *\n"])
 
     for name, obj in objects.items():
         t, properties = obj.get("type", "object"), obj.get("properties", [])
@@ -119,19 +113,19 @@ def generate(path: str, schema_url: str = URL) -> None:
         with open(path + "/objects.py", "a") as file:
             file.writelines(get_lines_for_object(name, properties))
 
-    with open(path + "/objects.py", "a") as file:
-        file.writelines(
-            [
-                "\n\n",
-                "for v in locals().copy().values():\n",
-                SPACES + "if inspect.isclass(v) and issubclass(v, BaseModel):\n",
-                SPACES + SPACES + "v.update_forward_refs()",
-                "\n\n",
-                "__all__ = (\n",
-            ]
-            + [SPACES + repr(n) + ",\n" for n in objects]
-            + [")\n"]
-        )
+    # with open(path + "/objects.py", "a") as file:
+    #     file.writelines(
+    #         [
+    #             "\n\n",
+    #              "for v in locals().copy().values():\n",
+    #             SPACES + "if inspect.isclass(v) and issubclass(v, Model):\n",
+    #             SPACES + SPACES + "v.update_forward_refs()",
+    #             "\n\n",
+    #              "__all__ = (\n",
+    #         ]
+    #         + [SPACES + repr(n) + ",\n" for n in objects]
+    #         + [")\n"]
+    #     )
 
     with open(path + "/methods.py", "w") as file:
         file.writelines(
@@ -152,11 +146,7 @@ def generate(path: str, schema_url: str = URL) -> None:
                 SPACES
                 + SPACES
                 + 'n = {k: v for k, v in loc.items() if k not in ("self", "other") and v is not None}\n',
-                SPACES + SPACES + "n.update(loc['other'])\n        return n\n\n",
-                SPACES + "@staticmethod\n",
-                SPACES + "def get_response(r: dict) -> dict:\n",
-                SPACES + SPACES + "if 'json' in r: r['json_'] = r['json']\n",
-                SPACES + SPACES + "return r",
+                SPACES + SPACES + "n.update(loc['other'])\n        return n\n",
             ]
         )
 
@@ -174,12 +164,11 @@ def generate(path: str, schema_url: str = URL) -> None:
         result = list(method["post"]["responses"]["200"]["content"].values())[-1][
             "schema"
         ]["properties"]["result"]
-        response = convert_type(result)
-        print(response)
+        response = convert_type(result, False)
         name = to_snakecase(method_name)
         lines.append(f"async def {name}(\n        self,\n")
         for n, prop in props.items():
-            t = convert_type(prop)
+            t = convert_type(prop, False)
             lines.append(SPACES + f"{n}: typing.Optional[{t}] = None,\n")
         lines.append(SPACES + "**other\n")
         lines.append(f") -> Result[{response}, APIError]:\n")
@@ -187,19 +176,17 @@ def generate(path: str, schema_url: str = URL) -> None:
             [
                 SPACES + li
                 for li in (
-                    "result = await self.api.request({}, self.get_params(locals()))\n".format(
+                    "result = await self.api.request_raw({}, self.get_params(locals()))\n".format(
                         '"' + method_name + '"'
                     ),
-                    "if result.is_ok:\n",
-                    SPACES + "u = result.unwrap()\n",
-                    SPACES
-                    + ("\n" + SPACES + SPACES + SPACES).join(
-                        parse_response(response).split("\n")
-                    )
+                    ("\n" + SPACES + SPACES).join(parse_response(response).split("\n"))
                     + "\n",
-                    "return Result(False, error=result.error)",
                 )
             ]
         )
         with open(path + "/methods.py", "a") as file:
             file.writelines(["\n\n"] + [SPACES + li for li in lines])
+
+
+if __name__ == "__main__":
+    generate("types")

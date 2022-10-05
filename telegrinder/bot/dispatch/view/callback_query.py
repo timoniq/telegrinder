@@ -7,6 +7,7 @@ from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.waiter import WithWaiter
 from telegrinder.bot.dispatch.process import process_waiters, process_inner
+from telegrinder.types import Update
 import typing
 import asyncio
 
@@ -27,11 +28,11 @@ class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
 
         return wrapper
 
-    async def check(self, event: dict) -> bool:
-        return "callback_query" in event
+    async def check(self, event: Update) -> bool:
+        return bool(event.callback_query)
 
-    async def process(self, event: dict, api: ABCAPI):
-        query = CallbackQueryCute(**event["callback_query"], unprep_ctx_api=api)
+    async def process(self, event: Update, api: ABCAPI):
+        query = CallbackQueryCute(**event.callback_query.to_dict(), unprep_ctx_api=api)
 
         if await process_waiters(
             self.short_waiters, query.message.message_id, query, event, query.answer

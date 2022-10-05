@@ -22,7 +22,9 @@ class HasNicePhoto(ABCMessageRule):
 @bot.on.message(Text("/chain"))
 async def start_handler(m: Message):
     await m.answer("Send me a photo please")
-    m, _ = await bot.dispatch.message.wait_for_message(m.chat.id, HasPhoto(), default="Waiting for the photo")
+    m, _ = await bot.dispatch.message.wait_for_message(
+        m.chat.id, HasPhoto(), default="Waiting for the photo"
+    )
     await m.reply("Great photo! Chain completed.")
 
 

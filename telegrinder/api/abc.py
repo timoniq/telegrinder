@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 import typing
+
+import msgspec
+
 from telegrinder.client import ABCClient
 from telegrinder.tools import Result
 from telegrinder.api.error import APIError
@@ -24,4 +27,10 @@ class ABCAPI(ABC):
         method: str,
         data: typing.Optional[dict] = None,
     ) -> Result[typing.Union[list, dict, bool], APIError]:
+        pass
+
+    @abstractmethod
+    async def request_raw(
+        self, method: str, data: typing.Optional[dict] = None
+    ) -> Result[msgspec.Raw, APIError]:
         pass

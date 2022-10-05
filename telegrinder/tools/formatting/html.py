@@ -20,7 +20,9 @@ class HTMLFormatter(ABCFormatter):
     PARSE_MODE = ParseMode.HTML
 
     def escape(self) -> "HTMLFormatter":
-        return HTMLFormatter(self.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;"))
+        return HTMLFormatter(
+            self.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;")
+        )
 
     def bold(self) -> "HTMLFormatter":
         return wrap_tag("b", self)

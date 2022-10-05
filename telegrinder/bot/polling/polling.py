@@ -1,9 +1,13 @@
 import traceback
 
+import msgspec.json
+
 from .abc import ABCPolling
 from telegrinder.api.abc import ABCAPI
 import typing
 from telegrinder.modules import logger
+from telegrinder.model import Raw
+from telegrinder.types import Update
 
 ALLOWED_UPDATES = [
     "update_id",
@@ -34,8 +38,8 @@ class Polling(ABCPolling):
         self._stop = False
         self.allowed_updates = ALLOWED_UPDATES
 
-    async def get_updates(self) -> typing.Optional[typing.List[dict]]:
-        raw_updates = await self.api.request(
+    async def get_updates(self) -> typing.Optional[Raw]:
+        raw_updates = await self.api.request_raw(
             "getUpdates",
             {"offset": self.offset, "allowed_updates": self.allowed_updates},
         )
@@ -44,14 +48,16 @@ class Polling(ABCPolling):
             exit(6)
         return raw_updates.unwrap()
 
-    async def listen(self) -> typing.AsyncIterator[dict]:
+    async def listen(self) -> typing.AsyncIterator[typing.List[Update]]:
         while not self._stop:
             try:
                 updates = await self.get_updates()
-                for update in updates:
-                    self.offset = updates[-1]["update_id"] + 1
-                    logger.debug(f"Received update: {update}")
-                    yield update
+                updates_list: typing.List[Update] = msgspec.json.decode(
+                    updates, type=typing.List[Update]
+                )
+                if updates_list:
+                    yield updates_list
+                    self.offset = updates_list[-1].update_id + 1
             except BaseException as e:
                 traceback.print_exc()
                 logger.error(e)

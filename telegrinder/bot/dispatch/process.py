@@ -3,6 +3,7 @@ import typing
 from .waiter import Waiter
 from .middleware.abc import ABCMiddleware
 from .handler.abc import ABCHandler
+from telegrinder.types import Update
 
 T = typing.TypeVar("T")
 E = typing.TypeVar("E")
@@ -42,7 +43,7 @@ async def process_waiters(
 
 async def process_inner(
     event: T,
-    raw_event: dict,
+    raw_event: Update,
     middlewares: typing.List[ABCMiddleware[T]],
     handlers: typing.List[ABCHandler[T]],
 ) -> bool:

@@ -43,11 +43,7 @@ class AiohttpClient(ABCClient):
                 **self.session_params,
             )
         async with self.session.request(
-            url=url,
-            method=method,
-            data=data,
-            timeout=self.timeout,
-            **kwargs
+            url=url, method=method, data=data, timeout=self.timeout, **kwargs
         ) as response:
             await response.read()
             return response
@@ -73,6 +69,18 @@ class AiohttpClient(ABCClient):
     ) -> str:
         response = await self.request_raw(url, method, data, **kwargs)
         return await response.text(encoding="utf-8")
+
+    async def request_bytes(
+        self,
+        url: str,
+        method: str = "GET",
+        data: typing.Optional[dict] = None,
+        **kwargs
+    ) -> bytes:
+        response = await self.request_raw(url, method, data, **kwargs)
+        if response._body is None:
+            await response.read()
+        return response._body
 
     async def request_content(
         self,

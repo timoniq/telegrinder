@@ -1,4 +1,5 @@
 from .abc import ABCRule, EventScheme, T
+from telegrinder.types import Update
 import typing
 
 
@@ -15,9 +16,11 @@ class FuncRule(ABCRule, typing.Generic[T]):
             event_scheme = EventScheme(*event_scheme)
         self.event_scheme = event_scheme
 
-    async def check(self, event: dict, ctx: dict) -> bool:
+    async def check(self, event: Update, ctx: dict) -> bool:
         if self.event_scheme:
             if self.event_scheme.name not in event:
                 return False
-            event = self.event_scheme.dataclass(**event[self.event_scheme.name])
+            event = self.event_scheme.dataclass(
+                **getattr(event, self.event_scheme.name).to_dict()
+            )
         return self.func(event, ctx)

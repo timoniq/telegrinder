@@ -57,7 +57,7 @@ class Dispatch(ABCDispatch):
             assert view_external, f"View {view_name} is undefined in external dispatch"
             view.load(view_external)
 
-    async def feed(self, event: dict, api: ABCAPI) -> bool:
+    async def feed(self, event: Update, api: ABCAPI) -> bool:
 
         for view in self.get_views():
             if await view.check(event):

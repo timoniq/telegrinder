@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
 from telegrinder.api.abc import ABCAPI
+from telegrinder.types import Update
 
 
 class ABCView(ABC):
     @abstractmethod
-    async def check(self, event: dict) -> bool:
+    async def check(self, event: Update) -> bool:
         pass
 
     @abstractmethod
-    async def process(self, event: dict, api: ABCAPI):
+    async def process(self, event: Update, api: ABCAPI):
         pass
 
     @abstractmethod
