@@ -3,14 +3,14 @@ from telegrinder.model import *
 
 
 class Error(Model):
-    ok: typing.Optional[bool] = None
-    error_code: typing.Optional[int] = None
-    description: typing.Optional[str] = None
+    ok: bool
+    error_code: int
+    description: str
     parameters: typing.Optional["ResponseParameters"] = None
 
 
 class Update(Model):
-    update_id: typing.Optional[int] = None
+    update_id: int
     message: typing.Optional["Message"] = None
     edited_message: typing.Optional["Message"] = None
     channel_post: typing.Optional["Message"] = None
@@ -28,21 +28,21 @@ class Update(Model):
 
 
 class WebhookInfo(Model):
-    url: typing.Optional[str] = None
-    has_custom_certificate: typing.Optional[bool] = None
-    pending_update_count: typing.Optional[int] = None
+    url: str
+    has_custom_certificate: bool
+    pending_update_count: int
     ip_address: typing.Optional[str] = None
     last_error_date: typing.Optional[int] = None
     last_error_message: typing.Optional[str] = None
     last_synchronization_error_date: typing.Optional[int] = None
     max_connections: typing.Optional[int] = None
-    allowed_updates: typing.Optional[typing.List[str]] = None
+    allowed_updates: typing.Optional[typing.List[typing.Optional[str]]] = None
 
 
 class User(Model):
-    id: typing.Optional[int] = None
-    is_bot: typing.Optional[bool] = None
-    first_name: typing.Optional[str] = None
+    id: int
+    is_bot: bool
+    first_name: str
     last_name: typing.Optional[str] = None
     username: typing.Optional[str] = None
     language_code: typing.Optional[str] = None
@@ -54,8 +54,8 @@ class User(Model):
 
 
 class Chat(Model):
-    id: typing.Optional[int] = None
-    type: typing.Optional[str] = None
+    id: int
+    type: str
     title: typing.Optional[str] = None
     username: typing.Optional[str] = None
     first_name: typing.Optional[str] = None
@@ -80,11 +80,11 @@ class Chat(Model):
 
 
 class Message(Model):
-    message_id: typing.Optional[int] = None
+    message_id: int
     from_: typing.Optional["User"] = None
     sender_chat: typing.Optional["Chat"] = None
-    date: typing.Optional[int] = None
-    chat: typing.Optional["Chat"] = None
+    date: int
+    chat: "Chat"
     forward_from: typing.Optional["User"] = None
     forward_from_chat: typing.Optional["Chat"] = None
     forward_from_message_id: typing.Optional[int] = None
@@ -99,27 +99,29 @@ class Message(Model):
     media_group_id: typing.Optional[str] = None
     author_signature: typing.Optional[str] = None
     text: typing.Optional[str] = None
-    entities: typing.Optional[typing.List["MessageEntity"]] = None
+    entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
     animation: typing.Optional["Animation"] = None
     audio: typing.Optional["Audio"] = None
     document: typing.Optional["Document"] = None
-    photo: typing.Optional[typing.List["PhotoSize"]] = None
+    photo: typing.Optional[typing.List[typing.Optional["PhotoSize"]]] = None
     sticker: typing.Optional["Sticker"] = None
     video: typing.Optional["Video"] = None
     video_note: typing.Optional["VideoNote"] = None
     voice: typing.Optional["Voice"] = None
     caption: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     contact: typing.Optional["Contact"] = None
     dice: typing.Optional["Dice"] = None
     game: typing.Optional["Game"] = None
     poll: typing.Optional["Poll"] = None
     venue: typing.Optional["Venue"] = None
     location: typing.Optional["Location"] = None
-    new_chat_members: typing.Optional[typing.List["User"]] = None
+    new_chat_members: typing.Optional[typing.List[typing.Optional["User"]]] = None
     left_chat_member: typing.Optional["User"] = None
     new_chat_title: typing.Optional[str] = None
-    new_chat_photo: typing.Optional[typing.List["PhotoSize"]] = None
+    new_chat_photo: typing.Optional[typing.List[typing.Optional["PhotoSize"]]] = None
     delete_chat_photo: typing.Optional[bool] = None
     group_chat_created: typing.Optional[bool] = None
     supergroup_chat_created: typing.Optional[bool] = None
@@ -146,13 +148,13 @@ class Message(Model):
 
 
 class MessageId(Model):
-    message_id: typing.Optional[int] = None
+    message_id: int
 
 
 class MessageEntity(Model):
-    type: typing.Optional[str] = None
-    offset: typing.Optional[int] = None
-    length: typing.Optional[int] = None
+    type: str
+    offset: int
+    length: int
     url: typing.Optional[str] = None
     user: typing.Optional["User"] = None
     language: typing.Optional[str] = None
@@ -160,19 +162,19 @@ class MessageEntity(Model):
 
 
 class PhotoSize(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
-    width: typing.Optional[int] = None
-    height: typing.Optional[int] = None
+    file_id: str
+    file_unique_id: str
+    width: int
+    height: int
     file_size: typing.Optional[int] = None
 
 
 class Animation(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
-    width: typing.Optional[int] = None
-    height: typing.Optional[int] = None
-    duration: typing.Optional[int] = None
+    file_id: str
+    file_unique_id: str
+    width: int
+    height: int
+    duration: int
     thumb: typing.Optional["PhotoSize"] = None
     file_name: typing.Optional[str] = None
     mime_type: typing.Optional[str] = None
@@ -180,9 +182,9 @@ class Animation(Model):
 
 
 class Audio(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
-    duration: typing.Optional[int] = None
+    file_id: str
+    file_unique_id: str
+    duration: int
     performer: typing.Optional[str] = None
     title: typing.Optional[str] = None
     file_name: typing.Optional[str] = None
@@ -192,8 +194,8 @@ class Audio(Model):
 
 
 class Document(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
+    file_id: str
+    file_unique_id: str
     thumb: typing.Optional["PhotoSize"] = None
     file_name: typing.Optional[str] = None
     mime_type: typing.Optional[str] = None
@@ -201,11 +203,11 @@ class Document(Model):
 
 
 class Video(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
-    width: typing.Optional[int] = None
-    height: typing.Optional[int] = None
-    duration: typing.Optional[int] = None
+    file_id: str
+    file_unique_id: str
+    width: int
+    height: int
+    duration: int
     thumb: typing.Optional["PhotoSize"] = None
     file_name: typing.Optional[str] = None
     mime_type: typing.Optional[str] = None
@@ -213,65 +215,67 @@ class Video(Model):
 
 
 class VideoNote(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
-    length: typing.Optional[int] = None
-    duration: typing.Optional[int] = None
+    file_id: str
+    file_unique_id: str
+    length: int
+    duration: int
     thumb: typing.Optional["PhotoSize"] = None
     file_size: typing.Optional[int] = None
 
 
 class Voice(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
-    duration: typing.Optional[int] = None
+    file_id: str
+    file_unique_id: str
+    duration: int
     mime_type: typing.Optional[str] = None
     file_size: typing.Optional[int] = None
 
 
 class Contact(Model):
-    phone_number: typing.Optional[str] = None
-    first_name: typing.Optional[str] = None
+    phone_number: str
+    first_name: str
     last_name: typing.Optional[str] = None
     user_id: typing.Optional[int] = None
     vcard: typing.Optional[str] = None
 
 
 class Dice(Model):
-    emoji: typing.Optional[str] = None
-    value: typing.Optional[int] = None
+    emoji: str
+    value: int
 
 
 class PollOption(Model):
-    text: typing.Optional[str] = None
-    voter_count: typing.Optional[int] = None
+    text: str
+    voter_count: int
 
 
 class PollAnswer(Model):
-    poll_id: typing.Optional[str] = None
-    user: typing.Optional["User"] = None
-    option_ids: typing.Optional[typing.List[int]] = None
+    poll_id: str
+    user: "User"
+    option_ids: typing.List[int]
 
 
 class Poll(Model):
-    id: typing.Optional[str] = None
-    question: typing.Optional[str] = None
-    options: typing.Optional[typing.List["PollOption"]] = None
-    total_voter_count: typing.Optional[int] = None
-    is_closed: typing.Optional[bool] = None
-    is_anonymous: typing.Optional[bool] = None
-    type: typing.Optional[str] = None
-    allows_multiple_answers: typing.Optional[bool] = None
+    id: str
+    question: str
+    options: typing.List["PollOption"]
+    total_voter_count: int
+    is_closed: bool
+    is_anonymous: bool
+    type: str
+    allows_multiple_answers: bool
     correct_option_id: typing.Optional[int] = None
     explanation: typing.Optional[str] = None
-    explanation_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    explanation_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     open_period: typing.Optional[int] = None
     close_date: typing.Optional[int] = None
 
 
 class Location(Model):
-    longitude: typing.Optional[float] = None
-    latitude: typing.Optional[float] = None
+    longitude: float
+    latitude: float
     horizontal_accuracy: typing.Optional[float] = None
     live_period: typing.Optional[int] = None
     heading: typing.Optional[int] = None
@@ -279,9 +283,9 @@ class Location(Model):
 
 
 class Venue(Model):
-    location: typing.Optional["Location"] = None
-    title: typing.Optional[str] = None
-    address: typing.Optional[str] = None
+    location: "Location"
+    title: str
+    address: str
     foursquare_id: typing.Optional[str] = None
     foursquare_type: typing.Optional[str] = None
     google_place_id: typing.Optional[str] = None
@@ -289,22 +293,22 @@ class Venue(Model):
 
 
 class WebAppData(Model):
-    data: typing.Optional[str] = None
-    button_text: typing.Optional[str] = None
+    data: str
+    button_text: str
 
 
 class ProximityAlertTriggered(Model):
-    traveler: typing.Optional["User"] = None
-    watcher: typing.Optional["User"] = None
-    distance: typing.Optional[int] = None
+    traveler: "User"
+    watcher: "User"
+    distance: int
 
 
 class MessageAutoDeleteTimerChanged(Model):
-    message_auto_delete_time: typing.Optional[int] = None
+    message_auto_delete_time: int
 
 
 class VideoChatScheduled(Model):
-    start_date: typing.Optional[int] = None
+    start_date: int
 
 
 class VideoChatStarted(Model):
@@ -312,39 +316,39 @@ class VideoChatStarted(Model):
 
 
 class VideoChatEnded(Model):
-    duration: typing.Optional[int] = None
+    duration: int
 
 
 class VideoChatParticipantsInvited(Model):
-    users: typing.Optional[typing.List["User"]] = None
+    users: typing.List["User"]
 
 
 class UserProfilePhotos(Model):
-    total_count: typing.Optional[int] = None
-    photos: typing.Optional[typing.List[typing.List["PhotoSize"]]] = None
+    total_count: int
+    photos: typing.List[typing.List["PhotoSize"]]
 
 
 class File(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
+    file_id: str
+    file_unique_id: str
     file_size: typing.Optional[int] = None
     file_path: typing.Optional[str] = None
 
 
 class WebAppInfo(Model):
-    url: typing.Optional[str] = None
+    url: str
 
 
 class ReplyKeyboardMarkup(Model):
-    keyboard: typing.Optional[typing.List[typing.List["KeyboardButton"]]] = None
-    resize_keyboard: typing.Optional[bool] = None
-    one_time_keyboard: typing.Optional[bool] = None
+    keyboard: typing.List[typing.List["KeyboardButton"]]
+    resize_keyboard: typing.Optional[bool] = False
+    one_time_keyboard: typing.Optional[bool] = False
     input_field_placeholder: typing.Optional[str] = None
     selective: typing.Optional[bool] = None
 
 
 class KeyboardButton(Model):
-    text: typing.Optional[str] = None
+    text: str
     request_contact: typing.Optional[bool] = None
     request_location: typing.Optional[bool] = None
     request_poll: typing.Optional["KeyboardButtonPollType"] = None
@@ -356,18 +360,16 @@ class KeyboardButtonPollType(Model):
 
 
 class ReplyKeyboardRemove(Model):
-    remove_keyboard: typing.Optional[bool] = None
+    remove_keyboard: bool
     selective: typing.Optional[bool] = None
 
 
 class InlineKeyboardMarkup(Model):
-    inline_keyboard: typing.Optional[
-        typing.List[typing.List["InlineKeyboardButton"]]
-    ] = None
+    inline_keyboard: typing.List[typing.List["InlineKeyboardButton"]]
 
 
 class InlineKeyboardButton(Model):
-    text: typing.Optional[str] = None
+    text: str
     url: typing.Optional[str] = None
     callback_data: typing.Optional[str] = None
     web_app: typing.Optional["WebAppInfo"] = None
@@ -379,41 +381,41 @@ class InlineKeyboardButton(Model):
 
 
 class LoginUrl(Model):
-    url: typing.Optional[str] = None
+    url: str
     forward_text: typing.Optional[str] = None
     bot_username: typing.Optional[str] = None
     request_write_access: typing.Optional[bool] = None
 
 
 class CallbackQuery(Model):
-    id: typing.Optional[str] = None
-    from_: typing.Optional["User"] = None
+    id: str
+    from_: "User"
     message: typing.Optional["Message"] = None
     inline_message_id: typing.Optional[str] = None
-    chat_instance: typing.Optional[str] = None
+    chat_instance: str
     data: typing.Optional[str] = None
     game_short_name: typing.Optional[str] = None
 
 
 class ForceReply(Model):
-    force_reply: typing.Optional[bool] = None
+    force_reply: bool
     input_field_placeholder: typing.Optional[str] = None
     selective: typing.Optional[bool] = None
 
 
 class ChatPhoto(Model):
-    small_file_id: typing.Optional[str] = None
-    small_file_unique_id: typing.Optional[str] = None
-    big_file_id: typing.Optional[str] = None
-    big_file_unique_id: typing.Optional[str] = None
+    small_file_id: str
+    small_file_unique_id: str
+    big_file_id: str
+    big_file_unique_id: str
 
 
 class ChatInviteLink(Model):
-    invite_link: typing.Optional[str] = None
-    creator: typing.Optional["User"] = None
-    creates_join_request: typing.Optional[bool] = None
-    is_primary: typing.Optional[bool] = None
-    is_revoked: typing.Optional[bool] = None
+    invite_link: str
+    creator: "User"
+    creates_join_request: bool
+    is_primary: bool
+    is_revoked: bool
     name: typing.Optional[str] = None
     expire_date: typing.Optional[int] = None
     member_limit: typing.Optional[int] = None
@@ -421,21 +423,21 @@ class ChatInviteLink(Model):
 
 
 class ChatAdministratorRights(Model):
-    is_anonymous: typing.Optional[bool] = None
-    can_manage_chat: typing.Optional[bool] = None
-    can_delete_messages: typing.Optional[bool] = None
-    can_manage_video_chats: typing.Optional[bool] = None
-    can_restrict_members: typing.Optional[bool] = None
-    can_promote_members: typing.Optional[bool] = None
-    can_change_info: typing.Optional[bool] = None
-    can_invite_users: typing.Optional[bool] = None
+    is_anonymous: bool
+    can_manage_chat: bool
+    can_delete_messages: bool
+    can_manage_video_chats: bool
+    can_restrict_members: bool
+    can_promote_members: bool
+    can_change_info: bool
+    can_invite_users: bool
     can_post_messages: typing.Optional[bool] = None
     can_edit_messages: typing.Optional[bool] = None
     can_pin_messages: typing.Optional[bool] = None
 
 
 class ChatMember(Model):
-    status: typing.Optional[str] = None
+    status: typing.Optional[str] = "kicked"
     user: typing.Optional["User"] = None
     is_anonymous: typing.Optional[bool] = None
     custom_title: typing.Optional[str] = None
@@ -460,24 +462,24 @@ class ChatMember(Model):
 
 
 class ChatMemberOwner(Model):
-    status: typing.Optional[str] = None
-    user: typing.Optional["User"] = None
-    is_anonymous: typing.Optional[bool] = None
+    status: str
+    user: "User"
+    is_anonymous: bool
     custom_title: typing.Optional[str] = None
 
 
 class ChatMemberAdministrator(Model):
-    status: typing.Optional[str] = None
-    user: typing.Optional["User"] = None
-    can_be_edited: typing.Optional[bool] = None
-    is_anonymous: typing.Optional[bool] = None
-    can_manage_chat: typing.Optional[bool] = None
-    can_delete_messages: typing.Optional[bool] = None
-    can_manage_video_chats: typing.Optional[bool] = None
-    can_restrict_members: typing.Optional[bool] = None
-    can_promote_members: typing.Optional[bool] = None
-    can_change_info: typing.Optional[bool] = None
-    can_invite_users: typing.Optional[bool] = None
+    status: str
+    user: "User"
+    can_be_edited: bool
+    is_anonymous: bool
+    can_manage_chat: bool
+    can_delete_messages: bool
+    can_manage_video_chats: bool
+    can_restrict_members: bool
+    can_promote_members: bool
+    can_change_info: bool
+    can_invite_users: bool
     can_post_messages: typing.Optional[bool] = None
     can_edit_messages: typing.Optional[bool] = None
     can_pin_messages: typing.Optional[bool] = None
@@ -485,49 +487,49 @@ class ChatMemberAdministrator(Model):
 
 
 class ChatMemberMember(Model):
-    status: typing.Optional[str] = None
-    user: typing.Optional["User"] = None
+    status: str
+    user: "User"
 
 
 class ChatMemberRestricted(Model):
-    status: typing.Optional[str] = None
-    user: typing.Optional["User"] = None
-    is_member: typing.Optional[bool] = None
-    can_change_info: typing.Optional[bool] = None
-    can_invite_users: typing.Optional[bool] = None
-    can_pin_messages: typing.Optional[bool] = None
-    can_send_messages: typing.Optional[bool] = None
-    can_send_media_messages: typing.Optional[bool] = None
-    can_send_polls: typing.Optional[bool] = None
-    can_send_other_messages: typing.Optional[bool] = None
-    can_add_web_page_previews: typing.Optional[bool] = None
-    until_date: typing.Optional[int] = None
+    status: str
+    user: "User"
+    is_member: bool
+    can_change_info: bool
+    can_invite_users: bool
+    can_pin_messages: bool
+    can_send_messages: bool
+    can_send_media_messages: bool
+    can_send_polls: bool
+    can_send_other_messages: bool
+    can_add_web_page_previews: bool
+    until_date: int
 
 
 class ChatMemberLeft(Model):
-    status: typing.Optional[str] = None
-    user: typing.Optional["User"] = None
+    status: str
+    user: "User"
 
 
 class ChatMemberBanned(Model):
-    status: typing.Optional[str] = None
-    user: typing.Optional["User"] = None
-    until_date: typing.Optional[int] = None
+    status: str
+    user: "User"
+    until_date: int
 
 
 class ChatMemberUpdated(Model):
-    chat: typing.Optional["Chat"] = None
-    from_: typing.Optional["User"] = None
-    date: typing.Optional[int] = None
-    old_chat_member: typing.Optional["ChatMember"] = None
-    new_chat_member: typing.Optional["ChatMember"] = None
+    chat: "Chat"
+    from_: "User"
+    date: int
+    old_chat_member: "ChatMember"
+    new_chat_member: "ChatMember"
     invite_link: typing.Optional["ChatInviteLink"] = None
 
 
 class ChatJoinRequest(Model):
-    chat: typing.Optional["Chat"] = None
-    from_: typing.Optional["User"] = None
-    date: typing.Optional[int] = None
+    chat: "Chat"
+    from_: "User"
+    date: int
     bio: typing.Optional[str] = None
     invite_link: typing.Optional["ChatInviteLink"] = None
 
@@ -544,71 +546,73 @@ class ChatPermissions(Model):
 
 
 class ChatLocation(Model):
-    location: typing.Optional["Location"] = None
-    address: typing.Optional[str] = None
+    location: "Location"
+    address: str
 
 
 class BotCommand(Model):
-    command: typing.Optional[str] = None
-    description: typing.Optional[str] = None
+    command: str
+    description: str
 
 
 class BotCommandScope(Model):
-    type: typing.Optional[str] = None
-    chat_id: typing.Optional[typing.Union[int, str]] = None
+    type: typing.Optional[str] = "chat_member"
+    chat_id: typing.Optional[
+        typing.Union[typing.Optional[int], typing.Optional[str]]
+    ] = None
     user_id: typing.Optional[int] = None
 
 
 class BotCommandScopeDefault(Model):
-    type: typing.Optional[str] = None
+    type: str
 
 
 class BotCommandScopeAllPrivateChats(Model):
-    type: typing.Optional[str] = None
+    type: str
 
 
 class BotCommandScopeAllGroupChats(Model):
-    type: typing.Optional[str] = None
+    type: str
 
 
 class BotCommandScopeAllChatAdministrators(Model):
-    type: typing.Optional[str] = None
+    type: str
 
 
 class BotCommandScopeChat(Model):
-    type: typing.Optional[str] = None
-    chat_id: typing.Optional[typing.Union[int, str]] = None
+    type: str
+    chat_id: typing.Union[int, str]
 
 
 class BotCommandScopeChatAdministrators(Model):
-    type: typing.Optional[str] = None
-    chat_id: typing.Optional[typing.Union[int, str]] = None
+    type: str
+    chat_id: typing.Union[int, str]
 
 
 class BotCommandScopeChatMember(Model):
-    type: typing.Optional[str] = None
-    chat_id: typing.Optional[typing.Union[int, str]] = None
-    user_id: typing.Optional[int] = None
+    type: str
+    chat_id: typing.Union[int, str]
+    user_id: int
 
 
 class MenuButton(Model):
-    type: typing.Optional[str] = None
+    type: typing.Optional[str] = "default"
     text: typing.Optional[str] = None
     web_app: typing.Optional["WebAppInfo"] = None
 
 
 class MenuButtonCommands(Model):
-    type: typing.Optional[str] = None
+    type: str
 
 
 class MenuButtonWebApp(Model):
-    type: typing.Optional[str] = None
-    text: typing.Optional[str] = None
-    web_app: typing.Optional["WebAppInfo"] = None
+    type: str
+    text: str
+    web_app: "WebAppInfo"
 
 
 class MenuButtonDefault(Model):
-    type: typing.Optional[str] = None
+    type: str
 
 
 class ResponseParameters(Model):
@@ -617,12 +621,16 @@ class ResponseParameters(Model):
 
 
 class InputMedia(Model):
-    type: typing.Optional[str] = None
+    type: typing.Optional[str] = "video"
     media: typing.Optional[str] = None
-    thumb: typing.Optional[typing.Union["InputFile", str]] = None
+    thumb: typing.Optional[
+        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
+    ] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     width: typing.Optional[int] = None
     height: typing.Optional[int] = None
     duration: typing.Optional[int] = None
@@ -633,20 +641,26 @@ class InputMedia(Model):
 
 
 class InputMediaPhoto(Model):
-    type: typing.Optional[str] = None
-    media: typing.Optional[str] = None
+    type: str
+    media: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
 
 
 class InputMediaVideo(Model):
-    type: typing.Optional[str] = None
-    media: typing.Optional[str] = None
-    thumb: typing.Optional[typing.Union["InputFile", str]] = None
+    type: str
+    media: str
+    thumb: typing.Optional[
+        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
+    ] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     width: typing.Optional[int] = None
     height: typing.Optional[int] = None
     duration: typing.Optional[int] = None
@@ -654,36 +668,48 @@ class InputMediaVideo(Model):
 
 
 class InputMediaAnimation(Model):
-    type: typing.Optional[str] = None
-    media: typing.Optional[str] = None
-    thumb: typing.Optional[typing.Union["InputFile", str]] = None
+    type: str
+    media: str
+    thumb: typing.Optional[
+        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
+    ] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     width: typing.Optional[int] = None
     height: typing.Optional[int] = None
     duration: typing.Optional[int] = None
 
 
 class InputMediaAudio(Model):
-    type: typing.Optional[str] = None
-    media: typing.Optional[str] = None
-    thumb: typing.Optional[typing.Union["InputFile", str]] = None
+    type: str
+    media: str
+    thumb: typing.Optional[
+        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
+    ] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     duration: typing.Optional[int] = None
     performer: typing.Optional[str] = None
     title: typing.Optional[str] = None
 
 
 class InputMediaDocument(Model):
-    type: typing.Optional[str] = None
-    media: typing.Optional[str] = None
-    thumb: typing.Optional[typing.Union["InputFile", str]] = None
+    type: str
+    media: str
+    thumb: typing.Optional[
+        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
+    ] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     disable_content_type_detection: typing.Optional[bool] = None
 
 
@@ -692,13 +718,13 @@ class InputFile(Model):
 
 
 class Sticker(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    width: typing.Optional[int] = None
-    height: typing.Optional[int] = None
-    is_animated: typing.Optional[bool] = None
-    is_video: typing.Optional[bool] = None
+    file_id: str
+    file_unique_id: str
+    type: str
+    width: int
+    height: int
+    is_animated: bool
+    is_video: bool
     thumb: typing.Optional["PhotoSize"] = None
     emoji: typing.Optional[str] = None
     set_name: typing.Optional[str] = None
@@ -709,38 +735,40 @@ class Sticker(Model):
 
 
 class StickerSet(Model):
-    name: typing.Optional[str] = None
-    title: typing.Optional[str] = None
-    sticker_type: typing.Optional[str] = None
-    is_animated: typing.Optional[bool] = None
-    is_video: typing.Optional[bool] = None
-    stickers: typing.Optional[typing.List["Sticker"]] = None
+    name: str
+    title: str
+    sticker_type: str
+    is_animated: bool
+    is_video: bool
+    stickers: typing.List["Sticker"]
     thumb: typing.Optional["PhotoSize"] = None
 
 
 class MaskPosition(Model):
-    point: typing.Optional[str] = None
-    x_shift: typing.Optional[float] = None
-    y_shift: typing.Optional[float] = None
-    scale: typing.Optional[float] = None
+    point: str
+    x_shift: float
+    y_shift: float
+    scale: float
 
 
 class InlineQuery(Model):
-    id: typing.Optional[str] = None
-    from_: typing.Optional["User"] = None
-    query: typing.Optional[str] = None
-    offset: typing.Optional[str] = None
+    id: str
+    from_: "User"
+    query: str
+    offset: str
     chat_type: typing.Optional[str] = None
     location: typing.Optional["Location"] = None
 
 
 class InlineQueryResult(Model):
-    type: typing.Optional[str] = None
+    type: typing.Optional[str] = "voice"
     id: typing.Optional[str] = None
     audio_file_id: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
     title: typing.Optional[str] = None
@@ -771,7 +799,7 @@ class InlineQueryResult(Model):
     gif_width: typing.Optional[int] = None
     gif_height: typing.Optional[int] = None
     gif_duration: typing.Optional[int] = None
-    thumb_mime_type: typing.Optional[str] = None
+    thumb_mime_type: typing.Optional[str] = "image/jpeg"
     latitude: typing.Optional[float] = None
     longitude: typing.Optional[float] = None
     horizontal_accuracy: typing.Optional[float] = None
@@ -799,10 +827,10 @@ class InlineQueryResult(Model):
 
 
 class InlineQueryResultArticle(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    title: typing.Optional[str] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    type: str
+    id: str
+    title: str
+    input_message_content: "InputMessageContent"
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     url: typing.Optional[str] = None
     hide_url: typing.Optional[bool] = None
@@ -813,65 +841,73 @@ class InlineQueryResultArticle(Model):
 
 
 class InlineQueryResultPhoto(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    photo_url: typing.Optional[str] = None
-    thumb_url: typing.Optional[str] = None
+    type: str
+    id: str
+    photo_url: str
+    thumb_url: str
     photo_width: typing.Optional[int] = None
     photo_height: typing.Optional[int] = None
     title: typing.Optional[str] = None
     description: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultGif(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    gif_url: typing.Optional[str] = None
+    type: str
+    id: str
+    gif_url: str
     gif_width: typing.Optional[int] = None
     gif_height: typing.Optional[int] = None
     gif_duration: typing.Optional[int] = None
-    thumb_url: typing.Optional[str] = None
-    thumb_mime_type: typing.Optional[str] = None
+    thumb_url: str
+    thumb_mime_type: typing.Optional[str] = "image/jpeg"
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultMpeg4Gif(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    mpeg4_url: typing.Optional[str] = None
+    type: str
+    id: str
+    mpeg4_url: str
     mpeg4_width: typing.Optional[int] = None
     mpeg4_height: typing.Optional[int] = None
     mpeg4_duration: typing.Optional[int] = None
-    thumb_url: typing.Optional[str] = None
-    thumb_mime_type: typing.Optional[str] = None
+    thumb_url: str
+    thumb_mime_type: typing.Optional[str] = "image/jpeg"
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultVideo(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    video_url: typing.Optional[str] = None
-    mime_type: typing.Optional[str] = None
-    thumb_url: typing.Optional[str] = None
-    title: typing.Optional[str] = None
+    type: str
+    id: str
+    video_url: str
+    mime_type: str
+    thumb_url: str
+    title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     video_width: typing.Optional[int] = None
     video_height: typing.Optional[int] = None
     video_duration: typing.Optional[int] = None
@@ -881,13 +917,15 @@ class InlineQueryResultVideo(Model):
 
 
 class InlineQueryResultAudio(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    audio_url: typing.Optional[str] = None
-    title: typing.Optional[str] = None
+    type: str
+    id: str
+    audio_url: str
+    title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     performer: typing.Optional[str] = None
     audio_duration: typing.Optional[int] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
@@ -895,27 +933,31 @@ class InlineQueryResultAudio(Model):
 
 
 class InlineQueryResultVoice(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    voice_url: typing.Optional[str] = None
-    title: typing.Optional[str] = None
+    type: str
+    id: str
+    voice_url: str
+    title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     voice_duration: typing.Optional[int] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultDocument(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    title: typing.Optional[str] = None
+    type: str
+    id: str
+    title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
-    document_url: typing.Optional[str] = None
-    mime_type: typing.Optional[str] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
+    document_url: str
+    mime_type: str
     description: typing.Optional[str] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
@@ -925,11 +967,11 @@ class InlineQueryResultDocument(Model):
 
 
 class InlineQueryResultLocation(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    latitude: typing.Optional[float] = None
-    longitude: typing.Optional[float] = None
-    title: typing.Optional[str] = None
+    type: str
+    id: str
+    latitude: float
+    longitude: float
+    title: str
     horizontal_accuracy: typing.Optional[float] = None
     live_period: typing.Optional[int] = None
     heading: typing.Optional[int] = None
@@ -942,12 +984,12 @@ class InlineQueryResultLocation(Model):
 
 
 class InlineQueryResultVenue(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    latitude: typing.Optional[float] = None
-    longitude: typing.Optional[float] = None
-    title: typing.Optional[str] = None
-    address: typing.Optional[str] = None
+    type: str
+    id: str
+    latitude: float
+    longitude: float
+    title: str
+    address: str
     foursquare_id: typing.Optional[str] = None
     foursquare_type: typing.Optional[str] = None
     google_place_id: typing.Optional[str] = None
@@ -960,10 +1002,10 @@ class InlineQueryResultVenue(Model):
 
 
 class InlineQueryResultContact(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    phone_number: typing.Optional[str] = None
-    first_name: typing.Optional[str] = None
+    type: str
+    id: str
+    phone_number: str
+    first_name: str
     last_name: typing.Optional[str] = None
     vcard: typing.Optional[str] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
@@ -974,102 +1016,116 @@ class InlineQueryResultContact(Model):
 
 
 class InlineQueryResultGame(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    game_short_name: typing.Optional[str] = None
+    type: str
+    id: str
+    game_short_name: str
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
 
 
 class InlineQueryResultCachedPhoto(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    photo_file_id: typing.Optional[str] = None
+    type: str
+    id: str
+    photo_file_id: str
     title: typing.Optional[str] = None
     description: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultCachedGif(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    gif_file_id: typing.Optional[str] = None
+    type: str
+    id: str
+    gif_file_id: str
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultCachedMpeg4Gif(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    mpeg4_file_id: typing.Optional[str] = None
+    type: str
+    id: str
+    mpeg4_file_id: str
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultCachedSticker(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    sticker_file_id: typing.Optional[str] = None
+    type: str
+    id: str
+    sticker_file_id: str
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultCachedDocument(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    title: typing.Optional[str] = None
-    document_file_id: typing.Optional[str] = None
+    type: str
+    id: str
+    title: str
+    document_file_id: str
     description: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultCachedVideo(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    video_file_id: typing.Optional[str] = None
-    title: typing.Optional[str] = None
+    type: str
+    id: str
+    video_file_id: str
+    title: str
     description: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultCachedVoice(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    voice_file_id: typing.Optional[str] = None
-    title: typing.Optional[str] = None
+    type: str
+    id: str
+    voice_file_id: str
+    title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
 
 class InlineQueryResultCachedAudio(Model):
-    type: typing.Optional[str] = None
-    id: typing.Optional[str] = None
-    audio_file_id: typing.Optional[str] = None
+    type: str
+    id: str
+    audio_file_id: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    caption_entities: typing.Optional[
+        typing.List[typing.Optional["MessageEntity"]]
+    ] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1077,7 +1133,7 @@ class InlineQueryResultCachedAudio(Model):
 class InputMessageContent(Model):
     message_text: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    entities: typing.Optional[typing.List["MessageEntity"]] = None
+    entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
     disable_web_page_preview: typing.Optional[bool] = None
     latitude: typing.Optional[float] = None
     longitude: typing.Optional[float] = None
@@ -1099,9 +1155,9 @@ class InputMessageContent(Model):
     payload: typing.Optional[str] = None
     provider_token: typing.Optional[str] = None
     currency: typing.Optional[str] = None
-    prices: typing.Optional[typing.List["LabeledPrice"]] = None
-    max_tip_amount: typing.Optional[int] = None
-    suggested_tip_amounts: typing.Optional[typing.List[int]] = None
+    prices: typing.Optional[typing.List[typing.Optional["LabeledPrice"]]] = None
+    max_tip_amount: typing.Optional[int] = 0
+    suggested_tip_amounts: typing.Optional[typing.List[typing.Optional[int]]] = None
     provider_data: typing.Optional[str] = None
     photo_url: typing.Optional[str] = None
     photo_size: typing.Optional[int] = None
@@ -1117,15 +1173,15 @@ class InputMessageContent(Model):
 
 
 class InputTextMessageContent(Model):
-    message_text: typing.Optional[str] = None
+    message_text: str
     parse_mode: typing.Optional[str] = None
-    entities: typing.Optional[typing.List["MessageEntity"]] = None
+    entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
     disable_web_page_preview: typing.Optional[bool] = None
 
 
 class InputLocationMessageContent(Model):
-    latitude: typing.Optional[float] = None
-    longitude: typing.Optional[float] = None
+    latitude: float
+    longitude: float
     horizontal_accuracy: typing.Optional[float] = None
     live_period: typing.Optional[int] = None
     heading: typing.Optional[int] = None
@@ -1133,10 +1189,10 @@ class InputLocationMessageContent(Model):
 
 
 class InputVenueMessageContent(Model):
-    latitude: typing.Optional[float] = None
-    longitude: typing.Optional[float] = None
-    title: typing.Optional[str] = None
-    address: typing.Optional[str] = None
+    latitude: float
+    longitude: float
+    title: str
+    address: str
     foursquare_id: typing.Optional[str] = None
     foursquare_type: typing.Optional[str] = None
     google_place_id: typing.Optional[str] = None
@@ -1144,21 +1200,21 @@ class InputVenueMessageContent(Model):
 
 
 class InputContactMessageContent(Model):
-    phone_number: typing.Optional[str] = None
-    first_name: typing.Optional[str] = None
+    phone_number: str
+    first_name: str
     last_name: typing.Optional[str] = None
     vcard: typing.Optional[str] = None
 
 
 class InputInvoiceMessageContent(Model):
-    title: typing.Optional[str] = None
-    description: typing.Optional[str] = None
-    payload: typing.Optional[str] = None
-    provider_token: typing.Optional[str] = None
-    currency: typing.Optional[str] = None
-    prices: typing.Optional[typing.List["LabeledPrice"]] = None
-    max_tip_amount: typing.Optional[int] = None
-    suggested_tip_amounts: typing.Optional[typing.List[int]] = None
+    title: str
+    description: str
+    payload: str
+    provider_token: str
+    currency: str
+    prices: typing.List["LabeledPrice"]
+    max_tip_amount: typing.Optional[int] = 0
+    suggested_tip_amounts: typing.Optional[typing.List[typing.Optional[int]]] = None
     provider_data: typing.Optional[str] = None
     photo_url: typing.Optional[str] = None
     photo_size: typing.Optional[int] = None
@@ -1174,11 +1230,11 @@ class InputInvoiceMessageContent(Model):
 
 
 class ChosenInlineResult(Model):
-    result_id: typing.Optional[str] = None
-    from_: typing.Optional["User"] = None
+    result_id: str
+    from_: "User"
     location: typing.Optional["Location"] = None
     inline_message_id: typing.Optional[str] = None
-    query: typing.Optional[str] = None
+    query: str
 
 
 class SentWebAppMessage(Model):
@@ -1186,25 +1242,25 @@ class SentWebAppMessage(Model):
 
 
 class LabeledPrice(Model):
-    label: typing.Optional[str] = None
-    amount: typing.Optional[int] = None
+    label: str
+    amount: int
 
 
 class Invoice(Model):
-    title: typing.Optional[str] = None
-    description: typing.Optional[str] = None
-    start_parameter: typing.Optional[str] = None
-    currency: typing.Optional[str] = None
-    total_amount: typing.Optional[int] = None
+    title: str
+    description: str
+    start_parameter: str
+    currency: str
+    total_amount: int
 
 
 class ShippingAddress(Model):
-    country_code: typing.Optional[str] = None
-    state: typing.Optional[str] = None
-    city: typing.Optional[str] = None
-    street_line1: typing.Optional[str] = None
-    street_line2: typing.Optional[str] = None
-    post_code: typing.Optional[str] = None
+    country_code: str
+    state: str
+    city: str
+    street_line1: str
+    street_line2: str
+    post_code: str
 
 
 class OrderInfo(Model):
@@ -1215,150 +1271,150 @@ class OrderInfo(Model):
 
 
 class ShippingOption(Model):
-    id: typing.Optional[str] = None
-    title: typing.Optional[str] = None
-    prices: typing.Optional[typing.List["LabeledPrice"]] = None
+    id: str
+    title: str
+    prices: typing.List["LabeledPrice"]
 
 
 class SuccessfulPayment(Model):
-    currency: typing.Optional[str] = None
-    total_amount: typing.Optional[int] = None
-    invoice_payload: typing.Optional[str] = None
+    currency: str
+    total_amount: int
+    invoice_payload: str
     shipping_option_id: typing.Optional[str] = None
     order_info: typing.Optional["OrderInfo"] = None
-    telegram_payment_charge_id: typing.Optional[str] = None
-    provider_payment_charge_id: typing.Optional[str] = None
+    telegram_payment_charge_id: str
+    provider_payment_charge_id: str
 
 
 class ShippingQuery(Model):
-    id: typing.Optional[str] = None
-    from_: typing.Optional["User"] = None
-    invoice_payload: typing.Optional[str] = None
-    shipping_address: typing.Optional["ShippingAddress"] = None
+    id: str
+    from_: "User"
+    invoice_payload: str
+    shipping_address: "ShippingAddress"
 
 
 class PreCheckoutQuery(Model):
-    id: typing.Optional[str] = None
-    from_: typing.Optional["User"] = None
-    currency: typing.Optional[str] = None
-    total_amount: typing.Optional[int] = None
-    invoice_payload: typing.Optional[str] = None
+    id: str
+    from_: "User"
+    currency: str
+    total_amount: int
+    invoice_payload: str
     shipping_option_id: typing.Optional[str] = None
     order_info: typing.Optional["OrderInfo"] = None
 
 
 class PassportData(Model):
-    data: typing.Optional[typing.List["EncryptedPassportElement"]] = None
-    credentials: typing.Optional["EncryptedCredentials"] = None
+    data: typing.List["EncryptedPassportElement"]
+    credentials: "EncryptedCredentials"
 
 
 class PassportFile(Model):
-    file_id: typing.Optional[str] = None
-    file_unique_id: typing.Optional[str] = None
-    file_size: typing.Optional[int] = None
-    file_date: typing.Optional[int] = None
+    file_id: str
+    file_unique_id: str
+    file_size: int
+    file_date: int
 
 
 class EncryptedPassportElement(Model):
-    type: typing.Optional[str] = None
+    type: str
     data: typing.Optional[str] = None
     phone_number: typing.Optional[str] = None
     email: typing.Optional[str] = None
-    files: typing.Optional[typing.List["PassportFile"]] = None
+    files: typing.Optional[typing.List[typing.Optional["PassportFile"]]] = None
     front_side: typing.Optional["PassportFile"] = None
     reverse_side: typing.Optional["PassportFile"] = None
     selfie: typing.Optional["PassportFile"] = None
-    translation: typing.Optional[typing.List["PassportFile"]] = None
-    hash: typing.Optional[str] = None
+    translation: typing.Optional[typing.List[typing.Optional["PassportFile"]]] = None
+    hash: str
 
 
 class EncryptedCredentials(Model):
-    data: typing.Optional[str] = None
-    hash: typing.Optional[str] = None
-    secret: typing.Optional[str] = None
+    data: str
+    hash: str
+    secret: str
 
 
 class PassportElementError(Model):
-    source: typing.Optional[str] = None
+    source: typing.Optional[str] = "unspecified"
     type: typing.Optional[str] = None
     field_name: typing.Optional[str] = None
     data_hash: typing.Optional[str] = None
     message: typing.Optional[str] = None
     file_hash: typing.Optional[str] = None
-    file_hashes: typing.Optional[typing.List[str]] = None
+    file_hashes: typing.Optional[typing.List[typing.Optional[str]]] = None
     element_hash: typing.Optional[str] = None
 
 
 class PassportElementErrorDataField(Model):
-    source: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    field_name: typing.Optional[str] = None
-    data_hash: typing.Optional[str] = None
-    message: typing.Optional[str] = None
+    source: str
+    type: str
+    field_name: str
+    data_hash: str
+    message: str
 
 
 class PassportElementErrorFrontSide(Model):
-    source: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    file_hash: typing.Optional[str] = None
-    message: typing.Optional[str] = None
+    source: str
+    type: str
+    file_hash: str
+    message: str
 
 
 class PassportElementErrorReverseSide(Model):
-    source: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    file_hash: typing.Optional[str] = None
-    message: typing.Optional[str] = None
+    source: str
+    type: str
+    file_hash: str
+    message: str
 
 
 class PassportElementErrorSelfie(Model):
-    source: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    file_hash: typing.Optional[str] = None
-    message: typing.Optional[str] = None
+    source: str
+    type: str
+    file_hash: str
+    message: str
 
 
 class PassportElementErrorFile(Model):
-    source: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    file_hash: typing.Optional[str] = None
-    message: typing.Optional[str] = None
+    source: str
+    type: str
+    file_hash: str
+    message: str
 
 
 class PassportElementErrorFiles(Model):
-    source: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    file_hashes: typing.Optional[typing.List[str]] = None
-    message: typing.Optional[str] = None
+    source: str
+    type: str
+    file_hashes: typing.List[str]
+    message: str
 
 
 class PassportElementErrorTranslationFile(Model):
-    source: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    file_hash: typing.Optional[str] = None
-    message: typing.Optional[str] = None
+    source: str
+    type: str
+    file_hash: str
+    message: str
 
 
 class PassportElementErrorTranslationFiles(Model):
-    source: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    file_hashes: typing.Optional[typing.List[str]] = None
-    message: typing.Optional[str] = None
+    source: str
+    type: str
+    file_hashes: typing.List[str]
+    message: str
 
 
 class PassportElementErrorUnspecified(Model):
-    source: typing.Optional[str] = None
-    type: typing.Optional[str] = None
-    element_hash: typing.Optional[str] = None
-    message: typing.Optional[str] = None
+    source: str
+    type: str
+    element_hash: str
+    message: str
 
 
 class Game(Model):
-    title: typing.Optional[str] = None
-    description: typing.Optional[str] = None
-    photo: typing.Optional[typing.List["PhotoSize"]] = None
+    title: str
+    description: str
+    photo: typing.List["PhotoSize"]
     text: typing.Optional[str] = None
-    text_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    text_entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
     animation: typing.Optional["Animation"] = None
 
 
@@ -1367,6 +1423,6 @@ class CallbackGame(Model):
 
 
 class GameHighScore(Model):
-    position: typing.Optional[int] = None
-    user: typing.Optional["User"] = None
-    score: typing.Optional[int] = None
+    position: int
+    user: "User"
+    score: int

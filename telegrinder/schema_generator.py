@@ -19,25 +19,23 @@ SPACES = "    "
 
 
 def convert_optional(func):
-    def wrapper(d: dict, forward_ref: bool = True):
-        t = func(d, forward_ref)
-        # todo: determine how to detect optional fields
-        # if "description" in d:
-        #     if "*Optional*" in d["description"]:
-        #        t = "typing.Optional[" + t + "] = None"
+    def wrapper(name: str, d: dict, obj: dict, forward_ref: bool = True):
+        t = func(name, d, obj, forward_ref)
+        if name not in obj.get("required", []) and name:
+            t = "typing.Optional[" + t + "]"
         return t
 
     return wrapper
 
 
 @convert_optional
-def convert_type(d: dict, forward_ref: bool = True) -> str:
+def convert_type(name: str, d: dict, obj: dict, forward_ref: bool = True) -> str:
     if "type" in d:
         t = d["type"]
         if t in TYPES:
             return TYPES[t]
         elif t == "array":
-            nt = convert_type(d["items"], forward_ref)
+            nt = convert_type(name, d["items"], obj, forward_ref)
             return "typing.List[" + nt + "]"
         else:
             if "." in t:
@@ -52,7 +50,7 @@ def convert_type(d: dict, forward_ref: bool = True) -> str:
     elif "anyOf" in d:
         return (
             "typing.Union["
-            + ", ".join(convert_type(ut, forward_ref) for ut in d["anyOf"])
+            + ", ".join(convert_type(name, ut, obj, forward_ref) for ut in d["anyOf"])
             + "]"
         )
     else:
@@ -69,19 +67,29 @@ def to_snakecase(s: str) -> str:
     return ns.replace("__", "_")
 
 
+def param_s(name: str, param: dict, obj: dict) -> str:
+    t = convert_type(name, param, obj)
+    s = "{}: {}{}\n".format(
+        name if name not in ("json", "from") else name + "_",
+        t,
+        " = " + repr(param.get("default", None))
+        if t.startswith("typing.Optional")
+        else "",
+    )
+    return s
+
+
 def get_lines_for_object(name: str, properties: dict, obj: dict):
+    print(obj)
     return [
         "\n\n",
         "class {}(Model):\n".format(name),
+        # SPACES + "\"\"\"{}\"\"\"".format(obj["documentation"]),
         *(
             [SPACES + "pass\n"]
             if not properties
             else (
-                SPACES
-                + "{}: typing.Optional[{}] = None\n".format(
-                    name if name not in ("json", "from") else name + "_",
-                    convert_type(param),
-                )
+                SPACES + param_s(name, param, obj)
                 for (name, param) in properties.items()
                 if name != "flags"
             )
@@ -177,14 +185,15 @@ def generate(path: str, schema_url: str = URL) -> None:
 
         lines = []
         method_name = ps[1:]
-        result = list(method["post"]["responses"]["200"]["content"].values())[-1][
+        fobj = list(method["post"]["responses"]["200"]["content"].values())[-1][
             "schema"
-        ]["properties"]["result"]
-        response = convert_type(result, False)
+        ]
+        result = fobj["properties"]["result"]
+        response = convert_type("", result, {}, False)
         name = to_snakecase(method_name)
         lines.append(f"async def {name}(\n        self,\n")
         for n, prop in props.items():
-            t = convert_type(prop, False)
+            t = convert_type("", prop, {}, False)
             lines.append(SPACES + f"{n}: typing.Optional[{t}] = None,\n")
         lines.append(SPACES + "**other\n")
         lines.append(f") -> Result[{response}, APIError]:\n")
@@ -202,6 +211,12 @@ def generate(path: str, schema_url: str = URL) -> None:
         )
         with open(path + "/methods.py", "a") as file:
             file.writelines(["\n\n"] + [SPACES + li for li in lines])
+
+    print("generated.")
+    try:
+        os.system("black types")
+    except:
+        print("cant run black")
 
 
 if __name__ == "__main__":
