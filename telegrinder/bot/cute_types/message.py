@@ -1,6 +1,5 @@
 from telegrinder.types import (
     Message,
-    User,
     MessageEntity,
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
@@ -15,10 +14,6 @@ import typing
 
 class MessageCute(Message):
     api: API
-
-    @property
-    def from_user(self) -> User:
-        return self.from_
 
     @property
     def ctx_api(self) -> API:

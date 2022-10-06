@@ -146,6 +146,13 @@ class Message(Model):
     web_app_data: typing.Optional["WebAppData"] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
 
+    @property
+    def from_user(self) -> "User":
+        return self.from_
+
+    def __eq__(self, other: "Message"):
+        return self.message_id == other.message_id and self.chat.id == other.chat.id
+
 
 class MessageId(Model):
     message_id: int

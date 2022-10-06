@@ -1,6 +1,8 @@
 import logging
 import os
+import re
 import typing
+import pathlib
 
 import requests
 
@@ -16,6 +18,15 @@ TYPES = {
     "false": "bool",
 }
 SPACES = "    "
+NS = pathlib.Path("./nicification.py").read_text()
+
+
+def find_nicifications(name: str) -> typing.List[str]:
+    regex = r"class .+\(" + name + r"\):\n((?:.|\n {4}|\n$)+)"
+    matches = list(re.finditer(regex, NS, flags=re.MULTILINE))
+    if matches:
+        return [match.group(1) for match in matches]
+    return []
 
 
 def convert_optional(func):
@@ -80,7 +91,8 @@ def param_s(name: str, param: dict, obj: dict) -> str:
 
 
 def get_lines_for_object(name: str, properties: dict, obj: dict):
-    print(obj)
+    nicifications = find_nicifications(name)
+
     return [
         "\n\n",
         "class {}(Model):\n".format(name),
@@ -94,6 +106,7 @@ def get_lines_for_object(name: str, properties: dict, obj: dict):
                 if name != "flags"
             )
         ),
+        *nicifications
     ]
 
 
@@ -214,10 +227,6 @@ def generate(path: str, schema_url: str = URL) -> None:
 
     print("generated.")
     try:
-        os.system("black types")
+        os.system("black ../types")
     except:
         print("cant run black")
-
-
-if __name__ == "__main__":
-    generate("types")
