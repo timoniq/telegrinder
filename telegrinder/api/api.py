@@ -10,19 +10,6 @@ from telegrinder.api.response import APIResponse
 from telegrinder.modules import logger
 
 
-def alias(d: typing.Any) -> typing.Any:
-    if not isinstance(d, dict):
-        if isinstance(d, list):
-            return [alias(e) for e in d]
-        return d
-    for (k, v) in d.copy().items():
-        if k in ("from",):
-            d[k + "_"] = alias(d.pop(k))
-        else:
-            d[k] = alias(d[k])
-    return d
-
-
 class API(ABCAPI, APIMethods):
     API_URL = "https://api.telegram.org/"
 
@@ -43,7 +30,7 @@ class API(ABCAPI, APIMethods):
         logger.debug("Got response: {}".format(response))
         if response.get("ok"):
             assert "result" in response
-            return Result(True, value=alias(response["result"]))
+            return Result(True, value=response["result"])
 
         code, msg = response.get("error_code"), response.get("description")
         return Result(False, error=APIError(code, msg))
