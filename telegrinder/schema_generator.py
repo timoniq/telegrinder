@@ -1,5 +1,7 @@
 import logging
 import os
+import typing
+
 import requests
 
 URL = "https://ark0f.github.io/tg-bot-api/openapi.json"
@@ -19,6 +21,7 @@ SPACES = "    "
 def convert_optional(func):
     def wrapper(d: dict, forward_ref: bool = True):
         t = func(d, forward_ref)
+        # todo: determine how to detect optional fields
         # if "description" in d:
         #     if "*Optional*" in d["description"]:
         #        t = "typing.Optional[" + t + "] = None"
@@ -66,7 +69,7 @@ def to_snakecase(s: str) -> str:
     return ns.replace("__", "_")
 
 
-def get_lines_for_object(name: str, properties: dict):
+def get_lines_for_object(name: str, properties: dict, obj: dict):
     return [
         "\n\n",
         "class {}(Model):\n".format(name),
@@ -92,6 +95,10 @@ def parse_response(rt: str):
     return f"return full_result(result, {rt})"
 
 
+def get_ref_names(ref_list: typing.List[dict]) -> typing.List[str]:
+    return [d["$ref"].split("/")[-1] for d in ref_list]
+
+
 def generate(path: str, schema_url: str = URL) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
@@ -111,7 +118,16 @@ def generate(path: str, schema_url: str = URL) -> None:
         t, properties = obj.get("type", "object"), obj.get("properties", [])
 
         with open(path + "/objects.py", "a") as file:
-            file.writelines(get_lines_for_object(name, properties))
+            if obj.get("anyOf"):
+                # creating merge to parse as fast as possible
+                ref_names = get_ref_names(obj["anyOf"])
+                merged_properties = {}
+                for ref_name in ref_names:
+                    ref = objects[ref_name]
+                    merged_properties.update(ref["properties"])
+                properties = merged_properties
+            obj_lines = get_lines_for_object(name, properties, obj)
+            file.writelines(obj_lines)
 
     # with open(path + "/objects.py", "a") as file:
     #     file.writelines(

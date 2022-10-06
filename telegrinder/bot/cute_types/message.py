@@ -8,13 +8,13 @@ from telegrinder.types import (
     ForceReply,
 )
 from telegrinder.types.methods import APIMethods
-from telegrinder.api import API, APIError
+from telegrinder.api import API, APIError, Token
 from telegrinder.tools import Result
 import typing
 
 
 class MessageCute(Message):
-    unprep_ctx_api: typing.Optional[typing.Any] = None
+    api: API
 
     @property
     def from_user(self) -> User:
@@ -22,7 +22,7 @@ class MessageCute(Message):
 
     @property
     def ctx_api(self) -> API:
-        return getattr(self, "unprep_ctx_api")  # type: ignore
+        return self.api
 
     async def answer(
         self,

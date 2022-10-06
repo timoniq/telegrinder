@@ -32,7 +32,7 @@ class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
         return bool(event.callback_query)
 
     async def process(self, event: Update, api: ABCAPI):
-        query = CallbackQueryCute(**event.callback_query.to_dict(), unprep_ctx_api=api)
+        query = CallbackQueryCute(**event.callback_query.to_dict(), api=api)
 
         if await process_waiters(
             self.short_waiters, query.message.message_id, query, event, query.answer

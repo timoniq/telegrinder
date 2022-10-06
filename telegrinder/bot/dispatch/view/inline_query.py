@@ -37,7 +37,7 @@ class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
         return bool(event.inline_query)
 
     async def process(self, event: Update, api: ABCAPI):
-        query = InlineQueryCute(**event.inline_query.to_dict(), unprep_ctx_api=api)
+        query = InlineQueryCute(**event.inline_query.to_dict(), api=api)
 
         if await process_waiters(
             self.short_waiters, query.id, query, event, query.answer

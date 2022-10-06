@@ -435,7 +435,28 @@ class ChatAdministratorRights(Model):
 
 
 class ChatMember(Model):
-    pass
+    status: typing.Optional[str] = None
+    user: typing.Optional["User"] = None
+    is_anonymous: typing.Optional[bool] = None
+    custom_title: typing.Optional[str] = None
+    can_be_edited: typing.Optional[bool] = None
+    can_manage_chat: typing.Optional[bool] = None
+    can_delete_messages: typing.Optional[bool] = None
+    can_manage_video_chats: typing.Optional[bool] = None
+    can_restrict_members: typing.Optional[bool] = None
+    can_promote_members: typing.Optional[bool] = None
+    can_change_info: typing.Optional[bool] = None
+    can_invite_users: typing.Optional[bool] = None
+    can_post_messages: typing.Optional[bool] = None
+    can_edit_messages: typing.Optional[bool] = None
+    can_pin_messages: typing.Optional[bool] = None
+    is_member: typing.Optional[bool] = None
+    can_send_messages: typing.Optional[bool] = None
+    can_send_media_messages: typing.Optional[bool] = None
+    can_send_polls: typing.Optional[bool] = None
+    can_send_other_messages: typing.Optional[bool] = None
+    can_add_web_page_previews: typing.Optional[bool] = None
+    until_date: typing.Optional[int] = None
 
 
 class ChatMemberOwner(Model):
@@ -533,7 +554,9 @@ class BotCommand(Model):
 
 
 class BotCommandScope(Model):
-    pass
+    type: typing.Optional[str] = None
+    chat_id: typing.Optional[typing.Union[int, str]] = None
+    user_id: typing.Optional[int] = None
 
 
 class BotCommandScopeDefault(Model):
@@ -569,7 +592,9 @@ class BotCommandScopeChatMember(Model):
 
 
 class MenuButton(Model):
-    pass
+    type: typing.Optional[str] = None
+    text: typing.Optional[str] = None
+    web_app: typing.Optional["WebAppInfo"] = None
 
 
 class MenuButtonCommands(Model):
@@ -592,7 +617,19 @@ class ResponseParameters(Model):
 
 
 class InputMedia(Model):
-    pass
+    type: typing.Optional[str] = None
+    media: typing.Optional[str] = None
+    thumb: typing.Optional[typing.Union["InputFile", str]] = None
+    caption: typing.Optional[str] = None
+    parse_mode: typing.Optional[str] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    width: typing.Optional[int] = None
+    height: typing.Optional[int] = None
+    duration: typing.Optional[int] = None
+    disable_content_type_detection: typing.Optional[bool] = None
+    performer: typing.Optional[str] = None
+    title: typing.Optional[str] = None
+    supports_streaming: typing.Optional[bool] = None
 
 
 class InputMediaPhoto(Model):
@@ -698,7 +735,67 @@ class InlineQuery(Model):
 
 
 class InlineQueryResult(Model):
-    pass
+    type: typing.Optional[str] = None
+    id: typing.Optional[str] = None
+    audio_file_id: typing.Optional[str] = None
+    caption: typing.Optional[str] = None
+    parse_mode: typing.Optional[str] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
+    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
+    input_message_content: typing.Optional["InputMessageContent"] = None
+    title: typing.Optional[str] = None
+    document_file_id: typing.Optional[str] = None
+    description: typing.Optional[str] = None
+    gif_file_id: typing.Optional[str] = None
+    mpeg4_file_id: typing.Optional[str] = None
+    photo_file_id: typing.Optional[str] = None
+    sticker_file_id: typing.Optional[str] = None
+    video_file_id: typing.Optional[str] = None
+    voice_file_id: typing.Optional[str] = None
+    url: typing.Optional[str] = None
+    hide_url: typing.Optional[bool] = None
+    thumb_url: typing.Optional[str] = None
+    thumb_width: typing.Optional[int] = None
+    thumb_height: typing.Optional[int] = None
+    audio_url: typing.Optional[str] = None
+    performer: typing.Optional[str] = None
+    audio_duration: typing.Optional[int] = None
+    phone_number: typing.Optional[str] = None
+    first_name: typing.Optional[str] = None
+    last_name: typing.Optional[str] = None
+    vcard: typing.Optional[str] = None
+    game_short_name: typing.Optional[str] = None
+    document_url: typing.Optional[str] = None
+    mime_type: typing.Optional[str] = None
+    gif_url: typing.Optional[str] = None
+    gif_width: typing.Optional[int] = None
+    gif_height: typing.Optional[int] = None
+    gif_duration: typing.Optional[int] = None
+    thumb_mime_type: typing.Optional[str] = None
+    latitude: typing.Optional[float] = None
+    longitude: typing.Optional[float] = None
+    horizontal_accuracy: typing.Optional[float] = None
+    live_period: typing.Optional[int] = None
+    heading: typing.Optional[int] = None
+    proximity_alert_radius: typing.Optional[int] = None
+    mpeg4_url: typing.Optional[str] = None
+    mpeg4_width: typing.Optional[int] = None
+    mpeg4_height: typing.Optional[int] = None
+    mpeg4_duration: typing.Optional[int] = None
+    photo_url: typing.Optional[str] = None
+    photo_width: typing.Optional[int] = None
+    photo_height: typing.Optional[int] = None
+    address: typing.Optional[str] = None
+    foursquare_id: typing.Optional[str] = None
+    foursquare_type: typing.Optional[str] = None
+    google_place_id: typing.Optional[str] = None
+    google_place_type: typing.Optional[str] = None
+    video_url: typing.Optional[str] = None
+    video_width: typing.Optional[int] = None
+    video_height: typing.Optional[int] = None
+    video_duration: typing.Optional[int] = None
+    voice_url: typing.Optional[str] = None
+    voice_duration: typing.Optional[int] = None
 
 
 class InlineQueryResultArticle(Model):
@@ -978,7 +1075,45 @@ class InlineQueryResultCachedAudio(Model):
 
 
 class InputMessageContent(Model):
-    pass
+    message_text: typing.Optional[str] = None
+    parse_mode: typing.Optional[str] = None
+    entities: typing.Optional[typing.List["MessageEntity"]] = None
+    disable_web_page_preview: typing.Optional[bool] = None
+    latitude: typing.Optional[float] = None
+    longitude: typing.Optional[float] = None
+    horizontal_accuracy: typing.Optional[float] = None
+    live_period: typing.Optional[int] = None
+    heading: typing.Optional[int] = None
+    proximity_alert_radius: typing.Optional[int] = None
+    title: typing.Optional[str] = None
+    address: typing.Optional[str] = None
+    foursquare_id: typing.Optional[str] = None
+    foursquare_type: typing.Optional[str] = None
+    google_place_id: typing.Optional[str] = None
+    google_place_type: typing.Optional[str] = None
+    phone_number: typing.Optional[str] = None
+    first_name: typing.Optional[str] = None
+    last_name: typing.Optional[str] = None
+    vcard: typing.Optional[str] = None
+    description: typing.Optional[str] = None
+    payload: typing.Optional[str] = None
+    provider_token: typing.Optional[str] = None
+    currency: typing.Optional[str] = None
+    prices: typing.Optional[typing.List["LabeledPrice"]] = None
+    max_tip_amount: typing.Optional[int] = None
+    suggested_tip_amounts: typing.Optional[typing.List[int]] = None
+    provider_data: typing.Optional[str] = None
+    photo_url: typing.Optional[str] = None
+    photo_size: typing.Optional[int] = None
+    photo_width: typing.Optional[int] = None
+    photo_height: typing.Optional[int] = None
+    need_name: typing.Optional[bool] = None
+    need_phone_number: typing.Optional[bool] = None
+    need_email: typing.Optional[bool] = None
+    need_shipping_address: typing.Optional[bool] = None
+    send_phone_number_to_provider: typing.Optional[bool] = None
+    send_email_to_provider: typing.Optional[bool] = None
+    is_flexible: typing.Optional[bool] = None
 
 
 class InputTextMessageContent(Model):
@@ -1144,7 +1279,14 @@ class EncryptedCredentials(Model):
 
 
 class PassportElementError(Model):
-    pass
+    source: typing.Optional[str] = None
+    type: typing.Optional[str] = None
+    field_name: typing.Optional[str] = None
+    data_hash: typing.Optional[str] = None
+    message: typing.Optional[str] = None
+    file_hash: typing.Optional[str] = None
+    file_hashes: typing.Optional[typing.List[str]] = None
+    element_hash: typing.Optional[str] = None
 
 
 class PassportElementErrorDataField(Model):

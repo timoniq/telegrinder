@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from telegrinder.types import Update
+from telegrinder.api.abc import ABCAPI
 import typing
 
 T = typing.TypeVar("T")
@@ -14,5 +15,5 @@ class ABCHandler(ABC, typing.Generic[T]):
         pass
 
     @abstractmethod
-    async def check(self, event: Update) -> bool:
+    async def check(self, api: ABCAPI, event: Update) -> bool:
         pass

@@ -5,7 +5,7 @@ import typing
 
 
 class InlineQueryCute(InlineQuery):
-    unprep_ctx_api: typing.Optional[typing.Any] = None
+    api: API
 
     @property
     def from_user(self) -> User:
@@ -13,7 +13,7 @@ class InlineQueryCute(InlineQuery):
 
     @property
     def ctx_api(self) -> API:
-        return getattr(self, "unprep_ctx_api")  # type: ignore
+        return self.api
 
     async def answer(
         self,

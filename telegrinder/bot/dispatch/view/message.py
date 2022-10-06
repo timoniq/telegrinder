@@ -37,7 +37,7 @@ class MessageView(ABCView, WithWaiter[int, MessageCute]):
         return bool(event.message)
 
     async def process(self, event: Update, api: ABCAPI):
-        msg = MessageCute(**event.message.to_dict(), unprep_ctx_api=api)
+        msg = MessageCute(**event.message.to_dict(), api=api)
 
         if await process_waiters(
             self.short_waiters, msg.chat.id, msg, event, msg.answer
