@@ -20,9 +20,7 @@ def full_result(
 
 def convert(d: typing.Any) -> typing.Any:
     if isinstance(d, Model):
-        # todo: omit_defaults
-        d_dict = d.to_dict()
-        return {k: convert(v) for k, v in d_dict.items() if v is not None}
+        return msgspec.json.encode(d).decode()
     elif isinstance(d, dict):
         return {k: convert(v) for k, v in d.items() if v is not None}
     elif isinstance(d, list):
@@ -31,7 +29,7 @@ def convert(d: typing.Any) -> typing.Any:
     return d
 
 
-model_config = {"rename": {"from_": "from"}}
+model_config = {"rename": {"from_": "from"}, "omit_defaults": True}
 
 
 class Model(msgspec.Struct, **model_config):
