@@ -21,7 +21,6 @@ from .bot import (
     Checkbox,
 )
 from .tools import (
-    Result,
     Keyboard,
     Button,
     InlineButton,
@@ -32,6 +31,7 @@ from .tools import (
     KeyboardSetYAML,
     AnyMarkup,
 )
+from .result import Result
 
 Message = MessageCute
 CallbackQuery = CallbackQueryCute

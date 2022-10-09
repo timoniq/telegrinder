@@ -1,7 +1,6 @@
 from telegrinder.model import Model
-from telegrinder.tools.result import Result
+from telegrinder.result import Result
 from telegrinder.api.error import APIError
-import typing
 import msgspec
 
 

@@ -1,17 +1,18 @@
 import msgspec
-from telegrinder.tools.result import Result
-from telegrinder.api.error import APIError
+from telegrinder.result import Result
 from msgspec import Raw
-from telegrinder.types.objects import *
 import typing
+
+if typing.TYPE_CHECKING:
+    from telegrinder.api.error import APIError
 
 T = typing.TypeVar("T")
 encoder = msgspec.json.Encoder()
 
 
 def full_result(
-    result: Result[msgspec.Raw, APIError], full_t: typing.Type[T]
-) -> Result[T, APIError]:
+    result: Result[msgspec.Raw, "APIError"], full_t: typing.Type[T]
+) -> Result[T, "APIError"]:
     if not result.is_ok:
         return result
     return Result(True, value=msgspec.json.decode(result.value, type=full_t))

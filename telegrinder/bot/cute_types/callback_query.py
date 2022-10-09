@@ -1,7 +1,7 @@
 from telegrinder.types import CallbackQuery, User
 from telegrinder.types.methods import APIMethods
 from telegrinder.api import API, APIError, Token
-from telegrinder.tools import Result
+from telegrinder.result import Result
 import typing
 
 

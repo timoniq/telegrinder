@@ -10,6 +10,12 @@ class Error(Model):
 
 
 class Update(Model):
+    """This [object](https://core.telegram.org/bots/api/#available-types)
+    represents an incoming update.
+    At most **one** of the optional parameters
+    can be present in any given update.
+    Docs: https://core.telegram.org/bots/api/#update"""
+
     update_id: int
     message: typing.Optional["Message"] = None
     edited_message: typing.Optional["Message"] = None
@@ -28,6 +34,9 @@ class Update(Model):
 
 
 class WebhookInfo(Model):
+    """Describes the current status of a webhook.
+    Docs: https://core.telegram.org/bots/api/#webhookinfo"""
+
     url: str
     has_custom_certificate: bool
     pending_update_count: int
@@ -40,6 +49,9 @@ class WebhookInfo(Model):
 
 
 class User(Model):
+    """This object represents a Telegram user or bot.
+    Docs: https://core.telegram.org/bots/api/#user"""
+
     id: int
     is_bot: bool
     first_name: str
@@ -54,6 +66,9 @@ class User(Model):
 
 
 class Chat(Model):
+    """This object represents a chat.
+    Docs: https://core.telegram.org/bots/api/#chat"""
+
     id: int
     type: str
     title: typing.Optional[str] = None
@@ -80,6 +95,9 @@ class Chat(Model):
 
 
 class Message(Model):
+    """This object represents a message.
+    Docs: https://core.telegram.org/bots/api/#message"""
+
     message_id: int
     from_: typing.Optional["User"] = None
     sender_chat: typing.Optional["Chat"] = None
@@ -155,10 +173,17 @@ class Message(Model):
 
 
 class MessageId(Model):
+    """This object represents a unique message identifier.
+    Docs: https://core.telegram.org/bots/api/#messageid"""
+
     message_id: int
 
 
 class MessageEntity(Model):
+    """This object represents one special entity in a text message. For example,
+    hashtags, usernames, URLs, etc.
+    Docs: https://core.telegram.org/bots/api/#messageentity"""
+
     type: str
     offset: int
     length: int
@@ -169,6 +194,11 @@ class MessageEntity(Model):
 
 
 class PhotoSize(Model):
+    """This object represents one size of a photo or a [file](https://core.telegram.org/bots/api/#document)
+    / [sticker](https://core.telegram.org/bots/api/#sticker) thumbnail.
+
+    Docs: https://core.telegram.org/bots/api/#photosize"""
+
     file_id: str
     file_unique_id: str
     width: int
@@ -177,6 +207,10 @@ class PhotoSize(Model):
 
 
 class Animation(Model):
+    """This object represents an animation file (GIF or H.264/MPEG-4 AVC video
+    without sound).
+    Docs: https://core.telegram.org/bots/api/#animation"""
+
     file_id: str
     file_unique_id: str
     width: int
@@ -189,6 +223,10 @@ class Animation(Model):
 
 
 class Audio(Model):
+    """This object represents an audio file to be treated as music by the Telegram
+    clients.
+    Docs: https://core.telegram.org/bots/api/#audio"""
+
     file_id: str
     file_unique_id: str
     duration: int
@@ -201,6 +239,11 @@ class Audio(Model):
 
 
 class Document(Model):
+    """This object represents a general file (as opposed to [photos](https://core.telegram.org/bots/api/#photosize),
+    [voice messages](https://core.telegram.org/bots/api/#voice) and
+    [audio files](https://core.telegram.org/bots/api/#audio)).
+    Docs: https://core.telegram.org/bots/api/#document"""
+
     file_id: str
     file_unique_id: str
     thumb: typing.Optional["PhotoSize"] = None
@@ -210,6 +253,9 @@ class Document(Model):
 
 
 class Video(Model):
+    """This object represents a video file.
+    Docs: https://core.telegram.org/bots/api/#video"""
+
     file_id: str
     file_unique_id: str
     width: int
@@ -222,6 +268,11 @@ class Video(Model):
 
 
 class VideoNote(Model):
+    """This object represents a [video message](https://telegram.org/blog/video-messages-and-telescope)
+    (available in Telegram apps as of [v.4.0](https://telegram.org/blog/video-messages-and-telescope)).
+
+    Docs: https://core.telegram.org/bots/api/#videonote"""
+
     file_id: str
     file_unique_id: str
     length: int
@@ -231,6 +282,9 @@ class VideoNote(Model):
 
 
 class Voice(Model):
+    """This object represents a voice note.
+    Docs: https://core.telegram.org/bots/api/#voice"""
+
     file_id: str
     file_unique_id: str
     duration: int
@@ -239,6 +293,9 @@ class Voice(Model):
 
 
 class Contact(Model):
+    """This object represents a phone contact.
+    Docs: https://core.telegram.org/bots/api/#contact"""
+
     phone_number: str
     first_name: str
     last_name: typing.Optional[str] = None
@@ -247,22 +304,35 @@ class Contact(Model):
 
 
 class Dice(Model):
+    """This object represents an animated emoji that displays a random value.
+
+    Docs: https://core.telegram.org/bots/api/#dice"""
+
     emoji: str
     value: int
 
 
 class PollOption(Model):
+    """This object contains information about one answer option in a poll.
+    Docs: https://core.telegram.org/bots/api/#polloption"""
+
     text: str
     voter_count: int
 
 
 class PollAnswer(Model):
+    """This object represents an answer of a user in a non-anonymous poll.
+    Docs: https://core.telegram.org/bots/api/#pollanswer"""
+
     poll_id: str
     user: "User"
     option_ids: typing.List[int]
 
 
 class Poll(Model):
+    """This object contains information about a poll.
+    Docs: https://core.telegram.org/bots/api/#poll"""
+
     id: str
     question: str
     options: typing.List["PollOption"]
@@ -281,6 +351,9 @@ class Poll(Model):
 
 
 class Location(Model):
+    """This object represents a point on the map.
+    Docs: https://core.telegram.org/bots/api/#location"""
+
     longitude: float
     latitude: float
     horizontal_accuracy: typing.Optional[float] = None
@@ -290,6 +363,9 @@ class Location(Model):
 
 
 class Venue(Model):
+    """This object represents a venue.
+    Docs: https://core.telegram.org/bots/api/#venue"""
+
     location: "Location"
     title: str
     address: str
@@ -300,42 +376,82 @@ class Venue(Model):
 
 
 class WebAppData(Model):
+    """Describes data sent from a [Web App](https://core.telegram.org/bots/webapps)
+    to the bot.
+    Docs: https://core.telegram.org/bots/api/#webappdata"""
+
     data: str
     button_text: str
 
 
 class ProximityAlertTriggered(Model):
+    """This object represents the content of a service message, sent whenever
+    a user in the chat triggers a proximity alert set by another user.
+    Docs: https://core.telegram.org/bots/api/#proximityalerttriggered"""
+
     traveler: "User"
     watcher: "User"
     distance: int
 
 
 class MessageAutoDeleteTimerChanged(Model):
+    """This object represents a service message about a change in auto-delete
+    timer settings.
+    Docs: https://core.telegram.org/bots/api/#messageautodeletetimerchanged"""
+
     message_auto_delete_time: int
 
 
 class VideoChatScheduled(Model):
+    """This object represents a service message about a video chat scheduled in
+    the chat.
+    Docs: https://core.telegram.org/bots/api/#videochatscheduled"""
+
     start_date: int
 
 
 class VideoChatStarted(Model):
+    """This object represents a service message about a video chat started in the
+    chat. Currently holds no information.
+    Docs: https://core.telegram.org/bots/api/#videochatstarted"""
+
     pass
 
 
 class VideoChatEnded(Model):
+    """This object represents a service message about a video chat ended in the
+    chat.
+    Docs: https://core.telegram.org/bots/api/#videochatended"""
+
     duration: int
 
 
 class VideoChatParticipantsInvited(Model):
+    """This object represents a service message about new members invited to a
+    video chat.
+    Docs: https://core.telegram.org/bots/api/#videochatparticipantsinvited"""
+
     users: typing.List["User"]
 
 
 class UserProfilePhotos(Model):
+    """This object represent a user's profile pictures.
+    Docs: https://core.telegram.org/bots/api/#userprofilephotos"""
+
     total_count: int
     photos: typing.List[typing.List["PhotoSize"]]
 
 
 class File(Model):
+    """This object represents a file ready to be downloaded. The file can be downloaded
+    via the link `https://api.telegram.org/file/bot<token>/<file_path>`.
+    It is guaranteed that the link will be valid for at least 1 hour. When the link
+    expires, a new one can be requested by calling [getFile](https://core.telegram.org/bots/api/#getfile).
+
+    The
+    maximum file size to download is 20 MB
+    Docs: https://core.telegram.org/bots/api/#file"""
+
     file_id: str
     file_unique_id: str
     file_size: typing.Optional[int] = None
@@ -343,10 +459,18 @@ class File(Model):
 
 
 class WebAppInfo(Model):
+    """Describes a [Web App](https://core.telegram.org/bots/webapps).
+    Docs: https://core.telegram.org/bots/api/#webappinfo"""
+
     url: str
 
 
 class ReplyKeyboardMarkup(Model):
+    """This object represents a [custom keyboard](https://core.telegram.org/bots/features#keyboards)
+    with reply options (see [Introduction to bots](https://core.telegram.org/bots/features#keyboards)
+    for details and examples).
+    Docs: https://core.telegram.org/bots/api/#replykeyboardmarkup"""
+
     keyboard: typing.List[typing.List["KeyboardButton"]]
     resize_keyboard: typing.Optional[bool] = False
     one_time_keyboard: typing.Optional[bool] = False
@@ -355,6 +479,12 @@ class ReplyKeyboardMarkup(Model):
 
 
 class KeyboardButton(Model):
+    """This object represents one button of the reply keyboard. For simple text
+    buttons *String* can be used instead of this object to specify text of the
+    button. Optional fields *web_app*, *request_contact*, *request_location*,
+    and *request_poll* are mutually exclusive.
+    Docs: https://core.telegram.org/bots/api/#keyboardbutton"""
+
     text: str
     request_contact: typing.Optional[bool] = None
     request_location: typing.Optional[bool] = None
@@ -363,19 +493,39 @@ class KeyboardButton(Model):
 
 
 class KeyboardButtonPollType(Model):
+    """This object represents type of a poll, which is allowed to be created and
+    sent when the corresponding button is pressed.
+    Docs: https://core.telegram.org/bots/api/#keyboardbuttonpolltype"""
+
     type: typing.Optional[str] = None
 
 
 class ReplyKeyboardRemove(Model):
+    """Upon receiving a message with this object, Telegram clients will remove
+    the current custom keyboard and display the default letter-keyboard.
+    By default, custom keyboards are displayed until a new keyboard is sent
+    by a bot. An exception is made for one-time keyboards that are hidden immediately
+    after the user presses a button (see [ReplyKeyboardMarkup](https://core.telegram.org/bots/api/#replykeyboardmarkup)).
+
+    Docs: https://core.telegram.org/bots/api/#replykeyboardremove"""
+
     remove_keyboard: bool
     selective: typing.Optional[bool] = None
 
 
 class InlineKeyboardMarkup(Model):
+    """This object represents an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards)
+    that appears right next to the message it belongs to.
+    Docs: https://core.telegram.org/bots/api/#inlinekeyboardmarkup"""
+
     inline_keyboard: typing.List[typing.List["InlineKeyboardButton"]]
 
 
 class InlineKeyboardButton(Model):
+    """This object represents one button of an inline keyboard. You **must** use
+    exactly one of the optional fields.
+    Docs: https://core.telegram.org/bots/api/#inlinekeyboardbutton"""
+
     text: str
     url: typing.Optional[str] = None
     callback_data: typing.Optional[str] = None
@@ -388,6 +538,19 @@ class InlineKeyboardButton(Model):
 
 
 class LoginUrl(Model):
+    """This object represents a parameter of the inline keyboard button used to
+    automatically authorize a user. Serves as a great replacement for the [Telegram
+    Login Widget](https://core.telegram.org/widgets/login) when the
+    user is coming from Telegram. All the user needs to do is tap/click a button
+    and confirm that they want to log in:
+
+    Telegram apps support these buttons
+    as of [version 5.7](https://telegram.org/blog/privacy-discussions-web-bots#meet-seamless-web-bots).
+
+    Sample
+    bot: [@discussbot](https://t.me/discussbot)
+    Docs: https://core.telegram.org/bots/api/#loginurl"""
+
     url: str
     forward_text: typing.Optional[str] = None
     bot_username: typing.Optional[str] = None
@@ -395,6 +558,15 @@ class LoginUrl(Model):
 
 
 class CallbackQuery(Model):
+    """This object represents an incoming callback query from a callback button
+    in an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards).
+    If the button that originated the query was attached to a message sent by
+    the bot, the field *message* will be present. If the button was attached
+    to a message sent via the bot (in [inline mode](https://core.telegram.org/bots/api/#inline-mode)),
+    the field *inline_message_id* will be present. Exactly one of the fields
+    *data* or *game_short_name* will be present.
+    Docs: https://core.telegram.org/bots/api/#callbackquery"""
+
     id: str
     from_: "User"
     message: typing.Optional["Message"] = None
@@ -405,12 +577,22 @@ class CallbackQuery(Model):
 
 
 class ForceReply(Model):
+    """Upon receiving a message with this object, Telegram clients will display
+    a reply interface to the user (act as if the user has selected the bot's message
+    and tapped 'Reply'). This can be extremely useful if you want to create user-friendly
+    step-by-step interfaces without having to sacrifice [privacy mode](https://core.telegram.org/bots/features#privacy-mode).
+
+    Docs: https://core.telegram.org/bots/api/#forcereply"""
+
     force_reply: bool
     input_field_placeholder: typing.Optional[str] = None
     selective: typing.Optional[bool] = None
 
 
 class ChatPhoto(Model):
+    """This object represents a chat photo.
+    Docs: https://core.telegram.org/bots/api/#chatphoto"""
+
     small_file_id: str
     small_file_unique_id: str
     big_file_id: str
@@ -418,6 +600,9 @@ class ChatPhoto(Model):
 
 
 class ChatInviteLink(Model):
+    """Represents an invite link for a chat.
+    Docs: https://core.telegram.org/bots/api/#chatinvitelink"""
+
     invite_link: str
     creator: "User"
     creates_join_request: bool
@@ -430,6 +615,9 @@ class ChatInviteLink(Model):
 
 
 class ChatAdministratorRights(Model):
+    """Represents the rights of an administrator in a chat.
+    Docs: https://core.telegram.org/bots/api/#chatadministratorrights"""
+
     is_anonymous: bool
     can_manage_chat: bool
     can_delete_messages: bool
@@ -444,6 +632,23 @@ class ChatAdministratorRights(Model):
 
 
 class ChatMember(Model):
+    """This object contains information about one member of a chat. Currently,
+    the following 6 types of chat members are supported:
+
+    * [ChatMemberOwner](https://core.telegram.org/bots/api/#chatmemberowner)
+    *
+    [ChatMemberAdministrator](https://core.telegram.org/bots/api/#chatmemberadministrator)
+    *
+    [ChatMemberMember](https://core.telegram.org/bots/api/#chatmembermember)
+    *
+    [ChatMemberRestricted](https://core.telegram.org/bots/api/#chatmemberrestricted)
+    *
+    [ChatMemberLeft](https://core.telegram.org/bots/api/#chatmemberleft)
+    *
+    [ChatMemberBanned](https://core.telegram.org/bots/api/#chatmemberbanned)
+
+    Docs: https://core.telegram.org/bots/api/#chatmember"""
+
     status: typing.Optional[str] = "kicked"
     user: typing.Optional["User"] = None
     is_anonymous: typing.Optional[bool] = None
@@ -469,6 +674,10 @@ class ChatMember(Model):
 
 
 class ChatMemberOwner(Model):
+    """Represents a [chat member](https://core.telegram.org/bots/api/#chatmember)
+    that owns the chat and has all administrator privileges.
+    Docs: https://core.telegram.org/bots/api/#chatmemberowner"""
+
     status: str
     user: "User"
     is_anonymous: bool
@@ -476,6 +685,10 @@ class ChatMemberOwner(Model):
 
 
 class ChatMemberAdministrator(Model):
+    """Represents a [chat member](https://core.telegram.org/bots/api/#chatmember)
+    that has some additional privileges.
+    Docs: https://core.telegram.org/bots/api/#chatmemberadministrator"""
+
     status: str
     user: "User"
     can_be_edited: bool
@@ -494,11 +707,19 @@ class ChatMemberAdministrator(Model):
 
 
 class ChatMemberMember(Model):
+    """Represents a [chat member](https://core.telegram.org/bots/api/#chatmember)
+    that has no additional privileges or restrictions.
+    Docs: https://core.telegram.org/bots/api/#chatmembermember"""
+
     status: str
     user: "User"
 
 
 class ChatMemberRestricted(Model):
+    """Represents a [chat member](https://core.telegram.org/bots/api/#chatmember)
+    that is under certain restrictions in the chat. Supergroups only.
+    Docs: https://core.telegram.org/bots/api/#chatmemberrestricted"""
+
     status: str
     user: "User"
     is_member: bool
@@ -514,17 +735,29 @@ class ChatMemberRestricted(Model):
 
 
 class ChatMemberLeft(Model):
+    """Represents a [chat member](https://core.telegram.org/bots/api/#chatmember)
+    that isn't currently a member of the chat, but may join it themselves.
+    Docs: https://core.telegram.org/bots/api/#chatmemberleft"""
+
     status: str
     user: "User"
 
 
 class ChatMemberBanned(Model):
+    """Represents a [chat member](https://core.telegram.org/bots/api/#chatmember)
+    that was banned in the chat and can't return to the chat or view chat messages.
+
+    Docs: https://core.telegram.org/bots/api/#chatmemberbanned"""
+
     status: str
     user: "User"
     until_date: int
 
 
 class ChatMemberUpdated(Model):
+    """This object represents changes in the status of a chat member.
+    Docs: https://core.telegram.org/bots/api/#chatmemberupdated"""
+
     chat: "Chat"
     from_: "User"
     date: int
@@ -534,6 +767,9 @@ class ChatMemberUpdated(Model):
 
 
 class ChatJoinRequest(Model):
+    """Represents a join request sent to a chat.
+    Docs: https://core.telegram.org/bots/api/#chatjoinrequest"""
+
     chat: "Chat"
     from_: "User"
     date: int
@@ -542,6 +778,10 @@ class ChatJoinRequest(Model):
 
 
 class ChatPermissions(Model):
+    """Describes actions that a non-administrator user is allowed to take in a
+    chat.
+    Docs: https://core.telegram.org/bots/api/#chatpermissions"""
+
     can_send_messages: typing.Optional[bool] = None
     can_send_media_messages: typing.Optional[bool] = None
     can_send_polls: typing.Optional[bool] = None
@@ -553,16 +793,41 @@ class ChatPermissions(Model):
 
 
 class ChatLocation(Model):
+    """Represents a location to which a chat is connected.
+    Docs: https://core.telegram.org/bots/api/#chatlocation"""
+
     location: "Location"
     address: str
 
 
 class BotCommand(Model):
+    """This object represents a bot command.
+    Docs: https://core.telegram.org/bots/api/#botcommand"""
+
     command: str
     description: str
 
 
 class BotCommandScope(Model):
+    """This object represents the scope to which bot commands are applied. Currently,
+    the following 7 scopes are supported:
+
+    * [BotCommandScopeDefault](https://core.telegram.org/bots/api/#botcommandscopedefault)
+    *
+    [BotCommandScopeAllPrivateChats](https://core.telegram.org/bots/api/#botcommandscopeallprivatechats)
+    *
+    [BotCommandScopeAllGroupChats](https://core.telegram.org/bots/api/#botcommandscopeallgroupchats)
+    *
+    [BotCommandScopeAllChatAdministrators](https://core.telegram.org/bots/api/#botcommandscopeallchatadministrators)
+    *
+    [BotCommandScopeChat](https://core.telegram.org/bots/api/#botcommandscopechat)
+    *
+    [BotCommandScopeChatAdministrators](https://core.telegram.org/bots/api/#botcommandscopechatadministrators)
+    *
+    [BotCommandScopeChatMember](https://core.telegram.org/bots/api/#botcommandscopechatmember)
+
+    Docs: https://core.telegram.org/bots/api/#botcommandscope"""
+
     type: typing.Optional[str] = "chat_member"
     chat_id: typing.Optional[
         typing.Union[typing.Optional[int], typing.Optional[str]]
@@ -571,63 +836,135 @@ class BotCommandScope(Model):
 
 
 class BotCommandScopeDefault(Model):
+    """Represents the default [scope](https://core.telegram.org/bots/api/#botcommandscope)
+    of bot commands. Default commands are used if no commands with a [narrower
+    scope](https://core.telegram.org/bots/api/#determining-list-of-commands)
+    are specified for the user.
+    Docs: https://core.telegram.org/bots/api/#botcommandscopedefault"""
+
     type: str
 
 
 class BotCommandScopeAllPrivateChats(Model):
+    """Represents the [scope](https://core.telegram.org/bots/api/#botcommandscope)
+    of bot commands, covering all private chats.
+    Docs: https://core.telegram.org/bots/api/#botcommandscopeallprivatechats"""
+
     type: str
 
 
 class BotCommandScopeAllGroupChats(Model):
+    """Represents the [scope](https://core.telegram.org/bots/api/#botcommandscope)
+    of bot commands, covering all group and supergroup chats.
+    Docs: https://core.telegram.org/bots/api/#botcommandscopeallgroupchats"""
+
     type: str
 
 
 class BotCommandScopeAllChatAdministrators(Model):
+    """Represents the [scope](https://core.telegram.org/bots/api/#botcommandscope)
+    of bot commands, covering all group and supergroup chat administrators.
+
+    Docs: https://core.telegram.org/bots/api/#botcommandscopeallchatadministrators"""
+
     type: str
 
 
 class BotCommandScopeChat(Model):
+    """Represents the [scope](https://core.telegram.org/bots/api/#botcommandscope)
+    of bot commands, covering a specific chat.
+    Docs: https://core.telegram.org/bots/api/#botcommandscopechat"""
+
     type: str
     chat_id: typing.Union[int, str]
 
 
 class BotCommandScopeChatAdministrators(Model):
+    """Represents the [scope](https://core.telegram.org/bots/api/#botcommandscope)
+    of bot commands, covering all administrators of a specific group or supergroup
+    chat.
+    Docs: https://core.telegram.org/bots/api/#botcommandscopechatadministrators"""
+
     type: str
     chat_id: typing.Union[int, str]
 
 
 class BotCommandScopeChatMember(Model):
+    """Represents the [scope](https://core.telegram.org/bots/api/#botcommandscope)
+    of bot commands, covering a specific member of a group or supergroup chat.
+
+    Docs: https://core.telegram.org/bots/api/#botcommandscopechatmember"""
+
     type: str
     chat_id: typing.Union[int, str]
     user_id: int
 
 
 class MenuButton(Model):
+    """This object describes the bot's menu button in a private chat. It should
+    be one of
+
+    * [MenuButtonCommands](https://core.telegram.org/bots/api/#menubuttoncommands)
+    *
+    [MenuButtonWebApp](https://core.telegram.org/bots/api/#menubuttonwebapp)
+    *
+    [MenuButtonDefault](https://core.telegram.org/bots/api/#menubuttondefault)
+
+    Docs: https://core.telegram.org/bots/api/#menubutton"""
+
     type: typing.Optional[str] = "default"
     text: typing.Optional[str] = None
     web_app: typing.Optional["WebAppInfo"] = None
 
 
 class MenuButtonCommands(Model):
+    """Represents a menu button, which opens the bot's list of commands.
+    Docs: https://core.telegram.org/bots/api/#menubuttoncommands"""
+
     type: str
 
 
 class MenuButtonWebApp(Model):
+    """Represents a menu button, which launches a [Web App](https://core.telegram.org/bots/webapps).
+
+    Docs: https://core.telegram.org/bots/api/#menubuttonwebapp"""
+
     type: str
     text: str
     web_app: "WebAppInfo"
 
 
 class MenuButtonDefault(Model):
+    """Describes that no specific value for the menu button was set.
+    Docs: https://core.telegram.org/bots/api/#menubuttondefault"""
+
     type: str
 
 
 class ResponseParameters(Model):
+    """Describes why a request was unsuccessful.
+    Docs: https://core.telegram.org/bots/api/#responseparameters"""
+
     migrate_to_chat_id: typing.Optional[int] = None
     retry_after: typing.Optional[int] = None
 
 
 class InputMedia(Model):
+    """This object represents the content of a media message to be sent. It should
+    be one of
+
+    * [InputMediaAnimation](https://core.telegram.org/bots/api/#inputmediaanimation)
+    *
+    [InputMediaDocument](https://core.telegram.org/bots/api/#inputmediadocument)
+    *
+    [InputMediaAudio](https://core.telegram.org/bots/api/#inputmediaaudio)
+    *
+    [InputMediaPhoto](https://core.telegram.org/bots/api/#inputmediaphoto)
+    *
+    [InputMediaVideo](https://core.telegram.org/bots/api/#inputmediavideo)
+
+    Docs: https://core.telegram.org/bots/api/#inputmedia"""
+
     type: typing.Optional[str] = "video"
     media: typing.Optional[str] = None
     thumb: typing.Optional[
@@ -648,6 +985,9 @@ class InputMedia(Model):
 
 
 class InputMediaPhoto(Model):
+    """Represents a photo to be sent.
+    Docs: https://core.telegram.org/bots/api/#inputmediaphoto"""
+
     type: str
     media: str
     caption: typing.Optional[str] = None
@@ -658,6 +998,9 @@ class InputMediaPhoto(Model):
 
 
 class InputMediaVideo(Model):
+    """Represents a video to be sent.
+    Docs: https://core.telegram.org/bots/api/#inputmediavideo"""
+
     type: str
     media: str
     thumb: typing.Optional[
@@ -675,6 +1018,10 @@ class InputMediaVideo(Model):
 
 
 class InputMediaAnimation(Model):
+    """Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound)
+    to be sent.
+    Docs: https://core.telegram.org/bots/api/#inputmediaanimation"""
+
     type: str
     media: str
     thumb: typing.Optional[
@@ -691,6 +1038,9 @@ class InputMediaAnimation(Model):
 
 
 class InputMediaAudio(Model):
+    """Represents an audio file to be treated as music to be sent.
+    Docs: https://core.telegram.org/bots/api/#inputmediaaudio"""
+
     type: str
     media: str
     thumb: typing.Optional[
@@ -707,6 +1057,9 @@ class InputMediaAudio(Model):
 
 
 class InputMediaDocument(Model):
+    """Represents a general file to be sent.
+    Docs: https://core.telegram.org/bots/api/#inputmediadocument"""
+
     type: str
     media: str
     thumb: typing.Optional[
@@ -720,11 +1073,13 @@ class InputMediaDocument(Model):
     disable_content_type_detection: typing.Optional[bool] = None
 
 
-class InputFile(Model):
-    pass
+InputFile = typing.NamedTuple("InputFile", [("filename", str), ("data", bytes)])
 
 
 class Sticker(Model):
+    """This object represents a sticker.
+    Docs: https://core.telegram.org/bots/api/#sticker"""
+
     file_id: str
     file_unique_id: str
     type: str
@@ -742,6 +1097,9 @@ class Sticker(Model):
 
 
 class StickerSet(Model):
+    """This object represents a sticker set.
+    Docs: https://core.telegram.org/bots/api/#stickerset"""
+
     name: str
     title: str
     sticker_type: str
@@ -752,6 +1110,10 @@ class StickerSet(Model):
 
 
 class MaskPosition(Model):
+    """This object describes the position on faces where a mask should be placed
+    by default.
+    Docs: https://core.telegram.org/bots/api/#maskposition"""
+
     point: str
     x_shift: float
     y_shift: float
@@ -759,6 +1121,10 @@ class MaskPosition(Model):
 
 
 class InlineQuery(Model):
+    """This object represents an incoming inline query. When the user sends an
+    empty query, your bot could return some default or trending results.
+    Docs: https://core.telegram.org/bots/api/#inlinequery"""
+
     id: str
     from_: "User"
     query: str
@@ -768,6 +1134,51 @@ class InlineQuery(Model):
 
 
 class InlineQueryResult(Model):
+    """This object represents one result of an inline query. Telegram clients
+    currently support results of the following 20 types:
+
+    * [InlineQueryResultCachedAudio](https://core.telegram.org/bots/api/#inlinequeryresultcachedaudio)
+    *
+    [InlineQueryResultCachedDocument](https://core.telegram.org/bots/api/#inlinequeryresultcacheddocument)
+    *
+    [InlineQueryResultCachedGif](https://core.telegram.org/bots/api/#inlinequeryresultcachedgif)
+    *
+    [InlineQueryResultCachedMpeg4Gif](https://core.telegram.org/bots/api/#inlinequeryresultcachedmpeg4gif)
+    *
+    [InlineQueryResultCachedPhoto](https://core.telegram.org/bots/api/#inlinequeryresultcachedphoto)
+    *
+    [InlineQueryResultCachedSticker](https://core.telegram.org/bots/api/#inlinequeryresultcachedsticker)
+    *
+    [InlineQueryResultCachedVideo](https://core.telegram.org/bots/api/#inlinequeryresultcachedvideo)
+    *
+    [InlineQueryResultCachedVoice](https://core.telegram.org/bots/api/#inlinequeryresultcachedvoice)
+    *
+    [InlineQueryResultArticle](https://core.telegram.org/bots/api/#inlinequeryresultarticle)
+    *
+    [InlineQueryResultAudio](https://core.telegram.org/bots/api/#inlinequeryresultaudio)
+    *
+    [InlineQueryResultContact](https://core.telegram.org/bots/api/#inlinequeryresultcontact)
+    *
+    [InlineQueryResultGame](https://core.telegram.org/bots/api/#inlinequeryresultgame)
+    *
+    [InlineQueryResultDocument](https://core.telegram.org/bots/api/#inlinequeryresultdocument)
+    *
+    [InlineQueryResultGif](https://core.telegram.org/bots/api/#inlinequeryresultgif)
+    *
+    [InlineQueryResultLocation](https://core.telegram.org/bots/api/#inlinequeryresultlocation)
+    *
+    [InlineQueryResultMpeg4Gif](https://core.telegram.org/bots/api/#inlinequeryresultmpeg4gif)
+    *
+    [InlineQueryResultPhoto](https://core.telegram.org/bots/api/#inlinequeryresultphoto)
+    *
+    [InlineQueryResultVenue](https://core.telegram.org/bots/api/#inlinequeryresultvenue)
+    *
+    [InlineQueryResultVideo](https://core.telegram.org/bots/api/#inlinequeryresultvideo)
+    *
+    [InlineQueryResultVoice](https://core.telegram.org/bots/api/#inlinequeryresultvoice)
+
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresult"""
+
     type: typing.Optional[str] = "voice"
     id: typing.Optional[str] = None
     audio_file_id: typing.Optional[str] = None
@@ -834,6 +1245,9 @@ class InlineQueryResult(Model):
 
 
 class InlineQueryResultArticle(Model):
+    """Represents a link to an article or web page.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultarticle"""
+
     type: str
     id: str
     title: str
@@ -848,6 +1262,11 @@ class InlineQueryResultArticle(Model):
 
 
 class InlineQueryResultPhoto(Model):
+    """Represents a link to a photo. By default, this photo will be sent by the user
+    with optional caption. Alternatively, you can use *input_message_content*
+    to send a message with the specified content instead of the photo.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultphoto"""
+
     type: str
     id: str
     photo_url: str
@@ -866,6 +1285,12 @@ class InlineQueryResultPhoto(Model):
 
 
 class InlineQueryResultGif(Model):
+    """Represents a link to an animated GIF file. By default, this animated GIF
+    file will be sent by the user with optional caption. Alternatively, you
+    can use *input_message_content* to send a message with the specified
+    content instead of the animation.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultgif"""
+
     type: str
     id: str
     gif_url: str
@@ -885,6 +1310,12 @@ class InlineQueryResultGif(Model):
 
 
 class InlineQueryResultMpeg4Gif(Model):
+    """Represents a link to a video animation (H.264/MPEG-4 AVC video without
+    sound). By default, this animated MPEG-4 file will be sent by the user with
+    optional caption. Alternatively, you can use *input_message_content*
+    to send a message with the specified content instead of the animation.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultmpeg4gif"""
+
     type: str
     id: str
     mpeg4_url: str
@@ -904,6 +1335,16 @@ class InlineQueryResultMpeg4Gif(Model):
 
 
 class InlineQueryResultVideo(Model):
+    """Represents a link to a page containing an embedded video player or a video
+    file. By default, this video file will be sent by the user with an optional
+    caption. Alternatively, you can use *input_message_content* to send
+    a message with the specified content instead of the video.
+
+    If an InlineQueryResultVideo
+    message contains an embedded video (e.g., YouTube), you **must** replace
+    its content using *input_message_content*.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultvideo"""
+
     type: str
     id: str
     video_url: str
@@ -924,6 +1365,11 @@ class InlineQueryResultVideo(Model):
 
 
 class InlineQueryResultAudio(Model):
+    """Represents a link to an MP3 audio file. By default, this audio file will be
+    sent by the user. Alternatively, you can use *input_message_content*
+    to send a message with the specified content instead of the audio.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultaudio"""
+
     type: str
     id: str
     audio_url: str
@@ -940,6 +1386,12 @@ class InlineQueryResultAudio(Model):
 
 
 class InlineQueryResultVoice(Model):
+    """Represents a link to a voice recording in an .OGG container encoded with
+    OPUS. By default, this voice recording will be sent by the user. Alternatively,
+    you can use *input_message_content* to send a message with the specified
+    content instead of the the voice message.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultvoice"""
+
     type: str
     id: str
     voice_url: str
@@ -955,6 +1407,12 @@ class InlineQueryResultVoice(Model):
 
 
 class InlineQueryResultDocument(Model):
+    """Represents a link to a file. By default, this file will be sent by the user
+    with an optional caption. Alternatively, you can use *input_message_content*
+    to send a message with the specified content instead of the file. Currently,
+    only **.PDF** and **.ZIP** files can be sent using this method.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultdocument"""
+
     type: str
     id: str
     title: str
@@ -974,6 +1432,11 @@ class InlineQueryResultDocument(Model):
 
 
 class InlineQueryResultLocation(Model):
+    """Represents a location on a map. By default, the location will be sent by the
+    user. Alternatively, you can use *input_message_content* to send a
+    message with the specified content instead of the location.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultlocation"""
+
     type: str
     id: str
     latitude: float
@@ -991,6 +1454,11 @@ class InlineQueryResultLocation(Model):
 
 
 class InlineQueryResultVenue(Model):
+    """Represents a venue. By default, the venue will be sent by the user. Alternatively,
+    you can use *input_message_content* to send a message with the specified
+    content instead of the venue.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultvenue"""
+
     type: str
     id: str
     latitude: float
@@ -1009,6 +1477,11 @@ class InlineQueryResultVenue(Model):
 
 
 class InlineQueryResultContact(Model):
+    """Represents a contact with a phone number. By default, this contact will
+    be sent by the user. Alternatively, you can use *input_message_content*
+    to send a message with the specified content instead of the contact.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultcontact"""
+
     type: str
     id: str
     phone_number: str
@@ -1023,6 +1496,10 @@ class InlineQueryResultContact(Model):
 
 
 class InlineQueryResultGame(Model):
+    """Represents a [Game](https://core.telegram.org/bots/api/#games).
+
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultgame"""
+
     type: str
     id: str
     game_short_name: str
@@ -1030,6 +1507,12 @@ class InlineQueryResultGame(Model):
 
 
 class InlineQueryResultCachedPhoto(Model):
+    """Represents a link to a photo stored on the Telegram servers. By default,
+    this photo will be sent by the user with an optional caption. Alternatively,
+    you can use *input_message_content* to send a message with the specified
+    content instead of the photo.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultcachedphoto"""
+
     type: str
     id: str
     photo_file_id: str
@@ -1045,6 +1528,12 @@ class InlineQueryResultCachedPhoto(Model):
 
 
 class InlineQueryResultCachedGif(Model):
+    """Represents a link to an animated GIF file stored on the Telegram servers.
+    By default, this animated GIF file will be sent by the user with an optional
+    caption. Alternatively, you can use *input_message_content* to send
+    a message with specified content instead of the animation.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultcachedgif"""
+
     type: str
     id: str
     gif_file_id: str
@@ -1059,6 +1548,13 @@ class InlineQueryResultCachedGif(Model):
 
 
 class InlineQueryResultCachedMpeg4Gif(Model):
+    """Represents a link to a video animation (H.264/MPEG-4 AVC video without
+    sound) stored on the Telegram servers. By default, this animated MPEG-4
+    file will be sent by the user with an optional caption. Alternatively, you
+    can use *input_message_content* to send a message with the specified
+    content instead of the animation.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultcachedmpeg4gif"""
+
     type: str
     id: str
     mpeg4_file_id: str
@@ -1073,6 +1569,11 @@ class InlineQueryResultCachedMpeg4Gif(Model):
 
 
 class InlineQueryResultCachedSticker(Model):
+    """Represents a link to a sticker stored on the Telegram servers. By default,
+    this sticker will be sent by the user. Alternatively, you can use *input_message_content*
+    to send a message with the specified content instead of the sticker.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultcachedsticker"""
+
     type: str
     id: str
     sticker_file_id: str
@@ -1081,6 +1582,12 @@ class InlineQueryResultCachedSticker(Model):
 
 
 class InlineQueryResultCachedDocument(Model):
+    """Represents a link to a file stored on the Telegram servers. By default, this
+    file will be sent by the user with an optional caption. Alternatively, you
+    can use *input_message_content* to send a message with the specified
+    content instead of the file.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultcacheddocument"""
+
     type: str
     id: str
     title: str
@@ -1096,6 +1603,12 @@ class InlineQueryResultCachedDocument(Model):
 
 
 class InlineQueryResultCachedVideo(Model):
+    """Represents a link to a video file stored on the Telegram servers. By default,
+    this video file will be sent by the user with an optional caption. Alternatively,
+    you can use *input_message_content* to send a message with the specified
+    content instead of the video.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultcachedvideo"""
+
     type: str
     id: str
     video_file_id: str
@@ -1111,6 +1624,12 @@ class InlineQueryResultCachedVideo(Model):
 
 
 class InlineQueryResultCachedVoice(Model):
+    """Represents a link to a voice message stored on the Telegram servers. By default,
+    this voice message will be sent by the user. Alternatively, you can use *input_message_content*
+    to send a message with the specified content instead of the voice message.
+
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultcachedvoice"""
+
     type: str
     id: str
     voice_file_id: str
@@ -1125,6 +1644,12 @@ class InlineQueryResultCachedVoice(Model):
 
 
 class InlineQueryResultCachedAudio(Model):
+    """Represents a link to an MP3 audio file stored on the Telegram servers. By
+    default, this audio file will be sent by the user. Alternatively, you can
+    use *input_message_content* to send a message with the specified content
+    instead of the audio.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultcachedaudio"""
+
     type: str
     id: str
     audio_file_id: str
@@ -1138,6 +1663,22 @@ class InlineQueryResultCachedAudio(Model):
 
 
 class InputMessageContent(Model):
+    """This object represents the content of a message to be sent as a result of an
+    inline query. Telegram clients currently support the following 5 types:
+
+    *
+    [InputTextMessageContent](https://core.telegram.org/bots/api/#inputtextmessagecontent)
+    *
+    [InputLocationMessageContent](https://core.telegram.org/bots/api/#inputlocationmessagecontent)
+    *
+    [InputVenueMessageContent](https://core.telegram.org/bots/api/#inputvenuemessagecontent)
+    *
+    [InputContactMessageContent](https://core.telegram.org/bots/api/#inputcontactmessagecontent)
+    *
+    [InputInvoiceMessageContent](https://core.telegram.org/bots/api/#inputinvoicemessagecontent)
+
+    Docs: https://core.telegram.org/bots/api/#inputmessagecontent"""
+
     message_text: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
     entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
@@ -1180,6 +1721,10 @@ class InputMessageContent(Model):
 
 
 class InputTextMessageContent(Model):
+    """Represents the [content](https://core.telegram.org/bots/api/#inputmessagecontent)
+    of a text message to be sent as the result of an inline query.
+    Docs: https://core.telegram.org/bots/api/#inputtextmessagecontent"""
+
     message_text: str
     parse_mode: typing.Optional[str] = None
     entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
@@ -1187,6 +1732,10 @@ class InputTextMessageContent(Model):
 
 
 class InputLocationMessageContent(Model):
+    """Represents the [content](https://core.telegram.org/bots/api/#inputmessagecontent)
+    of a location message to be sent as the result of an inline query.
+    Docs: https://core.telegram.org/bots/api/#inputlocationmessagecontent"""
+
     latitude: float
     longitude: float
     horizontal_accuracy: typing.Optional[float] = None
@@ -1196,6 +1745,10 @@ class InputLocationMessageContent(Model):
 
 
 class InputVenueMessageContent(Model):
+    """Represents the [content](https://core.telegram.org/bots/api/#inputmessagecontent)
+    of a venue message to be sent as the result of an inline query.
+    Docs: https://core.telegram.org/bots/api/#inputvenuemessagecontent"""
+
     latitude: float
     longitude: float
     title: str
@@ -1207,6 +1760,10 @@ class InputVenueMessageContent(Model):
 
 
 class InputContactMessageContent(Model):
+    """Represents the [content](https://core.telegram.org/bots/api/#inputmessagecontent)
+    of a contact message to be sent as the result of an inline query.
+    Docs: https://core.telegram.org/bots/api/#inputcontactmessagecontent"""
+
     phone_number: str
     first_name: str
     last_name: typing.Optional[str] = None
@@ -1214,6 +1771,10 @@ class InputContactMessageContent(Model):
 
 
 class InputInvoiceMessageContent(Model):
+    """Represents the [content](https://core.telegram.org/bots/api/#inputmessagecontent)
+    of an invoice message to be sent as the result of an inline query.
+    Docs: https://core.telegram.org/bots/api/#inputinvoicemessagecontent"""
+
     title: str
     description: str
     payload: str
@@ -1237,6 +1798,11 @@ class InputInvoiceMessageContent(Model):
 
 
 class ChosenInlineResult(Model):
+    """Represents a [result](https://core.telegram.org/bots/api/#inlinequeryresult)
+    of an inline query that was chosen by the user and sent to their chat partner.
+
+    Docs: https://core.telegram.org/bots/api/#choseninlineresult"""
+
     result_id: str
     from_: "User"
     location: typing.Optional["Location"] = None
@@ -1245,15 +1811,25 @@ class ChosenInlineResult(Model):
 
 
 class SentWebAppMessage(Model):
+    """Describes an inline message sent by a [Web App](https://core.telegram.org/bots/webapps)
+    on behalf of a user.
+    Docs: https://core.telegram.org/bots/api/#sentwebappmessage"""
+
     inline_message_id: typing.Optional[str] = None
 
 
 class LabeledPrice(Model):
+    """This object represents a portion of the price for goods or services.
+    Docs: https://core.telegram.org/bots/api/#labeledprice"""
+
     label: str
     amount: int
 
 
 class Invoice(Model):
+    """This object contains basic information about an invoice.
+    Docs: https://core.telegram.org/bots/api/#invoice"""
+
     title: str
     description: str
     start_parameter: str
@@ -1262,6 +1838,9 @@ class Invoice(Model):
 
 
 class ShippingAddress(Model):
+    """This object represents a shipping address.
+    Docs: https://core.telegram.org/bots/api/#shippingaddress"""
+
     country_code: str
     state: str
     city: str
@@ -1271,6 +1850,9 @@ class ShippingAddress(Model):
 
 
 class OrderInfo(Model):
+    """This object represents information about an order.
+    Docs: https://core.telegram.org/bots/api/#orderinfo"""
+
     name: typing.Optional[str] = None
     phone_number: typing.Optional[str] = None
     email: typing.Optional[str] = None
@@ -1278,12 +1860,18 @@ class OrderInfo(Model):
 
 
 class ShippingOption(Model):
+    """This object represents one shipping option.
+    Docs: https://core.telegram.org/bots/api/#shippingoption"""
+
     id: str
     title: str
     prices: typing.List["LabeledPrice"]
 
 
 class SuccessfulPayment(Model):
+    """This object contains basic information about a successful payment.
+    Docs: https://core.telegram.org/bots/api/#successfulpayment"""
+
     currency: str
     total_amount: int
     invoice_payload: str
@@ -1294,6 +1882,9 @@ class SuccessfulPayment(Model):
 
 
 class ShippingQuery(Model):
+    """This object contains information about an incoming shipping query.
+    Docs: https://core.telegram.org/bots/api/#shippingquery"""
+
     id: str
     from_: "User"
     invoice_payload: str
@@ -1301,6 +1892,10 @@ class ShippingQuery(Model):
 
 
 class PreCheckoutQuery(Model):
+    """This object contains information about an incoming pre-checkout query.
+
+    Docs: https://core.telegram.org/bots/api/#precheckoutquery"""
+
     id: str
     from_: "User"
     currency: str
@@ -1311,11 +1906,19 @@ class PreCheckoutQuery(Model):
 
 
 class PassportData(Model):
+    """Describes Telegram Passport data shared with the bot by the user.
+    Docs: https://core.telegram.org/bots/api/#passportdata"""
+
     data: typing.List["EncryptedPassportElement"]
     credentials: "EncryptedCredentials"
 
 
 class PassportFile(Model):
+    """This object represents a file uploaded to Telegram Passport. Currently
+    all Telegram Passport files are in JPEG format when decrypted and don't
+    exceed 10MB.
+    Docs: https://core.telegram.org/bots/api/#passportfile"""
+
     file_id: str
     file_unique_id: str
     file_size: int
@@ -1323,6 +1926,10 @@ class PassportFile(Model):
 
 
 class EncryptedPassportElement(Model):
+    """Describes documents or other Telegram Passport elements shared with the
+    bot by the user.
+    Docs: https://core.telegram.org/bots/api/#encryptedpassportelement"""
+
     type: str
     data: typing.Optional[str] = None
     phone_number: typing.Optional[str] = None
@@ -1336,12 +1943,42 @@ class EncryptedPassportElement(Model):
 
 
 class EncryptedCredentials(Model):
+    """Describes data required for decrypting and authenticating [EncryptedPassportElement](https://core.telegram.org/bots/api/#encryptedpassportelement).
+    See the [Telegram Passport Documentation](https://core.telegram.org/passport#receiving-information)
+    for a complete description of the data decryption and authentication processes.
+
+    Docs: https://core.telegram.org/bots/api/#encryptedcredentials"""
+
     data: str
     hash: str
     secret: str
 
 
 class PassportElementError(Model):
+    """This object represents an error in the Telegram Passport element which
+    was submitted that should be resolved by the user. It should be one of:
+
+    *
+    [PassportElementErrorDataField](https://core.telegram.org/bots/api/#passportelementerrordatafield)
+    *
+    [PassportElementErrorFrontSide](https://core.telegram.org/bots/api/#passportelementerrorfrontside)
+    *
+    [PassportElementErrorReverseSide](https://core.telegram.org/bots/api/#passportelementerrorreverseside)
+    *
+    [PassportElementErrorSelfie](https://core.telegram.org/bots/api/#passportelementerrorselfie)
+    *
+    [PassportElementErrorFile](https://core.telegram.org/bots/api/#passportelementerrorfile)
+    *
+    [PassportElementErrorFiles](https://core.telegram.org/bots/api/#passportelementerrorfiles)
+    *
+    [PassportElementErrorTranslationFile](https://core.telegram.org/bots/api/#passportelementerrortranslationfile)
+    *
+    [PassportElementErrorTranslationFiles](https://core.telegram.org/bots/api/#passportelementerrortranslationfiles)
+    *
+    [PassportElementErrorUnspecified](https://core.telegram.org/bots/api/#passportelementerrorunspecified)
+
+    Docs: https://core.telegram.org/bots/api/#passportelementerror"""
+
     source: typing.Optional[str] = "unspecified"
     type: typing.Optional[str] = None
     field_name: typing.Optional[str] = None
@@ -1353,6 +1990,10 @@ class PassportElementError(Model):
 
 
 class PassportElementErrorDataField(Model):
+    """Represents an issue in one of the data fields that was provided by the user.
+    The error is considered resolved when the field's value changes.
+    Docs: https://core.telegram.org/bots/api/#passportelementerrordatafield"""
+
     source: str
     type: str
     field_name: str
@@ -1361,6 +2002,10 @@ class PassportElementErrorDataField(Model):
 
 
 class PassportElementErrorFrontSide(Model):
+    """Represents an issue with the front side of a document. The error is considered
+    resolved when the file with the front side of the document changes.
+    Docs: https://core.telegram.org/bots/api/#passportelementerrorfrontside"""
+
     source: str
     type: str
     file_hash: str
@@ -1368,6 +2013,10 @@ class PassportElementErrorFrontSide(Model):
 
 
 class PassportElementErrorReverseSide(Model):
+    """Represents an issue with the reverse side of a document. The error is considered
+    resolved when the file with reverse side of the document changes.
+    Docs: https://core.telegram.org/bots/api/#passportelementerrorreverseside"""
+
     source: str
     type: str
     file_hash: str
@@ -1375,6 +2024,10 @@ class PassportElementErrorReverseSide(Model):
 
 
 class PassportElementErrorSelfie(Model):
+    """Represents an issue with the selfie with a document. The error is considered
+    resolved when the file with the selfie changes.
+    Docs: https://core.telegram.org/bots/api/#passportelementerrorselfie"""
+
     source: str
     type: str
     file_hash: str
@@ -1382,6 +2035,10 @@ class PassportElementErrorSelfie(Model):
 
 
 class PassportElementErrorFile(Model):
+    """Represents an issue with a document scan. The error is considered resolved
+    when the file with the document scan changes.
+    Docs: https://core.telegram.org/bots/api/#passportelementerrorfile"""
+
     source: str
     type: str
     file_hash: str
@@ -1389,6 +2046,10 @@ class PassportElementErrorFile(Model):
 
 
 class PassportElementErrorFiles(Model):
+    """Represents an issue with a list of scans. The error is considered resolved
+    when the list of files containing the scans changes.
+    Docs: https://core.telegram.org/bots/api/#passportelementerrorfiles"""
+
     source: str
     type: str
     file_hashes: typing.List[str]
@@ -1396,6 +2057,10 @@ class PassportElementErrorFiles(Model):
 
 
 class PassportElementErrorTranslationFile(Model):
+    """Represents an issue with one of the files that constitute the translation
+    of a document. The error is considered resolved when the file changes.
+    Docs: https://core.telegram.org/bots/api/#passportelementerrortranslationfile"""
+
     source: str
     type: str
     file_hash: str
@@ -1403,6 +2068,11 @@ class PassportElementErrorTranslationFile(Model):
 
 
 class PassportElementErrorTranslationFiles(Model):
+    """Represents an issue with the translated version of a document. The error
+    is considered resolved when a file with the document translation change.
+
+    Docs: https://core.telegram.org/bots/api/#passportelementerrortranslationfiles"""
+
     source: str
     type: str
     file_hashes: typing.List[str]
@@ -1410,6 +2080,10 @@ class PassportElementErrorTranslationFiles(Model):
 
 
 class PassportElementErrorUnspecified(Model):
+    """Represents an issue in an unspecified place. The error is considered resolved
+    when new data is added.
+    Docs: https://core.telegram.org/bots/api/#passportelementerrorunspecified"""
+
     source: str
     type: str
     element_hash: str
@@ -1417,6 +2091,10 @@ class PassportElementErrorUnspecified(Model):
 
 
 class Game(Model):
+    """This object represents a game. Use BotFather to create and edit games, their
+    short names will act as unique identifiers.
+    Docs: https://core.telegram.org/bots/api/#game"""
+
     title: str
     description: str
     photo: typing.List["PhotoSize"]
@@ -1426,10 +2104,17 @@ class Game(Model):
 
 
 class CallbackGame(Model):
+    """A placeholder, currently holds no information. Use [BotFather](https://t.me/botfather)
+    to set up your game.
+    Docs: https://core.telegram.org/bots/api/#callbackgame"""
+
     pass
 
 
 class GameHighScore(Model):
+    """This object represents one row of the high scores table for a game.
+    Docs: https://core.telegram.org/bots/api/#gamehighscore"""
+
     position: int
     user: "User"
     score: int

@@ -39,6 +39,19 @@ def convert_optional(func):
     return wrapper
 
 
+def chunks_str(s: str) -> str:
+    words = s.split(" ")
+    s = ""
+    line = 0
+    for word in words:
+        s += word + " "
+        line += len(word)
+        if line >= 60:
+            s += "\n"
+            line = 0
+    return s
+
+
 @convert_optional
 def convert_type(name: str, d: dict, obj: dict, forward_ref: bool = True) -> str:
     if "type" in d:
@@ -91,11 +104,27 @@ def param_s(name: str, param: dict, obj: dict) -> str:
 
 
 def get_lines_for_object(name: str, properties: dict, obj: dict):
+    if not properties:
+        if name == "InputFile":
+            return "\n\n" + name + ' = typing.NamedTuple("InputFile", [("filename", str), ("data", bytes)])\n'
+        else:
+            print("todo: handle {}".format(name))
+
     nicifications = find_nicifications(name)
+    desc = ""
+    if "description" in obj:
+        d = obj["description"]
+        # d = re.sub(r"\[(.+)]\(.+telegram.org/blog/(.+)\)", r"\1", d)
+        d = chunks_str(d)
+        d = d.replace("\\", "").replace("\n", SPACES + "\n")
+        if "externalDocs" in obj:
+            d += "\nDocs: {}".format(obj["externalDocs"]["url"])
+        desc = SPACES + '"""' + d + '"""\n'
 
     return [
         "\n\n",
         "class {}(Model):\n".format(name),
+        desc,
         # SPACES + "\"\"\"{}\"\"\"".format(obj["documentation"]),
         *(
             [SPACES + "pass\n"]

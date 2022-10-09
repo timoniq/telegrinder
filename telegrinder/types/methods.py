@@ -1,6 +1,6 @@
 import typing
 from .objects import *
-from telegrinder.tools import Result
+from telegrinder.result import Result
 from telegrinder.api.error import APIError
 
 if typing.TYPE_CHECKING:

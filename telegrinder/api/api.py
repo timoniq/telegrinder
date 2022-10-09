@@ -2,12 +2,18 @@ import msgspec
 
 from .abc import ABCAPI, APIError, Token
 import typing
-from telegrinder.tools import Result
+from telegrinder.result import Result
 from telegrinder.client import ABCClient, AiohttpClient
 from telegrinder.types.methods import APIMethods
 from telegrinder.model import convert
 from telegrinder.api.response import APIResponse
-from telegrinder.modules import logger
+
+
+def compose_data(client: ABCClient, data: dict) -> typing.Any:
+    data = convert(data)
+    if any(isinstance(v, tuple) for v in data.values()):
+        data = client.get_form(data)
+    return data
 
 
 class API(ABCAPI, APIMethods):
@@ -15,19 +21,20 @@ class API(ABCAPI, APIMethods):
 
     def __init__(self, token: Token, http: typing.Optional[ABCClient] = None):
         self.token = token
-        self._request_url = self.API_URL + f"bot{self.token}/"
         self.http = http or AiohttpClient()
         super().__init__(self)
+
+    @property
+    def request_url(self) -> str:
+        return self.API_URL + f"bot{self.token}/"
 
     async def request(
         self,
         method: str,
         data: typing.Optional[dict] = None,
     ) -> Result[typing.Union[dict, list, bool], APIError]:
-        data = convert(data)
-        logger.debug("Making API request {}: {}".format(method, data))
-        response = await self.http.request_json(self._request_url + method, json=data)
-        logger.debug("Got response: {}".format(response))
+        data = compose_data(self.http, data)
+        response = await self.http.request_json(self.request_url + method, data=data)
         if response.get("ok"):
             assert "result" in response
             return Result(True, value=response["result"])
@@ -36,11 +43,13 @@ class API(ABCAPI, APIMethods):
         return Result(False, error=APIError(code, msg))
 
     async def request_raw(
-        self, method: str, data: typing.Optional[dict] = None
+        self,
+        method: str,
+        data: typing.Optional[dict] = None,
     ) -> Result[msgspec.Raw, APIError]:
-        data = convert(data)
+        data = compose_data(self.http, data)
         response_bytes = await self.http.request_bytes(
-            self._request_url + method, json=data
+            self.request_url + method, data=data
         )
         response_skeleton: APIResponse = msgspec.json.decode(
             response_bytes, type=APIResponse

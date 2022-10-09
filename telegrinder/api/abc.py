@@ -4,7 +4,7 @@ import typing
 import msgspec
 
 from telegrinder.client import ABCClient
-from telegrinder.tools import Result
+from telegrinder.result import Result
 from telegrinder.api.error import APIError
 
 from envparse import env
@@ -31,6 +31,13 @@ class ABCAPI(ABC):
 
     @abstractmethod
     async def request_raw(
-        self, method: str, data: typing.Optional[dict] = None
+        self,
+        method: str,
+        data: typing.Optional[dict] = None,
     ) -> Result[msgspec.Raw, APIError]:
+        pass
+
+    @property
+    @abstractmethod
+    def request_url(self) -> str:
         pass

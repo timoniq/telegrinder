@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 import typing
 
+ClientData = typing.Any
+
 
 class ABCClient(ABC):
     @abstractmethod
@@ -49,6 +51,11 @@ class ABCClient(ABC):
 
     @abstractmethod
     async def close(self) -> None:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_form(cls, data: dict) -> typing.Any:
         pass
 
     async def __aenter__(self) -> "ABCClient":

@@ -64,7 +64,7 @@ class AiohttpClient(ABCClient):
         self,
         url: str,
         method: str = "GET",
-        data: typing.Optional[dict] = None,
+        data: typing.Union[dict, aiohttp.FormData, None] = None,
         **kwargs
     ) -> str:
         response = await self.request_raw(url, method, data, **kwargs)
@@ -74,7 +74,7 @@ class AiohttpClient(ABCClient):
         self,
         url: str,
         method: str = "GET",
-        data: typing.Optional[dict] = None,
+        data: typing.Union[dict, aiohttp.FormData, None] = None,
         **kwargs
     ) -> bytes:
         response = await self.request_raw(url, method, data, **kwargs)
@@ -95,6 +95,18 @@ class AiohttpClient(ABCClient):
     async def close(self) -> None:
         if self.session and not self.session.closed:
             await self.session.close()
+
+    @classmethod
+    def get_form(cls, data: dict) -> aiohttp.formdata.FormData:
+        form = aiohttp.formdata.FormData(quote_fields=False)
+        for k, v in data.items():
+            params = {}
+            if isinstance(v, tuple):
+                params["filename"], v = v[0], v[1]
+            else:
+                v = str(v)
+            form.add_field(k, v)
+        return form
 
     def __del__(self):
         if self.session and not self.session.closed:

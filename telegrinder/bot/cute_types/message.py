@@ -8,7 +8,7 @@ from telegrinder.types import (
 )
 from telegrinder.types.methods import APIMethods
 from telegrinder.api import API, APIError, Token
-from telegrinder.tools import Result
+from telegrinder.result import Result
 import typing
 
 

@@ -1,6 +1,6 @@
 from telegrinder.types import InlineQuery, User
 from telegrinder.api import API, APIError
-from telegrinder.tools import Result
+from telegrinder.result import Result
 import typing
 
 
