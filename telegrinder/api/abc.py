@@ -41,3 +41,8 @@ class ABCAPI(ABC):
     @abstractmethod
     def request_url(self) -> str:
         pass
+
+    @property
+    @abstractmethod
+    def id(self) -> int:
+        pass

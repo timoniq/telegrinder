@@ -198,7 +198,7 @@ def generate(path: str, schema_url: str = URL) -> None:
             [
                 "import typing\n",
                 "from .objects import *\n",
-                "from telegrinder.tools import Result\n",
+                "from telegrinder.result import Result\n",
                 "from telegrinder.api.error import APIError\n\n",
                 "if typing.TYPE_CHECKING:\n",
                 SPACES + "from telegrinder.api.abc import ABCAPI\n\n",

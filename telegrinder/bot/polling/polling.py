@@ -49,6 +49,7 @@ class Polling(ABCPolling):
         return raw_updates.unwrap()
 
     async def listen(self) -> typing.AsyncIterator[typing.List[Update]]:
+        logger.debug("listening polling")
         while not self._stop:
             try:
                 updates = await self.get_updates()

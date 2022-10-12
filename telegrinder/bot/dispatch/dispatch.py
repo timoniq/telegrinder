@@ -5,6 +5,7 @@ from telegrinder.bot.rules import ABCRule
 from .handler import ABCHandler, FuncHandler
 from telegrinder.types import Update
 from telegrinder.api.abc import ABCAPI
+from telegrinder.modules import logger
 from .view import ABCView, MessageView, CallbackQueryView, InlineQueryView
 import typing
 
@@ -58,15 +59,16 @@ class Dispatch(ABCDispatch):
             view.load(view_external)
 
     async def feed(self, event: Update, api: ABCAPI) -> bool:
-
+        logger.debug("processing update (update_id=%d)", event.update_id)
         for view in self.get_views():
             if await view.check(event):
+                logger.debug("update %d matched view %s", event.update_id, view.__class__.__name__)
                 await view.process(event, api)
                 return True
 
         found = False
         for handler in self.default_handlers:
-            result = await handler.check(event)
+            result = await handler.check(api, event)
             if result:
                 found = True
                 self.loop.create_task(handler.run(event))

@@ -4,7 +4,7 @@ import logging
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 
 @bot.on.message(Text("/checkbox"))

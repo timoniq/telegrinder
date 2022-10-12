@@ -4,6 +4,7 @@ from .waiter import Waiter
 from .middleware.abc import ABCMiddleware
 from .handler.abc import ABCHandler
 from telegrinder.types import Update
+from telegrinder.modules import logger
 
 T = typing.TypeVar("T")
 E = typing.TypeVar("E")
@@ -18,6 +19,8 @@ async def process_waiters(
 ) -> bool:
     if key not in waiters:
         return False
+
+    logger.debug("update %s found in waiter (key=%s)", event.__class__.__name__, str(key))
 
     waiter = waiters[key]
     ctx = {}
@@ -35,6 +38,8 @@ async def process_waiters(
                 await waiter.default(event)
             return True
 
+    logger.debug("waiter set as ready")
+
     waiters.pop(key)
     setattr(waiter.event, "e", (event, ctx))
     waiter.event.set()
@@ -47,6 +52,7 @@ async def process_inner(
     middlewares: typing.List[ABCMiddleware[T]],
     handlers: typing.List[ABCHandler[T]],
 ) -> bool:
+    logger.debug("processing %s", event.__class__.__name__)
     ctx = {}
 
     for middleware in middlewares:

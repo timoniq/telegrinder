@@ -10,7 +10,7 @@ from telegrinder.api.response import APIResponse
 
 
 def compose_data(client: ABCClient, data: dict) -> typing.Any:
-    data = convert(data)
+    data = {k: convert(v) for k, v in data.items()}
     if any(isinstance(v, tuple) for v in data.values()):
         data = client.get_form(data)
     return data
@@ -23,6 +23,10 @@ class API(ABCAPI, APIMethods):
         self.token = token
         self.http = http or AiohttpClient()
         super().__init__(self)
+
+    @property
+    def id(self) -> int:
+        return int(self.token.split(":")[0])
 
     @property
     def request_url(self) -> str:

@@ -1,5 +1,6 @@
 import msgspec
 from telegrinder.result import Result
+from telegrinder.modules import json
 from msgspec import Raw
 import typing
 
@@ -24,8 +25,7 @@ def convert(d: typing.Any) -> typing.Any:
     elif isinstance(d, dict):
         return {k: convert(v) for k, v in d.items() if v is not None}
     elif isinstance(d, list):
-        li = [convert(el) for el in d]
-        return li
+        return json.dumps(d)
     return d
 
 
