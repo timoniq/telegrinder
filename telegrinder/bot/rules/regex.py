@@ -1,12 +1,14 @@
 import re
-from typing import List, Pattern, Union
+import typing
 
 from .abc import Message
 from .text import ABCTextMessageRule
 
+PatternLike = typing.Union[str, typing.Pattern]
+
 
 class Regex(ABCTextMessageRule):
-    def __init__(self, regexp: Union[str, List[str], Pattern, List[Pattern]]):
+    def __init__(self, regexp: typing.Union[PatternLike, typing.List[PatternLike]]):
         if isinstance(regexp, re.Pattern):
             regexp = [regexp]
         elif isinstance(regexp, str):

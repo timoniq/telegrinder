@@ -33,13 +33,9 @@ def get_default_args(func: types.FunctionType) -> typing.Dict[str, typing.Any]:
 def magic_bundle(
     handler: types.FunctionType, kw: typing.Dict[str, typing.Any]
 ) -> typing.Dict[str, typing.Any]:
+    names = resolve_arg_names(handler)
     args = get_default_args(handler)
-    args.update(kw)
-    arg_names = resolve_arg_names(handler)
-    hints = typing.get_type_hints(handler)
-    kw_new = {}
-    for name in arg_names:
-        if name not in args:
-            raise VarUnset(name, hints.get(name, AnyMock).__name__, handler)
-        kw_new[name] = args[name]
-    return kw_new
+    args.update({k: v for k, v in kw.items() if k in names})
+    if "ctx" in names:
+        args["ctx"] = kw
+    return args
