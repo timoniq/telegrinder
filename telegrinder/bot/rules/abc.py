@@ -3,6 +3,7 @@ from telegrinder.bot.cute_types import MessageCute
 from telegrinder.types import Update
 import typing
 import collections
+import inspect
 import vbml
 
 T = typing.TypeVar("T")
@@ -28,11 +29,24 @@ class ABCRule(ABC, typing.Generic[T]):
     async def check(self, event: T, ctx: dict) -> bool:
         pass
 
+    def __init_subclass__(cls, require: typing.List["ABCRule[T]"] = None):
+        """Merges requirements from inherited classes and rule-specific requirements"""
+        requirements = []
+        for base in inspect.getmro(cls):
+            if issubclass(base, ABCRule) and base != cls:
+                requirements.extend(base.require or ())
+
+        requirements.extend(require or ())
+        cls.require = list(dict.fromkeys(requirements))
+
     def __and__(self, other: "ABCRule"):
         return AndRule(self, other)
 
     def __or__(self, other: "ABCRule"):
         return OrRule(self, other)
+
+    def __repr__(self) -> str:
+        return f"(rule {self.__class__.__name__})"
 
 
 class AndRule(ABCRule):
@@ -80,9 +94,8 @@ class OrRule(ABCRule):
         return found
 
 
-class ABCMessageRule(ABCRule, ABC):
+class ABCMessageRule(ABCRule, ABC, require=[]):
     __event__ = EventScheme("message", Message)
-    require: typing.List["ABCMessageRule[T]"] = []
 
     @abstractmethod
     async def check(self, message: Message, ctx: dict) -> bool:

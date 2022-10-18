@@ -62,7 +62,11 @@ class Dispatch(ABCDispatch):
         logger.debug("processing update (update_id=%d)", event.update_id)
         for view in self.get_views():
             if await view.check(event):
-                logger.debug("update %d matched view %s", event.update_id, view.__class__.__name__)
+                logger.debug(
+                    "update %d matched view %s",
+                    event.update_id,
+                    view.__class__.__name__,
+                )
                 await view.process(event, api)
                 return True
 

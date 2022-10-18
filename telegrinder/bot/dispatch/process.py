@@ -20,7 +20,9 @@ async def process_waiters(
     if key not in waiters:
         return False
 
-    logger.debug("update %s found in waiter (key=%s)", event.__class__.__name__, str(key))
+    logger.debug(
+        "update %s found in waiter (key=%s)", event.__class__.__name__, str(key)
+    )
 
     waiter = waiters[key]
     ctx = {}

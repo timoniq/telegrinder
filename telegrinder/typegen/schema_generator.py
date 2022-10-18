@@ -106,7 +106,11 @@ def param_s(name: str, param: dict, obj: dict) -> str:
 def get_lines_for_object(name: str, properties: dict, obj: dict):
     if not properties:
         if name == "InputFile":
-            return "\n\n" + name + ' = typing.NamedTuple("InputFile", [("filename", str), ("data", bytes)])\n'
+            return (
+                "\n\n"
+                + name
+                + ' = typing.NamedTuple("InputFile", [("filename", str), ("data", bytes)])\n'
+            )
         else:
             print("todo: handle {}".format(name))
 
@@ -135,7 +139,7 @@ def get_lines_for_object(name: str, properties: dict, obj: dict):
                 if name != "flags"
             )
         ),
-        *nicifications
+        *nicifications,
     ]
 
 

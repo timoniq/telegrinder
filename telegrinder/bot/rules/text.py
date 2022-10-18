@@ -7,8 +7,8 @@ class HasText(ABCMessageRule):
         return bool(message.text)
 
 
-class ABCTextMessageRule(ABCMessageRule, ABC):
-    require = [HasText()]
+class ABCTextMessageRule(ABCMessageRule, ABC, require=[HasText()]):
+    pass
 
 
 class Text(ABCTextMessageRule):
