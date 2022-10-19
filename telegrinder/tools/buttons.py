@@ -1,7 +1,17 @@
 from typing import Optional
+from abc import ABC, abstractmethod
 
 
-class Button:
+class ABCButton(ABC):
+    @abstractmethod
+    def __init__(self, **kwargs):
+        pass
+
+    def get_data(self) -> dict:
+        return {k: v for k, v in self.__dict__.items() if v is not None}
+
+
+class Button(ABCButton):
     def __init__(
         self,
         text: str,
@@ -14,11 +24,8 @@ class Button:
         self.request_location = request_location
         self.request_poll = request_poll
 
-    def get_data(self) -> dict:
-        return {k: v for k, v in self.__dict__.items() if v is not None}
 
-
-class InlineButton:
+class InlineButton(ABCButton):
     def __init__(
         self,
         text: str,
@@ -38,6 +45,3 @@ class InlineButton:
         self.callback_game = callback_game
         self.switch_inline_query = switch_inline_query
         self.switch_inline_query_current_chat = switch_inline_query_current_chat
-
-    def get_data(self) -> dict:
-        return {k: v for k, v in self.__dict__.items() if v is not None}
