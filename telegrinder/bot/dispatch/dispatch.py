@@ -59,7 +59,7 @@ class Dispatch(ABCDispatch):
             view.load(view_external)
 
     async def feed(self, event: Update, api: ABCAPI) -> bool:
-        logger.debug("processing update (update_id=%d)", event.update_id)
+        logger.debug("processing update (update_id={})", event.update_id)
         for view in self.get_views():
             if await view.check(event):
                 logger.debug(

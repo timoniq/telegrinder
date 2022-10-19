@@ -36,11 +36,11 @@ class Telegrinder:
         self.polling.offset = offset
         async for updates in self.polling.listen():
             for update in updates:
-                logger.debug("received update (update_id=%d)", update.update_id)
+                logger.debug("received update (update_id={})", update.update_id)
                 self.dispatch.loop.create_task(self.dispatch.feed(update, self.api))
 
     def run_forever(self, offset: int = 0, skip_updates: bool = False) -> None:
-        logger.debug("running blocking polling (id=%d)", self.api.id)
+        logger.debug("running blocking polling (id={})", self.api.id)
         loop = asyncio.get_event_loop()
         loop.create_task(self.run_polling(offset, skip_updates=skip_updates))
         try:

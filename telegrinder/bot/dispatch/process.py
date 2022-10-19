@@ -54,7 +54,7 @@ async def process_inner(
     middlewares: typing.List[ABCMiddleware[T]],
     handlers: typing.List[ABCHandler[T]],
 ) -> bool:
-    logger.debug("processing %s", event.__class__.__name__)
+    logger.debug("processing {}", event.__class__.__name__)
     ctx = {}
 
     for middleware in middlewares:
