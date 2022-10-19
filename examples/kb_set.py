@@ -11,6 +11,7 @@ from telegrinder import (
     CallbackQuery,
 )
 from telegrinder.rules import Text, CallbackDataEq
+from telegrinder.types import ReplyKeyboardRemove
 
 
 class KeyboardSet(KeyboardSetYAML):
@@ -69,6 +70,13 @@ async def edit_callback_handler(cb: CallbackQuery):
         cb.message.message_id,
         text="".join(chars),
         reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup(),
+    )
+
+
+@bot.on.message(Text("/nokeyboard"))
+async def no_keyboard(m: Message):
+    await m.answer(
+        "No more keyboard", reply_markup=ReplyKeyboardRemove(remove_keyboard=True)
     )
 
 

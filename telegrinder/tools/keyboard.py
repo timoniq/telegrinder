@@ -10,7 +10,7 @@ from .buttons import Button, InlineButton, ABCButton
 AnyMarkup = typing.Union[InlineKeyboardMarkup, ReplyKeyboardMarkup]
 
 
-@dataclass()
+@dataclass
 class KeyboardModel:
     resize_keyboard: bool
     one_time_keyboard: bool
