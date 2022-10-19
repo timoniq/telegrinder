@@ -1,5 +1,10 @@
 from .abc import ABCRule, ABCMessageRule, AndRule, OrRule
-from .callback_data import CallbackDataEq, CallbackDataJsonEq, CallbackDataJsonModel
+from .callback_data import (
+    CallbackDataEq,
+    CallbackDataJsonEq,
+    CallbackDataJsonModel,
+    CallbackDataMarkup,
+)
 from .func import FuncRule
 from .is_from import IsPrivate, IsChat
 from .markup import Markup

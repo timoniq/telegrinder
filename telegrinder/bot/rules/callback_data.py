@@ -2,10 +2,13 @@ from .abc import ABCRule, EventScheme
 from telegrinder.modules import json
 from telegrinder.types import Update
 from telegrinder.bot.cute_types import CallbackQueryCute
+from .markup import Markup, check_string
 import msgspec
+import vbml
 import typing
 
 CallbackQuery = CallbackQueryCute
+PatternLike = typing.Union[str, vbml.Pattern]
 
 
 class CallbackDataEq(ABCRule):
@@ -42,3 +45,13 @@ class CallbackDataJsonModel(ABCRule[CallbackQuery]):
             return True
         except msgspec.DecodeError:
             return False
+
+
+class CallbackDataMarkup(ABCRule[CallbackQuery]):
+    __event__ = EventScheme("callback_query", CallbackQuery)
+
+    def __init__(self, patterns: typing.Union[PatternLike, typing.List[PatternLike]]):
+        self.patterns = Markup(patterns).patterns
+
+    async def check(self, event: CallbackQuery, ctx: dict) -> bool:
+        return check_string(self.patterns, event.data, ctx)
