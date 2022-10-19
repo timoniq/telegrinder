@@ -1,6 +1,11 @@
-from .abc import ABCRule
+from .abc import ABCRule, EventScheme
 from telegrinder.modules import json
 from telegrinder.types import Update
+from telegrinder.bot.cute_types import CallbackQueryCute
+import msgspec
+import typing
+
+CallbackQuery = CallbackQueryCute
 
 
 class CallbackDataEq(ABCRule):
@@ -22,4 +27,18 @@ class CallbackDataJsonEq(ABCRule):
             # todo: use msgspec
             return json.loads(event.callback_query.data) == self.d
         except:
+            return False
+
+
+class CallbackDataJsonModel(ABCRule[CallbackQuery]):
+    __event__ = EventScheme("callback_query", CallbackQuery)
+
+    def __init__(self, model: typing.Type[msgspec.Struct]):
+        self.decoder = msgspec.json.Decoder(type=model)
+
+    async def check(self, event: CallbackQuery, ctx: dict) -> bool:
+        try:
+            ctx["data"] = self.decoder.decode(event.data.encode())
+            return True
+        except msgspec.DecodeError:
             return False

@@ -2,7 +2,7 @@ import random
 import typing
 
 from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.bot.rules import Text, Markup, FuzzyText
+from telegrinder.rules import Text, Markup, FuzzyText
 import logging
 
 api = API(token=Token.from_env())

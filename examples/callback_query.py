@@ -7,7 +7,7 @@ from telegrinder import (
     InlineKeyboard,
     InlineButton,
 )
-from telegrinder.bot.rules import Text, CallbackDataEq
+from telegrinder.rules import Text, CallbackDataEq
 import logging
 
 api = API(token=Token.from_env())

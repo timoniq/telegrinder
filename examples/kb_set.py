@@ -10,7 +10,7 @@ from telegrinder import (
     Message,
     CallbackQuery,
 )
-from telegrinder.bot.rules import Text, CallbackDataEq
+from telegrinder.rules import Text, CallbackDataEq
 
 
 class KeyboardSet(KeyboardSetYAML):

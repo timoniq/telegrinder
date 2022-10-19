@@ -19,7 +19,7 @@ You need to import required components. The special one for the needs of checkbo
 
 ```python
 from telegrinder import Telegrinder, API, Token, Message, Checkbox
-from telegrinder.bot.rules import Text
+from telegrinder.rulesimport Text
 
 api = API(token=Token("..."))
 bot = Telegrinder(api=api)

@@ -1,6 +1,6 @@
 from telegrinder import Telegrinder, API, Token, Message
 from telegrinder.types import ChatPermissions
-from telegrinder.bot.rules import Text, Markup, ABCMessageRule, IsChat
+from telegrinder.rules import Text, Markup, ABCMessageRule, IsChat
 import time
 import logging
 

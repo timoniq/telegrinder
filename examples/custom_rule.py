@@ -1,5 +1,5 @@
 from telegrinder import Telegrinder, API, Token, Message, ABCMessageRule
-from telegrinder.bot.rules import Text
+from telegrinder.rules import Text
 import logging
 
 api = API(token=Token.from_env())

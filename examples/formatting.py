@@ -1,5 +1,5 @@
 from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.bot.rules import Text
+from telegrinder.rules import Text
 from telegrinder.tools import MarkdownFormatter, HTMLFormatter
 import logging
 

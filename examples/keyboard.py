@@ -1,5 +1,5 @@
 from telegrinder import Telegrinder, API, Token, Keyboard, Button, Message
-from telegrinder.bot.rules import Text
+from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

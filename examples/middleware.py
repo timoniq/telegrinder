@@ -1,7 +1,7 @@
 import typing
 
 from telegrinder import Telegrinder, API, Token, Message, ABCMiddleware
-from telegrinder.bot.rules import Text, IsChat, IsPrivate
+from telegrinder.rules import Text, IsChat, IsPrivate
 import logging
 
 api = API(token=Token.from_env())
