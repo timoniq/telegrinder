@@ -2,7 +2,6 @@ import ssl
 import typing
 
 import aiohttp
-import asyncio
 
 from telegrinder.client.abc import ABCClient
 from aiohttp import ClientSession, TCPConnector
@@ -104,7 +103,7 @@ class AiohttpClient(ABCClient):
                 params["filename"], v = v[0], v[1]
             else:
                 v = str(v)
-            form.add_field(k, v)
+            form.add_field(k, v, **params)
         return form
 
     def __del__(self):

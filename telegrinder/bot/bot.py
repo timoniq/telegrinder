@@ -5,7 +5,6 @@ from telegrinder.bot.polling import ABCPolling, Polling
 from telegrinder.bot.dispatch import ABCDispatch, Dispatch
 from telegrinder.modules import logger
 import typing
-import signal
 
 
 class Telegrinder:

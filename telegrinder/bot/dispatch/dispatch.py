@@ -62,7 +62,7 @@ class Dispatch(ABCDispatch):
         for view in self.get_views():
             if await view.check(event):
                 logger.debug(
-                    "update %d matched view %s",
+                    "update {} matched view {}",
                     event.update_id,
                     view.__class__.__name__,
                 )

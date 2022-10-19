@@ -21,7 +21,7 @@ async def process_waiters(
         return False
 
     logger.debug(
-        "update %s found in waiter (key=%s)", event.__class__.__name__, str(key)
+        "update {} found in waiter (key={})", event.__class__.__name__, str(key)
     )
 
     waiter = waiters[key]
