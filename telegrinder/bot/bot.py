@@ -5,6 +5,7 @@ from telegrinder.bot.polling import ABCPolling, Polling
 from telegrinder.bot.dispatch import ABCDispatch, Dispatch
 from telegrinder.modules import logger
 import typing
+import signal
 
 
 class Telegrinder:
@@ -34,14 +35,18 @@ class Telegrinder:
             await self.reset_webhook()
             await self.api.delete_webhook(drop_pending_updates=True)
         self.polling.offset = offset
+
+        loop = asyncio.get_running_loop()
+        assert loop, "No running loop"
+
         async for updates in self.polling.listen():
             for update in updates:
                 logger.debug("received update (update_id={})", update.update_id)
-                self.dispatch.loop.create_task(self.dispatch.feed(update, self.api))
+                loop.create_task(self.dispatch.feed(update, self.api))
 
     def run_forever(self, offset: int = 0, skip_updates: bool = False) -> None:
         logger.debug("running blocking polling (id={})", self.api.id)
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
         loop.create_task(self.run_polling(offset, skip_updates=skip_updates))
         try:
             loop.run_forever()

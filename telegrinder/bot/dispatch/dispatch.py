@@ -17,7 +17,6 @@ DEFAULT_DATACLASS = Update
 class Dispatch(ABCDispatch):
     def __init__(self):
         self.default_handlers: typing.List[ABCHandler] = []
-        self.loop = asyncio.get_event_loop()
         self.message = MessageView()
         self.callback_query = CallbackQueryView()
         self.inline_query = InlineQueryView()
@@ -70,12 +69,15 @@ class Dispatch(ABCDispatch):
                 await view.process(event, api)
                 return True
 
+        loop = asyncio.get_running_loop()
+        assert loop, "No running loop"
+
         found = False
         for handler in self.default_handlers:
             result = await handler.check(api, event)
             if result:
                 found = True
-                self.loop.create_task(handler.run(event))
+                loop.create_task(handler.run(event))
                 if handler.is_blocking:
                     return True
         return found

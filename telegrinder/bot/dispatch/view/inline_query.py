@@ -9,7 +9,6 @@ from telegrinder.bot.dispatch.waiter import WithWaiter
 from telegrinder.bot.dispatch.process import process_waiters, process_inner
 from telegrinder.types import Update
 import typing
-import asyncio
 
 
 class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
@@ -17,7 +16,6 @@ class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
         self.handlers: typing.List[ABCHandler[InlineQueryCute]] = []
         self.middlewares: typing.List[ABCMiddleware[InlineQueryCute]] = []
         self.short_waiters: typing.Dict[str, Waiter] = {}
-        self.loop = asyncio.get_event_loop()
 
     def __call__(self, *rules: ABCRule, is_blocking: bool = True):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):

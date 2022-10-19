@@ -2,6 +2,7 @@ import ssl
 import typing
 
 import aiohttp
+import asyncio
 
 from telegrinder.client.abc import ABCClient
 from aiohttp import ClientSession, TCPConnector
@@ -15,13 +16,11 @@ if typing.TYPE_CHECKING:
 class AiohttpClient(ABCClient):
     def __init__(
         self,
-        loop: typing.Optional[ClientSession] = None,
         session: typing.Optional[ClientSession] = None,
         json_processing_module: typing.Optional[JSONModule] = None,
         timeout: typing.Optional[aiohttp.ClientTimeout] = None,
         **session_params
     ):
-        self.loop = loop
         self.session = session
         self.json_processing_module = json_processing_module or json
         self.session_params = session_params
