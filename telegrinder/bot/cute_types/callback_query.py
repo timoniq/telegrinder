@@ -1,5 +1,6 @@
 from telegrinder.types import CallbackQuery, User
 from telegrinder.types.methods import APIMethods
+from telegrinder.model import get_params
 from telegrinder.api import API, APIError, Token
 from telegrinder.result import Result
 import typing
@@ -24,5 +25,5 @@ class CallbackQueryCute(CallbackQuery):
         cache_time: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
-        params = APIMethods.get_params(locals())
+        params = get_params(locals())
         return await self.ctx_api.answer_callback_query(self.id, **params)

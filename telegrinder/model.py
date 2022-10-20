@@ -42,6 +42,17 @@ class Model(msgspec.Struct, **model_config):
         return self._dict_cached
 
 
+def get_params(params: dict) -> dict:
+    return {
+        k: v for k, v in (
+            *params.items(),
+            *params.pop("other").items()
+        )
+        if k != "self"
+        and v is not None
+    }
+
+
 __all__ = (
     "convert",
     "model_config",
@@ -50,4 +61,5 @@ __all__ = (
     "msgspec",
     "Model",
     "Raw",
+    "get_params",
 )

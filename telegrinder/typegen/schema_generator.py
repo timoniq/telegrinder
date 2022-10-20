@@ -210,13 +210,7 @@ def generate(path: str, schema_url: str = URL) -> None:
                 "\n\n",
                 "class APIMethods:\n",
                 SPACES + 'def __init__(self, api: "ABCAPI"):\n',
-                SPACES + SPACES + "self.api = api\n\n",
-                SPACES + "@staticmethod\n",
-                SPACES + "def get_params(loc: dict) -> dict:\n",
-                SPACES
-                + SPACES
-                + 'n = {k: v for k, v in loc.items() if k not in ("self", "other") and v is not None}\n',
-                SPACES + SPACES + "n.update(loc['other'])\n        return n\n",
+                SPACES + SPACES + "self.api = api\n",
             ]
         )
 
@@ -247,7 +241,7 @@ def generate(path: str, schema_url: str = URL) -> None:
             [
                 SPACES + li
                 for li in (
-                    "result = await self.api.request_raw({}, self.get_params(locals()))\n".format(
+                    "result = await self.api.request_raw({}, get_params(locals()))\n".format(
                         '"' + method_name + '"'
                     ),
                     ("\n" + SPACES + SPACES).join(parse_response(response).split("\n"))

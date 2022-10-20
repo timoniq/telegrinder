@@ -13,14 +13,6 @@ class APIMethods:
     def __init__(self, api: "ABCAPI"):
         self.api = api
 
-    @staticmethod
-    def get_params(loc: dict) -> dict:
-        n = {
-            k: v for k, v in loc.items() if k not in ("self", "other") and v is not None
-        }
-        n.update(loc["other"])
-        return n
-
     async def get_updates(
         self,
         offset: typing.Optional[int] = None,
@@ -29,7 +21,7 @@ class APIMethods:
         allowed_updates: typing.Optional[typing.List[str]] = None,
         **other
     ) -> Result[typing.List[Update], APIError]:
-        result = await self.api.request_raw("getUpdates", self.get_params(locals()))
+        result = await self.api.request_raw("getUpdates", get_params(locals()))
         return full_result(result, typing.List[Update])
 
     async def set_webhook(
@@ -43,29 +35,29 @@ class APIMethods:
         secret_token: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("setWebhook", self.get_params(locals()))
+        result = await self.api.request_raw("setWebhook", get_params(locals()))
         return full_result(result, bool)
 
     async def delete_webhook(
         self, drop_pending_updates: typing.Optional[bool] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("deleteWebhook", self.get_params(locals()))
+        result = await self.api.request_raw("deleteWebhook", get_params(locals()))
         return full_result(result, bool)
 
     async def get_webhook_info(self, **other) -> Result[WebhookInfo, APIError]:
-        result = await self.api.request_raw("getWebhookInfo", self.get_params(locals()))
+        result = await self.api.request_raw("getWebhookInfo", get_params(locals()))
         return full_result(result, WebhookInfo)
 
     async def get_me(self, **other) -> Result[User, APIError]:
-        result = await self.api.request_raw("getMe", self.get_params(locals()))
+        result = await self.api.request_raw("getMe", get_params(locals()))
         return full_result(result, User)
 
     async def log_out(self, **other) -> Result[bool, APIError]:
-        result = await self.api.request_raw("logOut", self.get_params(locals()))
+        result = await self.api.request_raw("logOut", get_params(locals()))
         return full_result(result, bool)
 
     async def close(self, **other) -> Result[bool, APIError]:
-        result = await self.api.request_raw("close", self.get_params(locals()))
+        result = await self.api.request_raw("close", get_params(locals()))
         return full_result(result, bool)
 
     async def send_message(
@@ -89,7 +81,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendMessage", self.get_params(locals()))
+        result = await self.api.request_raw("sendMessage", get_params(locals()))
         return full_result(result, Message)
 
     async def forward_message(
@@ -101,7 +93,7 @@ class APIMethods:
         message_id: typing.Optional[int] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("forwardMessage", self.get_params(locals()))
+        result = await self.api.request_raw("forwardMessage", get_params(locals()))
         return full_result(result, Message)
 
     async def copy_message(
@@ -126,7 +118,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[MessageId, APIError]:
-        result = await self.api.request_raw("copyMessage", self.get_params(locals()))
+        result = await self.api.request_raw("copyMessage", get_params(locals()))
         return full_result(result, MessageId)
 
     async def send_photo(
@@ -150,7 +142,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendPhoto", self.get_params(locals()))
+        result = await self.api.request_raw("sendPhoto", get_params(locals()))
         return full_result(result, Message)
 
     async def send_audio(
@@ -178,7 +170,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendAudio", self.get_params(locals()))
+        result = await self.api.request_raw("sendAudio", get_params(locals()))
         return full_result(result, Message)
 
     async def send_document(
@@ -204,7 +196,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendDocument", self.get_params(locals()))
+        result = await self.api.request_raw("sendDocument", get_params(locals()))
         return full_result(result, Message)
 
     async def send_video(
@@ -233,7 +225,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendVideo", self.get_params(locals()))
+        result = await self.api.request_raw("sendVideo", get_params(locals()))
         return full_result(result, Message)
 
     async def send_animation(
@@ -261,7 +253,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendAnimation", self.get_params(locals()))
+        result = await self.api.request_raw("sendAnimation", get_params(locals()))
         return full_result(result, Message)
 
     async def send_voice(
@@ -286,7 +278,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendVoice", self.get_params(locals()))
+        result = await self.api.request_raw("sendVoice", get_params(locals()))
         return full_result(result, Message)
 
     async def send_video_note(
@@ -310,7 +302,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendVideoNote", self.get_params(locals()))
+        result = await self.api.request_raw("sendVideoNote", get_params(locals()))
         return full_result(result, Message)
 
     async def send_media_group(
@@ -332,7 +324,7 @@ class APIMethods:
         allow_sending_without_reply: typing.Optional[bool] = None,
         **other
     ) -> Result[typing.List[Message], APIError]:
-        result = await self.api.request_raw("sendMediaGroup", self.get_params(locals()))
+        result = await self.api.request_raw("sendMediaGroup", get_params(locals()))
         return full_result(result, typing.List[Message])
 
     async def send_location(
@@ -358,7 +350,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendLocation", self.get_params(locals()))
+        result = await self.api.request_raw("sendLocation", get_params(locals()))
         return full_result(result, Message)
 
     async def edit_message_live_location(
@@ -375,7 +367,7 @@ class APIMethods:
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw(
-            "editMessageLiveLocation", self.get_params(locals())
+            "editMessageLiveLocation", get_params(locals())
         )
         return full_result(result, typing.Union[Message, bool])
 
@@ -388,7 +380,7 @@ class APIMethods:
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw(
-            "stopMessageLiveLocation", self.get_params(locals())
+            "stopMessageLiveLocation", get_params(locals())
         )
         return full_result(result, typing.Union[Message, bool])
 
@@ -417,7 +409,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendVenue", self.get_params(locals()))
+        result = await self.api.request_raw("sendVenue", get_params(locals()))
         return full_result(result, Message)
 
     async def send_contact(
@@ -441,7 +433,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendContact", self.get_params(locals()))
+        result = await self.api.request_raw("sendContact", get_params(locals()))
         return full_result(result, Message)
 
     async def send_poll(
@@ -473,7 +465,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendPoll", self.get_params(locals()))
+        result = await self.api.request_raw("sendPoll", get_params(locals()))
         return full_result(result, Message)
 
     async def send_dice(
@@ -494,7 +486,7 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendDice", self.get_params(locals()))
+        result = await self.api.request_raw("sendDice", get_params(locals()))
         return full_result(result, Message)
 
     async def send_chat_action(
@@ -503,7 +495,7 @@ class APIMethods:
         action: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("sendChatAction", self.get_params(locals()))
+        result = await self.api.request_raw("sendChatAction", get_params(locals()))
         return full_result(result, bool)
 
     async def get_user_profile_photos(
@@ -514,14 +506,14 @@ class APIMethods:
         **other
     ) -> Result[UserProfilePhotos, APIError]:
         result = await self.api.request_raw(
-            "getUserProfilePhotos", self.get_params(locals())
+            "getUserProfilePhotos", get_params(locals())
         )
         return full_result(result, UserProfilePhotos)
 
     async def get_file(
         self, file_id: typing.Optional[str] = None, **other
     ) -> Result[File, APIError]:
-        result = await self.api.request_raw("getFile", self.get_params(locals()))
+        result = await self.api.request_raw("getFile", get_params(locals()))
         return full_result(result, File)
 
     async def ban_chat_member(
@@ -532,7 +524,7 @@ class APIMethods:
         revoke_messages: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("banChatMember", self.get_params(locals()))
+        result = await self.api.request_raw("banChatMember", get_params(locals()))
         return full_result(result, bool)
 
     async def unban_chat_member(
@@ -542,9 +534,7 @@ class APIMethods:
         only_if_banned: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "unbanChatMember", self.get_params(locals())
-        )
+        result = await self.api.request_raw("unbanChatMember", get_params(locals()))
         return full_result(result, bool)
 
     async def restrict_chat_member(
@@ -555,9 +545,7 @@ class APIMethods:
         until_date: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "restrictChatMember", self.get_params(locals())
-        )
+        result = await self.api.request_raw("restrictChatMember", get_params(locals()))
         return full_result(result, bool)
 
     async def promote_chat_member(
@@ -577,9 +565,7 @@ class APIMethods:
         can_pin_messages: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "promoteChatMember", self.get_params(locals())
-        )
+        result = await self.api.request_raw("promoteChatMember", get_params(locals()))
         return full_result(result, bool)
 
     async def set_chat_administrator_custom_title(
@@ -590,7 +576,7 @@ class APIMethods:
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "setChatAdministratorCustomTitle", self.get_params(locals())
+            "setChatAdministratorCustomTitle", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -600,9 +586,7 @@ class APIMethods:
         sender_chat_id: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "banChatSenderChat", self.get_params(locals())
-        )
+        result = await self.api.request_raw("banChatSenderChat", get_params(locals()))
         return full_result(result, bool)
 
     async def unban_chat_sender_chat(
@@ -611,9 +595,7 @@ class APIMethods:
         sender_chat_id: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "unbanChatSenderChat", self.get_params(locals())
-        )
+        result = await self.api.request_raw("unbanChatSenderChat", get_params(locals()))
         return full_result(result, bool)
 
     async def set_chat_permissions(
@@ -622,16 +604,14 @@ class APIMethods:
         permissions: typing.Optional[ChatPermissions] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "setChatPermissions", self.get_params(locals())
-        )
+        result = await self.api.request_raw("setChatPermissions", get_params(locals()))
         return full_result(result, bool)
 
     async def export_chat_invite_link(
         self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
     ) -> Result[str, APIError]:
         result = await self.api.request_raw(
-            "exportChatInviteLink", self.get_params(locals())
+            "exportChatInviteLink", get_params(locals())
         )
         return full_result(result, str)
 
@@ -645,7 +625,7 @@ class APIMethods:
         **other
     ) -> Result[ChatInviteLink, APIError]:
         result = await self.api.request_raw(
-            "createChatInviteLink", self.get_params(locals())
+            "createChatInviteLink", get_params(locals())
         )
         return full_result(result, ChatInviteLink)
 
@@ -659,9 +639,7 @@ class APIMethods:
         creates_join_request: typing.Optional[bool] = None,
         **other
     ) -> Result[ChatInviteLink, APIError]:
-        result = await self.api.request_raw(
-            "editChatInviteLink", self.get_params(locals())
-        )
+        result = await self.api.request_raw("editChatInviteLink", get_params(locals()))
         return full_result(result, ChatInviteLink)
 
     async def revoke_chat_invite_link(
@@ -671,7 +649,7 @@ class APIMethods:
         **other
     ) -> Result[ChatInviteLink, APIError]:
         result = await self.api.request_raw(
-            "revokeChatInviteLink", self.get_params(locals())
+            "revokeChatInviteLink", get_params(locals())
         )
         return full_result(result, ChatInviteLink)
 
@@ -682,7 +660,7 @@ class APIMethods:
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "approveChatJoinRequest", self.get_params(locals())
+            "approveChatJoinRequest", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -693,7 +671,7 @@ class APIMethods:
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "declineChatJoinRequest", self.get_params(locals())
+            "declineChatJoinRequest", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -703,15 +681,13 @@ class APIMethods:
         photo: typing.Optional[InputFile] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("setChatPhoto", self.get_params(locals()))
+        result = await self.api.request_raw("setChatPhoto", get_params(locals()))
         return full_result(result, bool)
 
     async def delete_chat_photo(
         self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "deleteChatPhoto", self.get_params(locals())
-        )
+        result = await self.api.request_raw("deleteChatPhoto", get_params(locals()))
         return full_result(result, bool)
 
     async def set_chat_title(
@@ -720,7 +696,7 @@ class APIMethods:
         title: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("setChatTitle", self.get_params(locals()))
+        result = await self.api.request_raw("setChatTitle", get_params(locals()))
         return full_result(result, bool)
 
     async def set_chat_description(
@@ -729,9 +705,7 @@ class APIMethods:
         description: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "setChatDescription", self.get_params(locals())
-        )
+        result = await self.api.request_raw("setChatDescription", get_params(locals()))
         return full_result(result, bool)
 
     async def pin_chat_message(
@@ -741,7 +715,7 @@ class APIMethods:
         disable_notification: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("pinChatMessage", self.get_params(locals()))
+        result = await self.api.request_raw("pinChatMessage", get_params(locals()))
         return full_result(result, bool)
 
     async def unpin_chat_message(
@@ -750,45 +724,41 @@ class APIMethods:
         message_id: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "unpinChatMessage", self.get_params(locals())
-        )
+        result = await self.api.request_raw("unpinChatMessage", get_params(locals()))
         return full_result(result, bool)
 
     async def unpin_all_chat_messages(
         self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "unpinAllChatMessages", self.get_params(locals())
+            "unpinAllChatMessages", get_params(locals())
         )
         return full_result(result, bool)
 
     async def leave_chat(
         self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("leaveChat", self.get_params(locals()))
+        result = await self.api.request_raw("leaveChat", get_params(locals()))
         return full_result(result, bool)
 
     async def get_chat(
         self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
     ) -> Result[Chat, APIError]:
-        result = await self.api.request_raw("getChat", self.get_params(locals()))
+        result = await self.api.request_raw("getChat", get_params(locals()))
         return full_result(result, Chat)
 
     async def get_chat_administrators(
         self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
     ) -> Result[typing.List[ChatMember], APIError]:
         result = await self.api.request_raw(
-            "getChatAdministrators", self.get_params(locals())
+            "getChatAdministrators", get_params(locals())
         )
         return full_result(result, typing.List[ChatMember])
 
     async def get_chat_member_count(
         self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
     ) -> Result[int, APIError]:
-        result = await self.api.request_raw(
-            "getChatMemberCount", self.get_params(locals())
-        )
+        result = await self.api.request_raw("getChatMemberCount", get_params(locals()))
         return full_result(result, int)
 
     async def get_chat_member(
@@ -797,7 +767,7 @@ class APIMethods:
         user_id: typing.Optional[int] = None,
         **other
     ) -> Result[ChatMember, APIError]:
-        result = await self.api.request_raw("getChatMember", self.get_params(locals()))
+        result = await self.api.request_raw("getChatMember", get_params(locals()))
         return full_result(result, ChatMember)
 
     async def set_chat_sticker_set(
@@ -806,16 +776,14 @@ class APIMethods:
         sticker_set_name: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "setChatStickerSet", self.get_params(locals())
-        )
+        result = await self.api.request_raw("setChatStickerSet", get_params(locals()))
         return full_result(result, bool)
 
     async def delete_chat_sticker_set(
         self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "deleteChatStickerSet", self.get_params(locals())
+            "deleteChatStickerSet", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -828,9 +796,7 @@ class APIMethods:
         cache_time: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "answerCallbackQuery", self.get_params(locals())
-        )
+        result = await self.api.request_raw("answerCallbackQuery", get_params(locals()))
         return full_result(result, bool)
 
     async def set_my_commands(
@@ -840,7 +806,7 @@ class APIMethods:
         language_code: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("setMyCommands", self.get_params(locals()))
+        result = await self.api.request_raw("setMyCommands", get_params(locals()))
         return full_result(result, bool)
 
     async def delete_my_commands(
@@ -849,9 +815,7 @@ class APIMethods:
         language_code: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "deleteMyCommands", self.get_params(locals())
-        )
+        result = await self.api.request_raw("deleteMyCommands", get_params(locals()))
         return full_result(result, bool)
 
     async def get_my_commands(
@@ -860,7 +824,7 @@ class APIMethods:
         language_code: typing.Optional[str] = None,
         **other
     ) -> Result[typing.List[BotCommand], APIError]:
-        result = await self.api.request_raw("getMyCommands", self.get_params(locals()))
+        result = await self.api.request_raw("getMyCommands", get_params(locals()))
         return full_result(result, typing.List[BotCommand])
 
     async def set_chat_menu_button(
@@ -869,17 +833,13 @@ class APIMethods:
         menu_button: typing.Optional[MenuButton] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "setChatMenuButton", self.get_params(locals())
-        )
+        result = await self.api.request_raw("setChatMenuButton", get_params(locals()))
         return full_result(result, bool)
 
     async def get_chat_menu_button(
         self, chat_id: typing.Optional[int] = None, **other
     ) -> Result[MenuButton, APIError]:
-        result = await self.api.request_raw(
-            "getChatMenuButton", self.get_params(locals())
-        )
+        result = await self.api.request_raw("getChatMenuButton", get_params(locals()))
         return full_result(result, MenuButton)
 
     async def set_my_default_administrator_rights(
@@ -889,7 +849,7 @@ class APIMethods:
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "setMyDefaultAdministratorRights", self.get_params(locals())
+            "setMyDefaultAdministratorRights", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -897,7 +857,7 @@ class APIMethods:
         self, for_channels: typing.Optional[bool] = None, **other
     ) -> Result[ChatAdministratorRights, APIError]:
         result = await self.api.request_raw(
-            "getMyDefaultAdministratorRights", self.get_params(locals())
+            "getMyDefaultAdministratorRights", get_params(locals())
         )
         return full_result(result, ChatAdministratorRights)
 
@@ -913,9 +873,7 @@ class APIMethods:
         reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
-        result = await self.api.request_raw(
-            "editMessageText", self.get_params(locals())
-        )
+        result = await self.api.request_raw("editMessageText", get_params(locals()))
         return full_result(result, typing.Union[Message, bool])
 
     async def edit_message_caption(
@@ -929,9 +887,7 @@ class APIMethods:
         reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
-        result = await self.api.request_raw(
-            "editMessageCaption", self.get_params(locals())
-        )
+        result = await self.api.request_raw("editMessageCaption", get_params(locals()))
         return full_result(result, typing.Union[Message, bool])
 
     async def edit_message_media(
@@ -943,9 +899,7 @@ class APIMethods:
         reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
-        result = await self.api.request_raw(
-            "editMessageMedia", self.get_params(locals())
-        )
+        result = await self.api.request_raw("editMessageMedia", get_params(locals()))
         return full_result(result, typing.Union[Message, bool])
 
     async def edit_message_reply_markup(
@@ -957,7 +911,7 @@ class APIMethods:
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw(
-            "editMessageReplyMarkup", self.get_params(locals())
+            "editMessageReplyMarkup", get_params(locals())
         )
         return full_result(result, typing.Union[Message, bool])
 
@@ -968,7 +922,7 @@ class APIMethods:
         reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
         **other
     ) -> Result[Poll, APIError]:
-        result = await self.api.request_raw("stopPoll", self.get_params(locals()))
+        result = await self.api.request_raw("stopPoll", get_params(locals()))
         return full_result(result, Poll)
 
     async def delete_message(
@@ -977,7 +931,7 @@ class APIMethods:
         message_id: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("deleteMessage", self.get_params(locals()))
+        result = await self.api.request_raw("deleteMessage", get_params(locals()))
         return full_result(result, bool)
 
     async def send_sticker(
@@ -998,20 +952,20 @@ class APIMethods:
         ] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendSticker", self.get_params(locals()))
+        result = await self.api.request_raw("sendSticker", get_params(locals()))
         return full_result(result, Message)
 
     async def get_sticker_set(
         self, name: typing.Optional[str] = None, **other
     ) -> Result[StickerSet, APIError]:
-        result = await self.api.request_raw("getStickerSet", self.get_params(locals()))
+        result = await self.api.request_raw("getStickerSet", get_params(locals()))
         return full_result(result, StickerSet)
 
     async def get_custom_emoji_stickers(
         self, custom_emoji_ids: typing.Optional[typing.List[str]] = None, **other
     ) -> Result[typing.List[Sticker], APIError]:
         result = await self.api.request_raw(
-            "getCustomEmojiStickers", self.get_params(locals())
+            "getCustomEmojiStickers", get_params(locals())
         )
         return full_result(result, typing.List[Sticker])
 
@@ -1021,9 +975,7 @@ class APIMethods:
         png_sticker: typing.Optional[InputFile] = None,
         **other
     ) -> Result[File, APIError]:
-        result = await self.api.request_raw(
-            "uploadStickerFile", self.get_params(locals())
-        )
+        result = await self.api.request_raw("uploadStickerFile", get_params(locals()))
         return full_result(result, File)
 
     async def create_new_sticker_set(
@@ -1039,9 +991,7 @@ class APIMethods:
         mask_position: typing.Optional[MaskPosition] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "createNewStickerSet", self.get_params(locals())
-        )
+        result = await self.api.request_raw("createNewStickerSet", get_params(locals()))
         return full_result(result, bool)
 
     async def add_sticker_to_set(
@@ -1055,9 +1005,7 @@ class APIMethods:
         mask_position: typing.Optional[MaskPosition] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "addStickerToSet", self.get_params(locals())
-        )
+        result = await self.api.request_raw("addStickerToSet", get_params(locals()))
         return full_result(result, bool)
 
     async def set_sticker_position_in_set(
@@ -1067,7 +1015,7 @@ class APIMethods:
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "setStickerPositionInSet", self.get_params(locals())
+            "setStickerPositionInSet", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -1075,7 +1023,7 @@ class APIMethods:
         self, sticker: typing.Optional[str] = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "deleteStickerFromSet", self.get_params(locals())
+            "deleteStickerFromSet", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -1086,9 +1034,7 @@ class APIMethods:
         thumb: typing.Optional[typing.Union[InputFile, str]] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "setStickerSetThumb", self.get_params(locals())
-        )
+        result = await self.api.request_raw("setStickerSetThumb", get_params(locals()))
         return full_result(result, bool)
 
     async def answer_inline_query(
@@ -1102,9 +1048,7 @@ class APIMethods:
         switch_pm_parameter: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "answerInlineQuery", self.get_params(locals())
-        )
+        result = await self.api.request_raw("answerInlineQuery", get_params(locals()))
         return full_result(result, bool)
 
     async def answer_web_app_query(
@@ -1113,9 +1057,7 @@ class APIMethods:
         result: typing.Optional[InlineQueryResult] = None,
         **other
     ) -> Result[SentWebAppMessage, APIError]:
-        result = await self.api.request_raw(
-            "answerWebAppQuery", self.get_params(locals())
-        )
+        result = await self.api.request_raw("answerWebAppQuery", get_params(locals()))
         return full_result(result, SentWebAppMessage)
 
     async def send_invoice(
@@ -1149,7 +1091,7 @@ class APIMethods:
         reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendInvoice", self.get_params(locals()))
+        result = await self.api.request_raw("sendInvoice", get_params(locals()))
         return full_result(result, Message)
 
     async def create_invoice_link(
@@ -1176,9 +1118,7 @@ class APIMethods:
         is_flexible: typing.Optional[bool] = None,
         **other
     ) -> Result[str, APIError]:
-        result = await self.api.request_raw(
-            "createInvoiceLink", self.get_params(locals())
-        )
+        result = await self.api.request_raw("createInvoiceLink", get_params(locals()))
         return full_result(result, str)
 
     async def answer_shipping_query(
@@ -1189,9 +1129,7 @@ class APIMethods:
         error_message: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw(
-            "answerShippingQuery", self.get_params(locals())
-        )
+        result = await self.api.request_raw("answerShippingQuery", get_params(locals()))
         return full_result(result, bool)
 
     async def answer_pre_checkout_query(
@@ -1202,7 +1140,7 @@ class APIMethods:
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "answerPreCheckoutQuery", self.get_params(locals())
+            "answerPreCheckoutQuery", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -1213,7 +1151,7 @@ class APIMethods:
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
-            "setPassportDataErrors", self.get_params(locals())
+            "setPassportDataErrors", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -1228,7 +1166,7 @@ class APIMethods:
         reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
         **other
     ) -> Result[Message, APIError]:
-        result = await self.api.request_raw("sendGame", self.get_params(locals()))
+        result = await self.api.request_raw("sendGame", get_params(locals()))
         return full_result(result, Message)
 
     async def set_game_score(
@@ -1242,7 +1180,7 @@ class APIMethods:
         inline_message_id: typing.Optional[str] = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
-        result = await self.api.request_raw("setGameScore", self.get_params(locals()))
+        result = await self.api.request_raw("setGameScore", get_params(locals()))
         return full_result(result, typing.Union[Message, bool])
 
     async def get_game_high_scores(
@@ -1253,7 +1191,5 @@ class APIMethods:
         inline_message_id: typing.Optional[str] = None,
         **other
     ) -> Result[typing.List[GameHighScore], APIError]:
-        result = await self.api.request_raw(
-            "getGameHighScores", self.get_params(locals())
-        )
+        result = await self.api.request_raw("getGameHighScores", get_params(locals()))
         return full_result(result, typing.List[GameHighScore])

@@ -6,6 +6,7 @@ from telegrinder.types import (
     ReplyKeyboardRemove,
     ForceReply,
 )
+from telegrinder.model import get_params
 from telegrinder.types.methods import APIMethods
 from telegrinder.api import API, APIError, Token
 from telegrinder.result import Result
@@ -39,7 +40,7 @@ class MessageCute(Message):
         ] = None,
         **other
     ) -> Result["Message", APIError]:
-        params = APIMethods.get_params(locals())
+        params = get_params(locals())
         return await self.ctx_api.send_message(chat_id=self.chat.id, **params)
 
     async def reply(
@@ -61,7 +62,7 @@ class MessageCute(Message):
         ] = None,
         **other
     ) -> Result["Message", APIError]:
-        params = APIMethods.get_params(locals())
+        params = get_params(locals())
         return await self.ctx_api.send_message(
             chat_id=self.chat.id, reply_to_message_id=self.message_id, **params
         )
