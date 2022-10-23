@@ -29,7 +29,7 @@ class ABCRule(ABC, typing.Generic[T]):
     async def check(self, event: T, ctx: dict) -> bool:
         pass
 
-    def __init_subclass__(cls, require: typing.List["ABCRule[T]"] = None):
+    def __init_subclass__(cls, require: typing.Optional[typing.List["ABCRule[T]"]] = None):
         """Merges requirements from inherited classes and rule-specific requirements"""
         requirements = []
         for base in inspect.getmro(cls):

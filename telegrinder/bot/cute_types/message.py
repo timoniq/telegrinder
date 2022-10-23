@@ -7,8 +7,7 @@ from telegrinder.types import (
     ForceReply,
 )
 from telegrinder.model import get_params
-from telegrinder.types.methods import APIMethods
-from telegrinder.api import API, APIError, Token
+from telegrinder.api import API, APIError
 from telegrinder.result import Result
 import typing
 
