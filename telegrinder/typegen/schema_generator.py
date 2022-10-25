@@ -59,7 +59,7 @@ def convert_type(name: str, d: dict, obj: dict, forward_ref: bool = True) -> str
         if t in TYPES:
             return TYPES[t]
         elif t == "array":
-            nt = convert_type(name, d["items"], obj, forward_ref)
+            nt = convert_type("", d["items"], obj, forward_ref)
             return "typing.List[" + nt + "]"
         else:
             if "." in t:
@@ -74,7 +74,7 @@ def convert_type(name: str, d: dict, obj: dict, forward_ref: bool = True) -> str
     elif "anyOf" in d:
         return (
             "typing.Union["
-            + ", ".join(convert_type(name, ut, obj, forward_ref) for ut in d["anyOf"])
+            + ", ".join(convert_type("", ut, obj, forward_ref) for ut in d["anyOf"])
             + "]"
         )
     else:

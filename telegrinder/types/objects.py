@@ -45,7 +45,7 @@ class WebhookInfo(Model):
     last_error_message: typing.Optional[str] = None
     last_synchronization_error_date: typing.Optional[int] = None
     max_connections: typing.Optional[int] = None
-    allowed_updates: typing.Optional[typing.List[typing.Optional[str]]] = None
+    allowed_updates: typing.Optional[typing.List[str]] = None
 
 
 class User(Model):
@@ -117,29 +117,27 @@ class Message(Model):
     media_group_id: typing.Optional[str] = None
     author_signature: typing.Optional[str] = None
     text: typing.Optional[str] = None
-    entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
+    entities: typing.Optional[typing.List["MessageEntity"]] = None
     animation: typing.Optional["Animation"] = None
     audio: typing.Optional["Audio"] = None
     document: typing.Optional["Document"] = None
-    photo: typing.Optional[typing.List[typing.Optional["PhotoSize"]]] = None
+    photo: typing.Optional[typing.List["PhotoSize"]] = None
     sticker: typing.Optional["Sticker"] = None
     video: typing.Optional["Video"] = None
     video_note: typing.Optional["VideoNote"] = None
     voice: typing.Optional["Voice"] = None
     caption: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     contact: typing.Optional["Contact"] = None
     dice: typing.Optional["Dice"] = None
     game: typing.Optional["Game"] = None
     poll: typing.Optional["Poll"] = None
     venue: typing.Optional["Venue"] = None
     location: typing.Optional["Location"] = None
-    new_chat_members: typing.Optional[typing.List[typing.Optional["User"]]] = None
+    new_chat_members: typing.Optional[typing.List["User"]] = None
     left_chat_member: typing.Optional["User"] = None
     new_chat_title: typing.Optional[str] = None
-    new_chat_photo: typing.Optional[typing.List[typing.Optional["PhotoSize"]]] = None
+    new_chat_photo: typing.Optional[typing.List["PhotoSize"]] = None
     delete_chat_photo: typing.Optional[bool] = None
     group_chat_created: typing.Optional[bool] = None
     supergroup_chat_created: typing.Optional[bool] = None
@@ -343,9 +341,7 @@ class Poll(Model):
     allows_multiple_answers: bool
     correct_option_id: typing.Optional[int] = None
     explanation: typing.Optional[str] = None
-    explanation_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    explanation_entities: typing.Optional[typing.List["MessageEntity"]] = None
     open_period: typing.Optional[int] = None
     close_date: typing.Optional[int] = None
 
@@ -829,9 +825,7 @@ class BotCommandScope(Model):
     Docs: https://core.telegram.org/bots/api/#botcommandscope"""
 
     type: typing.Optional[str] = "chat_member"
-    chat_id: typing.Optional[
-        typing.Union[typing.Optional[int], typing.Optional[str]]
-    ] = None
+    chat_id: typing.Optional[typing.Union[int, str]] = None
     user_id: typing.Optional[int] = None
 
 
@@ -967,14 +961,10 @@ class InputMedia(Model):
 
     type: typing.Optional[str] = "video"
     media: typing.Optional[str] = None
-    thumb: typing.Optional[
-        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
-    ] = None
+    thumb: typing.Optional[typing.Union["InputFile", str]] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     width: typing.Optional[int] = None
     height: typing.Optional[int] = None
     duration: typing.Optional[int] = None
@@ -992,9 +982,7 @@ class InputMediaPhoto(Model):
     media: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
 
 
 class InputMediaVideo(Model):
@@ -1003,14 +991,10 @@ class InputMediaVideo(Model):
 
     type: str
     media: str
-    thumb: typing.Optional[
-        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
-    ] = None
+    thumb: typing.Optional[typing.Union["InputFile", str]] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     width: typing.Optional[int] = None
     height: typing.Optional[int] = None
     duration: typing.Optional[int] = None
@@ -1024,14 +1008,10 @@ class InputMediaAnimation(Model):
 
     type: str
     media: str
-    thumb: typing.Optional[
-        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
-    ] = None
+    thumb: typing.Optional[typing.Union["InputFile", str]] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     width: typing.Optional[int] = None
     height: typing.Optional[int] = None
     duration: typing.Optional[int] = None
@@ -1043,14 +1023,10 @@ class InputMediaAudio(Model):
 
     type: str
     media: str
-    thumb: typing.Optional[
-        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
-    ] = None
+    thumb: typing.Optional[typing.Union["InputFile", str]] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     duration: typing.Optional[int] = None
     performer: typing.Optional[str] = None
     title: typing.Optional[str] = None
@@ -1062,14 +1038,10 @@ class InputMediaDocument(Model):
 
     type: str
     media: str
-    thumb: typing.Optional[
-        typing.Union[typing.Optional["InputFile"], typing.Optional[str]]
-    ] = None
+    thumb: typing.Optional[typing.Union["InputFile", str]] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     disable_content_type_detection: typing.Optional[bool] = None
 
 
@@ -1184,9 +1156,7 @@ class InlineQueryResult(Model):
     audio_file_id: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
     title: typing.Optional[str] = None
@@ -1277,9 +1247,7 @@ class InlineQueryResultPhoto(Model):
     description: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1302,9 +1270,7 @@ class InlineQueryResultGif(Model):
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1327,9 +1293,7 @@ class InlineQueryResultMpeg4Gif(Model):
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1353,9 +1317,7 @@ class InlineQueryResultVideo(Model):
     title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     video_width: typing.Optional[int] = None
     video_height: typing.Optional[int] = None
     video_duration: typing.Optional[int] = None
@@ -1376,9 +1338,7 @@ class InlineQueryResultAudio(Model):
     title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     performer: typing.Optional[str] = None
     audio_duration: typing.Optional[int] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
@@ -1398,9 +1358,7 @@ class InlineQueryResultVoice(Model):
     title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     voice_duration: typing.Optional[int] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
@@ -1418,9 +1376,7 @@ class InlineQueryResultDocument(Model):
     title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     document_url: str
     mime_type: str
     description: typing.Optional[str] = None
@@ -1520,9 +1476,7 @@ class InlineQueryResultCachedPhoto(Model):
     description: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1540,9 +1494,7 @@ class InlineQueryResultCachedGif(Model):
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1561,9 +1513,7 @@ class InlineQueryResultCachedMpeg4Gif(Model):
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1595,9 +1545,7 @@ class InlineQueryResultCachedDocument(Model):
     description: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1616,9 +1564,7 @@ class InlineQueryResultCachedVideo(Model):
     description: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1636,9 +1582,7 @@ class InlineQueryResultCachedVoice(Model):
     title: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1655,9 +1599,7 @@ class InlineQueryResultCachedAudio(Model):
     audio_file_id: str
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[
-        typing.List[typing.Optional["MessageEntity"]]
-    ] = None
+    caption_entities: typing.Optional[typing.List["MessageEntity"]] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
 
@@ -1681,7 +1623,7 @@ class InputMessageContent(Model):
 
     message_text: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
-    entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
+    entities: typing.Optional[typing.List["MessageEntity"]] = None
     disable_web_page_preview: typing.Optional[bool] = None
     latitude: typing.Optional[float] = None
     longitude: typing.Optional[float] = None
@@ -1703,9 +1645,9 @@ class InputMessageContent(Model):
     payload: typing.Optional[str] = None
     provider_token: typing.Optional[str] = None
     currency: typing.Optional[str] = None
-    prices: typing.Optional[typing.List[typing.Optional["LabeledPrice"]]] = None
+    prices: typing.Optional[typing.List["LabeledPrice"]] = None
     max_tip_amount: typing.Optional[int] = 0
-    suggested_tip_amounts: typing.Optional[typing.List[typing.Optional[int]]] = None
+    suggested_tip_amounts: typing.Optional[typing.List[int]] = None
     provider_data: typing.Optional[str] = None
     photo_url: typing.Optional[str] = None
     photo_size: typing.Optional[int] = None
@@ -1727,7 +1669,7 @@ class InputTextMessageContent(Model):
 
     message_text: str
     parse_mode: typing.Optional[str] = None
-    entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
+    entities: typing.Optional[typing.List["MessageEntity"]] = None
     disable_web_page_preview: typing.Optional[bool] = None
 
 
@@ -1782,7 +1724,7 @@ class InputInvoiceMessageContent(Model):
     currency: str
     prices: typing.List["LabeledPrice"]
     max_tip_amount: typing.Optional[int] = 0
-    suggested_tip_amounts: typing.Optional[typing.List[typing.Optional[int]]] = None
+    suggested_tip_amounts: typing.Optional[typing.List[int]] = None
     provider_data: typing.Optional[str] = None
     photo_url: typing.Optional[str] = None
     photo_size: typing.Optional[int] = None
@@ -1934,11 +1876,11 @@ class EncryptedPassportElement(Model):
     data: typing.Optional[str] = None
     phone_number: typing.Optional[str] = None
     email: typing.Optional[str] = None
-    files: typing.Optional[typing.List[typing.Optional["PassportFile"]]] = None
+    files: typing.Optional[typing.List["PassportFile"]] = None
     front_side: typing.Optional["PassportFile"] = None
     reverse_side: typing.Optional["PassportFile"] = None
     selfie: typing.Optional["PassportFile"] = None
-    translation: typing.Optional[typing.List[typing.Optional["PassportFile"]]] = None
+    translation: typing.Optional[typing.List["PassportFile"]] = None
     hash: str
 
 
@@ -1985,7 +1927,7 @@ class PassportElementError(Model):
     data_hash: typing.Optional[str] = None
     message: typing.Optional[str] = None
     file_hash: typing.Optional[str] = None
-    file_hashes: typing.Optional[typing.List[typing.Optional[str]]] = None
+    file_hashes: typing.Optional[typing.List[str]] = None
     element_hash: typing.Optional[str] = None
 
 
@@ -2099,7 +2041,7 @@ class Game(Model):
     description: str
     photo: typing.List["PhotoSize"]
     text: typing.Optional[str] = None
-    text_entities: typing.Optional[typing.List[typing.Optional["MessageEntity"]]] = None
+    text_entities: typing.Optional[typing.List["MessageEntity"]] = None
     animation: typing.Optional["Animation"] = None
 
 
