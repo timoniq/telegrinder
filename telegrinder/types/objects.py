@@ -75,7 +75,10 @@ class Chat(Model):
     username: typing.Optional[str] = None
     first_name: typing.Optional[str] = None
     last_name: typing.Optional[str] = None
+    is_forum: typing.Optional[bool] = None
     photo: typing.Optional["ChatPhoto"] = None
+    active_usernames: typing.Optional[typing.List[str]] = None
+    emoji_status_custom_emoji_id: typing.Optional[str] = None
     bio: typing.Optional[str] = None
     has_private_forwards: typing.Optional[bool] = None
     has_restricted_voice_and_video_messages: typing.Optional[bool] = None
@@ -99,6 +102,7 @@ class Message(Model):
     Docs: https://core.telegram.org/bots/api/#message"""
 
     message_id: int
+    message_thread_id: typing.Optional[int] = None
     from_: typing.Optional["User"] = None
     sender_chat: typing.Optional["Chat"] = None
     date: int
@@ -109,6 +113,7 @@ class Message(Model):
     forward_signature: typing.Optional[str] = None
     forward_sender_name: typing.Optional[str] = None
     forward_date: typing.Optional[int] = None
+    is_topic_message: typing.Optional[bool] = None
     is_automatic_forward: typing.Optional[bool] = None
     reply_to_message: typing.Optional["Message"] = None
     via_bot: typing.Optional["User"] = None
@@ -153,6 +158,9 @@ class Message(Model):
     connected_website: typing.Optional[str] = None
     passport_data: typing.Optional["PassportData"] = None
     proximity_alert_triggered: typing.Optional["ProximityAlertTriggered"] = None
+    forum_topic_created: typing.Optional["ForumTopicCreated"] = None
+    forum_topic_closed: typing.Optional["ForumTopicClosed"] = None
+    forum_topic_reopened: typing.Optional["ForumTopicReopened"] = None
     video_chat_scheduled: typing.Optional["VideoChatScheduled"] = None
     video_chat_started: typing.Optional["VideoChatStarted"] = None
     video_chat_ended: typing.Optional["VideoChatEnded"] = None
@@ -398,6 +406,32 @@ class MessageAutoDeleteTimerChanged(Model):
     message_auto_delete_time: int
 
 
+class ForumTopicCreated(Model):
+    """This object represents a service message about a new forum topic created
+    in the chat.
+    Docs: https://core.telegram.org/bots/api/#forumtopiccreated"""
+
+    name: str
+    icon_color: int
+    icon_custom_emoji_id: typing.Optional[str] = None
+
+
+class ForumTopicClosed(Model):
+    """This object represents a service message about a forum topic closed in the
+    chat. Currently holds no information.
+    Docs: https://core.telegram.org/bots/api/#forumtopicclosed"""
+
+    pass
+
+
+class ForumTopicReopened(Model):
+    """This object represents a service message about a forum topic reopened in
+    the chat. Currently holds no information.
+    Docs: https://core.telegram.org/bots/api/#forumtopicreopened"""
+
+    pass
+
+
 class VideoChatScheduled(Model):
     """This object represents a service message about a video chat scheduled in
     the chat.
@@ -625,6 +659,7 @@ class ChatAdministratorRights(Model):
     can_post_messages: typing.Optional[bool] = None
     can_edit_messages: typing.Optional[bool] = None
     can_pin_messages: typing.Optional[bool] = None
+    can_manage_topics: typing.Optional[bool] = None
 
 
 class ChatMember(Model):
@@ -660,6 +695,7 @@ class ChatMember(Model):
     can_post_messages: typing.Optional[bool] = None
     can_edit_messages: typing.Optional[bool] = None
     can_pin_messages: typing.Optional[bool] = None
+    can_manage_topics: typing.Optional[bool] = None
     is_member: typing.Optional[bool] = None
     can_send_messages: typing.Optional[bool] = None
     can_send_media_messages: typing.Optional[bool] = None
@@ -699,6 +735,7 @@ class ChatMemberAdministrator(Model):
     can_post_messages: typing.Optional[bool] = None
     can_edit_messages: typing.Optional[bool] = None
     can_pin_messages: typing.Optional[bool] = None
+    can_manage_topics: typing.Optional[bool] = None
     custom_title: typing.Optional[str] = None
 
 
@@ -722,6 +759,7 @@ class ChatMemberRestricted(Model):
     can_change_info: bool
     can_invite_users: bool
     can_pin_messages: bool
+    can_manage_topics: bool
     can_send_messages: bool
     can_send_media_messages: bool
     can_send_polls: bool
@@ -786,6 +824,7 @@ class ChatPermissions(Model):
     can_change_info: typing.Optional[bool] = None
     can_invite_users: typing.Optional[bool] = None
     can_pin_messages: typing.Optional[bool] = None
+    can_manage_topics: typing.Optional[bool] = None
 
 
 class ChatLocation(Model):
@@ -794,6 +833,16 @@ class ChatLocation(Model):
 
     location: "Location"
     address: str
+
+
+class ForumTopic(Model):
+    """This object represents a forum topic.
+    Docs: https://core.telegram.org/bots/api/#forumtopic"""
+
+    message_thread_id: int
+    name: str
+    icon_color: int
+    icon_custom_emoji_id: typing.Optional[str] = None
 
 
 class BotCommand(Model):

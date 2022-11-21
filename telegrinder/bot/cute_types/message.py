@@ -40,6 +40,8 @@ class MessageCute(Message):
         **other
     ) -> Result["Message", APIError]:
         params = get_params(locals())
+        if "message_thread_id" not in params and self.is_topic_message:
+            params["message_thread_id"] = self.message_thread_id
         return await self.ctx_api.send_message(chat_id=self.chat.id, **params)
 
     async def reply(
@@ -62,6 +64,10 @@ class MessageCute(Message):
         **other
     ) -> Result["Message", APIError]:
         params = get_params(locals())
+        if "message_thread_id" not in params and self.is_topic_message:
+            params["message_thread_id"] = self.message_thread_id
         return await self.ctx_api.send_message(
-            chat_id=self.chat.id, reply_to_message_id=self.message_id, **params
+            chat_id=self.chat.id,
+            reply_to_message_id=self.message_id,
+            **params
         )

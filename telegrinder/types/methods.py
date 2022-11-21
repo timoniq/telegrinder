@@ -63,6 +63,7 @@ class APIMethods:
     async def send_message(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         text: typing.Optional[str] = None,
         parse_mode: typing.Optional[str] = None,
         entities: typing.Optional[typing.List[MessageEntity]] = None,
@@ -87,6 +88,7 @@ class APIMethods:
     async def forward_message(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         from_chat_id: typing.Optional[typing.Union[int, str]] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,
@@ -99,6 +101,7 @@ class APIMethods:
     async def copy_message(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         from_chat_id: typing.Optional[typing.Union[int, str]] = None,
         message_id: typing.Optional[int] = None,
         caption: typing.Optional[str] = None,
@@ -124,6 +127,7 @@ class APIMethods:
     async def send_photo(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         photo: typing.Optional[typing.Union[InputFile, str]] = None,
         caption: typing.Optional[str] = None,
         parse_mode: typing.Optional[str] = None,
@@ -148,6 +152,7 @@ class APIMethods:
     async def send_audio(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         audio: typing.Optional[typing.Union[InputFile, str]] = None,
         caption: typing.Optional[str] = None,
         parse_mode: typing.Optional[str] = None,
@@ -176,6 +181,7 @@ class APIMethods:
     async def send_document(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         document: typing.Optional[typing.Union[InputFile, str]] = None,
         thumb: typing.Optional[typing.Union[InputFile, str]] = None,
         caption: typing.Optional[str] = None,
@@ -202,6 +208,7 @@ class APIMethods:
     async def send_video(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         video: typing.Optional[typing.Union[InputFile, str]] = None,
         duration: typing.Optional[int] = None,
         width: typing.Optional[int] = None,
@@ -231,6 +238,7 @@ class APIMethods:
     async def send_animation(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         animation: typing.Optional[typing.Union[InputFile, str]] = None,
         duration: typing.Optional[int] = None,
         width: typing.Optional[int] = None,
@@ -259,6 +267,7 @@ class APIMethods:
     async def send_voice(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         voice: typing.Optional[typing.Union[InputFile, str]] = None,
         caption: typing.Optional[str] = None,
         parse_mode: typing.Optional[str] = None,
@@ -284,6 +293,7 @@ class APIMethods:
     async def send_video_note(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         video_note: typing.Optional[typing.Union[InputFile, str]] = None,
         duration: typing.Optional[int] = None,
         length: typing.Optional[int] = None,
@@ -308,6 +318,7 @@ class APIMethods:
     async def send_media_group(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         media: typing.Optional[
             typing.List[
                 typing.Union[
@@ -330,6 +341,7 @@ class APIMethods:
     async def send_location(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         latitude: typing.Optional[float] = None,
         longitude: typing.Optional[float] = None,
         horizontal_accuracy: typing.Optional[float] = None,
@@ -387,6 +399,7 @@ class APIMethods:
     async def send_venue(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         latitude: typing.Optional[float] = None,
         longitude: typing.Optional[float] = None,
         title: typing.Optional[str] = None,
@@ -415,6 +428,7 @@ class APIMethods:
     async def send_contact(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         phone_number: typing.Optional[str] = None,
         first_name: typing.Optional[str] = None,
         last_name: typing.Optional[str] = None,
@@ -439,6 +453,7 @@ class APIMethods:
     async def send_poll(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         question: typing.Optional[str] = None,
         options: typing.Optional[typing.List[str]] = None,
         is_anonymous: typing.Optional[bool] = None,
@@ -471,6 +486,7 @@ class APIMethods:
     async def send_dice(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         emoji: typing.Optional[str] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,
@@ -563,6 +579,7 @@ class APIMethods:
         can_change_info: typing.Optional[bool] = None,
         can_invite_users: typing.Optional[bool] = None,
         can_pin_messages: typing.Optional[bool] = None,
+        can_manage_topics: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("promoteChatMember", get_params(locals()))
@@ -787,6 +804,74 @@ class APIMethods:
         )
         return full_result(result, bool)
 
+    async def get_forum_topic_icon_stickers(
+        self, **other
+    ) -> Result[typing.List[Sticker], APIError]:
+        result = await self.api.request_raw(
+            "getForumTopicIconStickers", get_params(locals())
+        )
+        return full_result(result, typing.List[Sticker])
+
+    async def create_forum_topic(
+        self,
+        chat_id: typing.Optional[typing.Union[int, str]] = None,
+        name: typing.Optional[str] = None,
+        icon_color: typing.Optional[int] = None,
+        icon_custom_emoji_id: typing.Optional[str] = None,
+        **other
+    ) -> Result[ForumTopic, APIError]:
+        result = await self.api.request_raw("createForumTopic", get_params(locals()))
+        return full_result(result, ForumTopic)
+
+    async def edit_forum_topic(
+        self,
+        chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
+        name: typing.Optional[str] = None,
+        icon_custom_emoji_id: typing.Optional[str] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("editForumTopic", get_params(locals()))
+        return full_result(result, bool)
+
+    async def close_forum_topic(
+        self,
+        chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("closeForumTopic", get_params(locals()))
+        return full_result(result, bool)
+
+    async def reopen_forum_topic(
+        self,
+        chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("reopenForumTopic", get_params(locals()))
+        return full_result(result, bool)
+
+    async def delete_forum_topic(
+        self,
+        chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("deleteForumTopic", get_params(locals()))
+        return full_result(result, bool)
+
+    async def unpin_all_forum_topic_messages(
+        self,
+        chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "unpinAllForumTopicMessages", get_params(locals())
+        )
+        return full_result(result, bool)
+
     async def answer_callback_query(
         self,
         callback_query_id: typing.Optional[str] = None,
@@ -937,6 +1022,7 @@ class APIMethods:
     async def send_sticker(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         sticker: typing.Optional[typing.Union[InputFile, str]] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,
@@ -1063,6 +1149,7 @@ class APIMethods:
     async def send_invoice(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         title: typing.Optional[str] = None,
         description: typing.Optional[str] = None,
         payload: typing.Optional[str] = None,
@@ -1158,6 +1245,7 @@ class APIMethods:
     async def send_game(
         self,
         chat_id: typing.Optional[int] = None,
+        message_thread_id: typing.Optional[int] = None,
         game_short_name: typing.Optional[str] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,

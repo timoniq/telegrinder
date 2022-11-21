@@ -5,6 +5,7 @@ from telegrinder.tools import magic_bundle
 from telegrinder.types import Update
 from telegrinder.api.abc import ABCAPI
 from .abc import ABCHandler
+from telegrinder.modules import logger
 
 T = typing.TypeVar("T")
 
@@ -38,6 +39,7 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
                     api=api,
                 )
             if not await rule.run_check(e, self.ctx):
+                logger.debug("Rule {} failed", rule)
                 return False
         return True
 
