@@ -12,4 +12,4 @@ from .dispatch import (
 from .bot import Telegrinder
 from .cute_types import MessageCute, CallbackQueryCute, InlineQueryCute
 from .rules import ABCRule, ABCMessageRule
-from .scenario import ABCScenario, Checkbox
+from .scenario import ABCScenario, Checkbox, SingleChoice

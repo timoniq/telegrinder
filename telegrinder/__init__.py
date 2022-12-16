@@ -19,6 +19,7 @@ from .bot import (
     ABCMiddleware,
     ABCScenario,
     Checkbox,
+    SingleChoice,
 )
 from .tools import (
     Keyboard,

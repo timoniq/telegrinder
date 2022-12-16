@@ -35,13 +35,11 @@ class Checkbox(ABCScenario):
         self,
         chat_id: int,
         msg: str,
-        multiple_choice: bool = True,
         ready_text: str = "Ready",
         max_in_row: int = 3,
     ):
         self.chat_id = chat_id
         self.msg = msg
-        self.multiple_choice = multiple_choice
         self.choices: typing.List[Choice] = []
         self.ready = ready_text
         self.max_in_row = max_in_row
@@ -100,7 +98,7 @@ class Checkbox(ABCScenario):
         assert len(self.choices) > 1
         message = (
             await api.send_message(
-                self.chat_id, self.msg, self.PARSE_MODE, reply_markup=self.get_markup()
+                self.chat_id, text=self.msg, parse_mode=self.PARSE_MODE, reply_markup=self.get_markup()
             )
         ).unwrap()
         while True:
