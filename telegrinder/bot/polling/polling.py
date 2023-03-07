@@ -1,4 +1,5 @@
 import traceback
+import asyncio
 
 import msgspec.json
 
@@ -59,6 +60,9 @@ class Polling(ABCPolling):
                 if updates_list:
                     yield updates_list
                     self.offset = updates_list[-1].update_id + 1
+            except asyncio.CancelledError:
+                logger.info("caught cancel, stopping")
+                self._stop = True
             except BaseException as e:
                 traceback.print_exc()
                 logger.error(e)

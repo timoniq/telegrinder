@@ -17,6 +17,10 @@ class Token(str):
             env.read_envfile()
         return cls(env.str(var_name))
 
+    @property
+    def bot_id(self) -> int:
+        return int(self.split(":")[0])
+
 
 class ABCAPI(ABC):
     http: ABCClient
