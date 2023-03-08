@@ -32,7 +32,7 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
                 pass
             else:
                 event_dict = event.to_dict()
-                if rule.__event__.name not in event_dict:
+                if event_dict.get(rule.__event__.name) is None:
                     return False
                 e = rule.__event__.dataclass(
                     **event_dict[rule.__event__.name].to_dict(),
