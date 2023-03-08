@@ -18,11 +18,13 @@ class Button(ABCButton):
         request_contact: Optional[bool] = False,
         request_location: Optional[bool] = False,
         request_poll: Optional[dict] = None,
+        web_app: Optional[dict] = None,
     ):
         self.text = text
         self.request_contact = request_contact
         self.request_location = request_location
         self.request_poll = request_poll
+        self.web_app = web_app
 
 
 class InlineButton(ABCButton):
