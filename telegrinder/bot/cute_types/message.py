@@ -90,7 +90,7 @@ class MessageCute(Message):
         disable_web_page_preview: typing.Optional[bool] = None,
         reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
         **other
-    ):
+    ) -> Result[Message | bool, APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:
             params["message_thread_id"] = self.message_thread_id
