@@ -38,6 +38,7 @@ class InlineButton(ABCButton):
         callback_game: dict = None,
         switch_inline_query: str = None,
         switch_inline_query_current_chat: str = None,
+        web_app: Optional[dict] = None,
     ):
         self.text = text
         self.url = url
@@ -47,3 +48,4 @@ class InlineButton(ABCButton):
         self.callback_game = callback_game
         self.switch_inline_query = switch_inline_query
         self.switch_inline_query_current_chat = switch_inline_query_current_chat
+        self.web_app = web_app
