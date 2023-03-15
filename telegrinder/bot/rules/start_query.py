@@ -1,4 +1,4 @@
-from .abc import ABC, Message, abstractmethod, ABCMessageRule
+from .abc import ABC, Message, abstractmethod
 from .markup import PatternLike, check_string
 from .text import ABCTextMessageRule
 import typing
@@ -9,11 +9,6 @@ class ABCQuery(ABC):
     @abstractmethod
     async def check(self, message: Message, query: str, ctx: dict) -> bool:
         ...
-
-
-class HasStartQuery(ABCMessageRule):
-    async def check(self, message: Message, ctx: dict) -> bool:
-        return message.text.startswith("/start ")
 
 
 class StrQuery(ABCQuery):
@@ -55,11 +50,13 @@ class MarkupQuery(ABCQuery):
         return False
 
 
-class StartQuery(ABCTextMessageRule, require=[HasStartQuery()]):
+class StartQuery(ABCTextMessageRule):
     def __init__(self, query: typing.Optional[ABCQuery] = None) -> None:
         self.query = query
     
     async def check(self, message: Message, ctx: dict) -> bool:
+        if not message.text.startswith("/start "):
+            return False
         query = message.text.lstrip("/start ")
         if self.query is None:
             ctx.update({"start_query": query})
