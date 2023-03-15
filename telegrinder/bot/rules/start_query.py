@@ -34,7 +34,7 @@ class IntQuery(ABCQuery):
 
 
 class MarkupQuery(ABCQuery):
-    def __init__(self, value: PatternLike) -> None:
+    def __init__(self, value: typing.Union[PatternLike, typing.List[PatternLike]]) -> None:
         if not isinstance(value, list):
             value = [value]
         self.value = [
