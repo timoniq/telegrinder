@@ -71,3 +71,31 @@ class MessageCute(Message):
             reply_to_message_id=self.message_id,
             **params
         )
+
+    async def delete(self, **other) -> Result[bool, APIError]:
+        params = get_params(locals())
+        if "message_thread_id" not in params and self.is_topic_message:
+            params["message_thread_id"] = self.message_thread_id
+        return await self.ctx_api.delete_message(
+            chat_id=self.chat.id,
+            message_id=self.message_id,
+            **params
+        )
+
+    async def edit(
+        self,
+        text: typing.Optional[str] = None,
+        parse_mode: typing.Optional[str] = None,
+        entities: typing.Optional[typing.List[MessageEntity]] = None,
+        disable_web_page_preview: typing.Optional[bool] = None,
+        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        **other
+    ) -> Result[Message | bool, APIError]:
+        params = get_params(locals())
+        if "message_thread_id" not in params and self.is_topic_message:
+            params["message_thread_id"] = self.message_thread_id
+        return await self.ctx_api.edit_message_text(
+            chat_id=self.chat.id,
+            message_id=self.message_id,
+            **params
+        )
