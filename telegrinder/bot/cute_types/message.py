@@ -82,7 +82,7 @@ class MessageCute(Message):
             **params
         )
 
-    async def edit_text(
+    async def edit(
         self,
         text: typing.Optional[str] = None,
         parse_mode: typing.Optional[str] = None,
