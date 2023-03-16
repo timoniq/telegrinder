@@ -18,7 +18,7 @@ TYPES = {
     "false": "bool",
 }
 SPACES = "    "
-NS = pathlib.Path("./nicification.py").read_text()
+NS = pathlib.Path("utility/typegen/nicification.py").read_text()
 
 
 def find_nicifications(name: str) -> typing.List[str]:
@@ -254,6 +254,6 @@ def generate(path: str, schema_url: str = URL) -> None:
 
     print("generated.")
     try:
-        os.system("black ../types")
+        os.system("black telegrinder/types")
     except:
         print("cant run black")

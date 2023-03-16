@@ -132,6 +132,7 @@ class APIMethods:
         caption: typing.Optional[str] = None,
         parse_mode: typing.Optional[str] = None,
         caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
+        has_spoiler: typing.Optional[bool] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,
         reply_to_message_id: typing.Optional[int] = None,
@@ -160,7 +161,7 @@ class APIMethods:
         duration: typing.Optional[int] = None,
         performer: typing.Optional[str] = None,
         title: typing.Optional[str] = None,
-        thumb: typing.Optional[typing.Union[InputFile, str]] = None,
+        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,
         reply_to_message_id: typing.Optional[int] = None,
@@ -183,7 +184,7 @@ class APIMethods:
         chat_id: typing.Optional[typing.Union[int, str]] = None,
         message_thread_id: typing.Optional[int] = None,
         document: typing.Optional[typing.Union[InputFile, str]] = None,
-        thumb: typing.Optional[typing.Union[InputFile, str]] = None,
+        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
         caption: typing.Optional[str] = None,
         parse_mode: typing.Optional[str] = None,
         caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
@@ -213,10 +214,11 @@ class APIMethods:
         duration: typing.Optional[int] = None,
         width: typing.Optional[int] = None,
         height: typing.Optional[int] = None,
-        thumb: typing.Optional[typing.Union[InputFile, str]] = None,
+        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
         caption: typing.Optional[str] = None,
         parse_mode: typing.Optional[str] = None,
         caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
+        has_spoiler: typing.Optional[bool] = None,
         supports_streaming: typing.Optional[bool] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,
@@ -243,10 +245,11 @@ class APIMethods:
         duration: typing.Optional[int] = None,
         width: typing.Optional[int] = None,
         height: typing.Optional[int] = None,
-        thumb: typing.Optional[typing.Union[InputFile, str]] = None,
+        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
         caption: typing.Optional[str] = None,
         parse_mode: typing.Optional[str] = None,
         caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
+        has_spoiler: typing.Optional[bool] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,
         reply_to_message_id: typing.Optional[int] = None,
@@ -297,7 +300,7 @@ class APIMethods:
         video_note: typing.Optional[typing.Union[InputFile, str]] = None,
         duration: typing.Optional[int] = None,
         length: typing.Optional[int] = None,
-        thumb: typing.Optional[typing.Union[InputFile, str]] = None,
+        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,
         reply_to_message_id: typing.Optional[int] = None,
@@ -364,37 +367,6 @@ class APIMethods:
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendLocation", get_params(locals()))
         return full_result(result, Message)
-
-    async def edit_message_live_location(
-        self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
-        latitude: typing.Optional[float] = None,
-        longitude: typing.Optional[float] = None,
-        horizontal_accuracy: typing.Optional[float] = None,
-        heading: typing.Optional[int] = None,
-        proximity_alert_radius: typing.Optional[int] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
-        **other
-    ) -> Result[typing.Union[Message, bool], APIError]:
-        result = await self.api.request_raw(
-            "editMessageLiveLocation", get_params(locals())
-        )
-        return full_result(result, typing.Union[Message, bool])
-
-    async def stop_message_live_location(
-        self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
-        **other
-    ) -> Result[typing.Union[Message, bool], APIError]:
-        result = await self.api.request_raw(
-            "stopMessageLiveLocation", get_params(locals())
-        )
-        return full_result(result, typing.Union[Message, bool])
 
     async def send_venue(
         self,
@@ -508,6 +480,7 @@ class APIMethods:
     async def send_chat_action(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_thread_id: typing.Optional[int] = None,
         action: typing.Optional[str] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -558,6 +531,7 @@ class APIMethods:
         chat_id: typing.Optional[typing.Union[int, str]] = None,
         user_id: typing.Optional[int] = None,
         permissions: typing.Optional[ChatPermissions] = None,
+        use_independent_chat_permissions: typing.Optional[bool] = None,
         until_date: typing.Optional[int] = None,
         **other
     ) -> Result[bool, APIError]:
@@ -619,6 +593,7 @@ class APIMethods:
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
         permissions: typing.Optional[ChatPermissions] = None,
+        use_independent_chat_permissions: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setChatPermissions", get_params(locals()))
@@ -872,6 +847,49 @@ class APIMethods:
         )
         return full_result(result, bool)
 
+    async def edit_general_forum_topic(
+        self,
+        chat_id: typing.Optional[typing.Union[int, str]] = None,
+        name: typing.Optional[str] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "editGeneralForumTopic", get_params(locals())
+        )
+        return full_result(result, bool)
+
+    async def close_general_forum_topic(
+        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "closeGeneralForumTopic", get_params(locals())
+        )
+        return full_result(result, bool)
+
+    async def reopen_general_forum_topic(
+        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "reopenGeneralForumTopic", get_params(locals())
+        )
+        return full_result(result, bool)
+
+    async def hide_general_forum_topic(
+        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "hideGeneralForumTopic", get_params(locals())
+        )
+        return full_result(result, bool)
+
+    async def unhide_general_forum_topic(
+        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "unhideGeneralForumTopic", get_params(locals())
+        )
+        return full_result(result, bool)
+
     async def answer_callback_query(
         self,
         callback_query_id: typing.Optional[str] = None,
@@ -911,6 +929,40 @@ class APIMethods:
     ) -> Result[typing.List[BotCommand], APIError]:
         result = await self.api.request_raw("getMyCommands", get_params(locals()))
         return full_result(result, typing.List[BotCommand])
+
+    async def set_my_description(
+        self,
+        description: typing.Optional[str] = None,
+        language_code: typing.Optional[str] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("setMyDescription", get_params(locals()))
+        return full_result(result, bool)
+
+    async def get_my_description(
+        self, language_code: typing.Optional[str] = None, **other
+    ) -> Result[BotDescription, APIError]:
+        result = await self.api.request_raw("getMyDescription", get_params(locals()))
+        return full_result(result, BotDescription)
+
+    async def set_my_short_description(
+        self,
+        short_description: typing.Optional[str] = None,
+        language_code: typing.Optional[str] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "setMyShortDescription", get_params(locals())
+        )
+        return full_result(result, bool)
+
+    async def get_my_short_description(
+        self, language_code: typing.Optional[str] = None, **other
+    ) -> Result[BotShortDescription, APIError]:
+        result = await self.api.request_raw(
+            "getMyShortDescription", get_params(locals())
+        )
+        return full_result(result, BotShortDescription)
 
     async def set_chat_menu_button(
         self,
@@ -987,6 +1039,37 @@ class APIMethods:
         result = await self.api.request_raw("editMessageMedia", get_params(locals()))
         return full_result(result, typing.Union[Message, bool])
 
+    async def edit_message_live_location(
+        self,
+        chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_id: typing.Optional[int] = None,
+        inline_message_id: typing.Optional[str] = None,
+        latitude: typing.Optional[float] = None,
+        longitude: typing.Optional[float] = None,
+        horizontal_accuracy: typing.Optional[float] = None,
+        heading: typing.Optional[int] = None,
+        proximity_alert_radius: typing.Optional[int] = None,
+        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        **other
+    ) -> Result[typing.Union[Message, bool], APIError]:
+        result = await self.api.request_raw(
+            "editMessageLiveLocation", get_params(locals())
+        )
+        return full_result(result, typing.Union[Message, bool])
+
+    async def stop_message_live_location(
+        self,
+        chat_id: typing.Optional[typing.Union[int, str]] = None,
+        message_id: typing.Optional[int] = None,
+        inline_message_id: typing.Optional[str] = None,
+        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        **other
+    ) -> Result[typing.Union[Message, bool], APIError]:
+        result = await self.api.request_raw(
+            "stopMessageLiveLocation", get_params(locals())
+        )
+        return full_result(result, typing.Union[Message, bool])
+
     async def edit_message_reply_markup(
         self,
         chat_id: typing.Optional[typing.Union[int, str]] = None,
@@ -1024,6 +1107,7 @@ class APIMethods:
         chat_id: typing.Optional[typing.Union[int, str]] = None,
         message_thread_id: typing.Optional[int] = None,
         sticker: typing.Optional[typing.Union[InputFile, str]] = None,
+        emoji: typing.Optional[str] = None,
         disable_notification: typing.Optional[bool] = None,
         protect_content: typing.Optional[bool] = None,
         reply_to_message_id: typing.Optional[int] = None,
@@ -1058,7 +1142,8 @@ class APIMethods:
     async def upload_sticker_file(
         self,
         user_id: typing.Optional[int] = None,
-        png_sticker: typing.Optional[InputFile] = None,
+        sticker: typing.Optional[InputFile] = None,
+        sticker_format: typing.Optional[str] = None,
         **other
     ) -> Result[File, APIError]:
         result = await self.api.request_raw("uploadStickerFile", get_params(locals()))
@@ -1069,12 +1154,10 @@ class APIMethods:
         user_id: typing.Optional[int] = None,
         name: typing.Optional[str] = None,
         title: typing.Optional[str] = None,
-        png_sticker: typing.Optional[typing.Union[InputFile, str]] = None,
-        tgs_sticker: typing.Optional[InputFile] = None,
-        webm_sticker: typing.Optional[InputFile] = None,
+        stickers: typing.Optional[typing.List[InputSticker]] = None,
+        sticker_format: typing.Optional[str] = None,
         sticker_type: typing.Optional[str] = None,
-        emojis: typing.Optional[str] = None,
-        mask_position: typing.Optional[MaskPosition] = None,
+        needs_repainting: typing.Optional[bool] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("createNewStickerSet", get_params(locals()))
@@ -1084,11 +1167,7 @@ class APIMethods:
         self,
         user_id: typing.Optional[int] = None,
         name: typing.Optional[str] = None,
-        png_sticker: typing.Optional[typing.Union[InputFile, str]] = None,
-        tgs_sticker: typing.Optional[InputFile] = None,
-        webm_sticker: typing.Optional[InputFile] = None,
-        emojis: typing.Optional[str] = None,
-        mask_position: typing.Optional[MaskPosition] = None,
+        sticker: typing.Optional[InputSticker] = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("addStickerToSet", get_params(locals()))
@@ -1113,14 +1192,71 @@ class APIMethods:
         )
         return full_result(result, bool)
 
-    async def set_sticker_set_thumb(
+    async def set_sticker_emoji_list(
+        self,
+        sticker: typing.Optional[str] = None,
+        emoji_list: typing.Optional[typing.List[str]] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("setStickerEmojiList", get_params(locals()))
+        return full_result(result, bool)
+
+    async def set_sticker_keywords(
+        self,
+        sticker: typing.Optional[str] = None,
+        keywords: typing.Optional[typing.List[str]] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("setStickerKeywords", get_params(locals()))
+        return full_result(result, bool)
+
+    async def set_sticker_mask_position(
+        self,
+        sticker: typing.Optional[str] = None,
+        mask_position: typing.Optional[MaskPosition] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "setStickerMaskPosition", get_params(locals())
+        )
+        return full_result(result, bool)
+
+    async def set_sticker_set_title(
+        self,
+        name: typing.Optional[str] = None,
+        title: typing.Optional[str] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("setStickerSetTitle", get_params(locals()))
+        return full_result(result, bool)
+
+    async def set_sticker_set_thumbnail(
         self,
         name: typing.Optional[str] = None,
         user_id: typing.Optional[int] = None,
-        thumb: typing.Optional[typing.Union[InputFile, str]] = None,
+        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
         **other
     ) -> Result[bool, APIError]:
-        result = await self.api.request_raw("setStickerSetThumb", get_params(locals()))
+        result = await self.api.request_raw(
+            "setStickerSetThumbnail", get_params(locals())
+        )
+        return full_result(result, bool)
+
+    async def set_custom_emoji_sticker_set_thumbnail(
+        self,
+        name: typing.Optional[str] = None,
+        custom_emoji_id: typing.Optional[str] = None,
+        **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "setCustomEmojiStickerSetThumbnail", get_params(locals())
+        )
+        return full_result(result, bool)
+
+    async def delete_sticker_set(
+        self, name: typing.Optional[str] = None, **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("deleteStickerSet", get_params(locals()))
         return full_result(result, bool)
 
     async def answer_inline_query(
