@@ -12,3 +12,4 @@ from .regex import Regex
 from .text import Text, HasText, ABCTextMessageRule
 from .fuzzy import FuzzyText
 from .integer import Integer, IntegerInRange
+from .start import StartCommand
