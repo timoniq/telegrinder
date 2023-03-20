@@ -3,7 +3,6 @@ import dataclasses
 import typing
 from telegrinder.bot.rules import ABCRule
 
-
 DefaultWaiterHandler = typing.Callable[[typing.Any], typing.Coroutine]
 T = typing.TypeVar("T")
 E = typing.TypeVar("E")
