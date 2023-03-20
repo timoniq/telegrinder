@@ -24,6 +24,7 @@ async def wait(waiter: Waiter) -> typing.Tuple[typing.Any, dict]:
 
 class WithWaiter(typing.Generic[T, E]):
     short_waiters: typing.Dict[T, Waiter]
+    auto_rules: list[ABCRule]
 
     async def wait_for_answer(
         self,
@@ -32,6 +33,6 @@ class WithWaiter(typing.Generic[T, E]):
         default: typing.Optional[typing.Union[DefaultWaiterHandler, str]] = None
     ) -> typing.Tuple[E, dict]:
         event = asyncio.Event()
-        waiter = Waiter(rules, event, default)
+        waiter = Waiter([*self.auto_rules, *rules], event, default)
         self.short_waiters[key] = waiter
         return await wait(waiter)

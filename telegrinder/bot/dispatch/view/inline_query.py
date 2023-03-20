@@ -13,6 +13,7 @@ import typing
 
 class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
     def __init__(self):
+        self.auto_rules: list[ABCRule] = []
         self.handlers: typing.List[ABCHandler[InlineQueryCute]] = []
         self.middlewares: typing.List[ABCMiddleware[InlineQueryCute]] = []
         self.short_waiters: typing.Dict[str, Waiter] = {}
@@ -20,7 +21,7 @@ class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
     def __call__(self, *rules: ABCRule, is_blocking: bool = True):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):
             self.handlers.append(
-                FuncHandler(func, list(rules), is_blocking, dataclass=None)
+                FuncHandler(func, [*self.auto_rules, *rules], is_blocking, dataclass=None)
             )
             return func
 
