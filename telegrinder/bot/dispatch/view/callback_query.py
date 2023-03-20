@@ -12,16 +12,20 @@ import typing
 
 
 class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
-    def __init__(self):
-        self.auto_rules: list[ABCRule] = []
+    def __init__(self, **rule_dependencies: typing.Any,):
+        self.auto_rules: typing.List[ABCRule] = []
         self.handlers: typing.List[ABCHandler[CallbackQueryCute]] = []
         self.middlewares: typing.List[ABCMiddleware[CallbackQueryCute]] = []
         self.short_waiters: typing.Dict[int, Waiter] = {}
+        self.rule_dependencies = rule_dependencies
 
     def __call__(self, *rules: ABCRule, is_blocking: bool = True):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):
             self.handlers.append(
-                FuncHandler(func, [*self.auto_rules, *rules], is_blocking, dataclass=None)
+                FuncHandler(
+                    func, [*self.auto_rules, *rules], is_blocking, dataclass=None,
+                    **self.rule_dependencies
+                )
             )
             return func
 
@@ -34,7 +38,8 @@ class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
         query = CallbackQueryCute(**event.callback_query.to_dict(), api=api)
 
         if await process_waiters(
-            self.short_waiters, query.message.message_id, query, event, query.answer
+            self.short_waiters, query.message.message_id, query, event, query.answer,
+            **self.rule_dependencies
         ):
             return
 

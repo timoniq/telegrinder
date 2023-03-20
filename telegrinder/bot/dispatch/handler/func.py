@@ -17,12 +17,14 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
         rules: typing.List[ABCRule],
         is_blocking: bool = True,
         dataclass: typing.Optional[typing.Any] = dict,
+        **rule_dependencies,
     ):
         self.func = func
         self.is_blocking = is_blocking
         self.rules = rules
         self.dataclass = dataclass
         self.ctx = {}
+        self.rule_dependencies = rule_dependencies
 
     async def check(self, api: ABCAPI, event: Update) -> bool:
         self.ctx = {}
@@ -38,7 +40,7 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
                     **event_dict[rule.__event__.name].to_dict(),
                     api=api,
                 )
-            if not await rule.run_check(e, self.ctx):
+            if not await rule.run_check(e, self.ctx, **self.rule_dependencies):
                 logger.debug("Rule {} failed", rule)
                 return False
         return True

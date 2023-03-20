@@ -21,8 +21,8 @@ class VarUnset(BaseException):
         return self.__repr__()
 
 
-def resolve_arg_names(func: types.FunctionType) -> typing.Tuple[str, ...]:
-    return func.__code__.co_varnames[1 : func.__code__.co_argcount]
+def resolve_arg_names(func: types.FunctionType, skip_params_num: int) -> typing.Tuple[str, ...]:
+    return func.__code__.co_varnames[skip_params_num : func.__code__.co_argcount]
 
 
 def get_default_args(func: types.FunctionType) -> typing.Dict[str, typing.Any]:
@@ -33,7 +33,7 @@ def get_default_args(func: types.FunctionType) -> typing.Dict[str, typing.Any]:
 def magic_bundle(
     handler: types.FunctionType, kw: typing.Dict[str, typing.Any]
 ) -> typing.Dict[str, typing.Any]:
-    names = resolve_arg_names(handler)
+    names = resolve_arg_names(handler, skip_params_num=1)
     args = get_default_args(handler)
     args.update({k: v for k, v in kw.items() if k in names})
     if "ctx" in names:

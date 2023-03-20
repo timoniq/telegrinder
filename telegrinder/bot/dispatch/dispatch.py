@@ -8,6 +8,7 @@ from telegrinder.api.abc import ABCAPI
 from telegrinder.modules import logger
 from .view import ABCView, MessageView, CallbackQueryView, InlineQueryView
 import typing
+import vbml
 
 T = typing.TypeVar("T")
 
@@ -15,11 +16,20 @@ DEFAULT_DATACLASS = Update
 
 
 class Dispatch(ABCDispatch):
-    def __init__(self):
+    def __init__(
+        self,
+        auto_rules: typing.Optional[typing.List[ABCRule]] = None,
+        patcher: typing.Optional[vbml.Patcher] = None,
+        **rule_dependencies: typing.Any,
+    ):
+        self.auto_rules = auto_rules or []
+        self.patcher = patcher or vbml.Patcher()
+        rule_dependencies["patcher"] = self.patcher
+        self.rule_dependencies = rule_dependencies
         self.default_handlers: typing.List[ABCHandler] = []
-        self.message = MessageView()
-        self.callback_query = CallbackQueryView()
-        self.inline_query = InlineQueryView()
+        self.message = MessageView(**self.rule_dependencies)
+        self.callback_query = CallbackQueryView(**self.rule_dependencies)
+        self.inline_query = InlineQueryView(**self.rule_dependencies)
         self.views = ["message", "callback_query", "inline_query"]
 
     def handle(
@@ -30,7 +40,10 @@ class Dispatch(ABCDispatch):
     ):
         def wrapper(func: typing.Callable):
             self.default_handlers.append(
-                FuncHandler(func, list(rules), is_blocking, dataclass)
+                FuncHandler(
+                    func, [*self.auto_rules, *rules], is_blocking, dataclass,
+                    **self.rule_dependencies
+                )
             )
             return func
 
@@ -50,6 +63,9 @@ class Dispatch(ABCDispatch):
         return view  # type: ignore
 
     def load(self, external: "Dispatch"):
+        self.patcher.validators_map.validators_map.update(
+            external.patcher.validators_map.validators_map
+        )
         for view_name in self.views:
             view = getattr(self, view_name)
             assert view, f"View {view_name} is undefined in dispatch"

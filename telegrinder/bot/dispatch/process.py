@@ -16,6 +16,7 @@ async def process_waiters(
     event: typing.Optional[E],
     raw_event: dict,
     str_handler: typing.Callable,
+    **rule_dependencies: typing.Any
 ) -> bool:
     if key not in waiters:
         return False
@@ -31,7 +32,7 @@ async def process_waiters(
         chk_event = event
         if rule.__event__ is None:
             chk_event = raw_event
-        if not await rule.run_check(chk_event, ctx):
+        if not await rule.run_check(chk_event, ctx, **rule_dependencies):
             if not waiter.default:
                 return True
             elif isinstance(waiter.default, str):

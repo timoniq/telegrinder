@@ -24,7 +24,7 @@ async def wait(waiter: Waiter) -> typing.Tuple[typing.Any, dict]:
 
 class WithWaiter(typing.Generic[T, E]):
     short_waiters: typing.Dict[T, Waiter]
-    auto_rules: list[ABCRule]
+    auto_rules: typing.List[ABCRule]
 
     async def wait_for_answer(
         self,

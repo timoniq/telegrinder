@@ -12,16 +12,20 @@ import typing
 
 
 class MessageView(ABCView, WithWaiter[int, MessageCute]):
-    def __init__(self):
-        self.auto_rules: list[ABCRule] = []
+    def __init__(self, **rule_dependencies: typing.Any):
+        self.auto_rules: typing.List[ABCRule] = []
         self.handlers: typing.List[ABCHandler[MessageCute]] = []
         self.middlewares: typing.List[ABCMiddleware[MessageCute]] = []
         self.short_waiters: typing.Dict[int, Waiter] = {}
+        self.rule_dependencies = rule_dependencies
 
     def __call__(self, *rules: ABCRule, is_blocking: bool = True):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):
             self.handlers.append(
-                FuncHandler(func, [*self.auto_rules, *rules], is_blocking, dataclass=None)
+                FuncHandler(
+                    func, [*self.auto_rules, *rules], is_blocking, dataclass=None,
+                    **self.rule_dependencies
+                )
             )
             return func
 
@@ -39,7 +43,8 @@ class MessageView(ABCView, WithWaiter[int, MessageCute]):
         msg = MessageCute(**event.message.to_dict(), api=api)
 
         if await process_waiters(
-            self.short_waiters, msg.chat.id, msg, event, msg.answer
+            self.short_waiters, msg.chat.id, msg, event, msg.answer,
+            **self.rule_dependencies
         ):
             return
 
@@ -51,4 +56,4 @@ class MessageView(ABCView, WithWaiter[int, MessageCute]):
         *rules: ABCRule,
         default: typing.Optional[typing.Union[DefaultWaiterHandler, str]] = None
     ) -> typing.Tuple["MessageCute", dict]:
-        return await self.wait_for_answer(chat_id, *self.auto_rules, *rules, default=default)
+        return await self.wait_for_answer(chat_id, [*self.auto_rules, *rules], default=default)

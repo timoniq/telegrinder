@@ -1,4 +1,4 @@
-from .abc import Message, patcher
+from .abc import Message
 from .text import ABCTextMessageRule
 import typing
 import vbml
@@ -7,7 +7,8 @@ PatternLike = typing.Union[str, vbml.Pattern]
 
 
 def check_string(
-    patterns: typing.Union[PatternLike, typing.List[PatternLike]], s: str, ctx: dict
+    patterns: typing.Union[PatternLike, typing.List[PatternLike]], s: str, ctx: dict,
+    patcher: vbml.Patcher
 ) -> bool:
     if s is None:
         return False
@@ -30,5 +31,5 @@ class Markup(ABCTextMessageRule):
             for pattern in patterns
         ]
 
-    async def check(self, message: Message, ctx: dict) -> bool:
-        return check_string(self.patterns, message.text, ctx)
+    async def check(self, message: Message, ctx: dict, patcher: vbml.Patcher) -> bool:
+        return check_string(self.patterns, message.text, ctx, patcher)

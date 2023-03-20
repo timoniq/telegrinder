@@ -1,13 +1,12 @@
 from abc import ABC, abstractmethod
 from telegrinder.bot.cute_types import MessageCute
 from telegrinder.types import Update
+from telegrinder.tools import dependencies_bundle
 import typing
 import collections
 import inspect
-import vbml
 
 T = typing.TypeVar("T")
-patcher = vbml.Patcher()
 
 Message = MessageCute
 EventScheme = collections.namedtuple("EventScheme", ["name", "dataclass"])
@@ -17,17 +16,27 @@ class ABCRule(ABC, typing.Generic[T]):
     __event__: typing.Optional[EventScheme] = None
     require: typing.List["ABCRule[T]"] = []
 
-    async def run_check(self, event: T, ctx: dict) -> bool:
+    async def run_check(self, event: T, ctx: dict, **rule_dependencies) -> bool:
         ctx_copy = ctx.copy()
         for required in self.require:
-            if not await required.run_check(event, ctx_copy):
+            if not await required.run_check(
+                event, ctx_copy, **dependencies_bundle(
+                    required.__class__.__name__,
+                    required.check, rule_dependencies
+                )
+            ):
                 return False
         ctx.update(ctx_copy)
-        return await self.check(event, ctx)
+        return await self.check(
+            event, ctx, **dependencies_bundle(
+                self.__class__.__name__,
+                self.check, rule_dependencies
+            )
+        )
 
     @abstractmethod
     async def check(self, event: T, ctx: dict) -> bool:
-        pass
+        ...
 
     def __init_subclass__(cls, require: typing.Optional[typing.List["ABCRule[T]"]] = None):
         """Merges requirements from inherited classes and rule-specific requirements"""
@@ -53,7 +62,7 @@ class AndRule(ABCRule):
     def __init__(self, *rules: ABCRule):
         self.rules = rules
 
-    async def check(self, event: Update, ctx: dict) -> bool:
+    async def check(self, event: Update, ctx: dict, **rule_dependencies) -> bool:
         ctx_copy = ctx.copy()
         for rule in self.rules:
             e = event
@@ -62,8 +71,9 @@ class AndRule(ABCRule):
                 if rule.__event__.name not in event.to_dict().keys():
                     return False
                 e = event_dict[rule.__event__.name]
-            if not await rule.run_check(e, ctx_copy):
+            if not await rule.run_check(e, ctx_copy, **rule_dependencies):
                 return False
+        
         ctx.clear()
         ctx.update(ctx_copy)
         return True
@@ -73,7 +83,7 @@ class OrRule(ABCRule):
     def __init__(self, *rules: ABCRule):
         self.rules = rules
 
-    async def check(self, event: Update, ctx: dict) -> bool:
+    async def check(self, event: Update, ctx: dict, **rule_dependencies) -> bool:
         ctx_copy = ctx.copy()
         found = False
 
@@ -84,7 +94,7 @@ class OrRule(ABCRule):
                 if rule.__event__.name not in event.to_dict().keys():
                     continue
                 e = event_dict[rule.__event__.name]
-            if await rule.run_check(e, ctx_copy):
+            if await rule.run_check(e, ctx_copy, **rule_dependencies):
                 found = True
                 break
 
