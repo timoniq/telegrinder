@@ -59,11 +59,9 @@ class AndRule(ABCRule):
             e = event
             if rule.__event__:
                 event_dict = event.to_dict()
-                if rule.__event__.name not in event:
+                if rule.__event__.name not in event.to_dict().keys():
                     return False
-                e = rule.__event__.dataclass(
-                    **event_dict[rule.__event__.name].to_dict()
-                )
+                e = event_dict[rule.__event__.name]
             if not await rule.run_check(e, ctx_copy):
                 return False
         ctx.clear()
@@ -75,16 +73,17 @@ class OrRule(ABCRule):
     def __init__(self, *rules: ABCRule):
         self.rules = rules
 
-    async def check(self, event: T, ctx: dict) -> bool:
+    async def check(self, event: Update, ctx: dict) -> bool:
         ctx_copy = ctx.copy()
         found = False
 
         for rule in self.rules:
             e = event
             if rule.__event__:
-                if rule.__event__.name not in event:
+                event_dict = event.to_dict()
+                if rule.__event__.name not in event.to_dict().keys():
                     continue
-                e = rule.__event__.dataclass(**event[rule.__event__.name])
+                e = event_dict[rule.__event__.name]
             if await rule.run_check(e, ctx_copy):
                 found = True
                 break
