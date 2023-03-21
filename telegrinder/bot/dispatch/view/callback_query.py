@@ -12,7 +12,7 @@ import typing
 
 
 class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
-    def __init__(self, **rule_dependencies: typing.Any):
+    def __init__(self, **rule_dependencies: typing.Any,):
         self.auto_rules: typing.List[ABCRule] = []
         self.handlers: typing.List[ABCHandler[CallbackQueryCute]] = []
         self.middlewares: typing.List[ABCMiddleware[CallbackQueryCute]] = []

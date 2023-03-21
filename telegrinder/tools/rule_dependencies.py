@@ -30,9 +30,10 @@ def dependencies_bundle(
     rule_name: str, checker: RuleCallableChecker,
     rule_dependencies: typing.Dict[str, typing.Any], 
 ) -> typing.Dict[str, typing.Any]:
-    kw_arg = inspect.getfullargspec(checker).varkw
-    if kw_arg is not None and kw_arg == "rule_dependencies":
-        return rule_dependencies
+    arg_names = resolve_arg_names(checker, skip_params_num=3)
+    kw = inspect.getfullargspec(checker).varkw
+    if not arg_names and kw is not None and kw == "rule_dependencies":
+        return rule_dependencies.copy()
     arg_names = resolve_arg_names(checker, skip_params_num=3)
     depends = get_default_args(checker)
     for name in arg_names:

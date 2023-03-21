@@ -7,6 +7,7 @@ from telegrinder.types import Update
 from telegrinder.api.abc import ABCAPI
 from telegrinder.modules import logger
 from .view import ABCView, MessageView, CallbackQueryView, InlineQueryView
+from vbml.patcher.abc import ABCPatcher
 import typing
 import vbml
 
@@ -18,11 +19,10 @@ DEFAULT_DATACLASS = Update
 class Dispatch(ABCDispatch):
     def __init__(
         self,
-        auto_rules: typing.Optional[typing.List[ABCRule]] = None,
-        patcher: typing.Optional[vbml.Patcher] = None,
+        patcher: typing.Optional[ABCPatcher] = None,
         **rule_dependencies: typing.Any,
     ):
-        self.auto_rules = auto_rules or []
+        self.auto_rules: typing.List[ABCRule] = []
         self.patcher = patcher or vbml.Patcher()
         rule_dependencies["patcher"] = self.patcher
         self.rule_dependencies = rule_dependencies
@@ -63,9 +63,6 @@ class Dispatch(ABCDispatch):
         return view  # type: ignore
 
     def load(self, external: "Dispatch"):
-        self.patcher.validators_map.validators_map.update(
-            external.patcher.validators_map.validators_map
-        )
         for view_name in self.views:
             view = getattr(self, view_name)
             assert view, f"View {view_name} is undefined in dispatch"

@@ -18,11 +18,12 @@ class ABCRule(ABC, typing.Generic[T]):
 
     async def run_check(self, event: T, ctx: dict, **rule_dependencies) -> bool:
         ctx_copy = ctx.copy()
+        rule_dependencies_copy = rule_dependencies.copy()
         for required in self.require:
             if not await required.run_check(
                 event, ctx_copy, **dependencies_bundle(
                     required.__class__.__name__,
-                    required.check, rule_dependencies
+                    required.check, rule_dependencies_copy
                 )
             ):
                 return False
@@ -30,7 +31,7 @@ class ABCRule(ABC, typing.Generic[T]):
         return await self.check(
             event, ctx, **dependencies_bundle(
                 self.__class__.__name__,
-                self.check, rule_dependencies
+                self.check, rule_dependencies_copy
             )
         )
 
