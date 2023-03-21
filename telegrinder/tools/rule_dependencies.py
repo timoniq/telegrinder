@@ -1,13 +1,9 @@
 from .magic import get_default_args, resolve_arg_names
 import inspect
 import typing
-import typing_extensions
 
-T = typing.TypeVar("T")
-P = typing_extensions.ParamSpec("P")
 RuleCallableChecker = typing.Callable[
-    typing_extensions.Concatenate[T, dict, P],
-    typing.Coroutine[typing.Any, typing.Any, bool]
+    ..., typing.Coroutine[typing.Any, typing.Any, bool]
 ]
 
 
