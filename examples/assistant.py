@@ -1,6 +1,6 @@
 from telegrinder import Telegrinder, API, Token, Message
 from telegrinder.types import ChatPermissions
-from telegrinder.rules import Text, Markup, ABCMessageRule, IsChat
+from telegrinder.rules import Text, Markup, MessageRule, IsChat
 import time
 import logging
 
@@ -9,7 +9,7 @@ bot = Telegrinder(api)
 logging.basicConfig(level=logging.INFO)
 
 
-class WithReply(ABCMessageRule):
+class WithReply(MessageRule):
     async def check(self, message: Message, ctx: dict) -> bool:
         if not message.reply_to_message:
             await message.reply("You need to reply to someone's message")
@@ -17,7 +17,7 @@ class WithReply(ABCMessageRule):
         return True
 
 
-class IsChatAdmin(ABCMessageRule, require=[IsChat()]):
+class IsChatAdmin(MessageRule, require=[IsChat()]):
     async def check(self, message: Message, ctx: dict) -> bool:
         admins = (await bot.api.get_chat_administrators(message.chat.id)).unwrap()
         if message.from_.id not in (admin.user.id for admin in admins):

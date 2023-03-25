@@ -1,13 +1,10 @@
 from .abc import Message
-from .text import ABCTextMessageRule
+from .text import TextMessageRule
 import difflib
-import typing
 
 
-class FuzzyText(ABCTextMessageRule):
-    def __init__(
-        self, texts: typing.Union[str, typing.List[str]], min_ratio: float = 0.7
-    ):
+class FuzzyText(TextMessageRule):
+    def __init__(self, texts: str | list[str], min_ratio: float = 0.7):
         if isinstance(texts, str):
             texts = [texts]
         self.texts = texts

@@ -1,4 +1,4 @@
-from .abc import ABCRule, ABCMessageRule, AndRule, OrRule
+from .abc import ABCRule, MessageRule, AndRule, OrRule
 from .callback_data import (
     CallbackDataEq,
     CallbackDataJsonEq,
@@ -9,7 +9,7 @@ from .func import FuncRule
 from .is_from import IsPrivate, IsChat
 from .markup import Markup
 from .regex import Regex
-from .text import Text, HasText, ABCTextMessageRule
+from .text import Text, HasText, TextMessageRule
 from .fuzzy import FuzzyText
 from .integer import Integer, IntegerInRange
 from .start import StartCommand

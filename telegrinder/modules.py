@@ -6,10 +6,10 @@ from typing_extensions import Protocol
 
 
 class JSONModule(Protocol):
-    def loads(self, s: str) -> typing.Union[dict, list]:
+    def loads(self, s: str) -> dict | list:
         ...
 
-    def dumps(self, o: typing.Union[dict, list]) -> str:
+    def dumps(self, o: dict | list) -> str:
         ...
 
 

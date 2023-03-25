@@ -30,9 +30,7 @@ class SingleChoice(Checkbox):
 
         return True
 
-    async def wait(
-        self, api: "API", dispatch: "Dispatch"
-    ) -> typing.Tuple[str, int]:
+    async def wait(self, api: "API", dispatch: "Dispatch") -> tuple[str, int]:
         if len([choice for choice in self.choices if choice.is_picked]) != 1:
             raise ValueError("Exactly one choice must be picked")
         choices, m_id = await super().wait(api, dispatch)

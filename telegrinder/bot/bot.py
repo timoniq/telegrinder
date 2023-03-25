@@ -4,15 +4,14 @@ from telegrinder.api import API
 from telegrinder.bot.polling import ABCPolling, Polling
 from telegrinder.bot.dispatch import ABCDispatch, Dispatch
 from telegrinder.modules import logger
-import typing
 
 
 class Telegrinder:
     def __init__(
         self,
         api: API,
-        polling: typing.Optional[ABCPolling] = None,
-        dispatch: typing.Optional[ABCDispatch] = None,
+        polling: ABCPolling | None = None,
+        dispatch: ABCDispatch | None = None,
     ):
         self.api = api
         self.polling = polling or Polling(api)

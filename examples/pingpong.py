@@ -11,4 +11,5 @@ logging.basicConfig(level=logging.DEBUG)
 async def pong(m: Message):
     await m.answer("Pong")
 
+
 bot.run_forever()

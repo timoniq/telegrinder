@@ -1,5 +1,4 @@
 import random
-import typing
 
 from telegrinder import Telegrinder, API, Token, Message
 from telegrinder.rules import Text, Markup, FuzzyText
@@ -40,7 +39,7 @@ async def reverse(message: Message, text: str):
 #   1) declare patterns ordered by their broadness
 #   2) don't forget to set default value for optional arguments
 @bot.on.message(Markup(["/predict", "/predict <thing>"]))
-async def predict(message: Message, thing: typing.Optional[str] = None):
+async def predict(message: Message, thing: str | None = None):
     probability_percent = random.randint(0, 100)
     await message.answer(
         f"I predict the probability {thing or 'it'} will happen is {probability_percent}%"

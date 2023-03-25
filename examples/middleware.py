@@ -1,5 +1,3 @@
-import typing
-
 from telegrinder import Telegrinder, API, Token, Message, ABCMiddleware
 from telegrinder.rules import Text, IsChat, IsPrivate
 import logging
@@ -9,7 +7,7 @@ bot = Telegrinder(api)
 logging.basicConfig(level=logging.INFO)
 
 # Let's imagine a dummy counter
-counter: typing.Dict[int, int] = {}
+counter: dict[int, int] = {}
 
 
 class NoBotMiddleware(ABCMiddleware):

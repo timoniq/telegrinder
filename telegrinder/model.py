@@ -33,7 +33,7 @@ model_config = {"rename": {"from_": "from"}, "omit_defaults": True}
 
 
 class Model(msgspec.Struct, **model_config):
-    _dict_cached: typing.Optional[dict] = None
+    _dict_cached: dict | None = None
 
     def to_dict(self) -> dict:
         if self._dict_cached is not None:
@@ -44,12 +44,9 @@ class Model(msgspec.Struct, **model_config):
 
 def get_params(params: dict) -> dict:
     return {
-        k: v for k, v in (
-            *params.items(),
-            *params.pop("other").items()
-        )
-        if k != "self"
-        and v is not None
+        k: v
+        for k, v in (*params.items(), *params.pop("other").items())
+        if k != "self" and v is not None
     }
 
 

@@ -6,6 +6,7 @@ from .handler import ABCHandler, FuncHandler
 from telegrinder.types import Update
 from telegrinder.api.abc import ABCAPI
 from telegrinder.modules import logger
+from vbml.patcher import Patcher
 from .view import ABCView, MessageView, CallbackQueryView, InlineQueryView
 import typing
 
@@ -16,7 +17,10 @@ DEFAULT_DATACLASS = Update
 
 class Dispatch(ABCDispatch):
     def __init__(self):
-        self.default_handlers: typing.List[ABCHandler] = []
+        self.global_context: dict[str, typing.Any] = {
+            "patcher": Patcher(),
+        }
+        self.default_handlers: list[ABCHandler] = []
         self.message = MessageView()
         self.callback_query = CallbackQueryView()
         self.inline_query = InlineQueryView()
@@ -42,7 +46,7 @@ class Dispatch(ABCDispatch):
             assert view, f"View {view_name} is undefined in dispatch"
             yield view
 
-    def get_view(self, view_t: typing.Type[T], name: str) -> typing.Optional[T]:
+    def get_view(self, view_t: typing.Type[T], name: str) -> T | None:
         if name not in self.views:
             return None
         view = getattr(self, name)
@@ -85,3 +89,7 @@ class Dispatch(ABCDispatch):
     def mount(self, view_t: typing.Type["ABCView"], name: str):
         self.views.append(name)
         setattr(self, name, view_t)
+
+    @property
+    def patcher(self) -> Patcher:
+        return self.global_context["patcher"]

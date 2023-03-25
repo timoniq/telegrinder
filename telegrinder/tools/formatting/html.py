@@ -5,9 +5,7 @@ from telegrinder.tools.parse_mode import ParseMode
 QUOT_MARK = '"'
 
 
-def wrap_tag(
-    tag_name: str, content: str, data: typing.Optional[dict] = None
-) -> "HTMLFormatter":
+def wrap_tag(tag_name: str, content: str, data: dict | None = None) -> "HTMLFormatter":
     s = "<" + tag_name
     if data:
         for k, v in data.items():

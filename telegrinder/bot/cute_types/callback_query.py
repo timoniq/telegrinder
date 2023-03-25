@@ -2,7 +2,6 @@ from telegrinder.types import CallbackQuery, User
 from telegrinder.model import get_params
 from telegrinder.api import API, APIError
 from telegrinder.result import Result
-import typing
 
 
 class CallbackQueryCute(CallbackQuery):
@@ -18,10 +17,10 @@ class CallbackQueryCute(CallbackQuery):
 
     async def answer(
         self,
-        text: typing.Optional[str] = None,
-        show_alert: typing.Optional[bool] = None,
-        url: typing.Optional[str] = None,
-        cache_time: typing.Optional[int] = None,
+        text: str | None = None,
+        show_alert: bool | None = None,
+        url: str | None = None,
+        cache_time: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         params = get_params(locals())

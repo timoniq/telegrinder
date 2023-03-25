@@ -1,11 +1,11 @@
-from .abc import ABCMessageRule, Message
+from .abc import MessageRule, Message
 
 
-class IsPrivate(ABCMessageRule):
+class IsPrivate(MessageRule):
     async def check(self, message: Message, ctx: dict) -> bool:
         return message.chat.id > 0
 
 
-class IsChat(ABCMessageRule):
+class IsChat(MessageRule):
     async def check(self, message: Message, ctx: dict) -> bool:
         return message.chat.id < 0

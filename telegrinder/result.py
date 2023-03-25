@@ -5,13 +5,7 @@ E = typing.TypeVar("E")
 
 
 class Result(typing.Generic[T, E]):
-    def __init__(
-        self,
-        is_ok: bool,
-        *,
-        value: typing.Optional[T] = None,
-        error: typing.Optional[E] = None
-    ):
+    def __init__(self, is_ok: bool, *, value: T | None = None, error: E | None = None):
         self.is_ok = is_ok
         self.value = value
         self.error = error

@@ -10,6 +10,6 @@ from .dispatch import (
     ABCMiddleware,
 )
 from .bot import Telegrinder
-from .cute_types import MessageCute, CallbackQueryCute, InlineQueryCute
-from .rules import ABCRule, ABCMessageRule
+from .cute_types import MessageCute, CallbackQueryCute, InlineQueryCute, UpdateCute
+from .rules import ABCRule, MessageRule
 from .scenario import ABCScenario, Checkbox, SingleChoice
