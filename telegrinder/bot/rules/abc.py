@@ -45,6 +45,9 @@ class ABCRule(ABC, typing.Generic[T]):
     def __or__(self, other: "ABCRule"):
         return OrRule(self, other)
 
+    def __invert__(self):
+        return NotRule(self)
+
     def __repr__(self) -> str:
         return f"(rule {self.__class__.__name__})"
 
@@ -91,6 +94,28 @@ class OrRule(ABCRule):
         ctx.clear()
         ctx.update(ctx_copy)
         return found
+
+
+class NotRule(ABCRule):
+    def __init__(self, *rules: ABCRule):
+        self.rules = rules
+
+    async def check(self, event: Update, ctx: dict) -> bool:
+        ctx_copy = ctx.copy()
+
+        for rule in self.rules:
+            e = event
+            if rule.__event__:
+                event_dict = event.to_dict()
+                if rule.__event__.name not in event.to_dict().keys():
+                    continue
+                e = event_dict[rule.__event__.name]
+            if not await rule.run_check(e, ctx_copy):
+                return True
+
+        ctx.clear()
+        ctx.update(ctx_copy)
+        return False
 
 
 class ABCMessageRule(ABCRule, ABC, require=[]):
