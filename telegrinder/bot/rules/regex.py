@@ -2,13 +2,13 @@ import re
 import typing
 
 from .abc import Message
-from .text import ABCTextMessageRule
+from .text import TextMessageRule
 
-PatternLike = typing.Union[str, typing.Pattern]
+PatternLike = str | typing.Pattern
 
 
-class Regex(ABCTextMessageRule):
-    def __init__(self, regexp: typing.Union[PatternLike, typing.List[PatternLike]]):
+class Regex(TextMessageRule):
+    def __init__(self, regexp: PatternLike | list[PatternLike]):
         if isinstance(regexp, re.Pattern):
             regexp = [regexp]
         elif isinstance(regexp, str):

@@ -21,14 +21,14 @@ class MessageCute(Message):
 
     async def answer(
         self,
-        text: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        entities: typing.Optional[typing.List["MessageEntity"]] = None,
-        disable_web_page_preview: typing.Optional[bool] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
+        text: str | None = None,
+        parse_mode: str | None = None,
+        entities: list["MessageEntity"] | None = None,
+        disable_web_page_preview: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
         reply_markup: typing.Optional[
             typing.Union[
                 "InlineKeyboardMarkup",
@@ -46,13 +46,13 @@ class MessageCute(Message):
 
     async def reply(
         self,
-        text: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        entities: typing.Optional[typing.List["MessageEntity"]] = None,
-        disable_web_page_preview: typing.Optional[bool] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
+        text: str | None = None,
+        parse_mode: str | None = None,
+        entities: list["MessageEntity"] | None = None,
+        disable_web_page_preview: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        allow_sending_without_reply: bool | None = None,
         reply_markup: typing.Optional[
             typing.Union[
                 "InlineKeyboardMarkup",
@@ -80,11 +80,11 @@ class MessageCute(Message):
 
     async def edit(
         self,
-        text: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        entities: typing.Optional[typing.List[MessageEntity]] = None,
-        disable_web_page_preview: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        text: str | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        disable_web_page_preview: bool | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[Message | bool, APIError]:
         params = get_params(locals())

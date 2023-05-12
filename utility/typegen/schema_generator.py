@@ -21,7 +21,7 @@ SPACES = "    "
 NS = pathlib.Path("utility/typegen/nicification.py").read_text()
 
 
-def find_nicifications(name: str) -> typing.List[str]:
+def find_nicifications(name: str) -> list[str]:
     regex = r"class .+\(" + name + r"\):\n((?:.|\n {4}|\n$)+)"
     matches = list(re.finditer(regex, NS, flags=re.MULTILINE))
     if matches:
@@ -60,7 +60,7 @@ def convert_type(name: str, d: dict, obj: dict, forward_ref: bool = True) -> str
             return TYPES[t]
         elif t == "array":
             nt = convert_type("", d["items"], obj, forward_ref)
-            return "typing.List[" + nt + "]"
+            return "list[" + nt + "]"
         else:
             if "." in t:
                 t = t.split(".")[-1]
@@ -149,7 +149,7 @@ def parse_response(rt: str):
     return f"return full_result(result, {rt})"
 
 
-def get_ref_names(ref_list: typing.List[dict]) -> typing.List[str]:
+def get_ref_names(ref_list: list[dict]) -> typing.List[str]:
     return [d["$ref"].split("/")[-1] for d in ref_list]
 
 
@@ -234,7 +234,7 @@ def generate(path: str, schema_url: str = URL) -> None:
         lines.append(f"async def {name}(\n        self,\n")
         for n, prop in props.items():
             t = convert_type("", prop, {}, False)
-            lines.append(SPACES + f"{n}: typing.Optional[{t}] = None,\n")
+            lines.append(SPACES + f"{n}: {t} | None = None,\n")
         lines.append(SPACES + "**other\n")
         lines.append(f") -> Result[{response}, APIError]:\n")
         lines.extend(

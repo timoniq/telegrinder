@@ -14,14 +14,16 @@ import typing
 class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
     def __init__(self):
         self.auto_rules: list[ABCRule] = []
-        self.handlers: typing.List[ABCHandler[InlineQueryCute]] = []
-        self.middlewares: typing.List[ABCMiddleware[InlineQueryCute]] = []
-        self.short_waiters: typing.Dict[str, Waiter] = {}
+        self.handlers: list[ABCHandler[InlineQueryCute]] = []
+        self.middlewares: list[ABCMiddleware[InlineQueryCute]] = []
+        self.short_waiters: dict[str, Waiter] = {}
 
     def __call__(self, *rules: ABCRule, is_blocking: bool = True):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):
             self.handlers.append(
-                FuncHandler(func, [*self.auto_rules, *rules], is_blocking, dataclass=None)
+                FuncHandler(
+                    func, [*self.auto_rules, *rules], is_blocking, dataclass=None
+                )
             )
             return func
 
@@ -39,7 +41,7 @@ class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
         query = InlineQueryCute(**event.inline_query.to_dict(), api=api)
 
         if await process_waiters(
-            self.short_waiters, query.id, query, event, query.answer
+            api, self.short_waiters, query.id, query, event, query.answer
         ):
             return
 

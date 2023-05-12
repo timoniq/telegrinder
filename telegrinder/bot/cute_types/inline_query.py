@@ -1,7 +1,6 @@
 from telegrinder.types import InlineQuery, User
 from telegrinder.api import API, APIError
 from telegrinder.result import Result
-import typing
 
 
 class InlineQueryCute(InlineQuery):
@@ -17,12 +16,12 @@ class InlineQueryCute(InlineQuery):
 
     async def answer(
         self,
-        results: typing.Optional[list] = None,
-        cache_time: typing.Optional[int] = None,
-        is_personal: typing.Optional[bool] = None,
-        next_offset: typing.Optional[str] = None,
-        switch_pm_text: typing.Optional[str] = None,
-        switch_pm_parameter: typing.Optional[str] = None,
+        results: list | None = None,
+        cache_time: int | None = None,
+        is_personal: bool | None = None,
+        next_offset: str | None = None,
+        switch_pm_text: str | None = None,
+        switch_pm_parameter: str | None = None,
     ) -> Result[bool, APIError]:
         return await self.ctx_api.answer_inline_query(
             self.id,

@@ -29,15 +29,15 @@ class ABCAPI(ABC):
     async def request(
         self,
         method: str,
-        data: typing.Optional[dict] = None,
-    ) -> Result[typing.Union[list, dict, bool], APIError]:
+        data: dict | None = None,
+    ) -> Result[list | dict | bool, APIError]:
         pass
 
     @abstractmethod
     async def request_raw(
         self,
         method: str,
-        data: typing.Optional[dict] = None,
+        data: dict | None = None,
     ) -> Result[msgspec.Raw, APIError]:
         pass
 

@@ -19,7 +19,7 @@ def compose_data(client: ABCClient, data: dict) -> typing.Any:
 class API(ABCAPI, APIMethods):
     API_URL = "https://api.telegram.org/"
 
-    def __init__(self, token: Token, http: typing.Optional[ABCClient] = None):
+    def __init__(self, token: Token, http: ABCClient | None = None):
         self.token = token
         self.http = http or AiohttpClient()
         super().__init__(self)
@@ -35,8 +35,8 @@ class API(ABCAPI, APIMethods):
     async def request(
         self,
         method: str,
-        data: typing.Optional[dict] = None,
-    ) -> Result[typing.Union[dict, list, bool], APIError]:
+        data: dict | None = None,
+    ) -> Result[dict | list | bool, APIError]:
         data = compose_data(self.http, data)
         response = await self.http.request_json(self.request_url + method, data=data)
         if response.get("ok"):
@@ -49,7 +49,7 @@ class API(ABCAPI, APIMethods):
     async def request_raw(
         self,
         method: str,
-        data: typing.Optional[dict] = None,
+        data: dict | None = None,
     ) -> Result[msgspec.Raw, APIError]:
         data = compose_data(self.http, data)
         response_bytes = await self.http.request_bytes(

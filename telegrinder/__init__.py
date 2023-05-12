@@ -5,7 +5,7 @@ from .bot import (
     Polling,
     ABCDispatch,
     ABCRule,
-    ABCMessageRule,
+    MessageRule,
     Dispatch,
     Telegrinder,
     ABCView,

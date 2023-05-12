@@ -40,7 +40,7 @@ class KeyboardSetYAML(KeyboardSetBase):
                 )
 
             buttons = kb_config.pop("buttons")
-            new_keyboard: typing.Union[Keyboard, InlineKeyboard] = hint(**kb_config)
+            new_keyboard: Keyboard | InlineKeyboard = hint(**kb_config)
 
             for button in buttons:
                 if not button:

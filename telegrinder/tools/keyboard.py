@@ -7,7 +7,7 @@ from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup
 from .buttons import Button, InlineButton, ABCButton
 
 
-AnyMarkup = typing.Union[InlineKeyboardMarkup, ReplyKeyboardMarkup]
+AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
 
 @dataclass

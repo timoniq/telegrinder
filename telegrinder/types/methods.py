@@ -15,31 +15,31 @@ class APIMethods:
 
     async def get_updates(
         self,
-        offset: typing.Optional[int] = None,
-        limit: typing.Optional[int] = None,
-        timeout: typing.Optional[int] = None,
-        allowed_updates: typing.Optional[typing.List[str]] = None,
+        offset: int | None = None,
+        limit: int | None = None,
+        timeout: int | None = None,
+        allowed_updates: list[str] | None = None,
         **other
-    ) -> Result[typing.List[Update], APIError]:
+    ) -> Result[list[Update], APIError]:
         result = await self.api.request_raw("getUpdates", get_params(locals()))
-        return full_result(result, typing.List[Update])
+        return full_result(result, list[Update])
 
     async def set_webhook(
         self,
-        url: typing.Optional[str] = None,
-        certificate: typing.Optional[InputFile] = None,
-        ip_address: typing.Optional[str] = None,
-        max_connections: typing.Optional[int] = None,
-        allowed_updates: typing.Optional[typing.List[str]] = None,
-        drop_pending_updates: typing.Optional[bool] = None,
-        secret_token: typing.Optional[str] = None,
+        url: str | None = None,
+        certificate: InputFile | None = None,
+        ip_address: str | None = None,
+        max_connections: int | None = None,
+        allowed_updates: list[str] | None = None,
+        drop_pending_updates: bool | None = None,
+        secret_token: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setWebhook", get_params(locals()))
         return full_result(result, bool)
 
     async def delete_webhook(
-        self, drop_pending_updates: typing.Optional[bool] = None, **other
+        self, drop_pending_updates: bool | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("deleteWebhook", get_params(locals()))
         return full_result(result, bool)
@@ -62,24 +62,20 @@ class APIMethods:
 
     async def send_message(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        text: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        entities: typing.Optional[typing.List[MessageEntity]] = None,
-        disable_web_page_preview: typing.Optional[bool] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        text: str | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        disable_web_page_preview: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendMessage", get_params(locals()))
@@ -87,12 +83,12 @@ class APIMethods:
 
     async def forward_message(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        from_chat_id: typing.Optional[typing.Union[int, str]] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        message_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        from_chat_id: typing.Union[int, str] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        message_id: int | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("forwardMessage", get_params(locals()))
@@ -100,25 +96,21 @@ class APIMethods:
 
     async def copy_message(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        from_chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        caption: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        from_chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[MessageId, APIError]:
         result = await self.api.request_raw("copyMessage", get_params(locals()))
@@ -126,25 +118,21 @@ class APIMethods:
 
     async def send_photo(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        photo: typing.Optional[typing.Union[InputFile, str]] = None,
-        caption: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
-        has_spoiler: typing.Optional[bool] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        photo: typing.Union[InputFile, str] | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        has_spoiler: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendPhoto", get_params(locals()))
@@ -152,28 +140,24 @@ class APIMethods:
 
     async def send_audio(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        audio: typing.Optional[typing.Union[InputFile, str]] = None,
-        caption: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
-        duration: typing.Optional[int] = None,
-        performer: typing.Optional[str] = None,
-        title: typing.Optional[str] = None,
-        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        audio: typing.Union[InputFile, str] | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        performer: str | None = None,
+        title: str | None = None,
+        thumbnail: typing.Union[InputFile, str] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendAudio", get_params(locals()))
@@ -181,26 +165,22 @@ class APIMethods:
 
     async def send_document(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        document: typing.Optional[typing.Union[InputFile, str]] = None,
-        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
-        caption: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
-        disable_content_type_detection: typing.Optional[bool] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        document: typing.Union[InputFile, str] | None = None,
+        thumbnail: typing.Union[InputFile, str] | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_content_type_detection: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendDocument", get_params(locals()))
@@ -208,30 +188,26 @@ class APIMethods:
 
     async def send_video(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        video: typing.Optional[typing.Union[InputFile, str]] = None,
-        duration: typing.Optional[int] = None,
-        width: typing.Optional[int] = None,
-        height: typing.Optional[int] = None,
-        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
-        caption: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
-        has_spoiler: typing.Optional[bool] = None,
-        supports_streaming: typing.Optional[bool] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        video: typing.Union[InputFile, str] | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: typing.Union[InputFile, str] | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        has_spoiler: bool | None = None,
+        supports_streaming: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendVideo", get_params(locals()))
@@ -239,29 +215,25 @@ class APIMethods:
 
     async def send_animation(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        animation: typing.Optional[typing.Union[InputFile, str]] = None,
-        duration: typing.Optional[int] = None,
-        width: typing.Optional[int] = None,
-        height: typing.Optional[int] = None,
-        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
-        caption: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
-        has_spoiler: typing.Optional[bool] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        animation: typing.Union[InputFile, str] | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: typing.Union[InputFile, str] | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        has_spoiler: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendAnimation", get_params(locals()))
@@ -269,25 +241,21 @@ class APIMethods:
 
     async def send_voice(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        voice: typing.Optional[typing.Union[InputFile, str]] = None,
-        caption: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
-        duration: typing.Optional[int] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        voice: typing.Union[InputFile, str] | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendVoice", get_params(locals()))
@@ -295,24 +263,20 @@ class APIMethods:
 
     async def send_video_note(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        video_note: typing.Optional[typing.Union[InputFile, str]] = None,
-        duration: typing.Optional[int] = None,
-        length: typing.Optional[int] = None,
-        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        video_note: typing.Union[InputFile, str] | None = None,
+        duration: int | None = None,
+        length: int | None = None,
+        thumbnail: typing.Union[InputFile, str] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendVideoNote", get_params(locals()))
@@ -320,49 +284,41 @@ class APIMethods:
 
     async def send_media_group(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        media: typing.Optional[
-            typing.List[
-                typing.Union[
-                    InputMediaAudio,
-                    InputMediaDocument,
-                    InputMediaPhoto,
-                    InputMediaVideo,
-                ]
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        media: list[
+            typing.Union[
+                InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo
             ]
-        ] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
+        ]
+        | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
         **other
-    ) -> Result[typing.List[Message], APIError]:
+    ) -> Result[list[Message], APIError]:
         result = await self.api.request_raw("sendMediaGroup", get_params(locals()))
-        return full_result(result, typing.List[Message])
+        return full_result(result, list[Message])
 
     async def send_location(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        latitude: typing.Optional[float] = None,
-        longitude: typing.Optional[float] = None,
-        horizontal_accuracy: typing.Optional[float] = None,
-        live_period: typing.Optional[int] = None,
-        heading: typing.Optional[int] = None,
-        proximity_alert_radius: typing.Optional[int] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        latitude: float | None = None,
+        longitude: float | None = None,
+        horizontal_accuracy: float | None = None,
+        live_period: int | None = None,
+        heading: int | None = None,
+        proximity_alert_radius: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendLocation", get_params(locals()))
@@ -370,28 +326,24 @@ class APIMethods:
 
     async def send_venue(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        latitude: typing.Optional[float] = None,
-        longitude: typing.Optional[float] = None,
-        title: typing.Optional[str] = None,
-        address: typing.Optional[str] = None,
-        foursquare_id: typing.Optional[str] = None,
-        foursquare_type: typing.Optional[str] = None,
-        google_place_id: typing.Optional[str] = None,
-        google_place_type: typing.Optional[str] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        latitude: float | None = None,
+        longitude: float | None = None,
+        title: str | None = None,
+        address: str | None = None,
+        foursquare_id: str | None = None,
+        foursquare_type: str | None = None,
+        google_place_id: str | None = None,
+        google_place_type: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendVenue", get_params(locals()))
@@ -399,24 +351,20 @@ class APIMethods:
 
     async def send_contact(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        phone_number: typing.Optional[str] = None,
-        first_name: typing.Optional[str] = None,
-        last_name: typing.Optional[str] = None,
-        vcard: typing.Optional[str] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        phone_number: str | None = None,
+        first_name: str | None = None,
+        last_name: str | None = None,
+        vcard: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendContact", get_params(locals()))
@@ -424,32 +372,28 @@ class APIMethods:
 
     async def send_poll(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        question: typing.Optional[str] = None,
-        options: typing.Optional[typing.List[str]] = None,
-        is_anonymous: typing.Optional[bool] = None,
-        type: typing.Optional[str] = None,
-        allows_multiple_answers: typing.Optional[bool] = None,
-        correct_option_id: typing.Optional[int] = None,
-        explanation: typing.Optional[str] = None,
-        explanation_parse_mode: typing.Optional[str] = None,
-        explanation_entities: typing.Optional[typing.List[MessageEntity]] = None,
-        open_period: typing.Optional[int] = None,
-        close_date: typing.Optional[int] = None,
-        is_closed: typing.Optional[bool] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        question: str | None = None,
+        options: list[str] | None = None,
+        is_anonymous: bool | None = None,
+        type: str | None = None,
+        allows_multiple_answers: bool | None = None,
+        correct_option_id: int | None = None,
+        explanation: str | None = None,
+        explanation_parse_mode: str | None = None,
+        explanation_entities: list[MessageEntity] | None = None,
+        open_period: int | None = None,
+        close_date: int | None = None,
+        is_closed: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendPoll", get_params(locals()))
@@ -457,21 +401,17 @@ class APIMethods:
 
     async def send_dice(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        emoji: typing.Optional[str] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        emoji: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendDice", get_params(locals()))
@@ -479,9 +419,9 @@ class APIMethods:
 
     async def send_chat_action(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        action: typing.Optional[str] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        action: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("sendChatAction", get_params(locals()))
@@ -489,9 +429,9 @@ class APIMethods:
 
     async def get_user_profile_photos(
         self,
-        user_id: typing.Optional[int] = None,
-        offset: typing.Optional[int] = None,
-        limit: typing.Optional[int] = None,
+        user_id: int | None = None,
+        offset: int | None = None,
+        limit: int | None = None,
         **other
     ) -> Result[UserProfilePhotos, APIError]:
         result = await self.api.request_raw(
@@ -500,17 +440,17 @@ class APIMethods:
         return full_result(result, UserProfilePhotos)
 
     async def get_file(
-        self, file_id: typing.Optional[str] = None, **other
+        self, file_id: str | None = None, **other
     ) -> Result[File, APIError]:
         result = await self.api.request_raw("getFile", get_params(locals()))
         return full_result(result, File)
 
     async def ban_chat_member(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        user_id: typing.Optional[int] = None,
-        until_date: typing.Optional[int] = None,
-        revoke_messages: typing.Optional[bool] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        user_id: int | None = None,
+        until_date: int | None = None,
+        revoke_messages: bool | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("banChatMember", get_params(locals()))
@@ -518,9 +458,9 @@ class APIMethods:
 
     async def unban_chat_member(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        user_id: typing.Optional[int] = None,
-        only_if_banned: typing.Optional[bool] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        user_id: int | None = None,
+        only_if_banned: bool | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("unbanChatMember", get_params(locals()))
@@ -528,11 +468,11 @@ class APIMethods:
 
     async def restrict_chat_member(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        user_id: typing.Optional[int] = None,
-        permissions: typing.Optional[ChatPermissions] = None,
-        use_independent_chat_permissions: typing.Optional[bool] = None,
-        until_date: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        user_id: int | None = None,
+        permissions: ChatPermissions | None = None,
+        use_independent_chat_permissions: bool | None = None,
+        until_date: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("restrictChatMember", get_params(locals()))
@@ -540,20 +480,20 @@ class APIMethods:
 
     async def promote_chat_member(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        user_id: typing.Optional[int] = None,
-        is_anonymous: typing.Optional[bool] = None,
-        can_manage_chat: typing.Optional[bool] = None,
-        can_post_messages: typing.Optional[bool] = None,
-        can_edit_messages: typing.Optional[bool] = None,
-        can_delete_messages: typing.Optional[bool] = None,
-        can_manage_video_chats: typing.Optional[bool] = None,
-        can_restrict_members: typing.Optional[bool] = None,
-        can_promote_members: typing.Optional[bool] = None,
-        can_change_info: typing.Optional[bool] = None,
-        can_invite_users: typing.Optional[bool] = None,
-        can_pin_messages: typing.Optional[bool] = None,
-        can_manage_topics: typing.Optional[bool] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        user_id: int | None = None,
+        is_anonymous: bool | None = None,
+        can_manage_chat: bool | None = None,
+        can_post_messages: bool | None = None,
+        can_edit_messages: bool | None = None,
+        can_delete_messages: bool | None = None,
+        can_manage_video_chats: bool | None = None,
+        can_restrict_members: bool | None = None,
+        can_promote_members: bool | None = None,
+        can_change_info: bool | None = None,
+        can_invite_users: bool | None = None,
+        can_pin_messages: bool | None = None,
+        can_manage_topics: bool | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("promoteChatMember", get_params(locals()))
@@ -561,9 +501,9 @@ class APIMethods:
 
     async def set_chat_administrator_custom_title(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        user_id: typing.Optional[int] = None,
-        custom_title: typing.Optional[str] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        user_id: int | None = None,
+        custom_title: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -573,8 +513,8 @@ class APIMethods:
 
     async def ban_chat_sender_chat(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        sender_chat_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        sender_chat_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("banChatSenderChat", get_params(locals()))
@@ -582,8 +522,8 @@ class APIMethods:
 
     async def unban_chat_sender_chat(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        sender_chat_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        sender_chat_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("unbanChatSenderChat", get_params(locals()))
@@ -591,16 +531,16 @@ class APIMethods:
 
     async def set_chat_permissions(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        permissions: typing.Optional[ChatPermissions] = None,
-        use_independent_chat_permissions: typing.Optional[bool] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        permissions: ChatPermissions | None = None,
+        use_independent_chat_permissions: bool | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setChatPermissions", get_params(locals()))
         return full_result(result, bool)
 
     async def export_chat_invite_link(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[str, APIError]:
         result = await self.api.request_raw(
             "exportChatInviteLink", get_params(locals())
@@ -609,11 +549,11 @@ class APIMethods:
 
     async def create_chat_invite_link(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        name: typing.Optional[str] = None,
-        expire_date: typing.Optional[int] = None,
-        member_limit: typing.Optional[int] = None,
-        creates_join_request: typing.Optional[bool] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        name: str | None = None,
+        expire_date: int | None = None,
+        member_limit: int | None = None,
+        creates_join_request: bool | None = None,
         **other
     ) -> Result[ChatInviteLink, APIError]:
         result = await self.api.request_raw(
@@ -623,12 +563,12 @@ class APIMethods:
 
     async def edit_chat_invite_link(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        invite_link: typing.Optional[str] = None,
-        name: typing.Optional[str] = None,
-        expire_date: typing.Optional[int] = None,
-        member_limit: typing.Optional[int] = None,
-        creates_join_request: typing.Optional[bool] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        invite_link: str | None = None,
+        name: str | None = None,
+        expire_date: int | None = None,
+        member_limit: int | None = None,
+        creates_join_request: bool | None = None,
         **other
     ) -> Result[ChatInviteLink, APIError]:
         result = await self.api.request_raw("editChatInviteLink", get_params(locals()))
@@ -636,8 +576,8 @@ class APIMethods:
 
     async def revoke_chat_invite_link(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        invite_link: typing.Optional[str] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        invite_link: str | None = None,
         **other
     ) -> Result[ChatInviteLink, APIError]:
         result = await self.api.request_raw(
@@ -647,8 +587,8 @@ class APIMethods:
 
     async def approve_chat_join_request(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        user_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        user_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -658,8 +598,8 @@ class APIMethods:
 
     async def decline_chat_join_request(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        user_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        user_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -669,23 +609,23 @@ class APIMethods:
 
     async def set_chat_photo(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        photo: typing.Optional[InputFile] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        photo: InputFile | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setChatPhoto", get_params(locals()))
         return full_result(result, bool)
 
     async def delete_chat_photo(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("deleteChatPhoto", get_params(locals()))
         return full_result(result, bool)
 
     async def set_chat_title(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        title: typing.Optional[str] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        title: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setChatTitle", get_params(locals()))
@@ -693,8 +633,8 @@ class APIMethods:
 
     async def set_chat_description(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        description: typing.Optional[str] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        description: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setChatDescription", get_params(locals()))
@@ -702,9 +642,9 @@ class APIMethods:
 
     async def pin_chat_message(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        disable_notification: typing.Optional[bool] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
+        disable_notification: bool | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("pinChatMessage", get_params(locals()))
@@ -712,15 +652,15 @@ class APIMethods:
 
     async def unpin_chat_message(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("unpinChatMessage", get_params(locals()))
         return full_result(result, bool)
 
     async def unpin_all_chat_messages(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "unpinAllChatMessages", get_params(locals())
@@ -728,35 +668,35 @@ class APIMethods:
         return full_result(result, bool)
 
     async def leave_chat(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("leaveChat", get_params(locals()))
         return full_result(result, bool)
 
     async def get_chat(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[Chat, APIError]:
         result = await self.api.request_raw("getChat", get_params(locals()))
         return full_result(result, Chat)
 
     async def get_chat_administrators(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
-    ) -> Result[typing.List[ChatMember], APIError]:
+        self, chat_id: typing.Union[int, str] | None = None, **other
+    ) -> Result[list[ChatMember], APIError]:
         result = await self.api.request_raw(
             "getChatAdministrators", get_params(locals())
         )
-        return full_result(result, typing.List[ChatMember])
+        return full_result(result, list[ChatMember])
 
     async def get_chat_member_count(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[int, APIError]:
         result = await self.api.request_raw("getChatMemberCount", get_params(locals()))
         return full_result(result, int)
 
     async def get_chat_member(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        user_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        user_id: int | None = None,
         **other
     ) -> Result[ChatMember, APIError]:
         result = await self.api.request_raw("getChatMember", get_params(locals()))
@@ -764,15 +704,15 @@ class APIMethods:
 
     async def set_chat_sticker_set(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        sticker_set_name: typing.Optional[str] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        sticker_set_name: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setChatStickerSet", get_params(locals()))
         return full_result(result, bool)
 
     async def delete_chat_sticker_set(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "deleteChatStickerSet", get_params(locals())
@@ -781,18 +721,18 @@ class APIMethods:
 
     async def get_forum_topic_icon_stickers(
         self, **other
-    ) -> Result[typing.List[Sticker], APIError]:
+    ) -> Result[list[Sticker], APIError]:
         result = await self.api.request_raw(
             "getForumTopicIconStickers", get_params(locals())
         )
-        return full_result(result, typing.List[Sticker])
+        return full_result(result, list[Sticker])
 
     async def create_forum_topic(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        name: typing.Optional[str] = None,
-        icon_color: typing.Optional[int] = None,
-        icon_custom_emoji_id: typing.Optional[str] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        name: str | None = None,
+        icon_color: int | None = None,
+        icon_custom_emoji_id: str | None = None,
         **other
     ) -> Result[ForumTopic, APIError]:
         result = await self.api.request_raw("createForumTopic", get_params(locals()))
@@ -800,10 +740,10 @@ class APIMethods:
 
     async def edit_forum_topic(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        name: typing.Optional[str] = None,
-        icon_custom_emoji_id: typing.Optional[str] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        name: str | None = None,
+        icon_custom_emoji_id: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("editForumTopic", get_params(locals()))
@@ -811,8 +751,8 @@ class APIMethods:
 
     async def close_forum_topic(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("closeForumTopic", get_params(locals()))
@@ -820,8 +760,8 @@ class APIMethods:
 
     async def reopen_forum_topic(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("reopenForumTopic", get_params(locals()))
@@ -829,8 +769,8 @@ class APIMethods:
 
     async def delete_forum_topic(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("deleteForumTopic", get_params(locals()))
@@ -838,8 +778,8 @@ class APIMethods:
 
     async def unpin_all_forum_topic_messages(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -849,8 +789,8 @@ class APIMethods:
 
     async def edit_general_forum_topic(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        name: typing.Optional[str] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        name: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -859,7 +799,7 @@ class APIMethods:
         return full_result(result, bool)
 
     async def close_general_forum_topic(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "closeGeneralForumTopic", get_params(locals())
@@ -867,7 +807,7 @@ class APIMethods:
         return full_result(result, bool)
 
     async def reopen_general_forum_topic(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "reopenGeneralForumTopic", get_params(locals())
@@ -875,7 +815,7 @@ class APIMethods:
         return full_result(result, bool)
 
     async def hide_general_forum_topic(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "hideGeneralForumTopic", get_params(locals())
@@ -883,7 +823,7 @@ class APIMethods:
         return full_result(result, bool)
 
     async def unhide_general_forum_topic(
-        self, chat_id: typing.Optional[typing.Union[int, str]] = None, **other
+        self, chat_id: typing.Union[int, str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "unhideGeneralForumTopic", get_params(locals())
@@ -892,11 +832,11 @@ class APIMethods:
 
     async def answer_callback_query(
         self,
-        callback_query_id: typing.Optional[str] = None,
-        text: typing.Optional[str] = None,
-        show_alert: typing.Optional[bool] = None,
-        url: typing.Optional[str] = None,
-        cache_time: typing.Optional[int] = None,
+        callback_query_id: str | None = None,
+        text: str | None = None,
+        show_alert: bool | None = None,
+        url: str | None = None,
+        cache_time: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("answerCallbackQuery", get_params(locals()))
@@ -904,9 +844,9 @@ class APIMethods:
 
     async def set_my_commands(
         self,
-        commands: typing.Optional[typing.List[BotCommand]] = None,
-        scope: typing.Optional[BotCommandScope] = None,
-        language_code: typing.Optional[str] = None,
+        commands: list[BotCommand] | None = None,
+        scope: BotCommandScope | None = None,
+        language_code: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setMyCommands", get_params(locals()))
@@ -914,8 +854,8 @@ class APIMethods:
 
     async def delete_my_commands(
         self,
-        scope: typing.Optional[BotCommandScope] = None,
-        language_code: typing.Optional[str] = None,
+        scope: BotCommandScope | None = None,
+        language_code: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("deleteMyCommands", get_params(locals()))
@@ -923,32 +863,29 @@ class APIMethods:
 
     async def get_my_commands(
         self,
-        scope: typing.Optional[BotCommandScope] = None,
-        language_code: typing.Optional[str] = None,
+        scope: BotCommandScope | None = None,
+        language_code: str | None = None,
         **other
-    ) -> Result[typing.List[BotCommand], APIError]:
+    ) -> Result[list[BotCommand], APIError]:
         result = await self.api.request_raw("getMyCommands", get_params(locals()))
-        return full_result(result, typing.List[BotCommand])
+        return full_result(result, list[BotCommand])
 
     async def set_my_description(
-        self,
-        description: typing.Optional[str] = None,
-        language_code: typing.Optional[str] = None,
-        **other
+        self, description: str | None = None, language_code: str | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setMyDescription", get_params(locals()))
         return full_result(result, bool)
 
     async def get_my_description(
-        self, language_code: typing.Optional[str] = None, **other
+        self, language_code: str | None = None, **other
     ) -> Result[BotDescription, APIError]:
         result = await self.api.request_raw("getMyDescription", get_params(locals()))
         return full_result(result, BotDescription)
 
     async def set_my_short_description(
         self,
-        short_description: typing.Optional[str] = None,
-        language_code: typing.Optional[str] = None,
+        short_description: str | None = None,
+        language_code: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -957,7 +894,7 @@ class APIMethods:
         return full_result(result, bool)
 
     async def get_my_short_description(
-        self, language_code: typing.Optional[str] = None, **other
+        self, language_code: str | None = None, **other
     ) -> Result[BotShortDescription, APIError]:
         result = await self.api.request_raw(
             "getMyShortDescription", get_params(locals())
@@ -965,24 +902,21 @@ class APIMethods:
         return full_result(result, BotShortDescription)
 
     async def set_chat_menu_button(
-        self,
-        chat_id: typing.Optional[int] = None,
-        menu_button: typing.Optional[MenuButton] = None,
-        **other
+        self, chat_id: int | None = None, menu_button: MenuButton | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setChatMenuButton", get_params(locals()))
         return full_result(result, bool)
 
     async def get_chat_menu_button(
-        self, chat_id: typing.Optional[int] = None, **other
+        self, chat_id: int | None = None, **other
     ) -> Result[MenuButton, APIError]:
         result = await self.api.request_raw("getChatMenuButton", get_params(locals()))
         return full_result(result, MenuButton)
 
     async def set_my_default_administrator_rights(
         self,
-        rights: typing.Optional[ChatAdministratorRights] = None,
-        for_channels: typing.Optional[bool] = None,
+        rights: ChatAdministratorRights | None = None,
+        for_channels: bool | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -991,7 +925,7 @@ class APIMethods:
         return full_result(result, bool)
 
     async def get_my_default_administrator_rights(
-        self, for_channels: typing.Optional[bool] = None, **other
+        self, for_channels: bool | None = None, **other
     ) -> Result[ChatAdministratorRights, APIError]:
         result = await self.api.request_raw(
             "getMyDefaultAdministratorRights", get_params(locals())
@@ -1000,14 +934,14 @@ class APIMethods:
 
     async def edit_message_text(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
-        text: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        entities: typing.Optional[typing.List[MessageEntity]] = None,
-        disable_web_page_preview: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        text: str | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        disable_web_page_preview: bool | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw("editMessageText", get_params(locals()))
@@ -1015,13 +949,13 @@ class APIMethods:
 
     async def edit_message_caption(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
-        caption: typing.Optional[str] = None,
-        parse_mode: typing.Optional[str] = None,
-        caption_entities: typing.Optional[typing.List[MessageEntity]] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw("editMessageCaption", get_params(locals()))
@@ -1029,11 +963,11 @@ class APIMethods:
 
     async def edit_message_media(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
-        media: typing.Optional[InputMedia] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        media: InputMedia | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw("editMessageMedia", get_params(locals()))
@@ -1041,15 +975,15 @@ class APIMethods:
 
     async def edit_message_live_location(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
-        latitude: typing.Optional[float] = None,
-        longitude: typing.Optional[float] = None,
-        horizontal_accuracy: typing.Optional[float] = None,
-        heading: typing.Optional[int] = None,
-        proximity_alert_radius: typing.Optional[int] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        latitude: float | None = None,
+        longitude: float | None = None,
+        horizontal_accuracy: float | None = None,
+        heading: int | None = None,
+        proximity_alert_radius: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw(
@@ -1059,10 +993,10 @@ class APIMethods:
 
     async def stop_message_live_location(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw(
@@ -1072,10 +1006,10 @@ class APIMethods:
 
     async def edit_message_reply_markup(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw(
@@ -1085,9 +1019,9 @@ class APIMethods:
 
     async def stop_poll(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[Poll, APIError]:
         result = await self.api.request_raw("stopPoll", get_params(locals()))
@@ -1095,8 +1029,8 @@ class APIMethods:
 
     async def delete_message(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_id: typing.Optional[int] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_id: int | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("deleteMessage", get_params(locals()))
@@ -1104,46 +1038,42 @@ class APIMethods:
 
     async def send_sticker(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        sticker: typing.Optional[typing.Union[InputFile, str]] = None,
-        emoji: typing.Optional[str] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[
-            typing.Union[
-                InlineKeyboardMarkup,
-                ReplyKeyboardMarkup,
-                ReplyKeyboardRemove,
-                ForceReply,
-            ]
-        ] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        sticker: typing.Union[InputFile, str] | None = None,
+        emoji: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: typing.Union[
+            InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply
+        ]
+        | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendSticker", get_params(locals()))
         return full_result(result, Message)
 
     async def get_sticker_set(
-        self, name: typing.Optional[str] = None, **other
+        self, name: str | None = None, **other
     ) -> Result[StickerSet, APIError]:
         result = await self.api.request_raw("getStickerSet", get_params(locals()))
         return full_result(result, StickerSet)
 
     async def get_custom_emoji_stickers(
-        self, custom_emoji_ids: typing.Optional[typing.List[str]] = None, **other
-    ) -> Result[typing.List[Sticker], APIError]:
+        self, custom_emoji_ids: list[str] | None = None, **other
+    ) -> Result[list[Sticker], APIError]:
         result = await self.api.request_raw(
             "getCustomEmojiStickers", get_params(locals())
         )
-        return full_result(result, typing.List[Sticker])
+        return full_result(result, list[Sticker])
 
     async def upload_sticker_file(
         self,
-        user_id: typing.Optional[int] = None,
-        sticker: typing.Optional[InputFile] = None,
-        sticker_format: typing.Optional[str] = None,
+        user_id: int | None = None,
+        sticker: InputFile | None = None,
+        sticker_format: str | None = None,
         **other
     ) -> Result[File, APIError]:
         result = await self.api.request_raw("uploadStickerFile", get_params(locals()))
@@ -1151,13 +1081,13 @@ class APIMethods:
 
     async def create_new_sticker_set(
         self,
-        user_id: typing.Optional[int] = None,
-        name: typing.Optional[str] = None,
-        title: typing.Optional[str] = None,
-        stickers: typing.Optional[typing.List[InputSticker]] = None,
-        sticker_format: typing.Optional[str] = None,
-        sticker_type: typing.Optional[str] = None,
-        needs_repainting: typing.Optional[bool] = None,
+        user_id: int | None = None,
+        name: str | None = None,
+        title: str | None = None,
+        stickers: list[InputSticker] | None = None,
+        sticker_format: str | None = None,
+        sticker_type: str | None = None,
+        needs_repainting: bool | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("createNewStickerSet", get_params(locals()))
@@ -1165,19 +1095,16 @@ class APIMethods:
 
     async def add_sticker_to_set(
         self,
-        user_id: typing.Optional[int] = None,
-        name: typing.Optional[str] = None,
-        sticker: typing.Optional[InputSticker] = None,
+        user_id: int | None = None,
+        name: str | None = None,
+        sticker: InputSticker | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("addStickerToSet", get_params(locals()))
         return full_result(result, bool)
 
     async def set_sticker_position_in_set(
-        self,
-        sticker: typing.Optional[str] = None,
-        position: typing.Optional[int] = None,
-        **other
+        self, sticker: str | None = None, position: int | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "setStickerPositionInSet", get_params(locals())
@@ -1185,7 +1112,7 @@ class APIMethods:
         return full_result(result, bool)
 
     async def delete_sticker_from_set(
-        self, sticker: typing.Optional[str] = None, **other
+        self, sticker: str | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "deleteStickerFromSet", get_params(locals())
@@ -1193,27 +1120,21 @@ class APIMethods:
         return full_result(result, bool)
 
     async def set_sticker_emoji_list(
-        self,
-        sticker: typing.Optional[str] = None,
-        emoji_list: typing.Optional[typing.List[str]] = None,
-        **other
+        self, sticker: str | None = None, emoji_list: list[str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setStickerEmojiList", get_params(locals()))
         return full_result(result, bool)
 
     async def set_sticker_keywords(
-        self,
-        sticker: typing.Optional[str] = None,
-        keywords: typing.Optional[typing.List[str]] = None,
-        **other
+        self, sticker: str | None = None, keywords: list[str] | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setStickerKeywords", get_params(locals()))
         return full_result(result, bool)
 
     async def set_sticker_mask_position(
         self,
-        sticker: typing.Optional[str] = None,
-        mask_position: typing.Optional[MaskPosition] = None,
+        sticker: str | None = None,
+        mask_position: MaskPosition | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -1222,19 +1143,16 @@ class APIMethods:
         return full_result(result, bool)
 
     async def set_sticker_set_title(
-        self,
-        name: typing.Optional[str] = None,
-        title: typing.Optional[str] = None,
-        **other
+        self, name: str | None = None, title: str | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("setStickerSetTitle", get_params(locals()))
         return full_result(result, bool)
 
     async def set_sticker_set_thumbnail(
         self,
-        name: typing.Optional[str] = None,
-        user_id: typing.Optional[int] = None,
-        thumbnail: typing.Optional[typing.Union[InputFile, str]] = None,
+        name: str | None = None,
+        user_id: int | None = None,
+        thumbnail: typing.Union[InputFile, str] | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -1243,10 +1161,7 @@ class APIMethods:
         return full_result(result, bool)
 
     async def set_custom_emoji_sticker_set_thumbnail(
-        self,
-        name: typing.Optional[str] = None,
-        custom_emoji_id: typing.Optional[str] = None,
-        **other
+        self, name: str | None = None, custom_emoji_id: str | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "setCustomEmojiStickerSetThumbnail", get_params(locals())
@@ -1254,20 +1169,20 @@ class APIMethods:
         return full_result(result, bool)
 
     async def delete_sticker_set(
-        self, name: typing.Optional[str] = None, **other
+        self, name: str | None = None, **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("deleteStickerSet", get_params(locals()))
         return full_result(result, bool)
 
     async def answer_inline_query(
         self,
-        inline_query_id: typing.Optional[str] = None,
-        results: typing.Optional[typing.List[InlineQueryResult]] = None,
-        cache_time: typing.Optional[int] = None,
-        is_personal: typing.Optional[bool] = None,
-        next_offset: typing.Optional[str] = None,
-        switch_pm_text: typing.Optional[str] = None,
-        switch_pm_parameter: typing.Optional[str] = None,
+        inline_query_id: str | None = None,
+        results: list[InlineQueryResult] | None = None,
+        cache_time: int | None = None,
+        is_personal: bool | None = None,
+        next_offset: str | None = None,
+        switch_pm_text: str | None = None,
+        switch_pm_parameter: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("answerInlineQuery", get_params(locals()))
@@ -1275,8 +1190,8 @@ class APIMethods:
 
     async def answer_web_app_query(
         self,
-        web_app_query_id: typing.Optional[str] = None,
-        result: typing.Optional[InlineQueryResult] = None,
+        web_app_query_id: str | None = None,
+        result: InlineQueryResult | None = None,
         **other
     ) -> Result[SentWebAppMessage, APIError]:
         result = await self.api.request_raw("answerWebAppQuery", get_params(locals()))
@@ -1284,34 +1199,34 @@ class APIMethods:
 
     async def send_invoice(
         self,
-        chat_id: typing.Optional[typing.Union[int, str]] = None,
-        message_thread_id: typing.Optional[int] = None,
-        title: typing.Optional[str] = None,
-        description: typing.Optional[str] = None,
-        payload: typing.Optional[str] = None,
-        provider_token: typing.Optional[str] = None,
-        currency: typing.Optional[str] = None,
-        prices: typing.Optional[typing.List[LabeledPrice]] = None,
-        max_tip_amount: typing.Optional[int] = None,
-        suggested_tip_amounts: typing.Optional[typing.List[int]] = None,
-        start_parameter: typing.Optional[str] = None,
-        provider_data: typing.Optional[str] = None,
-        photo_url: typing.Optional[str] = None,
-        photo_size: typing.Optional[int] = None,
-        photo_width: typing.Optional[int] = None,
-        photo_height: typing.Optional[int] = None,
-        need_name: typing.Optional[bool] = None,
-        need_phone_number: typing.Optional[bool] = None,
-        need_email: typing.Optional[bool] = None,
-        need_shipping_address: typing.Optional[bool] = None,
-        send_phone_number_to_provider: typing.Optional[bool] = None,
-        send_email_to_provider: typing.Optional[bool] = None,
-        is_flexible: typing.Optional[bool] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        chat_id: typing.Union[int, str] | None = None,
+        message_thread_id: int | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        payload: str | None = None,
+        provider_token: str | None = None,
+        currency: str | None = None,
+        prices: list[LabeledPrice] | None = None,
+        max_tip_amount: int | None = None,
+        suggested_tip_amounts: list[int] | None = None,
+        start_parameter: str | None = None,
+        provider_data: str | None = None,
+        photo_url: str | None = None,
+        photo_size: int | None = None,
+        photo_width: int | None = None,
+        photo_height: int | None = None,
+        need_name: bool | None = None,
+        need_phone_number: bool | None = None,
+        need_email: bool | None = None,
+        need_shipping_address: bool | None = None,
+        send_phone_number_to_provider: bool | None = None,
+        send_email_to_provider: bool | None = None,
+        is_flexible: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendInvoice", get_params(locals()))
@@ -1319,26 +1234,26 @@ class APIMethods:
 
     async def create_invoice_link(
         self,
-        title: typing.Optional[str] = None,
-        description: typing.Optional[str] = None,
-        payload: typing.Optional[str] = None,
-        provider_token: typing.Optional[str] = None,
-        currency: typing.Optional[str] = None,
-        prices: typing.Optional[typing.List[LabeledPrice]] = None,
-        max_tip_amount: typing.Optional[int] = None,
-        suggested_tip_amounts: typing.Optional[typing.List[int]] = None,
-        provider_data: typing.Optional[str] = None,
-        photo_url: typing.Optional[str] = None,
-        photo_size: typing.Optional[int] = None,
-        photo_width: typing.Optional[int] = None,
-        photo_height: typing.Optional[int] = None,
-        need_name: typing.Optional[bool] = None,
-        need_phone_number: typing.Optional[bool] = None,
-        need_email: typing.Optional[bool] = None,
-        need_shipping_address: typing.Optional[bool] = None,
-        send_phone_number_to_provider: typing.Optional[bool] = None,
-        send_email_to_provider: typing.Optional[bool] = None,
-        is_flexible: typing.Optional[bool] = None,
+        title: str | None = None,
+        description: str | None = None,
+        payload: str | None = None,
+        provider_token: str | None = None,
+        currency: str | None = None,
+        prices: list[LabeledPrice] | None = None,
+        max_tip_amount: int | None = None,
+        suggested_tip_amounts: list[int] | None = None,
+        provider_data: str | None = None,
+        photo_url: str | None = None,
+        photo_size: int | None = None,
+        photo_width: int | None = None,
+        photo_height: int | None = None,
+        need_name: bool | None = None,
+        need_phone_number: bool | None = None,
+        need_email: bool | None = None,
+        need_shipping_address: bool | None = None,
+        send_phone_number_to_provider: bool | None = None,
+        send_email_to_provider: bool | None = None,
+        is_flexible: bool | None = None,
         **other
     ) -> Result[str, APIError]:
         result = await self.api.request_raw("createInvoiceLink", get_params(locals()))
@@ -1346,10 +1261,10 @@ class APIMethods:
 
     async def answer_shipping_query(
         self,
-        shipping_query_id: typing.Optional[str] = None,
-        ok: typing.Optional[bool] = None,
-        shipping_options: typing.Optional[typing.List[ShippingOption]] = None,
-        error_message: typing.Optional[str] = None,
+        shipping_query_id: str | None = None,
+        ok: bool | None = None,
+        shipping_options: list[ShippingOption] | None = None,
+        error_message: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("answerShippingQuery", get_params(locals()))
@@ -1357,9 +1272,9 @@ class APIMethods:
 
     async def answer_pre_checkout_query(
         self,
-        pre_checkout_query_id: typing.Optional[str] = None,
-        ok: typing.Optional[bool] = None,
-        error_message: typing.Optional[str] = None,
+        pre_checkout_query_id: str | None = None,
+        ok: bool | None = None,
+        error_message: str | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -1369,8 +1284,8 @@ class APIMethods:
 
     async def set_passport_data_errors(
         self,
-        user_id: typing.Optional[int] = None,
-        errors: typing.Optional[typing.List[PassportElementError]] = None,
+        user_id: int | None = None,
+        errors: list[PassportElementError] | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
@@ -1380,14 +1295,14 @@ class APIMethods:
 
     async def send_game(
         self,
-        chat_id: typing.Optional[int] = None,
-        message_thread_id: typing.Optional[int] = None,
-        game_short_name: typing.Optional[str] = None,
-        disable_notification: typing.Optional[bool] = None,
-        protect_content: typing.Optional[bool] = None,
-        reply_to_message_id: typing.Optional[int] = None,
-        allow_sending_without_reply: typing.Optional[bool] = None,
-        reply_markup: typing.Optional[InlineKeyboardMarkup] = None,
+        chat_id: int | None = None,
+        message_thread_id: int | None = None,
+        game_short_name: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_to_message_id: int | None = None,
+        allow_sending_without_reply: bool | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other
     ) -> Result[Message, APIError]:
         result = await self.api.request_raw("sendGame", get_params(locals()))
@@ -1395,13 +1310,13 @@ class APIMethods:
 
     async def set_game_score(
         self,
-        user_id: typing.Optional[int] = None,
-        score: typing.Optional[int] = None,
-        force: typing.Optional[bool] = None,
-        disable_edit_message: typing.Optional[bool] = None,
-        chat_id: typing.Optional[int] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
+        user_id: int | None = None,
+        score: int | None = None,
+        force: bool | None = None,
+        disable_edit_message: bool | None = None,
+        chat_id: int | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
         **other
     ) -> Result[typing.Union[Message, bool], APIError]:
         result = await self.api.request_raw("setGameScore", get_params(locals()))
@@ -1409,11 +1324,11 @@ class APIMethods:
 
     async def get_game_high_scores(
         self,
-        user_id: typing.Optional[int] = None,
-        chat_id: typing.Optional[int] = None,
-        message_id: typing.Optional[int] = None,
-        inline_message_id: typing.Optional[str] = None,
+        user_id: int | None = None,
+        chat_id: int | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
         **other
-    ) -> Result[typing.List[GameHighScore], APIError]:
+    ) -> Result[list[GameHighScore], APIError]:
         result = await self.api.request_raw("getGameHighScores", get_params(locals()))
-        return full_result(result, typing.List[GameHighScore])
+        return full_result(result, list[GameHighScore])
