@@ -1,4 +1,3 @@
-import logging
 import typing
 
 from choicelib import choice_in_order
@@ -13,17 +12,34 @@ class JSONModule(Protocol):
         ...
 
 
-json: JSONModule = choice_in_order(
-    ["ujson", "hyperjson", "orjson"], do_import=True, default="json"
-)
+class LoggerModule(Protocol):
+    def debug(self, msg: typing.Any, *args, **kwargs):
+        ...
 
+    def info(self, msg: typing.Any, *args, **kwargs):
+        ...
+
+    def warning(self, msg: typing.Any, *args, **kwargs):
+        ...
+
+    def error(self, msg: typing.Any, *args, **kwargs):
+        ...
+
+    def critical(self, msg: typing.Any, *args, **kwargs):
+        ...
+
+    def exception(self, msg: typing.Any, *args, **kwargs):
+        ...
+
+
+json = choice_in_order(["ujson", "hyperjson", "orjson"], do_import=True, default="json")
 logging_module = choice_in_order(["loguru"], default="logging")
 
 if logging_module == "loguru":
     import os
     import sys
 
-    if not os.environ.get("LOGURU_AUTOINIT"):
+    if os.environ.get("LOGURU_AUTOINIT") is None:
         os.environ["LOGURU_AUTOINIT"] = "0"
     from loguru import logger  # type: ignore
 
@@ -74,3 +90,6 @@ elif logging_module == "logging":
             return msg, args, log_kwargs
 
     logger = StyleAdapter(logging.getLogger("telegrinder"))  # type: ignore
+
+json: JSONModule
+logger: LoggerModule

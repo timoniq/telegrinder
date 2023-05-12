@@ -21,7 +21,7 @@ class Result(typing.Generic[T, E]):
             raise self.error
         return self.value
 
-    def unwrap_or(self, alternate_value: T):
+    def unwrap_or(self, alternate_value: T) -> T:
         if not self.is_ok:
             return alternate_value
         return self.value
