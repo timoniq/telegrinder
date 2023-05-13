@@ -1,4 +1,5 @@
 from telegrinder.tools.parse_mode import ParseMode, get_mention_link
+from contextlib import suppress
 import dataclasses
 import string
 import typing
@@ -67,7 +68,7 @@ class StringFormatter(string.Formatter):
         return fmt
 
     def check_formats(self, value: typing.Any, fmts: list[str]) -> "TagFormat":
-        if type(value) in self.__special_formats__:
+        if self.is_spec_formatter(value):
             value = value.string
         current_format = globals()[fmts.pop(0)](
             str(value)
@@ -95,6 +96,8 @@ class StringFormatter(string.Formatter):
         return type(value) in self.__special_formats__
 
     def format_field(self, value: typing.Any, fmt: str) -> "HTMLFormatter":
+        with suppress(ValueError):
+            return HTMLFormatter(format(value, fmt))
         if not fmt:
             return HTMLFormatter(
                 value.formatting()

@@ -2,7 +2,7 @@ import msgspec
 
 from .abc import ABCAPI, APIError, Token
 import typing
-from telegrinder.result import Result
+from telegrinder.result import Result, Ok, Error
 from telegrinder.client import ABCClient, AiohttpClient
 from telegrinder.types.methods import APIMethods
 from telegrinder.model import convert
@@ -37,21 +37,21 @@ class API(ABCAPI, APIMethods):
         method: str,
         data: dict | None = None,
     ) -> Result[dict | list | bool, APIError]:
-        data = compose_data(self.http, data)
+        data = compose_data(self.http, data or {})
         response = await self.http.request_json(self.request_url + method, data=data)
         if response.get("ok"):
             assert "result" in response
-            return Result(True, value=response["result"])
+            return Ok(response["result"])
 
         code, msg = response.get("error_code"), response.get("description")
-        return Result(False, error=APIError(code, msg))
+        return Error(APIError(code, msg))
 
     async def request_raw(
         self,
         method: str,
         data: dict | None = None,
     ) -> Result[msgspec.Raw, APIError]:
-        data = compose_data(self.http, data)
+        data = compose_data(self.http, data or {})
         response_bytes = await self.http.request_bytes(
             self.request_url + method, data=data
         )

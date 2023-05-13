@@ -1,5 +1,5 @@
 from telegrinder.model import Model
-from telegrinder.result import Result
+from telegrinder.result import Result, Ok, Error
 from telegrinder.api.error import APIError
 import msgspec
 
@@ -12,5 +12,5 @@ class APIResponse(Model):
 
     def to_result(self) -> Result[msgspec.Raw, APIError]:
         if self.ok:
-            return Result(True, value=self.result)
-        return Result(False, error=APIError(self.error_code, self.description))
+            return Ok(self.result)
+        return Error(APIError(self.error_code, self.description))
