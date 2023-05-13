@@ -14,7 +14,7 @@ class Mention:
     string: str
     user_id: int
 
-    def __pre_init__(self) -> None:
+    def __post_init__(self) -> None:
         self.string = escape(self.string)
 
 
@@ -23,7 +23,7 @@ class Link:
     href: str
     string: str | None = None
 
-    def __pre_init__(self) -> None:
+    def __post_init__(self) -> None:
         self.href = escape(self.href)
         self.string = escape(self.string or self.href)
 
@@ -33,7 +33,7 @@ class ProgramCodeBlock:
     string: str
     lang: str
 
-    def __pre_init__(self) -> None:
+    def __post_init__(self) -> None:
         self.string = escape(self.string)
 
 
