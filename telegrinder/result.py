@@ -9,6 +9,10 @@ E_co = typing.TypeVar("E_co", covariant=True, bound=BaseException)
 @dataclasses.dataclass(frozen=True)
 class Ok(typing.Generic[T_co]):
     value: T_co
+        
+    @property
+    def is_ok(self) -> bool:
+        return True
 
     def unwrap(self) -> T_co:
         return self.value
@@ -23,6 +27,10 @@ class Ok(typing.Generic[T_co]):
 @dataclasses.dataclass(frozen=True)
 class Error(typing.Generic[E_co]):
     error: E_co
+       
+    @property
+    def is_ok(self) -> bool:
+        return False
 
     def unwrap(self) -> typing.NoReturn:
         raise self.error
