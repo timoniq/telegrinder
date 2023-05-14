@@ -3,7 +3,6 @@ from contextlib import suppress
 import dataclasses
 import string
 import typing
-import typing_extensions
 
 TAG_FORMATTER = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK = '"'
@@ -97,14 +96,15 @@ class StringFormatter(string.Formatter):
 
     def format_field(self, value: typing.Any, fmt: str) -> "HTMLFormatter":
         with suppress(ValueError):
-            return HTMLFormatter(format(value, fmt))
-        if not fmt:
             return HTMLFormatter(
-                value.formatting()
-                if isinstance(value, TagFormat)
-                else self.get_spec_formatter(value)(**value.__dict__).formatting()
-                if self.is_spec_formatter(value)
-                else value
+                format(
+                    value.formatting()
+                    if isinstance(value, TagFormat)
+                    else self.get_spec_formatter(value)(**value.__dict__).formatting()
+                    if self.is_spec_formatter(value)
+                    else value,
+                    fmt,
+                )
             )
         fmts = list(map(lambda fmt: self.is_good_format(value, fmt), fmt.split("+")))
         tag_format = self.check_formats(value, fmts)
@@ -156,7 +156,7 @@ class TagFormat(FormatString):
         *,
         tag: str,
         **data: typing.Any,
-    ) -> typing_extensions.Self:
+    ) -> typing.Self:
         if isinstance(string, TagFormat):
             string = string.formatting()
         elif not isinstance(
