@@ -1,5 +1,3 @@
-import typing
-
 from choicelib import choice_in_order
 from typing_extensions import Protocol
 
@@ -13,26 +11,29 @@ class JSONModule(Protocol):
 
 
 class LoggerModule(Protocol):
-    def debug(self, msg: typing.Any, *args, **kwargs):
+    def debug(self, __msg: object, *args, **kwargs):
         ...
 
-    def info(self, msg: typing.Any, *args, **kwargs):
+    def info(self, __msg: object, *args, **kwargs):
         ...
 
-    def warning(self, msg: typing.Any, *args, **kwargs):
+    def warning(self, __msg: object, *args, **kwargs):
         ...
 
-    def error(self, msg: typing.Any, *args, **kwargs):
+    def error(self, __msg: object, *args, **kwargs):
         ...
 
-    def critical(self, msg: typing.Any, *args, **kwargs):
+    def critical(self, __msg: object, *args, **kwargs):
         ...
 
-    def exception(self, msg: typing.Any, *args, **kwargs):
+    def exception(self, __msg: object, *args, **kwargs):
         ...
 
 
-json = choice_in_order(["ujson", "hyperjson", "orjson"], do_import=True, default="json")
+logger: LoggerModule
+json: JSONModule = choice_in_order(
+    ["ujson", "hyperjson", "orjson"], do_import=True, default="json"
+)
 logging_module = choice_in_order(["loguru"], default="logging")
 
 if logging_module == "loguru":
@@ -90,6 +91,3 @@ elif logging_module == "logging":
             return msg, args, log_kwargs
 
     logger = StyleAdapter(logging.getLogger("telegrinder"))  # type: ignore
-
-json: JSONModule
-logger: LoggerModule

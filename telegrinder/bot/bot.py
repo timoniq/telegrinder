@@ -24,7 +24,6 @@ class Telegrinder:
     async def reset_webhook(self) -> None:
         if not (await self.api.get_webhook_info()).unwrap().url:
             return
-
         await self.api.delete_webhook()
 
     async def run_polling(self, offset: int = 0, skip_updates: bool = False) -> None:
@@ -35,8 +34,6 @@ class Telegrinder:
         self.polling.offset = offset
 
         loop = asyncio.get_running_loop()
-        assert loop, "No running loop"
-
         async for updates in self.polling.listen():
             for update in updates:
                 logger.debug("received update (update_id={})", update.update_id)
