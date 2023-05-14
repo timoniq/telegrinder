@@ -74,8 +74,6 @@ class Dispatch(ABCDispatch):
                 return True
 
         loop = asyncio.get_running_loop()
-        assert loop, "No running loop"
-
         found = False
         for handler in self.default_handlers:
             result = await handler.check(api, event)

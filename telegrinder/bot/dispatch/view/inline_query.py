@@ -1,3 +1,4 @@
+from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from .abc import ABCView
 from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler
 from telegrinder.bot.dispatch.waiter import Waiter
@@ -28,11 +29,6 @@ class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
             return func
 
         return wrapper
-
-    def load(self, external: "InlineQueryView"):
-        self.handlers.extend(external.handlers)
-        self.middlewares.extend(external.middlewares)
-        external.short_waiters = self.short_waiters
 
     async def check(self, event: Update) -> bool:
         return bool(event.inline_query)

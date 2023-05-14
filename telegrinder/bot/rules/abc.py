@@ -54,7 +54,7 @@ class AndRule(ABCRule):
         for rule in self.rules:
             if not await check_rule(event.ctx_api, rule, event, ctx_copy):
                 return False
-        ctx.update(ctx_copy)
+        ctx |= ctx_copy
         return True
 
 
@@ -66,7 +66,7 @@ class OrRule(ABCRule):
         for rule in self.rules:
             ctx_copy = ctx.copy()
             if await check_rule(event.ctx_api, rule, event, ctx_copy):
-                ctx.update(ctx_copy)
+                ctx |= ctx_copy
                 return True
         return False
 

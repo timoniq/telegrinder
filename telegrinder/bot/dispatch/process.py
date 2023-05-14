@@ -5,6 +5,7 @@ from .middleware.abc import ABCMiddleware
 from .handler.abc import ABCHandler
 from telegrinder.types import Update
 from telegrinder.modules import logger
+from telegrinder.result import Error
 from telegrinder.api.abc import ABCAPI
 
 if typing.TYPE_CHECKING:
@@ -69,7 +70,7 @@ async def process_inner(
     for handler in handlers:
         result = await handler.check(event.api, raw_event)
         if result:
-            handler.ctx.update(ctx)
+            handler.ctx |= ctx
             found = True
             response = await handler.run(event)
             responses.append(response)
@@ -91,12 +92,13 @@ async def check_rule(
     ctx_copy = ctx.copy()
 
     model = await rule.adapter.adapt(api, update)
-    if not model.is_ok:
-        return False
+    match model:
+        case Error(_):
+            return False
 
     for requirement in rule.require:
         if not await check_rule(api, requirement, update, ctx_copy):
             return False
 
-    ctx.update(ctx_copy)
+    ctx |= ctx_copy
     return await rule.check(model.unwrap(), ctx)

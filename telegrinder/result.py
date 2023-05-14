@@ -22,7 +22,7 @@ class Ok(typing.Generic[T_co]):
     def unwrap_or(self, alternate_value: object) -> T_co:
         return self.unwrap()
 
-    def map(self, op: typing.Callable[[T_co], T_co]) -> typing.Self[T_co]:
+    def map(self, op: typing.Callable[[T_co], T_co]) -> typing.Self:
         return Ok(op(self.value))
 
 
@@ -45,7 +45,7 @@ class Error(typing.Generic[E_co]):
     def unwrap_or(self, alternate_value: T) -> T:
         return alternate_value
 
-    def map(self, op: object) -> typing.Self[E_co]:
+    def map(self, op: object) -> typing.Self:
         return self
 
 

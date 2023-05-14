@@ -29,11 +29,6 @@ class MessageView(ABCView, WithWaiter[int, MessageCute]):
 
         return wrapper
 
-    def load(self, external: "MessageView"):
-        self.handlers.extend(external.handlers)
-        self.middlewares.extend(external.middlewares)
-        external.short_waiters = self.short_waiters
-
     async def check(self, event: Update) -> bool:
         return bool(event.message)
 
@@ -51,7 +46,7 @@ class MessageView(ABCView, WithWaiter[int, MessageCute]):
         self,
         chat_id: int,
         *rules: ABCRule,
-        default: DefaultWaiterHandler | str | None = None
+        default: DefaultWaiterHandler | str | None = None,
     ) -> tuple["MessageCute", dict]:
         return await self.wait_for_answer(
             chat_id, *self.auto_rules, *rules, default=default

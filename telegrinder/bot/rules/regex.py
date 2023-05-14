@@ -1,30 +1,32 @@
+from .abc import Message
+from .text import TextMessageRule
 import re
 import typing
 
-from .abc import Message
-from .text import TextMessageRule
-
-PatternLike = str | typing.Pattern
+PatternLike = str | typing.Pattern[str]
 
 
 class Regex(TextMessageRule):
     def __init__(self, regexp: PatternLike | list[PatternLike]):
-        if isinstance(regexp, re.Pattern):
-            regexp = [regexp]
-        elif isinstance(regexp, str):
-            regexp = [re.compile(regexp)]
-        else:
-            regexp = [
-                re.compile(regexp) if isinstance(regexp, str) else regexp
-                for regexp in regexp
-            ]
-
-        self.regexp = regexp
+        self.regexp: list[re.Pattern[str]] = []
+        match regexp:
+            case re.Pattern() as pattern:
+                self.regexp.append(pattern)
+            case str(regex):
+                self.regexp.append(re.compile(regex))
+            case _:
+                self.regexp.extend(
+                    re.compile(regexp) if isinstance(regexp, str) else regexp
+                    for regexp in regexp
+                )
 
     async def check(self, message: Message, ctx: dict) -> bool:
         for regexp in self.regexp:
-            match = re.match(regexp, message.text)
-            if match:
-                ctx.update({"match": match.groups()})
+            response = re.match(regexp, message.text)
+            if response is not None:
+                if matches := response.groupdict():
+                    ctx |= matches
+                else:
+                    ctx |= {"match": response.groups() or response.group()}
                 return True
         return False
