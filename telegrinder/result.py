@@ -23,8 +23,8 @@ class Ok(typing.Generic[T_co]):
     def unwrap_or(self, alternate_value: object) -> T_co:
         return self.unwrap()
 
-    def map(self, op: typing.Callable[[T_co], T]) -> T:
-        return op(self.value)
+    def map(self, op: typing.Callable[[T_co], T_co]) -> typing_extensions.Self[T_co]:
+        return Ok(op(self.value))
 
 
 @dataclasses.dataclass(frozen=True)
@@ -46,7 +46,7 @@ class Error(typing.Generic[E_co]):
     def unwrap_or(self, alternate_value: T) -> T:
         return alternate_value
 
-    def map(self, op: object) -> typing_extensions.Self:
+    def map(self, op: object) -> typing_extensions.Self[E_co]:
         return self
 
 
