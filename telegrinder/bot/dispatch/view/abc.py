@@ -25,9 +25,10 @@ class ABCView(ABC):
         pass
 
     def load(self, external: typing.Self):
-        self.short_waiters = external.short_waiters
+        self.auto_rules.append(external.auto_rules)
         self.handlers.extend(external.handlers)
         self.middlewares.extend(external.middlewares)
+        self.short_waiters.update(external.short_waiters)
 
     def register_middleware(self, *args, **kwargs):
         def wrapper(middleware: typing.Type[T]) -> typing.Type[T]:

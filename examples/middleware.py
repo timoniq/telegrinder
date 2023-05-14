@@ -10,12 +10,14 @@ logging.basicConfig(level=logging.INFO)
 counter: dict[int, int] = {}
 
 
-class NoBotMiddleware(ABCMiddleware):
+# Registrar instead of middlewares.append()
+@bot.on.message.register_middleware()
+class NoBotMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: dict) -> bool:
         return not event.from_.is_bot
 
 
-class ContextMiddleware(ABCMiddleware):
+class ContextMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: dict) -> bool:
         counter[event.chat.id] = counter.get(event.chat.id, 0) + 1
         ctx.update({"count": counter[event.chat.id]})
@@ -34,6 +36,5 @@ async def testme(m: Message, count):
     await m.reply(f"You wrote me {count} messages since my last reload")
 
 
-bot.dispatch.message.middlewares.append(NoBotMiddleware())
 bot.dispatch.message.middlewares.append(ContextMiddleware())
 bot.run_forever()
