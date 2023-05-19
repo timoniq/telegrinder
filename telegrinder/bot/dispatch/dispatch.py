@@ -26,6 +26,10 @@ class Dispatch(ABCDispatch):
         self.inline_query = InlineQueryView()
         self.views = ["message", "callback_query", "inline_query"]
 
+    @property
+    def patcher(self) -> Patcher:
+        return self.global_context["patcher"]
+
     def handle(
         self,
         *rules: ABCRule,
@@ -87,7 +91,3 @@ class Dispatch(ABCDispatch):
     def mount(self, view_t: typing.Type["ABCView"], name: str):
         self.views.append(name)
         setattr(self, name, view_t)
-
-    @property
-    def patcher(self) -> Patcher:
-        return self.global_context["patcher"]

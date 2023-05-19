@@ -2,11 +2,13 @@ from abc import ABC, abstractmethod
 
 import msgspec
 
+from envparse import env
+
+from telegrinder.api.error import APIError
 from telegrinder.client import ABCClient
 from telegrinder.result import Result
-from telegrinder.api.error import APIError
 
-from envparse import env
+from .error import InvalidTokenError
 
 
 class Token(str):
@@ -18,6 +20,8 @@ class Token(str):
 
     @property
     def bot_id(self) -> int:
+        if ":" not in self or not self.split(":")[0].isdigit():
+            raise InvalidTokenError("Invalid token, it should look like this '123:ABC'")
         return int(self.split(":")[0])
 
 

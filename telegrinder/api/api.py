@@ -26,7 +26,7 @@ class API(ABCAPI, APIMethods):
 
     @property
     def id(self) -> int:
-        return int(self.token.split(":")[0])
+        return self.token.bot_id
 
     @property
     def request_url(self) -> str:

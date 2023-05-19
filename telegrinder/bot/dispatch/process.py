@@ -28,7 +28,7 @@ async def process_waiters(
         return False
 
     logger.debug(
-        "update {} found in waiter (key={})", event.__class__.__name__, str(key)
+        "Update {} found in waiter (key={})", event.__class__.__name__, str(key)
     )
 
     waiter = waiters[key]
@@ -44,7 +44,7 @@ async def process_waiters(
                 await waiter.default(event)
             return True
 
-    logger.debug("waiter set as ready")
+    logger.debug("Waiter set as ready")
 
     waiters.pop(key)
     setattr(waiter.event, "e", (event, ctx))
@@ -58,7 +58,7 @@ async def process_inner(
     middlewares: list[ABCMiddleware[T]],
     handlers: list[ABCHandler[T]],
 ) -> bool:
-    logger.debug("processing {}", event.__class__.__name__)
+    logger.debug("Processing {}", event.__class__.__name__)
     ctx = {}
 
     for middleware in middlewares:
