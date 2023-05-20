@@ -6,7 +6,6 @@ from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup
 
 from .buttons import Button, InlineButton, ABCButton
 
-
 AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
 

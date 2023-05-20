@@ -34,7 +34,7 @@ class Error(typing.Generic[E_co]):
         return self.__repr__()
 
     def __repr__(self) -> str:
-        return "<Result: Error({}: {})>".format(
+        return "<Result: Error({}: {!r})>".format(
             self.error.__class__.__name__,
             str(self.error),
         )

@@ -68,12 +68,10 @@ async def process_inner(
     found = False
     responses = []
     for handler in handlers:
-        result = await handler.check(event.api, raw_event)
-        if result:
-            handler.ctx |= ctx
+        if await handler.check(event.api, raw_event):
             found = True
-            response = await handler.run(event)
-            responses.append(response)
+            handler.ctx |= ctx
+            responses.append(await handler.run(event))
             if handler.is_blocking:
                 break
 

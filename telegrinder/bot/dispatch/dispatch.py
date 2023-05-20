@@ -66,11 +66,11 @@ class Dispatch(ABCDispatch):
             view.load(view_external)
 
     async def feed(self, event: Update, api: ABCAPI) -> bool:
-        logger.debug("processing update (update_id={})", event.update_id)
+        logger.debug("Processing update (update_id={})", event.update_id)
         for view in self.get_views():
             if await view.check(event):
                 logger.debug(
-                    "update {} matched view {}",
+                    "Update {} matched view {}",
                     event.update_id,
                     view.__class__.__name__,
                 )
@@ -80,12 +80,11 @@ class Dispatch(ABCDispatch):
         loop = asyncio.get_running_loop()
         found = False
         for handler in self.default_handlers:
-            result = await handler.check(api, event)
-            if result:
+            if await handler.check(api, event):
                 found = True
                 loop.create_task(handler.run(event))
                 if handler.is_blocking:
-                    return True
+                    break
         return found
 
     def mount(self, view_t: typing.Type["ABCView"], name: str):
