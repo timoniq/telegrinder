@@ -1,4 +1,4 @@
-from telegrinder import Telegrinder, API, Token, Message, ABCMessageRule
+from telegrinder import Telegrinder, API, Token, Message, MessageRule
 from telegrinder.rules import Text
 import logging
 
@@ -7,12 +7,12 @@ bot = Telegrinder(api)
 logging.basicConfig(level=logging.INFO)
 
 
-class HasPhoto(ABCMessageRule):
+class HasPhoto(MessageRule):
     async def check(self, message: Message, ctx: dict) -> bool:
         return message.photo is not None
 
 
-class HasNicePhoto(ABCMessageRule, require=[HasPhoto()]):
+class HasNicePhoto(MessageRule, require=[HasPhoto()]):
     async def check(self, message: Message, ctx: dict) -> bool:
         return message.photo[0].width > message.photo[0].height
 

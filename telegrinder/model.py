@@ -14,9 +14,7 @@ encoder = msgspec.json.Encoder()
 def full_result(
     result: Result[msgspec.Raw, "APIError"], full_t: typing.Type[T]
 ) -> Result[T, "APIError"]:
-    if not result.is_ok:
-        return result
-    return Result(True, value=msgspec.json.decode(result.value, type=full_t))
+    return result.map(lambda v: msgspec.json.decode(v, type=full_t))
 
 
 def convert(d: typing.Any) -> typing.Any:
@@ -33,7 +31,7 @@ model_config = {"rename": {"from_": "from"}, "omit_defaults": True}
 
 
 class Model(msgspec.Struct, **model_config):
-    _dict_cached: typing.Optional[dict] = None
+    _dict_cached: dict | None = None
 
     def to_dict(self) -> dict:
         if self._dict_cached is not None:
@@ -44,12 +42,9 @@ class Model(msgspec.Struct, **model_config):
 
 def get_params(params: dict) -> dict:
     return {
-        k: v for k, v in (
-            *params.items(),
-            *params.pop("other").items()
-        )
-        if k != "self"
-        and v is not None
+        k: v
+        for k, v in (*params.items(), *params.pop("other").items())
+        if k != "self" and v is not None
     }
 
 

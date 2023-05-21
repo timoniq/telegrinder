@@ -5,33 +5,37 @@ from .middleware.abc import ABCMiddleware
 from .handler.abc import ABCHandler
 from telegrinder.types import Update
 from telegrinder.modules import logger
+from telegrinder.result import Error
+from telegrinder.api.abc import ABCAPI
+
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.rules.abc import ABCRule
 
 T = typing.TypeVar("T")
 E = typing.TypeVar("E")
+_ = typing.Any
 
 
 async def process_waiters(
-    waiters: typing.Dict[T, Waiter],
+    api: ABCAPI,
+    waiters: dict[T, Waiter],
     key: T,
-    event: typing.Optional[E],
-    raw_event: dict,
+    event: E | None,
+    raw_event: Update,
     str_handler: typing.Callable,
 ) -> bool:
     if key not in waiters:
         return False
 
     logger.debug(
-        "update {} found in waiter (key={})", event.__class__.__name__, str(key)
+        "Update {} found in waiter (key={})", event.__class__.__name__, str(key)
     )
 
     waiter = waiters[key]
     ctx = {}
 
     for rule in waiter.rules:
-        chk_event = event
-        if rule.__event__ is None:
-            chk_event = raw_event
-        if not await rule.run_check(chk_event, ctx):
+        if not await check_rule(api, rule, raw_event, ctx):
             if not waiter.default:
                 return True
             elif isinstance(waiter.default, str):
@@ -40,7 +44,7 @@ async def process_waiters(
                 await waiter.default(event)
             return True
 
-    logger.debug("waiter set as ready")
+    logger.debug("Waiter set as ready")
 
     waiters.pop(key)
     setattr(waiter.event, "e", (event, ctx))
@@ -51,10 +55,10 @@ async def process_waiters(
 async def process_inner(
     event: T,
     raw_event: Update,
-    middlewares: typing.List[ABCMiddleware[T]],
-    handlers: typing.List[ABCHandler[T]],
+    middlewares: list[ABCMiddleware[T]],
+    handlers: list[ABCHandler[T]],
 ) -> bool:
-    logger.debug("processing {}", event.__class__.__name__)
+    logger.debug("Processing {}", event.__class__.__name__)
     ctx = {}
 
     for middleware in middlewares:
@@ -64,12 +68,10 @@ async def process_inner(
     found = False
     responses = []
     for handler in handlers:
-        result = await handler.check(event.api, raw_event)
-        if result:
-            handler.ctx.update(ctx)
+        if await handler.check(event.api, raw_event):
             found = True
-            response = await handler.run(event)
-            responses.append(response)
+            handler.ctx |= ctx
+            responses.append(await handler.run(event))
             if handler.is_blocking:
                 break
 
@@ -77,3 +79,24 @@ async def process_inner(
         await middleware.post(event, responses, ctx)
 
     return found
+
+
+async def check_rule(
+    api: ABCAPI, rule: "ABCRule", update: Update, ctx: dict[str, _]
+) -> bool:
+    """Checks requirements, adapts update
+    Returns check result"""
+
+    ctx_copy = ctx.copy()
+
+    model = await rule.adapter.adapt(api, update)
+    match model:
+        case Error(_):
+            return False
+
+    for requirement in rule.require:
+        if not await check_rule(api, requirement, update, ctx_copy):
+            return False
+
+    ctx |= ctx_copy
+    return await rule.check(model.unwrap(), ctx)

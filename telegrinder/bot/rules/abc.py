@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from telegrinder.bot.cute_types import MessageCute
-from telegrinder.types import Update
+from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter, EventAdapter
+from telegrinder.bot.dispatch.process import check_rule
+from telegrinder.bot.cute_types.update import UpdateCute
 import typing
-import collections
 import inspect
 import vbml
 
@@ -10,26 +11,18 @@ T = typing.TypeVar("T")
 patcher = vbml.Patcher()
 
 Message = MessageCute
-EventScheme = collections.namedtuple("EventScheme", ["name", "dataclass"])
+Update = UpdateCute
 
 
 class ABCRule(ABC, typing.Generic[T]):
-    __event__: typing.Optional[EventScheme] = None
-    require: typing.List["ABCRule[T]"] = []
-
-    async def run_check(self, event: T, ctx: dict) -> bool:
-        ctx_copy = ctx.copy()
-        for required in self.require:
-            if not await required.run_check(event, ctx_copy):
-                return False
-        ctx.update(ctx_copy)
-        return await self.check(event, ctx)
+    adapter: ABCAdapter[Update, T] = RawUpdateAdapter()
+    require: list["ABCRule[T]"] = []
 
     @abstractmethod
     async def check(self, event: T, ctx: dict) -> bool:
         pass
 
-    def __init_subclass__(cls, require: typing.Optional[typing.List["ABCRule[T]"]] = None):
+    def __init_subclass__(cls, require: list["ABCRule[T]"] | None = None):
         """Merges requirements from inherited classes and rule-specific requirements"""
         requirements = []
         for base in inspect.getmro(cls):
@@ -45,6 +38,9 @@ class ABCRule(ABC, typing.Generic[T]):
     def __or__(self, other: "ABCRule"):
         return OrRule(self, other)
 
+    def __neg__(self) -> "ABCRule[T]":
+        return NotRule(self)
+
     def __repr__(self) -> str:
         return f"(rule {self.__class__.__name__})"
 
@@ -56,16 +52,9 @@ class AndRule(ABCRule):
     async def check(self, event: Update, ctx: dict) -> bool:
         ctx_copy = ctx.copy()
         for rule in self.rules:
-            e = event
-            if rule.__event__:
-                event_dict = event.to_dict()
-                if rule.__event__.name not in event.to_dict().keys():
-                    return False
-                e = event_dict[rule.__event__.name]
-            if not await rule.run_check(e, ctx_copy):
+            if not await check_rule(event.ctx_api, rule, event, ctx_copy):
                 return False
-        ctx.clear()
-        ctx.update(ctx_copy)
+        ctx |= ctx_copy
         return True
 
 
@@ -74,27 +63,25 @@ class OrRule(ABCRule):
         self.rules = rules
 
     async def check(self, event: Update, ctx: dict) -> bool:
-        ctx_copy = ctx.copy()
-        found = False
-
         for rule in self.rules:
-            e = event
-            if rule.__event__:
-                event_dict = event.to_dict()
-                if rule.__event__.name not in event.to_dict().keys():
-                    continue
-                e = event_dict[rule.__event__.name]
-            if await rule.run_check(e, ctx_copy):
-                found = True
-                break
-
-        ctx.clear()
-        ctx.update(ctx_copy)
-        return found
+            ctx_copy = ctx.copy()
+            if await check_rule(event.ctx_api, rule, event, ctx_copy):
+                ctx |= ctx_copy
+                return True
+        return False
 
 
-class ABCMessageRule(ABCRule, ABC, require=[]):
-    __event__ = EventScheme("message", Message)
+class NotRule(ABCRule):
+    def __init__(self, rule: ABCRule):
+        self.rule = rule
+
+    async def check(self, event: Update, ctx: dict) -> bool:
+        ctx_copy = ctx.copy()
+        return not await check_rule(event.ctx_api, self.rule, event, ctx_copy)
+
+
+class MessageRule(ABCRule, ABC, require=[]):
+    adapter = EventAdapter("message", Message)
 
     @abstractmethod
     async def check(self, message: Message, ctx: dict) -> bool:

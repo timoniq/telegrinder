@@ -16,7 +16,6 @@ if typing.TYPE_CHECKING:
 class Choice:
     name: str
     is_picked: bool
-
     default_text: str
     picked_text: str
     code: str
@@ -40,7 +39,7 @@ class Checkbox(ABCScenario):
     ):
         self.chat_id = chat_id
         self.msg = msg
-        self.choices: typing.List[Choice] = []
+        self.choices: list[Choice] = []
         self.ready = ready_text
         self.max_in_row = max_in_row
         self.random_code = random_code(16)
@@ -94,11 +93,14 @@ class Checkbox(ABCScenario):
 
     async def wait(
         self, api: "API", dispatch: "Dispatch"
-    ) -> typing.Tuple[typing.Dict[str, bool], int]:
+    ) -> tuple[dict[str, bool], int]:
         assert len(self.choices) > 1
         message = (
             await api.send_message(
-                self.chat_id, text=self.msg, parse_mode=self.PARSE_MODE, reply_markup=self.get_markup()
+                self.chat_id,
+                text=self.msg,
+                parse_mode=self.PARSE_MODE,
+                reply_markup=self.get_markup(),
             )
         ).unwrap()
         while True:

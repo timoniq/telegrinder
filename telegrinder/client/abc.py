@@ -11,41 +11,25 @@ class ABCClient(ABC):
 
     @abstractmethod
     async def request_text(
-        self,
-        url: str,
-        method: str = "GET",
-        data: typing.Optional[dict] = None,
-        **kwargs
+        self, url: str, method: str = "GET", data: dict | None = None, **kwargs
     ) -> str:
         pass
 
     @abstractmethod
     async def request_json(
-        self,
-        url: str,
-        method: str = "GET",
-        data: typing.Optional[dict] = None,
-        **kwargs
+        self, url: str, method: str = "GET", data: dict | None = None, **kwargs
     ) -> dict:
         pass
 
     @abstractmethod
     async def request_content(
-        self,
-        url: str,
-        method: str = "GET",
-        data: typing.Optional[dict] = None,
-        **kwargs
+        self, url: str, method: str = "GET", data: dict | None = None, **kwargs
     ) -> bytes:
         pass
 
     @abstractmethod
     async def request_bytes(
-        self,
-        url: str,
-        method: str = "GET",
-        data: typing.Optional[dict] = None,
-        **kwargs
+        self, url: str, method: str = "GET", data: dict | None = None, **kwargs
     ) -> bytes:
         pass
 

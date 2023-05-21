@@ -6,6 +6,7 @@ from .handler import ABCHandler, FuncHandler
 from telegrinder.types import Update
 from telegrinder.api.abc import ABCAPI
 from telegrinder.modules import logger
+from vbml.patcher import Patcher
 from .view import ABCView, MessageView, CallbackQueryView, InlineQueryView
 import typing
 
@@ -16,11 +17,18 @@ DEFAULT_DATACLASS = Update
 
 class Dispatch(ABCDispatch):
     def __init__(self):
-        self.default_handlers: typing.List[ABCHandler] = []
+        self.global_context: dict[str, typing.Any] = {
+            "patcher": Patcher(),
+        }
+        self.default_handlers: list[ABCHandler] = []
         self.message = MessageView()
         self.callback_query = CallbackQueryView()
         self.inline_query = InlineQueryView()
         self.views = ["message", "callback_query", "inline_query"]
+
+    @property
+    def patcher(self) -> Patcher:
+        return self.global_context["patcher"]
 
     def handle(
         self,
@@ -42,7 +50,7 @@ class Dispatch(ABCDispatch):
             assert view, f"View {view_name} is undefined in dispatch"
             yield view
 
-    def get_view(self, view_t: typing.Type[T], name: str) -> typing.Optional[T]:
+    def get_view(self, view_t: typing.Type[T], name: str) -> T | None:
         if name not in self.views:
             return None
         view = getattr(self, name)
@@ -58,11 +66,11 @@ class Dispatch(ABCDispatch):
             view.load(view_external)
 
     async def feed(self, event: Update, api: ABCAPI) -> bool:
-        logger.debug("processing update (update_id={})", event.update_id)
+        logger.debug("Processing update (update_id={})", event.update_id)
         for view in self.get_views():
             if await view.check(event):
                 logger.debug(
-                    "update {} matched view {}",
+                    "Update {} matched view {}",
                     event.update_id,
                     view.__class__.__name__,
                 )
@@ -70,16 +78,13 @@ class Dispatch(ABCDispatch):
                 return True
 
         loop = asyncio.get_running_loop()
-        assert loop, "No running loop"
-
         found = False
         for handler in self.default_handlers:
-            result = await handler.check(api, event)
-            if result:
+            if await handler.check(api, event):
                 found = True
                 loop.create_task(handler.run(event))
                 if handler.is_blocking:
-                    return True
+                    break
         return found
 
     def mount(self, view_t: typing.Type["ABCView"], name: str):

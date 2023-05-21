@@ -15,9 +15,9 @@ if typing.TYPE_CHECKING:
 class AiohttpClient(ABCClient):
     def __init__(
         self,
-        session: typing.Optional[ClientSession] = None,
-        json_processing_module: typing.Optional[JSONModule] = None,
-        timeout: typing.Optional[aiohttp.ClientTimeout] = None,
+        session: ClientSession | None = None,
+        json_processing_module: JSONModule | None = None,
+        timeout: aiohttp.ClientTimeout | None = None,
         **session_params
     ):
         self.session = session
@@ -26,11 +26,7 @@ class AiohttpClient(ABCClient):
         self.timeout = timeout or aiohttp.ClientTimeout(total=0)
 
     async def request_raw(
-        self,
-        url: str,
-        method: str = "GET",
-        data: typing.Optional[dict] = None,
-        **kwargs
+        self, url: str, method: str = "GET", data: dict | None = None, **kwargs
     ) -> "ClientResponse":
         if not self.session:
             self.session = ClientSession(
@@ -47,11 +43,7 @@ class AiohttpClient(ABCClient):
             return response
 
     async def request_json(
-        self,
-        url: str,
-        method: str = "GET",
-        data: typing.Optional[dict] = None,
-        **kwargs
+        self, url: str, method: str = "GET", data: dict | None = None, **kwargs
     ) -> dict:
         response = await self.request_raw(url, method, data, **kwargs)
         return await response.json(
@@ -62,7 +54,7 @@ class AiohttpClient(ABCClient):
         self,
         url: str,
         method: str = "GET",
-        data: typing.Union[dict, aiohttp.FormData, None] = None,
+        data: dict | aiohttp.FormData | None = None,
         **kwargs
     ) -> str:
         response = await self.request_raw(url, method, data, **kwargs)
@@ -72,7 +64,7 @@ class AiohttpClient(ABCClient):
         self,
         url: str,
         method: str = "GET",
-        data: typing.Union[dict, aiohttp.FormData, None] = None,
+        data: dict | aiohttp.FormData | None = None,
         **kwargs
     ) -> bytes:
         response = await self.request_raw(url, method, data, **kwargs)
@@ -81,11 +73,7 @@ class AiohttpClient(ABCClient):
         return response._body
 
     async def request_content(
-        self,
-        url: str,
-        method: str = "GET",
-        data: typing.Optional[dict] = None,
-        **kwargs
+        self, url: str, method: str = "GET", data: dict | None = None, **kwargs
     ) -> bytes:
         response = await self.request_raw(url, method, data, **kwargs)
         return response._body

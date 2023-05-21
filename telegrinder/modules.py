@@ -1,29 +1,46 @@
-import logging
-import typing
-
 from choicelib import choice_in_order
 from typing_extensions import Protocol
 
 
 class JSONModule(Protocol):
-    def loads(self, s: str) -> typing.Union[dict, list]:
+    def loads(self, s: str) -> dict | list:
         ...
 
-    def dumps(self, o: typing.Union[dict, list]) -> str:
+    def dumps(self, o: dict | list) -> str:
         ...
 
 
+class LoggerModule(Protocol):
+    def debug(self, __msg: object, *args, **kwargs):
+        ...
+
+    def info(self, __msg: object, *args, **kwargs):
+        ...
+
+    def warning(self, __msg: object, *args, **kwargs):
+        ...
+
+    def error(self, __msg: object, *args, **kwargs):
+        ...
+
+    def critical(self, __msg: object, *args, **kwargs):
+        ...
+
+    def exception(self, __msg: object, *args, **kwargs):
+        ...
+
+
+logger: LoggerModule
 json: JSONModule = choice_in_order(
     ["ujson", "hyperjson", "orjson"], do_import=True, default="json"
 )
-
 logging_module = choice_in_order(["loguru"], default="logging")
 
 if logging_module == "loguru":
     import os
     import sys
 
-    if not os.environ.get("LOGURU_AUTOINIT"):
+    if os.environ.get("LOGURU_AUTOINIT") is None:
         os.environ["LOGURU_AUTOINIT"] = "0"
     from loguru import logger  # type: ignore
 

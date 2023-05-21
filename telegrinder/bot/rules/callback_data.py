@@ -1,41 +1,48 @@
-from .abc import ABCRule, EventScheme
+from .abc import ABCRule
 from telegrinder.modules import json
-from telegrinder.types import Update
 from telegrinder.bot.cute_types import CallbackQueryCute
+from telegrinder.bot.rules.adapter import EventAdapter
 from .markup import Markup, check_string
 import msgspec
 import vbml
+import abc
 import typing
 
 CallbackQuery = CallbackQueryCute
-PatternLike = typing.Union[str, vbml.Pattern]
+PatternLike = str | vbml.Pattern
 
 
-class CallbackDataEq(ABCRule):
+class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
+    adapter = EventAdapter("callback_query", CallbackQuery)
+
+    @abc.abstractmethod
+    async def check(self, event: CallbackQuery, ctx: dict) -> bool:
+        pass
+
+
+class CallbackDataEq(CallbackQueryRule):
     def __init__(self, value: str):
         self.value = value
 
-    async def check(self, event: Update, ctx: dict) -> bool:
-        return event.callback_query.data == self.value
+    async def check(self, event: CallbackQuery, ctx: dict) -> bool:
+        return event.data == self.value
 
 
-class CallbackDataJsonEq(ABCRule):
+class CallbackDataJsonEq(CallbackQueryRule):
     def __init__(self, d: dict):
         self.d = d
 
-    async def check(self, event: Update, ctx: dict) -> bool:
-        if not event.callback_query.data:
+    async def check(self, event: CallbackQuery, ctx: dict) -> bool:
+        if not event.data:
             return False
         try:
             # todo: use msgspec
-            return json.loads(event.callback_query.data) == self.d
+            return json.loads(event.data) == self.d
         except:
             return False
 
 
-class CallbackDataJsonModel(ABCRule[CallbackQuery]):
-    __event__ = EventScheme("callback_query", CallbackQuery)
-
+class CallbackDataJsonModel(CallbackQueryRule):
     def __init__(self, model: typing.Type[msgspec.Struct]):
         self.decoder = msgspec.json.Decoder(type=model)
 
@@ -47,10 +54,8 @@ class CallbackDataJsonModel(ABCRule[CallbackQuery]):
             return False
 
 
-class CallbackDataMarkup(ABCRule[CallbackQuery]):
-    __event__ = EventScheme("callback_query", CallbackQuery)
-
-    def __init__(self, patterns: typing.Union[PatternLike, typing.List[PatternLike]]):
+class CallbackDataMarkup(CallbackQueryRule):
+    def __init__(self, patterns: PatternLike | list[PatternLike]):
         self.patterns = Markup(patterns).patterns
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:

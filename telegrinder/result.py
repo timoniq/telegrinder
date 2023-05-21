@@ -1,38 +1,52 @@
+import dataclasses
 import typing
 
 T = typing.TypeVar("T")
-E = typing.TypeVar("E")
+T_co = typing.TypeVar("T_co", covariant=True)
+E_co = typing.TypeVar("E_co", covariant=True, bound=BaseException)
 
 
-class Result(typing.Generic[T, E]):
-    def __init__(
-        self,
-        is_ok: bool,
-        *,
-        value: typing.Optional[T] = None,
-        error: typing.Optional[E] = None
-    ):
-        self.is_ok = is_ok
-        self.value = value
-        self.error = error
+@dataclasses.dataclass(frozen=True)
+class Ok(typing.Generic[T_co]):
+    value: T_co
 
-    def unwrap(self) -> T:
-        if not self.is_ok:
-            raise self.error
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self) -> str:
+        return f"<Result: Ok({self.value!r})>"
+
+    def unwrap(self) -> T_co:
         return self.value
 
-    def unwrap_or(self, alternate_value: T):
-        if not self.is_ok:
-            return alternate_value
-        return self.value
+    def unwrap_or(self, alternate_value: object) -> T_co:
+        return self.unwrap()
 
-    def unwrap_via_handler(
-        self, handler: typing.Callable[["Result", dict], T], ctx: dict
-    ):
-        return handler(self, ctx)
+    def map(self, op: typing.Callable[[T_co], T_co]) -> typing.Self:
+        return Ok(op(self.value))
 
-    def __repr__(self):
-        return "<Result ({}: {})>".format(
-            "Ok" if self.is_ok else "Error",
-            repr(self.value if self.is_ok else self.error),
+
+@dataclasses.dataclass(frozen=True)
+class Error(typing.Generic[E_co]):
+    error: E_co
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self) -> str:
+        return "<Result: Error({}: {!r})>".format(
+            self.error.__class__.__name__,
+            str(self.error),
         )
+
+    def unwrap(self) -> typing.NoReturn:
+        raise self.error
+
+    def unwrap_or(self, alternate_value: T) -> T:
+        return alternate_value
+
+    def map(self, op: object) -> typing.Self:
+        return self
+
+
+Result = Ok[T_co] | Error[E_co]

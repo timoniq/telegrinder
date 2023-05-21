@@ -6,11 +6,11 @@ from telegrinder.model import Raw
 
 class ABCPolling(ABC):
     @abstractmethod
-    async def get_updates(self) -> typing.List[Raw]:
+    async def get_updates(self) -> list[Raw]:
         pass
 
     @abstractmethod
-    async def listen(self) -> typing.AsyncIterator[typing.List[Update]]:
+    async def listen(self) -> typing.AsyncIterator[list[Update]]:
         pass
 
     @abstractmethod

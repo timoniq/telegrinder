@@ -1,6 +1,3 @@
-import random
-import typing
-
 from telegrinder import Telegrinder, API, Token, Message
 from telegrinder.rules import StartCommand
 import logging
