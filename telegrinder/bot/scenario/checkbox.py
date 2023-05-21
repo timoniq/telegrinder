@@ -16,7 +16,6 @@ if typing.TYPE_CHECKING:
 class Choice:
     name: str
     is_picked: bool
-
     default_text: str
     picked_text: str
     code: str

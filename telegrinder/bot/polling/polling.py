@@ -5,10 +5,12 @@ import msgspec.json
 
 from .abc import ABCPolling
 from telegrinder.api.abc import ABCAPI
+from telegrinder.api.error import InvalidTokenError
 import typing
 from telegrinder.modules import logger
 from telegrinder.model import Raw
 from telegrinder.types import Update
+from telegrinder.result import Ok, Error
 
 ALLOWED_UPDATES = [
     "update_id",
@@ -25,6 +27,7 @@ ALLOWED_UPDATES = [
     "poll_answer",
     "my_chat_member",
     "chat_member",
+    "chat_join_request",
 ]
 
 
@@ -44,13 +47,14 @@ class Polling(ABCPolling):
             "getUpdates",
             {"offset": self.offset, "allowed_updates": self.allowed_updates},
         )
-        if not raw_updates.is_ok and raw_updates.error.code == 404:
-            logger.fatal("Token seems to be invalid")
-            exit(6)
-        return raw_updates.unwrap()
+        match raw_updates:
+            case Ok(value):
+                return value
+            case Error(err) if err.code in (401, 404):
+                raise InvalidTokenError("Token seems to be invalid")
 
     async def listen(self) -> typing.AsyncIterator[list[Update]]:
-        logger.debug("listening polling")
+        logger.debug("Listening polling")
         while not self._stop:
             try:
                 updates = await self.get_updates()
@@ -60,9 +64,12 @@ class Polling(ABCPolling):
                 if updates_list:
                     yield updates_list
                     self.offset = updates_list[-1].update_id + 1
+            except InvalidTokenError as e:
+                logger.error(e)
+                exit(6)
             except asyncio.CancelledError:
-                logger.info("caught cancel, stopping")
-                self._stop = True
+                self.stop()
+                logger.info("Caught cancel, stopping")
             except BaseException as e:
                 traceback.print_exc()
                 logger.error(e)

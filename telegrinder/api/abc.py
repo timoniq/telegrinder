@@ -3,18 +3,30 @@ import typing
 
 import msgspec
 
+from envparse import env
+
+from telegrinder.api.error import APIError
 from telegrinder.client import ABCClient
 from telegrinder.result import Result
-from telegrinder.api.error import APIError
 
-from envparse import env
+from .error import InvalidTokenError
 
 
 class Token(str):
+    def __new__(cls, token: str) -> typing.Self:
+        if token.count(":") != 1 or not token.split(":")[0].isdigit():
+            raise InvalidTokenError("Invalid token, it should look like this '123:ABC'")
+        return super().__new__(cls, token)
+
     @classmethod
-    def from_env(cls, var_name: str = "BOT_TOKEN", is_read: bool = False) -> "Token":
+    def from_env(
+        cls,
+        var_name: str = "BOT_TOKEN",
+        is_read: bool = False,
+        path_to_env: str | None = None,
+    ) -> typing.Self:
         if not is_read:
-            env.read_envfile()
+            env.read_envfile(path_to_env)
         return cls(env.str(var_name))
 
     @property

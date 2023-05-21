@@ -14,9 +14,7 @@ encoder = msgspec.json.Encoder()
 def full_result(
     result: Result[msgspec.Raw, "APIError"], full_t: typing.Type[T]
 ) -> Result[T, "APIError"]:
-    if not result.is_ok:
-        return result
-    return Result(True, value=msgspec.json.decode(result.value, type=full_t))
+    return result.map(lambda v: msgspec.json.decode(v, type=full_t))
 
 
 def convert(d: typing.Any) -> typing.Any:

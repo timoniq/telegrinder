@@ -5,8 +5,8 @@ from telegrinder.bot.rules.adapter import EventAdapter
 from .markup import Markup, check_string
 import msgspec
 import vbml
-import typing
 import abc
+import typing
 
 CallbackQuery = CallbackQueryCute
 PatternLike = str | vbml.Pattern

@@ -5,6 +5,7 @@ from .middleware.abc import ABCMiddleware
 from .handler.abc import ABCHandler
 from telegrinder.types import Update
 from telegrinder.modules import logger
+from telegrinder.result import Error
 from telegrinder.api.abc import ABCAPI
 
 if typing.TYPE_CHECKING:
@@ -27,7 +28,7 @@ async def process_waiters(
         return False
 
     logger.debug(
-        "update {} found in waiter (key={})", event.__class__.__name__, str(key)
+        "Update {} found in waiter (key={})", event.__class__.__name__, str(key)
     )
 
     waiter = waiters[key]
@@ -43,7 +44,7 @@ async def process_waiters(
                 await waiter.default(event)
             return True
 
-    logger.debug("waiter set as ready")
+    logger.debug("Waiter set as ready")
 
     waiters.pop(key)
     setattr(waiter.event, "e", (event, ctx))
@@ -57,7 +58,7 @@ async def process_inner(
     middlewares: list[ABCMiddleware[T]],
     handlers: list[ABCHandler[T]],
 ) -> bool:
-    logger.debug("processing {}", event.__class__.__name__)
+    logger.debug("Processing {}", event.__class__.__name__)
     ctx = {}
 
     for middleware in middlewares:
@@ -67,12 +68,10 @@ async def process_inner(
     found = False
     responses = []
     for handler in handlers:
-        result = await handler.check(event.api, raw_event)
-        if result:
-            handler.ctx.update(ctx)
+        if await handler.check(event.api, raw_event):
             found = True
-            response = await handler.run(event)
-            responses.append(response)
+            handler.ctx |= ctx
+            responses.append(await handler.run(event))
             if handler.is_blocking:
                 break
 
@@ -91,12 +90,13 @@ async def check_rule(
     ctx_copy = ctx.copy()
 
     model = await rule.adapter.adapt(api, update)
-    if not model.is_ok:
-        return False
+    match model:
+        case Error(_):
+            return False
 
     for requirement in rule.require:
         if not await check_rule(api, requirement, update, ctx_copy):
             return False
 
-    ctx.update(ctx_copy)
+    ctx |= ctx_copy
     return await rule.check(model.unwrap(), ctx)

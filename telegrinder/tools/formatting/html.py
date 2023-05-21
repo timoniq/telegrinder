@@ -1,8 +1,8 @@
 from telegrinder.tools.parse_mode import ParseMode, get_mention_link
+from contextlib import suppress
 import dataclasses
 import string
 import typing
-import typing_extensions
 
 TAG_FORMATTER = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK = '"'
@@ -13,7 +13,7 @@ class Mention:
     string: str
     user_id: int
 
-    def __pre_init__(self) -> None:
+    def __post_init__(self) -> None:
         self.string = escape(self.string)
 
 
@@ -22,7 +22,7 @@ class Link:
     href: str
     string: str | None = None
 
-    def __pre_init__(self) -> None:
+    def __post_init__(self) -> None:
         self.href = escape(self.href)
         self.string = escape(self.string or self.href)
 
@@ -32,7 +32,7 @@ class ProgramCodeBlock:
     string: str
     lang: str
 
-    def __pre_init__(self) -> None:
+    def __post_init__(self) -> None:
         self.string = escape(self.string)
 
 
@@ -67,7 +67,7 @@ class StringFormatter(string.Formatter):
         return fmt
 
     def check_formats(self, value: typing.Any, fmts: list[str]) -> "TagFormat":
-        if type(value) in self.__special_formats__:
+        if self.is_spec_formatter(value):
             value = value.string
         current_format = globals()[fmts.pop(0)](
             str(value)
@@ -95,13 +95,16 @@ class StringFormatter(string.Formatter):
         return type(value) in self.__special_formats__
 
     def format_field(self, value: typing.Any, fmt: str) -> "HTMLFormatter":
-        if not fmt:
+        with suppress(ValueError):
             return HTMLFormatter(
-                value.formatting()
-                if isinstance(value, TagFormat)
-                else self.get_spec_formatter(value)(**value.__dict__).formatting()
-                if self.is_spec_formatter(value)
-                else value
+                format(
+                    value.formatting()
+                    if isinstance(value, TagFormat)
+                    else self.get_spec_formatter(value)(**value.__dict__).formatting()
+                    if self.is_spec_formatter(value)
+                    else value,
+                    fmt,
+                )
             )
         fmts = list(map(lambda fmt: self.is_good_format(value, fmt), fmt.split("+")))
         tag_format = self.check_formats(value, fmts)
@@ -153,7 +156,7 @@ class TagFormat(FormatString):
         *,
         tag: str,
         **data: typing.Any,
-    ) -> typing_extensions.Self:
+    ) -> typing.Self:
         if isinstance(string, TagFormat):
             string = string.formatting()
         elif not isinstance(

@@ -1,20 +1,17 @@
 from .abc import Message, patcher
 from .text import TextMessageRule
-import typing
 import vbml
 
 PatternLike = str | vbml.Pattern
 
 
-def check_string(patterns: PatternLike | list[PatternLike], s: str, ctx: dict) -> bool:
-    if s is None:
-        return False
+def check_string(patterns: list[PatternLike], s: str, ctx: dict) -> bool:
     for pattern in patterns:
-        response = patcher.check(pattern, s)
-        if response in (False, None):
-            continue
-        elif isinstance(response, dict):
-            ctx.update(response)
+        match patcher.check(pattern, s):
+            case None | False:
+                continue
+            case {**response}:
+                ctx |= response
         return True
     return False
 
