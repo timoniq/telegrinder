@@ -23,7 +23,7 @@ def convert(d: typing.Any) -> typing.Any:
     elif isinstance(d, dict):
         return {k: convert(v) for k, v in d.items() if v is not None}
     elif isinstance(d, list):
-        return json.dumps(d)
+        return [convert(element) for element in d]
     return d
 
 
