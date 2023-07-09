@@ -1,5 +1,5 @@
 import typing
-from .objects import *
+from .objects import *  # noqa: F403
 from telegrinder.result import Result
 from telegrinder.api.error import APIError
 

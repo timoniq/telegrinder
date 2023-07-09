@@ -1,1 +1,1 @@
-from .bot.rules import *
+from .bot.rules import *  # noqa: F403

@@ -255,5 +255,5 @@ def generate(path: str, schema_url: str = URL) -> None:
     print("generated.")
     try:
         os.system("black telegrinder/types")
-    except:
+    except:  # noqa
         print("cant run black")
