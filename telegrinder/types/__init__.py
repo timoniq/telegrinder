@@ -1,1 +1,1 @@
-from telegrinder.types.objects import *
+from telegrinder.types.objects import *  # noqa: F403

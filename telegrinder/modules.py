@@ -91,3 +91,6 @@ elif logging_module == "logging":
             return msg, args, log_kwargs
 
     logger = StyleAdapter(logging.getLogger("telegrinder"))  # type: ignore
+
+json: JSONModule
+logger: LoggerModule

@@ -25,14 +25,14 @@ class ContextMiddleware(ABCMiddleware[Message]):
 
 
 @bot.on.message(IsChat(), Text("/testme"))
-async def testme(m: Message):
+async def testme_in_chat(m: Message):
     await m.reply("You are surely not a bot")
 
 
 # The variable count will be passed to handler
 # only if it is declared in handler function arguments
 @bot.on.message(IsPrivate(), Text("/count"))
-async def testme(m: Message, count):
+async def testme_private(m: Message, count):
     await m.reply(f"You wrote me {count} messages since my last reload")
 
 

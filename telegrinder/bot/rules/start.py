@@ -2,6 +2,7 @@ from .abc import MessageRule
 from .markup import Markup, Message
 import typing
 
+
 class StartCommand(MessageRule, require=[Markup(["/start <param>", "/start"])]):
     def __init__(
         self,

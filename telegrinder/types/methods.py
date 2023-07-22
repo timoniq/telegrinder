@@ -1,5 +1,5 @@
 import typing
-from .objects import *
+from .objects import *  # noqa: F403
 from telegrinder.result import Result
 from telegrinder.api.error import APIError
 
@@ -870,6 +870,18 @@ class APIMethods:
         result = await self.api.request_raw("getMyCommands", get_params(locals()))
         return full_result(result, list[BotCommand])
 
+    async def set_my_name(
+        self, name: str | None = None, language_code: str | None = None, **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw("setMyName", get_params(locals()))
+        return full_result(result, bool)
+
+    async def get_my_name(
+        self, language_code: str | None = None, **other
+    ) -> Result[BotName, APIError]:
+        result = await self.api.request_raw("getMyName", get_params(locals()))
+        return full_result(result, BotName)
+
     async def set_my_description(
         self, description: str | None = None, language_code: str | None = None, **other
     ) -> Result[bool, APIError]:
@@ -1181,8 +1193,7 @@ class APIMethods:
         cache_time: int | None = None,
         is_personal: bool | None = None,
         next_offset: str | None = None,
-        switch_pm_text: str | None = None,
-        switch_pm_parameter: str | None = None,
+        button: InlineQueryResultsButton | None = None,
         **other
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw("answerInlineQuery", get_params(locals()))

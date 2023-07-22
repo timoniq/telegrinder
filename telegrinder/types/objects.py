@@ -1,5 +1,5 @@
 import typing
-from telegrinder.model import *
+from telegrinder.model import *  # noqa: F403
 
 
 class Error(Model):
@@ -486,12 +486,12 @@ class ChatShared(Model):
 
 
 class WriteAccessAllowed(Model):
-    """This object represents a service message about a user allowing a bot added
-    to the attachment menu to write messages. Currently holds no information.
-
+    """This object represents a service message about a user allowing a bot to write
+    messages after adding the bot to the attachment menu or launching a Web App
+    from a link.
     Docs: https://core.telegram.org/bots/api/#writeaccessallowed"""
 
-    pass
+    web_app_name: typing.Optional[str] = None
 
 
 class VideoChatScheduled(Model):
@@ -658,6 +658,9 @@ class InlineKeyboardButton(Model):
     login_url: typing.Optional["LoginUrl"] = None
     switch_inline_query: typing.Optional[str] = None
     switch_inline_query_current_chat: typing.Optional[str] = None
+    switch_inline_query_chosen_chat: typing.Optional[
+        "SwitchInlineQueryChosenChat"
+    ] = None
     callback_game: typing.Optional["CallbackGame"] = None
     pay: typing.Optional[bool] = None
 
@@ -680,6 +683,18 @@ class LoginUrl(Model):
     forward_text: typing.Optional[str] = None
     bot_username: typing.Optional[str] = None
     request_write_access: typing.Optional[bool] = None
+
+
+class SwitchInlineQueryChosenChat(Model):
+    """This object represents an inline button that switches the current user
+    to inline mode in a chosen chat, with an optional default inline query.
+    Docs: https://core.telegram.org/bots/api/#switchinlinequerychosenchat"""
+
+    query: typing.Optional[str] = None
+    allow_user_chats: typing.Optional[bool] = None
+    allow_bot_chats: typing.Optional[bool] = None
+    allow_group_chats: typing.Optional[bool] = None
+    allow_channel_chats: typing.Optional[bool] = None
 
 
 class CallbackQuery(Model):
@@ -903,6 +918,7 @@ class ChatMemberUpdated(Model):
     old_chat_member: "ChatMember"
     new_chat_member: "ChatMember"
     invite_link: typing.Optional["ChatInviteLink"] = None
+    via_chat_folder_invite_link: typing.Optional[bool] = None
 
 
 class ChatJoinRequest(Model):
@@ -1052,6 +1068,13 @@ class BotCommandScopeChatMember(Model):
     type: str
     chat_id: typing.Union[int, str]
     user_id: int
+
+
+class BotName(Model):
+    """This object represents the bot's name.
+    Docs: https://core.telegram.org/bots/api/#botname"""
+
+    name: str
 
 
 class BotDescription(Model):
@@ -1292,6 +1315,16 @@ class InlineQuery(Model):
     offset: str
     chat_type: typing.Optional[str] = None
     location: typing.Optional["Location"] = None
+
+
+class InlineQueryResultsButton(Model):
+    """This object represents a button to be shown above inline query results.
+    You **must** use exactly one of the optional fields.
+    Docs: https://core.telegram.org/bots/api/#inlinequeryresultsbutton"""
+
+    text: str
+    web_app: typing.Optional["WebAppInfo"] = None
+    start_parameter: typing.Optional[str] = None
 
 
 class InlineQueryResult(Model):
@@ -1599,9 +1632,9 @@ class InlineQueryResultLocation(Model):
 
 
 class InlineQueryResultVenue(Model):
-    """Represents a venue. By default, the venue will be sent by the user. Alternatively,
-    you can use *input_message_content* to send a message with the specified
-    content instead of the venue.
+    """Represents a venue. By default, the venue will be sent by the user. 
+    Alternatively, you can use *input_message_content* to send a message 
+    with the specified content instead of the venue.
     Docs: https://core.telegram.org/bots/api/#inlinequeryresultvenue"""
 
     type: str

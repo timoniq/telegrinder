@@ -38,7 +38,7 @@ class CallbackDataJsonEq(CallbackQueryRule):
         try:
             # todo: use msgspec
             return json.loads(event.data) == self.d
-        except:
+        except:  # noqa
             return False
 
 
