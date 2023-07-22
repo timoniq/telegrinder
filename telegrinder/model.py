@@ -1,8 +1,10 @@
-import msgspec
-from telegrinder.result import Result
-from telegrinder.modules import json
-from msgspec import Raw
 import typing
+
+import msgspec
+from msgspec import Raw
+
+from telegrinder.modules import json
+from telegrinder.result import Result
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
@@ -23,7 +25,7 @@ def convert(d: typing.Any) -> typing.Any:
     elif isinstance(d, dict):
         return {k: convert(v) for k, v in d.items() if v is not None}
     elif isinstance(d, list):
-        return [convert(element) for element in d]
+        return json.dumps(d)
     return d
 
 

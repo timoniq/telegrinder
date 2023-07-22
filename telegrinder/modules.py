@@ -1,8 +1,9 @@
+import typing
+
 from choicelib import choice_in_order
-from typing_extensions import Protocol
 
 
-class JSONModule(Protocol):
+class JSONModule(typing.Protocol):
     def loads(self, s: str) -> dict | list:
         ...
 
@@ -10,23 +11,23 @@ class JSONModule(Protocol):
         ...
 
 
-class LoggerModule(Protocol):
-    def debug(self, __msg: object, *args, **kwargs):
+class LoggerModule(typing.Protocol):
+    def debug(self, __msg: object, *args: object, **kwargs: object):
         ...
 
-    def info(self, __msg: object, *args, **kwargs):
+    def info(self, __msg: object, *args: object, **kwargs: object):
         ...
 
-    def warning(self, __msg: object, *args, **kwargs):
+    def warning(self, __msg: object, *args: object, **kwargs: object):
         ...
 
-    def error(self, __msg: object, *args, **kwargs):
+    def error(self, __msg: object, *args: object, **kwargs: object):
         ...
 
-    def critical(self, __msg: object, *args, **kwargs):
+    def critical(self, __msg: object, *args: object, **kwargs: object):
         ...
 
-    def exception(self, __msg: object, *args, **kwargs):
+    def exception(self, __msg: object, *args: object, **kwargs: object):
         ...
 
 
@@ -40,17 +41,22 @@ if logging_module == "loguru":
     import os
     import sys
 
-    if os.environ.get("LOGURU_AUTOINIT") is None:
-        os.environ["LOGURU_AUTOINIT"] = "0"
     from loguru import logger  # type: ignore
 
+    os.environ.setdefault("LOGURU_AUTOINIT", "0")
     if not logger._core.handlers:  # type: ignore
         log_format = (
             "<level>{level: <8}</level> | "
             "{time:YYYY-MM-DD HH:mm:ss} | "
             "{name}:{function}:{line} > <level>{message}</level>"
         )
-        logger.add(sys.stderr, format=log_format, enqueue=True, colorize=True)
+        logger.add(  # type: ignore
+            sys.stderr,
+            format=log_format,
+            enqueue=True,
+            level=os.environ.get("LOGURU_LOG_LEVEL", "DEBUG").upper(),
+            colorize=True,
+        )
 
 elif logging_module == "logging":
     """
@@ -67,7 +73,7 @@ elif logging_module == "logging":
             self.args = args
             self.kwargs = kwargs
 
-        def __str__(self):
+        def __str__(self) -> str:
             return self.fmt.format(*self.args)
 
     class StyleAdapter(logging.LoggerAdapter):
@@ -91,6 +97,3 @@ elif logging_module == "logging":
             return msg, args, log_kwargs
 
     logger = StyleAdapter(logging.getLogger("telegrinder"))  # type: ignore
-
-json: JSONModule
-logger: LoggerModule

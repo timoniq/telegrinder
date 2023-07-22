@@ -4,7 +4,7 @@ import dataclasses
 import string
 import typing
 
-TAG_FORMATTER = "<{tag}{data}>{content}</{tag}>"
+TAG_FORMAT = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK = '"'
 
 
@@ -59,10 +59,10 @@ class StringFormatter(string.Formatter):
 
     def is_good_format(self, value: typing.Any, fmt: str) -> str:
         if not fmt:
-            raise ValueError("formats union should be: format+format.")
+            raise ValueError("Formats union should be: format+format.")
         if fmt not in self.__formats__:
             raise ValueError(
-                f"unknown format {fmt!r} for object of type {type(value).__name__!r}."
+                f"Unknown format {fmt!r} for object of type {type(value).__name__!r}."
             )
         return fmt
 
@@ -130,7 +130,7 @@ class FormatString(str):
 
     def __radd__(self, value: str) -> "HTMLFormatter":
         """Return value+self."""
-        return HTMLFormatter(FormatString.__add__(value, self))
+        return HTMLFormatter(FormatString.__add__(FormatString(value), self).as_str())
 
     def as_str(self) -> str:
         """Return self as a standart string."""
@@ -177,7 +177,7 @@ class TagFormat(FormatString):
 
     def formatting(self) -> "HTMLFormatter":
         return HTMLFormatter(
-            TAG_FORMATTER.format(
+            TAG_FORMAT.format(
                 tag=self.tag,
                 data=self.tag_data(),
                 content=self,

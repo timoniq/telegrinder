@@ -22,7 +22,7 @@ class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):
             self.handlers.append(
                 FuncHandler(
-                    func, [*self.auto_rules, *rules], is_blocking, dataclass=None
+                    func, [*self.auto_rules, *rules], is_blocking, dataclass=None,
                 )
             )
             return func
@@ -46,3 +46,9 @@ class CallbackQueryView(ABCView, WithWaiter[int, CallbackQueryCute]):
             return
 
         return await process_inner(query, event, self.middlewares, self.handlers)
+
+    def load(self, external: typing.Self):
+        self.auto_rules.extend(external.auto_rules)
+        self.handlers.extend(external.handlers)
+        self.middlewares.extend(external.middlewares)
+        self.short_waiters.update(external.short_waiters)

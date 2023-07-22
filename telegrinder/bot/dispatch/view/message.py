@@ -51,3 +51,9 @@ class MessageView(ABCView, WithWaiter[int, MessageCute]):
         return await self.wait_for_answer(
             chat_id, *self.auto_rules, *rules, default=default
         )
+
+    def load(self, external: typing.Self):
+        self.auto_rules.extend(external.auto_rules)
+        self.handlers.extend(external.handlers)
+        self.middlewares.extend(external.middlewares)
+        self.short_waiters.update(external.short_waiters)

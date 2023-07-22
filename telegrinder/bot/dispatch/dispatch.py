@@ -11,7 +11,6 @@ from .view import ABCView, MessageView, CallbackQueryView, InlineQueryView
 import typing
 
 T = typing.TypeVar("T")
-
 DEFAULT_DATACLASS = Update
 
 

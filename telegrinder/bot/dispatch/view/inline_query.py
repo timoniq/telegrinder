@@ -41,3 +41,9 @@ class InlineQueryView(ABCView, WithWaiter[str, InlineQueryCute]):
             return
 
         return await process_inner(query, event, self.middlewares, self.handlers)
+
+    def load(self, external: typing.Self):
+        self.auto_rules.extend(external.auto_rules)
+        self.handlers.extend(external.handlers)
+        self.middlewares.extend(external.middlewares)
+        self.short_waiters.update(external.short_waiters)
