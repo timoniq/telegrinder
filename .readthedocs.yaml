@@ -5,7 +5,7 @@ build:
   tools:
     python: "3.9"
   commands:
-    - pip install mkdocs mkdocs-redirects
+    - pip install mkdocs mkdocs-material mkdocs-redirects
     - cat mkdocs.yml
     - mkdocs build --clean --site-dir $READTHEDOCS_OUTPUT/html --config-file mkdocs.yml
 
