@@ -2,7 +2,7 @@
 
 It's easy to create a keyboard set, keyboards can be loaded from YAML config.
 
-[Click for example](https://github.com/timoniq/telegrinder/blob/main/examples/kb_set.py).
+[Click for example](https://github.com/timoniq/telegrinder/blob/main/examples/kb_set.py)
 
 Snippet from example:
 
