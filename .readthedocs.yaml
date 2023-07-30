@@ -5,10 +5,7 @@ build:
   tools:
     python: "3.9"
   commands:
-    - pip install poetry
-    - poetry config virtualenvs.create false
-    - poetry install --only docs
-    - poetry env info
+    - pip install mkdocs mkdocs-material mkdocs-redirects
     - cat mkdocs.yml
     - mkdocs build --clean --site-dir $READTHEDOCS_OUTPUT/html --config-file mkdocs.yml
 
