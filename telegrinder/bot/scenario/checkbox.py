@@ -1,5 +1,6 @@
 from .abc import ABCScenario
 from dataclasses import dataclass
+from telegrinder.bot.dispatch.waiter_machine import WaiterMachine
 from telegrinder.tools import InlineKeyboard, InlineButton
 from telegrinder.types.objects import InlineKeyboardMarkup
 from telegrinder.bot.cute_types import CallbackQueryCute
@@ -32,6 +33,7 @@ class Checkbox(ABCScenario):
 
     def __init__(
         self,
+        waiter_machine: WaiterMachine,
         chat_id: int,
         msg: str,
         ready_text: str = "Ready",
@@ -43,6 +45,7 @@ class Checkbox(ABCScenario):
         self.ready = ready_text
         self.max_in_row = max_in_row
         self.random_code = random_code(16)
+        self.waiter_machine = waiter_machine
 
     def get_markup(self) -> InlineKeyboardMarkup:
         kb = InlineKeyboard(resize_keyboard=True)
@@ -105,7 +108,9 @@ class Checkbox(ABCScenario):
         ).unwrap()
         while True:
             q: CallbackQueryCute
-            q, _ = await dispatch.callback_query.wait_for_answer(message.message_id)
+            q, _ = await self.waiter_machine.wait(
+                dispatch.callback_query, message, key=message.message_id
+            )
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
             if not should_continue:

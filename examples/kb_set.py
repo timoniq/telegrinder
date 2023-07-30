@@ -9,13 +9,14 @@ from telegrinder import (
     Keyboard,
     Message,
     CallbackQuery,
+    WaiterMachine,
 )
 from telegrinder.rules import Text, CallbackDataEq
 from telegrinder.types import ReplyKeyboardRemove
 
 
 class KeyboardSet(KeyboardSetYAML):
-    __config__ = "assets/kb_set_config.yaml"
+    __config__ = "examples/assets/kb_set_config.yaml"
 
     KEYBOARD_MENU: Keyboard
     KEYBOARD_YES_NO: Keyboard
@@ -26,6 +27,7 @@ KeyboardSet.load()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api=api)
+wm = WaiterMachine()
 
 
 @bot.on.message(Text("/menu"))
@@ -35,16 +37,22 @@ async def menu_handler(m: Message):
     )
 
 
+@bot.dispatch.to_handler()
+async def repeat_yes_or_no(m: Message):
+    await m.answer("Please make a decision: Yes or No. This is extremely important!")
+
+
 @bot.on.message(Text(["/choose", "Choose"]))
 async def choose_handler(m: Message):
     await m.answer(
         text="Do you like making important decisions?",
         reply_markup=KeyboardSet.KEYBOARD_YES_NO.get_markup(),
     )
-    answer, _ = await bot.on.message.wait_for_message(
-        m.chat.id,
+    answer, _ = await wm.wait(
+        bot.dispatch.message,
+        m,
         Text(["yes", "no"], True),
-        default="Please make a decision: Yes or No. This is extremely important!",
+        default=repeat_yes_or_no,
     )
     if answer.text.lower() == "yes":
         await answer.reply("Rockets have been launched.")

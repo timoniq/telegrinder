@@ -12,6 +12,7 @@ from .bot import (
     Checkbox,
     Dispatch,
     FuncHandler,
+    MessageReplyHandler,
     InlineQueryCute,
     MessageCute,
     MessageRule,
@@ -19,6 +20,7 @@ from .bot import (
     Polling,
     SingleChoice,
     Telegrinder,
+    WaiterMachine,
 )
 from .client import ABCClient, AiohttpClient
 from .result import Error, Ok, Result

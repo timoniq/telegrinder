@@ -1,20 +1,21 @@
 from abc import ABC, abstractmethod
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
-from telegrinder.bot.dispatch.handler.abc import ABCHandler
-from telegrinder.bot.dispatch.waiter import Waiter
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.types import Update
 import typing
 
 T = typing.TypeVar("T", bound=ABCMiddleware)
+EventType = typing.TypeVar("EventType")
+
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.dispatch.handler.abc import ABCHandler
 
 
-class ABCView(ABC):
+class ABCView(ABC, typing.Generic[EventType]):
     auto_rules: list[ABCRule]
-    handlers: list[ABCHandler]
+    handlers: list["ABCHandler"]
     middlewares: list[ABCMiddleware]
-    short_waiters: dict[int, Waiter]
 
     @abstractmethod
     async def check(self, event: Update) -> bool:
@@ -36,3 +37,9 @@ class ABCView(ABC):
             return middleware
 
         return wrapper
+
+
+class ABCStateView(ABCView[T], ABC):
+    @abstractmethod
+    def get_state_key(self, event: EventType) -> int | None:
+        pass

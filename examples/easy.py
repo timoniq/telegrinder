@@ -1,12 +1,20 @@
 import random
 
 from telegrinder import Telegrinder, API, Token, Message
+from telegrinder.bot import WaiterMachine
 from telegrinder.rules import Text, Markup, FuzzyText
 import logging
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+wm = WaiterMachine()
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+@bot.on.to_handler()
+async def fine_or_bad(message: Message):
+    await message.answer("Fine or bad")
 
 
 @bot.on.message(Text("/start"))
@@ -17,11 +25,18 @@ async def start(message: Message):
             message.from_user.first_name, me
         ),
     )
-    m, _ = await bot.on.message.wait_for_message(message.chat.id)
-    if m.text.lower() == "fine":
-        await m.reply("Cool!")
-    elif m.text.lower() == "bad":
-        await m.reply("Damn")
+    m, _ = await wm.wait(
+        bot.dispatch.message,
+        message,
+        Text(["fine", "bad"], ignore_case=True),
+        default=fine_or_bad,
+    )
+
+    match m.text.lower():
+        case "fine":
+            await m.reply("Cool!")
+        case "bad":
+            await m.reply("Damn")
 
 
 @bot.on.message(Markup("/reverse <text>"))

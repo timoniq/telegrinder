@@ -20,7 +20,7 @@ class TimerInfo:
 class FakeDB:
     def __init__(self) -> None:
         self.storage = {}
-    
+
     def get(self, user_id: int) -> list[TimerInfo]:
         return self.storage.get(user_id) or []
 
@@ -31,8 +31,10 @@ class FakeDB:
 
     def new(self, name: str, time: int, message: Message) -> TimerInfo:
         task = asyncio.get_running_loop().create_task(self.timer(name, time, message))
-        return TimerInfo(name, datetime.datetime.now() + datetime.timedelta(seconds=time), task)
-    
+        return TimerInfo(
+            name, datetime.datetime.now() + datetime.timedelta(seconds=time), task
+        )
+
     async def timer(self, name: str, time: int, message: Message) -> None:
         await asyncio.sleep(time)
         await message.reply(f"{name}'s are ready! Switch off the oven quickly")
@@ -55,15 +57,13 @@ async def cooking(message: Message):
     if not boiling:
         await message.answer("Nothing is cooking right now!")
         return
-    text = (
-        "\n".join(
-            "{}. {} will be ready at {}".format(
-                i + 1,
-                record.name,
-                record.end_time,
-            )
-            for i, record in enumerate(boiling)
+    text = "\n".join(
+        "{}. {} will be ready at {}".format(
+            i + 1,
+            record.name,
+            record.end_time,
         )
+        for i, record in enumerate(boiling)
     )
     await message.answer("Boiling raviolies:\n\n" + text)
 

@@ -1,8 +1,6 @@
 import typing
 
-from .waiter import Waiter
 from .middleware.abc import ABCMiddleware
-from .handler.abc import ABCHandler
 from telegrinder.types import Update
 from telegrinder.modules import logger
 from telegrinder.result import Error
@@ -10,53 +8,18 @@ from telegrinder.api.abc import ABCAPI
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
+    from .handler.abc import ABCHandler
 
 T = typing.TypeVar("T")
 E = typing.TypeVar("E")
 _ = typing.Any
 
 
-async def process_waiters(
-    api: ABCAPI,
-    waiters: dict[T, Waiter],
-    key: T,
-    event: E | None,
-    raw_event: Update,
-    str_handler: typing.Callable,
-) -> bool:
-    if key not in waiters:
-        return False
-
-    logger.debug(
-        "Update {} found in waiter (key={})", event.__class__.__name__, str(key)
-    )
-
-    waiter = waiters[key]
-    ctx = {}
-
-    for rule in waiter.rules:
-        if not await check_rule(api, rule, raw_event, ctx):
-            if not waiter.default:
-                return True
-            elif isinstance(waiter.default, str):
-                await str_handler(waiter.default)
-            else:
-                await waiter.default(event)
-            return True
-
-    logger.debug("Waiter set as ready")
-
-    waiters.pop(key)
-    setattr(waiter.event, "e", (event, ctx))
-    waiter.event.set()
-    return True
-
-
 async def process_inner(
     event: T,
     raw_event: Update,
     middlewares: list[ABCMiddleware[T]],
-    handlers: list[ABCHandler[T]],
+    handlers: list["ABCHandler[T]"],
 ) -> bool:
     logger.debug("Processing {}", event.__class__.__name__)
     ctx = {}
@@ -91,7 +54,8 @@ async def check_rule(
 
     model = await rule.adapter.adapt(api, update)
     match model:
-        case Error(_):
+        case Error(err):
+            logger.debug("Adapter failed: {}", err)
             return False
 
     for requirement in rule.require:

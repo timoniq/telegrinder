@@ -1,8 +1,7 @@
 import typing
 import types
-from telegrinder.bot.rules import ABCRule
-from telegrinder.tools import magic_bundle
 from telegrinder.bot.dispatch.process import check_rule
+from telegrinder.tools.magic import magic_bundle
 from telegrinder.types import Update
 from telegrinder.api.abc import ABCAPI
 from .abc import ABCHandler
@@ -11,11 +10,15 @@ from telegrinder.modules import logger
 T = typing.TypeVar("T")
 
 
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.rules import ABCRule
+
+
 class FuncHandler(ABCHandler, typing.Generic[T]):
     def __init__(
         self,
         func: types.FunctionType | typing.Callable,
-        rules: list[ABCRule],
+        rules: list["ABCRule"],
         is_blocking: bool = True,
         dataclass: typing.Any | None = dict,
     ):
@@ -26,10 +29,12 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
         self.ctx = {}
 
     async def check(self, api: ABCAPI, event: Update) -> bool:
-        self.ctx = {}
+        preset_ctx = self.ctx
+        self.ctx = preset_ctx.copy()
         for rule in self.rules:
             if not await check_rule(api, rule, event, self.ctx):
                 logger.debug("Rule {} failed", rule)
+                self.ctx = preset_ctx
                 return False
         return True
 

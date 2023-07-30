@@ -1,4 +1,13 @@
-from telegrinder import Telegrinder, API, Token, Keyboard, Button, Message
+from telegrinder import (
+    Telegrinder,
+    API,
+    Token,
+    Keyboard,
+    Button,
+    Message,
+    WaiterMachine,
+    MessageReplyHandler,
+)
 from telegrinder.rules import Text, EnumTextRule
 import enum
 import itertools
@@ -6,6 +15,7 @@ import asyncio
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
+wm = WaiterMachine()
 
 YesOrNoKeyboard = (Keyboard().add(Button("Yes")).add(Button("No"))).get_markup()
 
@@ -18,8 +28,11 @@ class YesOrNo(enum.Enum):
 @bot.on.message(Text("/start"))
 async def start(message: Message):
     await message.answer("Do you want some tee?")
-    wm, ctx = await bot.on.message.wait_for_message(
-        message.chat.id, EnumTextRule(YesOrNo), default="You want, dont you?"
+    _, ctx = await wm.wait(
+        bot.dispatch.message,
+        message,
+        EnumTextRule(YesOrNo),
+        default=MessageReplyHandler("You want, dont you?"),
     )
     if ctx["enum"] == YesOrNo.NO:
         await message.answer("Leee thats sad dat tee is so sweet")
