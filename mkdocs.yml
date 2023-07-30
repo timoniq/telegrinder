@@ -1,6 +1,6 @@
 site_name: telegrinder
 site_author: timoniq
-site_description: Awesome VK framework
+site_description: Telegram bot framework
 site_url: https://telegrinder.rtfd.io/
 repo_name: timoniq/telegrinder
 repo_url: https://github.com/timoniq/telegrinder

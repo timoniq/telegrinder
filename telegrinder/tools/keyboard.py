@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup
 
-from .buttons import Button, InlineButton, ABCButton
+from .buttons import Button, InlineButton, BaseButton
 
 AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
@@ -18,7 +18,7 @@ class KeyboardModel:
 
 
 class ABCMarkup(ABC, KeyboardModel):
-    BUTTON: typing.Type[ABCButton]
+    BUTTON: typing.Type[BaseButton]
 
     def __init__(
         self,
