@@ -17,13 +17,21 @@ def full_result(
     return result.map(lambda v: msgspec.json.decode(v, type=full_t))
 
 
-def convert(d: typing.Any) -> typing.Any:
+def convert(d: typing.Any, serialize: bool = True) -> typing.Any:
     if isinstance(d, Model):
-        return msgspec.json.encode(d).decode()
+        converted_dct = convert(d.to_dict(), serialize=False)
+        if serialize is True:
+            return json.dumps(converted_dct)
+        return converted_dct
     elif isinstance(d, dict):
-        return {k: convert(v) for k, v in d.items() if v is not None}
+        return {
+            k: convert(v, serialize=serialize) for k, v in d.items() if v is not None
+        }
     elif isinstance(d, list):
-        return json.dumps(d)
+        converted_lst = [convert(x, serialize=False) for x in d]
+        if serialize is True:
+            return json.dumps(converted_lst)
+        return converted_lst
     return d
 
 
