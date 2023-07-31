@@ -37,13 +37,17 @@ async def start(message: Message):
 bot.run_forever()
 ```
 
+# Documentation
+
+[Readthedocs](https://telegrinder.readthedocs.io)
+
 # Community
 
-Join our [telegram chat](https://t.me/telegrinder_en).
+Join our [telegram forum](https://t.me/botoforum).
 
 # [Contributing](https://github.com/timoniq/telegrinder/blob/main/contributing.md)
 
 # License
 
 Telegrinder is [MIT licensed](./LICENSE)  
-Copyright © 2022 [timoniq](https://github.com/timoniq)
+Copyright © 2022-2023 [timoniq](https://github.com/timoniq)
