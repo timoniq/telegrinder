@@ -14,3 +14,4 @@ from .fuzzy import FuzzyText
 from .integer import Integer, IntegerInRange
 from .start import StartCommand
 from .enum_text import EnumTextRule
+from .inline import InlineQueryRule, LocationInlineQuery, InlineQueryText

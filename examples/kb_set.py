@@ -13,6 +13,7 @@ from telegrinder import (
 )
 from telegrinder.rules import Text, CallbackDataEq
 from telegrinder.types import ReplyKeyboardRemove
+import logging
 
 
 class KeyboardSet(KeyboardSetYAML):
@@ -28,6 +29,8 @@ KeyboardSet.load()
 api = API(token=Token.from_env())
 bot = Telegrinder(api=api)
 wm = WaiterMachine()
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 @bot.on.message(Text("/menu"))

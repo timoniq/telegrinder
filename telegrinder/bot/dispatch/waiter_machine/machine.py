@@ -73,7 +73,7 @@ class WaiterMachine:
         else:
             api = linked.ctx_api
 
-            key = state_view.get_state_key(linked_event)
+            key = state_view.get_state_key(linked)
             if not key:
                 msg = "Unable to get state key"
                 raise RuntimeError(msg)

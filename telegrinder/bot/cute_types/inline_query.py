@@ -1,4 +1,4 @@
-from telegrinder.types import InlineQuery, User
+from telegrinder.types import InlineQuery, User, InlineQueryResult
 from telegrinder.api import API, APIError
 from telegrinder.result import Result
 
@@ -16,7 +16,7 @@ class InlineQueryCute(InlineQuery):
 
     async def answer(
         self,
-        results: list | None = None,
+        results: list[InlineQueryResult | dict] | None = None,
         cache_time: int | None = None,
         is_personal: bool | None = None,
         next_offset: str | None = None,

@@ -80,7 +80,7 @@ class NotRule(ABCRule):
         return not await check_rule(event.ctx_api, self.rule, event, ctx_copy)
 
 
-class MessageRule(ABCRule, ABC, require=[]):
+class MessageRule(ABCRule[Message], ABC, require=[]):
     adapter = EventAdapter("message", Message)
 
     @abstractmethod
