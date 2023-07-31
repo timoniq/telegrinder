@@ -109,7 +109,8 @@ class Checkbox(ABCScenario):
         while True:
             q: CallbackQueryCute
             q, _ = await self.waiter_machine.wait(
-                dispatch.callback_query, message, key=message.message_id
+                dispatch.callback_query,
+                (api, message.message_id),
             )
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)

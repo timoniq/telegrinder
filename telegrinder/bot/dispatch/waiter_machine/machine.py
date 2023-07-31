@@ -4,6 +4,7 @@ import datetime
 import types
 
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.api.abc import ABCAPI
 
 from .middleware import WaiterMiddleware
 from .short_state import Behaviour, EventModel, ShortState
@@ -53,26 +54,33 @@ class WaiterMachine:
     async def wait(
         self,
         state_view: "ABCStateView",
-        linked_event: EventModel,
+        linked: EventModel | tuple[ABCAPI, Identificator],
         *rules: ABCRule[EventModel],
         default: Behaviour = None,
         on_drop: Behaviour = None,
         expiration: typing.Union[datetime.timedelta, int, None] = None,
-        key: Identificator | None = None,
     ) -> typing.Tuple[EventModel, dict]:
         if isinstance(expiration, int):
             expiration = datetime.timedelta(seconds=expiration)
 
         event = asyncio.Event()
 
-        key = key or state_view.get_state_key(linked_event)
-        if not key:
-            msg = "Unable to get state key"
-            raise RuntimeError(msg)
+        api: ABCAPI
+        key: Identificator
+
+        if isinstance(linked, tuple):
+            api, key = linked
+        else:
+            api = linked.ctx_api
+
+            key = state_view.get_state_key(linked_event)
+            if not key:
+                msg = "Unable to get state key"
+                raise RuntimeError(msg)
 
         short_state = ShortState(
             key,
-            ctx_api=linked_event.ctx_api,  # type: ignore
+            ctx_api=api,
             event=event,
             rules=rules,
             expiration=expiration,
