@@ -16,17 +16,20 @@ Result methods:
 ```python
 from telegrinder import Result, Ok, Error
 
-def function(a: int, b: int) -> Result[float, ValueError]:
+def function(a: int, b: int) -> Result[float, str]:
     if b == 0:
-        return Error(ValueError("Cannot divide by zero"))
+        return Error("Cannot divide by zero")
     return Ok(a / b)
 
 def main():
-    match function(10, 0):
+    a = get_a()
+    b = get_b()
+
+    match function(a, b):
         case Ok(c):
             print("I did it!", c)
-        case Error(err):
-            print("Oops, error:", err)
+        case Error(msg):
+            print("Oops, error:", msg)
 ```
 
 In telegrinder framework this is used to work with api requests.
@@ -38,7 +41,7 @@ from telegrinder.types import User
 api = API()
 
 def repr_user(user: User) -> str:
-    return user.first_name
+    ...
 
 async def main():
     my_name = (await api.get_me()).map(repr_user).unwrap_or("unknown")

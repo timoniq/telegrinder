@@ -3,7 +3,7 @@ import dataclasses
 import typing
 
 T = typing.TypeVar("T")
-Err = typing.TypeVar("Err", covariant=True, bound=BaseException)
+Err = typing.TypeVar("Err", covariant=True)
 Value = typing.TypeVar("Value", covariant=True)
 
 
@@ -54,7 +54,11 @@ class Error(typing.Generic[Err]):
         )
 
     def unwrap(self) -> typing.NoReturn:
-        raise self.error
+        raise (
+            self.error
+            if isinstance(self.error, BaseException)
+            else Exception(self.error)
+        )
 
     def unwrap_or(self, alternate_value: T, /) -> T:
         return alternate_value

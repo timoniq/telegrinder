@@ -21,7 +21,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         self.machine = machine
         self.view = view
 
-    async def pre(self, event: EventType, ctx: dict):
+    async def pre(self, event: EventType, ctx: dict) -> bool:
         if not self.view or not hasattr(self.view, "get_state_key"):
             raise RuntimeError(
                 "WaiterMiddleware cannot be used inside a view which doesn't "
@@ -30,21 +30,21 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
 
         view_name = self.view.__class__.__name__
         if view_name not in self.machine.storage:
-            return
+            return True
 
         key = self.view.get_state_key(event)
         short_state: typing.Optional["ShortState"] = self.machine.storage[
             view_name
         ].get(key)
         if not short_state:
-            return
+            return True
 
         if (
             short_state.expiration is not None
             and datetime.datetime.now() >= short_state.expiration
         ):
             await self.machine.drop(self.view, short_state.key)  # type: ignore
-            return
+            return True
 
         handler: FuncHandler = FuncHandler(
             self.pass_runtime, short_state.rules, dataclass=None
