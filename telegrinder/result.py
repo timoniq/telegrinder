@@ -79,4 +79,3 @@ class Error(typing.Generic[Err]):
 
 
 Result = Ok[Value] | Error[Err]
-

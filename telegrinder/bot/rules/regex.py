@@ -1,7 +1,8 @@
-from .abc import Message
-from .text import TextMessageRule
 import re
 import typing
+
+from .abc import Message
+from .text import TextMessageRule
 
 PatternLike = str | typing.Pattern[str]
 

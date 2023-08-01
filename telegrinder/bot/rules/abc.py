@@ -1,11 +1,13 @@
-from abc import ABC, abstractmethod
-from telegrinder.bot.cute_types import MessageCute
-from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter, EventAdapter
-from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.bot.cute_types.update import UpdateCute
-import typing
 import inspect
+import typing
+from abc import ABC, abstractmethod
+
 import vbml
+
+from telegrinder.bot.cute_types import MessageCute
+from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.bot.dispatch.process import check_rule
+from telegrinder.bot.rules.adapter import ABCAdapter, EventAdapter, RawUpdateAdapter
 
 T = typing.TypeVar("T")
 patcher = vbml.Patcher()

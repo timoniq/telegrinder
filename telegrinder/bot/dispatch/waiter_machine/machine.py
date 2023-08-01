@@ -11,7 +11,6 @@ from .short_state import Behaviour, EventModel, ShortState
 Identificator = str | int
 Storage = dict[str, dict[Identificator, "ShortState"]]
 
-
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.abc import ABCStateView
 
@@ -28,7 +27,7 @@ class WaiterMachine:
     ) -> None:
         view_name = state_view.__class__.__name__
         if view_name not in self.storage:
-            raise LookupError("No record of view {} found".format(view_name))
+            raise LookupError("No record of view {!r} found".format(view_name))
 
         short_state = self.storage[view_name].pop(id, None)
         if not short_state:

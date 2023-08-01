@@ -1,8 +1,8 @@
 import asyncio
 
 from telegrinder.api import API
-from telegrinder.bot.polling import ABCPolling, Polling
 from telegrinder.bot.dispatch import ABCDispatch, Dispatch
+from telegrinder.bot.polling import ABCPolling, Polling
 from telegrinder.modules import logger
 
 

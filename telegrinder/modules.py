@@ -107,4 +107,3 @@ elif logging_module == "logging":
     logger = logging.Logger("telegrinder", level=logging.DEBUG)  # type: ignore
     logger.addHandler(handler)  # type: ignore
     logger = StyleAdapter(logger)  # type: ignore
-    

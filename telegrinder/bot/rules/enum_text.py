@@ -1,7 +1,8 @@
+import typing
 from enum import Enum
+
 from .abc import Message
 from .text import TextMessageRule
-import typing
 
 T = typing.TypeVar("T", bound=Enum)
 

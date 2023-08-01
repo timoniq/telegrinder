@@ -1,6 +1,7 @@
+import difflib
+
 from .abc import Message
 from .text import TextMessageRule
-import difflib
 
 
 class FuzzyText(TextMessageRule):
