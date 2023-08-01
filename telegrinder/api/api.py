@@ -1,7 +1,8 @@
+import typing
+
 import msgspec
 
 from .abc import ABCAPI, APIError, Token
-import typing
 from telegrinder.result import Result, Ok, Error
 from telegrinder.client import ABCClient, AiohttpClient
 from telegrinder.types.methods import APIMethods
@@ -43,7 +44,7 @@ class API(ABCAPI, APIMethods):
             assert "result" in response
             return Ok(response["result"])
 
-        code, msg = response.get("error_code"), response.get("description")
+        code, msg = response.get("error_code", 0), response.get("description")
         return Error(APIError(code, msg))
 
     async def request_raw(

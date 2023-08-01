@@ -1,5 +1,4 @@
 import typing
-import types
 import datetime
 
 from telegrinder.bot.dispatch.handler.func import FuncHandler
@@ -9,7 +8,6 @@ from telegrinder.bot.dispatch.view.abc import ABCStateView
 if typing.TYPE_CHECKING:
     from .machine import WaiterMachine, Behaviour
     from .short_state import ShortState
-
 
 EventType = typing.TypeVar("EventType")
 
@@ -23,10 +21,12 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         self.machine = machine
         self.view = view
 
-    async def pre(self, event: EventType, ctx: dict) -> None:
+    async def pre(self, event: EventType, ctx: dict):
         if not self.view or not hasattr(self.view, "get_state_key"):
-            msg = "WaiterMiddleware cannot be used inside a view which doesn't provide get_state_key (ABCDispenseView Protocol)"
-            raise RuntimeError(msg)
+            raise RuntimeError(
+                "WaiterMiddleware cannot be used inside a view which doesn't "
+                "provide get_state_key (ABCStateView Protocol)"
+            )
 
         view_name = self.view.__class__.__name__
         if view_name not in self.machine.storage:
@@ -67,5 +67,5 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         return False
 
     async def pass_runtime(self, event, short_state: "ShortState", ctx: dict) -> None:
-        setattr(short_state.event, "context", (event, ctx))  # ruff: noqa
+        setattr(short_state.event, "context", (event, ctx))
         short_state.event.set()

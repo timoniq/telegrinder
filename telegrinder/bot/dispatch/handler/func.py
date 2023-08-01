@@ -1,11 +1,13 @@
-import typing
 import types
+import typing
+
+from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.process import check_rule
+from telegrinder.modules import logger
 from telegrinder.tools.magic import magic_bundle
 from telegrinder.types import Update
-from telegrinder.api.abc import ABCAPI
+
 from .abc import ABCHandler
-from telegrinder.modules import logger
 
 T = typing.TypeVar("T")
 

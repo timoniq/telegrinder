@@ -9,7 +9,7 @@ def resolve_arg_names(func: types.FunctionType) -> tuple[str, ...]:
 
 def get_default_args(func: types.FunctionType) -> dict[str, typing.Any]:
     fspec = inspect.getfullargspec(func)
-    return dict(zip(fspec.args[::-1], (fspec.defaults or ())[::-1]))
+    return dict(zip(reversed(fspec.args), reversed(fspec.defaults or ())))
 
 
 def magic_bundle(

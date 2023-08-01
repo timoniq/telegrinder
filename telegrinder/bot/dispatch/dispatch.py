@@ -1,4 +1,5 @@
 import asyncio
+import typing
 
 from .abc import ABCDispatch
 from telegrinder.bot.rules import ABCRule
@@ -8,10 +9,8 @@ from telegrinder.api.abc import ABCAPI
 from telegrinder.modules import logger
 from vbml.patcher import Patcher
 from .view import ABCView, MessageView, CallbackQueryView, InlineQueryView
-import typing
 
 T = typing.TypeVar("T")
-
 DEFAULT_DATACLASS = Update
 
 
@@ -24,7 +23,7 @@ class Dispatch(ABCDispatch):
         self.message = MessageView()
         self.callback_query = CallbackQueryView()
         self.inline_query = InlineQueryView()
-        self.views = ["message", "callback_query", "inline_query"]
+        self.views = {"message", "callback_query", "inline_query"}
 
     @property
     def patcher(self) -> Patcher:
@@ -46,8 +45,8 @@ class Dispatch(ABCDispatch):
 
     def get_views(self) -> typing.Iterator[ABCView]:
         for view_name in self.views:
-            view = getattr(self, view_name)
-            assert view, f"View {view_name} is undefined in dispatch"
+            view = getattr(self, view_name, None)
+            assert view, f"View {view_name!r} is undefined in dispatch"
             yield view
 
     def get_view(self, view_t: typing.Type[T], name: str) -> T | None:
@@ -57,12 +56,14 @@ class Dispatch(ABCDispatch):
         assert isinstance(view, view_t)
         return view  # type: ignore
 
-    def load(self, external: "Dispatch"):
+    def load(self, external: typing.Self):
         for view_name in self.views:
-            view = getattr(self, view_name)
-            assert view, f"View {view_name} is undefined in dispatch"
-            view_external = getattr(external, view_name)
-            assert view_external, f"View {view_name} is undefined in external dispatch"
+            view = getattr(self, view_name, None)
+            assert view, f"View {view_name!r} is undefined in dispatch"
+            view_external = getattr(external, view_name, None)
+            assert (
+                view_external
+            ), f"View {view_name!r} is undefined in external dispatch"
             view.load(view_external)
 
     async def feed(self, event: Update, api: ABCAPI) -> bool:
@@ -70,7 +71,7 @@ class Dispatch(ABCDispatch):
         for view in self.get_views():
             if await view.check(event):
                 logger.debug(
-                    "Update {} matched view {}",
+                    "Update (update_id={}) matched view {!r}",
                     event.update_id,
                     view.__class__.__name__,
                 )
@@ -87,6 +88,6 @@ class Dispatch(ABCDispatch):
                     break
         return found
 
-    def mount(self, view_t: typing.Type["ABCView"], name: str):
-        self.views.append(name)
-        setattr(self, name, view_t)
+    def mount(self, view: ABCView, name: str):
+        self.views.add(name)
+        setattr(self, name, view)

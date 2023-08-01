@@ -1,3 +1,5 @@
+import typing
+
 from .abc import ABCStateView
 from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
@@ -6,12 +8,11 @@ from telegrinder.bot.cute_types import MessageCute
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.types import Update
-import typing
 
 
 class MessageView(ABCStateView):
     def __init__(self):
-        self.auto_rules: list[ABCRule] = []
+        self.auto_rules: list[ABCRule[MessageCute]] = []
         self.handlers: list[ABCHandler[MessageCute]] = []
         self.middlewares: list[ABCMiddleware[MessageCute]] = []
 
@@ -35,3 +36,8 @@ class MessageView(ABCStateView):
     async def process(self, event: Update, api: ABCAPI):
         msg = MessageCute(**event.message.to_dict(), api=api)
         return await process_inner(msg, event, self.middlewares, self.handlers)
+
+    def load(self, external: typing.Self):
+        self.auto_rules.extend(external.auto_rules)
+        self.handlers.extend(external.handlers)
+        self.middlewares.extend(external.middlewares)

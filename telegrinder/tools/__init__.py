@@ -1,7 +1,3 @@
-from .keyboard import Keyboard, Button, InlineButton, InlineKeyboard, AnyMarkup
-from .magic import resolve_arg_names, magic_bundle
-from .kb_set import KeyboardSetBase, KeyboardSetYAML
-from .parse_mode import ParseMode, get_mention_link
 from .formatting import (
     FormatString,
     HTMLFormatter,
@@ -20,3 +16,7 @@ from .formatting import (
     strike,
     underline,
 )
+from .kb_set import KeyboardSetBase, KeyboardSetYAML
+from .keyboard import AnyMarkup, Button, InlineButton, InlineKeyboard, Keyboard
+from .magic import magic_bundle, resolve_arg_names
+from .parse_mode import ParseMode, get_mention_link
