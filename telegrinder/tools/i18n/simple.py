@@ -25,7 +25,7 @@ class SimpleI18n(ABCI18n):
                 with open(mo_path, "rb") as f:
                     result[name] = gettext.GNUTranslations(f)
             elif os.path.exists(mo_path[:-2] + "po"):
-                raise NotImplementedError(".po files should be compiled first")
+                raise FileNotFoundError(".po files should be compiled first")
         return result
 
     def get_translator_by_locale(self, locale: str) -> "SimpleTranslator":

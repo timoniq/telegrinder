@@ -11,7 +11,7 @@ class ABCTranslatorMiddleware(ABCMiddleware):
 
     @abstractmethod
     async def get_locale(self, event) -> str:
-        raise NotImplementedError
+        pass
 
     async def pre(self, event, ctx: dict) -> bool:
         ctx[self.kwarg_name] = self.i18n.get_translator_by_locale(await self.get_locale(event))

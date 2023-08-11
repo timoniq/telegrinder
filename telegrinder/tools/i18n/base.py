@@ -4,11 +4,11 @@ from abc import ABC, abstractmethod
 class ABCI18n(ABC):
     @abstractmethod
     def __init__(self):
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def get_translator_by_locale(self, locale: str) -> "ABCTranslator":
-        raise NotImplementedError
+        pass
 
 
 class ABCTranslator(ABC):
