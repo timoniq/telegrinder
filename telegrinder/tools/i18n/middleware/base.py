@@ -5,7 +5,7 @@ from telegrinder.tools.i18n import ABCI18n
 
 
 class ABCTranslatorMiddleware(ABCMiddleware):
-    def __init__(self, i18n: ABCI18n, kwarg_name: str):
+    def __init__(self, i18n: ABCI18n, kwarg_name: str = "_"):
         self.i18n = i18n
         self.kwarg_name = kwarg_name
 
