@@ -1,13 +1,13 @@
 """This is an implementation of GNU gettext (pyBabel)."""
 import gettext
 
-from telegrinder.tools.i18n import AbstractI18n
+from telegrinder.tools.i18n import ABCI18n
 import os
 
-from telegrinder.tools.i18n.base import AbstractTranslator
+from telegrinder.tools.i18n.base import ABCTranslator
 
 
-class SimpleI18n(AbstractI18n):
+class SimpleI18n(ABCI18n):
     def __init__(self, folder: str, domain: str, default_locale: str):
         self.folder = folder
         self.domain = domain
@@ -32,7 +32,7 @@ class SimpleI18n(AbstractI18n):
         return SimpleTranslator(locale, self.translators.get(locale, self.translators[self.default_locale]))
 
 
-class SimpleTranslator(AbstractTranslator):
+class SimpleTranslator(ABCTranslator):
     def __init__(self, locale: str, g: gettext.GNUTranslations):
         self.g = g
         super().__init__(locale)

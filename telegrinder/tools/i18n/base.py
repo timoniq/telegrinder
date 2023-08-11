@@ -1,17 +1,17 @@
 from abc import ABC, abstractmethod
 
 
-class AbstractI18n(ABC):
+class ABCI18n(ABC):
     @abstractmethod
     def __init__(self):
         raise NotImplementedError
 
     @abstractmethod
-    def get_translator_by_locale(self, locale: str) -> "AbstractTranslator":
+    def get_translator_by_locale(self, locale: str) -> "ABCTranslator":
         raise NotImplementedError
 
 
-class AbstractTranslator(ABC):
+class ABCTranslator(ABC):
     def __init__(self, locale: str, **kwargs):
         self.locale = locale
 
