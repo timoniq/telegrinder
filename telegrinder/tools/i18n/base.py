@@ -3,10 +3,6 @@ from abc import ABC, abstractmethod
 
 class ABCI18n(ABC):
     @abstractmethod
-    def __init__(self):
-        pass
-
-    @abstractmethod
     def get_translator_by_locale(self, locale: str) -> "ABCTranslator":
         pass
 
