@@ -1,4 +1,5 @@
-from .abc import ABC, MessageRule, Message
+from .abc import ABC, MessageRule, Message, TranslatableRuleMixin, ABCTranslatedRule
+from ...tools.i18n.constants import I18N_KWARG_NAME
 
 
 class HasText(MessageRule):
@@ -10,14 +11,28 @@ class TextMessageRule(MessageRule, ABC, require=[HasText()]):
     pass
 
 
-class Text(TextMessageRule):
+class Text(TextMessageRule, TranslatableRuleMixin):
     def __init__(self, texts: str | list[str], ignore_case: bool = False):
         if not isinstance(texts, list):
             texts = [texts]
         self.texts = texts if not ignore_case else list(map(str.lower, texts))
         self.ignore_case = ignore_case
 
-    async def check(self, message: Message, ctx: dict) -> bool:
+    def check_text(self, text: str, override_texts: list[str] | None = None) -> bool:
+        texts = override_texts or self.texts
         return (
-            message.text if not self.ignore_case else message.text.lower()
-        ) in self.texts
+            text if not self.ignore_case else text.lower()
+        ) in texts
+
+    async def check(self, message: Message, ctx: dict) -> bool:
+        return self.check_text(message.text)
+
+    def translate(self) -> "TranslatedText":
+        return TranslatedText(inner_rule=self)
+
+
+class TranslatedText(ABCTranslatedRule[Text]):
+    async def check(self, message: Message, ctx: dict) -> bool:
+        return self.inner_rule.check_text(message.text, [
+            ctx[I18N_KWARG_NAME].get(text) for text in self.inner_rule.texts
+        ])

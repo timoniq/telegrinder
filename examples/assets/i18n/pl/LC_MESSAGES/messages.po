@@ -22,3 +22,11 @@ msgstr ""
 msgid "Hello! Your locale is {locale}!"
 msgstr "Cześć! Twój język to {locale}!"
 
+msgid "hi"
+msgstr "cześć"
+
+msgid "hello"
+msgstr "cześć"
+
+msgid "Hello, {name}!"
+msgstr "Cześć, {name}!"

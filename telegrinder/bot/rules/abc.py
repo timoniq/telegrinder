@@ -7,6 +7,8 @@ import typing
 import inspect
 import vbml
 
+from telegrinder.tools.i18n import ABCI18n
+
 T = typing.TypeVar("T")
 patcher = vbml.Patcher()
 
@@ -85,4 +87,24 @@ class MessageRule(ABCRule[Message], ABC, require=[]):
 
     @abstractmethod
     async def check(self, message: Message, ctx: dict) -> bool:
+        ...
+
+
+InnerRuleT = typing.TypeVar("InnerRuleT", bound=ABCRule)
+
+
+class ABCTranslatedRule(ABCRule, ABC, typing.Generic[InnerRuleT]):
+    def __init__(self, inner_rule: T):
+        self.inner_rule = inner_rule
+        self.require = inner_rule.require  # Not sure if this is correct
+        self.adapter = inner_rule.adapter
+
+    @abstractmethod
+    async def check(self, message: Message, ctx: dict) -> bool:
+        ...
+
+
+class TranslatableRuleMixin(ABC, typing.Generic[InnerRuleT]):
+    @abstractmethod
+    def translate(self: T) -> ABCTranslatedRule:
         ...

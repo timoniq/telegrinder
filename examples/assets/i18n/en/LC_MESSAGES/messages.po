@@ -22,3 +22,11 @@ msgstr ""
 msgid "Hello!"
 msgstr ""
 
+msgid "hi"
+msgstr ""
+
+msgid "hello"
+msgstr ""
+
+msgid "Hello, {name}!"
+msgstr ""

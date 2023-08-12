@@ -31,7 +31,7 @@ async def process_inner(
     found = False
     responses = []
     for handler in handlers:
-        if await handler.check(event.api, raw_event):
+        if await handler.check(event.api, raw_event, ctx):
             found = True
             handler.ctx |= ctx
             responses.append(await handler.run(event))
