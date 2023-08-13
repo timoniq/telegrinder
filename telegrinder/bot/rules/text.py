@@ -1,4 +1,4 @@
-from .abc import ABC, MessageRule, Message, TranslatableRuleMixin, ABCTranslatedRule
+from .abc import ABC, MessageRule, Message, ABCTranslatedRule
 from ...tools.i18n.constants import I18N_KWARG_NAME
 
 
@@ -11,7 +11,7 @@ class TextMessageRule(MessageRule, ABC, require=[HasText()]):
     pass
 
 
-class Text(TextMessageRule, TranslatableRuleMixin):
+class Text(TextMessageRule):
     def __init__(self, texts: str | list[str], ignore_case: bool = False):
         if not isinstance(texts, list):
             texts = [texts]

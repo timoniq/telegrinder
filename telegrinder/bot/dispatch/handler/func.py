@@ -28,7 +28,7 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
         self.dataclass = dataclass
         self.ctx = {}
 
-    async def check(self, api: ABCAPI, event: Update, ctx: dict = None) -> bool:
+    async def check(self, api: ABCAPI, event: Update, ctx: dict | None = None) -> bool:
         ctx = ctx or {}
         preset_ctx = self.ctx.copy()
         self.ctx |= ctx

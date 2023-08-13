@@ -102,9 +102,3 @@ class ABCTranslatedRule(ABCRule, ABC, typing.Generic[InnerRuleT]):
     @abstractmethod
     async def check(self, message: Message, ctx: dict) -> bool:
         ...
-
-
-class TranslatableRuleMixin(ABC, typing.Generic[InnerRuleT]):
-    @abstractmethod
-    def translate(self: T) -> ABCTranslatedRule:
-        ...
