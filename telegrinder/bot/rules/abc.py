@@ -3,17 +3,31 @@ from telegrinder.bot.cute_types import MessageCute
 from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter, EventAdapter
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.tools.magic import get_cached_translation, cache_translation
 import typing
 import inspect
 import vbml
 
-from telegrinder.tools.i18n import ABCI18n
+from telegrinder.tools.i18n.base import ABCTranslator
 
 T = typing.TypeVar("T")
 patcher = vbml.Patcher()
 
 Message = MessageCute
 Update = UpdateCute
+
+
+def with_caching_translations(func):
+    """Should be used as decorator for .translate method. Caches rule translations."""
+
+    async def wrapper(self: "ABCRule", translator: ABCTranslator):
+        if translation := get_cached_translation(self, translator.locale):
+            return translation
+        translation = await func(self, translator)
+        cache_translation(self, translator.locale, translation)
+        return translation
+
+    return wrapper
 
 
 class ABCRule(ABC, typing.Generic[T]):
@@ -45,6 +59,9 @@ class ABCRule(ABC, typing.Generic[T]):
 
     def __repr__(self) -> str:
         return f"(rule {self.__class__.__name__})"
+
+    async def translate(self, translator: ABCTranslator) -> typing.Self:
+        return self
 
 
 class AndRule(ABCRule):
@@ -84,20 +101,6 @@ class NotRule(ABCRule):
 
 class MessageRule(ABCRule[Message], ABC, require=[]):
     adapter = EventAdapter("message", Message)
-
-    @abstractmethod
-    async def check(self, message: Message, ctx: dict) -> bool:
-        ...
-
-
-InnerRuleT = typing.TypeVar("InnerRuleT", bound=ABCRule)
-
-
-class ABCTranslatedRule(ABCRule, ABC, typing.Generic[InnerRuleT]):
-    def __init__(self, inner_rule: T):
-        self.inner_rule = inner_rule
-        self.require = inner_rule.require  # Not sure if this is correct
-        self.adapter = inner_rule.adapter
 
     @abstractmethod
     async def check(self, message: Message, ctx: dict) -> bool:

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import enum
 
 
 class ABCI18n(ABC):
@@ -17,3 +18,7 @@ class ABCTranslator(ABC):
 
     def __call__(self, key: str, **kwargs):
         return self.get(key, **kwargs)
+
+
+class I18nEnum(enum.Enum):
+    I18N = "_"
