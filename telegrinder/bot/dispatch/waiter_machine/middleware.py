@@ -51,7 +51,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         )
         handler.ctx["short_state"] = short_state
 
-        result = await handler.check(event.ctx_api, event)
+        result = await handler.check(event.ctx_api, event, ctx)
 
         if result is True:
             await handler.run(event)

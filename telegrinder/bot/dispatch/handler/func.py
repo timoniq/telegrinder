@@ -28,9 +28,10 @@ class FuncHandler(ABCHandler, typing.Generic[T]):
         self.dataclass = dataclass
         self.ctx = {}
 
-    async def check(self, api: ABCAPI, event: Update) -> bool:
-        preset_ctx = self.ctx
-        self.ctx = preset_ctx.copy()
+    async def check(self, api: ABCAPI, event: Update, ctx: dict | None = None) -> bool:
+        ctx = ctx or {}
+        preset_ctx = self.ctx.copy()
+        self.ctx |= ctx
         for rule in self.rules:
             if not await check_rule(api, rule, event, self.ctx):
                 logger.debug("Rule {} failed", rule)

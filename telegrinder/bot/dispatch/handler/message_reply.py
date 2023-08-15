@@ -16,7 +16,7 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         self.is_blocking = is_blocking
         self.dataclass = MessageCute
 
-    async def check(self, api, event) -> bool:
+    async def check(self, api, event, ctx) -> bool:
         return True
 
     async def run(self, event: MessageCute) -> typing.Any:
