@@ -1,19 +1,35 @@
 import inspect
 import typing
+
 from abc import ABC, abstractmethod
 
 import vbml
 
 from telegrinder.bot.cute_types import MessageCute
-from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter, EventAdapter
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.bot.rules.adapter import ABCAdapter, EventAdapter, RawUpdateAdapter
+from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.tools.magic import get_cached_translation, cache_translation
+from telegrinder.tools.i18n.base import ABCTranslator
 
 T = typing.TypeVar("T")
 patcher = vbml.Patcher()
 
 Message = MessageCute
 Update = UpdateCute
+
+
+def with_caching_translations(func):
+    """Should be used as decorator for .translate method. Caches rule translations."""
+
+    async def wrapper(self: "ABCRule", translator: ABCTranslator):
+        if translation := get_cached_translation(self, translator.locale):
+            return translation
+        translation = await func(self, translator)
+        cache_translation(self, translator.locale, translation)
+        return translation
+
+    return wrapper
 
 
 class ABCRule(ABC, typing.Generic[T]):
@@ -45,6 +61,9 @@ class ABCRule(ABC, typing.Generic[T]):
 
     def __repr__(self) -> str:
         return f"(rule {self.__class__.__name__})"
+
+    async def translate(self, translator: ABCTranslator) -> typing.Self:
+        return self
 
 
 class AndRule(ABCRule):

@@ -5,6 +5,7 @@ from telegrinder.types import Update
 from telegrinder.modules import logger
 from telegrinder.result import Error
 from telegrinder.api.abc import ABCAPI
+from telegrinder.tools.i18n.base import I18nEnum
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
@@ -31,7 +32,7 @@ async def process_inner(
     found = False
     responses = []
     for handler in handlers:
-        if await handler.check(event.api, raw_event):
+        if await handler.check(event.api, raw_event, ctx):
             found = True
             handler.ctx |= ctx
             responses.append(await handler.run(event))
@@ -63,4 +64,8 @@ async def check_rule(
             return False
 
     ctx |= ctx_copy
+
+    if I18nEnum.I18N in ctx:
+        rule = await rule.translate(ctx[I18nEnum.I18N])
+
     return await rule.check(model.unwrap(), ctx)
