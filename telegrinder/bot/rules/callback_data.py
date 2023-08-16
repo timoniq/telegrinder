@@ -1,12 +1,15 @@
-from .abc import ABCRule
-from telegrinder.modules import json
-from telegrinder.bot.cute_types import CallbackQueryCute
-from telegrinder.bot.rules.adapter import EventAdapter
-from .markup import Markup, check_string
-import msgspec
-import vbml
 import abc
 import typing
+
+import msgspec
+import vbml
+
+from telegrinder.bot.cute_types import CallbackQueryCute
+from telegrinder.bot.rules.adapter import EventAdapter
+from telegrinder.modules import json
+
+from .abc import ABCRule
+from .markup import Markup, check_string
 
 CallbackQuery = CallbackQueryCute
 PatternLike = str | vbml.Pattern

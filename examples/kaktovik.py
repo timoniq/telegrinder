@@ -1,7 +1,6 @@
 from telegrinder import Telegrinder, API, Token, Message
 from telegrinder.rules import Integer, IsPrivate
 from telegrinder.tools.formatting import FormatString, Link, HTMLFormatter
-import asyncio
 import logging
 
 api = API(Token.from_env())

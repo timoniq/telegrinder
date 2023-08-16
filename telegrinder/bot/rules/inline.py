@@ -1,7 +1,8 @@
-from telegrinder.bot.cute_types import InlineQueryCute
-from telegrinder.bot.rules.adapter import EventAdapter
-from telegrinder.bot.rules.abc import ABCRule
 import abc
+
+from telegrinder.bot.cute_types import InlineQueryCute
+from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.adapter import EventAdapter
 
 
 class InlineQueryRule(ABCRule[InlineQueryCute], abc.ABC):

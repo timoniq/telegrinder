@@ -1,7 +1,9 @@
 import typing
-from .objects import *  # noqa: F403
-from telegrinder.result import Result
+
 from telegrinder.api.error import APIError
+from telegrinder.result import Result
+
+from .objects import *  # noqa: F403
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.abc import ABCAPI

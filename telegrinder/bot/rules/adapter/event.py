@@ -1,10 +1,10 @@
-from telegrinder.bot.rules.adapter.abc import ABCAdapter
-from telegrinder.bot.rules.adapter.errors import AdapterError
-from telegrinder.types.objects import Update, Model
-from telegrinder.result import Result, Ok, Error
-from telegrinder.api.abc import ABCAPI
 import typing
 
+from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.rules.adapter.abc import ABCAdapter
+from telegrinder.bot.rules.adapter.errors import AdapterError
+from telegrinder.result import Error, Ok, Result
+from telegrinder.types.objects import Model, Update
 
 Event = typing.TypeVar("Event", bound=Model)
 

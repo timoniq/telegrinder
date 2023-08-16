@@ -1,8 +1,9 @@
 import abc
 import typing
-from telegrinder.result import Result
-from telegrinder.bot.rules.adapter.errors import AdapterError
+
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.rules.adapter.errors import AdapterError
+from telegrinder.result import Result
 
 UpdateT = typing.TypeVar("UpdateT")
 T = typing.TypeVar("T")

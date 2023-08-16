@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
 import typing
+from abc import ABC, abstractmethod
 
 import msgspec
-
 from envparse import env
 
 from telegrinder.api.error import APIError

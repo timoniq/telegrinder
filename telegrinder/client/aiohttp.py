@@ -2,11 +2,11 @@ import ssl
 import typing
 
 import aiohttp
+import certifi
+from aiohttp import ClientSession, TCPConnector
 
 from telegrinder.client.abc import ABCClient
-from aiohttp import ClientSession, TCPConnector
-from telegrinder.modules import json, JSONModule
-import certifi
+from telegrinder.modules import JSONModule, json
 
 if typing.TYPE_CHECKING:
     from aiohttp import ClientResponse

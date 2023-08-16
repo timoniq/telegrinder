@@ -1,9 +1,12 @@
-from .base import KeyboardSetBase, KeyboardSetError
-from telegrinder.tools.keyboard import Keyboard, InlineKeyboard
-import typing
-import re
 import os
+import re
+import typing
+
 import yaml
+
+from telegrinder.tools.keyboard import InlineKeyboard, Keyboard
+
+from .base import KeyboardSetBase, KeyboardSetError
 
 
 class KeyboardSetYAML(KeyboardSetBase):
@@ -13,7 +16,7 @@ class KeyboardSetYAML(KeyboardSetBase):
     def load(cls) -> None:
         config_path = getattr(cls, "__config__", "keyboards.yaml")
         if not os.path.exists(config_path):
-            raise FileNotFoundError(f"Config file for {cls.__name__} is undefined")
+            raise FileNotFoundError(f"Config file for {cls.__name__!r} is undefined")
 
         config = yaml.load(open(config_path, "r", encoding="utf-8"), yaml.Loader)
         for name, hint in typing.get_type_hints(cls).items():
@@ -47,7 +50,7 @@ class KeyboardSetYAML(KeyboardSetBase):
                     new_keyboard.row()
                     continue
                 if "text" not in button:
-                    raise KeyboardSetError("text is required")
-                new_keyboard.add(new_keyboard.BUTTON(**button))
+                    raise KeyboardSetError("Text is required in button")
+                new_keyboard.add(new_keyboard.BUTTON(**button))  # type: ignore
 
             setattr(cls, name, new_keyboard)

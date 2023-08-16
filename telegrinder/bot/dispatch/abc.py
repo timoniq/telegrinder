@@ -1,14 +1,13 @@
+import typing
+
 from abc import ABC, abstractmethod
 from telegrinder.api.abc import ABCAPI
 from telegrinder.types import Update
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.dispatch.handler.func import FuncHandler
-import typing
-
 
 if typing.TYPE_CHECKING:
     from .view.abc import ABCView
-
 
 P = typing.ParamSpec("P")
 R = typing.TypeVar("R")
@@ -26,7 +25,7 @@ class ABCDispatch(ABC):
         pass
 
     @abstractmethod
-    def mount(self, view_t: typing.Type["ABCView"], name: str):
+    def mount(self, view: "ABCView", name: str):
         pass
 
     @classmethod

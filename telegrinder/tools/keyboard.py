@@ -1,6 +1,6 @@
 import typing
-from typing import List, Optional
-from dataclasses import dataclass
+import dataclasses
+
 from abc import ABC, abstractmethod
 from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup
 
@@ -9,12 +9,12 @@ from .buttons import Button, InlineButton, BaseButton
 AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
 
-@dataclass
+@dataclasses.dataclass
 class KeyboardModel:
     resize_keyboard: bool
     one_time_keyboard: bool
     selective: bool
-    keyboard: List[List[dict]]
+    keyboard: typing.List[typing.List[dict]]
 
 
 class ABCMarkup(ABC, KeyboardModel):
@@ -24,7 +24,7 @@ class ABCMarkup(ABC, KeyboardModel):
         self,
         resize_keyboard: bool = True,
         one_time_keyboard: bool = False,
-        selective: Optional[bool] = None,
+        selective: typing.Optional[bool] = None,
     ):
         self.keyboard = [[]]
         self.resize_keyboard = resize_keyboard

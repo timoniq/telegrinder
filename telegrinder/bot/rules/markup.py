@@ -1,6 +1,7 @@
+import vbml
+
 from .abc import Message, patcher
 from .text import TextMessageRule
-import vbml
 
 PatternLike = str | vbml.Pattern
 

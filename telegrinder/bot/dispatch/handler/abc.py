@@ -1,7 +1,8 @@
+import typing
+
 from abc import ABC, abstractmethod
 from telegrinder.types import Update
 from telegrinder.api.abc import ABCAPI
-import typing
 
 T = typing.TypeVar("T")
 

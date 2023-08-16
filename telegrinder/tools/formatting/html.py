@@ -1,10 +1,11 @@
-from telegrinder.tools.parse_mode import ParseMode, get_mention_link
-from contextlib import suppress
 import dataclasses
 import string
 import typing
+from contextlib import suppress
 
-TAG_FORMATTER = "<{tag}{data}>{content}</{tag}>"
+from telegrinder.tools.parse_mode import ParseMode, get_mention_link
+
+TAG_FORMAT = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK = '"'
 
 
@@ -57,12 +58,15 @@ class StringFormatter(string.Formatter):
         Link: "link",
     }
 
-    def is_good_format(self, value: typing.Any, fmt: str) -> str:
+    def is_spec_html_format(self, value: typing.Any, fmt: str) -> str:
         if not fmt:
-            raise ValueError("formats union should be: format+format.")
+            raise ValueError("Formats union should be: format+format.")
         if fmt not in self.__formats__:
             raise ValueError(
-                f"unknown format {fmt!r} for object of type {type(value).__name__!r}."
+                "Unknown format {!r} for object of type {!r}.".format(
+                    fmt,
+                    type(value).__name__,
+                )
             )
         return fmt
 
@@ -106,7 +110,9 @@ class StringFormatter(string.Formatter):
                     fmt,
                 )
             )
-        fmts = list(map(lambda fmt: self.is_good_format(value, fmt), fmt.split("+")))
+        fmts = list(
+            map(lambda fmt: self.is_spec_html_format(value, fmt), fmt.split("+"))
+        )
         tag_format = self.check_formats(value, fmts)
         if self.is_spec_formatter(value):
             value.string = tag_format
@@ -130,7 +136,7 @@ class FormatString(str):
 
     def __radd__(self, value: str) -> "HTMLFormatter":
         """Return value+self."""
-        return HTMLFormatter(FormatString.__add__(value, self))
+        return HTMLFormatter(FormatString.__add__(FormatString(value), self).as_str())
 
     def as_str(self) -> str:
         """Return self as a standart string."""
@@ -177,7 +183,7 @@ class TagFormat(FormatString):
 
     def formatting(self) -> "HTMLFormatter":
         return HTMLFormatter(
-            TAG_FORMATTER.format(
+            TAG_FORMAT.format(
                 tag=self.tag,
                 data=self.tag_data(),
                 content=self,

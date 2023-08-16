@@ -1,6 +1,8 @@
-from .abc import ABCRule, ABCAdapter, RawUpdateAdapter, T
-from telegrinder.types import Update
 import typing
+
+from telegrinder.types import Update
+
+from .abc import ABCAdapter, ABCRule, RawUpdateAdapter, T
 
 
 class FuncRule(ABCRule, typing.Generic[T]):

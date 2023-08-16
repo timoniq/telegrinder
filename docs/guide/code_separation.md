@@ -1,6 +1,6 @@
-# Code separation
+# Code Separation
 
-Telegrinder has a `Dispatch` class. It allows for code separation across files. From each file, you need to import the declared `Dispatch` and load it into the `Telegrinder` class.
+Telegrinder has a `Dispatch` class. It allows for code separation across files. From each file you need to import the declared `Dispatch` and load it into the `Telegrinder` class.
 ```python
 from telegrinder import Dispatch
 
@@ -45,9 +45,6 @@ async def start(message: Message):
 
 The remaining files are similar. Now let's initialize them in the `__init__.py` file:
 ```python
-import typing
-import telegrinder
-
 from . import admin, ravioli, start
 
 dps = (
@@ -70,6 +67,6 @@ logging.basicConfig(level=logging.INFO)
 
 if __name__ == "__main__":
     for dp in dps:
-        bot.on.load(dp)
+        bot.dispatch.load(dp)
     bot.run_forever()
 ```

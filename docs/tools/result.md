@@ -2,6 +2,17 @@
 
 Telegrinder is built upon the concept of result monad. This means that instead of raising an exception returning result is preferred. In this way it is easier to created typed code and avoid try-except constructs.
 
+Result methods:
+* `unwrap`
+* `unwrap_or`
+* `unwrap_or_else`
+* `unwrap_or_other`
+* `map`
+* `map_or`
+* `map_or_else`
+* `expect`
+
+
 ```python
 from telegrinder import Result, Ok, Error
 

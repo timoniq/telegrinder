@@ -1,7 +1,6 @@
 import asyncio
 import typing
 import datetime
-import types
 
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.api.abc import ABCAPI
@@ -11,7 +10,6 @@ from .short_state import Behaviour, EventModel, ShortState
 
 Identificator = str | int
 Storage = dict[str, dict[Identificator, "ShortState"]]
-
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.abc import ABCStateView
@@ -29,12 +27,12 @@ class WaiterMachine:
     ) -> None:
         view_name = state_view.__class__.__name__
         if view_name not in self.storage:
-            raise LookupError("No record of view {} found".format(view_name))
+            raise LookupError("No record of view {!r} found".format(view_name))
 
         short_state = self.storage[view_name].pop(id, None)
         if not short_state:
             raise LookupError(
-                "Waiter with identificator {} is not found for view {}".format(
+                "Waiter with identificator {} is not found for view {!r}".format(
                     id, view_name
                 )
             )
@@ -72,11 +70,9 @@ class WaiterMachine:
             api, key = linked
         else:
             api = linked.ctx_api
-
             key = state_view.get_state_key(linked)
             if not key:
-                msg = "Unable to get state key"
-                raise RuntimeError(msg)
+                raise RuntimeError("Unable to get state key")
 
         short_state = ShortState(
             key,
@@ -97,7 +93,7 @@ class WaiterMachine:
 
         await event.wait()
 
-        e, ctx = getattr(event, "context")  # ruff: noqa
+        e, ctx = getattr(event, "context")
         self.storage[view_name].pop(key)
 
         return e, ctx
