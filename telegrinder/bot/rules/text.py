@@ -19,9 +19,9 @@ class Text(TextMessageRule):
         self.ignore_case = ignore_case
 
     async def check(self, message: Message, ctx: dict) -> bool:
-        return any(
-            text if not self.ignore_case else text.lower() for text in self.texts
-        )
+        return (
+            message.text if not self.ignore_case else message.text.lower()
+        ) in self.texts
 
     @with_caching_translations
     async def translate(self, translator: ABCTranslator) -> "Text":
