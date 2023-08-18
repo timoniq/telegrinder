@@ -15,4 +15,3 @@ class APIResponse(Model):
         if self.ok:
             return Ok(self.result)
         return Error(APIError(self.error_code, self.description))
-      

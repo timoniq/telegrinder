@@ -65,6 +65,7 @@ class Dispatch(ABCDispatch):
                 view_external
             ), f"View {view_name!r} is undefined in external dispatch"
             view.load(view_external)
+            setattr(external, view_name, view)
 
     async def feed(self, event: Update, api: ABCAPI) -> bool:
         logger.debug("Processing update (update_id={})", event.update_id)
