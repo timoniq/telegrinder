@@ -59,7 +59,7 @@ async def check_rule(
             logger.debug("Adapter failed: {}", err)
             return False
 
-    for requirement in rule.require:
+    for requirement in rule.requires:
         if not await check_rule(api, requirement, update, ctx_copy):
             return False
 

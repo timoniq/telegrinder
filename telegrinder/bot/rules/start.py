@@ -4,7 +4,7 @@ from .abc import MessageRule
 from .markup import Markup, Message
 
 
-class StartCommand(MessageRule, require=[Markup(["/start <param>", "/start"])]):
+class StartCommand(MessageRule, requires=[Markup(["/start <param>", "/start"])]):
     def __init__(
         self,
         validator: typing.Callable[[str], typing.Any | None] | None = None,

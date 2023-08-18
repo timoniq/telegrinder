@@ -38,3 +38,4 @@ from .tools import (
 Message = MessageCute
 CallbackQuery = CallbackQueryCute
 InlineQuery = InlineQueryCute
+Bot = Telegrinder

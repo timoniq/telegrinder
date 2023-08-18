@@ -15,7 +15,7 @@ class HasPhoto(MessageRule):
         return message.photo is not None
 
 
-class HasNicePhoto(MessageRule, require=[HasPhoto()]):
+class HasNicePhoto(MessageRule, requires=[HasPhoto()]):
     async def check(self, message: Message, ctx: dict) -> bool:
         return message.photo[0].width > message.photo[0].height
 

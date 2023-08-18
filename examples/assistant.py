@@ -17,7 +17,7 @@ class WithReply(MessageRule):
         return True
 
 
-class IsChatAdmin(MessageRule, require=[IsChat()]):
+class IsChatAdmin(MessageRule, requires=[IsChat()]):
     async def check(self, message: Message, ctx: dict) -> bool:
         admins = (await bot.api.get_chat_administrators(message.chat.id)).unwrap()
         if message.from_.id not in (admin.user.id for admin in admins):

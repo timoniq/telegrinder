@@ -6,7 +6,7 @@ class Integer(TextMessageRule):
         return message.text.isdigit()
 
 
-class IntegerInRange(TextMessageRule, require=[Integer()]):
+class IntegerInRange(TextMessageRule, requires=[Integer()]):
     def __init__(self, rng: range):
         self.rng = rng
 

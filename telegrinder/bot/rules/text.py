@@ -7,7 +7,7 @@ class HasText(MessageRule):
         return bool(message.text)
 
 
-class TextMessageRule(MessageRule, ABC, require=[HasText()]):
+class TextMessageRule(MessageRule, ABC, requires=[HasText()]):
     pass
 
 

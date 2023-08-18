@@ -34,21 +34,21 @@ def with_caching_translations(func):
 
 class ABCRule(ABC, typing.Generic[T]):
     adapter: ABCAdapter[Update, T] = RawUpdateAdapter()
-    require: list["ABCRule[T]"] = []
+    requires: list["ABCRule[T]"] = []
 
     @abstractmethod
     async def check(self, event: T, ctx: dict) -> bool:
         pass
 
-    def __init_subclass__(cls, require: list["ABCRule[T]"] | None = None):
+    def __init_subclass__(cls, requires: list["ABCRule[T]"] | None = None):
         """Merges requirements from inherited classes and rule-specific requirements"""
         requirements = []
         for base in inspect.getmro(cls):
             if issubclass(base, ABCRule) and base != cls:
-                requirements.extend(base.require or ())
+                requirements.extend(base.requires or ())
 
-        requirements.extend(require or ())
-        cls.require = list(dict.fromkeys(requirements))
+        requirements.extend(requires or ())
+        cls.requires = list(dict.fromkeys(requirements))
 
     def __and__(self, other: "ABCRule"):
         return AndRule(self, other)
@@ -101,7 +101,7 @@ class NotRule(ABCRule):
         return not await check_rule(event.ctx_api, self.rule, event, ctx_copy)
 
 
-class MessageRule(ABCRule[Message], ABC, require=[]):
+class MessageRule(ABCRule[Message], ABC, requires=[]):
     adapter = EventAdapter("message", Message)
 
     @abstractmethod

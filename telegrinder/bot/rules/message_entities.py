@@ -9,7 +9,7 @@ class HasEntities(MessageRule):
         return bool(message.entities)
 
 
-class MessageEntitiesRule(MessageRule, require=[HasEntities()]):
+class MessageEntitiesRule(MessageRule, requires=[HasEntities()]):
     def __init__(self, entities: Entity | list[Entity]):
         self.entities = [entities] if not isinstance(entities, list) else entities
 
