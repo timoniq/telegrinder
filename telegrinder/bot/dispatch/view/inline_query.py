@@ -10,7 +10,7 @@ from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.types import Update
 
 
-class InlineQueryView(ABCStateView):
+class InlineQueryView(ABCStateView[InlineQueryCute]):
     def __init__(self):
         self.auto_rules: list[ABCRule[InlineQueryCute]] = []
         self.handlers: list[ABCHandler[InlineQueryCute]] = []

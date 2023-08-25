@@ -1,3 +1,4 @@
+import os
 import typing
 
 from choicelib import choice_in_order
@@ -36,6 +37,7 @@ json: JSONModule = choice_in_order(
     ["ujson", "hyperjson", "orjson"], do_import=True, default="json"
 )
 logging_module = choice_in_order(["loguru"], default="logging")
+logging_level = os.getenv("LOGGER_LEVEL", default="DEBUG").upper()
 
 if logging_module == "loguru":
     import os
@@ -55,7 +57,7 @@ if logging_module == "loguru":
             format=log_format,
             enqueue=True,
             colorize=True,
-            level=os.getenv("LOGURU_LOG_LEVEL", "DEBUG").upper(),
+            level=logging_level,
         )
 
 elif logging_module == "logging":
@@ -104,6 +106,7 @@ elif logging_module == "logging":
             datefmt="%Y-%m-%d %H:%M:%S",
         )
     )
-    logger = logging.Logger("telegrinder", level=logging.DEBUG)  # type: ignore
+    logger = logging.getLogger("telegrinder")  # type: ignore
+    logger.setLevel(logging.getLevelName(logging_level))  # type: ignore
     logger.addHandler(handler)  # type: ignore
     logger = StyleAdapter(logger)  # type: ignore

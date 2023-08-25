@@ -1,7 +1,7 @@
+import enum
 import inspect
 import types
 import typing
-import enum
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule

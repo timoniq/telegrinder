@@ -1,3 +1,4 @@
+import pathlib
 import typing
 from abc import ABC, abstractmethod
 
@@ -21,11 +22,12 @@ class Token(str):
     def from_env(
         cls,
         var_name: str = "BOT_TOKEN",
+        *,
         is_read: bool = False,
-        path_to_env: str | None = None,
+        path_to_envfile: str | pathlib.Path | None = None,
     ) -> typing.Self:
         if not is_read:
-            env.read_envfile(path_to_env)
+            env.read_envfile(path_to_envfile)
         return cls(env.str(var_name))
 
     @property

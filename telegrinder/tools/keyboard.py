@@ -24,7 +24,7 @@ class ABCMarkup(ABC, KeyboardModel):
         self,
         resize_keyboard: bool = True,
         one_time_keyboard: bool = False,
-        selective: typing.Optional[bool] = None,
+        selective: bool = False,
     ):
         self.keyboard = [[]]
         self.resize_keyboard = resize_keyboard
