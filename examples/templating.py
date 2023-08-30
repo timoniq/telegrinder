@@ -3,7 +3,8 @@ import pathlib
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.rules import Text
-from telegrinder.tools.templating import JinjaTemplating
+
+from telegrinder_templating import JinjaTemplating
 
 jt = JinjaTemplating(pathlib.Path(__file__).resolve().parent / "assets/templates")
 bot = Telegrinder(API(Token.from_env()))
