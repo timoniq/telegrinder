@@ -1,10 +1,6 @@
 Hello, {{ user.first_name }}!
 This is a helper bot, I sit in chat and help admins!
 Bot commands:
-/start — Hello message
-/help — Help reference
-/ban — Ban a user in chat
-/kick — Kick a user from chat
-/mute — Mute a user in chat
-/stats — Chat statistics
-/adminlist — List of administrators in chat
+{% for command in commands %}
+    /{{command.name}} - {{command.description}}
+{% endfor %}

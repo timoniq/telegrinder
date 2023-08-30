@@ -24,7 +24,6 @@ from .i18n import (
     SimpleI18n,
     SimpleTranslator,
 )
-from .templating import ABCTemplating, JinjaTemplating
 from .kb_set import KeyboardSetBase, KeyboardSetYAML
 from .keyboard import AnyMarkup, Button, InlineButton, InlineKeyboard, Keyboard
 from .magic import magic_bundle, resolve_arg_names
