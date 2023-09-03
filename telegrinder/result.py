@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import dataclasses
 import typing
 
@@ -48,9 +49,13 @@ class Error(typing.Generic[Err]):
     error: Err
 
     def __repr__(self) -> str:
-        return "<Result: Error({}: {!r})>".format(
-            self.error.__class__.__name__,
-            str(self.error),
+        return (
+            "<Result: Error({}: {})>".format(
+                self.error.__class__.__name__,
+                str(self.error),
+            )
+            if isinstance(self.error, BaseException)
+            else f"<Result: Error({self.error!r})>"
         )
 
     def unwrap(self) -> typing.NoReturn:
@@ -66,7 +71,7 @@ class Error(typing.Generic[Err]):
     def unwrap_or_else(self, f: typing.Callable[[Err], T], /) -> T:
         return f(self.error)
 
-    def unwrap_or_other(self, other: Result[T, BaseException], /) -> T:
+    def unwrap_or_other(self, other: Result[T, object], /) -> T:
         return other.unwrap()
 
     def map(self, op: object, /) -> typing.Self:

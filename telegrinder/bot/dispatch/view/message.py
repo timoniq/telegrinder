@@ -10,7 +10,7 @@ from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.types import Update
 
 
-class MessageView(ABCStateView):
+class MessageView(ABCStateView[MessageCute]):
     def __init__(self):
         self.auto_rules: list[ABCRule[MessageCute]] = []
         self.handlers: list[ABCHandler[MessageCute]] = []

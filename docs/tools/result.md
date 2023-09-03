@@ -35,10 +35,10 @@ def main():
 In telegrinder framework this is used to work with api requests.
 
 ```python
-from telegrinder import API
+from telegrinder import API, Token
 from telegrinder.types import User
 
-api = API()
+api = API(Token.from_env())
 
 def repr_user(user: User) -> str:
     ...

@@ -9,7 +9,7 @@ TAG_FORMAT = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK = '"'
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class Mention:
     string: str
     user_id: int
@@ -18,7 +18,7 @@ class Mention:
         self.string = escape(self.string)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class Link:
     href: str
     string: str | None = None
@@ -28,7 +28,7 @@ class Link:
         self.string = escape(self.string or self.href)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class ProgramCodeBlock:
     string: str
     lang: str
@@ -95,7 +95,9 @@ class StringFormatter(string.Formatter):
     ) -> typing.Callable[..., "TagFormat"]:
         return globals()[self.__special_formats__[type(value)]]
 
-    def is_spec_formatter(self, value: typing.Any) -> bool:
+    def is_spec_formatter(
+        self, value: typing.Any
+    ) -> typing.TypeGuard[Mention | Link | ProgramCodeBlock]:
         return type(value) in self.__special_formats__
 
     def format_field(self, value: typing.Any, fmt: str) -> "HTMLFormatter":
@@ -125,6 +127,11 @@ class StringFormatter(string.Formatter):
 
 class FormatString(str):
     string_formatter = StringFormatter()
+
+    def __new__(cls, string: str) -> typing.Self:
+        if isinstance(string, TagFormat):
+            return super().__new__(cls, string.formatting())
+        return super().__new__(cls, string)
 
     def __add__(self, value: str) -> "HTMLFormatter":
         return HTMLFormatter(
@@ -195,9 +202,9 @@ class HTMLFormatter(FormatString):
     PARSE_MODE = ParseMode.HTML
 
 
-def escape(string: str) -> "EscapedString":
-    if isinstance(string, EscapedString):
-        return string
+def escape(string: str) -> EscapedString:
+    if isinstance(string, EscapedString | HTMLFormatter):
+        return EscapedString(string)
     return EscapedString(
         string.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;")
     )

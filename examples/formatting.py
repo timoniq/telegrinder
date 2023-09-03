@@ -11,7 +11,8 @@ logging.basicConfig(level=logging.INFO)
 @bot.on.message(Text("/formatting"))
 async def formatting(m: Message):
     await m.answer(
-        bold(italic("bold italic text!")), parse_mode=HTMLFormatter.PARSE_MODE
+        HTMLFormatter(bold(italic("bold italic text!"))),
+        parse_mode=HTMLFormatter.PARSE_MODE,
     )
     await m.answer(
         "python library 'telegrinder' - "

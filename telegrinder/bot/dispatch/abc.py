@@ -17,7 +17,7 @@ class ABCDispatch(ABC):
     global_context: dict[str, typing.Any]
 
     @abstractmethod
-    def feed(self, event: Update, api: ABCAPI) -> bool:
+    async def feed(self, event: Update, api: ABCAPI) -> bool:
         pass
 
     @abstractmethod
