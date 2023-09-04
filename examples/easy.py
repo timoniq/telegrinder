@@ -3,7 +3,9 @@ import random
 from telegrinder import Telegrinder, API, Token, Message
 from telegrinder.bot import WaiterMachine
 from telegrinder.rules import Text, Markup, FuzzyText
+from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
 import logging
+import pathlib
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -11,10 +13,7 @@ wm = WaiterMachine()
 
 logging.basicConfig(level=logging.DEBUG)
 
-
-@bot.on.to_handler()
-async def fine_or_bad(message: Message):
-    await message.answer("Fine or bad")
+kitten_bytes = pathlib.Path("assets/kitten.jpg").read_bytes()
 
 
 @bot.on.message(Text("/start"))
@@ -29,14 +28,18 @@ async def start(message: Message):
         bot.dispatch.message,
         message,
         Text(["fine", "bad"], ignore_case=True),
-        default=fine_or_bad,
+        default=MessageReplyHandler("Fine or bad"),
     )
 
     match m.text.lower():
         case "fine":
             await m.reply("Cool!")
         case "bad":
-            await m.reply("Damn")
+            await message.ctx_api.send_photo(
+                message.chat.id,
+                caption="I'm sorry... You prob need some kitten pictures",
+                photo=("kitten.jpg", kitten_bytes),
+            )
 
 
 @bot.on.message(Markup("/reverse <text>"))
