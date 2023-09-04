@@ -12,10 +12,12 @@ class Telegrinder:
         api: API,
         polling: ABCPolling | None = None,
         dispatch: ABCDispatch | None = None,
+        loop: asyncio.AbstractEventLoop | None = None,
     ):
         self.api = api
         self.polling = polling or Polling(api)
         self.dispatch = dispatch or Dispatch()
+        self.loop = loop
 
     @property
     def on(self) -> Dispatch:
@@ -41,7 +43,7 @@ class Telegrinder:
 
     def run_forever(self, offset: int = 0, skip_updates: bool = False) -> None:
         logger.debug("Running blocking polling (id={})", self.api.id)
-        loop = asyncio.new_event_loop()
+        loop = self.loop or asyncio.new_event_loop()
         polling_task = loop.create_task(
             self.run_polling(offset, skip_updates=skip_updates)
         )
