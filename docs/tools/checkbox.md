@@ -71,7 +71,7 @@ async def start(m: Message):
     # now your checkbox is ready to use.
     # picked is a dictionary option name to option state
     # message_id is the id of the one sent with `msg` text
-    picked, message_id = checkbox.wait(m.ctx_api, bot.dispatch)
+    picked, message_id = await checkbox.wait(m.ctx_api, bot.dispatch)
     
     # usually this message is edited 
     # with received information
