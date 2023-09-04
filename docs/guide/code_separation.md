@@ -1,13 +1,13 @@
 # Code Separation
 
-Telegrinder has a `Dispatch` class. It allows for code separation across files. From each file you need to import the declared `Dispatch` and load it into the `Telegrinder` class.
+Telegrinder obtains a `Dispatch` class. It allows to separate code. You need to import `Dispatch` and later load it into the `Telegrinder` main dispatch.
 ```python
 from telegrinder import Dispatch
 
 dp = Dispatch()
 ```
 
-Let's imagine our project tree:
+Let's imagine a tree for our project:
 ```
 telegram_bot
 ├── .env
@@ -24,9 +24,9 @@ telegram_bot
     └── users.py
 ```
 
-The `.env` file contains environment variables. In the `rules` and `middlewares` folders there are files with them. They are used by the handlers. Examples with them can be seen [*Custom rule*](https://github.com/timoniq/telegrinder/blob/main/examples/custom_rule.py) and [*Middleware*](https://github.com/timoniq/telegrinder/blob/main/examples/middleware.py).
+The `.env` file contains environment variables. Examples for `middlewares` and `handlers` folders' contents: [*Custom rule*](https://github.com/timoniq/telegrinder/blob/main/examples/custom_rule.py) and [*Middleware*](https://github.com/timoniq/telegrinder/blob/main/examples/middleware.py).
 
-For example, let's write the code in the file `start.py`:
+For example, let's write code in `start.py`:
 ```python
 from telegrinder import Dispatch, Message
 from telegrinder.rules import Text
@@ -43,7 +43,7 @@ async def start(message: Message):
     )
 ```
 
-The remaining files are similar. Now let's initialize them in the `__init__.py` file:
+The other files are similar. Now let's gather them in the `handlers/__init__.py` file:
 ```python
 from . import admin, ravioli, start
 
@@ -54,7 +54,7 @@ dps = (
 )
 ```
 
-Let's upload `dps` from `handlers/__init__.py` file to the Telegrinder class in `__main__.py` file:
+Let's upload `dps` from `handlers/__init__.py` to the Telegrinder's main dispatch in `__main__.py` file:
 ```python
 import logging
 
