@@ -16,7 +16,7 @@ class MessageView(ABCStateView[MessageCute]):
         self.handlers: list[ABCHandler[MessageCute]] = []
         self.middlewares: list[ABCMiddleware[MessageCute]] = []
 
-    def __call__(self, *rules: ABCRule, is_blocking: bool = True):
+    def __call__(self, *rules: ABCRule[MessageCute], is_blocking: bool = True):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):
             self.handlers.append(
                 FuncHandler(

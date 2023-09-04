@@ -16,7 +16,7 @@ class CallbackQueryView(ABCStateView[CallbackQueryCute]):
         self.handlers: list[ABCHandler[CallbackQueryCute]] = []
         self.middlewares: list[ABCMiddleware[CallbackQueryCute]] = []
 
-    def __call__(self, *rules: ABCRule, is_blocking: bool = True):
+    def __call__(self, *rules: ABCRule[CallbackQueryCute], is_blocking: bool = True):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):
             self.handlers.append(
                 FuncHandler(

@@ -16,7 +16,7 @@ class InlineQueryView(ABCStateView[InlineQueryCute]):
         self.handlers: list[ABCHandler[InlineQueryCute]] = []
         self.middlewares: list[ABCMiddleware[InlineQueryCute]] = []
 
-    def __call__(self, *rules: ABCRule, is_blocking: bool = True):
+    def __call__(self, *rules: ABCRule[InlineQueryCute], is_blocking: bool = True):
         def wrapper(func: typing.Callable[..., typing.Coroutine]):
             self.handlers.append(
                 FuncHandler(
