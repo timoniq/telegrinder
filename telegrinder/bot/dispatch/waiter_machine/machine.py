@@ -86,7 +86,7 @@ class WaiterMachine:
 
         view_name = state_view.__class__.__name__
         if view_name not in self.storage:
-            state_view.middlewares.append(WaiterMiddleware(self, state_view))  # type: ignore
+            state_view.middlewares.insert(0, WaiterMiddleware(self, state_view))  # type: ignore
             self.storage[view_name] = {}
 
         self.storage[view_name][key] = short_state
