@@ -48,10 +48,10 @@ HTMLFormatter("Hello, {}!").format(bold(italic("world")))
 To use special formats, you have to use special dataclasses or functions:
 * `Mention(string: str, user_id: int)`
 * `Link(href: str, string: str | None = None)`
-* `ProgramCodeBlock(string: str, lang: str)`
+* `CodeBlock(string: str, lang: str)`
 
 ```python
-from telegrinder.tools.formatting import HTMLFormatter, Mention, Link, ProgramCodeBlock
+from telegrinder.tools.formatting import HTMLFormatter, Mention, Link, CodeBlock
 
 PYTHON_CODE_ECHO_BOT = """
 from telegrinder import API, Telegrinder, Token, Message
@@ -70,7 +70,7 @@ bot.run_forever()
 
 HTMLFormatter("{:bold} very nice telegram user!").format(Mention("arseny", 549019276))
 HTMLFormatter("{:italic} very nice framework!").format(Link("https://github.com/timoniq/telegrinder", "telegrinder"))
-HTMLFormatter("echo bot on telegrinder:\n{}").format(ProgramCodeBlock(PYTHON_CODE_ECHO_BOT, "python"))
+HTMLFormatter("echo bot on telegrinder:\n{}").format(CodeBlock(PYTHON_CODE_ECHO_BOT, "python"))
 ```
 
 HTMLFormatter also has a property of parse mode string.

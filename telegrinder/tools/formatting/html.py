@@ -29,7 +29,7 @@ class Link:
 
 
 @dataclasses.dataclass(repr=False)
-class ProgramCodeBlock:
+class CodeBlock:
     string: str
     lang: str
 
@@ -53,7 +53,7 @@ class StringFormatter(string.Formatter):
         "code_block",
     )
     __special_formats__: dict[type, str] = {
-        ProgramCodeBlock: "program_code_block",
+        CodeBlock: "program_code_block",
         Mention: "mention",
         Link: "link",
     }
@@ -97,7 +97,7 @@ class StringFormatter(string.Formatter):
 
     def is_spec_formatter(
         self, value: typing.Any
-    ) -> typing.TypeGuard[Mention | Link | ProgramCodeBlock]:
+    ) -> typing.TypeGuard[Mention | Link | CodeBlock]:
         return type(value) in self.__special_formats__
 
     def format_field(self, value: typing.Any, fmt: str) -> "HTMLFormatter":

@@ -3,7 +3,7 @@ from .formatting import (
     HTMLFormatter,
     Link,
     Mention,
-    ProgramCodeBlock,
+    CodeBlock,
     bold,
     code_block,
     code_inline,

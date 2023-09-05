@@ -16,3 +16,11 @@ async def funnel_handler(message: Message):
         msg.from_user.first_name,
         msg.text,
     )
+    await message.answer("And what is the pattern of the beautiful scarf you wear in the winter nights?")
+    msg, _ = await wm.wait(dp.message, message, HasText())
+    logger.info(
+        "{}'s pattern of the winter scarf is {}",
+        msg.from_user.first_name,
+        msg.text,
+    )
+    await message.answer("Brilliant")
