@@ -31,7 +31,7 @@ class Link:
 @dataclasses.dataclass(repr=False)
 class CodeBlock:
     string: str
-    lang: str
+    lang: str | None = None
 
     def __post_init__(self) -> None:
         self.string = escape(self.string)
@@ -53,7 +53,7 @@ class StringFormatter(string.Formatter):
         "code_block",
     )
     __special_formats__: dict[type, str] = {
-        CodeBlock: "program_code_block",
+        CodeBlock: "code_block",
         Mention: "mention",
         Link: "link",
     }
@@ -116,6 +116,7 @@ class StringFormatter(string.Formatter):
             map(lambda fmt: self.is_spec_html_format(value, fmt), fmt.split("+"))
         )
         tag_format = self.check_formats(value, fmts)
+
         if self.is_spec_formatter(value):
             value.string = tag_format
             tag_format = self.get_spec_formatter(value)(**value.__dict__)
@@ -185,20 +186,27 @@ class TagFormat(FormatString):
         obj.data = data
         return obj
 
-    def tag_data(self) -> str:
+    def get_tag_data(self) -> str:
         return "".join(f" {k}={v}" for k, v in self.data.items())
 
     def formatting(self) -> "HTMLFormatter":
         return HTMLFormatter(
             TAG_FORMAT.format(
                 tag=self.tag,
-                data=self.tag_data(),
+                data=self.get_tag_data(),
                 content=self,
             )
         )
 
 
 class HTMLFormatter(FormatString):
+    """
+    >>> HTMLFormatter(bold("Hello, World"))
+    '<b>Hello, World</b>'
+    HTMLFormatter("Hi, {name:italic}").format(name="Max")
+    'Hi, <i>Max</i>'
+    """
+
     PARSE_MODE = ParseMode.HTML
 
 
@@ -243,13 +251,11 @@ def mention(string: str, user_id: int) -> TagFormat:
     return link(get_mention_link(user_id), string)
 
 
-def code_block(string: str) -> TagFormat:
-    return TagFormat(string, tag="pre")
+def code_block(string: str, lang: str | None = None) -> TagFormat:
+    if lang is None:
+        return TagFormat(string, tag="pre")
+    return code_block(TagFormat(string, tag="code", **{"class": f"language-{lang}"}))
 
 
 def code_inline(string: str) -> TagFormat:
     return TagFormat(string, tag="code")
-
-
-def program_code_block(string: str, lang: str) -> TagFormat:
-    return code_block(TagFormat(string, tag="code", **{"class": f"language-{lang}"}))

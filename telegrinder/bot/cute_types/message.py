@@ -1,15 +1,25 @@
+import typing
+
+from telegrinder.api import API, APIError
+from telegrinder.model import get_params
+from telegrinder.result import Result
 from telegrinder.types import (
+    ForceReply,
+    InlineKeyboardMarkup,
     Message,
     MessageEntity,
-    InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
-    ForceReply,
+    User,
 )
-from telegrinder.model import get_params
-from telegrinder.api import API, APIError
-from telegrinder.result import Result
-import typing
+
+
+def get_enitity_value(
+    entities: list[MessageEntity], name_value: str
+) -> typing.Any | None:
+    for entity in entities:
+        if (enitity_value := getattr(entity, name_value)) is not None:
+            return enitity_value
 
 
 class MessageCute(Message):
@@ -18,6 +28,34 @@ class MessageCute(Message):
     @property
     def ctx_api(self) -> API:
         return self.api
+
+    @property
+    def mentioned_user(self) -> User | None:
+        """Mentioned user without username"""
+        if not self.entities:
+            return
+        return get_enitity_value(self.entities, "user")
+
+    @property
+    def url(self) -> str | None:
+        """Clickable text URL"""
+        if not self.entities:
+            return
+        return get_enitity_value(self.entities, "url")
+
+    @property
+    def programming_language(self) -> str | None:
+        """The programming language of the entity text"""
+        if not self.entities:
+            return
+        return get_enitity_value(self.entities, "language")
+
+    @property
+    def custom_emoji_id(self) -> str | None:
+        """Unique identifier of the custom emoji"""
+        if not self.entities:
+            return
+        return get_enitity_value(self.entities, "custom_emoji_id")
 
     async def answer(
         self,
@@ -37,7 +75,7 @@ class MessageCute(Message):
                 "ForceReply",
             ]
         ] = None,
-        **other
+        **other,
     ) -> Result["Message", APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:
@@ -61,7 +99,7 @@ class MessageCute(Message):
                 "ForceReply",
             ]
         ] = None,
-        **other
+        **other,
     ) -> Result["Message", APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:
@@ -85,7 +123,7 @@ class MessageCute(Message):
         entities: list[MessageEntity] | None = None,
         disable_web_page_preview: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
-        **other
+        **other,
     ) -> Result[Message | bool, APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:

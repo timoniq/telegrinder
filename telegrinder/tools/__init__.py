@@ -11,7 +11,6 @@ from .formatting import (
     italic,
     link,
     mention,
-    program_code_block,
     spoiler,
     strike,
     underline,
