@@ -16,3 +16,4 @@ from .message_entities import HasEntities, MessageEntitiesRule
 from .regex import Regex
 from .start import StartCommand
 from .text import HasText, Text, TextMessageRule
+from .command import Command, Argument
