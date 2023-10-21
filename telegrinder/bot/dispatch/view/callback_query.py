@@ -1,13 +1,14 @@
 import typing
 
-from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
-from .abc import ABCStateView
-from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler
-from telegrinder.bot.rules import ABCRule
-from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.cute_types import CallbackQueryCute
+from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler
+from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import process_inner
+from telegrinder.bot.rules import ABCRule
 from telegrinder.types import Update
+
+from .abc import ABCStateView
 
 
 class CallbackQueryView(ABCStateView[CallbackQueryCute]):
@@ -17,7 +18,12 @@ class CallbackQueryView(ABCStateView[CallbackQueryCute]):
         self.middlewares: list[ABCMiddleware[CallbackQueryCute]] = []
 
     def __call__(self, *rules: ABCRule[CallbackQueryCute], is_blocking: bool = True):
-        def wrapper(func: typing.Callable[..., typing.Coroutine]):
+        def wrapper(
+            func: typing.Callable[
+                typing.Concatenate[CallbackQueryCute, ...],
+                typing.Coroutine,
+            ]
+        ):
             self.handlers.append(
                 FuncHandler(
                     func, [*self.auto_rules, *rules], is_blocking, dataclass=None
@@ -31,10 +37,10 @@ class CallbackQueryView(ABCStateView[CallbackQueryCute]):
         return bool(event.callback_query)
 
     def get_state_key(self, event: CallbackQueryCute) -> int | None:
-        return event.message.message_id
+        return event.message.message_id  # type: ignore
 
     async def process(self, event: Update, api: ABCAPI):
-        query = CallbackQueryCute(**event.callback_query.to_dict(), api=api)
+        query = CallbackQueryCute(**event.callback_query.to_dict(), api=api)  # type: ignore
         return await process_inner(query, event, self.middlewares, self.handlers)
 
     def load(self, external: typing.Self):

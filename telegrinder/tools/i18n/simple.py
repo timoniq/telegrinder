@@ -1,9 +1,8 @@
 """This is an implementation of GNU gettext (pyBabel)."""
 import gettext
-
-from telegrinder.tools.i18n import ABCI18n
 import os
 
+from telegrinder.tools.i18n import ABCI18n
 from telegrinder.tools.i18n.base import ABCTranslator
 
 

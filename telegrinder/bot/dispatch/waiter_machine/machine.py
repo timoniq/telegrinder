@@ -1,9 +1,9 @@
 import asyncio
-import typing
 import datetime
+import typing
 
-from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.rules.abc import ABCRule
 
 from .middleware import WaiterMiddleware
 from .short_state import Behaviour, EventModel, ShortState
@@ -69,8 +69,8 @@ class WaiterMachine:
         if isinstance(linked, tuple):
             api, key = linked
         else:
-            api = linked.ctx_api
-            key = state_view.get_state_key(linked)
+            api = linked.ctx_api  # type: ignore
+            key = state_view.get_state_key(linked)  # type: ignore
             if not key:
                 raise RuntimeError("Unable to get state key")
 
@@ -102,7 +102,7 @@ class WaiterMachine:
         self,
         view: "ABCStateView",
         behaviour: Behaviour,
-        event: EventModel,
+        event: EventModel,  # type: ignore
         **context,
     ) -> None:
         if behaviour is None:

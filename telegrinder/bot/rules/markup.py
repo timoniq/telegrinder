@@ -6,7 +6,7 @@ from .text import TextMessageRule
 PatternLike = str | vbml.Pattern
 
 
-def check_string(patterns: list[PatternLike], s: str, ctx: dict) -> bool:
+def check_string(patterns: list[vbml.Pattern], s: str, ctx: dict) -> bool:
     for pattern in patterns:
         match patcher.check(pattern, s):
             case None | False:

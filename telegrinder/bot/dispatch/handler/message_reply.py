@@ -1,10 +1,12 @@
 import typing
-from telegrinder.bot.cute_types import MessageCute
-from telegrinder.types.objects import Update
+
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.cute_types import MessageCute
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.modules import logger
+from telegrinder.types.objects import Update
+
 from .abc import ABCHandler
 
 

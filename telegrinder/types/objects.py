@@ -1,5 +1,7 @@
 import typing
-from telegrinder.model import *  # noqa: F403
+
+from telegrinder.model import *
+from telegrinder.types.enums import *
 
 
 class Error(Model):
@@ -70,7 +72,7 @@ class Chat(Model):
     Docs: https://core.telegram.org/bots/api/#chat"""
 
     id: int
-    type: str
+    type: ChatType
     title: typing.Optional[str] = None
     username: typing.Optional[str] = None
     first_name: typing.Optional[str] = None
@@ -79,6 +81,7 @@ class Chat(Model):
     photo: typing.Optional["ChatPhoto"] = None
     active_usernames: typing.Optional[list[str]] = None
     emoji_status_custom_emoji_id: typing.Optional[str] = None
+    emoji_status_expiration_date: typing.Optional[int] = None
     bio: typing.Optional[str] = None
     has_private_forwards: typing.Optional[bool] = None
     has_restricted_voice_and_video_messages: typing.Optional[bool] = None
@@ -130,6 +133,7 @@ class Message(Model):
     document: typing.Optional["Document"] = None
     photo: typing.Optional[list["PhotoSize"]] = None
     sticker: typing.Optional["Sticker"] = None
+    story: typing.Optional["Story"] = None
     video: typing.Optional["Video"] = None
     video_note: typing.Optional["VideoNote"] = None
     voice: typing.Optional["Voice"] = None
@@ -199,7 +203,7 @@ class MessageEntity(Model):
     hashtags, usernames, URLs, etc.
     Docs: https://core.telegram.org/bots/api/#messageentity"""
 
-    type: str
+    type: MessageEntityType
     offset: int
     length: int
     url: typing.Optional[str] = None
@@ -265,6 +269,14 @@ class Document(Model):
     file_name: typing.Optional[str] = None
     mime_type: typing.Optional[str] = None
     file_size: typing.Optional[int] = None
+
+
+class Story(Model):
+    """This object represents a message about a forwarded story in the chat. Currently
+    holds no information.
+    Docs: https://core.telegram.org/bots/api/#story"""
+
+    pass
 
 
 class Video(Model):
@@ -340,7 +352,8 @@ class PollAnswer(Model):
     Docs: https://core.telegram.org/bots/api/#pollanswer"""
 
     poll_id: str
-    user: "User"
+    voter_chat: typing.Optional["Chat"] = None
+    user: typing.Optional["User"] = None
     option_ids: list[int]
 
 
@@ -354,7 +367,7 @@ class Poll(Model):
     total_voter_count: int
     is_closed: bool
     is_anonymous: bool
-    type: str
+    type: PollType
     allows_multiple_answers: bool
     correct_option_id: typing.Optional[int] = None
     explanation: typing.Optional[str] = None
@@ -487,11 +500,15 @@ class ChatShared(Model):
 
 class WriteAccessAllowed(Model):
     """This object represents a service message about a user allowing a bot to write
-    messages after adding the bot to the attachment menu or launching a Web App
-    from a link.
+    messages after adding it to the attachment menu, launching a Web App from
+    a link, or accepting an explicit request from a Web App sent by the method
+    [requestWriteAccess](https://core.telegram.org/bots/webapps#initializing-mini-apps).
+
     Docs: https://core.telegram.org/bots/api/#writeaccessallowed"""
 
+    from_request: typing.Optional[bool] = None
     web_app_name: typing.Optional[str] = None
+    from_attachment_menu: typing.Optional[bool] = None
 
 
 class VideoChatScheduled(Model):
@@ -769,6 +786,9 @@ class ChatAdministratorRights(Model):
     can_post_messages: typing.Optional[bool] = None
     can_edit_messages: typing.Optional[bool] = None
     can_pin_messages: typing.Optional[bool] = None
+    can_post_stories: typing.Optional[bool] = None
+    can_edit_stories: typing.Optional[bool] = None
+    can_delete_stories: typing.Optional[bool] = None
     can_manage_topics: typing.Optional[bool] = None
 
 
@@ -805,6 +825,9 @@ class ChatMember(Model):
     can_post_messages: typing.Optional[bool] = None
     can_edit_messages: typing.Optional[bool] = None
     can_pin_messages: typing.Optional[bool] = None
+    can_post_stories: typing.Optional[bool] = None
+    can_edit_stories: typing.Optional[bool] = None
+    can_delete_stories: typing.Optional[bool] = None
     can_manage_topics: typing.Optional[bool] = None
     is_member: typing.Optional[bool] = None
     can_send_messages: typing.Optional[bool] = None
@@ -850,6 +873,9 @@ class ChatMemberAdministrator(Model):
     can_post_messages: typing.Optional[bool] = None
     can_edit_messages: typing.Optional[bool] = None
     can_pin_messages: typing.Optional[bool] = None
+    can_post_stories: typing.Optional[bool] = None
+    can_edit_stories: typing.Optional[bool] = None
+    can_delete_stories: typing.Optional[bool] = None
     can_manage_topics: typing.Optional[bool] = None
     custom_title: typing.Optional[str] = None
 
@@ -1255,7 +1281,7 @@ class Sticker(Model):
 
     file_id: str
     file_unique_id: str
-    type: str
+    type: StickerType
     width: int
     height: int
     is_animated: bool
@@ -1276,7 +1302,7 @@ class StickerSet(Model):
 
     name: str
     title: str
-    sticker_type: str
+    sticker_type: StickerSetStickerType
     is_animated: bool
     is_video: bool
     stickers: list["Sticker"]
@@ -1288,7 +1314,7 @@ class MaskPosition(Model):
     by default.
     Docs: https://core.telegram.org/bots/api/#maskposition"""
 
-    point: str
+    point: MaskPositionPoint
     x_shift: float
     y_shift: float
     scale: float
@@ -1313,7 +1339,7 @@ class InlineQuery(Model):
     from_: "User"
     query: str
     offset: str
-    chat_type: typing.Optional[str] = None
+    chat_type: typing.Optional[InlineQueryChatType] = None
     location: typing.Optional["Location"] = None
 
 
@@ -1404,12 +1430,14 @@ class InlineQueryResult(Model):
     vcard: typing.Optional[str] = None
     game_short_name: typing.Optional[str] = None
     document_url: typing.Optional[str] = None
-    mime_type: typing.Optional[str] = None
+    mime_type: typing.Optional[InlineQueryResultMimeType] = None
     gif_url: typing.Optional[str] = None
     gif_width: typing.Optional[int] = None
     gif_height: typing.Optional[int] = None
     gif_duration: typing.Optional[int] = None
-    thumbnail_mime_type: typing.Optional[str] = "image/jpeg"
+    thumbnail_mime_type: typing.Optional[
+        InlineQueryResultThumbnailMimeType
+    ] = "image/jpeg"
     latitude: typing.Optional[float] = None
     longitude: typing.Optional[float] = None
     horizontal_accuracy: typing.Optional[float] = None
@@ -1488,7 +1516,9 @@ class InlineQueryResultGif(Model):
     gif_height: typing.Optional[int] = None
     gif_duration: typing.Optional[int] = None
     thumbnail_url: str
-    thumbnail_mime_type: typing.Optional[str] = "image/jpeg"
+    thumbnail_mime_type: typing.Optional[
+        InlineQueryResultGifThumbnailMimeType
+    ] = "image/jpeg"
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
@@ -1511,7 +1541,9 @@ class InlineQueryResultMpeg4Gif(Model):
     mpeg4_height: typing.Optional[int] = None
     mpeg4_duration: typing.Optional[int] = None
     thumbnail_url: str
-    thumbnail_mime_type: typing.Optional[str] = "image/jpeg"
+    thumbnail_mime_type: typing.Optional[
+        InlineQueryResultMpeg4GifThumbnailMimeType
+    ] = "image/jpeg"
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
@@ -1534,7 +1566,7 @@ class InlineQueryResultVideo(Model):
     type: str
     id: str
     video_url: str
-    mime_type: str
+    mime_type: InlineQueryResultVideoMimeType
     thumbnail_url: str
     title: str
     caption: typing.Optional[str] = None
@@ -1600,7 +1632,7 @@ class InlineQueryResultDocument(Model):
     parse_mode: typing.Optional[str] = None
     caption_entities: typing.Optional[list["MessageEntity"]] = None
     document_url: str
-    mime_type: str
+    mime_type: InlineQueryResultDocumentMimeType
     description: typing.Optional[str] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
@@ -1632,9 +1664,9 @@ class InlineQueryResultLocation(Model):
 
 
 class InlineQueryResultVenue(Model):
-    """Represents a venue. By default, the venue will be sent by the user.
-    Alternatively, you can use *input_message_content* to send a message
-    with the specified content instead of the venue.
+    """Represents a venue. By default, the venue will be sent by the user. Alternatively,
+    you can use *input_message_content* to send a message with the specified
+    content instead of the venue.
     Docs: https://core.telegram.org/bots/api/#inlinequeryresultvenue"""
 
     type: str
@@ -2094,7 +2126,7 @@ class EncryptedPassportElement(Model):
     bot by the user.
     Docs: https://core.telegram.org/bots/api/#encryptedpassportelement"""
 
-    type: str
+    type: EncryptedPassportElementType
     data: typing.Optional[str] = None
     phone_number: typing.Optional[str] = None
     email: typing.Optional[str] = None
@@ -2159,7 +2191,7 @@ class PassportElementErrorDataField(Model):
     Docs: https://core.telegram.org/bots/api/#passportelementerrordatafield"""
 
     source: str
-    type: str
+    type: PassportElementErrorDataFieldType
     field_name: str
     data_hash: str
     message: str
@@ -2171,7 +2203,7 @@ class PassportElementErrorFrontSide(Model):
     Docs: https://core.telegram.org/bots/api/#passportelementerrorfrontside"""
 
     source: str
-    type: str
+    type: PassportElementErrorFrontSideType
     file_hash: str
     message: str
 
@@ -2182,7 +2214,7 @@ class PassportElementErrorReverseSide(Model):
     Docs: https://core.telegram.org/bots/api/#passportelementerrorreverseside"""
 
     source: str
-    type: str
+    type: PassportElementErrorReverseSideType
     file_hash: str
     message: str
 
@@ -2193,7 +2225,7 @@ class PassportElementErrorSelfie(Model):
     Docs: https://core.telegram.org/bots/api/#passportelementerrorselfie"""
 
     source: str
-    type: str
+    type: PassportElementErrorSelfieType
     file_hash: str
     message: str
 
@@ -2204,7 +2236,7 @@ class PassportElementErrorFile(Model):
     Docs: https://core.telegram.org/bots/api/#passportelementerrorfile"""
 
     source: str
-    type: str
+    type: PassportElementErrorFileType
     file_hash: str
     message: str
 
@@ -2215,7 +2247,7 @@ class PassportElementErrorFiles(Model):
     Docs: https://core.telegram.org/bots/api/#passportelementerrorfiles"""
 
     source: str
-    type: str
+    type: PassportElementErrorFilesType
     file_hashes: list[str]
     message: str
 
@@ -2226,7 +2258,7 @@ class PassportElementErrorTranslationFile(Model):
     Docs: https://core.telegram.org/bots/api/#passportelementerrortranslationfile"""
 
     source: str
-    type: str
+    type: PassportElementErrorTranslationFileType
     file_hash: str
     message: str
 
@@ -2238,7 +2270,7 @@ class PassportElementErrorTranslationFiles(Model):
     Docs: https://core.telegram.org/bots/api/#passportelementerrortranslationfiles"""
 
     source: str
-    type: str
+    type: PassportElementErrorTranslationFilesType
     file_hashes: list[str]
     message: str
 

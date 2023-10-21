@@ -1,6 +1,6 @@
-from telegrinder.types import InlineQuery, User, InlineQueryResult
 from telegrinder.api import API, APIError
 from telegrinder.result import Result
+from telegrinder.types import InlineQuery, InlineQueryResult, User
 
 
 class InlineQueryCute(InlineQuery):
@@ -25,10 +25,10 @@ class InlineQueryCute(InlineQuery):
     ) -> Result[bool, APIError]:
         return await self.ctx_api.answer_inline_query(
             self.id,
-            results=results,
+            results=results,  # type: ignore
             cache_time=cache_time,
             is_personal=is_personal,
             next_offset=next_offset,
             switch_pm_text=switch_pm_text,
             switch_pm_parameter=switch_pm_parameter,
-        )
+        )  # NOTE: param results: implement something dataclass or instance instead of dict

@@ -1,5 +1,6 @@
-from .abc import Message, MessageRule
 from telegrinder.types.enums import MessageEntityType
+
+from .abc import Message, MessageRule
 
 Entity = str | MessageEntityType
 
@@ -9,7 +10,7 @@ class HasEntities(MessageRule):
         return bool(message.entities)
 
 
-class MessageEntitiesRule(MessageRule, requires=[HasEntities()]):
+class MessageEntities(MessageRule, requires=[HasEntities()]):
     def __init__(self, entities: Entity | list[Entity]):
         self.entities = [entities] if not isinstance(entities, list) else entities
 

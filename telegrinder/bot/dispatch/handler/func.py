@@ -11,7 +11,6 @@ from .abc import ABCHandler
 
 T = typing.TypeVar("T")
 
-
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules import ABCRule
 

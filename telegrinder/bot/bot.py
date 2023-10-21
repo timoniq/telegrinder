@@ -36,7 +36,7 @@ class Telegrinder:
         self.polling.offset = offset
 
         loop = asyncio.get_running_loop()
-        async for updates in self.polling.listen():
+        async for updates in self.polling.listen():  # type: ignore
             for update in updates:
                 logger.debug("Received update (update_id={})", update.update_id)
                 loop.create_task(self.dispatch.feed(update, self.api))
@@ -47,6 +47,7 @@ class Telegrinder:
         polling_task = loop.create_task(
             self.run_polling(offset, skip_updates=skip_updates)
         )
+
         try:
             loop.run_forever()
         except KeyboardInterrupt:
@@ -54,4 +55,5 @@ class Telegrinder:
         except SystemExit as e:
             logger.info("System exit with code {}", e.code)
         finally:
+            self.polling.stop()
             polling_task.cancel()

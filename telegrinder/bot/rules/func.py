@@ -12,7 +12,7 @@ class FuncRule(ABCRule, typing.Generic[T]):
         adapter: ABCAdapter[Update, T] | None = None,
     ):
         self.func = func
-        self.adapter = adapter or RawUpdateAdapter()
+        self.adapter = adapter or RawUpdateAdapter()  # type: ignore
 
     async def check(self, event: T, ctx: dict) -> bool:
         return self.func(event, ctx)

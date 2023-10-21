@@ -43,7 +43,7 @@ class StringFormatter(string.Formatter):
     specifiers: `bold`, `italic`, etc.
     """
 
-    __formats__: tuple[str, ...] = (
+    __formats__ = (
         "bold",
         "italic",
         "strike",
@@ -52,13 +52,13 @@ class StringFormatter(string.Formatter):
         "code_inline",
         "code_block",
     )
-    __special_formats__: dict[type, str] = {
+    __special_formats__ = {
         CodeBlock: "code_block",
         Mention: "mention",
         Link: "link",
     }
 
-    def is_spec_html_format(self, value: typing.Any, fmt: str) -> str:
+    def is_html_format(self, value: typing.Any, fmt: str) -> str:
         if not fmt:
             raise ValueError("Formats union should be: format+format.")
         if fmt not in self.__formats__:
@@ -70,9 +70,20 @@ class StringFormatter(string.Formatter):
             )
         return fmt
 
+    def is_spec_html_formatter(
+        self, value: typing.Any
+    ) -> typing.TypeGuard[Mention | Link | CodeBlock]:
+        return type(value) in self.__special_formats__
+
+    def get_spec_formatter(
+        self, value: typing.Any
+    ) -> typing.Callable[..., "TagFormat"]:
+        return globals()[self.__special_formats__[type(value)]]
+
     def check_formats(self, value: typing.Any, fmts: list[str]) -> "TagFormat":
-        if self.is_spec_formatter(value):
+        if self.is_spec_html_formatter(value):
             value = value.string
+
         current_format = globals()[fmts.pop(0)](
             str(value)
             if isinstance(value, TagFormat)
@@ -80,6 +91,7 @@ class StringFormatter(string.Formatter):
         )
         for fmt in fmts:
             current_format = globals()[fmt](current_format)
+
         return (
             TagFormat(
                 current_format,
@@ -90,16 +102,6 @@ class StringFormatter(string.Formatter):
             else current_format
         )
 
-    def get_spec_formatter(
-        self, value: typing.Any
-    ) -> typing.Callable[..., "TagFormat"]:
-        return globals()[self.__special_formats__[type(value)]]
-
-    def is_spec_formatter(
-        self, value: typing.Any
-    ) -> typing.TypeGuard[Mention | Link | CodeBlock]:
-        return type(value) in self.__special_formats__
-
     def format_field(self, value: typing.Any, fmt: str) -> "HTMLFormatter":
         with suppress(ValueError):
             return HTMLFormatter(
@@ -107,19 +109,21 @@ class StringFormatter(string.Formatter):
                     value.formatting()
                     if isinstance(value, TagFormat)
                     else self.get_spec_formatter(value)(**value.__dict__).formatting()
-                    if self.is_spec_formatter(value)
+                    if self.is_spec_html_formatter(value)
                     else value,
                     fmt,
                 )
             )
-        fmts = list(
-            map(lambda fmt: self.is_spec_html_format(value, fmt), fmt.split("+"))
-        )
+        return self.format_raw_value(value, fmt)
+
+    def format_raw_value(self, value: typing.Any, fmt: str) -> "HTMLFormatter":
+        fmts = list(map(lambda fmt: self.is_html_format(value, fmt), fmt.split("+")))
         tag_format = self.check_formats(value, fmts)
 
-        if self.is_spec_formatter(value):
+        if self.is_spec_html_formatter(value):
             value.string = tag_format
-            tag_format = self.get_spec_formatter(value)(**value.__dict__)
+            tag_format = self.get_spec_formatter(value)(**dataclasses.asdict(value))
+
         return tag_format.formatting()
 
     def format(self, __string: str, *args: object, **kwargs: object) -> "HTMLFormatter":

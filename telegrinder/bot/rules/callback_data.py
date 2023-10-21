@@ -16,7 +16,7 @@ PatternLike = str | vbml.Pattern
 
 
 class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
-    adapter = EventAdapter("callback_query", CallbackQuery)
+    adapter = EventAdapter("callback_query", CallbackQuery)  # type: ignore
 
     @abc.abstractmethod
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:

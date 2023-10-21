@@ -1,7 +1,7 @@
 import logging
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.rules import HasEntities, IsChat, IsPrivate, MessageEntitiesRule
+from telegrinder.rules import HasEntities, IsChat, IsPrivate, MessageEntities
 from telegrinder.tools.formatting import HTMLFormatter, mention
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity
@@ -11,7 +11,7 @@ bot = Telegrinder(api)
 logging.basicConfig(level=logging.INFO)
 
 
-@bot.on.message(IsChat(), MessageEntitiesRule(MessageEntityType.MENTION))
+@bot.on.message(IsChat(), MessageEntities(MessageEntityType.MENTION))
 async def handler_mention_me(message: Message, message_entities: list[MessageEntity]):
     my_username = (await api.get_me()).map(lambda me: me.username).unwrap()
     if (

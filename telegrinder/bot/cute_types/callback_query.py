@@ -1,7 +1,7 @@
-from telegrinder.types import CallbackQuery, User
-from telegrinder.model import get_params
 from telegrinder.api import API, APIError
+from telegrinder.model import get_params
 from telegrinder.result import Result
+from telegrinder.types import CallbackQuery, User
 
 
 class CallbackQueryCute(CallbackQuery):

@@ -1,3 +1,3 @@
-from .schema_generator import generate
+from typegen.schema_generator import generate
 
 generate("telegrinder/types")

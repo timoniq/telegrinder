@@ -8,14 +8,15 @@ if typing.TYPE_CHECKING:
 
     T = typing.TypeVar("T", bound=ABCRule)
 
+FuncType = types.FunctionType | typing.Callable
 TRANSLATIONS_KEY = "_translations"
 
 
-def resolve_arg_names(func: types.FunctionType) -> tuple[str, ...]:
+def resolve_arg_names(func: FuncType) -> tuple[str, ...]:
     return func.__code__.co_varnames[1 : func.__code__.co_argcount]
 
 
-def get_default_args(func: types.FunctionType) -> dict[str, typing.Any]:
+def get_default_args(func: FuncType) -> dict[str, typing.Any]:
     fspec = inspect.getfullargspec(func)
     return dict(zip(fspec.args[::-1], (fspec.defaults or ())[::-1]))
 
@@ -27,7 +28,7 @@ def to_str(s: str | enum.Enum) -> str:
 
 
 def magic_bundle(
-    handler: types.FunctionType, kw: dict[str | enum.Enum, typing.Any]
+    handler: FuncType, kw: dict[str | enum.Enum, typing.Any]
 ) -> dict[str, typing.Any]:
     names = resolve_arg_names(handler)
     args = get_default_args(handler)

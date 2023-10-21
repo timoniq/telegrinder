@@ -1,4 +1,4 @@
-from .text import TextMessageRule, Message
+from .text import Message, TextMessageRule
 
 
 class Integer(TextMessageRule):

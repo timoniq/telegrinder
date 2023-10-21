@@ -1,10 +1,13 @@
 import typing
 from abc import ABC, abstractmethod
-from telegrinder.types import Update
+
 from telegrinder.model import Raw
+from telegrinder.types import Update
 
 
 class ABCPolling(ABC):
+    offset: int
+
     @abstractmethod
     async def get_updates(self) -> list[Raw]:
         pass

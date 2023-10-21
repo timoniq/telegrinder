@@ -1,16 +1,18 @@
-from .abc import ABCScenario
-from dataclasses import dataclass
-from telegrinder.bot.dispatch.waiter_machine import WaiterMachine
-from telegrinder.tools import InlineKeyboard, InlineButton
-from telegrinder.types.objects import InlineKeyboardMarkup
-from telegrinder.bot.cute_types import CallbackQueryCute
-import typing
 import random
 import string
+import typing
+from dataclasses import dataclass
+
+from telegrinder.bot.cute_types import CallbackQueryCute
+from telegrinder.bot.dispatch.waiter_machine import WaiterMachine
+from telegrinder.tools import InlineButton, InlineKeyboard
+from telegrinder.types.objects import InlineKeyboardMarkup
+
+from .abc import ABCScenario
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.dispatch import Dispatch
-    from telegrinder.api import API
+    from telegrinder.bot.dispatch import Dispatch  # noqa: I001
+    from telegrinder.api import API  # noqa: I001
 
 
 @dataclass
@@ -111,7 +113,7 @@ class Checkbox(ABCScenario):
             q, _ = await self.waiter_machine.wait(
                 dispatch.callback_query,
                 (api, message.message_id),
-            )
+            )  # type: ignore
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
             if not should_continue:

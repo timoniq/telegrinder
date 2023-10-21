@@ -1,5 +1,6 @@
-from .abc import ABC, MessageRule, Message, with_caching_translations
 from telegrinder.tools.i18n.base import ABCTranslator
+
+from .abc import ABC, Message, MessageRule, with_caching_translations
 
 
 class HasText(MessageRule):
