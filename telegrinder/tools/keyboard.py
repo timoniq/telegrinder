@@ -1,10 +1,10 @@
-import typing
 import dataclasses
-
+import typing
 from abc import ABC, abstractmethod
+
 from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup
 
-from .buttons import Button, InlineButton, BaseButton
+from .buttons import BaseButton, Button, InlineButton
 
 AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 

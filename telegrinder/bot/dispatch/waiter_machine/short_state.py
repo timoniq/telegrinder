@@ -3,13 +3,15 @@ import datetime
 import typing
 
 from telegrinder.api.abc import ABCAPI
-from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
+from telegrinder.bot.rules.abc import ABCRule
 
 if typing.TYPE_CHECKING:
     from .machine import Identificator
 
-EventModel = typing.TypeVar("EventModel")
+EventModel = typing.TypeVar(
+    "EventModel"
+)  # NOTE: specify the 'bound' param (may be something BaseCuteType) for type checker
 Behaviour = typing.Union[
     ABCHandler,
     None,

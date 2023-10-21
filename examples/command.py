@@ -34,21 +34,31 @@ def int_validator(s: str) -> int | None:
 # /split 'hello, my friend'   2
 # /split 'hello, my friend' ,
 
+
 @bot.on.message(
     Command(
-        "split", 
-        Argument("string", [sentence,]),
-        Argument("sep", [character,], optional=True), 
+        "split",
+        Argument(
+            "string",
+            [
+                sentence,
+            ],
+        ),
+        Argument(
+            "sep",
+            [
+                character,
+            ],
+            optional=True,
+        ),
         Argument("count", [int_validator], optional=True),
     )
 )
-async def split_handler(message: Message, string: str, sep: str = " ", count: int | None = None) -> None:
+async def split_handler(
+    message: Message, string: str, sep: str = " ", count: int | None = None
+) -> None:
     await message.answer(
-        " | ".join(
-            string.split(sep, count) 
-            if count is not None 
-            else string.split(sep)
-        )
+        " | ".join(string.split(sep, count) if count is not None else string.split(sep))
     )
 
 

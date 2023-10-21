@@ -2,12 +2,13 @@ import typing
 
 import msgspec
 
-from .abc import ABCAPI, APIError, Token
-from telegrinder.result import Result, Ok, Error
-from telegrinder.client import ABCClient, AiohttpClient
-from telegrinder.types.methods import APIMethods
-from telegrinder.model import convert
 from telegrinder.api.response import APIResponse
+from telegrinder.client import ABCClient, AiohttpClient
+from telegrinder.model import convert
+from telegrinder.result import Error, Ok, Result
+from telegrinder.types.methods import APIMethods
+
+from .abc import ABCAPI, APIError, Token
 
 
 def compose_data(client: ABCClient, data: dict) -> typing.Any:

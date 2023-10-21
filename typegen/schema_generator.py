@@ -1,8 +1,8 @@
 import logging
 import os
+import pathlib
 import re
 import typing
-import pathlib
 
 import requests
 
@@ -18,7 +18,7 @@ TYPES = {
     "false": "bool",
 }
 SPACES = "    "
-NS = pathlib.Path("utility/typegen/nicification.py").read_text()
+NS = pathlib.Path("typegen/nicification.py").read_text()
 
 
 def find_nicifications(name: str) -> list[str]:
@@ -30,9 +30,15 @@ def find_nicifications(name: str) -> list[str]:
 
 
 def convert_optional(func):
-    def wrapper(name: str, d: dict, obj: dict, forward_ref: bool = True):
-        t = func(name, d, obj, forward_ref)
-        if name not in obj.get("required", []) and name:
+    def wrapper(
+        obj_name: str,
+        param_name: str,
+        d: dict,
+        obj: dict,
+        forward_ref: bool = True,
+    ):
+        t = func(obj_name, param_name, d, obj, forward_ref)
+        if param_name not in obj.get("required", []) and param_name:
             t = "typing.Optional[" + t + "]"
         return t
 
@@ -52,35 +58,6 @@ def chunks_str(s: str) -> str:
     return s
 
 
-@convert_optional
-def convert_type(name: str, d: dict, obj: dict, forward_ref: bool = True) -> str:
-    if "type" in d:
-        t = d["type"]
-        if t in TYPES:
-            return TYPES[t]
-        elif t == "array":
-            nt = convert_type("", d["items"], obj, forward_ref)
-            return "list[" + nt + "]"
-        else:
-            if "." in t:
-                t = t.split(".")[-1]
-            return repr(t)
-    elif "$ref" in d:
-        n = d["$ref"].split("/")[-1]
-        if forward_ref:
-            return '"' + n + '"'
-        else:
-            return n
-    elif "anyOf" in d:
-        return (
-            "typing.Union["
-            + ", ".join(convert_type("", ut, obj, forward_ref) for ut in d["anyOf"])
-            + "]"
-        )
-    else:
-        logging.error(f"cannot handle {d}")
-
-
 def to_snakecase(s: str) -> str:
     ns = ""
     for i, symbol in enumerate(s):
@@ -91,10 +68,53 @@ def to_snakecase(s: str) -> str:
     return ns.replace("__", "_")
 
 
-def param_s(name: str, param: dict, obj: dict) -> str:
-    t = convert_type(name, param, obj)
+def snake_to_pascal(s: str) -> str:
+    return "".join(map(str.title, s.split("_")))
+
+
+@convert_optional
+def convert_type(
+    obj_name: str,
+    param_name: str,
+    d: dict,
+    obj: dict,
+    forward_ref: bool = True,
+) -> str:
+    if "type" in d:
+        t = d["type"]
+        if "enum" in d and obj_name and param_name:
+            return obj_name + snake_to_pascal(param_name)
+        if t in TYPES:
+            return TYPES[t]
+        elif t == "array":
+            nt = convert_type(obj_name, "", d["items"], obj, forward_ref)
+            return "list[" + nt + "]"
+        else:
+            if "." in t:
+                t = t.split(".")[-1]
+            return repr(t)
+    elif "$ref" in d:
+        n = d["$ref"].split("/")[-1]
+        if forward_ref:
+            return '"' + n + '"'
+        return n
+    elif "anyOf" in d:
+        return (
+            "typing.Union["
+            + ", ".join(
+                convert_type(obj_name, "", ut, obj, forward_ref) for ut in d["anyOf"]
+            )
+            + "]"
+        )
+    else:
+        logging.error(f"cannot handle {d}")
+        return ""
+
+
+def param_s(obj_name: str, param_name: str, param: dict, obj: dict) -> str:
+    t = convert_type(obj_name, param_name, param, obj)
     s = "{}: {}{}\n".format(
-        name if name not in ("json", "from") else name + "_",
+        param_name if param_name not in ("json", "from") else param_name + "_",
         t,
         " = " + repr(param.get("default", None))
         if t.startswith("typing.Optional")
@@ -134,12 +154,34 @@ def get_lines_for_object(name: str, properties: dict, obj: dict):
             [SPACES + "pass\n"]
             if not properties
             else (
-                SPACES + param_s(name, param, obj)
-                for (name, param) in properties.items()
-                if name != "flags"
+                SPACES + param_s(name, pname, param, obj)
+                for (pname, param) in properties.items()
+                if pname != "flags"
             )
         ),
         *nicifications,
+    ]
+
+
+def get_lines_for_enum(name: str, propert_name: str, propert: dict):
+    description = chunks_str(propert.get("description", ""))
+    description = description.replace("\\", "").replace("\n", SPACES + "\n")
+    description = SPACES + '"""' + description + '"""\n'
+    enum_name = name + snake_to_pascal(propert_name)
+    return [
+        "\n\n",
+        "class {}(str, enum.Enum):\n".format(enum_name),
+        description,
+        *(
+            [
+                SPACES
+                + (
+                    x.replace("/", "_").replace("-", "_").strip().upper()
+                    + ' = "{}"\n'.format(x)
+                )
+                for x in propert["enum"]
+            ]
+        ),
     ]
 
 
@@ -162,16 +204,30 @@ def generate(path: str, schema_url: str = URL) -> None:
     paths = schema["paths"]
     objects = schema["components"]["schemas"]
 
-    with open(path + "/__init__.py", "w") as file:
-        file.writelines("from telegrinder.types.objects import *\n")
+    with open(path + "/__init__.py", "w", encoding="UTF-8") as file:
+        file.writelines(
+            [
+                "from telegrinder.types.objects import *\n",
+                "from telegrinder.types.enums import *\n",
+            ]
+        )
 
-    with open(path + "/objects.py", "w") as file:
-        file.writelines(["import typing\n", "from telegrinder.model import *\n"])
+    with open(path + "/objects.py", "w", encoding="UTF-8") as file:
+        file.writelines(
+            [
+                "import typing\n",
+                "from telegrinder.model import *\n",
+                "from telegrinder.types.enums import *\n",
+            ]
+        )
+
+    with open(path + "/enums.py", "w", encoding="UTF-8") as file:
+        file.write("import enum\n\n")
 
     for name, obj in objects.items():
         t, properties = obj.get("type", "object"), obj.get("properties", [])
 
-        with open(path + "/objects.py", "a") as file:
+        with open(path + "/objects.py", "a", encoding="UTF-8") as file:
             if obj.get("anyOf"):
                 # creating merge to parse as fast as possible
                 ref_names = get_ref_names(obj["anyOf"])
@@ -183,21 +239,14 @@ def generate(path: str, schema_url: str = URL) -> None:
             obj_lines = get_lines_for_object(name, properties, obj)
             file.writelines(obj_lines)
 
-    # with open(path + "/objects.py", "a") as file:
-    #     file.writelines(
-    #         [
-    #             "\n\n",
-    #              "for v in locals().copy().values():\n",
-    #             SPACES + "if inspect.isclass(v) and issubclass(v, Model):\n",
-    #             SPACES + SPACES + "v.update_forward_refs()",
-    #             "\n\n",
-    #              "__all__ = (\n",
-    #         ]
-    #         + [SPACES + repr(n) + ",\n" for n in objects]
-    #         + [")\n"]
-    #     )
+        with open(path + "/enums.py", "a", encoding="UTF-8") as file:
+            for propert_name in properties:
+                if "enum" in properties[propert_name]:
+                    file.writelines(
+                        get_lines_for_enum(name, propert_name, properties[propert_name])
+                    )
 
-    with open(path + "/methods.py", "w") as file:
+    with open(path + "/methods.py", "w", encoding="UTF-8") as file:
         file.writelines(
             [
                 "import typing\n",
@@ -229,11 +278,11 @@ def generate(path: str, schema_url: str = URL) -> None:
             "schema"
         ]
         result = fobj["properties"]["result"]
-        response = convert_type("", result, {}, False)
+        response = convert_type("", "", result, {}, False)
         name = to_snakecase(method_name)
         lines.append(f"async def {name}(\n        self,\n")
         for n, prop in props.items():
-            t = convert_type("", prop, {}, False)
+            t = convert_type("", "", prop, {}, False)
             lines.append(SPACES + f"{n}: {t} | None = None,\n")
         lines.append(SPACES + "**other\n")
         lines.append(f") -> Result[{response}, APIError]:\n")
@@ -249,11 +298,13 @@ def generate(path: str, schema_url: str = URL) -> None:
                 )
             ]
         )
-        with open(path + "/methods.py", "a") as file:
+        with open(path + "/methods.py", "a", encoding="UTF-8") as file:
             file.writelines(["\n\n"] + [SPACES + li for li in lines])
 
     print("generated.")
+
     try:
-        os.system("black telegrinder/types")
+        print("run black...")
+        os.system("black " + path)
     except:  # noqa
         print("cant run black")

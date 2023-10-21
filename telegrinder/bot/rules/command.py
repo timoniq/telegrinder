@@ -1,9 +1,8 @@
-import typing
 import dataclasses
+import typing
 
 from .abc import Message
 from .text import TextMessageRule
-
 
 Validator = typing.Callable[[str], typing.Any | None]
 
@@ -21,7 +20,7 @@ class Argument:
 
     def check(self, data: str) -> typing.Any | None:
         for validator in self.validators:
-            data = validator(data)
+            data = validator(data)  # type: ignore
             if data is None:
                 return None
         return data
@@ -57,28 +56,18 @@ class Command(TextMessageRule):
         data = argument.check(data_s)
 
         if data is None and not argument.optional:
-            # Failed: Cannot parse required argument
             return None
 
         elif data is None:
-            # Failed to parse argument
-            # and it is optional -> skip it
             return self.parse_arguments(arguments[1:], s)
 
-        # Argument is parsed.
-        # Continue parsing remaining data with other arguments
         with_argument = self.parse_arguments(arguments[1:], new_s)
-
         if with_argument is not None:
             return {argument.name: data, **with_argument}
 
         if not argument.optional:
-            # Parsing with other arguments failed
-            # and current argument is not optional
             return None
 
-        # Failed to parse other arguments with remaining data
-        # -> skip current optional argument, backtrace data
         return self.parse_arguments(arguments[1:], s)
 
     def parse_arguments(self, arguments: list[Argument], s: str) -> dict | None:
@@ -86,7 +75,6 @@ class Command(TextMessageRule):
             return {} if not s else None
 
         if self.lazy:
-            data_s, new_s = single_split(s, self.separator)
             return self.parse_argument(arguments, *single_split(s, self.separator), s)
 
         all_split = s.split(self.separator)
@@ -116,7 +104,7 @@ class Command(TextMessageRule):
         if not self.arguments:
             return not arguments
 
-        result = self.parse_arguments(self.arguments, arguments)
+        result = self.parse_arguments(list(self.arguments), arguments)
         if result is None:
             return False
 

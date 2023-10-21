@@ -1,9 +1,10 @@
 import dataclasses
 
 
+@dataclasses.dataclass
 class BaseButton:
     def get_data(self) -> dict:
-        return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}  # type: ignore
+        return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}
 
 
 @dataclasses.dataclass

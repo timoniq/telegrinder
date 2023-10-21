@@ -1,18 +1,19 @@
 import typing
 
-from .middleware.abc import ABCMiddleware
-from telegrinder.types import Update
+from telegrinder.api.abc import ABCAPI
 from telegrinder.modules import logger
 from telegrinder.result import Error
-from telegrinder.api.abc import ABCAPI
 from telegrinder.tools.i18n.base import I18nEnum
+from telegrinder.types import Update
+
+from .middleware.abc import ABCMiddleware
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.rules.abc import ABCRule
-    from .handler.abc import ABCHandler
+    from .handler.abc import ABCHandler  # noqa: I001
+    from telegrinder.bot.rules.abc import ABCRule  # noqa: I001
 
 T = typing.TypeVar("T")
-E = typing.TypeVar("E")
+E = typing.TypeVar("E")  # NOTE: bound something EventType model with 'api' field
 _ = typing.Any
 
 
@@ -32,7 +33,7 @@ async def process_inner(
     found = False
     responses = []
     for handler in handlers:
-        if await handler.check(event.api, raw_event, ctx):
+        if await handler.check(event.api, raw_event, ctx):  # type: ignore
             found = True
             handler.ctx |= ctx
             responses.append(await handler.run(event))
@@ -53,10 +54,11 @@ async def check_rule(
 
     ctx_copy = ctx.copy()
 
-    model = await rule.adapter.adapt(api, update)
+    model = await rule.adapter.adapt(api, update)  # type: ignore
+    # FIXME: adapter.adapt takes UpdateCute, and here it's passing Update
     match model:
         case Error(err):
-            logger.debug("Adapter failed: {}", err)
+            logger.debug("Adapter failed: {!r}", err)
             return False
 
     for requirement in rule.requires:

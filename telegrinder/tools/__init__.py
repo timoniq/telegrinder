@@ -1,9 +1,9 @@
 from .formatting import (
+    CodeBlock,
     FormatString,
     HTMLFormatter,
     Link,
     Mention,
-    CodeBlock,
     bold,
     code_block,
     code_inline,

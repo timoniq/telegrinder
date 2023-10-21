@@ -1,16 +1,18 @@
-import traceback
 import asyncio
+import traceback
+import typing
 
+import aiohttp
 import msgspec.json
 
-from .abc import ABCPolling
 from telegrinder.api.abc import ABCAPI
 from telegrinder.api.error import InvalidTokenError
-import typing
-from telegrinder.modules import logger
 from telegrinder.model import Raw
+from telegrinder.modules import logger
+from telegrinder.result import Error, Ok
 from telegrinder.types import Update
-from telegrinder.result import Ok, Error
+
+from .abc import ABCPolling
 
 ALLOWED_UPDATES = [
     "update_id",
@@ -32,15 +34,11 @@ ALLOWED_UPDATES = [
 
 
 class Polling(ABCPolling):
-    def __init__(
-        self,
-        api: ABCAPI | None = None,
-        offset: int | None = None,
-    ):
+    def __init__(self, api: ABCAPI, *, offset: int = 0):
         self.api = api
-        self.offset = offset or 0
-        self._stop = False
         self.allowed_updates = ALLOWED_UPDATES
+        self.offset = offset
+        self._stop = False
 
     async def get_updates(self) -> Raw | None:
         raw_updates = await self.api.request_raw(
@@ -58,6 +56,8 @@ class Polling(ABCPolling):
         while not self._stop:
             try:
                 updates = await self.get_updates()
+                if not updates:
+                    continue
                 updates_list: list[Update] = msgspec.json.decode(
                     updates, type=list[Update]
                 )
@@ -71,6 +71,7 @@ class Polling(ABCPolling):
                 self.stop()
                 logger.info("Caught cancel, stopping")
             except BaseException as e:
+                print(e.__class__.__name__)
                 traceback.print_exc()
                 logger.error(e)
 

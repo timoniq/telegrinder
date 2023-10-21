@@ -3,7 +3,7 @@ import typing
 from telegrinder.api.error import APIError
 from telegrinder.result import Result
 
-from .objects import *  # noqa: F403
+from .objects import *
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.abc import ABCAPI
@@ -486,15 +486,18 @@ class APIMethods:
         user_id: int | None = None,
         is_anonymous: bool | None = None,
         can_manage_chat: bool | None = None,
-        can_post_messages: bool | None = None,
-        can_edit_messages: bool | None = None,
         can_delete_messages: bool | None = None,
         can_manage_video_chats: bool | None = None,
         can_restrict_members: bool | None = None,
         can_promote_members: bool | None = None,
         can_change_info: bool | None = None,
         can_invite_users: bool | None = None,
+        can_post_messages: bool | None = None,
+        can_edit_messages: bool | None = None,
         can_pin_messages: bool | None = None,
+        can_post_stories: bool | None = None,
+        can_edit_stories: bool | None = None,
+        can_delete_stories: bool | None = None,
         can_manage_topics: bool | None = None,
         **other
     ) -> Result[bool, APIError]:
@@ -829,6 +832,14 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         result = await self.api.request_raw(
             "unhideGeneralForumTopic", get_params(locals())
+        )
+        return full_result(result, bool)
+
+    async def unpin_all_general_forum_topic_messages(
+        self, chat_id: typing.Union[int, str] | None = None, **other
+    ) -> Result[bool, APIError]:
+        result = await self.api.request_raw(
+            "unpinAllGeneralForumTopicMessages", get_params(locals())
         )
         return full_result(result, bool)
 
@@ -1207,8 +1218,8 @@ class APIMethods:
         result: InlineQueryResult | None = None,
         **other
     ) -> Result[SentWebAppMessage, APIError]:
-        result = await self.api.request_raw("answerWebAppQuery", get_params(locals()))
-        return full_result(result, SentWebAppMessage)
+        r = await self.api.request_raw("answerWebAppQuery", get_params(locals()))
+        return full_result(r, SentWebAppMessage)
 
     async def send_invoice(
         self,

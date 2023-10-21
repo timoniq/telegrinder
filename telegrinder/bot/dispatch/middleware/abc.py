@@ -1,5 +1,5 @@
-from abc import ABC
 import typing
+from abc import ABC
 
 T = typing.TypeVar("T")
 

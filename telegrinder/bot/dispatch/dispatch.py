@@ -1,14 +1,16 @@
 import asyncio
 import typing
 
-from .abc import ABCDispatch
-from telegrinder.bot.rules import ABCRule
-from .handler import ABCHandler, FuncHandler
-from telegrinder.types import Update
-from telegrinder.api.abc import ABCAPI
-from telegrinder.modules import logger
 from vbml.patcher import Patcher
-from .view import ABCView, MessageView, CallbackQueryView, InlineQueryView
+
+from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.rules import ABCRule
+from telegrinder.modules import logger
+from telegrinder.types import Update
+
+from .abc import ABCDispatch
+from .handler import ABCHandler, FuncHandler
+from .view import ABCView, CallbackQueryView, InlineQueryView, MessageView
 
 T = typing.TypeVar("T")
 DEFAULT_DATACLASS = Update
@@ -18,7 +20,7 @@ class Dispatch(ABCDispatch):
     def __init__(self):
         self.global_context: dict[str, typing.Any] = {
             "patcher": Patcher(),
-        }
+        }  # NOTE: implement something better than this dict storage
         self.default_handlers: list[ABCHandler] = []
         self.message = MessageView()
         self.callback_query = CallbackQueryView()

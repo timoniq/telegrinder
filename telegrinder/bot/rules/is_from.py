@@ -1,4 +1,4 @@
-from .abc import MessageRule, Message
+from .abc import Message, MessageRule
 
 
 class IsPrivate(MessageRule):

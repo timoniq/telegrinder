@@ -10,4 +10,5 @@ class RawUpdateAdapter(ABCAdapter[Update, UpdateCute]):
     async def adapt(
         self, api: ABCAPI, update: Update
     ) -> Result[UpdateCute, AdapterError]:
-        return Ok(update)
+        # FIXME: return type UpdateCute
+        return Ok(update)  # type: ignore

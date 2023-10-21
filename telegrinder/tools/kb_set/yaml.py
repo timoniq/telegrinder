@@ -18,7 +18,9 @@ class KeyboardSetYAML(KeyboardSetBase):
         if not os.path.exists(config_path):
             raise FileNotFoundError(f"Config file for {cls.__name__!r} is undefined")
 
-        config = yaml.load(open(config_path, "r", encoding="utf-8"), yaml.Loader)
+        config = yaml.load(
+            open(config_path, "r", encoding="utf-8"), yaml.Loader
+        )  # noqa: SIM115
         for name, hint in typing.get_type_hints(cls).items():
             g = re.match(r"(?:kb_|keyboard_)(.+)", name.lower())
             if not g:

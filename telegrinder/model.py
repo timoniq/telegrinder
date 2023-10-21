@@ -1,10 +1,10 @@
 import typing
 
 import msgspec
-
-from telegrinder.result import Result
-from telegrinder.modules import json
 from msgspec import Raw
+
+from telegrinder.modules import json
+from telegrinder.result import Result
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError

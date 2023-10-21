@@ -15,10 +15,10 @@ class EnumTextRule(TextMessageRule):
     def texts(self) -> list[str]:
         return list(map(lambda x: x.value.lower(), self.enum_t))
 
-    def find(self, s: str) -> T:
+    def find(self, s: str) -> T:  # type: ignore
         for enumeration in self.enum_t:
             if enumeration.value.lower() == s:
-                return enumeration
+                return enumeration  # type: ignore
         raise KeyError("Enumeration is undefined")
 
     async def check(self, message: Message, ctx: dict) -> bool:

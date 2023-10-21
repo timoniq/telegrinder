@@ -50,7 +50,7 @@ class Error(typing.Generic[Err]):
 
     def __repr__(self) -> str:
         return (
-            "<Result: Error({}: {})>".format(
+            "<Result: Error({}: {!r})>".format(
                 self.error.__class__.__name__,
                 str(self.error),
             )

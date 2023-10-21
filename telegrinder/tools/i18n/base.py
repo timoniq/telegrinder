@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 import enum
+from abc import ABC, abstractmethod
 
 
 class ABCI18n(ABC):

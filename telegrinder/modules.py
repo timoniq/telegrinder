@@ -3,6 +3,8 @@ import typing
 
 from choicelib import choice_in_order
 
+__all__ = "json", "logger"
+
 
 class JSONModule(typing.Protocol):
     def loads(self, s: str) -> dict | list:
