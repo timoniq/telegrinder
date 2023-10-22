@@ -1,9 +1,9 @@
-from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.rules import Text
 import asyncio
 import dataclasses
 import datetime
 
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

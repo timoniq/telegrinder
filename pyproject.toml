@@ -26,7 +26,7 @@ build-backend = "poetry.core.masonry.api"
 line-length = 100
 target-version = "py311"
 select = ["I", "N", "ANN", "COM", "YTT", "TCH", "SIM"]
-ignore = ["ANN001", "ANN002", "ANN003", "ANN101", "ANN102", "ANN201", "ANN202", "ANN204", "ANN206", "ANN401", "COM812", "TCH001"]
+ignore = ["ANN001", "ANN002", "ANN003", "ANN101", "ANN102", "ANN201", "ANN202", "ANN204", "ANN206", "ANN401", "COM812", "TCH001", "TCH004"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401", "F403"]

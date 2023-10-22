@@ -1,7 +1,7 @@
-from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.rules import Command, Argument
 import logging
-import string
+
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.rules import Argument, Command
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -17,7 +17,6 @@ def character(c: str) -> str | None:
 def sentence(s: str) -> str | None:
     if not s.startswith("'") and s.endswith("'"):
         return None
-
     s = s.removeprefix("'").removesuffix("'")
     return s
 
@@ -38,19 +37,8 @@ def int_validator(s: str) -> int | None:
 @bot.on.message(
     Command(
         "split",
-        Argument(
-            "string",
-            [
-                sentence,
-            ],
-        ),
-        Argument(
-            "sep",
-            [
-                character,
-            ],
-            optional=True,
-        ),
+        Argument("string", [sentence]),
+        Argument("sep", [character], optional=True),
         Argument("count", [int_validator], optional=True),
     )
 )

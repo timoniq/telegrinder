@@ -1437,7 +1437,7 @@ class InlineQueryResult(Model):
     gif_duration: typing.Optional[int] = None
     thumbnail_mime_type: typing.Optional[
         InlineQueryResultThumbnailMimeType
-    ] = "image/jpeg"
+    ] = InlineQueryResultThumbnailMimeType("image/jpeg")
     latitude: typing.Optional[float] = None
     longitude: typing.Optional[float] = None
     horizontal_accuracy: typing.Optional[float] = None
@@ -1518,7 +1518,7 @@ class InlineQueryResultGif(Model):
     thumbnail_url: str
     thumbnail_mime_type: typing.Optional[
         InlineQueryResultGifThumbnailMimeType
-    ] = "image/jpeg"
+    ] = InlineQueryResultGifThumbnailMimeType("image/jpeg")
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
@@ -1543,7 +1543,7 @@ class InlineQueryResultMpeg4Gif(Model):
     thumbnail_url: str
     thumbnail_mime_type: typing.Optional[
         InlineQueryResultMpeg4GifThumbnailMimeType
-    ] = "image/jpeg"
+    ] = InlineQueryResultMpeg4GifThumbnailMimeType("image/jpeg")
     title: typing.Optional[str] = None
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None

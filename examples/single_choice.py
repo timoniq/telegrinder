@@ -1,6 +1,7 @@
-from telegrinder import Telegrinder, API, Token, Message, SingleChoice, WaiterMachine
-from telegrinder.rules import Text
 import logging
+
+from telegrinder import API, Message, SingleChoice, Telegrinder, Token, WaiterMachine
+from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

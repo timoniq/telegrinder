@@ -107,6 +107,6 @@ class WaiterMachine:
     ) -> None:
         if behaviour is None:
             return
-        # todo: add behaviour check
-        # todo: support view as a behaviour
+        # TODO: add behaviour check
+        # TODO: support view as a behaviour
         await behaviour.run(event)

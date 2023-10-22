@@ -116,7 +116,15 @@ def param_s(obj_name: str, param_name: str, param: dict, obj: dict) -> str:
     s = "{}: {}{}\n".format(
         param_name if param_name not in ("json", "from") else param_name + "_",
         t,
-        " = " + repr(param.get("default", None))
+        " = "
+        + (
+            "{0}({1!r})"
+            if "enum" in param and param.get("default", None) is not None
+            else "{1!r}"
+        ).format(
+            obj_name + snake_to_pascal(param_name),
+            param.get("default", None),
+        )
         if t.startswith("typing.Optional")
         else "",
     )

@@ -1,6 +1,8 @@
-from .checkbox import Checkbox
-from telegrinder.bot.cute_types import CallbackQueryCute
 import typing
+
+from telegrinder.bot.cute_types import CallbackQueryCute
+
+from .checkbox import Checkbox
 
 if typing.TYPE_CHECKING:
     from telegrinder.api import API

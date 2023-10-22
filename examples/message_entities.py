@@ -6,7 +6,7 @@ from telegrinder.tools.formatting import HTMLFormatter, mention
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity
 
-api = API(Token("123:TOKEN"))
+api = API(Token.from_env())
 bot = Telegrinder(api)
 logging.basicConfig(level=logging.INFO)
 
