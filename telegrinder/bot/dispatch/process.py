@@ -9,8 +9,8 @@ from telegrinder.types import Update
 from .middleware.abc import ABCMiddleware
 
 if typing.TYPE_CHECKING:
-    from .handler.abc import ABCHandler  # noqa: I001
-    from telegrinder.bot.rules.abc import ABCRule  # noqa: I001
+    from telegrinder.bot.dispatch.handler.abc import ABCHandler
+    from telegrinder.bot.rules.abc import ABCRule
 
 T = typing.TypeVar("T")
 E = typing.TypeVar("E")  # NOTE: bound something EventType model with 'api' field
@@ -23,7 +23,7 @@ async def process_inner(
     middlewares: list[ABCMiddleware[T]],
     handlers: list["ABCHandler[T]"],
 ) -> bool:
-    logger.debug("Processing {}", event.__class__.__name__)
+    logger.debug("Processing {!r}...", event.__class__.__name__)
     ctx = {}
 
     for middleware in middlewares:

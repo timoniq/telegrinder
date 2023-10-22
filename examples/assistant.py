@@ -1,8 +1,10 @@
-from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.types import ChatPermissions
-from telegrinder.rules import Text, Markup, MessageRule, IsChat
-import time
 import logging
+import time
+
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.result import Error, Ok
+from telegrinder.rules import IsChat, Markup, MessageRule, Text
+from telegrinder.types import ChatPermissions
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -40,10 +42,11 @@ async def ban(msg: Message, hours: int = 1):
         permissions=perms,
         until_date=int(time.time() + hours * 3600),
     )
-    if result.is_ok:
-        await msg.reply("Done")
-    else:
-        await msg.reply("Something went wrong (code {})".format(result.error.code))
+    match result:
+        case Ok(_):
+            await msg.reply("Done")
+        case Error(e):
+            await msg.reply("Something went wrong (code {})".format(e.code))
 
 
 bot.run_forever(skip_updates=True)

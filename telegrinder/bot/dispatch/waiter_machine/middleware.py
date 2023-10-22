@@ -9,7 +9,7 @@ if typing.TYPE_CHECKING:
     from .machine import WaiterMachine
     from .short_state import ShortState
 
-EventType = typing.TypeVar("EventType")
+EventType = typing.TypeVar("EventType")  # NOTE: make bound instance for EventType (type checker fails)
 
 
 class WaiterMiddleware(ABCMiddleware[EventType]):
@@ -35,9 +35,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         key = self.view.get_state_key(event)
         short_state: typing.Optional["ShortState"] = self.machine.storage[
             view_name
-        ].get(
-            key
-        )  # type: ignore
+        ].get(key)  # type: ignore
         if not short_state:
             return True
 
@@ -52,9 +50,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
             self.pass_runtime, list(short_state.rules), dataclass=None
         )
         handler.ctx["short_state"] = short_state
-
         result = await handler.check(event.ctx_api, event, ctx)  # type: ignore
-
         if result is True:
             await handler.run(event)
 

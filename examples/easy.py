@@ -1,11 +1,11 @@
-import random
-
-from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.bot import WaiterMachine
-from telegrinder.rules import Text, Markup, FuzzyText
-from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
 import logging
 import pathlib
+import random
+
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.bot import WaiterMachine
+from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
+from telegrinder.rules import FuzzyText, Markup, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

@@ -1,4 +1,4 @@
-from telegrinder import Telegrinder, API, Token, Keyboard, Button, Message
+from telegrinder import API, Button, Keyboard, Message, Telegrinder, Token
 from telegrinder.rules import Text
 
 api = API(token=Token.from_env())

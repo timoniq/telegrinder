@@ -9,13 +9,8 @@ from telegrinder.bot.rules.abc import ABCRule
 if typing.TYPE_CHECKING:
     from .machine import Identificator
 
-EventModel = typing.TypeVar(
-    "EventModel"
-)  # NOTE: specify the 'bound' param (may be something BaseCuteType) for type checker
-Behaviour = typing.Union[
-    ABCHandler,
-    None,
-]
+EventModel = typing.TypeVar("EventModel")  # NOTE: make bound may be something BaseCuteType (type checker fails)
+Behaviour = ABCHandler | None
 
 
 class ShortState(typing.Generic[EventModel]):

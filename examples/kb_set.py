@@ -1,19 +1,19 @@
+import logging
 import random
 
 from telegrinder import (
-    Telegrinder,
-    Token,
     API,
-    KeyboardSetYAML,
+    CallbackQuery,
     InlineKeyboard,
     Keyboard,
+    KeyboardSetYAML,
     Message,
-    CallbackQuery,
+    Telegrinder,
+    Token,
     WaiterMachine,
 )
-from telegrinder.rules import Text, CallbackDataEq
+from telegrinder.rules import CallbackDataEq, Text
 from telegrinder.types import ReplyKeyboardRemove
-import logging
 
 
 class KeyboardSet(KeyboardSetYAML):

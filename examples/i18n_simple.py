@@ -1,8 +1,8 @@
 import logging
 
-from telegrinder import Telegrinder, API, Token, Message
+from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot.rules import Text
-from telegrinder.tools.i18n import SimpleI18n, SimpleTranslator, ABCTranslatorMiddleware
+from telegrinder.tools.i18n import ABCTranslatorMiddleware, SimpleI18n, SimpleTranslator
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

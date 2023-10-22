@@ -11,8 +11,8 @@ from telegrinder.types.objects import InlineKeyboardMarkup
 from .abc import ABCScenario
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.dispatch import Dispatch  # noqa: I001
-    from telegrinder.api import API  # noqa: I001
+    from telegrinder.api import API
+    from telegrinder.bot.dispatch import Dispatch
 
 
 @dataclass

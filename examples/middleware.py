@@ -1,6 +1,7 @@
-from telegrinder import Telegrinder, API, Token, Message, ABCMiddleware
-from telegrinder.rules import Text, IsChat, IsPrivate
 import logging
+
+from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
+from telegrinder.rules import IsChat, IsPrivate, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -12,8 +13,7 @@ counter: dict[int, int] = {}
 
 class ContextMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: dict) -> bool:
-        counter[event.chat.id] = counter.get(event.chat.id, 0) + 1
-        ctx.update({"count": counter[event.chat.id]})
+        ctx.update({"count": counter.setdefault(event.chat.id, 0) + 1})
         return True
 
 
@@ -25,7 +25,7 @@ async def testme_in_chat(m: Message):
 # The variable count will be passed to handler
 # only if it is declared in handler function arguments
 @bot.on.message(IsPrivate(), Text("/count"))
-async def testme_private(m: Message, count):
+async def testme_private(m: Message, count: int):
     await m.reply(f"You wrote me {count} messages since my last reload")
 
 

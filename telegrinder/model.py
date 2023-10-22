@@ -25,11 +25,11 @@ def convert(d: typing.Any, serialize: bool = True) -> typing.Any:
         if serialize is True:
             return json.dumps(converted_dct)
         return converted_dct
-    elif isinstance(d, dict):
+    if isinstance(d, dict):
         return {
             k: convert(v, serialize=serialize) for k, v in d.items() if v is not None
         }
-    elif isinstance(d, list):
+    if isinstance(d, list):
         converted_lst = [convert(x, serialize=False) for x in d]
         if serialize is True:
             return json.dumps(converted_lst)
@@ -53,7 +53,10 @@ class Model(msgspec.Struct, **model_config):
 def get_params(params: dict) -> dict:
     return {
         k: v
-        for k, v in (*params.items(), *params.pop("other").items())
+        for k, v in (
+            *params.items(),
+            *params.pop("other").items(),
+        )
         if k != "self" and v is not None
     }
 

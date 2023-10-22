@@ -1,7 +1,8 @@
-from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.rules import Integer, IsPrivate
-from telegrinder.tools.formatting import FormatString, Link, HTMLFormatter
 import logging
+
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.rules import Integer, IsPrivate
+from telegrinder.tools.formatting import FormatString, HTMLFormatter, Link
 
 api = API(Token.from_env())
 bot = Telegrinder(api)
