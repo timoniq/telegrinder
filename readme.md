@@ -25,7 +25,6 @@ import logging
 
 from telegrinder import API, Telegrinder, Token, Message
 from telegrinder.rules import Text
-from telegrinder.tools.formatting import HTMLFormatter, bold, italic
 
 api = API(token=Token("123:token"))
 bot = Telegrinder(api)
@@ -36,9 +35,7 @@ logging.basicConfig(level=logging.INFO)
 async def start(message: Message):
     me = (await api.get_me()).unwrap()
     await message.answer(
-        f"Hello, {message.from_user.first_name}! "
-        "I'm " + bold(italic(me.first_name)),
-        parse_mode=HTMLFormatter.PARSE_MODE,
+        f"Hello, {message.from_user.first_name}! I'm {me.first_name}"
     )
 
 
