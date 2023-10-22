@@ -13,7 +13,7 @@ class UpdateCute(Update):
 
     def to_dict(self) -> dict:
         dct = super().to_dict()
-        dct.pop("api")
+        dct.pop("api", None)
         return dct
 
     @classmethod

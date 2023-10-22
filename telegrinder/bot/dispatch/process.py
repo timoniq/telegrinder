@@ -69,5 +69,5 @@ async def check_rule(
 
     if I18nEnum.I18N in ctx:
         rule = await rule.translate(ctx[I18nEnum.I18N])
-
+ 
     return await rule.check(model.unwrap(), ctx)

@@ -1,9 +1,9 @@
-from . import admin, start
+from . import admin, start, with_enum
 from telegrinder import Dispatch, Telegrinder, API, Token
 
 dp = Dispatch()
 
-for blueprint in (admin, start):
+for blueprint in (admin, start, with_enum):
     dp.load(blueprint.dp)
 
 
