@@ -20,7 +20,7 @@ class StartCommand(
         self.alias = alias
 
     async def check(self, _: Message, ctx: dict) -> bool:
-        param: str | None = ctx.get("param")
+        param: str | None = ctx.pop("param", None)
         validated_param = (
             self.validator(param) if self.validator and param is not None else param
         )
