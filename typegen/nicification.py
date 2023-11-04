@@ -18,3 +18,9 @@ class _Message(Message):
 
     def __eq__(self, other: "Message"):
         return self.message_id == other.message_id and self.chat.id == other.chat.id
+
+
+class _User(User):
+    @property
+    def full_name(self) -> str:
+        return self.first_name + (f" {self.last_name}" if self.last_name else "")

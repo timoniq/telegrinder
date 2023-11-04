@@ -1,6 +1,38 @@
 import enum
 
 
+class UpdateType(str, enum.Enum):
+    """Type of update."""
+
+    MESSAGE = "message"
+    EDITED_MESSAGE = "edited_message"
+    CHANNEL_POST = "channel_post"
+    EDITED_CHANNEL_POST = "edited_channel_post"
+    INLINE_QUERY = "inline_query"
+    CHOSEN_INLINE_RESULT = "chosen_inline_result"
+    CALLBACK_QUERY = "callback_query"
+    SHIPPING_QUERY = "shipping_query"
+    PRE_CHECKOUT_QUERY = "pre_checkout_query"
+    POLL = "poll"
+    POLL_ANSWER = "poll_answer"
+    MY_CHAT_MEMBER = "my_chat_member"
+    CHAT_MEMBER = "chat_member"
+    CHAT_JOIN_REQUEST = "chat_join_request"
+
+
+class BotCommandScopeType(str, enum.Enum):
+    """Type of BotCommandScope.
+    Represents the scope to which bot commands are applied."""
+
+    DEFAULT = "default"
+    ALL_PRIVATE_CHATS = "all_private_chats"
+    ALL_GROUP_CHATS = "all_group_chats"
+    ALL_CHAT_ADMINISTRATORS = "all_chat_administrators"
+    CHAT = "chat"
+    CHAT_ADMINISTRATORS = "chat_administrators"
+    CHAT_MEMBER = "chat_member"
+
+
 class ChatType(str, enum.Enum):
     """Type of chat, can be either “private”, “group”, “supergroup” or “channel”"""
 
@@ -8,6 +40,28 @@ class ChatType(str, enum.Enum):
     GROUP = "group"
     SUPERGROUP = "supergroup"
     CHANNEL = "channel"
+
+
+class ChatMemberStatus(str, enum.Enum):
+    """This object represents chat member status."""
+
+    CREATOR = "creator"
+    ADMINISTRATOR = "administrator"
+    MEMBER = "member"
+    RESTRICTED = "restricted"
+    LEFT = "left"
+    KICKED = "kicked"
+
+
+class DiceEmoji(str, enum.Enum):
+    """Emoji on which the dice throw animation is based."""
+
+    DICE = "🎲"
+    DART = "🎯"
+    BASKETBALL = "🏀"
+    FOOTBALL = "⚽"
+    SLOT_MACHINE = "🎰"
+    BOWLING = "🎳"
 
 
 class MessageEntityType(str, enum.Enum):
@@ -255,3 +309,11 @@ class PassportElementErrorTranslationFilesType(str, enum.Enum):
     RENTAL_AGREEMENT = "rental_agreement"
     PASSPORT_REGISTRATION = "passport_registration"
     TEMPORARY_REGISTRATION = "temporary_registration"
+
+
+class StickerFormat(str, enum.Enum):
+    """Format of the sticker."""
+
+    STATIC = "static"
+    ANIMATED = "animated"
+    VIDEO = "video"

@@ -66,6 +66,10 @@ class User(Model):
     can_read_all_group_messages: typing.Optional[bool] = None
     supports_inline_queries: typing.Optional[bool] = None
 
+    @property
+    def full_name(self) -> str:
+        return self.first_name + (f" {self.last_name}" if self.last_name else "")
+
 
 class Chat(Model):
     """This object represents a chat.

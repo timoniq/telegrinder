@@ -15,7 +15,7 @@ def single_split(s: str, separator: str) -> tuple[str, str]:
 @dataclasses.dataclass
 class Argument:
     name: str
-    validators: list[Validator] = dataclasses.field(default_factory=lambda: [])
+    validators: list[Validator] = dataclasses.field(default_factory=list)
     optional: bool = dataclasses.field(default=False, kw_only=True)
 
     def check(self, data: str) -> typing.Any | None:

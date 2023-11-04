@@ -2,18 +2,14 @@ import inspect
 import typing
 from abc import ABC, abstractmethod
 
-import vbml
-
-from telegrinder.bot.cute_types import MessageCute
-from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.bot.cute_types import CuteType, MessageCute, UpdateCute
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, EventAdapter, RawUpdateAdapter
 from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_cached_translation
+from telegrinder.types.objects import Update as UpdateObject
 
-T = typing.TypeVar("T")
-patcher = vbml.Patcher()
-
+T = typing.TypeVar("T", bound=CuteType)
 Message = MessageCute
 Update = UpdateCute
 
@@ -32,7 +28,7 @@ def with_caching_translations(func):
 
 
 class ABCRule(ABC, typing.Generic[T]):
-    adapter: ABCAdapter[Update, T] = RawUpdateAdapter()  # type: ignore
+    adapter: ABCAdapter[UpdateObject, T] = RawUpdateAdapter()  # type: ignore
     requires: list["ABCRule[T]"] = []
 
     @abstractmethod
@@ -59,7 +55,7 @@ class ABCRule(ABC, typing.Generic[T]):
         return NotRule(self)
 
     def __repr__(self) -> str:
-        return f"(rule {self.__class__.__name__})"
+        return f"<Rule: {self.__class__.__name__!r}>"
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
         return self
@@ -101,7 +97,7 @@ class NotRule(ABCRule):
 
 
 class MessageRule(ABCRule[Message], ABC, requires=[]):
-    adapter = EventAdapter("message", Message)  # type: ignore
+    adapter = EventAdapter("message", Message)
 
     @abstractmethod
     async def check(self, message: Message, ctx: dict) -> bool:

@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.tools.global_context import ABCGlobalContext
 from telegrinder.types import Update
 
 if typing.TYPE_CHECKING:
@@ -14,7 +15,7 @@ R = typing.TypeVar("R")
 
 
 class ABCDispatch(ABC):
-    global_context: dict[str, typing.Any]
+    global_context: ABCGlobalContext
 
     @abstractmethod
     async def feed(self, event: Update, api: ABCAPI) -> bool:

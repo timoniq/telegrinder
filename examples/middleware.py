@@ -2,18 +2,19 @@ import logging
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.rules import IsChat, IsPrivate, Text
+from telegrinder.tools import GlobalContext
 
+logging.basicConfig(level=logging.INFO)
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
-
-# Let's imagine a dummy counter
-counter: dict[int, int] = {}
+global_ctx = GlobalContext(counter=dict())  # Let's imagine a dummy counter
 
 
 class ContextMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: dict) -> bool:
-        ctx.update({"count": counter.setdefault(event.chat.id, 0) + 1})
+        counter: dict[int, int] = global_ctx.counter
+        counter[event.chat.id] = counter.get(event.chat.id, 0) + 1
+        ctx.update({"count": counter[event.chat.id]})
         return True
 
 

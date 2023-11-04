@@ -43,7 +43,7 @@ class WaiterMachine:
             future.cancel()
 
         await self.call_behaviour(
-            state_view,  # type: ignore
+            state_view,
             short_state.on_drop_behaviour,
             short_state.event,
             **context,
@@ -56,23 +56,20 @@ class WaiterMachine:
         *rules: ABCRule[EventModel],
         default: Behaviour = None,
         on_drop: Behaviour = None,
-        expiration: typing.Union[datetime.timedelta, int, None] = None,
-    ) -> typing.Tuple[EventModel, dict]:
+        expiration: datetime.timedelta | int | None = None,
+    ) -> tuple[EventModel, dict]:
         if isinstance(expiration, int):
             expiration = datetime.timedelta(seconds=expiration)
 
-        event = asyncio.Event()
-
         api: ABCAPI
         key: Identificator
-
+        event = asyncio.Event()
         if isinstance(linked, tuple):
             api, key = linked
         else:
-            api = linked.ctx_api  # type: ignore
-            key = state_view.get_state_key(linked)  # type: ignore
+            api, key = linked.ctx_api, state_view.get_state_key(linked)  # type: ignore
             if not key:
-                raise RuntimeError("Unable to get state key")
+                raise RuntimeError("Unable to get state key.")
 
         short_state = ShortState(
             key,
@@ -102,7 +99,7 @@ class WaiterMachine:
         self,
         view: "ABCStateView",
         behaviour: Behaviour,
-        event: EventModel,  # type: ignore
+        event: asyncio.Event,
         **context,
     ) -> None:
         if behaviour is None:

@@ -17,6 +17,9 @@ class Ok(typing.Generic[Value]):
     def __repr__(self) -> str:
         return f"<Result: Ok({self.value!r})>"
 
+    def __bool__(self) -> typing.Literal[True]:
+        return True
+
     def unwrap(self) -> Value:
         return self.value
 
@@ -57,6 +60,9 @@ class Error(typing.Generic[Err]):
             if isinstance(self.error, BaseException)
             else f"<Result: Error({self.error!r})>"
         )
+
+    def __bool__(self) -> typing.Literal[False]:
+        return False
 
     def unwrap(self) -> typing.NoReturn:
         raise (

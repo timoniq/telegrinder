@@ -27,6 +27,8 @@ from .result import Error, Ok, Result
 from .tools import (
     AnyMarkup,
     Button,
+    GlobalContext,
+    HTMLFormatter,
     InlineButton,
     InlineKeyboard,
     Keyboard,

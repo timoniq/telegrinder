@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.api import API, APIError
+from telegrinder.api import ABCAPI, API, APIError
 from telegrinder.model import get_params
 from telegrinder.result import Result
 from telegrinder.types import (
@@ -23,11 +23,11 @@ def get_enitity_value(
 
 
 class MessageCute(Message):
-    api: API
+    api: ABCAPI
 
     @property
     def ctx_api(self) -> API:
-        return self.api
+        return self.api  # type: ignore
 
     @property
     def mentioned_user(self) -> User | None:
@@ -56,6 +56,10 @@ class MessageCute(Message):
         if not self.entities:
             return
         return get_enitity_value(self.entities, "custom_emoji_id")
+
+    @classmethod
+    def from_update(cls, update: Message, bound_api: ABCAPI) -> typing.Self:
+        return cls(**update.to_dict(), api=bound_api)
 
     async def answer(
         self,
@@ -105,7 +109,9 @@ class MessageCute(Message):
         if "message_thread_id" not in params and self.is_topic_message:
             params["message_thread_id"] = self.message_thread_id
         return await self.ctx_api.send_message(
-            chat_id=self.chat.id, reply_to_message_id=self.message_id, **params
+            chat_id=self.chat.id,
+            reply_to_message_id=self.message_id,
+            **params,
         )
 
     async def delete(self, **other) -> Result[bool, APIError]:
@@ -113,7 +119,9 @@ class MessageCute(Message):
         if "message_thread_id" not in params and self.is_topic_message:
             params["message_thread_id"] = self.message_thread_id
         return await self.ctx_api.delete_message(
-            chat_id=self.chat.id, message_id=self.message_id, **params
+            chat_id=self.chat.id,
+            message_id=self.message_id,
+            **params,
         )
 
     async def edit(
@@ -129,5 +137,10 @@ class MessageCute(Message):
         if "message_thread_id" not in params and self.is_topic_message:
             params["message_thread_id"] = self.message_thread_id
         return await self.ctx_api.edit_message_text(
-            chat_id=self.chat.id, message_id=self.message_id, **params
+            chat_id=self.chat.id,
+            message_id=self.message_id,
+            **params,
         )
+
+    def to_dict(self) -> dict[str, typing.Any]:
+        return super().to_dict(exclude_fields={"api"})

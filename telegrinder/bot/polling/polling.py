@@ -10,27 +10,7 @@ from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.model import Raw
 from telegrinder.modules import logger
 from telegrinder.result import Error, Ok
-from telegrinder.types import Update
-
-ALLOWED_UPDATES: typing.Final[frozenset[str]] = frozenset(
-    [
-        "update_id",
-        "message",
-        "edited_message",
-        "channel_post",
-        "edited_channel_post",
-        "inline_query",
-        "chosen_inline_result",
-        "callback_query",
-        "shipping_query",
-        "pre_checkout_query",
-        "poll",
-        "poll_answer",
-        "my_chat_member",
-        "chat_member",
-        "chat_join_request",
-    ]
-)
+from telegrinder.types import Update, UpdateType
 
 
 class Polling(ABCPolling):
@@ -39,22 +19,24 @@ class Polling(ABCPolling):
         api: ABCAPI,
         *,
         offset: int = 0,
-        include_updates: set[str] | None = None,
-        exclude_updates: set[str] | None = None,
+        include_updates: set[str | UpdateType] | None = None,
+        exclude_updates: set[str | UpdateType] | None = None,
     ):
         self.api = api
         self.allowed_updates = self.get_allowed_updates(
-            include_updates, exclude_updates
+            include_updates=include_updates,
+            exclude_updates=exclude_updates,
         )
         self.offset = offset
         self._stop = False
 
     def get_allowed_updates(
         self,
-        include_updates: set[str] | None = None,
-        exclude_updates: set[str] | None = None,
+        *,
+        include_updates: set[str | UpdateType] | None = None,
+        exclude_updates: set[str | UpdateType] | None = None,
     ) -> list[str]:
-        allowed_updates = list(ALLOWED_UPDATES)
+        allowed_updates: list[str] = list(x.value for x in UpdateType)
         if not include_updates and not exclude_updates:
             return allowed_updates
 
@@ -69,7 +51,7 @@ class Polling(ABCPolling):
         elif include_updates:
             allowed_updates = [x for x in allowed_updates if x in include_updates]
 
-        return allowed_updates
+        return [x.value if isinstance(x, UpdateType) else x for x in allowed_updates]
 
     async def get_updates(self) -> Raw | None:
         raw_updates = await self.api.request_raw(

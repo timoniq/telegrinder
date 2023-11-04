@@ -43,10 +43,18 @@ model_config = {"rename": {"from_": "from"}, "omit_defaults": True}
 class Model(msgspec.Struct, **model_config):
     _dict_cached: dict | None = None
 
-    def to_dict(self) -> dict:
+    def to_dict(
+        self,
+        *,
+        exclude_fields: set[str] | None = None,
+    ) -> dict[str, typing.Any]:
         if self._dict_cached is not None:
             return self._dict_cached
-        self._dict_cached = {k: getattr(self, k) for k in self.__struct_fields__}
+        self._dict_cached = {
+            k: getattr(self, k)
+            for k in self.__struct_fields__
+            if k not in (exclude_fields or ())
+        }
         return self._dict_cached
 
 

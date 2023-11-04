@@ -17,7 +17,7 @@ class Telegrinder:
         self.api = api
         self.polling = polling or Polling(api)
         self.dispatch = dispatch or Dispatch()
-        self.loop = loop
+        self.loop = loop or asyncio.new_event_loop()
 
     @property
     def on(self) -> Dispatch:
@@ -35,21 +35,19 @@ class Telegrinder:
             await self.api.delete_webhook(drop_pending_updates=True)
         self.polling.offset = offset
 
-        loop = asyncio.get_running_loop()
         async for updates in self.polling.listen():  # type: ignore
             for update in updates:
                 logger.debug("Received update (update_id={})", update.update_id)
-                loop.create_task(self.dispatch.feed(update, self.api))
+                self.loop.create_task(self.dispatch.feed(update, self.api))
 
     def run_forever(self, offset: int = 0, skip_updates: bool = False) -> None:
         logger.debug("Running blocking polling (id={})", self.api.id)
-        loop = self.loop or asyncio.new_event_loop()
-        polling_task = loop.create_task(
+        polling_task = self.loop.create_task(
             self.run_polling(offset, skip_updates=skip_updates)
         )
 
         try:
-            loop.run_forever()
+            self.loop.run_forever()
         except KeyboardInterrupt:
             logger.info("KeyboardInterrupt")
         except SystemExit as e:
