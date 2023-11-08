@@ -1,6 +1,38 @@
 import enum
 
 
+class ProgrammingLanguage(str, enum.Enum):
+    """Type of programming language."""
+
+    ASSEMBLY = "assembly"
+    PYTHON = "python"
+    RUST = "rust"
+    RUBY = "ruby"
+    JAVA = "java"
+    C = "c"
+    C_SHARP = "cs"
+    CPP = "cpp"
+    CSS = "css"
+    CYTHON = "cython"
+    CARBON = "carbon"
+    COBRA = "cobra"
+    DART = "dart"
+    DELPHI = "delphi"
+    ELIXIR = "elixir"
+    HASKELL = "haskell"
+    PASCAL = "pascal"
+    TYPE_SCRIPT = "ts"
+    JAVA_SCRIPT = "js"
+    PHP = "php"
+    GO = "go"
+    SQL = "sql"
+    F_SHARP = "fs"
+    FORTRAN = "fortran"
+    KOTLIN = "kotlin"
+    HTML = "html"
+    YAML = "yaml"
+
+
 class UpdateType(str, enum.Enum):
     """Type of update."""
 

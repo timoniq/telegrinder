@@ -1,4 +1,3 @@
-import dataclasses
 import typing
 
 import msgspec
@@ -49,30 +48,17 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     }
 
 
-class DataclassInstance(typing.Protocol):
-    __dataclass_fields__: typing.ClassVar[dict[str, dataclasses.Field[typing.Any]]]
-
-
 class Model(msgspec.Struct, omit_defaults=True, rename={"from_": "from"}):
     def to_dict(
         self,
         *,
         exclude_fields: set[str] | None = None,
     ):
-        return dataclass_to_dict(self, exclude_fields=exclude_fields)
-
-
-def dataclass_to_dict(
-    dataclass: DataclassInstance | msgspec.Struct,
-    *,
-    exclude_fields: set[str] | None = None,
-) -> dict[str, typing.Any]:
-    dct = (
-        dataclasses.asdict(dataclass)
-        if dataclasses.is_dataclass(dataclass)
-        else msgspec.structs.asdict(dataclass)  # type: ignore
-    )
-    return {k: v for k, v in dct.items() if k not in (exclude_fields or ())}
+        return {
+            k: v
+            for k, v in msgspec.structs.asdict(self).items()
+            if k not in (exclude_fields or ())
+        }
 
 
 __all__ = (
@@ -80,7 +66,6 @@ __all__ = (
     "encoder",
     "full_result",
     "msgspec",
-    "dataclass_to_dict",
     "Model",
     "Raw",
     "get_params",

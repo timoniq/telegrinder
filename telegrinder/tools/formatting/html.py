@@ -5,6 +5,7 @@ import typing
 from contextlib import suppress
 
 from telegrinder.tools.parse_mode import ParseMode, get_mention_link
+from telegrinder.types.enums import ProgrammingLanguage
 
 TAG_FORMAT = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK = '"'
@@ -32,10 +33,16 @@ class Link:
 @dataclasses.dataclass(repr=False)
 class PreCode:
     string: str
-    lang: str | None = None
+    lang: str | ProgrammingLanguage | None = None
 
     def __post_init__(self) -> None:
         self.string = escape(self.string)
+        if self.lang is not None:
+            self.lang = (
+                self.lang.value
+                if isinstance(self.lang, ProgrammingLanguage)
+                else self.lang
+            )
 
 
 @dataclasses.dataclass(repr=False)
@@ -265,9 +272,10 @@ def mention(string: str, user_id: int) -> TagFormat:
     return link(get_mention_link(user_id), string)
 
 
-def pre_code(string: str, lang: str | None = None) -> TagFormat:
+def pre_code(string: str, lang: str | ProgrammingLanguage | None = None) -> TagFormat:
     if lang is None:
         return TagFormat(string, tag="pre")
+    lang = lang.value if isinstance(lang, ProgrammingLanguage) else lang
     return pre_code(TagFormat(string, tag="code", **{"class": f"language-{lang}"}))
 
 

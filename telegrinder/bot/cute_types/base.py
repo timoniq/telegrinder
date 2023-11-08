@@ -1,7 +1,7 @@
 import typing
 
 from telegrinder.api import ABCAPI, API
-from telegrinder.model import Model, dataclass_to_dict
+from telegrinder.model import Model
 
 Update = Model
 
@@ -23,7 +23,4 @@ class BaseCute:
         *,
         exclude_fields: set[str] | None = None,
     ):
-        return dataclass_to_dict(
-            self,  # type: ignore
-            exclude_fields={"api", *(exclude_fields or ())},
-        )
+        return super().to_dict(exclude_fields={"api", *(exclude_fields or ())})  # type: ignore

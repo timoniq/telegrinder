@@ -1,6 +1,6 @@
 # Global Context
 
-The `GlobalContext` class was created to store the context globally.
+The `GlobalContext` class was created to store context globally.
 
 `GlobalContext(ctx_name: str | None = None, /, **variables: Any | CtxVar[Any])`
 
@@ -138,17 +138,17 @@ Function `ctx_var(value: T, *, const: bool = False) -> T` is the same as datacla
 `__iter__`, `__contains__`, `__eq__`, `__bool__` magic methods:
 
 ```python
-from telegrinder.tools.global_context import GlobalContext, GlobalCtxVar
+from telegrinder.tools.global_context import GlobalContext
 
 ctx1 = GlobalContext(items=[1, 2, 3], state=False)
 ctx_vars = list(ctx1)
 assert "items" in ctx1 and "name" not in ctx1  # ok
-assert gc1  # ok, because context is not empty
+assert ctx1  # ok, because context is not empty
 ctx2 = GlobalContext()
-assert ctx1 == ctx1  # ok, because same context name
+assert ctx1 == ctx2  # ok, because same context name
 ```
 
-Telegrinder has a basic typed global context `TelegrinderCtx` (context name `'telegrinder'`):
+Telegrinder has a basic type-hinted global context `TelegrinderCtx` (context name `'telegrinder'`):
 
 ```python
 from telegrinder.tools.global_context import TelegrinderCtx
