@@ -1,24 +1,18 @@
 import typing
 
-from telegrinder.api import ABCAPI, API, APIError
+from telegrinder.api import ABCAPI, APIError
 from telegrinder.result import Result
 from telegrinder.types import InlineQuery, InlineQueryResult, User
 
+from .base import BaseCute
 
-class InlineQueryCute(InlineQuery):
+
+class InlineQueryCute(BaseCute, InlineQuery, kw_only=True):
     api: ABCAPI
-
-    @property
-    def ctx_api(self) -> API:
-        return self.api  # type: ignore
 
     @property
     def from_user(self) -> User:
         return self.from_
-
-    @classmethod
-    def from_update(cls, update: InlineQuery, bound_api: ABCAPI) -> typing.Self:
-        return cls(**update.to_dict(), api=bound_api)
 
     async def answer(
         self,
@@ -38,6 +32,3 @@ class InlineQueryCute(InlineQuery):
             switch_pm_text=switch_pm_text,
             switch_pm_parameter=switch_pm_parameter,
         )  # NOTE: param results: implement dataclass instead of dict
-
-    def to_dict(self) -> dict[str, typing.Any]:
-        return super().to_dict(exclude_fields={"api"})

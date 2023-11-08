@@ -23,7 +23,7 @@ from .global_context import (
     GlobalContext,
     GlobalCtxVar,
     TelegrinderCtx,
-    ctx_field,
+    ctx_var,
 )
 from .i18n import (
     ABCI18n,

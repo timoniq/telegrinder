@@ -33,7 +33,17 @@ class LoggerModule(typing.Protocol):
     def exception(self, __msg: object, *args: object, **kwargs: object):
         ...
 
-    def set_level(self, level: str) -> None:
+    def set_level(
+        self,
+        level: typing.Literal[
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR",
+            "CRITICAL",
+            "EXCEPTION",
+        ],
+    ) -> None:
         ...
 
 
@@ -118,7 +128,7 @@ elif logging_module == "logging":
     logger = StyleAdapter(logger)  # type: ignore
 
 
-def __set_logger_level(level):
+def _set_logger_level(level):
     level = level.upper()
     if logging_module == "logging":
         import logging
@@ -131,4 +141,4 @@ def __set_logger_level(level):
             loguru.logger._core.handlers[handler_id]._levelno = loguru.logger.level(level).no  # type: ignore
 
 
-setattr(logger, "set_level", staticmethod(__set_logger_level))  # type: ignore
+setattr(logger, "set_level", staticmethod(_set_logger_level))  # type: ignore

@@ -1,14 +1,15 @@
-from telegrinder import (
-    Telegrinder,
-    API,
-    Token,
-    Message,
-    CallbackQuery,
-    InlineKeyboard,
-    InlineButton,
-)
-from telegrinder.rules import Text, CallbackDataEq, CallbackDataMarkup
 import logging
+
+from telegrinder import (
+    API,
+    CallbackQuery,
+    InlineButton,
+    InlineKeyboard,
+    Message,
+    Telegrinder,
+    Token,
+)
+from telegrinder.rules import CallbackDataEq, CallbackDataMarkup, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -33,9 +34,7 @@ async def action(m: Message):
 @bot.on.callback_query(CallbackDataEq("confirm/action"))
 async def callback_confirm_handler(cb: CallbackQuery):
     await cb.answer("Okay! Confirmed.")
-    await cb.ctx_api.edit_message_text(
-        cb.message.chat.id, cb.message.message_id, text="Action happens."
-    )
+    await cb.edit_text(text="Action happens.")
     # *some action happens*
 
 

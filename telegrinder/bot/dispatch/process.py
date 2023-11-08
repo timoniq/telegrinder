@@ -1,7 +1,7 @@
 import typing
 
 from telegrinder.api.abc import ABCAPI
-from telegrinder.bot.cute_types import CuteType
+from telegrinder.bot.cute_types import BaseCute
 from telegrinder.modules import logger
 from telegrinder.result import Error
 from telegrinder.tools.i18n.base import I18nEnum
@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.handler.abc import ABCHandler
     from telegrinder.bot.rules.abc import ABCRule
 
-T = typing.TypeVar("T", bound=CuteType)
+T = typing.TypeVar("T", bound=BaseCute)
 _ = typing.Any
 
 

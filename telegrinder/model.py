@@ -1,3 +1,4 @@
+import dataclasses
 import typing
 
 import msgspec
@@ -37,28 +38,7 @@ def convert(d: typing.Any, serialize: bool = True) -> typing.Any:
     return d
 
 
-model_config = {"rename": {"from_": "from"}, "omit_defaults": True}
-
-
-class Model(msgspec.Struct, **model_config):
-    _dict_cached: dict | None = None
-
-    def to_dict(
-        self,
-        *,
-        exclude_fields: set[str] | None = None,
-    ) -> dict[str, typing.Any]:
-        if self._dict_cached is not None:
-            return self._dict_cached
-        self._dict_cached = {
-            k: getattr(self, k)
-            for k in self.__struct_fields__
-            if k not in (exclude_fields or ())
-        }
-        return self._dict_cached
-
-
-def get_params(params: dict) -> dict:
+def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     return {
         k: v
         for k, v in (
@@ -69,12 +49,38 @@ def get_params(params: dict) -> dict:
     }
 
 
+class DataclassInstance(typing.Protocol):
+    __dataclass_fields__: typing.ClassVar[dict[str, dataclasses.Field[typing.Any]]]
+
+
+class Model(msgspec.Struct, omit_defaults=True, rename={"from_": "from"}):
+    def to_dict(
+        self,
+        *,
+        exclude_fields: set[str] | None = None,
+    ):
+        return dataclass_to_dict(self, exclude_fields=exclude_fields)
+
+
+def dataclass_to_dict(
+    dataclass: DataclassInstance | msgspec.Struct,
+    *,
+    exclude_fields: set[str] | None = None,
+) -> dict[str, typing.Any]:
+    dct = (
+        dataclasses.asdict(dataclass)
+        if dataclasses.is_dataclass(dataclass)
+        else msgspec.structs.asdict(dataclass)  # type: ignore
+    )
+    return {k: v for k, v in dct.items() if k not in (exclude_fields or ())}
+
+
 __all__ = (
     "convert",
-    "model_config",
     "encoder",
     "full_result",
     "msgspec",
+    "dataclass_to_dict",
     "Model",
     "Raw",
     "get_params",

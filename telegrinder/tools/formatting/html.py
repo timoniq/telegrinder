@@ -1,4 +1,5 @@
 import dataclasses
+import html
 import string
 import typing
 from contextlib import suppress
@@ -172,7 +173,7 @@ class FormatString(str):
 class EscapedString(FormatString):
     @property
     def former_string(self) -> str:
-        return self.replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<")
+        return html.unescape(self)
 
 
 class TagFormat(FormatString):
@@ -228,9 +229,7 @@ class HTMLFormatter(FormatString):
 def escape(string: str) -> EscapedString:
     if isinstance(string, EscapedString | HTMLFormatter):
         return EscapedString(string)
-    return EscapedString(
-        string.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;")
-    )
+    return EscapedString(html.escape(string, quote=False))
 
 
 def bold(string: str) -> TagFormat:

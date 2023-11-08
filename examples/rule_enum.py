@@ -1,7 +1,7 @@
 import logging
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.rules import Text, Markup, RuleEnum
+from telegrinder.rules import Markup, RuleEnum, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

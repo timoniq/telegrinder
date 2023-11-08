@@ -3,14 +3,14 @@ import datetime
 import typing
 
 from telegrinder.api.abc import ABCAPI
-from telegrinder.bot.cute_types import CuteType
+from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.rules.abc import ABCRule
 
 if typing.TYPE_CHECKING:
     from .machine import Identificator
 
-EventModel = typing.TypeVar("EventModel", bound=CuteType)
+EventModel = typing.TypeVar("EventModel", bound=BaseCute)
 Behaviour = ABCHandler | None
 
 

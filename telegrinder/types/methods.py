@@ -1218,8 +1218,8 @@ class APIMethods:
         result: InlineQueryResult | None = None,
         **other
     ) -> Result[SentWebAppMessage, APIError]:
-        r = await self.api.request_raw("answerWebAppQuery", get_params(locals()))
-        return full_result(r, SentWebAppMessage)
+        _result = await self.api.request_raw("answerWebAppQuery", get_params(locals()))
+        return full_result(_result, SentWebAppMessage)
 
     async def send_invoice(
         self,

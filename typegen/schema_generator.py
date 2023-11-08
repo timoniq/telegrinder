@@ -3,6 +3,8 @@ import os
 import pathlib
 import re
 import typing
+from collections import OrderedDict
+from copy import deepcopy
 
 import requests
 
@@ -131,6 +133,17 @@ def param_s(obj_name: str, param_name: str, param: dict, obj: dict) -> str:
     return s
 
 
+def properties_ordering(obj: dict) -> dict:
+    if not obj.get("required"):
+        return obj
+    obj = deepcopy(obj)
+    ordered_properties = OrderedDict(properties={})
+    for require in obj["required"]:
+        ordered_properties["properties"][require] = obj["properties"].pop(require)
+    obj["properties"] = ordered_properties["properties"] | obj["properties"]
+    return obj
+
+
 def get_lines_for_object(name: str, properties: dict, obj: dict):
     if not properties:
         if name == "InputFile":
@@ -146,18 +159,17 @@ def get_lines_for_object(name: str, properties: dict, obj: dict):
     desc = ""
     if "description" in obj:
         d = obj["description"]
-        # d = re.sub(r"\[(.+)]\(.+telegram.org/blog/(.+)\)", r"\1", d)
         d = chunks_str(d)
         d = d.replace("\\", "").replace("\n", SPACES + "\n")
         if "externalDocs" in obj:
             d += "\nDocs: {}".format(obj["externalDocs"]["url"])
         desc = SPACES + '"""' + d + '"""\n'
 
+    properties = properties_ordering(obj).get("properties", properties)
     return [
         "\n\n",
         "class {}(Model):\n".format(name),
         desc,
-        # SPACES + "\"\"\"{}\"\"\"".format(obj["documentation"]),
         *(
             [SPACES + "pass\n"]
             if not properties

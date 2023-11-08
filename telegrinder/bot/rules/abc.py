@@ -2,14 +2,14 @@ import inspect
 import typing
 from abc import ABC, abstractmethod
 
-from telegrinder.bot.cute_types import CuteType, MessageCute, UpdateCute
+from telegrinder.bot.cute_types import BaseCute, MessageCute, UpdateCute
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, EventAdapter, RawUpdateAdapter
 from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
 
-T = typing.TypeVar("T", bound=CuteType)
+T = typing.TypeVar("T", bound=BaseCute)
 Message = MessageCute
 Update = UpdateCute
 
@@ -45,10 +45,10 @@ class ABCRule(ABC, typing.Generic[T]):
         requirements.extend(requires or ())
         cls.requires = list(dict.fromkeys(requirements))
 
-    def __and__(self, other: "ABCRule"):
+    def __and__(self, other: "ABCRule[T]"):
         return AndRule(self, other)
 
-    def __or__(self, other: "ABCRule"):
+    def __or__(self, other: "ABCRule[T]"):
         return OrRule(self, other)
 
     def __neg__(self) -> "ABCRule[T]":
@@ -61,8 +61,8 @@ class ABCRule(ABC, typing.Generic[T]):
         return self
 
 
-class AndRule(ABCRule):
-    def __init__(self, *rules: ABCRule):
+class AndRule(ABCRule[T]):
+    def __init__(self, *rules: ABCRule[T]):
         self.rules = rules
 
     async def check(self, event: Update, ctx: dict) -> bool:
@@ -74,8 +74,8 @@ class AndRule(ABCRule):
         return True
 
 
-class OrRule(ABCRule):
-    def __init__(self, *rules: ABCRule):
+class OrRule(ABCRule[T]):
+    def __init__(self, *rules: ABCRule[T]):
         self.rules = rules
 
     async def check(self, event: Update, ctx: dict) -> bool:
@@ -87,8 +87,8 @@ class OrRule(ABCRule):
         return False
 
 
-class NotRule(ABCRule):
-    def __init__(self, rule: ABCRule):
+class NotRule(ABCRule[T]):
+    def __init__(self, rule: ABCRule[T]):
         self.rule = rule
 
     async def check(self, event: Update, ctx: dict) -> bool:

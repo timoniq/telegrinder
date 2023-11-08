@@ -2,7 +2,7 @@ import typing
 
 import vbml
 
-from .global_context import GlobalContext, ctx_field
+from telegrinder.tools.global_context import GlobalContext, ctx_var
 
 
 class TelegrinderCtx(GlobalContext):
@@ -18,4 +18,4 @@ class TelegrinderCtx(GlobalContext):
 
     __ctx_name__ = "telegrinder"
 
-    vbml_patcher: typing.Final = ctx_field(vbml.Patcher(), const=True)
+    vbml_patcher: typing.ClassVar = ctx_var(vbml.Patcher(), const=True)

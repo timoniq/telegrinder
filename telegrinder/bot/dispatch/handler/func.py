@@ -2,7 +2,7 @@ import types
 import typing
 
 from telegrinder.api.abc import ABCAPI
-from telegrinder.bot.cute_types import CuteType
+from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import logger
 from telegrinder.tools.magic import magic_bundle
@@ -10,7 +10,7 @@ from telegrinder.types import Update
 
 from .abc import ABCHandler
 
-T = typing.TypeVar("T", bound=CuteType)
+T = typing.TypeVar("T", bound=BaseCute)
 FuncType = types.FunctionType | typing.Callable
 
 if typing.TYPE_CHECKING:

@@ -1,99 +1,121 @@
 # Global Context
 
-To store globally throughout the project variables in Telegrinder there is a class called GlobalContext.
+The `GlobalContext` class was created to store the context globally.
 
-`GlobalContext(ctx_name: str | None = None, /, **vars: Any | CtxVar[Any])`
+`GlobalContext(ctx_name: str | None = None, /, **variables: Any | CtxVar[Any])`
 
 ```python
 from telegrinder.tools.global_context import GlobalContext
 ```
 
-For contexts, you can assign names by passing a string with the desired context name to the `GlobalContext` class constructor. For contexts, you can assign names by passing the first string with the desired context name to the GlobalContext class constructor. By implication, the `None` value means that the context is nameless.
+Context can be named:
 
 ```python
 from telegrinder.tools.global_context import GlobalContext
 
-gc1 = GlobalContext()  # without name
-gc2 = GlobalContext("my_ctx")  # with name 'my_ctx'
+ctx = GlobalContext()  # without name
+ctx_with_name = GlobalContext("context")  # with name 'context'
 ```
 
-When you initialize a GlobalContext class transcript, we can transfer variables there via keyword args:
-
-```python
-from telegrinder.tools.global_context import GlobalContext
-
-gc = GlobalContext(name="Alex", url="https://google.com")
-```
-
-The context variable can be both changeable and unaltered. To make it unalterable, use dataclass CtxVar:
+During global context initialization context variables can be set using keyword arguments:
 
 `CtxVar(value: T, *, const: bool = False)`
 
 ```python
 from telegrinder.tools.global_context import GlobalContext, CtxVar
 
-gc = GlobalContext(name="Alex", URL=CtxVar("https://google.com", const=True))
+ctx = GlobalContext(name="Alex", url=CtxVar("https://google.com", const=True))
 ```
 
-You can set, get, delete a context variable value using the magic methods of class `__setattr__`, `__getattr__`, `__delattr__`:
+You can get a context variable value using the magic method `__getattr__` or method `.get_value()`:
+
+`.get_value(var_name: str, value_type: type[T] = Any) -> Result[T, str]`
+
+This method can check the value of a context variable for the type you passed.
 
 ```python
 from telegrinder.tools.global_context import GlobalContext, CtxVar
 
-gc = GlobalContext(name="Alex", URL=CtxVar("https://google.com", const=True))
-gc.URL  # 'https://google.com'
-gc.name = "Max"
-del gc.name  # ok if the variable is not const
+ctx = GlobalContext(arseny="cool programmer")
+ctx.arseny  # 'cool programmer' (but an unknown type)
+ctx.get_value("arseny", str).unwrap()  # 'cool programmer' (type 'str')
+ctx.lul  # raises an exception 'NameError'
+ctx.get_value("lul").unwrap()  # Result.Error
 ```
 
-If you want to get a context variable directly use the .get() method:
-
-`GlobalContext.get(name: str, value_type: type[T] = Any) -> Result[GlobalCtxVar[T], str]`
-
-```python
-from telegrinder.tools.global_context import GlobalContext, CtxVar
-
-gc = GlobalContext(name="Alex", URL=CtxVar("https://google.com", const=True))
-URL = gc.get("URL", str).unwrap()  #: <GlobalCtxVar(URL=ConstCtxVar(value='https://google.com'))>
-```
-
-Use the .clear() method to clear the context:
-
-`GlobalContext.clear(*, include_consts: bool = False) -> None`
-
-```python
-from telegrinder.tools.global_context import GlobalContext, CtxVar
-
-gc = GlobalContext(name="Alex", URL=CtxVar("https://google.com", const=True))
-gc.clear()  # clear the conex leaving only const variables
-gc.clear(include_consts=True)  # clear full context (get a warning from logger)
-```
-
-We can also remove our named context using the .delete_ctx() method
-
-`GlobalContext.delete_ctx() -> Result[None, str]`
+You can set the value of a context variable or create new context variable using the magic method `__setattr__`:
 
 ```python
 from telegrinder.tools.global_context import GlobalContext
 
-gc = GlobalContext("my_ctx")
-gc.delete_ctx()
+ctx = GlobalContext()
+ctx.value = 1  # cool!
 ```
 
-There is a .rename() method to change the name of a context variable
+You can delete a context variable using the magic method `__delattr__`:
 
-`GlobalContext.rename(old_name: str, new_name: str) -> Result[None, str]`
+```python
+from telegrinder.tools.global_context import GlobalContext, CtxVar
+
+ctx = GlobalContext(first=1, second=CtxVar(2, const=True))
+del ctx.value  # cool!
+del ctx.second  # you cant delete const context variable!
+```
+
+If you want to get a context variable use the method `.get()`:
+
+`.get(var_name: str, value_type: type[T] = Any) -> Result[GlobalCtxVar[T], str]`
+
+
+```python
+from telegrinder.tools.global_context import GlobalContext, CtxVar
+
+ctx = GlobalContext(name="Alex", URL=CtxVar("https://google.com", const=True))
+URL = ctx.get("URL", int)  # AssertionError: "Context variable value type of 'str' does not correspond to the expected type 'int'."
+URL = ctx.get("URL", str).unwrap()  # <GlobalCtxVar(URL=ConstCtxVar(value='https://google.com'))>
+```
+
+Use the `.clear()` method to clear the context:
+
+`.clear(*, include_consts: bool = False) -> None`
+
+```python
+from telegrinder.tools.global_context import GlobalContext, CtxVar
+
+ctx = GlobalContext(name="Alex", URL=CtxVar("https://google.com", const=True))
+ctx.clear()  # clears the context (except constants)
+ctx.clear(include_consts=True)  # clears the context
+```
+
+Delete context using the `.delete_ctx()` method:
+
+`.delete_ctx() -> Result[None, str]`
 
 ```python
 from telegrinder.tools.global_context import GlobalContext
 
-gc = GlobalContext(name="Alex")
-gc.rename("name", "first_name").unwrap()
-gc.first_name  # 'Alex'
-gc.name  # is not defined in global context
+ctx = GlobalContext("context")
+ctx.delete_ctx().unwrap()  # ok!
+
+ctx = GlobalContext()
+ctx.delete_ctx().unwrap()  # error! you cant delete ctx without name!
 ```
 
-It is possible to specify the necessary types of context variables for the `GlobalContext`:
+Renaming a context variable using the `.rename()` method:
+
+`.rename(old_var_name: str, new_var_name: str) -> Result[None, str]`
+
+```python
+from telegrinder.tools.global_context import GlobalContext, CtxVar
+
+ctx = GlobalContext(georgy="cool", telegrinder=CtxVar("cool", const=True))
+ctx.rename("georgy", "arseny").unwrap()
+ctx.arseny  # 'cool'
+ctx.georgy  # is not defined in global context
+ctx.rename("telegrinder", "other framework").unwrap()  # error! you cant rename const context varible!
+```
+
+The global context can be typed as follows:
 
 ```python
 import typing
@@ -104,35 +126,30 @@ class MyGlobalContext(GlobalContext):
     __ctx_name__ = "my_ctx"
 
     name: str
-    URL: typing.Final[str] = ctx_var("https://google.com", const=True)
+    URL: typing.Final = ctx_var("https://google.com", const=True)
+    # note: type hints typing.Final, typing.ClassVar mark the fields as a constant, so such fields will not be present in the __init__ signature.
 
-gc = MyGlobalContext(name="Alex")
-# gc: <'MyGlobalContext@my_ctx' -> (<GlobalCtxVar(name=<CtxVar(value='Alex')>)>, <GlobalCtxVar(URL=<ConstCtxVar(value='https://google.com')>)>)> 
+ctx = MyGlobalContext(name="Alex") # <'MyGlobalContext@my_ctx' -> (<GlobalCtxVar(name=<CtxVar(value='Alex')>)>, <GlobalCtxVar(URL=<ConstCtxVar(value='https://google.com')>)>)> 
 ```
 
-Where: `__ctx_name__ = "my_ctx"` is specified not to pass the name to the constructor if we need for named context; `ctx_var()` function that returns the dataclass CtxVar but under the value type we passed.
+Function `ctx_var(value: T, *, const: bool = False) -> T` is the same as dataclass `CtxVar` but it returns this dataclass as type T.
 
-Signature: `ctx_var(value: T, *, const: bool = False) -> T`
 
 `__iter__`, `__contains__`, `__eq__`, `__bool__` magic methods:
 
 ```python
-import typing
-
 from telegrinder.tools.global_context import GlobalContext, GlobalCtxVar
 
-gc1 = GlobalContext(items=[1, 2, 3], state=False)
-gc2 = GlobalContext()
-gc_ctx_vars: list[GlobalCtxVar[typing.Any]] = list(gc)
-assert "items" in gc1 and "name" not in gc1
-assert gc1 == gc2  # ok because same context name
-assert gc1  # ok because context is not empty
+ctx1 = GlobalContext(items=[1, 2, 3], state=False)
+ctx_vars = list(ctx1)
+assert "items" in ctx1 and "name" not in ctx1  # ok
+assert gc1  # ok, because context is not empty
+ctx2 = GlobalContext()
+assert ctx1 == ctx1  # ok, because same context name
 ```
 
-Telegrinder has a basic typed global context class whose name is `TelegrinderCtx`:
+Telegrinder has a basic typed global context `TelegrinderCtx` (context name `'telegrinder'`):
 
 ```python
-from telegrinder.tools import TelegrinderCtx
+from telegrinder.tools.global_context import TelegrinderCtx
 ```
-
-This class uses the `Telegrinder` itself. The name of the `'telegrinder'` context.

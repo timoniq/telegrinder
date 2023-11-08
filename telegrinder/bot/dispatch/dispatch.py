@@ -23,7 +23,7 @@ class Dispatch(ABCDispatch):
         self.callback_query = CallbackQueryView()
         self.inline_query = InlineQueryView()
         self.views = {"message", "callback_query", "inline_query"}
-        self.global_context: TelegrinderCtx = TelegrinderCtx("telegrinder")
+        self.global_context: TelegrinderCtx = TelegrinderCtx()
         self.default_handlers: list[ABCHandler] = []
 
     @property

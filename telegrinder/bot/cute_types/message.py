@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.api import ABCAPI, API, APIError
+from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
 from telegrinder.result import Result
 from telegrinder.types import (
@@ -13,6 +13,8 @@ from telegrinder.types import (
     User,
 )
 
+from .base import BaseCute
+
 
 def get_enitity_value(
     entities: list[MessageEntity], name_value: str
@@ -22,12 +24,8 @@ def get_enitity_value(
             return enitity_value
 
 
-class MessageCute(Message):
+class MessageCute(BaseCute, Message, kw_only=True):
     api: ABCAPI
-
-    @property
-    def ctx_api(self) -> API:
-        return self.api  # type: ignore
 
     @property
     def mentioned_user(self) -> User | None:
@@ -56,10 +54,6 @@ class MessageCute(Message):
         if not self.entities:
             return
         return get_enitity_value(self.entities, "custom_emoji_id")
-
-    @classmethod
-    def from_update(cls, update: Message, bound_api: ABCAPI) -> typing.Self:
-        return cls(**update.to_dict(), api=bound_api)
 
     async def answer(
         self,
@@ -141,6 +135,3 @@ class MessageCute(Message):
             message_id=self.message_id,
             **params,
         )
-
-    def to_dict(self) -> dict[str, typing.Any]:
-        return super().to_dict(exclude_fields={"api"})

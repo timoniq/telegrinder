@@ -1,14 +1,14 @@
 import typing
 
 from telegrinder.api.abc import ABCAPI
-from telegrinder.bot.cute_types import CuteType
+from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.rules.adapter.abc import ABCAdapter
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.result import Error, Ok, Result
 from telegrinder.types.objects import Model, Update
 
 EventT = typing.TypeVar("EventT", bound=Model)
-CuteT = typing.TypeVar("CuteT", bound=CuteType)
+CuteT = typing.TypeVar("CuteT", bound=BaseCute)
 
 
 def get_updates() -> dict[str, type[Model]]:
@@ -16,7 +16,7 @@ def get_updates() -> dict[str, type[Model]]:
     for k, hint in typing.get_type_hints(Update).items():
         if k in ("_dict_cached", "update_id"):
             continue
-        dct[k] = hint.__args__[0]
+        dct[k] = (typing.get_args(hint) or (hint,))[0]
     return dct
 
 

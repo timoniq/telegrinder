@@ -1,25 +1,23 @@
-import typing
-
-from telegrinder.api import ABCAPI, API, APIError
+from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
 from telegrinder.result import Result
-from telegrinder.types import CallbackQuery, User
+from telegrinder.types import (
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    Message,
+    MessageEntity,
+    User,
+)
+
+from .base import BaseCute
 
 
-class CallbackQueryCute(CallbackQuery):
+class CallbackQueryCute(BaseCute, CallbackQuery, kw_only=True):
     api: ABCAPI
-
-    @property
-    def ctx_api(self) -> API:
-        return self.api  # type: ignore
 
     @property
     def from_user(self) -> User:
         return self.from_
-
-    @classmethod
-    def from_update(cls, update: CallbackQuery, bound_api: ABCAPI) -> typing.Self:
-        return cls(**update.to_dict(), api=bound_api)
 
     async def answer(
         self,
@@ -32,5 +30,19 @@ class CallbackQueryCute(CallbackQuery):
         params = get_params(locals())
         return await self.ctx_api.answer_callback_query(self.id, **params)
 
-    def to_dict(self):
-        return super().to_dict(exclude_fields={"api"})
+    async def edit_text(
+        self,
+        inline_message_id: str | None = None,
+        text: str | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        disable_web_page_preview: bool | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other,
+    ) -> Result[Message | bool, APIError]:
+        params = get_params(locals())
+        return await self.ctx_api.edit_message_text(
+            chat_id=self.message.chat.id,
+            message_id=self.message.message_id,
+            **params,
+        )

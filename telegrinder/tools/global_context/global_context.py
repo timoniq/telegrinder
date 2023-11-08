@@ -1,4 +1,6 @@
+import collections
 import dataclasses
+import types
 import typing
 from functools import wraps
 
@@ -12,12 +14,19 @@ F = typing.TypeVar("F", bound=typing.Callable)
 _: typing.TypeAlias = None
 
 
+def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
+    if value_type is typing.Any:
+        return True
+    origin_type = typing.get_origin(value_type) or value_type
+    if origin_type is collections.abc.Callable:  # type: ignore
+        return callable(value)
+    if origin_type in (typing.Union, types.UnionType):
+        origin_type = typing.get_args(value_type)
+    return isinstance(value, origin_type)
+
+
 def root_protection(func: F) -> F:
-    if func.__name__ not in (
-        "__setattr__",
-        "__getattr__",
-        "__delattr__",
-    ):
+    if func.__name__ not in ("__setattr__", "__getattr__", "__delattr__"):
         raise RuntimeError(
             "You cannot decorate a {!r} function with this decorator, only "
             "'__setattr__', __getattr__', '__delattr__' methods.".format(
@@ -26,7 +35,7 @@ def root_protection(func: F) -> F:
         )
 
     @wraps(func)
-    def magic_wrapper(self: "GlobalContext", __name: str, *args) -> typing.Any:
+    def wrapper(self: "GlobalContext", __name: str, *args) -> typing.Any:
         if self.is_root_context_variable(__name):
             raise AttributeError(
                 f"Unable to set, get, delete root context variable {__name!r}."
@@ -49,16 +58,17 @@ def root_protection(func: F) -> F:
 
         return func(self, __name, *args)  # type: ignore
 
-    return magic_wrapper  # type: ignore
+    return wrapper  # type: ignore
 
 
-def ctx_field(value: T, *, const: bool = False) -> T:
+def ctx_var(value: T, *, const: bool = False) -> T:
     """Example:
     ```
     class MyCtx(GlobalContext):
-        URL: typing.Final[str] = ctx_field("https://google.com", const=True)
+        name: typing.Final[str]
+        URL: typing.Final = ctx_var("https://google.com", const=True)
 
-    ctx = MyCtx()
+    ctx = MyCtx(name=ctx_var("Alex", const=True))
     ctx.URL  #: 'https://google.com'
     ctx.URL = '...'  #: type checking fail and raise exception 'TypeError'
     ```
@@ -76,6 +86,11 @@ class RootAttr:
         return self.name == __value
 
 
+@typing.dataclass_transform(
+    kw_only_default=True,
+    order_default=True,
+    field_specifiers=(ctx_var,),
+)
 class GlobalContext(ABCGlobalContext):
     __ctx_name__: str | None
     __root_attributes__: typing.ClassVar = (
@@ -84,6 +99,7 @@ class GlobalContext(ABCGlobalContext):
         RootAttr("__root_context_variables__", can_be_rewritten=False),
     )
     __root_context_variables__: typing.ClassVar = ("__other_ctxs__",)
+
     __context_storage: typing.ClassVar[dict[str, GlobalCtxVar[typing.Any]]] = {
         "__other_ctxs__": GlobalCtxVar("__other_ctxs__", dict()),
     }
@@ -91,7 +107,7 @@ class GlobalContext(ABCGlobalContext):
     def __init__(
         self,
         __ctx_name: str | None = None,
-        **vars: typing.Any | CtxVar[typing.Any],
+        **variables: typing.Any | CtxVar[typing.Any],
     ):
         if not hasattr(self.__class__, "__ctx_name__"):
             self.__ctx_name__ = __ctx_name
@@ -105,9 +121,12 @@ class GlobalContext(ABCGlobalContext):
                 ):
                     defaults[name] = getattr(self.__class__, name)
                     delattr(self.__class__, name)
-            vars = defaults | vars
+                    if isinstance(defaults[name], CtxVar) and defaults[name].const:
+                        variables.pop(name, None)
 
-        for name, value in vars.items():
+            variables = defaults | variables
+
+        for name, value in variables.items():
             self.__setattr__(name, value)
 
     def __repr__(self) -> str:
@@ -135,6 +154,7 @@ class GlobalContext(ABCGlobalContext):
         return self.__ctx_name__ == __value.__ctx_name__
 
     def __bool__(self):
+        """Returns True if context is not empty otherwise False."""
         return bool(self.__copy_context_storage(exclude_root_context_vars=True))
 
     @root_protection
@@ -168,13 +188,9 @@ class GlobalContext(ABCGlobalContext):
         del self.__get_context_storage()[__name]
 
     def __get_context_storage(self) -> dict[str, GlobalCtxVar[typing.Any]]:
-        """Returns context storage by `self.__ctx_name__`
-        If `self.__ctx_name__` is None returns main context storage
-        or a context that refers to the specified name
-        if it does not exist it is created and returned.
-        """
+        """Get context storage by `__ctx_name__`."""
         main_ctx_storage = self.__class__.__context_storage
-        other_ctxs = main_ctx_storage["__other_ctxs__"].value
+        other_ctxs: dict = main_ctx_storage["__other_ctxs__"].value
         if self.__ctx_name__ is None:
             return main_ctx_storage
         return other_ctxs.setdefault(self.__ctx_name__, dict())
@@ -184,6 +200,7 @@ class GlobalContext(ABCGlobalContext):
         *,
         exclude_root_context_vars: bool = False,
     ) -> dict[str, GlobalCtxVar[typing.Any]]:
+        """Copy context storage."""
         ctx = self.__get_context_storage().copy()
         if exclude_root_context_vars:
             for root_ctx_var in self.__root_context_variables__:
@@ -210,29 +227,52 @@ class GlobalContext(ABCGlobalContext):
 
     def get(
         self,
-        name: str,
-        value_type: type[T] = typing.Any,
+        var_name: str,
+        var_value_type: type[T] = typing.Any,
     ) -> Result[GlobalCtxVar[T], str]:
         """Get context variable by name.
         Returns `GlobalCtxVar[value_type]` object."""
-        var = self.__get_context_storage().get(name)
+        var = self.__get_context_storage().get(var_name)
         if var is None:
-            return Error(f"Variable {name!r} is not defined in global context.")
-        return Ok(typing.cast(GlobalCtxVar[value_type], var))
+            return Error(
+                f"Variable {var_name!r} is not defined in global context {self.__ctx_name__!r}."
+            )
+        assert type_check(var.value, var_value_type), (
+            "Context variable value type of {!r} does not correspond to the expected type {!r}.".format(
+                type(var.value).__name__,
+                getattr(var_value_type, "__name__", repr(var_value_type)),
+            ),
+        )
+        return Ok(var)
 
-    def rename(self, old_name: str, new_name: str) -> Result[_, str]:
+    def get_value(
+        self,
+        var_name: str,
+        value_type: type[T] = typing.Any,
+    ) -> Result[T, str]:
+        """Get context variable value by name."""
+        return self.get(var_name, value_type).map(lambda var: var.value)
+
+    def rename(self, old_var_name: str, new_var_name: str) -> Result[_, str]:
         """Rename context variable."""
-        var = self.get(old_name).unwrap()
+        if self.is_root_context_variable(new_var_name):
+            return Error(
+                f"Cannot rename {old_var_name!r} to {new_var_name!r}, because "
+                f"{new_var_name!r} is a root context variable."
+            )
+        var = self.get(old_var_name).unwrap()
         if var.const:
             return Error(
-                f"Unable to rename variable {old_name!r}, because it's a constant."
+                f"Unable to rename variable {old_var_name!r}, because it's a constant."
             )
         ctx_storage = self.__get_context_storage()
-        del ctx_storage[old_name]
-        ctx_storage[new_name] = GlobalCtxVar(new_name, var.value, const=var.const)
+        del ctx_storage[old_var_name]
+        ctx_storage[new_var_name] = GlobalCtxVar(
+            new_var_name, var.value, const=var.const
+        )
         return Ok(_)  # type: ignore
 
-    def clear(self, *, include_consts: bool = False):
+    def clear(self, *, include_consts: bool = False) -> None:
         """Clear context. If `include_consts = True`,
         then the context is completely cleared."""
         ctx_storage = self.__get_context_storage()

@@ -1,19 +1,16 @@
-import typing
+from telegrinder.api import ABCAPI
+from telegrinder.types import Update, UpdateType
 
-from telegrinder.api import ABCAPI, API
-from telegrinder.types import Update
+from .base import BaseCute
 
 
-class UpdateCute(Update):
+class UpdateCute(BaseCute, Update, kw_only=True):
     api: ABCAPI
 
     @property
-    def ctx_api(self) -> API:
-        return self.api  # type: ignore
-
-    @classmethod
-    def from_update(cls, update: Update, bound_api: ABCAPI) -> typing.Self:
-        return cls(**update.to_dict(), api=bound_api)
-
-    def to_dict(self) -> dict[str, typing.Any]:
-        return super().to_dict(exclude_fields={"api"})
+    def update_type(self) -> UpdateType:  # type: ignore
+        for name, update in self.to_dict(
+            exclude_fields={"update_id"},
+        ).items():
+            if update is not None:
+                return UpdateType(name)

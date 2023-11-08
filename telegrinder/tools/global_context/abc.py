@@ -3,7 +3,7 @@ import typing
 from abc import ABC, abstractmethod
 
 T = typing.TypeVar("T")
-CtxValue = typing.Union[typing.Any, "CtxVar[T]"]
+CtxValue = typing.Union["CtxVar[T]", typing.Any]
 
 
 @dataclasses.dataclass(repr=False, frozen=True)
@@ -51,5 +51,13 @@ class ABCGlobalContext(ABC):
         pass
 
     @abstractmethod
-    def get(self, name: str, value_type: type[T]) -> GlobalCtxVar[T]:
+    def get(self, name: str, var_value_type: type[T]) -> GlobalCtxVar[T]:
+        pass
+
+    @abstractmethod
+    def get_value(self, name: str, value_type: type[T]) -> T:
+        pass
+
+    @abstractmethod
+    def clear(self, *, include_consts: bool) -> None:
         pass
