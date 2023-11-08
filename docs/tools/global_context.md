@@ -64,7 +64,7 @@ del ctx.second  # you cant delete const context variable!
 
 If you want to get a context variable use the method `.get()`:
 
-`.get(var_name: str, value_type: type[T] = Any) -> Result[GlobalCtxVar[T], str]`
+`.get(var_name: str, var_value_type: type[T] = Any) -> Result[GlobalCtxVar[T], str]`
 
 
 ```python
