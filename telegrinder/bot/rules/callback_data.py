@@ -7,7 +7,7 @@ import vbml
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.rules.adapter import EventAdapter
 from telegrinder.modules import json
-from telegrinder.tools.buttons import IsDataclass
+from telegrinder.tools.buttons import DataclassInstance
 
 from .abc import ABCRule
 from .markup import Markup, check_string
@@ -47,7 +47,9 @@ class CallbackDataJsonEq(CallbackQueryRule):
 
 
 class CallbackDataJsonModel(CallbackQueryRule):
-    def __init__(self, model: typing.Type[msgspec.Struct] | typing.Type[IsDataclass]):
+    def __init__(
+        self, model: typing.Type[msgspec.Struct] | typing.Type[DataclassInstance]
+    ):
         self.decoder = msgspec.json.Decoder(type=model)
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:

@@ -4,7 +4,7 @@ from typing import ClassVar, Dict, Protocol
 import msgspec
 
 
-class IsDataclass(Protocol):
+class DataclassInstance(Protocol):
     __dataclass_fields__: ClassVar[Dict]
 
 
@@ -35,7 +35,7 @@ class InlineButton(BaseButton):
     url: str | None = None
     login_url: dict | None = None
     pay: bool | None = None
-    callback_data: dict | str | IsDataclass | msgspec.Struct | None = None
+    callback_data: dict | str | DataclassInstance | msgspec.Struct | None = None
     callback_game: dict | None = None
     switch_inline_query: str | None = None
     switch_inline_query_current_chat: str | None = None
