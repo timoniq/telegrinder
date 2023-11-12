@@ -13,9 +13,12 @@ class ProgrammingLanguage(str, enum.Enum):
     C_SHARP = "cs"
     CPP = "cpp"
     CSS = "css"
+    OBJECTIVE_C = "Objective-C"
     CYTHON = "cython"
     CARBON = "carbon"
     COBRA = "cobra"
+    SWIFT = "swift"
+    LAURELANG = "laurelang"
     DART = "dart"
     DELPHI = "delphi"
     ELIXIR = "elixir"
@@ -31,6 +34,7 @@ class ProgrammingLanguage(str, enum.Enum):
     KOTLIN = "kotlin"
     HTML = "html"
     YAML = "yaml"
+    JSON = "json"
 
 
 class UpdateType(str, enum.Enum):

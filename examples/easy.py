@@ -6,6 +6,7 @@ from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import WaiterMachine
 from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
 from telegrinder.rules import FuzzyText, Markup, Text
+from telegrinder.types import InputFile
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -31,14 +32,14 @@ async def start(message: Message):
         default=MessageReplyHandler("Fine or bad"),
     )
 
-    match m.text.lower():
+    match m.text.unwrap().lower():
         case "fine":
             await m.reply("Cool!")
         case "bad":
             await message.ctx_api.send_photo(
                 message.chat.id,
                 caption="I'm sorry... You prob need some kitten pictures",
-                photo=("kitten.jpg", kitten_bytes),
+                photo=InputFile("kitten.jpg", kitten_bytes),
             )
 
 

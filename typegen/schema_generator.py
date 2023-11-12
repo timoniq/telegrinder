@@ -31,7 +31,7 @@ def find_nicifications(name: str) -> list[str]:
     return []
 
 
-def convert_optional(func):
+def convert_to_option(func):
     def wrapper(
         obj_name: str,
         param_name: str,
@@ -41,7 +41,7 @@ def convert_optional(func):
     ):
         t = func(obj_name, param_name, d, obj, forward_ref)
         if param_name not in obj.get("required", []) and param_name:
-            t = "typing.Optional[" + t + "]"
+            t = "Option[" + t + "]"
         return t
 
     return wrapper
@@ -74,7 +74,7 @@ def snake_to_pascal(s: str) -> str:
     return "".join(map(str.title, s.split("_")))
 
 
-@convert_optional
+@convert_to_option
 def convert_type(
     obj_name: str,
     param_name: str,
@@ -115,19 +115,26 @@ def convert_type(
 
 def param_s(obj_name: str, param_name: str, param: dict, obj: dict) -> str:
     t = convert_type(obj_name, param_name, param, obj)
+    default_value = param.get("default", None)
     s = "{}: {}{}\n".format(
         param_name if param_name not in ("json", "from") else param_name + "_",
         t,
-        " = "
-        + (
-            "{0}({1!r})"
-            if "enum" in param and param.get("default", None) is not None
-            else "{1!r}"
-        ).format(
-            obj_name + snake_to_pascal(param_name),
-            param.get("default", None),
+        " = {}".format(
+            "Option({})".format(
+                (
+                    obj_name
+                    + snake_to_pascal(param_name)
+                    + "("
+                    + repr(default_value)
+                    + ")"
+                )
+                if "enum" in param and default_value is not None
+                else repr(default_value)
+            )
+            if default_value is not None
+            else "Option.Nothing",
         )
-        if t.startswith("typing.Optional")
+        if t.startswith("Option")
         else "",
     )
     return s
@@ -137,7 +144,7 @@ def properties_ordering(obj: dict) -> dict:
     if not obj.get("required"):
         return obj
     obj = deepcopy(obj)
-    ordered_properties = OrderedDict(properties={})
+    ordered_properties = OrderedDict(properties=dict())
     for require in obj["required"]:
         ordered_properties["properties"][require] = obj["properties"].pop(require)
     obj["properties"] = ordered_properties["properties"] | obj["properties"]
@@ -235,7 +242,8 @@ def generate(path: str, schema_url: str = URL) -> None:
     with open(path + "/objects.py", "w", encoding="UTF-8") as file:
         file.writelines(
             [
-                "import typing\n",
+                "import typing\n\n",
+                "from telegrinder.option.msgspec_option import Option\n",
                 "from telegrinder.model import *\n",
                 "from telegrinder.types.enums import *\n",
             ]
@@ -272,10 +280,14 @@ def generate(path: str, schema_url: str = URL) -> None:
                 "import typing\n",
                 "from .objects import *\n",
                 "from telegrinder.result import Result\n",
-                "from telegrinder.api.error import APIError\n\n",
+                "from telegrinder.api.error import APIError\n",
+                "from telegrinder.option import Some, Nothing\n",
+                "from telegrinder.option.msgspec_option import Option\n\n",
                 "if typing.TYPE_CHECKING:\n",
                 SPACES + "from telegrinder.api.abc import ABCAPI\n\n",
                 'X = typing.TypeVar("X")\n',
+                'Value = typing.TypeVar("Value")\n',
+                "OptionType = Option[Value] | Some[Value] | type(Nothing)\n",
                 "\n\n",
                 "class APIMethods:\n",
                 SPACES + 'def __init__(self, api: "ABCAPI"):\n',
@@ -303,7 +315,7 @@ def generate(path: str, schema_url: str = URL) -> None:
         lines.append(f"async def {name}(\n        self,\n")
         for n, prop in props.items():
             t = convert_type("", "", prop, {}, False)
-            lines.append(SPACES + f"{n}: {t} | None = None,\n")
+            lines.append(SPACES + f"{n}: {t} | OptionType[{t}] | None = None,\n")
         lines.append(SPACES + "**other\n")
         lines.append(f") -> Result[{response}, APIError]:\n")
         lines.extend(

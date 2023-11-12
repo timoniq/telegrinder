@@ -8,7 +8,7 @@ bot = Telegrinder(api)
 logging.basicConfig(level=logging.DEBUG)
 
 
-class CancelOrUsername(RuleEnum):
+class CancelOrUsername(RuleEnum[Message]):
     CANCEL = Text("/cancel")
     USERNAME = Markup("@<username>") | Markup("t.me/<username>")
 

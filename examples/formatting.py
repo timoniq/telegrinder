@@ -23,7 +23,7 @@ async def formatting(m: Message):
         parse_mode=HTMLFormatter.PARSE_MODE,
     )
     await m.answer(
-        "this is " + mention(m.from_.first_name, m.from_.id),
+        "this is " + mention(m.from_user.first_name, m.from_user.id),
         parse_mode=HTMLFormatter.PARSE_MODE,
     )
 

@@ -2,12 +2,10 @@ import asyncio
 import traceback
 import typing
 
-import msgspec.json
-
 from telegrinder.api.abc import ABCAPI
 from telegrinder.api.error import InvalidTokenError
 from telegrinder.bot.polling.abc import ABCPolling
-from telegrinder.model import Raw
+from telegrinder.model import Raw, decoder
 from telegrinder.modules import logger
 from telegrinder.result import Error, Ok
 from telegrinder.types import Update, UpdateType
@@ -64,14 +62,14 @@ class Polling(ABCPolling):
             case Error(err) if err.code in (401, 404):
                 raise InvalidTokenError("Token seems to be invalid")
 
-    async def listen(self) -> typing.AsyncIterator[list[Update]]:
+    async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
         logger.debug("Listening polling")
         while not self._stop:
             try:
                 updates = await self.get_updates()
                 if not updates:
                     continue
-                updates_list: list[Update] = msgspec.json.decode(
+                updates_list: list[Update] = decoder.decode(
                     updates, type=list[Update]
                 )
                 if updates_list:

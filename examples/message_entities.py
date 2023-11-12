@@ -17,7 +17,9 @@ async def handler_mention_me(message: Message, message_entities: list[MessageEnt
     if (
         not my_username
         or my_username
-        != message.text[message_entities[0].offset + 1 : message_entities[0].length]
+        != message.text.unwrap()[
+            message_entities[0].offset + 1 : message_entities[0].length
+        ]
     ):
         return
     await message.delete()
@@ -36,8 +38,8 @@ async def handler_mention_me(message: Message, message_entities: list[MessageEnt
 async def handler_entities(message: Message):
     await message.answer(
         "Nice {}: {}!".format(
-            "entities" if len(message.entities) > 1 else "entity",
-            ", ".join(map(lambda e: e.type, message.entities)),
+            "entities" if len(message.entities.unwrap()) > 1 else "entity",
+            ", ".join(map(lambda e: e.type, message.entities.unwrap())),
         )
     )
 

@@ -40,7 +40,7 @@ class CallbackQueryView(ABCStateView[CallbackQueryCute]):
         return event.message.message_id  # type: ignore
 
     async def process(self, event: Update, api: ABCAPI):
-        query = CallbackQueryCute(**event.callback_query.to_dict(), api=api)  # type: ignore
+        query = CallbackQueryCute(**event.callback_query.unwrap().to_dict(), api=api)
         return await process_inner(query, event, self.middlewares, self.handlers)
 
     def load(self, external: typing.Self):

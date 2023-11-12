@@ -1,13 +1,12 @@
-import typing
-
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.result import Result
 from telegrinder.types import InlineQuery, InlineQueryResult, User
+from telegrinder.types.methods import OptionType
 
 from .base import BaseCute
 
 
-class InlineQueryCute(BaseCute, InlineQuery, kw_only=True):
+class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
     api: ABCAPI
 
     @property
@@ -16,12 +15,14 @@ class InlineQueryCute(BaseCute, InlineQuery, kw_only=True):
 
     async def answer(
         self,
-        results: list[InlineQueryResult | dict] | None = None,
-        cache_time: int | None = None,
-        is_personal: bool | None = None,
-        next_offset: str | None = None,
-        switch_pm_text: str | None = None,
-        switch_pm_parameter: str | None = None,
+        results: list[InlineQueryResult | dict]
+        | OptionType[list[InlineQueryResult | dict]]
+        | None = None,
+        cache_time: int | OptionType[int] | None = None,
+        is_personal: bool | OptionType[bool] | None = None,
+        next_offset: str | OptionType[str] | None = None,
+        switch_pm_text: str | OptionType[str] | None = None,
+        switch_pm_parameter: str | OptionType[str] | None = None,
     ) -> Result[bool, APIError]:
         return await self.ctx_api.answer_inline_query(
             self.id,

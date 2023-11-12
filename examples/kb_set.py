@@ -57,7 +57,7 @@ async def choose_handler(m: Message):
         Text(["yes", "no"], True),
         default=repeat_yes_or_no,
     )
-    if answer.text.lower() == "yes":
+    if answer.text.unwrap().lower() == "yes":
         await answer.reply("Rockets have been launched.")
     else:
         await answer.reply(":(( maybe you need some psychological help")
@@ -74,11 +74,11 @@ async def edit_handler(m: Message):
 @bot.on.callback_query(CallbackDataEq("edit"))
 async def edit_callback_handler(cb: CallbackQuery):
     await cb.answer("Yay")
-    chars = list(cb.message.text)
+    chars = list(cb.message.unwrap().text.unwrap())
     random.shuffle(chars)
     await bot.api.edit_message_text(
-        cb.message.chat.id,
-        cb.message.message_id,
+        cb.message.unwrap().chat.id,
+        cb.message.unwrap().message_id,
         text="".join(chars),
         reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup(),
     )

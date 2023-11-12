@@ -1,7 +1,7 @@
 import dataclasses
 import typing
 
-from .abc import ABCRule, RawUpdateAdapter, Update, check_rule
+from .abc import ABCRule, RawUpdateAdapter, T, Update, check_rule
 from .func import FuncRule
 
 
@@ -9,17 +9,16 @@ from .func import FuncRule
 class RuleEnumState:
     name: str
     rule: ABCRule
-    cls: typing.Type["RuleEnum"]
+    cls: type["RuleEnum"]
 
     def __eq__(self, other: typing.Self) -> bool:
         return self.cls == other.cls and self.name == other.name
 
 
-class RuleEnum(ABCRule[Update]):
+class RuleEnum(ABCRule[T]):
     __enum__: list[RuleEnumState]
-    adapter = RawUpdateAdapter()
-    # FIXME: inappropriate adapter for views; MessageView -> MessageCute (see enum_rule example)
-    # and here the type is UpdateCute and it is incompatible with MessageCute, etc.
+
+    adapter = RawUpdateAdapter()  # type: ignore
 
     def __init_subclass__(cls, *args, **kwargs):
         new_attributes = (

@@ -30,4 +30,4 @@ class Markup(TextMessageRule):
         ]
 
     async def check(self, message: Message, ctx: dict) -> bool:
-        return check_string(self.patterns, message.text, ctx)
+        return check_string(self.patterns, message.text.unwrap(), ctx)

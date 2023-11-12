@@ -40,7 +40,7 @@ class MessageView(ABCStateView[MessageCute]):
         return event.chat.id
 
     async def process(self, event: Update, api: ABCAPI):
-        msg = MessageCute(**event.message.to_dict(), api=api)  # type: ignore
+        msg = MessageCute(**event.message.unwrap().to_dict(), api=api)
         return await process_inner(msg, event, self.middlewares, self.handlers)
 
     def load(self, external: typing.Self):

@@ -6,7 +6,7 @@ from telegrinder.bot.rules.adapter import EventAdapter
 
 
 class InlineQueryRule(ABCRule[InlineQueryCute], abc.ABC):
-    adapter = EventAdapter("inline_query", InlineQueryCute)  # type: ignore
+    adapter = EventAdapter("inline_query", InlineQueryCute)
 
     @abc.abstractmethod
     async def check(self, query: InlineQueryCute, ctx: dict) -> bool:
@@ -25,4 +25,4 @@ class InlineQueryText(InlineQueryRule):
 
 class LocationInlineQuery(InlineQueryRule):
     async def check(self, query: InlineQueryCute, ctx: dict) -> bool:
-        return query.location is not None
+        return bool(query.location)

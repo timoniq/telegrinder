@@ -8,11 +8,12 @@ from telegrinder.types import (
     MessageEntity,
     User,
 )
+from telegrinder.types.methods import OptionType
 
 from .base import BaseCute
 
 
-class CallbackQueryCute(BaseCute, CallbackQuery, kw_only=True):
+class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     api: ABCAPI
 
     @property
@@ -21,10 +22,10 @@ class CallbackQueryCute(BaseCute, CallbackQuery, kw_only=True):
 
     async def answer(
         self,
-        text: str | None = None,
-        show_alert: bool | None = None,
-        url: str | None = None,
-        cache_time: int | None = None,
+        text: str | OptionType[str] | None = None,
+        show_alert: bool | OptionType[bool] | None = None,
+        url: str | OptionType[str] | None = None,
+        cache_time: int | OptionType[int] | None = None,
         **other,
     ) -> Result[bool, APIError]:
         params = get_params(locals())
@@ -32,17 +33,20 @@ class CallbackQueryCute(BaseCute, CallbackQuery, kw_only=True):
 
     async def edit_text(
         self,
-        inline_message_id: str | None = None,
-        text: str | None = None,
-        parse_mode: str | None = None,
-        entities: list[MessageEntity] | None = None,
-        disable_web_page_preview: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
+        inline_message_id: str | OptionType[str] | None = None,
+        text: str | OptionType[str] | None = None,
+        parse_mode: str | OptionType[str] | None = None,
+        entities: list[MessageEntity] | OptionType[list[MessageEntity]] | None = None,
+        disable_web_page_preview: bool | OptionType[bool] | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | OptionType[InlineKeyboardMarkup]
+        | None = None,
         **other,
     ) -> Result[Message | bool, APIError]:
         params = get_params(locals())
+        message = self.message.unwrap()
         return await self.ctx_api.edit_message_text(
-            chat_id=self.message.chat.id,
-            message_id=self.message.message_id,
+            chat_id=message.chat.id,
+            message_id=message.message_id,
             **params,
         )

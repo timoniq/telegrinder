@@ -6,6 +6,8 @@ import msgspec
 
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.rules.adapter import EventAdapter
+from telegrinder.model import decoder
+from telegrinder.tools.buttons import DataclassInstance
 
 from .abc import ABCRule
 from .markup import Markup, PatternLike, check_string
@@ -23,7 +25,7 @@ class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
 
 class HasData(CallbackQueryRule):
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        return bool(event.data)
+        return bool(event.data or event.data.unwrap())
 
 
 class CallbackQueryDataRule(CallbackQueryRule, abc.ABC, requires=[HasData()]):
@@ -35,7 +37,7 @@ class CallbackDataEq(CallbackQueryDataRule):
         self.value = value
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        return event.data == self.value
+        return event.data.unwrap() == self.value
 
 
 class CallbackDataJsonEq(CallbackQueryDataRule):
@@ -43,20 +45,18 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
         self.d = d
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        if not event.data:
-            return False
         with suppress(BaseException):
-            return msgspec.json.decode(event.data, type=dict) == self.d
+            return decoder.decode(event.data.unwrap(), type=dict) == self.d
         return False
 
 
 class CallbackDataJsonModel(CallbackQueryDataRule):
-    def __init__(self, model: typing.Type[msgspec.Struct]):
-        self.decoder = msgspec.json.Decoder(type=model)
+    def __init__(self, model: type[msgspec.Struct] | type[DataclassInstance]):
+        self.model = model
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        with suppress(msgspec.DecodeError):
-            ctx["data"] = self.decoder.decode(event.data.encode())
+        with suppress(msgspec.ValidationError, msgspec.DecodeError):
+            ctx["data"] = decoder.decode(event.data.unwrap().encode(), type=self.model)
             return True
         return False
 
@@ -66,4 +66,4 @@ class CallbackDataMarkup(CallbackQueryDataRule):
         self.patterns = Markup(patterns).patterns
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        return check_string(self.patterns, event.data, ctx)
+        return check_string(self.patterns, event.data.unwrap(), ctx)

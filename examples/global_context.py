@@ -4,7 +4,7 @@ from functools import reduce
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.rules import Markup, MessageEntities, Text
-from telegrinder.tools.formatting import HTMLFormatter, bold, italic
+from telegrinder.tools.formatting import HTMLFormatter, bold, code_inline
 from telegrinder.tools.formatting.html import TagFormat
 from telegrinder.tools.global_context import GlobalContext, ctx_var
 from telegrinder.types.enums import MessageEntityType
@@ -35,11 +35,13 @@ def formatting_text(*fmt_texts: str | TagFormat) -> dict:
     return params
 
 
-class RegistrarUserMiddleware(ABCMiddleware[Message]):
+class UserRegistrarMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: dict) -> bool:
         if event.from_ and event.from_user.username:
             # register user by username
-            global_ctx.users.setdefault(event.from_user.username, event.from_user)
+            global_ctx.users.setdefault(
+                event.from_user.username.unwrap(), event.from_user
+            )
         return True
 
 
@@ -65,8 +67,8 @@ async def get_user_by_username(message: Message, username: str):
             **formatting_text("User with username ", bold(username), " not found!")
         )
         return
-    await message.answer(**formatting_text("User: ", italic(repr(user))))
+    await message.answer(**formatting_text("User: ", code_inline(repr(user))))
 
 
-bot.on.message.middlewares.append(RegistrarUserMiddleware())
+bot.on.message.middlewares.append(UserRegistrarMiddleware())
 bot.run_forever()

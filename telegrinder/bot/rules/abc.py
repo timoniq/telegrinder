@@ -55,7 +55,10 @@ class ABCRule(ABC, typing.Generic[T]):
         return NotRule(self)
 
     def __repr__(self) -> str:
-        return f"<Rule: {self.__class__.__name__!r}>"
+        return "<{!r} rule, adapter: {!r}>".format(
+            self.__class__.__name__,
+            self.adapter.__class__.__name__,
+        )
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
         return self

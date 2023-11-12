@@ -92,7 +92,7 @@ class Command(TextMessageRule):
         return None
 
     async def check(self, message: Message, ctx: dict) -> bool:
-        text = self.remove_prefix(message.text)
+        text = self.remove_prefix(message.text.unwrap())
 
         if text is None:
             return False

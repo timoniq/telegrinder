@@ -22,8 +22,8 @@ async def handler(message: Message, _: SimpleTranslator):
 
     # SimpleTranslator is locale-aware already
     # And you can also easily format strings inside _()
-    await message.answer(_("Hello, {name}!", name=message.from_.first_name))
+    await message.answer(_("Hello, {name}!", name=message.from_user.first_name))
 
 
-bot.dispatch.message.middlewares.append(I18nMiddleware(i18n))
+bot.on.message.middlewares.append(I18nMiddleware(i18n))
 bot.run_forever()

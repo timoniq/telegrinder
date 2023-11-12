@@ -2,6 +2,7 @@ import typing
 from abc import ABC, abstractmethod
 
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.tools.global_context import ABCGlobalContext
@@ -10,8 +11,9 @@ from telegrinder.types import Update
 if typing.TYPE_CHECKING:
     from .view.abc import ABCView
 
-P = typing.ParamSpec("P")
+T = typing.TypeVar("T", bound=BaseCute)
 R = typing.TypeVar("R")
+P = typing.ParamSpec("P")
 
 
 class ABCDispatch(ABC):
@@ -32,10 +34,12 @@ class ABCDispatch(ABC):
     @classmethod
     def to_handler(
         cls,
-        *rules: ABCRule,
+        *rules: ABCRule[T],
         is_blocking: bool = True,
-    ) -> typing.Callable[[typing.Callable[P, R]], FuncHandler]:  # type: ignore
-        def wrapper(func: typing.Callable[P, R]):  # type: ignore
+    ):
+        def wrapper(
+            func: typing.Callable[typing.Concatenate[T, P], typing.Awaitable[R]]
+        ) -> FuncHandler[T, typing.Callable[typing.Concatenate[T, P], typing.Awaitable[R]]]:
             return FuncHandler(func, list(rules), is_blocking, dataclass=None)
 
         return wrapper

@@ -4,7 +4,7 @@ import msgspec
 
 from telegrinder.api.response import APIResponse
 from telegrinder.client import ABCClient, AiohttpClient
-from telegrinder.model import convert
+from telegrinder.model import convert, decoder
 from telegrinder.result import Error, Ok, Result
 from telegrinder.types.methods import APIMethods
 
@@ -57,7 +57,7 @@ class API(ABCAPI, APIMethods):
         response_bytes = await self.http.request_bytes(
             self.request_url + method, data=data
         )
-        response_skeleton: APIResponse = msgspec.json.decode(
+        response_skeleton: APIResponse = decoder.decode(
             response_bytes, type=APIResponse
         )
         return response_skeleton.to_result()
