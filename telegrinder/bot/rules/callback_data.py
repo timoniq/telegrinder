@@ -53,7 +53,7 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
 class CallbackDataJsonModel(CallbackQueryDataRule):
     def __init__(self, model: type[msgspec.Struct] | type[DataclassInstance]):
         self.model = model
-
+        
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
         with suppress(msgspec.ValidationError, msgspec.DecodeError):
             ctx["data"] = decoder.decode(event.data.unwrap().encode(), type=self.model)

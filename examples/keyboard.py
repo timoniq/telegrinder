@@ -14,6 +14,7 @@ from telegrinder.rules import CallbackDataJsonModel, Text
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 
+
 # alternative to msgspec.Struct: use @dataclasses.dataclass
 class ItemModel(msgspec.Struct):
     item: str
