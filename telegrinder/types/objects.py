@@ -1,6 +1,7 @@
 import typing
 
 from telegrinder.model import *
+from telegrinder.option.msgspec_option import Option
 from telegrinder.types.enums import *
 
 
@@ -8,7 +9,7 @@ class Error(Model):
     ok: bool
     error_code: int
     description: str
-    parameters: typing.Optional["ResponseParameters"] = None
+    parameters: Option["ResponseParameters"] = Option.Nothing
 
 
 class Update(Model):
@@ -19,20 +20,20 @@ class Update(Model):
     Docs: https://core.telegram.org/bots/api/#update"""
 
     update_id: int
-    message: typing.Optional["Message"] = None
-    edited_message: typing.Optional["Message"] = None
-    channel_post: typing.Optional["Message"] = None
-    edited_channel_post: typing.Optional["Message"] = None
-    inline_query: typing.Optional["InlineQuery"] = None
-    chosen_inline_result: typing.Optional["ChosenInlineResult"] = None
-    callback_query: typing.Optional["CallbackQuery"] = None
-    shipping_query: typing.Optional["ShippingQuery"] = None
-    pre_checkout_query: typing.Optional["PreCheckoutQuery"] = None
-    poll: typing.Optional["Poll"] = None
-    poll_answer: typing.Optional["PollAnswer"] = None
-    my_chat_member: typing.Optional["ChatMemberUpdated"] = None
-    chat_member: typing.Optional["ChatMemberUpdated"] = None
-    chat_join_request: typing.Optional["ChatJoinRequest"] = None
+    message: Option["Message"] = Option.Nothing
+    edited_message: Option["Message"] = Option.Nothing
+    channel_post: Option["Message"] = Option.Nothing
+    edited_channel_post: Option["Message"] = Option.Nothing
+    inline_query: Option["InlineQuery"] = Option.Nothing
+    chosen_inline_result: Option["ChosenInlineResult"] = Option.Nothing
+    callback_query: Option["CallbackQuery"] = Option.Nothing
+    shipping_query: Option["ShippingQuery"] = Option.Nothing
+    pre_checkout_query: Option["PreCheckoutQuery"] = Option.Nothing
+    poll: Option["Poll"] = Option.Nothing
+    poll_answer: Option["PollAnswer"] = Option.Nothing
+    my_chat_member: Option["ChatMemberUpdated"] = Option.Nothing
+    chat_member: Option["ChatMemberUpdated"] = Option.Nothing
+    chat_join_request: Option["ChatJoinRequest"] = Option.Nothing
 
 
 class WebhookInfo(Model):
@@ -42,12 +43,12 @@ class WebhookInfo(Model):
     url: str
     has_custom_certificate: bool
     pending_update_count: int
-    ip_address: typing.Optional[str] = None
-    last_error_date: typing.Optional[int] = None
-    last_error_message: typing.Optional[str] = None
-    last_synchronization_error_date: typing.Optional[int] = None
-    max_connections: typing.Optional[int] = None
-    allowed_updates: typing.Optional[list[str]] = None
+    ip_address: Option[str] = Option.Nothing
+    last_error_date: Option[int] = Option.Nothing
+    last_error_message: Option[str] = Option.Nothing
+    last_synchronization_error_date: Option[int] = Option.Nothing
+    max_connections: Option[int] = Option.Nothing
+    allowed_updates: Option[list[str]] = Option.Nothing
 
 
 class User(Model):
@@ -57,14 +58,18 @@ class User(Model):
     id: int
     is_bot: bool
     first_name: str
-    last_name: typing.Optional[str] = None
-    username: typing.Optional[str] = None
-    language_code: typing.Optional[str] = None
-    is_premium: typing.Optional[bool] = None
-    added_to_attachment_menu: typing.Optional[bool] = None
-    can_join_groups: typing.Optional[bool] = None
-    can_read_all_group_messages: typing.Optional[bool] = None
-    supports_inline_queries: typing.Optional[bool] = None
+    last_name: Option[str] = Option.Nothing
+    username: Option[str] = Option.Nothing
+    language_code: Option[str] = Option.Nothing
+    is_premium: Option[bool] = Option.Nothing
+    added_to_attachment_menu: Option[bool] = Option.Nothing
+    can_join_groups: Option[bool] = Option.Nothing
+    can_read_all_group_messages: Option[bool] = Option.Nothing
+    supports_inline_queries: Option[bool] = Option.Nothing
+
+    @property
+    def full_name(self) -> str:
+        return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
 
 
 class Chat(Model):
@@ -73,33 +78,33 @@ class Chat(Model):
 
     id: int
     type: ChatType
-    title: typing.Optional[str] = None
-    username: typing.Optional[str] = None
-    first_name: typing.Optional[str] = None
-    last_name: typing.Optional[str] = None
-    is_forum: typing.Optional[bool] = None
-    photo: typing.Optional["ChatPhoto"] = None
-    active_usernames: typing.Optional[list[str]] = None
-    emoji_status_custom_emoji_id: typing.Optional[str] = None
-    emoji_status_expiration_date: typing.Optional[int] = None
-    bio: typing.Optional[str] = None
-    has_private_forwards: typing.Optional[bool] = None
-    has_restricted_voice_and_video_messages: typing.Optional[bool] = None
-    join_to_send_messages: typing.Optional[bool] = None
-    join_by_request: typing.Optional[bool] = None
-    description: typing.Optional[str] = None
-    invite_link: typing.Optional[str] = None
-    pinned_message: typing.Optional["Message"] = None
-    permissions: typing.Optional["ChatPermissions"] = None
-    slow_mode_delay: typing.Optional[int] = None
-    message_auto_delete_time: typing.Optional[int] = None
-    has_aggressive_anti_spam_enabled: typing.Optional[bool] = None
-    has_hidden_members: typing.Optional[bool] = None
-    has_protected_content: typing.Optional[bool] = None
-    sticker_set_name: typing.Optional[str] = None
-    can_set_sticker_set: typing.Optional[bool] = None
-    linked_chat_id: typing.Optional[int] = None
-    location: typing.Optional["ChatLocation"] = None
+    title: Option[str] = Option.Nothing
+    username: Option[str] = Option.Nothing
+    first_name: Option[str] = Option.Nothing
+    last_name: Option[str] = Option.Nothing
+    is_forum: Option[bool] = Option.Nothing
+    photo: Option["ChatPhoto"] = Option.Nothing
+    active_usernames: Option[list[str]] = Option.Nothing
+    emoji_status_custom_emoji_id: Option[str] = Option.Nothing
+    emoji_status_expiration_date: Option[int] = Option.Nothing
+    bio: Option[str] = Option.Nothing
+    has_private_forwards: Option[bool] = Option.Nothing
+    has_restricted_voice_and_video_messages: Option[bool] = Option.Nothing
+    join_to_send_messages: Option[bool] = Option.Nothing
+    join_by_request: Option[bool] = Option.Nothing
+    description: Option[str] = Option.Nothing
+    invite_link: Option[str] = Option.Nothing
+    pinned_message: Option["Message"] = Option.Nothing
+    permissions: Option["ChatPermissions"] = Option.Nothing
+    slow_mode_delay: Option[int] = Option.Nothing
+    message_auto_delete_time: Option[int] = Option.Nothing
+    has_aggressive_anti_spam_enabled: Option[bool] = Option.Nothing
+    has_hidden_members: Option[bool] = Option.Nothing
+    has_protected_content: Option[bool] = Option.Nothing
+    sticker_set_name: Option[str] = Option.Nothing
+    can_set_sticker_set: Option[bool] = Option.Nothing
+    linked_chat_id: Option[int] = Option.Nothing
+    location: Option["ChatLocation"] = Option.Nothing
 
 
 class Message(Model):
@@ -107,85 +112,85 @@ class Message(Model):
     Docs: https://core.telegram.org/bots/api/#message"""
 
     message_id: int
-    message_thread_id: typing.Optional[int] = None
-    from_: typing.Optional["User"] = None
-    sender_chat: typing.Optional["Chat"] = None
     date: int
     chat: "Chat"
-    forward_from: typing.Optional["User"] = None
-    forward_from_chat: typing.Optional["Chat"] = None
-    forward_from_message_id: typing.Optional[int] = None
-    forward_signature: typing.Optional[str] = None
-    forward_sender_name: typing.Optional[str] = None
-    forward_date: typing.Optional[int] = None
-    is_topic_message: typing.Optional[bool] = None
-    is_automatic_forward: typing.Optional[bool] = None
-    reply_to_message: typing.Optional["Message"] = None
-    via_bot: typing.Optional["User"] = None
-    edit_date: typing.Optional[int] = None
-    has_protected_content: typing.Optional[bool] = None
-    media_group_id: typing.Optional[str] = None
-    author_signature: typing.Optional[str] = None
-    text: typing.Optional[str] = None
-    entities: typing.Optional[list["MessageEntity"]] = None
-    animation: typing.Optional["Animation"] = None
-    audio: typing.Optional["Audio"] = None
-    document: typing.Optional["Document"] = None
-    photo: typing.Optional[list["PhotoSize"]] = None
-    sticker: typing.Optional["Sticker"] = None
-    story: typing.Optional["Story"] = None
-    video: typing.Optional["Video"] = None
-    video_note: typing.Optional["VideoNote"] = None
-    voice: typing.Optional["Voice"] = None
-    caption: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    has_media_spoiler: typing.Optional[bool] = None
-    contact: typing.Optional["Contact"] = None
-    dice: typing.Optional["Dice"] = None
-    game: typing.Optional["Game"] = None
-    poll: typing.Optional["Poll"] = None
-    venue: typing.Optional["Venue"] = None
-    location: typing.Optional["Location"] = None
-    new_chat_members: typing.Optional[list["User"]] = None
-    left_chat_member: typing.Optional["User"] = None
-    new_chat_title: typing.Optional[str] = None
-    new_chat_photo: typing.Optional[list["PhotoSize"]] = None
-    delete_chat_photo: typing.Optional[bool] = None
-    group_chat_created: typing.Optional[bool] = None
-    supergroup_chat_created: typing.Optional[bool] = None
-    channel_chat_created: typing.Optional[bool] = None
-    message_auto_delete_timer_changed: typing.Optional[
+    message_thread_id: Option[int] = Option.Nothing
+    from_: Option["User"] = Option.Nothing
+    sender_chat: Option["Chat"] = Option.Nothing
+    forward_from: Option["User"] = Option.Nothing
+    forward_from_chat: Option["Chat"] = Option.Nothing
+    forward_from_message_id: Option[int] = Option.Nothing
+    forward_signature: Option[str] = Option.Nothing
+    forward_sender_name: Option[str] = Option.Nothing
+    forward_date: Option[int] = Option.Nothing
+    is_topic_message: Option[bool] = Option.Nothing
+    is_automatic_forward: Option[bool] = Option.Nothing
+    reply_to_message: Option["Message"] = Option.Nothing
+    via_bot: Option["User"] = Option.Nothing
+    edit_date: Option[int] = Option.Nothing
+    has_protected_content: Option[bool] = Option.Nothing
+    media_group_id: Option[str] = Option.Nothing
+    author_signature: Option[str] = Option.Nothing
+    text: Option[str] = Option.Nothing
+    entities: Option[list["MessageEntity"]] = Option.Nothing
+    animation: Option["Animation"] = Option.Nothing
+    audio: Option["Audio"] = Option.Nothing
+    document: Option["Document"] = Option.Nothing
+    photo: Option[list["PhotoSize"]] = Option.Nothing
+    sticker: Option["Sticker"] = Option.Nothing
+    story: Option["Story"] = Option.Nothing
+    video: Option["Video"] = Option.Nothing
+    video_note: Option["VideoNote"] = Option.Nothing
+    voice: Option["Voice"] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    has_media_spoiler: Option[bool] = Option.Nothing
+    contact: Option["Contact"] = Option.Nothing
+    dice: Option["Dice"] = Option.Nothing
+    game: Option["Game"] = Option.Nothing
+    poll: Option["Poll"] = Option.Nothing
+    venue: Option["Venue"] = Option.Nothing
+    location: Option["Location"] = Option.Nothing
+    new_chat_members: Option[list["User"]] = Option.Nothing
+    left_chat_member: Option["User"] = Option.Nothing
+    new_chat_title: Option[str] = Option.Nothing
+    new_chat_photo: Option[list["PhotoSize"]] = Option.Nothing
+    delete_chat_photo: Option[bool] = Option.Nothing
+    group_chat_created: Option[bool] = Option.Nothing
+    supergroup_chat_created: Option[bool] = Option.Nothing
+    channel_chat_created: Option[bool] = Option.Nothing
+    message_auto_delete_timer_changed: Option[
         "MessageAutoDeleteTimerChanged"
-    ] = None
-    migrate_to_chat_id: typing.Optional[int] = None
-    migrate_from_chat_id: typing.Optional[int] = None
-    pinned_message: typing.Optional["Message"] = None
-    invoice: typing.Optional["Invoice"] = None
-    successful_payment: typing.Optional["SuccessfulPayment"] = None
-    user_shared: typing.Optional["UserShared"] = None
-    chat_shared: typing.Optional["ChatShared"] = None
-    connected_website: typing.Optional[str] = None
-    write_access_allowed: typing.Optional["WriteAccessAllowed"] = None
-    passport_data: typing.Optional["PassportData"] = None
-    proximity_alert_triggered: typing.Optional["ProximityAlertTriggered"] = None
-    forum_topic_created: typing.Optional["ForumTopicCreated"] = None
-    forum_topic_edited: typing.Optional["ForumTopicEdited"] = None
-    forum_topic_closed: typing.Optional["ForumTopicClosed"] = None
-    forum_topic_reopened: typing.Optional["ForumTopicReopened"] = None
-    general_forum_topic_hidden: typing.Optional["GeneralForumTopicHidden"] = None
-    general_forum_topic_unhidden: typing.Optional["GeneralForumTopicUnhidden"] = None
-    video_chat_scheduled: typing.Optional["VideoChatScheduled"] = None
-    video_chat_started: typing.Optional["VideoChatStarted"] = None
-    video_chat_ended: typing.Optional["VideoChatEnded"] = None
-    video_chat_participants_invited: typing.Optional[
+    ] = Option.Nothing
+    migrate_to_chat_id: Option[int] = Option.Nothing
+    migrate_from_chat_id: Option[int] = Option.Nothing
+    pinned_message: Option["Message"] = Option.Nothing
+    invoice: Option["Invoice"] = Option.Nothing
+    successful_payment: Option["SuccessfulPayment"] = Option.Nothing
+    user_shared: Option["UserShared"] = Option.Nothing
+    chat_shared: Option["ChatShared"] = Option.Nothing
+    connected_website: Option[str] = Option.Nothing
+    write_access_allowed: Option["WriteAccessAllowed"] = Option.Nothing
+    passport_data: Option["PassportData"] = Option.Nothing
+    proximity_alert_triggered: Option["ProximityAlertTriggered"] = Option.Nothing
+    forum_topic_created: Option["ForumTopicCreated"] = Option.Nothing
+    forum_topic_edited: Option["ForumTopicEdited"] = Option.Nothing
+    forum_topic_closed: Option["ForumTopicClosed"] = Option.Nothing
+    forum_topic_reopened: Option["ForumTopicReopened"] = Option.Nothing
+    general_forum_topic_hidden: Option["GeneralForumTopicHidden"] = Option.Nothing
+    general_forum_topic_unhidden: Option["GeneralForumTopicUnhidden"] = Option.Nothing
+    video_chat_scheduled: Option["VideoChatScheduled"] = Option.Nothing
+    video_chat_started: Option["VideoChatStarted"] = Option.Nothing
+    video_chat_ended: Option["VideoChatEnded"] = Option.Nothing
+    video_chat_participants_invited: Option[
         "VideoChatParticipantsInvited"
-    ] = None
-    web_app_data: typing.Optional["WebAppData"] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
+    ] = Option.Nothing
+    web_app_data: Option["WebAppData"] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
 
     @property
     def from_user(self) -> "User":
-        return self.from_
+        return self.from_.unwrap()
 
     def __eq__(self, other: "Message"):
         return self.message_id == other.message_id and self.chat.id == other.chat.id
@@ -206,10 +211,10 @@ class MessageEntity(Model):
     type: MessageEntityType
     offset: int
     length: int
-    url: typing.Optional[str] = None
-    user: typing.Optional["User"] = None
-    language: typing.Optional[str] = None
-    custom_emoji_id: typing.Optional[str] = None
+    url: Option[str] = Option.Nothing
+    user: Option["User"] = Option.Nothing
+    language: Option[str] = Option.Nothing
+    custom_emoji_id: Option[str] = Option.Nothing
 
 
 class PhotoSize(Model):
@@ -222,7 +227,7 @@ class PhotoSize(Model):
     file_unique_id: str
     width: int
     height: int
-    file_size: typing.Optional[int] = None
+    file_size: Option[int] = Option.Nothing
 
 
 class Animation(Model):
@@ -235,10 +240,10 @@ class Animation(Model):
     width: int
     height: int
     duration: int
-    thumbnail: typing.Optional["PhotoSize"] = None
-    file_name: typing.Optional[str] = None
-    mime_type: typing.Optional[str] = None
-    file_size: typing.Optional[int] = None
+    thumbnail: Option["PhotoSize"] = Option.Nothing
+    file_name: Option[str] = Option.Nothing
+    mime_type: Option[str] = Option.Nothing
+    file_size: Option[int] = Option.Nothing
 
 
 class Audio(Model):
@@ -249,12 +254,12 @@ class Audio(Model):
     file_id: str
     file_unique_id: str
     duration: int
-    performer: typing.Optional[str] = None
-    title: typing.Optional[str] = None
-    file_name: typing.Optional[str] = None
-    mime_type: typing.Optional[str] = None
-    file_size: typing.Optional[int] = None
-    thumbnail: typing.Optional["PhotoSize"] = None
+    performer: Option[str] = Option.Nothing
+    title: Option[str] = Option.Nothing
+    file_name: Option[str] = Option.Nothing
+    mime_type: Option[str] = Option.Nothing
+    file_size: Option[int] = Option.Nothing
+    thumbnail: Option["PhotoSize"] = Option.Nothing
 
 
 class Document(Model):
@@ -265,10 +270,10 @@ class Document(Model):
 
     file_id: str
     file_unique_id: str
-    thumbnail: typing.Optional["PhotoSize"] = None
-    file_name: typing.Optional[str] = None
-    mime_type: typing.Optional[str] = None
-    file_size: typing.Optional[int] = None
+    thumbnail: Option["PhotoSize"] = Option.Nothing
+    file_name: Option[str] = Option.Nothing
+    mime_type: Option[str] = Option.Nothing
+    file_size: Option[int] = Option.Nothing
 
 
 class Story(Model):
@@ -288,10 +293,10 @@ class Video(Model):
     width: int
     height: int
     duration: int
-    thumbnail: typing.Optional["PhotoSize"] = None
-    file_name: typing.Optional[str] = None
-    mime_type: typing.Optional[str] = None
-    file_size: typing.Optional[int] = None
+    thumbnail: Option["PhotoSize"] = Option.Nothing
+    file_name: Option[str] = Option.Nothing
+    mime_type: Option[str] = Option.Nothing
+    file_size: Option[int] = Option.Nothing
 
 
 class VideoNote(Model):
@@ -304,8 +309,8 @@ class VideoNote(Model):
     file_unique_id: str
     length: int
     duration: int
-    thumbnail: typing.Optional["PhotoSize"] = None
-    file_size: typing.Optional[int] = None
+    thumbnail: Option["PhotoSize"] = Option.Nothing
+    file_size: Option[int] = Option.Nothing
 
 
 class Voice(Model):
@@ -315,8 +320,8 @@ class Voice(Model):
     file_id: str
     file_unique_id: str
     duration: int
-    mime_type: typing.Optional[str] = None
-    file_size: typing.Optional[int] = None
+    mime_type: Option[str] = Option.Nothing
+    file_size: Option[int] = Option.Nothing
 
 
 class Contact(Model):
@@ -325,9 +330,9 @@ class Contact(Model):
 
     phone_number: str
     first_name: str
-    last_name: typing.Optional[str] = None
-    user_id: typing.Optional[int] = None
-    vcard: typing.Optional[str] = None
+    last_name: Option[str] = Option.Nothing
+    user_id: Option[int] = Option.Nothing
+    vcard: Option[str] = Option.Nothing
 
 
 class Dice(Model):
@@ -352,9 +357,9 @@ class PollAnswer(Model):
     Docs: https://core.telegram.org/bots/api/#pollanswer"""
 
     poll_id: str
-    voter_chat: typing.Optional["Chat"] = None
-    user: typing.Optional["User"] = None
     option_ids: list[int]
+    voter_chat: Option["Chat"] = Option.Nothing
+    user: Option["User"] = Option.Nothing
 
 
 class Poll(Model):
@@ -369,11 +374,11 @@ class Poll(Model):
     is_anonymous: bool
     type: PollType
     allows_multiple_answers: bool
-    correct_option_id: typing.Optional[int] = None
-    explanation: typing.Optional[str] = None
-    explanation_entities: typing.Optional[list["MessageEntity"]] = None
-    open_period: typing.Optional[int] = None
-    close_date: typing.Optional[int] = None
+    correct_option_id: Option[int] = Option.Nothing
+    explanation: Option[str] = Option.Nothing
+    explanation_entities: Option[list["MessageEntity"]] = Option.Nothing
+    open_period: Option[int] = Option.Nothing
+    close_date: Option[int] = Option.Nothing
 
 
 class Location(Model):
@@ -382,10 +387,10 @@ class Location(Model):
 
     longitude: float
     latitude: float
-    horizontal_accuracy: typing.Optional[float] = None
-    live_period: typing.Optional[int] = None
-    heading: typing.Optional[int] = None
-    proximity_alert_radius: typing.Optional[int] = None
+    horizontal_accuracy: Option[float] = Option.Nothing
+    live_period: Option[int] = Option.Nothing
+    heading: Option[int] = Option.Nothing
+    proximity_alert_radius: Option[int] = Option.Nothing
 
 
 class Venue(Model):
@@ -395,10 +400,10 @@ class Venue(Model):
     location: "Location"
     title: str
     address: str
-    foursquare_id: typing.Optional[str] = None
-    foursquare_type: typing.Optional[str] = None
-    google_place_id: typing.Optional[str] = None
-    google_place_type: typing.Optional[str] = None
+    foursquare_id: Option[str] = Option.Nothing
+    foursquare_type: Option[str] = Option.Nothing
+    google_place_id: Option[str] = Option.Nothing
+    google_place_type: Option[str] = Option.Nothing
 
 
 class WebAppData(Model):
@@ -435,7 +440,7 @@ class ForumTopicCreated(Model):
 
     name: str
     icon_color: int
-    icon_custom_emoji_id: typing.Optional[str] = None
+    icon_custom_emoji_id: Option[str] = Option.Nothing
 
 
 class ForumTopicClosed(Model):
@@ -450,8 +455,8 @@ class ForumTopicEdited(Model):
     """This object represents a service message about an edited forum topic.
     Docs: https://core.telegram.org/bots/api/#forumtopicedited"""
 
-    name: typing.Optional[str] = None
-    icon_custom_emoji_id: typing.Optional[str] = None
+    name: Option[str] = Option.Nothing
+    icon_custom_emoji_id: Option[str] = Option.Nothing
 
 
 class ForumTopicReopened(Model):
@@ -506,9 +511,9 @@ class WriteAccessAllowed(Model):
 
     Docs: https://core.telegram.org/bots/api/#writeaccessallowed"""
 
-    from_request: typing.Optional[bool] = None
-    web_app_name: typing.Optional[str] = None
-    from_attachment_menu: typing.Optional[bool] = None
+    from_request: Option[bool] = Option.Nothing
+    web_app_name: Option[str] = Option.Nothing
+    from_attachment_menu: Option[bool] = Option.Nothing
 
 
 class VideoChatScheduled(Model):
@@ -563,8 +568,8 @@ class File(Model):
 
     file_id: str
     file_unique_id: str
-    file_size: typing.Optional[int] = None
-    file_path: typing.Optional[str] = None
+    file_size: Option[int] = Option.Nothing
+    file_path: Option[str] = Option.Nothing
 
 
 class WebAppInfo(Model):
@@ -581,11 +586,11 @@ class ReplyKeyboardMarkup(Model):
     Docs: https://core.telegram.org/bots/api/#replykeyboardmarkup"""
 
     keyboard: list[list["KeyboardButton"]]
-    is_persistent: typing.Optional[bool] = False
-    resize_keyboard: typing.Optional[bool] = False
-    one_time_keyboard: typing.Optional[bool] = False
-    input_field_placeholder: typing.Optional[str] = None
-    selective: typing.Optional[bool] = None
+    is_persistent: Option[bool] = Option(False)
+    resize_keyboard: Option[bool] = Option(False)
+    one_time_keyboard: Option[bool] = Option(False)
+    input_field_placeholder: Option[str] = Option.Nothing
+    selective: Option[bool] = Option.Nothing
 
 
 class KeyboardButton(Model):
@@ -597,12 +602,12 @@ class KeyboardButton(Model):
     Docs: https://core.telegram.org/bots/api/#keyboardbutton"""
 
     text: str
-    request_user: typing.Optional["KeyboardButtonRequestUser"] = None
-    request_chat: typing.Optional["KeyboardButtonRequestChat"] = None
-    request_contact: typing.Optional[bool] = None
-    request_location: typing.Optional[bool] = None
-    request_poll: typing.Optional["KeyboardButtonPollType"] = None
-    web_app: typing.Optional["WebAppInfo"] = None
+    request_user: Option["KeyboardButtonRequestUser"] = Option.Nothing
+    request_chat: Option["KeyboardButtonRequestChat"] = Option.Nothing
+    request_contact: Option[bool] = Option.Nothing
+    request_location: Option[bool] = Option.Nothing
+    request_poll: Option["KeyboardButtonPollType"] = Option.Nothing
+    web_app: Option["WebAppInfo"] = Option.Nothing
 
 
 class KeyboardButtonRequestUser(Model):
@@ -613,8 +618,8 @@ class KeyboardButtonRequestUser(Model):
     Docs: https://core.telegram.org/bots/api/#keyboardbuttonrequestuser"""
 
     request_id: int
-    user_is_bot: typing.Optional[bool] = None
-    user_is_premium: typing.Optional[bool] = None
+    user_is_bot: Option[bool] = Option.Nothing
+    user_is_premium: Option[bool] = Option.Nothing
 
 
 class KeyboardButtonRequestChat(Model):
@@ -626,12 +631,12 @@ class KeyboardButtonRequestChat(Model):
 
     request_id: int
     chat_is_channel: bool
-    chat_is_forum: typing.Optional[bool] = None
-    chat_has_username: typing.Optional[bool] = None
-    chat_is_created: typing.Optional[bool] = None
-    user_administrator_rights: typing.Optional["ChatAdministratorRights"] = None
-    bot_administrator_rights: typing.Optional["ChatAdministratorRights"] = None
-    bot_is_member: typing.Optional[bool] = None
+    chat_is_forum: Option[bool] = Option.Nothing
+    chat_has_username: Option[bool] = Option.Nothing
+    chat_is_created: Option[bool] = Option.Nothing
+    user_administrator_rights: Option["ChatAdministratorRights"] = Option.Nothing
+    bot_administrator_rights: Option["ChatAdministratorRights"] = Option.Nothing
+    bot_is_member: Option[bool] = Option.Nothing
 
 
 class KeyboardButtonPollType(Model):
@@ -639,7 +644,7 @@ class KeyboardButtonPollType(Model):
     sent when the corresponding button is pressed.
     Docs: https://core.telegram.org/bots/api/#keyboardbuttonpolltype"""
 
-    type: typing.Optional[str] = None
+    type: Option[str] = Option.Nothing
 
 
 class ReplyKeyboardRemove(Model):
@@ -652,7 +657,7 @@ class ReplyKeyboardRemove(Model):
     Docs: https://core.telegram.org/bots/api/#replykeyboardremove"""
 
     remove_keyboard: bool
-    selective: typing.Optional[bool] = None
+    selective: Option[bool] = Option.Nothing
 
 
 class InlineKeyboardMarkup(Model):
@@ -669,17 +674,17 @@ class InlineKeyboardButton(Model):
     Docs: https://core.telegram.org/bots/api/#inlinekeyboardbutton"""
 
     text: str
-    url: typing.Optional[str] = None
-    callback_data: typing.Optional[str] = None
-    web_app: typing.Optional["WebAppInfo"] = None
-    login_url: typing.Optional["LoginUrl"] = None
-    switch_inline_query: typing.Optional[str] = None
-    switch_inline_query_current_chat: typing.Optional[str] = None
-    switch_inline_query_chosen_chat: typing.Optional[
+    url: Option[str] = Option.Nothing
+    callback_data: Option[str] = Option.Nothing
+    web_app: Option["WebAppInfo"] = Option.Nothing
+    login_url: Option["LoginUrl"] = Option.Nothing
+    switch_inline_query: Option[str] = Option.Nothing
+    switch_inline_query_current_chat: Option[str] = Option.Nothing
+    switch_inline_query_chosen_chat: Option[
         "SwitchInlineQueryChosenChat"
-    ] = None
-    callback_game: typing.Optional["CallbackGame"] = None
-    pay: typing.Optional[bool] = None
+    ] = Option.Nothing
+    callback_game: Option["CallbackGame"] = Option.Nothing
+    pay: Option[bool] = Option.Nothing
 
 
 class LoginUrl(Model):
@@ -697,9 +702,9 @@ class LoginUrl(Model):
     Docs: https://core.telegram.org/bots/api/#loginurl"""
 
     url: str
-    forward_text: typing.Optional[str] = None
-    bot_username: typing.Optional[str] = None
-    request_write_access: typing.Optional[bool] = None
+    forward_text: Option[str] = Option.Nothing
+    bot_username: Option[str] = Option.Nothing
+    request_write_access: Option[bool] = Option.Nothing
 
 
 class SwitchInlineQueryChosenChat(Model):
@@ -707,11 +712,11 @@ class SwitchInlineQueryChosenChat(Model):
     to inline mode in a chosen chat, with an optional default inline query.
     Docs: https://core.telegram.org/bots/api/#switchinlinequerychosenchat"""
 
-    query: typing.Optional[str] = None
-    allow_user_chats: typing.Optional[bool] = None
-    allow_bot_chats: typing.Optional[bool] = None
-    allow_group_chats: typing.Optional[bool] = None
-    allow_channel_chats: typing.Optional[bool] = None
+    query: Option[str] = Option.Nothing
+    allow_user_chats: Option[bool] = Option.Nothing
+    allow_bot_chats: Option[bool] = Option.Nothing
+    allow_group_chats: Option[bool] = Option.Nothing
+    allow_channel_chats: Option[bool] = Option.Nothing
 
 
 class CallbackQuery(Model):
@@ -726,11 +731,11 @@ class CallbackQuery(Model):
 
     id: str
     from_: "User"
-    message: typing.Optional["Message"] = None
-    inline_message_id: typing.Optional[str] = None
     chat_instance: str
-    data: typing.Optional[str] = None
-    game_short_name: typing.Optional[str] = None
+    message: Option["Message"] = Option.Nothing
+    inline_message_id: Option[str] = Option.Nothing
+    data: Option[str] = Option.Nothing
+    game_short_name: Option[str] = Option.Nothing
 
 
 class ForceReply(Model):
@@ -742,8 +747,8 @@ class ForceReply(Model):
     Docs: https://core.telegram.org/bots/api/#forcereply"""
 
     force_reply: bool
-    input_field_placeholder: typing.Optional[str] = None
-    selective: typing.Optional[bool] = None
+    input_field_placeholder: Option[str] = Option.Nothing
+    selective: Option[bool] = Option.Nothing
 
 
 class ChatPhoto(Model):
@@ -765,10 +770,10 @@ class ChatInviteLink(Model):
     creates_join_request: bool
     is_primary: bool
     is_revoked: bool
-    name: typing.Optional[str] = None
-    expire_date: typing.Optional[int] = None
-    member_limit: typing.Optional[int] = None
-    pending_join_request_count: typing.Optional[int] = None
+    name: Option[str] = Option.Nothing
+    expire_date: Option[int] = Option.Nothing
+    member_limit: Option[int] = Option.Nothing
+    pending_join_request_count: Option[int] = Option.Nothing
 
 
 class ChatAdministratorRights(Model):
@@ -783,13 +788,13 @@ class ChatAdministratorRights(Model):
     can_promote_members: bool
     can_change_info: bool
     can_invite_users: bool
-    can_post_messages: typing.Optional[bool] = None
-    can_edit_messages: typing.Optional[bool] = None
-    can_pin_messages: typing.Optional[bool] = None
-    can_post_stories: typing.Optional[bool] = None
-    can_edit_stories: typing.Optional[bool] = None
-    can_delete_stories: typing.Optional[bool] = None
-    can_manage_topics: typing.Optional[bool] = None
+    can_post_messages: Option[bool] = Option.Nothing
+    can_edit_messages: Option[bool] = Option.Nothing
+    can_pin_messages: Option[bool] = Option.Nothing
+    can_post_stories: Option[bool] = Option.Nothing
+    can_edit_stories: Option[bool] = Option.Nothing
+    can_delete_stories: Option[bool] = Option.Nothing
+    can_manage_topics: Option[bool] = Option.Nothing
 
 
 class ChatMember(Model):
@@ -810,37 +815,37 @@ class ChatMember(Model):
 
     Docs: https://core.telegram.org/bots/api/#chatmember"""
 
-    status: typing.Optional[str] = "kicked"
-    user: typing.Optional["User"] = None
-    is_anonymous: typing.Optional[bool] = None
-    custom_title: typing.Optional[str] = None
-    can_be_edited: typing.Optional[bool] = None
-    can_manage_chat: typing.Optional[bool] = None
-    can_delete_messages: typing.Optional[bool] = None
-    can_manage_video_chats: typing.Optional[bool] = None
-    can_restrict_members: typing.Optional[bool] = None
-    can_promote_members: typing.Optional[bool] = None
-    can_change_info: typing.Optional[bool] = None
-    can_invite_users: typing.Optional[bool] = None
-    can_post_messages: typing.Optional[bool] = None
-    can_edit_messages: typing.Optional[bool] = None
-    can_pin_messages: typing.Optional[bool] = None
-    can_post_stories: typing.Optional[bool] = None
-    can_edit_stories: typing.Optional[bool] = None
-    can_delete_stories: typing.Optional[bool] = None
-    can_manage_topics: typing.Optional[bool] = None
-    is_member: typing.Optional[bool] = None
-    can_send_messages: typing.Optional[bool] = None
-    can_send_audios: typing.Optional[bool] = None
-    can_send_documents: typing.Optional[bool] = None
-    can_send_photos: typing.Optional[bool] = None
-    can_send_videos: typing.Optional[bool] = None
-    can_send_video_notes: typing.Optional[bool] = None
-    can_send_voice_notes: typing.Optional[bool] = None
-    can_send_polls: typing.Optional[bool] = None
-    can_send_other_messages: typing.Optional[bool] = None
-    can_add_web_page_previews: typing.Optional[bool] = None
-    until_date: typing.Optional[int] = None
+    status: Option[str] = Option("kicked")
+    user: Option["User"] = Option.Nothing
+    is_anonymous: Option[bool] = Option.Nothing
+    custom_title: Option[str] = Option.Nothing
+    can_be_edited: Option[bool] = Option.Nothing
+    can_manage_chat: Option[bool] = Option.Nothing
+    can_delete_messages: Option[bool] = Option.Nothing
+    can_manage_video_chats: Option[bool] = Option.Nothing
+    can_restrict_members: Option[bool] = Option.Nothing
+    can_promote_members: Option[bool] = Option.Nothing
+    can_change_info: Option[bool] = Option.Nothing
+    can_invite_users: Option[bool] = Option.Nothing
+    can_post_messages: Option[bool] = Option.Nothing
+    can_edit_messages: Option[bool] = Option.Nothing
+    can_pin_messages: Option[bool] = Option.Nothing
+    can_post_stories: Option[bool] = Option.Nothing
+    can_edit_stories: Option[bool] = Option.Nothing
+    can_delete_stories: Option[bool] = Option.Nothing
+    can_manage_topics: Option[bool] = Option.Nothing
+    is_member: Option[bool] = Option.Nothing
+    can_send_messages: Option[bool] = Option.Nothing
+    can_send_audios: Option[bool] = Option.Nothing
+    can_send_documents: Option[bool] = Option.Nothing
+    can_send_photos: Option[bool] = Option.Nothing
+    can_send_videos: Option[bool] = Option.Nothing
+    can_send_video_notes: Option[bool] = Option.Nothing
+    can_send_voice_notes: Option[bool] = Option.Nothing
+    can_send_polls: Option[bool] = Option.Nothing
+    can_send_other_messages: Option[bool] = Option.Nothing
+    can_add_web_page_previews: Option[bool] = Option.Nothing
+    until_date: Option[int] = Option.Nothing
 
 
 class ChatMemberOwner(Model):
@@ -851,7 +856,7 @@ class ChatMemberOwner(Model):
     status: str
     user: "User"
     is_anonymous: bool
-    custom_title: typing.Optional[str] = None
+    custom_title: Option[str] = Option.Nothing
 
 
 class ChatMemberAdministrator(Model):
@@ -870,14 +875,14 @@ class ChatMemberAdministrator(Model):
     can_promote_members: bool
     can_change_info: bool
     can_invite_users: bool
-    can_post_messages: typing.Optional[bool] = None
-    can_edit_messages: typing.Optional[bool] = None
-    can_pin_messages: typing.Optional[bool] = None
-    can_post_stories: typing.Optional[bool] = None
-    can_edit_stories: typing.Optional[bool] = None
-    can_delete_stories: typing.Optional[bool] = None
-    can_manage_topics: typing.Optional[bool] = None
-    custom_title: typing.Optional[str] = None
+    can_post_messages: Option[bool] = Option.Nothing
+    can_edit_messages: Option[bool] = Option.Nothing
+    can_pin_messages: Option[bool] = Option.Nothing
+    can_post_stories: Option[bool] = Option.Nothing
+    can_edit_stories: Option[bool] = Option.Nothing
+    can_delete_stories: Option[bool] = Option.Nothing
+    can_manage_topics: Option[bool] = Option.Nothing
+    custom_title: Option[str] = Option.Nothing
 
 
 class ChatMemberMember(Model):
@@ -943,8 +948,8 @@ class ChatMemberUpdated(Model):
     date: int
     old_chat_member: "ChatMember"
     new_chat_member: "ChatMember"
-    invite_link: typing.Optional["ChatInviteLink"] = None
-    via_chat_folder_invite_link: typing.Optional[bool] = None
+    invite_link: Option["ChatInviteLink"] = Option.Nothing
+    via_chat_folder_invite_link: Option[bool] = Option.Nothing
 
 
 class ChatJoinRequest(Model):
@@ -955,8 +960,8 @@ class ChatJoinRequest(Model):
     from_: "User"
     user_chat_id: int
     date: int
-    bio: typing.Optional[str] = None
-    invite_link: typing.Optional["ChatInviteLink"] = None
+    bio: Option[str] = Option.Nothing
+    invite_link: Option["ChatInviteLink"] = Option.Nothing
 
 
 class ChatPermissions(Model):
@@ -964,20 +969,20 @@ class ChatPermissions(Model):
     chat.
     Docs: https://core.telegram.org/bots/api/#chatpermissions"""
 
-    can_send_messages: typing.Optional[bool] = None
-    can_send_audios: typing.Optional[bool] = None
-    can_send_documents: typing.Optional[bool] = None
-    can_send_photos: typing.Optional[bool] = None
-    can_send_videos: typing.Optional[bool] = None
-    can_send_video_notes: typing.Optional[bool] = None
-    can_send_voice_notes: typing.Optional[bool] = None
-    can_send_polls: typing.Optional[bool] = None
-    can_send_other_messages: typing.Optional[bool] = None
-    can_add_web_page_previews: typing.Optional[bool] = None
-    can_change_info: typing.Optional[bool] = None
-    can_invite_users: typing.Optional[bool] = None
-    can_pin_messages: typing.Optional[bool] = None
-    can_manage_topics: typing.Optional[bool] = None
+    can_send_messages: Option[bool] = Option.Nothing
+    can_send_audios: Option[bool] = Option.Nothing
+    can_send_documents: Option[bool] = Option.Nothing
+    can_send_photos: Option[bool] = Option.Nothing
+    can_send_videos: Option[bool] = Option.Nothing
+    can_send_video_notes: Option[bool] = Option.Nothing
+    can_send_voice_notes: Option[bool] = Option.Nothing
+    can_send_polls: Option[bool] = Option.Nothing
+    can_send_other_messages: Option[bool] = Option.Nothing
+    can_add_web_page_previews: Option[bool] = Option.Nothing
+    can_change_info: Option[bool] = Option.Nothing
+    can_invite_users: Option[bool] = Option.Nothing
+    can_pin_messages: Option[bool] = Option.Nothing
+    can_manage_topics: Option[bool] = Option.Nothing
 
 
 class ChatLocation(Model):
@@ -995,7 +1000,7 @@ class ForumTopic(Model):
     message_thread_id: int
     name: str
     icon_color: int
-    icon_custom_emoji_id: typing.Optional[str] = None
+    icon_custom_emoji_id: Option[str] = Option.Nothing
 
 
 class BotCommand(Model):
@@ -1026,9 +1031,9 @@ class BotCommandScope(Model):
 
     Docs: https://core.telegram.org/bots/api/#botcommandscope"""
 
-    type: typing.Optional[str] = "chat_member"
-    chat_id: typing.Optional[typing.Union[int, str]] = None
-    user_id: typing.Optional[int] = None
+    type: Option[str] = Option("chat_member")
+    chat_id: Option[typing.Union[int, str]] = Option.Nothing
+    user_id: Option[int] = Option.Nothing
 
 
 class BotCommandScopeDefault(Model):
@@ -1129,9 +1134,9 @@ class MenuButton(Model):
 
     Docs: https://core.telegram.org/bots/api/#menubutton"""
 
-    type: typing.Optional[str] = "default"
-    text: typing.Optional[str] = None
-    web_app: typing.Optional["WebAppInfo"] = None
+    type: Option[str] = Option("default")
+    text: Option[str] = Option.Nothing
+    web_app: Option["WebAppInfo"] = Option.Nothing
 
 
 class MenuButtonCommands(Model):
@@ -1162,8 +1167,8 @@ class ResponseParameters(Model):
     """Describes why a request was unsuccessful.
     Docs: https://core.telegram.org/bots/api/#responseparameters"""
 
-    migrate_to_chat_id: typing.Optional[int] = None
-    retry_after: typing.Optional[int] = None
+    migrate_to_chat_id: Option[int] = Option.Nothing
+    retry_after: Option[int] = Option.Nothing
 
 
 class InputMedia(Model):
@@ -1182,20 +1187,20 @@ class InputMedia(Model):
 
     Docs: https://core.telegram.org/bots/api/#inputmedia"""
 
-    type: typing.Optional[str] = "video"
-    media: typing.Optional[str] = None
-    thumbnail: typing.Optional[typing.Union["InputFile", str]] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    width: typing.Optional[int] = None
-    height: typing.Optional[int] = None
-    duration: typing.Optional[int] = None
-    has_spoiler: typing.Optional[bool] = None
-    disable_content_type_detection: typing.Optional[bool] = None
-    performer: typing.Optional[str] = None
-    title: typing.Optional[str] = None
-    supports_streaming: typing.Optional[bool] = None
+    type: Option[str] = Option("video")
+    media: Option[str] = Option.Nothing
+    thumbnail: Option[typing.Union["InputFile", str]] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    width: Option[int] = Option.Nothing
+    height: Option[int] = Option.Nothing
+    duration: Option[int] = Option.Nothing
+    has_spoiler: Option[bool] = Option.Nothing
+    disable_content_type_detection: Option[bool] = Option.Nothing
+    performer: Option[str] = Option.Nothing
+    title: Option[str] = Option.Nothing
+    supports_streaming: Option[bool] = Option.Nothing
 
 
 class InputMediaPhoto(Model):
@@ -1204,10 +1209,10 @@ class InputMediaPhoto(Model):
 
     type: str
     media: str
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    has_spoiler: typing.Optional[bool] = None
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    has_spoiler: Option[bool] = Option.Nothing
 
 
 class InputMediaVideo(Model):
@@ -1216,15 +1221,15 @@ class InputMediaVideo(Model):
 
     type: str
     media: str
-    thumbnail: typing.Optional[typing.Union["InputFile", str]] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    width: typing.Optional[int] = None
-    height: typing.Optional[int] = None
-    duration: typing.Optional[int] = None
-    supports_streaming: typing.Optional[bool] = None
-    has_spoiler: typing.Optional[bool] = None
+    thumbnail: Option[typing.Union["InputFile", str]] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    width: Option[int] = Option.Nothing
+    height: Option[int] = Option.Nothing
+    duration: Option[int] = Option.Nothing
+    supports_streaming: Option[bool] = Option.Nothing
+    has_spoiler: Option[bool] = Option.Nothing
 
 
 class InputMediaAnimation(Model):
@@ -1234,14 +1239,14 @@ class InputMediaAnimation(Model):
 
     type: str
     media: str
-    thumbnail: typing.Optional[typing.Union["InputFile", str]] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    width: typing.Optional[int] = None
-    height: typing.Optional[int] = None
-    duration: typing.Optional[int] = None
-    has_spoiler: typing.Optional[bool] = None
+    thumbnail: Option[typing.Union["InputFile", str]] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    width: Option[int] = Option.Nothing
+    height: Option[int] = Option.Nothing
+    duration: Option[int] = Option.Nothing
+    has_spoiler: Option[bool] = Option.Nothing
 
 
 class InputMediaAudio(Model):
@@ -1250,13 +1255,13 @@ class InputMediaAudio(Model):
 
     type: str
     media: str
-    thumbnail: typing.Optional[typing.Union["InputFile", str]] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    duration: typing.Optional[int] = None
-    performer: typing.Optional[str] = None
-    title: typing.Optional[str] = None
+    thumbnail: Option[typing.Union["InputFile", str]] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    duration: Option[int] = Option.Nothing
+    performer: Option[str] = Option.Nothing
+    title: Option[str] = Option.Nothing
 
 
 class InputMediaDocument(Model):
@@ -1265,11 +1270,11 @@ class InputMediaDocument(Model):
 
     type: str
     media: str
-    thumbnail: typing.Optional[typing.Union["InputFile", str]] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    disable_content_type_detection: typing.Optional[bool] = None
+    thumbnail: Option[typing.Union["InputFile", str]] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    disable_content_type_detection: Option[bool] = Option.Nothing
 
 
 InputFile = typing.NamedTuple("InputFile", [("filename", str), ("data", bytes)])
@@ -1286,14 +1291,14 @@ class Sticker(Model):
     height: int
     is_animated: bool
     is_video: bool
-    thumbnail: typing.Optional["PhotoSize"] = None
-    emoji: typing.Optional[str] = None
-    set_name: typing.Optional[str] = None
-    premium_animation: typing.Optional["File"] = None
-    mask_position: typing.Optional["MaskPosition"] = None
-    custom_emoji_id: typing.Optional[str] = None
-    needs_repainting: typing.Optional[bool] = None
-    file_size: typing.Optional[int] = None
+    thumbnail: Option["PhotoSize"] = Option.Nothing
+    emoji: Option[str] = Option.Nothing
+    set_name: Option[str] = Option.Nothing
+    premium_animation: Option["File"] = Option.Nothing
+    mask_position: Option["MaskPosition"] = Option.Nothing
+    custom_emoji_id: Option[str] = Option.Nothing
+    needs_repainting: Option[bool] = Option.Nothing
+    file_size: Option[int] = Option.Nothing
 
 
 class StickerSet(Model):
@@ -1306,7 +1311,7 @@ class StickerSet(Model):
     is_animated: bool
     is_video: bool
     stickers: list["Sticker"]
-    thumbnail: typing.Optional["PhotoSize"] = None
+    thumbnail: Option["PhotoSize"] = Option.Nothing
 
 
 class MaskPosition(Model):
@@ -1326,8 +1331,8 @@ class InputSticker(Model):
 
     sticker: typing.Union["InputFile", str]
     emoji_list: list[str]
-    mask_position: typing.Optional["MaskPosition"] = None
-    keywords: typing.Optional[list[str]] = None
+    mask_position: Option["MaskPosition"] = Option.Nothing
+    keywords: Option[list[str]] = Option.Nothing
 
 
 class InlineQuery(Model):
@@ -1339,8 +1344,8 @@ class InlineQuery(Model):
     from_: "User"
     query: str
     offset: str
-    chat_type: typing.Optional[InlineQueryChatType] = None
-    location: typing.Optional["Location"] = None
+    chat_type: Option[InlineQueryChatType] = Option.Nothing
+    location: Option["Location"] = Option.Nothing
 
 
 class InlineQueryResultsButton(Model):
@@ -1349,8 +1354,8 @@ class InlineQueryResultsButton(Model):
     Docs: https://core.telegram.org/bots/api/#inlinequeryresultsbutton"""
 
     text: str
-    web_app: typing.Optional["WebAppInfo"] = None
-    start_parameter: typing.Optional[str] = None
+    web_app: Option["WebAppInfo"] = Option.Nothing
+    start_parameter: Option[str] = Option.Nothing
 
 
 class InlineQueryResult(Model):
@@ -1399,69 +1404,69 @@ class InlineQueryResult(Model):
 
     Docs: https://core.telegram.org/bots/api/#inlinequeryresult"""
 
-    type: typing.Optional[str] = "voice"
-    id: typing.Optional[str] = None
-    audio_file_id: typing.Optional[str] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
-    title: typing.Optional[str] = None
-    document_file_id: typing.Optional[str] = None
-    description: typing.Optional[str] = None
-    gif_file_id: typing.Optional[str] = None
-    mpeg4_file_id: typing.Optional[str] = None
-    photo_file_id: typing.Optional[str] = None
-    sticker_file_id: typing.Optional[str] = None
-    video_file_id: typing.Optional[str] = None
-    voice_file_id: typing.Optional[str] = None
-    url: typing.Optional[str] = None
-    hide_url: typing.Optional[bool] = None
-    thumbnail_url: typing.Optional[str] = None
-    thumbnail_width: typing.Optional[int] = None
-    thumbnail_height: typing.Optional[int] = None
-    audio_url: typing.Optional[str] = None
-    performer: typing.Optional[str] = None
-    audio_duration: typing.Optional[int] = None
-    phone_number: typing.Optional[str] = None
-    first_name: typing.Optional[str] = None
-    last_name: typing.Optional[str] = None
-    vcard: typing.Optional[str] = None
-    game_short_name: typing.Optional[str] = None
-    document_url: typing.Optional[str] = None
-    mime_type: typing.Optional[InlineQueryResultMimeType] = None
-    gif_url: typing.Optional[str] = None
-    gif_width: typing.Optional[int] = None
-    gif_height: typing.Optional[int] = None
-    gif_duration: typing.Optional[int] = None
-    thumbnail_mime_type: typing.Optional[
-        InlineQueryResultThumbnailMimeType
-    ] = InlineQueryResultThumbnailMimeType("image/jpeg")
-    latitude: typing.Optional[float] = None
-    longitude: typing.Optional[float] = None
-    horizontal_accuracy: typing.Optional[float] = None
-    live_period: typing.Optional[int] = None
-    heading: typing.Optional[int] = None
-    proximity_alert_radius: typing.Optional[int] = None
-    mpeg4_url: typing.Optional[str] = None
-    mpeg4_width: typing.Optional[int] = None
-    mpeg4_height: typing.Optional[int] = None
-    mpeg4_duration: typing.Optional[int] = None
-    photo_url: typing.Optional[str] = None
-    photo_width: typing.Optional[int] = None
-    photo_height: typing.Optional[int] = None
-    address: typing.Optional[str] = None
-    foursquare_id: typing.Optional[str] = None
-    foursquare_type: typing.Optional[str] = None
-    google_place_id: typing.Optional[str] = None
-    google_place_type: typing.Optional[str] = None
-    video_url: typing.Optional[str] = None
-    video_width: typing.Optional[int] = None
-    video_height: typing.Optional[int] = None
-    video_duration: typing.Optional[int] = None
-    voice_url: typing.Optional[str] = None
-    voice_duration: typing.Optional[int] = None
+    type: Option[str] = Option("voice")
+    id: Option[str] = Option.Nothing
+    audio_file_id: Option[str] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
+    title: Option[str] = Option.Nothing
+    document_file_id: Option[str] = Option.Nothing
+    description: Option[str] = Option.Nothing
+    gif_file_id: Option[str] = Option.Nothing
+    mpeg4_file_id: Option[str] = Option.Nothing
+    photo_file_id: Option[str] = Option.Nothing
+    sticker_file_id: Option[str] = Option.Nothing
+    video_file_id: Option[str] = Option.Nothing
+    voice_file_id: Option[str] = Option.Nothing
+    url: Option[str] = Option.Nothing
+    hide_url: Option[bool] = Option.Nothing
+    thumbnail_url: Option[str] = Option.Nothing
+    thumbnail_width: Option[int] = Option.Nothing
+    thumbnail_height: Option[int] = Option.Nothing
+    audio_url: Option[str] = Option.Nothing
+    performer: Option[str] = Option.Nothing
+    audio_duration: Option[int] = Option.Nothing
+    phone_number: Option[str] = Option.Nothing
+    first_name: Option[str] = Option.Nothing
+    last_name: Option[str] = Option.Nothing
+    vcard: Option[str] = Option.Nothing
+    game_short_name: Option[str] = Option.Nothing
+    document_url: Option[str] = Option.Nothing
+    mime_type: Option[InlineQueryResultMimeType] = Option.Nothing
+    gif_url: Option[str] = Option.Nothing
+    gif_width: Option[int] = Option.Nothing
+    gif_height: Option[int] = Option.Nothing
+    gif_duration: Option[int] = Option.Nothing
+    thumbnail_mime_type: Option[InlineQueryResultThumbnailMimeType] = Option(
+        InlineQueryResultThumbnailMimeType("image/jpeg")
+    )
+    latitude: Option[float] = Option.Nothing
+    longitude: Option[float] = Option.Nothing
+    horizontal_accuracy: Option[float] = Option.Nothing
+    live_period: Option[int] = Option.Nothing
+    heading: Option[int] = Option.Nothing
+    proximity_alert_radius: Option[int] = Option.Nothing
+    mpeg4_url: Option[str] = Option.Nothing
+    mpeg4_width: Option[int] = Option.Nothing
+    mpeg4_height: Option[int] = Option.Nothing
+    mpeg4_duration: Option[int] = Option.Nothing
+    photo_url: Option[str] = Option.Nothing
+    photo_width: Option[int] = Option.Nothing
+    photo_height: Option[int] = Option.Nothing
+    address: Option[str] = Option.Nothing
+    foursquare_id: Option[str] = Option.Nothing
+    foursquare_type: Option[str] = Option.Nothing
+    google_place_id: Option[str] = Option.Nothing
+    google_place_type: Option[str] = Option.Nothing
+    video_url: Option[str] = Option.Nothing
+    video_width: Option[int] = Option.Nothing
+    video_height: Option[int] = Option.Nothing
+    video_duration: Option[int] = Option.Nothing
+    voice_url: Option[str] = Option.Nothing
+    voice_duration: Option[int] = Option.Nothing
 
 
 class InlineQueryResultArticle(Model):
@@ -1472,13 +1477,13 @@ class InlineQueryResultArticle(Model):
     id: str
     title: str
     input_message_content: "InputMessageContent"
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    url: typing.Optional[str] = None
-    hide_url: typing.Optional[bool] = None
-    description: typing.Optional[str] = None
-    thumbnail_url: typing.Optional[str] = None
-    thumbnail_width: typing.Optional[int] = None
-    thumbnail_height: typing.Optional[int] = None
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    url: Option[str] = Option.Nothing
+    hide_url: Option[bool] = Option.Nothing
+    description: Option[str] = Option.Nothing
+    thumbnail_url: Option[str] = Option.Nothing
+    thumbnail_width: Option[int] = Option.Nothing
+    thumbnail_height: Option[int] = Option.Nothing
 
 
 class InlineQueryResultPhoto(Model):
@@ -1491,15 +1496,15 @@ class InlineQueryResultPhoto(Model):
     id: str
     photo_url: str
     thumbnail_url: str
-    photo_width: typing.Optional[int] = None
-    photo_height: typing.Optional[int] = None
-    title: typing.Optional[str] = None
-    description: typing.Optional[str] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    photo_width: Option[int] = Option.Nothing
+    photo_height: Option[int] = Option.Nothing
+    title: Option[str] = Option.Nothing
+    description: Option[str] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultGif(Model):
@@ -1512,19 +1517,19 @@ class InlineQueryResultGif(Model):
     type: str
     id: str
     gif_url: str
-    gif_width: typing.Optional[int] = None
-    gif_height: typing.Optional[int] = None
-    gif_duration: typing.Optional[int] = None
     thumbnail_url: str
-    thumbnail_mime_type: typing.Optional[
-        InlineQueryResultGifThumbnailMimeType
-    ] = InlineQueryResultGifThumbnailMimeType("image/jpeg")
-    title: typing.Optional[str] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    gif_width: Option[int] = Option.Nothing
+    gif_height: Option[int] = Option.Nothing
+    gif_duration: Option[int] = Option.Nothing
+    thumbnail_mime_type: Option[InlineQueryResultGifThumbnailMimeType] = Option(
+        InlineQueryResultGifThumbnailMimeType("image/jpeg")
+    )
+    title: Option[str] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultMpeg4Gif(Model):
@@ -1537,19 +1542,19 @@ class InlineQueryResultMpeg4Gif(Model):
     type: str
     id: str
     mpeg4_url: str
-    mpeg4_width: typing.Optional[int] = None
-    mpeg4_height: typing.Optional[int] = None
-    mpeg4_duration: typing.Optional[int] = None
     thumbnail_url: str
-    thumbnail_mime_type: typing.Optional[
-        InlineQueryResultMpeg4GifThumbnailMimeType
-    ] = InlineQueryResultMpeg4GifThumbnailMimeType("image/jpeg")
-    title: typing.Optional[str] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    mpeg4_width: Option[int] = Option.Nothing
+    mpeg4_height: Option[int] = Option.Nothing
+    mpeg4_duration: Option[int] = Option.Nothing
+    thumbnail_mime_type: Option[InlineQueryResultMpeg4GifThumbnailMimeType] = Option(
+        InlineQueryResultMpeg4GifThumbnailMimeType("image/jpeg")
+    )
+    title: Option[str] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultVideo(Model):
@@ -1569,15 +1574,15 @@ class InlineQueryResultVideo(Model):
     mime_type: InlineQueryResultVideoMimeType
     thumbnail_url: str
     title: str
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    video_width: typing.Optional[int] = None
-    video_height: typing.Optional[int] = None
-    video_duration: typing.Optional[int] = None
-    description: typing.Optional[str] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    video_width: Option[int] = Option.Nothing
+    video_height: Option[int] = Option.Nothing
+    video_duration: Option[int] = Option.Nothing
+    description: Option[str] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultAudio(Model):
@@ -1590,13 +1595,13 @@ class InlineQueryResultAudio(Model):
     id: str
     audio_url: str
     title: str
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    performer: typing.Optional[str] = None
-    audio_duration: typing.Optional[int] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    performer: Option[str] = Option.Nothing
+    audio_duration: Option[int] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultVoice(Model):
@@ -1610,12 +1615,12 @@ class InlineQueryResultVoice(Model):
     id: str
     voice_url: str
     title: str
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    voice_duration: typing.Optional[int] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    voice_duration: Option[int] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultDocument(Model):
@@ -1628,17 +1633,17 @@ class InlineQueryResultDocument(Model):
     type: str
     id: str
     title: str
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
     document_url: str
     mime_type: InlineQueryResultDocumentMimeType
-    description: typing.Optional[str] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
-    thumbnail_url: typing.Optional[str] = None
-    thumbnail_width: typing.Optional[int] = None
-    thumbnail_height: typing.Optional[int] = None
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    description: Option[str] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
+    thumbnail_url: Option[str] = Option.Nothing
+    thumbnail_width: Option[int] = Option.Nothing
+    thumbnail_height: Option[int] = Option.Nothing
 
 
 class InlineQueryResultLocation(Model):
@@ -1652,15 +1657,15 @@ class InlineQueryResultLocation(Model):
     latitude: float
     longitude: float
     title: str
-    horizontal_accuracy: typing.Optional[float] = None
-    live_period: typing.Optional[int] = None
-    heading: typing.Optional[int] = None
-    proximity_alert_radius: typing.Optional[int] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
-    thumbnail_url: typing.Optional[str] = None
-    thumbnail_width: typing.Optional[int] = None
-    thumbnail_height: typing.Optional[int] = None
+    horizontal_accuracy: Option[float] = Option.Nothing
+    live_period: Option[int] = Option.Nothing
+    heading: Option[int] = Option.Nothing
+    proximity_alert_radius: Option[int] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
+    thumbnail_url: Option[str] = Option.Nothing
+    thumbnail_width: Option[int] = Option.Nothing
+    thumbnail_height: Option[int] = Option.Nothing
 
 
 class InlineQueryResultVenue(Model):
@@ -1675,15 +1680,15 @@ class InlineQueryResultVenue(Model):
     longitude: float
     title: str
     address: str
-    foursquare_id: typing.Optional[str] = None
-    foursquare_type: typing.Optional[str] = None
-    google_place_id: typing.Optional[str] = None
-    google_place_type: typing.Optional[str] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
-    thumbnail_url: typing.Optional[str] = None
-    thumbnail_width: typing.Optional[int] = None
-    thumbnail_height: typing.Optional[int] = None
+    foursquare_id: Option[str] = Option.Nothing
+    foursquare_type: Option[str] = Option.Nothing
+    google_place_id: Option[str] = Option.Nothing
+    google_place_type: Option[str] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
+    thumbnail_url: Option[str] = Option.Nothing
+    thumbnail_width: Option[int] = Option.Nothing
+    thumbnail_height: Option[int] = Option.Nothing
 
 
 class InlineQueryResultContact(Model):
@@ -1696,13 +1701,13 @@ class InlineQueryResultContact(Model):
     id: str
     phone_number: str
     first_name: str
-    last_name: typing.Optional[str] = None
-    vcard: typing.Optional[str] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
-    thumbnail_url: typing.Optional[str] = None
-    thumbnail_width: typing.Optional[int] = None
-    thumbnail_height: typing.Optional[int] = None
+    last_name: Option[str] = Option.Nothing
+    vcard: Option[str] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
+    thumbnail_url: Option[str] = Option.Nothing
+    thumbnail_width: Option[int] = Option.Nothing
+    thumbnail_height: Option[int] = Option.Nothing
 
 
 class InlineQueryResultGame(Model):
@@ -1713,7 +1718,7 @@ class InlineQueryResultGame(Model):
     type: str
     id: str
     game_short_name: str
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
 
 
 class InlineQueryResultCachedPhoto(Model):
@@ -1726,13 +1731,13 @@ class InlineQueryResultCachedPhoto(Model):
     type: str
     id: str
     photo_file_id: str
-    title: typing.Optional[str] = None
-    description: typing.Optional[str] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    title: Option[str] = Option.Nothing
+    description: Option[str] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultCachedGif(Model):
@@ -1745,12 +1750,12 @@ class InlineQueryResultCachedGif(Model):
     type: str
     id: str
     gif_file_id: str
-    title: typing.Optional[str] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    title: Option[str] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultCachedMpeg4Gif(Model):
@@ -1764,12 +1769,12 @@ class InlineQueryResultCachedMpeg4Gif(Model):
     type: str
     id: str
     mpeg4_file_id: str
-    title: typing.Optional[str] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    title: Option[str] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultCachedSticker(Model):
@@ -1781,8 +1786,8 @@ class InlineQueryResultCachedSticker(Model):
     type: str
     id: str
     sticker_file_id: str
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultCachedDocument(Model):
@@ -1796,12 +1801,12 @@ class InlineQueryResultCachedDocument(Model):
     id: str
     title: str
     document_file_id: str
-    description: typing.Optional[str] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    description: Option[str] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultCachedVideo(Model):
@@ -1815,12 +1820,12 @@ class InlineQueryResultCachedVideo(Model):
     id: str
     video_file_id: str
     title: str
-    description: typing.Optional[str] = None
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    description: Option[str] = Option.Nothing
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultCachedVoice(Model):
@@ -1834,11 +1839,11 @@ class InlineQueryResultCachedVoice(Model):
     id: str
     voice_file_id: str
     title: str
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InlineQueryResultCachedAudio(Model):
@@ -1851,11 +1856,11 @@ class InlineQueryResultCachedAudio(Model):
     type: str
     id: str
     audio_file_id: str
-    caption: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    caption_entities: typing.Optional[list["MessageEntity"]] = None
-    reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
-    input_message_content: typing.Optional["InputMessageContent"] = None
+    caption: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    caption_entities: Option[list["MessageEntity"]] = Option.Nothing
+    reply_markup: Option["InlineKeyboardMarkup"] = Option.Nothing
+    input_message_content: Option["InputMessageContent"] = Option.Nothing
 
 
 class InputMessageContent(Model):
@@ -1875,45 +1880,45 @@ class InputMessageContent(Model):
 
     Docs: https://core.telegram.org/bots/api/#inputmessagecontent"""
 
-    message_text: typing.Optional[str] = None
-    parse_mode: typing.Optional[str] = None
-    entities: typing.Optional[list["MessageEntity"]] = None
-    disable_web_page_preview: typing.Optional[bool] = None
-    latitude: typing.Optional[float] = None
-    longitude: typing.Optional[float] = None
-    horizontal_accuracy: typing.Optional[float] = None
-    live_period: typing.Optional[int] = None
-    heading: typing.Optional[int] = None
-    proximity_alert_radius: typing.Optional[int] = None
-    title: typing.Optional[str] = None
-    address: typing.Optional[str] = None
-    foursquare_id: typing.Optional[str] = None
-    foursquare_type: typing.Optional[str] = None
-    google_place_id: typing.Optional[str] = None
-    google_place_type: typing.Optional[str] = None
-    phone_number: typing.Optional[str] = None
-    first_name: typing.Optional[str] = None
-    last_name: typing.Optional[str] = None
-    vcard: typing.Optional[str] = None
-    description: typing.Optional[str] = None
-    payload: typing.Optional[str] = None
-    provider_token: typing.Optional[str] = None
-    currency: typing.Optional[str] = None
-    prices: typing.Optional[list["LabeledPrice"]] = None
-    max_tip_amount: typing.Optional[int] = 0
-    suggested_tip_amounts: typing.Optional[list[int]] = None
-    provider_data: typing.Optional[str] = None
-    photo_url: typing.Optional[str] = None
-    photo_size: typing.Optional[int] = None
-    photo_width: typing.Optional[int] = None
-    photo_height: typing.Optional[int] = None
-    need_name: typing.Optional[bool] = None
-    need_phone_number: typing.Optional[bool] = None
-    need_email: typing.Optional[bool] = None
-    need_shipping_address: typing.Optional[bool] = None
-    send_phone_number_to_provider: typing.Optional[bool] = None
-    send_email_to_provider: typing.Optional[bool] = None
-    is_flexible: typing.Optional[bool] = None
+    message_text: Option[str] = Option.Nothing
+    parse_mode: Option[str] = Option.Nothing
+    entities: Option[list["MessageEntity"]] = Option.Nothing
+    disable_web_page_preview: Option[bool] = Option.Nothing
+    latitude: Option[float] = Option.Nothing
+    longitude: Option[float] = Option.Nothing
+    horizontal_accuracy: Option[float] = Option.Nothing
+    live_period: Option[int] = Option.Nothing
+    heading: Option[int] = Option.Nothing
+    proximity_alert_radius: Option[int] = Option.Nothing
+    title: Option[str] = Option.Nothing
+    address: Option[str] = Option.Nothing
+    foursquare_id: Option[str] = Option.Nothing
+    foursquare_type: Option[str] = Option.Nothing
+    google_place_id: Option[str] = Option.Nothing
+    google_place_type: Option[str] = Option.Nothing
+    phone_number: Option[str] = Option.Nothing
+    first_name: Option[str] = Option.Nothing
+    last_name: Option[str] = Option.Nothing
+    vcard: Option[str] = Option.Nothing
+    description: Option[str] = Option.Nothing
+    payload: Option[str] = Option.Nothing
+    provider_token: Option[str] = Option.Nothing
+    currency: Option[str] = Option.Nothing
+    prices: Option[list["LabeledPrice"]] = Option.Nothing
+    max_tip_amount: Option[int] = Option(0)
+    suggested_tip_amounts: Option[list[int]] = Option.Nothing
+    provider_data: Option[str] = Option.Nothing
+    photo_url: Option[str] = Option.Nothing
+    photo_size: Option[int] = Option.Nothing
+    photo_width: Option[int] = Option.Nothing
+    photo_height: Option[int] = Option.Nothing
+    need_name: Option[bool] = Option.Nothing
+    need_phone_number: Option[bool] = Option.Nothing
+    need_email: Option[bool] = Option.Nothing
+    need_shipping_address: Option[bool] = Option.Nothing
+    send_phone_number_to_provider: Option[bool] = Option.Nothing
+    send_email_to_provider: Option[bool] = Option.Nothing
+    is_flexible: Option[bool] = Option.Nothing
 
 
 class InputTextMessageContent(Model):
@@ -1922,9 +1927,9 @@ class InputTextMessageContent(Model):
     Docs: https://core.telegram.org/bots/api/#inputtextmessagecontent"""
 
     message_text: str
-    parse_mode: typing.Optional[str] = None
-    entities: typing.Optional[list["MessageEntity"]] = None
-    disable_web_page_preview: typing.Optional[bool] = None
+    parse_mode: Option[str] = Option.Nothing
+    entities: Option[list["MessageEntity"]] = Option.Nothing
+    disable_web_page_preview: Option[bool] = Option.Nothing
 
 
 class InputLocationMessageContent(Model):
@@ -1934,10 +1939,10 @@ class InputLocationMessageContent(Model):
 
     latitude: float
     longitude: float
-    horizontal_accuracy: typing.Optional[float] = None
-    live_period: typing.Optional[int] = None
-    heading: typing.Optional[int] = None
-    proximity_alert_radius: typing.Optional[int] = None
+    horizontal_accuracy: Option[float] = Option.Nothing
+    live_period: Option[int] = Option.Nothing
+    heading: Option[int] = Option.Nothing
+    proximity_alert_radius: Option[int] = Option.Nothing
 
 
 class InputVenueMessageContent(Model):
@@ -1949,10 +1954,10 @@ class InputVenueMessageContent(Model):
     longitude: float
     title: str
     address: str
-    foursquare_id: typing.Optional[str] = None
-    foursquare_type: typing.Optional[str] = None
-    google_place_id: typing.Optional[str] = None
-    google_place_type: typing.Optional[str] = None
+    foursquare_id: Option[str] = Option.Nothing
+    foursquare_type: Option[str] = Option.Nothing
+    google_place_id: Option[str] = Option.Nothing
+    google_place_type: Option[str] = Option.Nothing
 
 
 class InputContactMessageContent(Model):
@@ -1962,8 +1967,8 @@ class InputContactMessageContent(Model):
 
     phone_number: str
     first_name: str
-    last_name: typing.Optional[str] = None
-    vcard: typing.Optional[str] = None
+    last_name: Option[str] = Option.Nothing
+    vcard: Option[str] = Option.Nothing
 
 
 class InputInvoiceMessageContent(Model):
@@ -1977,20 +1982,20 @@ class InputInvoiceMessageContent(Model):
     provider_token: str
     currency: str
     prices: list["LabeledPrice"]
-    max_tip_amount: typing.Optional[int] = 0
-    suggested_tip_amounts: typing.Optional[list[int]] = None
-    provider_data: typing.Optional[str] = None
-    photo_url: typing.Optional[str] = None
-    photo_size: typing.Optional[int] = None
-    photo_width: typing.Optional[int] = None
-    photo_height: typing.Optional[int] = None
-    need_name: typing.Optional[bool] = None
-    need_phone_number: typing.Optional[bool] = None
-    need_email: typing.Optional[bool] = None
-    need_shipping_address: typing.Optional[bool] = None
-    send_phone_number_to_provider: typing.Optional[bool] = None
-    send_email_to_provider: typing.Optional[bool] = None
-    is_flexible: typing.Optional[bool] = None
+    max_tip_amount: Option[int] = Option(0)
+    suggested_tip_amounts: Option[list[int]] = Option.Nothing
+    provider_data: Option[str] = Option.Nothing
+    photo_url: Option[str] = Option.Nothing
+    photo_size: Option[int] = Option.Nothing
+    photo_width: Option[int] = Option.Nothing
+    photo_height: Option[int] = Option.Nothing
+    need_name: Option[bool] = Option.Nothing
+    need_phone_number: Option[bool] = Option.Nothing
+    need_email: Option[bool] = Option.Nothing
+    need_shipping_address: Option[bool] = Option.Nothing
+    send_phone_number_to_provider: Option[bool] = Option.Nothing
+    send_email_to_provider: Option[bool] = Option.Nothing
+    is_flexible: Option[bool] = Option.Nothing
 
 
 class ChosenInlineResult(Model):
@@ -2001,9 +2006,9 @@ class ChosenInlineResult(Model):
 
     result_id: str
     from_: "User"
-    location: typing.Optional["Location"] = None
-    inline_message_id: typing.Optional[str] = None
     query: str
+    location: Option["Location"] = Option.Nothing
+    inline_message_id: Option[str] = Option.Nothing
 
 
 class SentWebAppMessage(Model):
@@ -2011,7 +2016,7 @@ class SentWebAppMessage(Model):
     on behalf of a user.
     Docs: https://core.telegram.org/bots/api/#sentwebappmessage"""
 
-    inline_message_id: typing.Optional[str] = None
+    inline_message_id: Option[str] = Option.Nothing
 
 
 class LabeledPrice(Model):
@@ -2049,10 +2054,10 @@ class OrderInfo(Model):
     """This object represents information about an order.
     Docs: https://core.telegram.org/bots/api/#orderinfo"""
 
-    name: typing.Optional[str] = None
-    phone_number: typing.Optional[str] = None
-    email: typing.Optional[str] = None
-    shipping_address: typing.Optional["ShippingAddress"] = None
+    name: Option[str] = Option.Nothing
+    phone_number: Option[str] = Option.Nothing
+    email: Option[str] = Option.Nothing
+    shipping_address: Option["ShippingAddress"] = Option.Nothing
 
 
 class ShippingOption(Model):
@@ -2071,10 +2076,10 @@ class SuccessfulPayment(Model):
     currency: str
     total_amount: int
     invoice_payload: str
-    shipping_option_id: typing.Optional[str] = None
-    order_info: typing.Optional["OrderInfo"] = None
     telegram_payment_charge_id: str
     provider_payment_charge_id: str
+    shipping_option_id: Option[str] = Option.Nothing
+    order_info: Option["OrderInfo"] = Option.Nothing
 
 
 class ShippingQuery(Model):
@@ -2097,8 +2102,8 @@ class PreCheckoutQuery(Model):
     currency: str
     total_amount: int
     invoice_payload: str
-    shipping_option_id: typing.Optional[str] = None
-    order_info: typing.Optional["OrderInfo"] = None
+    shipping_option_id: Option[str] = Option.Nothing
+    order_info: Option["OrderInfo"] = Option.Nothing
 
 
 class PassportData(Model):
@@ -2127,15 +2132,15 @@ class EncryptedPassportElement(Model):
     Docs: https://core.telegram.org/bots/api/#encryptedpassportelement"""
 
     type: EncryptedPassportElementType
-    data: typing.Optional[str] = None
-    phone_number: typing.Optional[str] = None
-    email: typing.Optional[str] = None
-    files: typing.Optional[list["PassportFile"]] = None
-    front_side: typing.Optional["PassportFile"] = None
-    reverse_side: typing.Optional["PassportFile"] = None
-    selfie: typing.Optional["PassportFile"] = None
-    translation: typing.Optional[list["PassportFile"]] = None
     hash: str
+    data: Option[str] = Option.Nothing
+    phone_number: Option[str] = Option.Nothing
+    email: Option[str] = Option.Nothing
+    files: Option[list["PassportFile"]] = Option.Nothing
+    front_side: Option["PassportFile"] = Option.Nothing
+    reverse_side: Option["PassportFile"] = Option.Nothing
+    selfie: Option["PassportFile"] = Option.Nothing
+    translation: Option[list["PassportFile"]] = Option.Nothing
 
 
 class EncryptedCredentials(Model):
@@ -2175,14 +2180,14 @@ class PassportElementError(Model):
 
     Docs: https://core.telegram.org/bots/api/#passportelementerror"""
 
-    source: typing.Optional[str] = "unspecified"
-    type: typing.Optional[str] = None
-    field_name: typing.Optional[str] = None
-    data_hash: typing.Optional[str] = None
-    message: typing.Optional[str] = None
-    file_hash: typing.Optional[str] = None
-    file_hashes: typing.Optional[list[str]] = None
-    element_hash: typing.Optional[str] = None
+    source: Option[str] = Option("unspecified")
+    type: Option[str] = Option.Nothing
+    field_name: Option[str] = Option.Nothing
+    data_hash: Option[str] = Option.Nothing
+    message: Option[str] = Option.Nothing
+    file_hash: Option[str] = Option.Nothing
+    file_hashes: Option[list[str]] = Option.Nothing
+    element_hash: Option[str] = Option.Nothing
 
 
 class PassportElementErrorDataField(Model):
@@ -2294,9 +2299,9 @@ class Game(Model):
     title: str
     description: str
     photo: list["PhotoSize"]
-    text: typing.Optional[str] = None
-    text_entities: typing.Optional[list["MessageEntity"]] = None
-    animation: typing.Optional["Animation"] = None
+    text: Option[str] = Option.Nothing
+    text_entities: Option[list["MessageEntity"]] = Option.Nothing
+    animation: Option["Animation"] = Option.Nothing
 
 
 class CallbackGame(Model):

@@ -3,13 +3,14 @@ import datetime
 import typing
 
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.rules.abc import ABCRule
 
 if typing.TYPE_CHECKING:
     from .machine import Identificator
 
-EventModel = typing.TypeVar("EventModel")  # NOTE: make bound may be something BaseCuteType (type checker fails)
+EventModel = typing.TypeVar("EventModel", bound=BaseCute)
 Behaviour = ABCHandler | None
 
 
@@ -19,8 +20,8 @@ class ShortState(typing.Generic[EventModel]):
         key: "Identificator",
         ctx_api: ABCAPI,
         event: asyncio.Event,
-        rules: typing.Tuple[ABCRule[EventModel], ...],
-        expiration: typing.Optional[datetime.timedelta] = None,
+        rules: tuple[ABCRule[EventModel], ...],
+        expiration: datetime.timedelta | None = None,
         default_behaviour: Behaviour = None,
         on_drop_behaviour: Behaviour = None,
     ) -> None:

@@ -9,7 +9,7 @@ if typing.TYPE_CHECKING:
     from .machine import WaiterMachine
     from .short_state import ShortState
 
-EventType = typing.TypeVar("EventType")  # NOTE: make bound instance for EventType (type checker fails)
+EventType = typing.TypeVar("EventType")  # NOTE: make bound type (type checker fails)
 
 
 class WaiterMiddleware(ABCMiddleware[EventType]):
@@ -25,7 +25,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         if not self.view or not hasattr(self.view, "get_state_key"):
             raise RuntimeError(
                 "WaiterMiddleware cannot be used inside a view which doesn't "
-                "provide get_state_key (ABCStateView Protocol)"
+                "provide get_state_key (ABCStateView Protocol)."
             )
 
         view_name = self.view.__class__.__name__
@@ -58,7 +58,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
             await self.machine.call_behaviour(
                 self.view,  # type: ignore
                 short_state.default_behaviour,
-                event,
+                event,  # type: ignore
                 **handler.ctx,
             )
 

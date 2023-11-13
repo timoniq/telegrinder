@@ -13,8 +13,8 @@ class ABCPolling(ABC):
         pass
 
     @abstractmethod
-    async def listen(self) -> typing.AsyncIterator[list[Update]]:
-        pass
+    async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
+        yield []
 
     @abstractmethod
     def stop(self) -> None:

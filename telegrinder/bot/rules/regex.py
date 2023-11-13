@@ -23,7 +23,7 @@ class Regex(TextMessageRule):
 
     async def check(self, message: Message, ctx: dict) -> bool:
         for regexp in self.regexp:
-            response = re.match(regexp, message.text)
+            response = re.match(regexp, message.text.unwrap())
             if response is not None:
                 if matches := response.groupdict():
                     ctx |= matches

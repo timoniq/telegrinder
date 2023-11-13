@@ -25,6 +25,7 @@ nav:
     - Checkbox: tools/checkbox.md
     - Formatting: tools/formatting.md
     - Keyboard Set: tools/keyboard_set.md
+    - Global Context: tools/global_context.md
 
 theme:
   name: readthedocs

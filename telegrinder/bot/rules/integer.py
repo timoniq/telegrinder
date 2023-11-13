@@ -3,7 +3,7 @@ from .text import Message, TextMessageRule
 
 class Integer(TextMessageRule):
     async def check(self, message: Message, ctx: dict) -> bool:
-        return message.text.isdigit()
+        return message.text.unwrap().isdigit()
 
 
 class IntegerInRange(TextMessageRule, requires=[Integer()]):
@@ -11,4 +11,4 @@ class IntegerInRange(TextMessageRule, requires=[Integer()]):
         self.rng = rng
 
     async def check(self, message: Message, ctx: dict) -> bool:
-        return int(message.text) in self.rng
+        return int(message.text.unwrap()) in self.rng

@@ -1,14 +1,14 @@
 import logging
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.rules import Text, Markup, RuleEnum
+from telegrinder.rules import Markup, RuleEnum, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 logging.basicConfig(level=logging.DEBUG)
 
 
-class CancelOrUsername(RuleEnum):
+class CancelOrUsername(RuleEnum[Message]):
     CANCEL = Text("/cancel")
     USERNAME = Markup("@<username>") | Markup("t.me/<username>")
 

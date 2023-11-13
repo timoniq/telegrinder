@@ -21,21 +21,20 @@ pip install telegrinder
 Basic example:
 
 ```python
-import logging
-
-from telegrinder import API, Telegrinder, Token, Message
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.modules import logger
 from telegrinder.rules import Text
 
+logger.set_level("INFO")
 api = API(token=Token("123:token"))
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
 
 
 @bot.on.message(Text("/start"))
 async def start(message: Message):
     me = (await api.get_me()).unwrap()
     await message.answer(
-        f"Hello, {message.from_user.first_name}! I'm {me.first_name}"
+        f"Hello, {message.from_user.full_name}! I'm {me.full_name}."
     )
 
 

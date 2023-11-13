@@ -76,7 +76,7 @@ class Checkbox(ABCScenario):
         return self
 
     async def handle(self, cb: CallbackQueryCute) -> bool:
-        code = cb.data.replace(self.random_code + "/", "", 1)
+        code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
 
         if code == "ready":
             return False
@@ -86,8 +86,8 @@ class Checkbox(ABCScenario):
                 # Toggle choice
                 self.choices[i].is_picked = not self.choices[i].is_picked
                 await cb.ctx_api.edit_message_text(
-                    cb.message.chat.id,
-                    cb.message.message_id,
+                    cb.message.unwrap().chat.id,
+                    cb.message.unwrap().message_id,
                     text=self.msg,
                     parse_mode=self.PARSE_MODE,
                     reply_markup=self.get_markup(),
@@ -113,7 +113,7 @@ class Checkbox(ABCScenario):
             q, _ = await self.waiter_machine.wait(
                 dispatch.callback_query,
                 (api, message.message_id),
-            )  # type: ignore
+            )
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
             if not should_continue:

@@ -1,7 +1,7 @@
 import dataclasses
 import typing
 
-from .abc import ABCRule, RawUpdateAdapter, Update, check_rule
+from .abc import ABCRule, RawUpdateAdapter, T, Update, check_rule
 from .func import FuncRule
 
 
@@ -9,22 +9,21 @@ from .func import FuncRule
 class RuleEnumState:
     name: str
     rule: ABCRule
-    cls: typing.Type["RuleEnum"]
+    cls: type["RuleEnum"]
 
-    def __eq__(self, other: "RuleEnumState") -> bool:
+    def __eq__(self, other: typing.Self) -> bool:
         return self.cls == other.cls and self.name == other.name
 
 
-class RuleEnum(ABCRule[Update]):
+class RuleEnum(ABCRule[T]):
     __enum__: list[RuleEnumState]
-    adapter = RawUpdateAdapter()
 
-    def __init__(self):
-        pass
+    adapter = RawUpdateAdapter()  # type: ignore
 
-    def __init_subclass__(cls, *args, **kw):
-
-        new_attributes = set(cls.__dict__) - set(RuleEnum.__dict__) - {"__enum__", "__init__"}
+    def __init_subclass__(cls, *args, **kwargs):
+        new_attributes = (
+            set(cls.__dict__) - set(RuleEnum.__dict__) - {"__enum__", "__init__"}
+        )
         enum_lst: list[RuleEnumState] = []
 
         self = cls.__new__(cls)
@@ -33,12 +32,16 @@ class RuleEnum(ABCRule[Update]):
         for attribute_name in new_attributes:
             rules = getattr(cls, attribute_name)
             attribute = RuleEnumState(attribute_name, rules, cls)
-        
-            setattr(self, attribute.name, self & FuncRule(lambda _, ctx: self.must_be_state(ctx, attribute)))
+
+            setattr(
+                self,
+                attribute.name,
+                self & FuncRule(lambda _, ctx: self.must_be_state(ctx, attribute)),
+            )
             enum_lst.append(attribute)
-        
+
         setattr(cls, "__enum__", enum_lst)
-    
+
     @classmethod
     def save_state(cls, ctx: dict, enum: RuleEnumState) -> None:
         ctx.update({cls.__class__.__name__ + "_state": enum})
@@ -46,7 +49,7 @@ class RuleEnum(ABCRule[Update]):
     @classmethod
     def check_state(cls, ctx: dict) -> RuleEnumState | None:
         return ctx.get(cls.__class__.__name__ + "_state")
-    
+
     @classmethod
     def must_be_state(cls, ctx: dict, state: RuleEnumState) -> bool:
         real_state = cls.check_state(ctx)
@@ -57,12 +60,12 @@ class RuleEnum(ABCRule[Update]):
     async def check(self, event: Update, ctx: dict) -> bool:
         if self.check_state(ctx):
             return True
-        
+
         for enum in self.__enum__:
             ctx_copy = ctx.copy()
             if await check_rule(event.ctx_api, enum.rule, event, ctx_copy):
                 ctx.update(ctx_copy)
                 self.save_state(ctx, enum)
                 return True
-        
+
         return False

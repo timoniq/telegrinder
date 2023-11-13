@@ -1,9 +1,11 @@
 import dataclasses
+import html
 import string
 import typing
 from contextlib import suppress
 
 from telegrinder.tools.parse_mode import ParseMode, get_mention_link
+from telegrinder.types.enums import ProgrammingLanguage
 
 TAG_FORMAT = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK = '"'
@@ -29,9 +31,24 @@ class Link:
 
 
 @dataclasses.dataclass(repr=False)
-class CodeBlock:
+class PreCode:
     string: str
-    lang: str | None = None
+    lang: str | ProgrammingLanguage | None = None
+
+    def __post_init__(self) -> None:
+        self.string = escape(self.string)
+        if self.lang is not None:
+            self.lang = (
+                self.lang.value
+                if isinstance(self.lang, ProgrammingLanguage)
+                else self.lang
+            )
+
+
+@dataclasses.dataclass(repr=False)
+class TgEmoji:
+    string: str
+    emoji_id: int
 
     def __post_init__(self) -> None:
         self.string = escape(self.string)
@@ -50,10 +67,10 @@ class StringFormatter(string.Formatter):
         "spoiler",
         "underline",
         "code_inline",
-        "code_block",
     )
     __special_formats__ = {
-        CodeBlock: "code_block",
+        TgEmoji: "tg_emoji",
+        PreCode: "pre_code",
         Mention: "mention",
         Link: "link",
     }
@@ -71,12 +88,14 @@ class StringFormatter(string.Formatter):
         return fmt
 
     def is_spec_html_formatter(
-        self, value: typing.Any
-    ) -> typing.TypeGuard[Mention | Link | CodeBlock]:
+        self,
+        value: typing.Any,
+    ) -> typing.TypeGuard[TgEmoji | PreCode | Mention | Link]:
         return type(value) in self.__special_formats__
 
     def get_spec_formatter(
-        self, value: typing.Any
+        self,
+        value: typing.Any,
     ) -> typing.Callable[..., "TagFormat"]:
         return globals()[self.__special_formats__[type(value)]]
 
@@ -161,7 +180,7 @@ class FormatString(str):
 class EscapedString(FormatString):
     @property
     def former_string(self) -> str:
-        return self.replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<")
+        return html.unescape(self)
 
 
 class TagFormat(FormatString):
@@ -217,9 +236,7 @@ class HTMLFormatter(FormatString):
 def escape(string: str) -> EscapedString:
     if isinstance(string, EscapedString | HTMLFormatter):
         return EscapedString(string)
-    return EscapedString(
-        string.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;")
-    )
+    return EscapedString(html.escape(string, quote=False))
 
 
 def bold(string: str) -> TagFormat:
@@ -255,11 +272,16 @@ def mention(string: str, user_id: int) -> TagFormat:
     return link(get_mention_link(user_id), string)
 
 
-def code_block(string: str, lang: str | None = None) -> TagFormat:
+def pre_code(string: str, lang: str | ProgrammingLanguage | None = None) -> TagFormat:
     if lang is None:
         return TagFormat(string, tag="pre")
-    return code_block(TagFormat(string, tag="code", **{"class": f"language-{lang}"}))
+    lang = lang.value if isinstance(lang, ProgrammingLanguage) else lang
+    return pre_code(TagFormat(string, tag="code", **{"class": f"language-{lang}"}))
 
 
 def code_inline(string: str) -> TagFormat:
     return TagFormat(string, tag="code")
+
+
+def tg_emoji(string: str, emoji_id: int) -> TagFormat:
+    return TagFormat(string, tag="tg-emoji", **{"emoji-id": emoji_id})

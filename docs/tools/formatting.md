@@ -16,9 +16,9 @@ Formatter is derived from `FormatString` to work string formatting with the foll
 * `spoiler(string: str) -> TagFormat`
 * `link(href: str, string: str | None = None) -> TagFormat`
 * `mention(string: str, user_id: int) -> TagFormat`
-* `code_block(string: str) -> TagFormat`
 * `code_inline(string: str) -> TagFormat`
-* `program_code_block(string: str, lang: str) -> TagFormat`
+* `pre_code(string: str, lang: str | ProgrammingLanguage | None = None) -> TagFormat`
+* `tg_emoji(string: str, emoji_id: int) -> TagFormat`
 * `escape(string: str) -> EscapedString`
 
 ```python
@@ -48,10 +48,12 @@ HTMLFormatter("Hello, {}!").format(bold(italic("world")))
 To use special formats, you have to use special dataclasses or functions:
 * `Mention(string: str, user_id: int)`
 * `Link(href: str, string: str | None = None)`
-* `CodeBlock(string: str, lang: str)`
+* `PreCode(string: str, lang: str | ProgrammingLanguage | None = None)`
+* `TgEmoji(string: str, emoji_id: int)`
 
 ```python
 from telegrinder.tools.formatting import HTMLFormatter, Mention, Link, CodeBlock
+from telegrinder.types.enums import ProgrammingLanguage
 
 PYTHON_CODE_ECHO_BOT = """
 from telegrinder import API, Telegrinder, Token, Message
@@ -62,7 +64,10 @@ bot = Telegrinder(API(Token.from_env("TOKEN")))
 
 @bot.on.message()
 async def echo(message: Message):
-    await message.answer(HTMLFormatter(bold(message.text)))
+    await message.answer(
+        HTMLFormatter(bold(message.text)),
+        parse_mode=HTMLFormatter.PARSE_MODE,
+    )
 
 
 bot.run_forever()
@@ -70,7 +75,8 @@ bot.run_forever()
 
 HTMLFormatter("{:bold} very nice telegram user!").format(Mention("arseny", 549019276))
 HTMLFormatter("{:italic} very nice framework!").format(Link("https://github.com/timoniq/telegrinder", "telegrinder"))
-HTMLFormatter("echo bot on telegrinder:\n{}").format(CodeBlock(PYTHON_CODE_ECHO_BOT, "python"))
+HTMLFormatter("echo bot on telegrinder:\n{}").format(PreCode(PYTHON_CODE_ECHO_BOT, ProgrammingLanguage.PYTHON))
+HTMLFormatter("i {} telegrinder!").format(TgEmoji("👍", 5368324170671202286))
 ```
 
 HTMLFormatter also has a property of parse mode string.

@@ -33,6 +33,19 @@ class LoggerModule(typing.Protocol):
     def exception(self, __msg: object, *args: object, **kwargs: object):
         ...
 
+    def set_level(
+        self,
+        level: typing.Literal[
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR",
+            "CRITICAL",
+            "EXCEPTION",
+        ],
+    ) -> None:
+        ...
+
 
 logger: LoggerModule
 json: JSONModule = choice_in_order(
@@ -48,19 +61,20 @@ if logging_module == "loguru":
     from loguru import logger  # type: ignore
 
     os.environ.setdefault("LOGURU_AUTOINIT", "0")
-    if not logger._core.handlers:  # type: ignore
-        log_format = (
-            "<level>{level: <8}</level> | "
-            "{time:YYYY-MM-DD HH:mm:ss} | "
-            "{name}:{function}:{line} > <level>{message}</level>"
-        )
-        logger.add(  # type: ignore
-            sink=sys.stderr,
-            format=log_format,
-            enqueue=True,
-            colorize=True,
-            level=logging_level,
-        )
+    log_format = (
+        "<level>{level: <8}</level> | "
+        "<lg>{time:YYYY-MM-DD HH:mm:ss}</lg> | "
+        "<le>{name}</le>:<le>{function}</le>:"
+        "<le>{line}</le> > <lw>{message}</lw>"
+    )
+    logger.remove()  # type: ignore
+    handler_id = logger.add(  # type: ignore
+        sink=sys.stderr,
+        format=log_format,
+        enqueue=True,
+        colorize=True,
+        level=logging_level,
+    )
 
 elif logging_module == "logging":
     """
@@ -112,3 +126,19 @@ elif logging_module == "logging":
     logger.setLevel(logging.getLevelName(logging_level))  # type: ignore
     logger.addHandler(handler)  # type: ignore
     logger = StyleAdapter(logger)  # type: ignore
+
+
+def _set_logger_level(level):
+    level = level.upper()
+    if logging_module == "logging":
+        import logging
+
+        logging.getLogger("telegrinder").setLevel(logging.getLevelName(level))
+    elif logging_module == "loguru":
+        import loguru  # type: ignore
+
+        if loguru.logger._core.handlers:  # type: ignore
+            loguru.logger._core.handlers[handler_id]._levelno = loguru.logger.level(level).no  # type: ignore
+
+
+setattr(logger, "set_level", staticmethod(_set_logger_level))  # type: ignore

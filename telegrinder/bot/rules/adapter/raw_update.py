@@ -8,8 +8,10 @@ from telegrinder.types.objects import Update
 
 class RawUpdateAdapter(ABCAdapter[Update, UpdateCute]):
     async def adapt(
-        self, api: ABCAPI, update: Update
+        self,
+        api: ABCAPI,
+        update: Update,
     ) -> Result[UpdateCute, AdapterError]:
         if not isinstance(update, UpdateCute):
             return Ok(UpdateCute.from_update(update, api))
-        return Ok(update)  # type: ignore
+        return Ok(update)

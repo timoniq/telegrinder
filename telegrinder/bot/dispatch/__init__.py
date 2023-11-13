@@ -1,5 +1,5 @@
 from .abc import ABCDispatch
-from .dispatch import ABCRule, Dispatch
+from .dispatch import ABCRule, Dispatch, TelegrinderCtx
 from .handler import ABCHandler, FuncHandler, MessageReplyHandler
 from .middleware import ABCMiddleware
 from .process import check_rule
