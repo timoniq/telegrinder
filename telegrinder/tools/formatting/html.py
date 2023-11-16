@@ -60,19 +60,20 @@ class StringFormatter(string.Formatter):
     specifiers: `bold`, `italic`, etc.
     """
 
-    __formats__ = (
+    __formats__: typing.ClassVar = (
+        "blockquote",
         "bold",
-        "italic",
-        "strike",
-        "spoiler",
-        "underline",
         "code_inline",
+        "italic",
+        "spoiler",
+        "strike",
+        "underline",
     )
-    __special_formats__ = {
-        TgEmoji: "tg_emoji",
-        PreCode: "pre_code",
-        Mention: "mention",
+    __special_formats__: typing.ClassVar = {
         Link: "link",
+        Mention: "mention",
+        PreCode: "pre_code",
+        TgEmoji: "tg_emoji",
     }
 
     def is_html_format(self, value: typing.Any, fmt: str) -> str:
@@ -239,24 +240,20 @@ def escape(string: str) -> EscapedString:
     return EscapedString(html.escape(string, quote=False))
 
 
+def block_quote(string: str) -> TagFormat:
+    return TagFormat(string, tag="blockquote")
+
+
 def bold(string: str) -> TagFormat:
     return TagFormat(string, tag="b")
 
 
+def code_inline(string: str) -> TagFormat:
+    return TagFormat(string, tag="code")
+
+
 def italic(string: str) -> TagFormat:
     return TagFormat(string, tag="i")
-
-
-def underline(string: str) -> TagFormat:
-    return TagFormat(string, tag="u")
-
-
-def strike(string: str) -> TagFormat:
-    return TagFormat(string, tag="s")
-
-
-def spoiler(string: str) -> TagFormat:
-    return TagFormat(string, tag="tg-spoiler")
 
 
 def link(href: str, string: str | None = None) -> TagFormat:
@@ -268,10 +265,6 @@ def link(href: str, string: str | None = None) -> TagFormat:
     )
 
 
-def mention(string: str, user_id: int) -> TagFormat:
-    return link(get_mention_link(user_id), string)
-
-
 def pre_code(string: str, lang: str | ProgrammingLanguage | None = None) -> TagFormat:
     if lang is None:
         return TagFormat(string, tag="pre")
@@ -279,9 +272,21 @@ def pre_code(string: str, lang: str | ProgrammingLanguage | None = None) -> TagF
     return pre_code(TagFormat(string, tag="code", **{"class": f"language-{lang}"}))
 
 
-def code_inline(string: str) -> TagFormat:
-    return TagFormat(string, tag="code")
+def spoiler(string: str) -> TagFormat:
+    return TagFormat(string, tag="tg-spoiler")
+
+
+def strike(string: str) -> TagFormat:
+    return TagFormat(string, tag="s")
+
+
+def mention(string: str, user_id: int) -> TagFormat:
+    return link(get_mention_link(user_id), string)
 
 
 def tg_emoji(string: str, emoji_id: int) -> TagFormat:
     return TagFormat(string, tag="tg-emoji", **{"emoji-id": emoji_id})
+
+
+def underline(string: str) -> TagFormat:
+    return TagFormat(string, tag="u")

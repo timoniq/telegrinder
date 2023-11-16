@@ -5,11 +5,18 @@ from abc import ABC, abstractmethod
 from telegrinder.option import Nothing, Some
 from telegrinder.option.msgspec_option import Option
 from telegrinder.types.methods import OptionType
-from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup
+from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from .buttons import BaseButton, Button, InlineButton
 
 AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
+
+
+def keyboard_remove(selective: bool | None = None) -> ReplyKeyboardRemove:
+    return ReplyKeyboardRemove(
+        remove_keyboard=True,
+        selective=Option.Nothing if selective is None else Option(selective),
+    )
 
 
 @dataclasses.dataclass

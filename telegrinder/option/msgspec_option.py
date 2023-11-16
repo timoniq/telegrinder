@@ -22,39 +22,40 @@ class Option(typing.Generic[Value]):
         self.value = value
 
     def __repr__(self) -> str:
-        return self.__get_variant().__repr__()
+        return self.as_option_variant.__repr__()
 
     def __bool__(self) -> bool:
-        return self.__get_variant().__bool__()
+        return self.as_option_variant.__bool__()
 
     def __eq__(self, __value: object) -> bool:
-        return self.__get_variant().__eq__(__value)
+        return self.as_option_variant.__eq__(__value)
 
-    def __get_variant(self) -> OptionSome[Value] | NothingType:
+    @property
+    def as_option_variant(self) -> OptionSome[Value] | NothingType:
         if self.value is None:
             return OptionNothing
         return OptionSome(self.value)
 
     def unwrap(self) -> Value:
-        return self.__get_variant().unwrap()
+        return self.as_option_variant.unwrap()
 
     def unwrap_or(self, alternate_value: Value, /) -> Value:
-        return self.__get_variant().unwrap_or(alternate_value)
+        return self.as_option_variant.unwrap_or(alternate_value)
 
     def unwrap_or_other(self, other: OptionSome[Value], /) -> Value:
-        return self.__get_variant().unwrap_or_other(other)
+        return self.as_option_variant.unwrap_or_other(other)
 
     def map(self, op: typing.Callable[[Value], T], /) -> "Option[T]":
-        return self.__get_variant().map(op)  # type: ignore
+        return self.as_option_variant.map(op)  # type: ignore
 
     def map_or(self, default: T, f: typing.Callable[[Value], T], /) -> T:
-        return self.__get_variant().map_or(default, f)
+        return self.as_option_variant.map_or(default, f)
 
     def map_or_else(self, default: typing.Callable[[], T], f: typing.Callable[[Value], T], /) -> T:
-        return self.__get_variant().map_or_else(default, f)
+        return self.as_option_variant.map_or_else(default, f)
 
     def expect(self, error: str | BaseException, /) -> Value:
-        return self.__get_variant().expect(error)
+        return self.as_option_variant.expect(error)
 
 
 def enc_hook(obj: typing.Any) -> typing.Any:

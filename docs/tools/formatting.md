@@ -9,6 +9,7 @@ from telegrinder.tools.formatting import HTMLFormatter
 
 Formatter is derived from `FormatString` to work string formatting with the following formats:
 
+* `block_quote(string: str) -> TagFormat`
 * `bold(string: str) -> TagFormat`
 * `italic(string: str) -> TagFormat`
 * `underline(string: str) -> TagFormat`

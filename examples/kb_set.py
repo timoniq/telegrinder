@@ -11,6 +11,7 @@ from telegrinder import (
     Telegrinder,
     Token,
     WaiterMachine,
+    keyboard_remove,
 )
 from telegrinder.rules import CallbackDataEq, Text
 from telegrinder.types import ReplyKeyboardRemove
@@ -86,9 +87,7 @@ async def edit_callback_handler(cb: CallbackQuery):
 
 @bot.on.message(Text("/nokeyboard"))
 async def no_keyboard(m: Message):
-    await m.answer(
-        "No more keyboard", reply_markup=ReplyKeyboardRemove(remove_keyboard=True)
-    )
+    await m.answer("No more keyboard", reply_markup=keyboard_remove())
 
 
 bot.run_forever()

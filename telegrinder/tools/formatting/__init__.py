@@ -5,6 +5,7 @@ from .html import (
     Mention,
     PreCode,
     TgEmoji,
+    block_quote,
     bold,
     code_inline,
     escape,

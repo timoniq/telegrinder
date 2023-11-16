@@ -22,6 +22,7 @@ nav:
     - Code Separation: guide/code_separation.md
   - Tools:
     - Result: tools/result.md
+    - Option: tools/option.md
     - Checkbox: tools/checkbox.md
     - Formatting: tools/formatting.md
     - Keyboard Set: tools/keyboard_set.md
