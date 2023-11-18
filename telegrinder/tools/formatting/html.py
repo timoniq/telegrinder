@@ -1,57 +1,23 @@
-import dataclasses
 import html
 import string
 import typing
 from contextlib import suppress
 
-from telegrinder.tools.parse_mode import ParseMode, get_mention_link
+from telegrinder.tools.parse_mode import ParseMode
 from telegrinder.types.enums import ProgrammingLanguage
+
+from .links import (
+    get_channel_boost_link,
+    get_invite_chat_link,
+    get_mention_link,
+    get_resolve_domain_link,
+    get_start_bot_link,
+    get_start_group_link,
+)
+from .spec_html_formats import SpecialFormat, is_spec_format
 
 TAG_FORMAT = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK = '"'
-
-
-@dataclasses.dataclass(repr=False)
-class Mention:
-    string: str
-    user_id: int
-
-    def __post_init__(self) -> None:
-        self.string = escape(self.string)
-
-
-@dataclasses.dataclass(repr=False)
-class Link:
-    href: str
-    string: str | None = None
-
-    def __post_init__(self) -> None:
-        self.href = escape(self.href)
-        self.string = escape(self.string or self.href)
-
-
-@dataclasses.dataclass(repr=False)
-class PreCode:
-    string: str
-    lang: str | ProgrammingLanguage | None = None
-
-    def __post_init__(self) -> None:
-        self.string = escape(self.string)
-        if self.lang is not None:
-            self.lang = (
-                self.lang.value
-                if isinstance(self.lang, ProgrammingLanguage)
-                else self.lang
-            )
-
-
-@dataclasses.dataclass(repr=False)
-class TgEmoji:
-    string: str
-    emoji_id: int
-
-    def __post_init__(self) -> None:
-        self.string = escape(self.string)
 
 
 class StringFormatter(string.Formatter):
@@ -60,7 +26,7 @@ class StringFormatter(string.Formatter):
     specifiers: `bold`, `italic`, etc.
     """
 
-    __formats__: typing.ClassVar = (
+    __formats__: typing.ClassVar[tuple[str, ...]] = (
         "blockquote",
         "bold",
         "code_inline",
@@ -69,12 +35,6 @@ class StringFormatter(string.Formatter):
         "strike",
         "underline",
     )
-    __special_formats__: typing.ClassVar = {
-        Link: "link",
-        Mention: "mention",
-        PreCode: "pre_code",
-        TgEmoji: "tg_emoji",
-    }
 
     def is_html_format(self, value: typing.Any, fmt: str) -> str:
         if not fmt:
@@ -88,20 +48,11 @@ class StringFormatter(string.Formatter):
             )
         return fmt
 
-    def is_spec_html_formatter(
-        self,
-        value: typing.Any,
-    ) -> typing.TypeGuard[TgEmoji | PreCode | Mention | Link]:
-        return type(value) in self.__special_formats__
-
-    def get_spec_formatter(
-        self,
-        value: typing.Any,
-    ) -> typing.Callable[..., "TagFormat"]:
-        return globals()[self.__special_formats__[type(value)]]
+    def get_spec_formatter(self, value: SpecialFormat) -> typing.Callable[..., "TagFormat"]:
+        return globals()[value.__formatter_name__]
 
     def check_formats(self, value: typing.Any, fmts: list[str]) -> "TagFormat":
-        if self.is_spec_html_formatter(value):
+        if is_spec_format(value):
             value = value.string
 
         current_format = globals()[fmts.pop(0)](
@@ -129,7 +80,7 @@ class StringFormatter(string.Formatter):
                     value.formatting()
                     if isinstance(value, TagFormat)
                     else self.get_spec_formatter(value)(**value.__dict__).formatting()
-                    if self.is_spec_html_formatter(value)
+                    if is_spec_format(value)
                     else value,
                     fmt,
                 )
@@ -140,9 +91,9 @@ class StringFormatter(string.Formatter):
         fmts = list(map(lambda fmt: self.is_html_format(value, fmt), fmt.split("+")))
         tag_format = self.check_formats(value, fmts)
 
-        if self.is_spec_html_formatter(value):
+        if is_spec_format(value):
             value.string = tag_format
-            tag_format = self.get_spec_formatter(value)(**dataclasses.asdict(value))
+            tag_format = self.get_spec_formatter(value)(**value.__dict__)
 
         return tag_format.formatting()
 
@@ -248,6 +199,13 @@ def bold(string: str) -> TagFormat:
     return TagFormat(string, tag="b")
 
 
+def channel_boost_link(channel_username: str, string: str | None = None):
+    return link(
+        get_channel_boost_link(channel_username),
+        string or f"t.me/{channel_username}?boost",
+    )
+
+
 def code_inline(string: str) -> TagFormat:
     return TagFormat(string, tag="code")
 
@@ -257,7 +215,6 @@ def italic(string: str) -> TagFormat:
 
 
 def link(href: str, string: str | None = None) -> TagFormat:
-    href = escape(href)
     return TagFormat(
         string or href,
         tag="a",
@@ -276,6 +233,17 @@ def spoiler(string: str) -> TagFormat:
     return TagFormat(string, tag="tg-spoiler")
 
 
+def start_bot_link(bot_username: str, data: str, string: str | None = None) -> TagFormat:
+    return link(
+        get_start_bot_link(bot_username, data),
+        string or f"t.me/{bot_username}?start={data}"
+    )
+
+
+def start_group_link(bot_username: str, data: str, string: str | None = None) -> TagFormat:
+    return link(get_start_group_link(bot_username, data), string)
+
+
 def strike(string: str) -> TagFormat:
     return TagFormat(string, tag="s")
 
@@ -286,6 +254,20 @@ def mention(string: str, user_id: int) -> TagFormat:
 
 def tg_emoji(string: str, emoji_id: int) -> TagFormat:
     return TagFormat(string, tag="tg-emoji", **{"emoji-id": emoji_id})
+
+
+def invite_chat_link(invite_link: str, string: str | None = None) -> TagFormat:
+    return link(
+        get_invite_chat_link(invite_link),
+        string or f"https://t.me/joinchat/{invite_link}",
+    )
+
+
+def resolve_domain(username: str, string: str | None = None) -> TagFormat:
+    return link(
+        get_resolve_domain_link(username),
+        string or f"t.me/{username}",
+    )
 
 
 def underline(string: str) -> TagFormat:
