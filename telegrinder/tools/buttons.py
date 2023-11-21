@@ -20,6 +20,14 @@ class BaseButton:
             for k, v in dataclasses.asdict(self).items()
             if v is not None
         }
+    
+
+class BaseRowButtons:
+    buttons: list[BaseButton]
+    auto_row: bool
+
+    def get_data(self) -> list[dict[str, typing.Any]]:
+        return [b.get_data() for b in self.buttons]
 
 
 @dataclasses.dataclass
@@ -47,3 +55,15 @@ class InlineButton(BaseButton):
     switch_inline_query: str | None = None
     switch_inline_query_current_chat: str | None = None
     web_app: dict | None = None
+
+
+@dataclasses.dataclass
+class RowButtons(BaseRowButtons):
+    buttons: list[Button] = dataclasses.field(default_factory=lambda: [])
+    auto_row: bool = dataclasses.field(default=True, kw_only=True)
+
+
+@dataclasses.dataclass
+class RowInlineButtons(BaseRowButtons):
+    buttons: list[InlineButton] = dataclasses.field(default_factory=lambda: [])
+    auto_row: bool = dataclasses.field(default=True, kw_only=True)

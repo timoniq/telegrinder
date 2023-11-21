@@ -60,6 +60,8 @@ from .keyboard import (
     InlineButton,
     InlineKeyboard,
     Keyboard,
+    RowButtons,
+    RowInlineButtons,
     keyboard_remove,
 )
 from .loop_wrapper import ABCLoopWrapper, DelayedTask, LoopWrapper

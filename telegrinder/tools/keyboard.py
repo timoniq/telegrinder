@@ -5,9 +5,13 @@ from abc import ABC, abstractmethod
 from telegrinder.option import Nothing, Some
 from telegrinder.option.msgspec_option import Option
 from telegrinder.types.methods import OptionType
-from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegrinder.types.objects import (
+    InlineKeyboardMarkup,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+)
 
-from .buttons import BaseButton, Button, InlineButton
+from .buttons import BaseButton, BaseRowButtons, Button, InlineButton, RowButtons, RowInlineButtons
 
 AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
@@ -42,7 +46,7 @@ class ABCMarkup(ABC, KeyboardModel):
         self.selective = selective
 
     @abstractmethod
-    def add(self, button) -> typing.Self:
+    def add(self, row_or_button: BaseRowButtons | BaseButton) -> typing.Self:
         pass
 
     @abstractmethod
@@ -86,11 +90,17 @@ class Keyboard(ABCMarkup):
         self.keyboard.append([])
         return self
 
-    def add(self, button: Button) -> typing.Self:
+    def add(self, row_or_button: RowButtons | Button) -> typing.Self:
         if not len(self.keyboard):
             self.row()
+        
+        if isinstance(row_or_button, RowButtons):
+            self.keyboard[-1].extend(row_or_button.get_data())
+            if row_or_button.auto_row:
+                self.row()
+            return self
 
-        self.keyboard[-1].append(button.get_data())
+        self.keyboard[-1].append(row_or_button.get_data())
         return self
 
     def dict(self) -> dict:
@@ -114,11 +124,17 @@ class InlineKeyboard(ABCMarkup):
         self.keyboard.append([])
         return self
 
-    def add(self, button: InlineButton) -> typing.Self:
+    def add(self, row_or_button: RowInlineButtons | InlineButton) -> typing.Self:
         if not len(self.keyboard):
             self.row()
+        
+        if isinstance(row_or_button, RowInlineButtons):
+            self.keyboard[-1].extend(row_or_button.get_data())
+            if row_or_button.auto_row:
+                self.row()
+            return self
 
-        self.keyboard[-1].append(button.get_data())
+        self.keyboard[-1].append(row_or_button.get_data())
         return self
 
     def dict(self) -> dict:
