@@ -11,7 +11,7 @@ from telegrinder.types.objects import (
     ReplyKeyboardRemove,
 )
 
-from .buttons import BaseButton, BaseRowButtons, Button, InlineButton, RowButtons, RowInlineButtons
+from .buttons import BaseButton, Button, ButtonT, InlineButton, RowButtons
 
 AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
@@ -31,8 +31,8 @@ class KeyboardModel:
     keyboard: list[list[dict]]
 
 
-class ABCMarkup(ABC, KeyboardModel):
-    BUTTON: type[BaseButton]
+class ABCMarkup(ABC, KeyboardModel, typing.Generic[ButtonT]):
+    BUTTON: type[ButtonT]
 
     def __init__(
         self,
@@ -46,7 +46,7 @@ class ABCMarkup(ABC, KeyboardModel):
         self.selective = selective
 
     @abstractmethod
-    def add(self, row_or_button: BaseRowButtons | BaseButton) -> typing.Self:
+    def add(self, row_or_button: RowButtons[ButtonT] | ButtonT) -> typing.Self:
         pass
 
     @abstractmethod
@@ -80,7 +80,7 @@ class ABCMarkup(ABC, KeyboardModel):
         return self
 
 
-class Keyboard(ABCMarkup):
+class Keyboard(ABCMarkup[Button]):
     BUTTON = Button
 
     def row(self) -> "Keyboard":
@@ -90,7 +90,7 @@ class Keyboard(ABCMarkup):
         self.keyboard.append([])
         return self
 
-    def add(self, row_or_button: RowButtons | Button) -> typing.Self:
+    def add(self, row_or_button: RowButtons[Button] | Button) -> typing.Self:
         if not len(self.keyboard):
             self.row()
         
@@ -114,7 +114,7 @@ class Keyboard(ABCMarkup):
         return ReplyKeyboardMarkup(**self.dict())
 
 
-class InlineKeyboard(ABCMarkup):
+class InlineKeyboard(ABCMarkup[InlineButton]):
     BUTTON = InlineButton
 
     def row(self) -> typing.Self:
@@ -123,12 +123,12 @@ class InlineKeyboard(ABCMarkup):
 
         self.keyboard.append([])
         return self
-
-    def add(self, row_or_button: RowInlineButtons | InlineButton) -> typing.Self:
+    
+    def add(self, row_or_button: RowButtons[InlineButton] | InlineButton) -> typing.Self:
         if not len(self.keyboard):
             self.row()
         
-        if isinstance(row_or_button, RowInlineButtons):
+        if isinstance(row_or_button, RowButtons):
             self.keyboard[-1].extend(row_or_button.get_data())
             if row_or_button.auto_row:
                 self.row()

@@ -5,6 +5,8 @@ import msgspec
 
 from telegrinder.model import encoder
 
+ButtonT = typing.TypeVar("ButtonT", bound="BaseButton")
+
 
 class DataclassInstance(typing.Protocol):
     __dataclass_fields__: typing.ClassVar[dict[str, dataclasses.Field[typing.Any]]]
@@ -22,9 +24,13 @@ class BaseButton:
         }
     
 
-class BaseRowButtons:
-    buttons: list[BaseButton]
+class RowButtons(typing.Generic[ButtonT]):
+    buttons: list[ButtonT]
     auto_row: bool
+
+    def __init__(self, *buttons: ButtonT, auto_row: bool = True) -> None:
+        self.buttons = list(buttons)
+        self.auto_row = auto_row
 
     def get_data(self) -> list[dict[str, typing.Any]]:
         return [b.get_data() for b in self.buttons]
@@ -55,15 +61,3 @@ class InlineButton(BaseButton):
     switch_inline_query: str | None = None
     switch_inline_query_current_chat: str | None = None
     web_app: dict | None = None
-
-
-@dataclasses.dataclass
-class RowButtons(BaseRowButtons):
-    buttons: list[Button] = dataclasses.field(default_factory=lambda: [])
-    auto_row: bool = dataclasses.field(default=True, kw_only=True)
-
-
-@dataclasses.dataclass
-class RowInlineButtons(BaseRowButtons):
-    buttons: list[InlineButton] = dataclasses.field(default_factory=lambda: [])
-    auto_row: bool = dataclasses.field(default=True, kw_only=True)
