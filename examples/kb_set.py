@@ -74,7 +74,7 @@ async def choose_handler(m: Message):
 @bot.on.message(Text(["/choose", "choose"]))
 async def choose_item_handler(m: Message):
     await m.answer(
-        text="You can push this button and message will change!",
+        text="You can choose the inline button below:",
         reply_markup=KeyboardSet.KEYBOARD_ITEMS.get_markup(),
     )
 
