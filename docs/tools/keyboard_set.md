@@ -12,7 +12,7 @@ class KeyboardSet(KeyboardSetYAML):
 
     KEYBOARD_MENU: Keyboard
     KEYBOARD_YES_NO: Keyboard
-    KEYBOARD_EDIT: InlineKeyboard
+    KEYBOARD_ITEMS: InlineKeyboard
 ```
 
 Specify which type of Keyboard generator you will use, it should correspond to ABCMarkup interface.
