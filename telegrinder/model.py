@@ -6,7 +6,6 @@ from msgspec import Raw
 
 from telegrinder.option import Nothing, Some, enc_hook
 from telegrinder.option import dec_hook as option_dec_hook
-from telegrinder.option.msgspec_option import Option as MsgspecOption
 from telegrinder.result import Result
 
 if typing.TYPE_CHECKING:
@@ -88,7 +87,7 @@ def convert(d: typing.Any, serialize: bool = True) -> typing.Any:
 
 def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     return {
-        k: v.unwrap() if v and isinstance(v, Some | MsgspecOption) else v
+        k: v.unwrap() if v and isinstance(v, Some) else v
         for k, v in (
             *params.items(),
             *params.pop("other", {}).items(),

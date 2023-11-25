@@ -1,10 +1,9 @@
 # Option
 
-Telegrinder has models built on `msgspec.Struct` that use the `Option` monad instead of the `typing.Optional` type.
-
+Telegrinder has models built on `msgspec.Struct` that use the `Option` monad instead of the `typing.Optional` type:
 
 ```python
-from telegrinder.option.msgspec_option import Option  # special for msgspec models
+from telegrinder.option.msgspec_option import Option  # special protocol for msgspec models
 from telegrinder.option import Some, NothingType
 from telegrinder.types import User
 from telegrinder.model import Model
@@ -17,21 +16,21 @@ api = API(Token.from_env())
 class Admin(Model):
     name: str
     age: int
-    bio: Option[str] = Option.Nothing
+    bio: Option[str] = Nothing
 
 
 async def main():
-    me = await api.get_me()
+    me = (await api.get_me()).unwrap()
     print("my last name is", me.last_name.unwrap_or("Unknown"))
 
-    match me.username.as_option_variant:  # as default option
-        case Some(v):
-            print("my username is", v)
-        case NothingType():
+    match me.username:
+        case Some(username):
+            print("my username is", username)
+        case _:
             print("oops...")
 ```
 
-Default `Option` monad:
+`Option` monad example:
 
 ```python
 import typing
@@ -52,7 +51,7 @@ str_to_int = cast_obj("123", int).unwrap()  # 123
 int_to_list = cast_obj(123, list).unwrap()  # ValueError: Nothing to unwrap.
 ```
 
-Option methods:
+`Option` methods:
 * `unwrap`
 * `unwrap_or`
 * `unwrap_or_else`

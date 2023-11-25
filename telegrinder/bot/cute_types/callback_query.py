@@ -1,5 +1,6 @@
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
+from telegrinder.option.msgspec_option import Option
 from telegrinder.result import Result
 from telegrinder.types import (
     CallbackQuery,
@@ -8,7 +9,6 @@ from telegrinder.types import (
     MessageEntity,
     User,
 )
-from telegrinder.types.methods import OptionType
 
 from .base import BaseCute
 
@@ -22,10 +22,10 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
 
     async def answer(
         self,
-        text: str | OptionType[str] | None = None,
-        show_alert: bool | OptionType[bool] | None = None,
-        url: str | OptionType[str] | None = None,
-        cache_time: int | OptionType[int] | None = None,
+        text: str | Option[str] | None = None,
+        show_alert: bool | Option[bool] | None = None,
+        url: str | Option[str] | None = None,
+        cache_time: int | Option[int] | None = None,
         **other,
     ) -> Result[bool, APIError]:
         params = get_params(locals())
@@ -33,12 +33,12 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
 
     async def edit_text(
         self,
-        text: str | OptionType[str] | None = None,
-        parse_mode: str | OptionType[str] | None = None,
-        entities: list[MessageEntity] | OptionType[list[MessageEntity]] | None = None,
-        disable_web_page_preview: bool | OptionType[bool] | None = None,
+        text: str | Option[str] | None = None,
+        parse_mode: str | Option[str] | None = None,
+        entities: list[MessageEntity] | Option[list[MessageEntity]] | None = None,
+        disable_web_page_preview: bool | Option[bool] | None = None,
         reply_markup: InlineKeyboardMarkup
-        | OptionType[InlineKeyboardMarkup]
+        | Option[InlineKeyboardMarkup]
         | None = None,
         **other,
     ) -> Result[Message | bool, APIError]:

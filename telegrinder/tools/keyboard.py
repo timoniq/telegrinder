@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 
 from telegrinder.option import Nothing, Some
 from telegrinder.option.msgspec_option import Option
-from telegrinder.types.methods import OptionType
 from telegrinder.types.objects import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
@@ -20,15 +19,15 @@ AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 def keyboard_remove(*, selective: bool | None = None) -> ReplyKeyboardRemove:
     return ReplyKeyboardRemove(
         remove_keyboard=True,
-        selective=Option.Nothing if selective is None else Option(selective),
+        selective=Nothing if selective is None else Some(selective),
     )
 
 
 @dataclasses.dataclass
 class KeyboardModel:
-    resize_keyboard: bool | OptionType[bool]
-    one_time_keyboard: bool | OptionType[bool]
-    selective: bool | OptionType[bool]
+    resize_keyboard: bool | Option[bool]
+    one_time_keyboard: bool | Option[bool]
+    selective: bool | Option[bool]
     keyboard: list[list[dict]]
 
 

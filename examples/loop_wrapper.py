@@ -7,13 +7,13 @@ bot = Telegrinder(api)
 
 
 @bot.loop_wrapper.timer(minutes=1)
-async def once_eat():
-    print("once yum-yum")
+async def once_yum():
+    print("yum-yum!")
 
 
-@bot.loop_wrapper.timer(seconds=10, repeat=True)
-async def repeat_eat():
-    print("repeat yum-yum")
+@bot.loop_wrapper.interval(seconds=10)
+async def repeat_yum():
+    print("repeat yum-yum!!!")
 
 
 async def hello():
@@ -29,7 +29,7 @@ async def bye():
 
 @bot.on.message(Text("/test"))
 async def test(m: Message):
-    await m.reply("test!")
+    await m.reply("hello, world!")
 
 
 bot.loop_wrapper.on_startup.append(hello())

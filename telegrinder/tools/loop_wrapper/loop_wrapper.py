@@ -122,11 +122,11 @@ class LoopWrapper(ABCLoopWrapper):
 
     def timer(
         self,
+        *,
         days: int = 0,
         hours: int = 0,
         minutes: int = 0,
         seconds: float = 0,
-        repeat: bool = False,
     ) -> typing.Callable[[typing.Callable], typing.Callable]:
         seconds += minutes * 60
         seconds += hours * 60 * 60
@@ -136,7 +136,29 @@ class LoopWrapper(ABCLoopWrapper):
             self.add_task(DelayedTask(
                 func,
                 seconds,
-                repeat=repeat,
+                repeat=False,
+            ))
+            return func
+
+        return decorator
+
+    def interval(
+        self,
+        *,
+        days: int = 0,
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: float = 0,
+    ) -> typing.Callable[[typing.Callable], typing.Callable]:
+        seconds += minutes * 60
+        seconds += hours * 60 * 60
+        seconds += days * 24 * 60 * 60
+
+        def decorator(func: typing.Callable):
+            self.add_task(DelayedTask(
+                func,
+                seconds,
+                repeat=True,
             ))
             return func
 
