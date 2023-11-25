@@ -19,9 +19,9 @@ def compose_data(client: ABCClient, data: dict) -> typing.Any:
 
 
 class API(ABCAPI, APIMethods):
-    API_URL = "https://api.telegram.org/"
+    API_URL: typing.ClassVar[str] = "https://api.telegram.org/"
 
-    def __init__(self, token: Token, http: ABCClient | None = None):
+    def __init__(self, token: Token, *, http: ABCClient | None = None):
         self.token = token
         self.http = http or AiohttpClient()
         super().__init__(self)

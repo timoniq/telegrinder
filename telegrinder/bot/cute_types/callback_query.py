@@ -33,7 +33,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
 
     async def edit_text(
         self,
-        inline_message_id: str | OptionType[str] | None = None,
         text: str | OptionType[str] | None = None,
         parse_mode: str | OptionType[str] | None = None,
         entities: list[MessageEntity] | OptionType[list[MessageEntity]] | None = None,
@@ -44,9 +43,14 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         **other,
     ) -> Result[Message | bool, APIError]:
         params = get_params(locals())
-        message = self.message.unwrap()
+        if self.message:
+            message = self.message.unwrap()
+            return await self.ctx_api.edit_message_text(
+                chat_id=message.chat.id,
+                message_id=message.message_id,
+                **params,
+            )
         return await self.ctx_api.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=message.message_id,
+            inline_message_id=self.inline_message_id,
             **params,
         )

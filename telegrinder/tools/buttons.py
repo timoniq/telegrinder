@@ -39,6 +39,7 @@ class RowButtons(typing.Generic[ButtonT]):
 @dataclasses.dataclass
 class Button(BaseButton):
     text: str
+    _: dataclasses.KW_ONLY
     request_contact: bool = False
     request_location: bool = False
     request_poll: dict | None = None
@@ -48,6 +49,7 @@ class Button(BaseButton):
 @dataclasses.dataclass
 class InlineButton(BaseButton):
     text: str
+    _: dataclasses.KW_ONLY
     url: str | None = None
     login_url: dict | None = None
     pay: bool | None = None

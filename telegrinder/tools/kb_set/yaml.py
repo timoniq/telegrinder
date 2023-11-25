@@ -1,4 +1,5 @@
 import os
+import pathlib
 import re
 import typing
 
@@ -8,9 +9,11 @@ from telegrinder.tools.keyboard import InlineKeyboard, Keyboard
 
 from .base import KeyboardSetBase, KeyboardSetError
 
+PathLike = str | os.PathLike[str]
+
 
 class KeyboardSetYAML(KeyboardSetBase):
-    __config__: str
+    __config__: PathLike
 
     @classmethod
     def load(cls) -> None:
@@ -18,7 +21,14 @@ class KeyboardSetYAML(KeyboardSetBase):
         if not os.path.exists(config_path):
             raise FileNotFoundError(f"Config file for {cls.__name__!r} is undefined.")
 
-        config = yaml.load(open(config_path, "r", encoding="utf-8"), yaml.Loader)  # noqa: SIM115
+        config = yaml.load(
+            open(  # noqa: SIM115
+                str(config_path),
+                mode="r",
+                encoding="UTF-8",
+            ),
+            yaml.Loader,
+        ) 
         for name, hint in typing.get_type_hints(cls).items():
             g = re.match(r"(?:kb_|keyboard_)(.+)", name.lower())
             if not g:
@@ -29,7 +39,6 @@ class KeyboardSetYAML(KeyboardSetBase):
                 raise KeyboardSetError(f"Keyboard {short_name!r} is undefined in config.")
 
             kb_config = config[short_name]
-
             if (
                 not isinstance(kb_config, dict)
                 or "buttons" not in kb_config
@@ -39,10 +48,9 @@ class KeyboardSetYAML(KeyboardSetBase):
                     "Keyboard should be dict with field buttons which must be a list, "
                     "check documentation."
                 )
-
+            
             buttons = kb_config.pop("buttons")
             new_keyboard: Keyboard | InlineKeyboard = hint(**kb_config)
-
             for button in buttons:
                 if not button:
                     new_keyboard.row()

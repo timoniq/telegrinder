@@ -55,7 +55,7 @@ class CallbackDataJsonModel(CallbackQueryDataRule):
         self.model = model
         
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        with suppress(msgspec.ValidationError, msgspec.DecodeError):
+        with suppress(BaseException):
             ctx["data"] = decoder.decode(event.data.unwrap().encode(), type=self.model)
             return True
         return False
