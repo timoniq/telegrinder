@@ -1,7 +1,8 @@
 import typing
 
-from telegrinder.api import ABCAPI, API, APIError
+from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
+from telegrinder.option.msgspec_option import Option
 from telegrinder.result import Result
 from telegrinder.types import (
     ForceReply,
@@ -12,7 +13,6 @@ from telegrinder.types import (
     ReplyKeyboardRemove,
     User,
 )
-from telegrinder.types.methods import OptionType
 
 from .base import BaseCute
 
@@ -66,15 +66,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     async def answer(
         self,
-        text: str | OptionType[str] | None = None,
-        parse_mode: str | OptionType[str] | None = None,
-        entities: list[MessageEntity] | OptionType[list[MessageEntity]] | None = None,
-        disable_web_page_preview: bool | OptionType[bool] | None = None,
-        disable_notification: bool | OptionType[bool] | None = None,
-        protect_content: bool | OptionType[bool] | None = None,
-        reply_to_message_id: int | OptionType[int] | None = None,
-        allow_sending_without_reply: bool | OptionType[bool] | None = None,
-        reply_markup: ReplyMarkup | OptionType[ReplyMarkup] | None = None,
+        text: str | Option[str] | None = None,
+        parse_mode: str | Option[str] | None = None,
+        entities: list[MessageEntity] | Option[list[MessageEntity]] | None = None,
+        disable_web_page_preview: bool | Option[bool] | None = None,
+        disable_notification: bool | Option[bool] | None = None,
+        protect_content: bool | Option[bool] | None = None,
+        reply_to_message_id: int | Option[int] | None = None,
+        allow_sending_without_reply: bool | Option[bool] | None = None,
+        reply_markup: ReplyMarkup | Option[ReplyMarkup] | None = None,
         **other,
     ) -> Result["Message", APIError]:
         params = get_params(locals())
@@ -84,14 +84,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     async def reply(
         self,
-        text: str | OptionType[str] | None = None,
-        parse_mode: str | OptionType[str] | None = None,
-        entities: list[MessageEntity] | OptionType[list[MessageEntity]] | None = None,
-        disable_web_page_preview: bool | OptionType[bool] | None = None,
-        disable_notification: bool | OptionType[bool] | None = None,
-        protect_content: bool | OptionType[bool] | None = None,
-        allow_sending_without_reply: bool | OptionType[bool] | None = None,
-        reply_markup: ReplyMarkup | OptionType[ReplyMarkup] | None = None,
+        text: str | Option[str] | None = None,
+        parse_mode: str | Option[str] | None = None,
+        entities: list[MessageEntity] | Option[list[MessageEntity]] | None = None,
+        disable_web_page_preview: bool | Option[bool] | None = None,
+        disable_notification: bool | Option[bool] | None = None,
+        protect_content: bool | Option[bool] | None = None,
+        allow_sending_without_reply: bool | Option[bool] | None = None,
+        reply_markup: ReplyMarkup | Option[ReplyMarkup] | None = None,
         **other,
     ) -> Result["Message", APIError]:
         params = get_params(locals())
@@ -115,12 +115,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     async def edit(
         self,
-        text: str | OptionType[str] | None = None,
-        parse_mode: str | OptionType[str] | None = None,
-        entities: list[MessageEntity] | OptionType[list[MessageEntity]] | None = None,
-        disable_web_page_preview: bool | OptionType[bool] | None = None,
+        text: str | Option[str] | None = None,
+        parse_mode: str | Option[str] | None = None,
+        entities: list[MessageEntity] | Option[list[MessageEntity]] | None = None,
+        disable_web_page_preview: bool | Option[bool] | None = None,
         reply_markup: InlineKeyboardMarkup
-        | OptionType[InlineKeyboardMarkup]
+        | Option[InlineKeyboardMarkup]
         | None = None,
         **other,
     ) -> Result[Message | bool, APIError]:

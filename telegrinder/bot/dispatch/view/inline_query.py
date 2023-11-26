@@ -3,6 +3,7 @@ import typing
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import InlineQueryCute
 from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler
+from telegrinder.bot.dispatch.handler.func import ErrorHandlerT
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.bot.rules import ABCRule
@@ -17,19 +18,27 @@ class InlineQueryView(ABCStateView[InlineQueryCute]):
         self.handlers: list[ABCHandler[InlineQueryCute]] = []
         self.middlewares: list[ABCMiddleware[InlineQueryCute]] = []
 
-    def __call__(self, *rules: ABCRule[InlineQueryCute], is_blocking: bool = True):
+    def __call__(
+        self,
+        *rules: ABCRule[InlineQueryCute],
+        is_blocking: bool = True,
+        error_handler: ErrorHandlerT | None = None,
+    ):
         def wrapper(
             func: typing.Callable[
                 typing.Concatenate[InlineQueryCute, ...],
                 typing.Coroutine,
             ]
         ):
-            self.handlers.append(
-                FuncHandler(
-                    func, [*self.auto_rules, *rules], is_blocking, dataclass=None
-                )
+            func_handler = FuncHandler(
+                func,
+                [*self.auto_rules, *rules],
+                is_blocking,
+                dataclass=None,
+                error_handler=error_handler,
             )
-            return func
+            self.handlers.append(func_handler)
+            return func_handler
 
         return wrapper
 

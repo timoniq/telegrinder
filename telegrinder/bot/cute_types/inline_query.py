@@ -1,7 +1,7 @@
 from telegrinder.api import ABCAPI, APIError
+from telegrinder.option.msgspec_option import Option
 from telegrinder.result import Result
 from telegrinder.types import InlineQuery, InlineQueryResult, User
-from telegrinder.types.methods import OptionType
 
 from .base import BaseCute
 
@@ -16,13 +16,13 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
     async def answer(
         self,
         results: list[InlineQueryResult | dict]
-        | OptionType[list[InlineQueryResult | dict]]
+        | Option[list[InlineQueryResult | dict]]
         | None = None,
-        cache_time: int | OptionType[int] | None = None,
-        is_personal: bool | OptionType[bool] | None = None,
-        next_offset: str | OptionType[str] | None = None,
-        switch_pm_text: str | OptionType[str] | None = None,
-        switch_pm_parameter: str | OptionType[str] | None = None,
+        cache_time: int | Option[int] | None = None,
+        is_personal: bool | Option[bool] | None = None,
+        next_offset: str | Option[str] | None = None,
+        switch_pm_text: str | Option[str] | None = None,
+        switch_pm_parameter: str | Option[str] | None = None,
     ) -> Result[bool, APIError]:
         return await self.ctx_api.answer_inline_query(
             self.id,

@@ -1,6 +1,7 @@
 import asyncio
-import traceback
 import typing
+
+import aiohttp
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.api.error import InvalidTokenError
@@ -17,6 +18,8 @@ class Polling(ABCPolling):
         api: ABCAPI,
         *,
         offset: int = 0,
+        reconnection_timeout: float = 5,
+        max_reconnetions: int = 10,
         include_updates: set[str | UpdateType] | None = None,
         exclude_updates: set[str | UpdateType] | None = None,
     ):
@@ -25,6 +28,8 @@ class Polling(ABCPolling):
             include_updates=include_updates,
             exclude_updates=exclude_updates,
         )
+        self.reconnection_timeout = 5 if reconnection_timeout < 0 else reconnection_timeout
+        self.max_reconnetions = 10 if max_reconnetions < 0 else max_reconnetions
         self.offset = offset
         self._stop = False
 
@@ -64,9 +69,12 @@ class Polling(ABCPolling):
 
     async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
         logger.debug("Listening polling")
+        reconn_counter = 0
         while not self._stop:
             try:
                 updates = await self.get_updates()
+                if reconn_counter > 0:
+                    reconn_counter = 0
                 if not updates:
                     continue
                 updates_list: list[Update] = decoder.decode(
@@ -80,10 +88,26 @@ class Polling(ABCPolling):
                 exit(6)
             except asyncio.CancelledError:
                 self.stop()
-                logger.info("Caught cancel, stopping")
+                logger.info("Caught cancel, polling stopping...")
+            except (aiohttp.client.ServerConnectionError, TimeoutError):
+                if reconn_counter > self.max_reconnetions:
+                    logger.error(
+                        "Failed to reconnect to the server after {} attempts, polling stopping.",
+                        self.max_reconnetions,
+                    )
+                    self.stop()
+                else:
+                    logger.warning("Server disconnected, waiting 5 seconds to reconnetion...")
+                    reconn_counter += 1
+                    await asyncio.sleep(self.reconnection_timeout)
+            except aiohttp.ClientConnectorError:
+                logger.error(
+                    "Client connection failed, polling stopping! "
+                    "Please, check your internet connection."
+                )
+                self.stop()
             except BaseException as e:
-                traceback.print_exc()
-                logger.error(e)
+                logger.exception(e)
 
     def stop(self) -> None:
         self._stop = True

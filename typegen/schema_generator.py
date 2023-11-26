@@ -120,7 +120,7 @@ def param_s(obj_name: str, param_name: str, param: dict, obj: dict) -> str:
         param_name if param_name not in ("json", "from") else param_name + "_",
         t,
         " = {}".format(
-            "Option({})".format(
+            "Some({})".format(
                 (
                     obj_name
                     + snake_to_pascal(param_name)
@@ -132,7 +132,7 @@ def param_s(obj_name: str, param_name: str, param: dict, obj: dict) -> str:
                 else repr(default_value)
             )
             if default_value is not None
-            else "Option.Nothing",
+            else "Nothing",
         )
         if t.startswith("Option")
         else "",
@@ -243,6 +243,7 @@ def generate(path: str, schema_url: str = URL) -> None:
         file.writelines(
             [
                 "import typing\n\n",
+                "from telegrinder.option import Nothing, Some\n"
                 "from telegrinder.option.msgspec_option import Option\n",
                 "from telegrinder.model import *\n",
                 "from telegrinder.types.enums import *\n",
@@ -281,13 +282,12 @@ def generate(path: str, schema_url: str = URL) -> None:
                 "from .objects import *\n",
                 "from telegrinder.result import Result\n",
                 "from telegrinder.api.error import APIError\n",
-                "from telegrinder.option import Some, Nothing\n",
+                "from telegrinder.option import Nothing\n",
                 "from telegrinder.option.msgspec_option import Option\n\n",
                 "if typing.TYPE_CHECKING:\n",
                 SPACES + "from telegrinder.api.abc import ABCAPI\n\n",
                 'X = typing.TypeVar("X")\n',
                 'Value = typing.TypeVar("Value")\n',
-                "OptionType = Option[Value] | Some[Value] | type(Nothing)\n",
                 "\n\n",
                 "class APIMethods:\n",
                 SPACES + 'def __init__(self, api: "ABCAPI"):\n',
@@ -315,7 +315,7 @@ def generate(path: str, schema_url: str = URL) -> None:
         lines.append(f"async def {name}(\n        self,\n")
         for n, prop in props.items():
             t = convert_type("", "", prop, {}, False)
-            lines.append(SPACES + f"{n}: {t} | OptionType[{t}] | None = None,\n")
+            lines.append(SPACES + f"{n}: {t} | Option[{t}] | None = None,\n")
         lines.append(SPACES + "**other\n")
         lines.append(f") -> Result[{response}, APIError]:\n")
         lines.extend(

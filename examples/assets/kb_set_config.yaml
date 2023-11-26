@@ -8,7 +8,16 @@ yes_no:
     - text: "Yes"
     -
     - text: "No"
-edit:
+items:
   buttons:
-    - text: "Edit"
-      callback_data: "edit"
+    - text: "remove"
+      callback_data: "remove_kb"
+    -
+    - text: "Buy apple"
+      callback_data:
+        name: "Apple"
+        cost: 123
+    - text: "Buy banana"
+      callback_data:
+        name: "Banana"
+        cost: 456
