@@ -14,7 +14,19 @@ from .func import FuncRule
 from .fuzzy import FuzzyText
 from .inline import InlineQueryRule, InlineQueryText, LocationInlineQuery
 from .integer import Integer, IntegerInRange
-from .is_from import IsChat, IsPrivate
+from .is_from import (
+    IsBot,
+    IsChat,
+    IsChatId,
+    IsForum,
+    IsGroup,
+    IsLanguageCode,
+    IsPremium,
+    IsPrivate,
+    IsSuperGroup,
+    IsUser,
+    IsUserId,
+)
 from .markup import Markup
 from .mention import HasMention
 from .message_entities import HasEntities, MessageEntities

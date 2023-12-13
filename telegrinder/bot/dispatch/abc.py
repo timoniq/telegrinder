@@ -3,13 +3,10 @@ from abc import ABC, abstractmethod
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.bot.dispatch.handler.func import FuncHandler
+from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, FuncHandler
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.tools.global_context import ABCGlobalContext
 from telegrinder.types import Update
-
-if typing.TYPE_CHECKING:
-    from .view.abc import ABCView
 
 T = typing.TypeVar("T", bound=BaseCute)
 R = typing.TypeVar("R")
@@ -24,11 +21,7 @@ class ABCDispatch(ABC):
         pass
 
     @abstractmethod
-    def load(self, external: "ABCDispatch"):
-        pass
-
-    @abstractmethod
-    def mount(self, view: "ABCView", name: str):
+    def load(self, external: typing.Self):
         pass
 
     @classmethod
@@ -36,10 +29,21 @@ class ABCDispatch(ABC):
         cls,
         *rules: ABCRule[T],
         is_blocking: bool = True,
+        error_handler: ErrorHandlerT | None = None,
     ):
         def wrapper(
             func: typing.Callable[typing.Concatenate[T, P], typing.Awaitable[R]]
-        ) -> FuncHandler[T, typing.Callable[typing.Concatenate[T, P], typing.Awaitable[R]]]:
-            return FuncHandler(func, list(rules), is_blocking, dataclass=None)
+        ) -> FuncHandler[
+            T,
+            typing.Callable[typing.Concatenate[T, P], typing.Awaitable[R]],
+            ErrorHandlerT,
+        ]:
+            return FuncHandler(
+                func,
+                list(rules),
+                is_blocking=is_blocking,
+                dataclass=None,
+                error_handler=error_handler,
+            )
 
         return wrapper

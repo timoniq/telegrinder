@@ -82,9 +82,111 @@ elif logging_module == "logging":
     About:
     https://docs.python.org/3/howto/logging-cookbook.html#use-of-alternative-formatting-styles
     """
+
     import inspect
     import logging
     import sys
+
+    import colorama
+
+    colorama.just_fix_windows_console()  # init & fix console
+
+    FORMAT = (
+        "<white>{name: <4} |</white> <level>{levelname: <8}</level>"
+        " <white>|</white> <green>{asctime}</green> <white>|</white> <level_module>"
+        "{module}</level_module><white>:</white><level_func>"
+        "{funcName}</level_func><white>:</white><level_lineno>"
+        "{lineno}</level_lineno><white> > </white><level_message>"
+        "{message}</level_message>"
+    )
+    COLORS = {
+        "red": colorama.Fore.LIGHTRED_EX,
+        "green": colorama.Fore.LIGHTGREEN_EX,
+        "blue": colorama.Fore.LIGHTBLUE_EX,
+        "white": colorama.Fore.LIGHTWHITE_EX,
+        "yellow": colorama.Fore.LIGHTYELLOW_EX,
+        "magenta": colorama.Fore.LIGHTMAGENTA_EX,
+        "cyan": colorama.Fore.LIGHTCYAN_EX,
+        "reset": colorama.Style.RESET_ALL,
+    }
+    LEVEL_SETTINGS = {
+        "INFO": {
+            "level": "green",
+            "level_module": "blue",
+            "level_func": "cyan",
+            "level_lineno": "green",
+            "level_message": "white",
+        },
+        "DEBUG": {
+            "level": "blue",
+            "level_module": "yellow",
+            "level_func": "green",
+            "level_lineno": "cyan",
+            "level_message": "blue",
+        },
+        "WARNING": {
+            "level": "yellow",
+            "level_module": "red",
+            "level_func": "green",
+            "level_lineno": "red",
+            "level_message": "yellow",
+        },
+        "ERROR": {
+            "level": "red",
+            "level_module": "magenta",
+            "level_func": "yellow",
+            "level_lineno": "green",
+            "level_message": "red",
+        },
+        "CRITICAL": {
+            "level": "cyan",
+            "level_module": "yellow",
+            "level_func": "yellow",
+            "level_lineno": "yellow",
+            "level_message": "cyan",
+        },
+    }
+    FORMAT = (
+        FORMAT
+        .replace("<white>", COLORS["white"])
+        .replace("</white>", COLORS["reset"])
+        .replace("<green>", COLORS["green"])
+        .replace("</green>", COLORS["reset"])
+    )
+    LEVEL_FORMATS: dict[str, str] = {}
+    for level, settings in LEVEL_SETTINGS.items():
+        fmt = FORMAT
+        for name, color in settings.items():
+            fmt = (
+                fmt
+                .replace(f"<{name}>", COLORS[color])
+                .replace(f"</{name}>", COLORS["reset"])
+            )
+        LEVEL_FORMATS[level] = fmt
+
+
+    class TelegrinderLoggingFormatter(logging.Formatter):
+        def format(self, record: logging.LogRecord) -> str:  
+            if not record.funcName or record.funcName == "<module>":
+                record.funcName = "\b"
+            frame = next(
+                (
+                    frame
+                    for frame in inspect.stack()
+                    if frame.filename == record.pathname
+                    and frame.lineno == record.lineno
+                ),
+                None,
+            )
+            if frame:
+                module = inspect.getmodule(frame.frame)
+                record.module = module.__name__ if module else "<module>"
+            return logging.Formatter(
+                LEVEL_FORMATS.get(record.levelname),
+                datefmt="%Y-%m-%d %H:%M:%S",
+                style="{",
+            ).format(record)
+
 
     class LogMessage:
         def __init__(self, fmt, args, kwargs):
@@ -95,12 +197,13 @@ elif logging_module == "logging":
         def __str__(self) -> str:
             return self.fmt.format(*self.args, **self.kwargs)
 
-    class StyleAdapter(logging.LoggerAdapter):
+    class TelegrinderLoggingStyleAdapter(logging.LoggerAdapter):
         def __init__(self, logger, extra=None):
             super().__init__(logger, extra or {})
 
         def log(self, level, msg, *args, **kwargs):
             if self.isEnabledFor(level):
+                kwargs.setdefault("stacklevel", 2)
                 msg, args, kwargs = self.proc(msg, args, kwargs)
                 self.logger._log(level, msg, args, **kwargs)
 
@@ -110,22 +213,18 @@ elif logging_module == "logging":
                 for key in inspect.getfullargspec(self.logger._log).args[1:]
                 if key in kwargs
             }
+            
             if isinstance(msg, str):
                 msg = LogMessage(msg, args, kwargs)
                 args = tuple()
             return msg, args, log_kwargs
 
     handler = logging.StreamHandler(sys.stderr)
-    handler.setFormatter(
-        logging.Formatter(
-            "%(name)s | %(levelname)s | %(asctime)s > %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-    )
+    handler.setFormatter(TelegrinderLoggingFormatter())
     logger = logging.getLogger("telegrinder")  # type: ignore
     logger.setLevel(logging.getLevelName(logging_level))  # type: ignore
     logger.addHandler(handler)  # type: ignore
-    logger = StyleAdapter(logger)  # type: ignore
+    logger = TelegrinderLoggingStyleAdapter(logger)  # type: ignore
 
 
 def _set_logger_level(level):
@@ -136,8 +235,8 @@ def _set_logger_level(level):
         logging.getLogger("telegrinder").setLevel(logging.getLevelName(level))
     elif logging_module == "loguru":
         import loguru  # type: ignore
-
-        if loguru.logger._core.handlers:  # type: ignore
+        
+        if handler_id in loguru.logger._core.handlers:  # type: ignore
             loguru.logger._core.handlers[handler_id]._levelno = loguru.logger.level(level).no  # type: ignore
 
 

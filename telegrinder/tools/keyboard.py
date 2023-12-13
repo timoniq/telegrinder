@@ -28,6 +28,7 @@ class KeyboardModel:
     resize_keyboard: bool | Option[bool]
     one_time_keyboard: bool | Option[bool]
     selective: bool | Option[bool]
+    is_persistent: bool | Option[bool]
     keyboard: list[list[dict]]
 
 
@@ -40,11 +41,13 @@ class ABCMarkup(ABC, KeyboardModel, typing.Generic[ButtonT]):
         resize_keyboard: bool = True,
         one_time_keyboard: bool = False,
         selective: bool = False,
+        is_persistent: bool = False,
     ):
         self.keyboard = [[]]
         self.resize_keyboard = resize_keyboard
         self.one_time_keyboard = one_time_keyboard
         self.selective = selective
+        self.is_persistent = is_persistent
 
     @abstractmethod
     def dict(self) -> DictStrAny:
@@ -99,7 +102,7 @@ class Keyboard(ABCMarkup[Button]):
     def dict(self) -> DictStrAny:
         self.keyboard = [row for row in self.keyboard if row]
         return {
-            k: v.unwrap() if v and isinstance(v, Option | Some) else v
+            k: v.unwrap() if v and isinstance(v, Some) else v
             for k, v in self.__dict__.items()
             if v not in (None, Nothing)
         }
@@ -110,6 +113,9 @@ class Keyboard(ABCMarkup[Button]):
 
 class InlineKeyboard(ABCMarkup[InlineButton]):
     BUTTON = InlineButton
+
+    def __init__(self):
+        self.keyboard = [[]]
 
     def dict(self) -> DictStrAny:
         self.keyboard = [row for row in self.keyboard if row]

@@ -1,11 +1,11 @@
 import dataclasses
 import typing
 
-from .abc import ABCRule, RawUpdateAdapter, T, Update, check_rule
+from .abc import ABCRule, T, Update, check_rule
 from .func import FuncRule
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(unsafe_hash=True)
 class RuleEnumState:
     name: str
     rule: ABCRule
@@ -17,8 +17,6 @@ class RuleEnumState:
 
 class RuleEnum(ABCRule[T]):
     __enum__: list[RuleEnumState]
-
-    adapter = RawUpdateAdapter()  # type: ignore
 
     def __init_subclass__(cls, *args, **kwargs):
         new_attributes = (

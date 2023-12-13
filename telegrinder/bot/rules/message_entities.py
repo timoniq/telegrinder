@@ -6,7 +6,7 @@ Entity = str | MessageEntityType
 
 
 class HasEntities(MessageRule):
-    async def check(self, message: Message, _) -> bool:
+    async def check(self, message: Message, ctx: dict) -> bool:
         return bool(message.entities)
 
 

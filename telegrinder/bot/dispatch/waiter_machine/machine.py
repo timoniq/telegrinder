@@ -3,6 +3,7 @@ import datetime
 import typing
 
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.rules.abc import ABCRule
 
 from .middleware import WaiterMiddleware
@@ -10,6 +11,7 @@ from .short_state import Behaviour, EventModel, ShortState
 
 Identificator = str | int
 Storage = dict[str, dict[Identificator, "ShortState"]]
+Event = BaseCute
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.abc import ABCStateView
@@ -99,7 +101,7 @@ class WaiterMachine:
         self,
         view: "ABCStateView",
         behaviour: Behaviour,
-        event: asyncio.Event,
+        event: asyncio.Event | BaseCute,
         **context,
     ) -> None:
         if behaviour is None:

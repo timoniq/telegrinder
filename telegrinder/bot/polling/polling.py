@@ -70,11 +70,11 @@ class Polling(ABCPolling):
     async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
         logger.debug("Listening polling")
         reconn_counter = 0
+        
         while not self._stop:
             try:
                 updates = await self.get_updates()
-                if reconn_counter > 0:
-                    reconn_counter = 0
+                reconn_counter = 0
                 if not updates:
                     continue
                 updates_list: list[Update] = decoder.decode(
@@ -85,10 +85,11 @@ class Polling(ABCPolling):
                     self.offset = updates_list[-1].update_id + 1
             except InvalidTokenError as e:
                 logger.error(e)
+                self.stop()
                 exit(6)
             except asyncio.CancelledError:
-                self.stop()
                 logger.info("Caught cancel, polling stopping...")
+                self.stop()
             except (aiohttp.client.ServerConnectionError, TimeoutError):
                 if reconn_counter > self.max_reconnetions:
                     logger.error(

@@ -18,7 +18,7 @@ class BaseButton:
         return {
             k: v
             if k != "callback_data" or isinstance(v, str)
-            else encoder.encode(v).decode()
+            else encoder.encode(v)
             for k, v in dataclasses.asdict(self).items()
             if v is not None
         }

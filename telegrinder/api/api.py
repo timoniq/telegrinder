@@ -44,20 +44,18 @@ class API(ABCAPI, APIMethods):
         if response.get("ok"):
             assert "result" in response
             return Ok(response["result"])
-
-        code, msg = response.get("error_code", 0), response.get("description")
-        return Error(APIError(code, msg))
+        return Error(APIError(
+            code=response.get("error_code", -1),
+            error=response.get("description"),
+        ))
 
     async def request_raw(
         self,
         method: str,
         data: dict | None = None,
     ) -> Result[msgspec.Raw, APIError]:
-        data = compose_data(self.http, data or {})
         response_bytes = await self.http.request_bytes(
-            self.request_url + method, data=data
+            self.request_url + method,
+            data=compose_data(self.http, data or {})
         )
-        response_skeleton: APIResponse = decoder.decode(
-            response_bytes, type=APIResponse
-        )
-        return response_skeleton.to_result()
+        return decoder.decode(response_bytes, type=APIResponse).to_result()
