@@ -1,7 +1,7 @@
+import dataclasses
 import random
 import string
 import typing
-from dataclasses import dataclass
 
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.waiter_machine import WaiterMachine
@@ -16,7 +16,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.abc import ABCStateView
 
 
-@dataclass
+@dataclasses.dataclass
 class Choice:
     name: str
     is_picked: bool
@@ -29,7 +29,7 @@ def random_code(length: int) -> str:
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
-class Checkbox(ABCScenario):
+class Checkbox(ABCScenario[CallbackQueryCute]):
     INVALID_CODE: typing.ClassVar[str] = "Invalid code"
     CALLBACK_ANSWER: typing.ClassVar[str] = "Done"
     PARSE_MODE: typing.ClassVar[str] = ParseMode.MARKDOWNV2
@@ -102,7 +102,7 @@ class Checkbox(ABCScenario):
     async def wait(
         self,
         api: "API",
-        cb_view: "ABCStateView[CallbackQueryCute]",
+        view: "ABCStateView[CallbackQueryCute]",
     ) -> tuple[dict[str, bool], int]:
         assert len(self.choices) > 1
         message = (
@@ -116,10 +116,7 @@ class Checkbox(ABCScenario):
         
         while True:
             q: CallbackQueryCute
-            q, _ = await self.waiter_machine.wait(
-                cb_view,
-                (api, message.message_id),
-            )
+            q, _ = await self.waiter_machine.wait(view, (api, message.message_id))
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
             if not should_continue:

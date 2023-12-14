@@ -114,9 +114,6 @@ class Keyboard(ABCMarkup[Button]):
 class InlineKeyboard(ABCMarkup[InlineButton]):
     BUTTON = InlineButton
 
-    def __init__(self):
-        self.keyboard = [[]]
-
     def dict(self) -> DictStrAny:
         self.keyboard = [row for row in self.keyboard if row]
         return dict(inline_keyboard=self.keyboard)

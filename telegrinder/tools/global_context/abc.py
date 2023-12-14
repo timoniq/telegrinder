@@ -3,7 +3,7 @@ import typing
 from abc import ABC, abstractmethod
 
 T = typing.TypeVar("T")
-CtxValue = typing.Union["CtxVar[T]", typing.Any]
+CtxValue = typing.Union[typing.Any, "CtxVar[T]"]
 
 
 @dataclasses.dataclass(repr=False, frozen=True)
