@@ -101,7 +101,7 @@ class Decoder:
             Option: msgspec_dec_hook,
         }
 
-    def add_dec_hook(self, tp: type["T"]):
+    def add_dec_hook(self, tp: type["T"]):  # type: ignore
         def decorator(func: DecHook["T"]) -> DecHook["T"]:
             return self.dec_hooks.setdefault(get_origin(tp), func)
         
@@ -158,7 +158,7 @@ class Encoder:
             NothingType: msgspec_enc_hook,
         }
 
-    def add_dec_hook(self, tp: type["T"]):
+    def add_dec_hook(self, tp: type["T"]):  # type: ignore
         def decorator(func: EncHook["T"]) -> EncHook["T"]:
             return self.enc_hooks.setdefault(get_origin(tp), func)
         
