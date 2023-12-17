@@ -5,6 +5,7 @@ import typing
 from functools import wraps
 
 from telegrinder.modules import logger
+from telegrinder.option import Nothing, Option, Some
 from telegrinder.result import Error, Ok, Result
 
 from .abc import ABCGlobalContext, CtxValue, CtxVar, GlobalCtxVar
@@ -217,13 +218,13 @@ class GlobalContext(ABCGlobalContext):
         otherwise False."""
         return name in self.__root_attributes__
 
-    def get_root_attribute(self, name: str) -> Result[RootAttr, str]:
+    def get_root_attribute(self, name: str) -> Option[RootAttr]:
         """Get root attribute by name."""
         if self.is_root_attribute(name):
             for rattr in self.__root_attributes__:
                 if rattr.name == name:
-                    return Ok(rattr)
-        return Error(f"Root attribute {name!r} not found.")
+                    return Some(rattr)
+        return Nothing
 
     def get(
         self,
@@ -281,7 +282,7 @@ class GlobalContext(ABCGlobalContext):
         if include_consts:
             logger.warning(
                 "Constants from the global context {!r} have been cleaned up!",
-                self.__ctx_name__ or "MainContext",
+                self.__ctx_name__ or "MainContext at %#x" % id(self),
             )
 
         for name, var in ctx_storage.copy().items():

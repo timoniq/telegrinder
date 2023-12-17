@@ -98,9 +98,9 @@ HTMLFormatter("pls, boost {:bold+italic+underline} ^_^").format(ChannelBoostLink
 
 HTMLFormatter("start game in the {:spoiler}").format(StartBotLink("telegrinder_bot", "game", "bot ^_^"))
 
-HTMLFormatter("Get a bonus from the {:italic} in the chosen group").format(StartGroupLink("nice123_bot", "get_bonus", "nice cool bot"))
+HTMLFormatter("get a bonus from the {:italic} in the chosen group").format(StartGroupLink("nice123_bot", "get_bonus", "nice cool bot"))
 
-HTMLFormatter("Join our {:bold+underline}").format(InviteChatLink("+kMj2234KklsSka2-", "chat"))
+HTMLFormatter("join our {:bold+underline}").format(InviteChatLink("+kMj2234KklsSka2-", "chat"))
 ```
 
 HTMLFormatter also has a property of parse mode string.

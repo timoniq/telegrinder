@@ -95,7 +95,7 @@ class StartGroupLink(BaseSpecFormat):
 
     bot_username: str
     data: str
-    string: str | None
+    string: str | None = None
 
 
 @dataclasses.dataclass

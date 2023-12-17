@@ -1,12 +1,18 @@
 import typing
 
+from telegrinder.types.enums import MessageEntityType
+
 from .abc import MessageRule
 from .is_from import IsPrivate
 from .markup import Markup, Message
+from .message_entities import MessageEntities
 
 
 class StartCommand(
-    MessageRule, requires=[IsPrivate(), Markup(["/start <param>", "/start"])]
+    MessageRule, requires=[
+        IsPrivate() & MessageEntities(MessageEntityType.BOT_COMMAND)
+        & Markup(["/start <param>", "/start"]),
+    ]
 ):
     def __init__(
         self,

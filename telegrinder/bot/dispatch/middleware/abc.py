@@ -1,7 +1,9 @@
 import typing
 from abc import ABC
 
-T = typing.TypeVar("T")
+from telegrinder.bot.cute_types.base import BaseCute
+
+T = typing.TypeVar("T", bound=BaseCute)
 
 
 class ABCMiddleware(ABC, typing.Generic[T]):

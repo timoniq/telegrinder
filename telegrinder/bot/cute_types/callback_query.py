@@ -45,6 +45,8 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         params = get_params(locals())
         if self.message:
             message = self.message.unwrap()
+            if message.message_thread_id and "message_thread_id" not in params:
+                params["message_thread_id"] = message.message_thread_id
             return await self.ctx_api.edit_message_text(
                 chat_id=message.chat.id,
                 message_id=message.message_id,

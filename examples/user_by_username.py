@@ -5,9 +5,9 @@ to work with databases.
 import aiosqlite
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
-from telegrinder.model import decoder, encoder
-from telegrinder.option.msgspec_option import Option as MsgspecOption
-from telegrinder.option.option import Nothing, NothingType, Option, Some
+from telegrinder.model import decoder
+from telegrinder.option.msgspec_option import Option
+from telegrinder.option.option import Nothing, NothingType, Some
 from telegrinder.rules import Markup, MessageEntities
 from telegrinder.types import User
 from telegrinder.types.enums import MessageEntityType
@@ -38,7 +38,7 @@ class DummyDatabase:
     def user_data(self, user: User) -> dict:
         return {
             k: (v.unwrap() if v else None)
-            if isinstance(v, MsgspecOption | NothingType)
+            if isinstance(v, Some | NothingType)
             else v
             for k, v in user.to_dict(
                 exclude_fields={
@@ -51,7 +51,7 @@ class DummyDatabase:
         }
 
     async def set_user(self, user: User) -> None:
-        async with aiosqlite.connect(db_path, loop=bot.loop) as conn:
+        async with aiosqlite.connect(db_path) as conn:
             async with conn.cursor() as cur:
                 await cur.execute(
                     """
@@ -68,7 +68,7 @@ class DummyDatabase:
     
     async def get_user(self, username: str) -> Option[User]:
         async with (
-            aiosqlite.connect(db_path, loop=bot.loop) as conn,
+            aiosqlite.connect(db_path) as conn,
             conn.cursor() as cur,
         ):
             row = await (
@@ -79,16 +79,10 @@ class DummyDatabase:
             ).fetchone()
             if row is None:
                 return Nothing
-            return Some(
-                decoder.decode(
-                    encoder.encode(
-                        get_result_with_names(
-                            cur, row, as_bool={"is_premium", "is_bot"}
-                        )
-                    ),
-                    type=User,
-                )
-            )  # with msgspec validation
+            return decoder.convert(
+                obj=get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
+                type=Option[User],
+            )
 
 
 db = DummyDatabase()

@@ -19,6 +19,7 @@ class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
     def __init__(
         self,
         api: API,
+        *,
         polling: PollingT | None = None,
         dispatch: DispatchT | None = None,
         loop_wrapper: LoopWrapperT | None = None,

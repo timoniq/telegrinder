@@ -1,7 +1,4 @@
 import typing
-from contextlib import suppress
-
-import msgspec
 
 from .option import NothingType, Some
 
@@ -19,7 +16,7 @@ class Option(typing.Generic[Value], typing.Protocol):
     def __bool__(self) -> bool:
         ...
 
-    def __eq__(self, __value: object) -> bool:
+    def __eq__(self, __value: typing.Self) -> bool:
         ...
 
     def unwrap(self) -> Value:
@@ -42,38 +39,3 @@ class Option(typing.Generic[Value], typing.Protocol):
 
     def expect(self, error: str | BaseException, /) -> Value:
         ...
-
-
-def enc_hook(obj: typing.Any) -> typing.Any:
-    if isinstance(obj, NothingType):
-        return None
-    if isinstance(obj, Some):
-        return obj.value
-    raise NotImplementedError(f"Not implemented for object of type `{repr_type(type(obj))}`.")
-
-
-def repr_type(t: type) -> str:
-    t = typing.get_origin(t) or t
-    return getattr(t, "__name__", repr(t))
-
-
-def dec_hook(tp: type, obj: typing.Any) -> typing.Any:
-    origin_type = typing.get_origin(tp) or tp
-    if origin_type is Option:
-        if obj is None:
-            return NothingType()
-        value_type = (typing.get_args(tp) + (typing.Any,))[0]
-        with suppress(msgspec.ValidationError):
-            value_type = (typing.get_args(tp) + (typing.Any,))[0]
-            return msgspec.json.decode(
-                msgspec.json.encode({"value": obj}, enc_hook=enc_hook),
-                type=Some[value_type],
-                dec_hook=dec_hook,
-            )
-        raise TypeError(
-            "Expected `{}` for Option.Some, got `{}`".format(
-                repr_type(value_type),
-                repr_type(type(obj)),
-            )
-        )
-    raise TypeError(f"Unknown type `{repr_type(tp)}`.")

@@ -55,7 +55,7 @@ class ABCRule(ABC, typing.Generic[T]):
         return NotRule(self)
 
     def __repr__(self) -> str:
-        return "<{!r} rule, adapter: {!r}>".format(
+        return "<rule: {!r}, adapter: {!r}>".format(
             self.__class__.__name__,
             self.adapter.__class__.__name__,
         )

@@ -22,7 +22,7 @@ class Catcher(typing.Generic[EventT]):
     exceptions: list[type[BaseException] | BaseException] = dataclasses.field(default_factory=lambda: [])
     logging: bool = dataclasses.field(default=False)
     raise_exception: bool = dataclasses.field(default=False)
-    ignore_errors: bool = dataclasses.field(default=False, kw_only=True)
+    ignore_errors: bool = dataclasses.field(default=False)
 
     def match_exception(self, exception: BaseException) -> bool:
         for exc in self.exceptions:

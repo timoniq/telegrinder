@@ -22,8 +22,8 @@ class ShortState(typing.Generic[EventModel]):
         event: asyncio.Event,
         rules: tuple[ABCRule[EventModel], ...],
         expiration: datetime.timedelta | None = None,
-        default_behaviour: Behaviour = None,
-        on_drop_behaviour: Behaviour = None,
+        default_behaviour: Behaviour | None = None,
+        on_drop_behaviour: Behaviour | None = None,
     ) -> None:
         self.key = key
         self.ctx_api = ctx_api

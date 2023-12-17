@@ -51,7 +51,8 @@ class LoopWrapper(ABCLoopWrapper):
         self.on_startup: list[CoroutineTask] = []
         self.on_shutdown: list[CoroutineTask] = []
         self.tasks = tasks or []
-        self.error_handlers = error_handlers or DEFAULT_ERROR_HANDLERS
+        self.error_handlers = error_handlers or {}
+        self.error_handlers = DEFAULT_ERROR_HANDLERS | self.error_handlers
         
     def run_error_handler(self, exception: BaseException) -> None:
         handlers = self.error_handlers.get(exception.__class__)
@@ -61,7 +62,7 @@ class LoopWrapper(ABCLoopWrapper):
             try:
                 self._loop.run_until_complete(handler(exception))
             except BaseException as exc:
-                logger.error(
+                logger.exception(
                     "Exception {!r} occurred during running error handler {!r} "
                     "in loop wrapper.",
                     exc.__class__.__name__,

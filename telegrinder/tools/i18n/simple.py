@@ -40,5 +40,5 @@ class SimpleTranslator(ABCTranslator):
         self.g = g
         super().__init__(locale)
 
-    def get(self, key: str, **kwargs) -> str:
-        return self.g.gettext(key).format(**kwargs)
+    def get(self, __key: str, *args, **kwargs) -> str:
+        return self.g.gettext(__key).format(*args, **kwargs)

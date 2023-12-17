@@ -1,6 +1,7 @@
 import datetime
 import typing
 
+from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.view.abc import ABCStateView
@@ -9,7 +10,7 @@ if typing.TYPE_CHECKING:
     from .machine import WaiterMachine
     from .short_state import ShortState
 
-EventType = typing.TypeVar("EventType")  # NOTE: make bound type (type checker fails)
+EventType = typing.TypeVar("EventType", bound=BaseCute)
 
 
 class WaiterMiddleware(ABCMiddleware[EventType]):
@@ -56,9 +57,9 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
 
         elif short_state.default_behaviour is not None:
             await self.machine.call_behaviour(
-                self.view,  # type: ignore
+                self.view,
                 short_state.default_behaviour,
-                event,  # type: ignore
+                event,
                 **handler.ctx,
             )
 

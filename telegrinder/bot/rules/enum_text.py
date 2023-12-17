@@ -4,7 +4,7 @@ from enum import Enum
 from .abc import Message
 from .text import TextMessageRule
 
-T = typing.TypeVar("T", bound=Enum)
+T = typing.TypeVar("T", bound=Enum, covariant=True)
 
 
 class EnumTextRule(TextMessageRule, typing.Generic[T]):
