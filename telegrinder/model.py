@@ -37,7 +37,7 @@ def convert(d: typing.Any, serialize: bool = True) -> typing.Any:
     return d
 
 
-model_config = {"rename": {"from_": "from"}, "omit_defaults": True}
+model_config = {"rename": {"from_": "from"}, "omit_defaults": True, "kw_only": True}
 
 
 class Model(msgspec.Struct, **model_config):

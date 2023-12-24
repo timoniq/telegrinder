@@ -107,11 +107,11 @@ class Message(Model):
     Docs: https://core.telegram.org/bots/api/#message"""
 
     message_id: int
+    date: int
+    chat: "Chat"
     message_thread_id: typing.Optional[int] = None
     from_: typing.Optional["User"] = None
     sender_chat: typing.Optional["Chat"] = None
-    date: int
-    chat: "Chat"
     forward_from: typing.Optional["User"] = None
     forward_from_chat: typing.Optional["Chat"] = None
     forward_from_message_id: typing.Optional[int] = None
@@ -352,9 +352,9 @@ class PollAnswer(Model):
     Docs: https://core.telegram.org/bots/api/#pollanswer"""
 
     poll_id: str
+    option_ids: list[int]
     voter_chat: typing.Optional["Chat"] = None
     user: typing.Optional["User"] = None
-    option_ids: list[int]
 
 
 class Poll(Model):
@@ -726,9 +726,9 @@ class CallbackQuery(Model):
 
     id: str
     from_: "User"
+    chat_instance: str
     message: typing.Optional["Message"] = None
     inline_message_id: typing.Optional[str] = None
-    chat_instance: str
     data: typing.Optional[str] = None
     game_short_name: typing.Optional[str] = None
 
@@ -1512,10 +1512,10 @@ class InlineQueryResultGif(Model):
     type: str
     id: str
     gif_url: str
+    thumbnail_url: str
     gif_width: typing.Optional[int] = None
     gif_height: typing.Optional[int] = None
     gif_duration: typing.Optional[int] = None
-    thumbnail_url: str
     thumbnail_mime_type: typing.Optional[
         InlineQueryResultGifThumbnailMimeType
     ] = InlineQueryResultGifThumbnailMimeType("image/jpeg")
@@ -1537,10 +1537,10 @@ class InlineQueryResultMpeg4Gif(Model):
     type: str
     id: str
     mpeg4_url: str
+    thumbnail_url: str
     mpeg4_width: typing.Optional[int] = None
     mpeg4_height: typing.Optional[int] = None
     mpeg4_duration: typing.Optional[int] = None
-    thumbnail_url: str
     thumbnail_mime_type: typing.Optional[
         InlineQueryResultMpeg4GifThumbnailMimeType
     ] = InlineQueryResultMpeg4GifThumbnailMimeType("image/jpeg")
@@ -1628,11 +1628,11 @@ class InlineQueryResultDocument(Model):
     type: str
     id: str
     title: str
+    document_url: str
+    mime_type: InlineQueryResultDocumentMimeType
     caption: typing.Optional[str] = None
     parse_mode: typing.Optional[str] = None
     caption_entities: typing.Optional[list["MessageEntity"]] = None
-    document_url: str
-    mime_type: InlineQueryResultDocumentMimeType
     description: typing.Optional[str] = None
     reply_markup: typing.Optional["InlineKeyboardMarkup"] = None
     input_message_content: typing.Optional["InputMessageContent"] = None
@@ -2001,9 +2001,9 @@ class ChosenInlineResult(Model):
 
     result_id: str
     from_: "User"
+    query: str
     location: typing.Optional["Location"] = None
     inline_message_id: typing.Optional[str] = None
-    query: str
 
 
 class SentWebAppMessage(Model):
@@ -2071,10 +2071,10 @@ class SuccessfulPayment(Model):
     currency: str
     total_amount: int
     invoice_payload: str
-    shipping_option_id: typing.Optional[str] = None
-    order_info: typing.Optional["OrderInfo"] = None
     telegram_payment_charge_id: str
     provider_payment_charge_id: str
+    shipping_option_id: typing.Optional[str] = None
+    order_info: typing.Optional["OrderInfo"] = None
 
 
 class ShippingQuery(Model):
@@ -2127,6 +2127,7 @@ class EncryptedPassportElement(Model):
     Docs: https://core.telegram.org/bots/api/#encryptedpassportelement"""
 
     type: EncryptedPassportElementType
+    hash: str
     data: typing.Optional[str] = None
     phone_number: typing.Optional[str] = None
     email: typing.Optional[str] = None
@@ -2135,7 +2136,6 @@ class EncryptedPassportElement(Model):
     reverse_side: typing.Optional["PassportFile"] = None
     selfie: typing.Optional["PassportFile"] = None
     translation: typing.Optional[list["PassportFile"]] = None
-    hash: str
 
 
 class EncryptedCredentials(Model):

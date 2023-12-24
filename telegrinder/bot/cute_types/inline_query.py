@@ -3,7 +3,7 @@ from telegrinder.result import Result
 from telegrinder.types import InlineQuery, InlineQueryResult, User
 
 
-class InlineQueryCute(InlineQuery):
+class InlineQueryCute(InlineQuery, kw_only=True):
     api: API
 
     @property

@@ -4,7 +4,7 @@ from telegrinder.result import Result
 from telegrinder.types import CallbackQuery, User
 
 
-class CallbackQueryCute(CallbackQuery):
+class CallbackQueryCute(CallbackQuery, kw_only=True):
     api: API
 
     @property

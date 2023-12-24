@@ -22,7 +22,7 @@ def get_enitity_value(
             return enitity_value
 
 
-class MessageCute(Message):
+class MessageCute(Message, kw_only=True):
     api: API
 
     @property

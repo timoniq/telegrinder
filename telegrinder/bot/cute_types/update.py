@@ -4,7 +4,7 @@ from telegrinder.api import ABCAPI, API
 from telegrinder.types import Update
 
 
-class UpdateCute(Update):
+class UpdateCute(Update, kw_only=True):
     api: ABCAPI
 
     @property
