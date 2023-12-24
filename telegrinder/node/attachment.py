@@ -21,7 +21,7 @@ class Attachment(DataNode):
     async def compose(cls, message: MessageNode) -> "Attachment":
         for attachment_type in ("photo", "video", "audio", "document"):
             if attachment := getattr(message, attachment_type):
-                return cls(attachment_type, **{attachment_type: attachment})
+                return cls(attachment_type, **{attachment_type: attachment.unwrap()})
         return cls.compose_error("No attachment found in message")
 
 

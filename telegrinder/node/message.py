@@ -8,9 +8,9 @@ class MessageNode(ScalarNode, MessageCute):
     @classmethod
     async def compose(cls, update: UpdateNode) -> "MessageCute":
         if not update.message:
-            cls.compose_error()
+            return cls.compose_error()
         return MessageCute(
-            **update.message.to_dict(), 
+            **update.message.unwrap().to_dict(), 
             api=update.api,  # type: ignore
         )
 

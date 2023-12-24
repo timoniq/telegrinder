@@ -13,7 +13,7 @@ from telegrinder.types import Update
 from .abc import ABCDispatch
 from .handler import ABCHandler, FuncHandler
 from .handler.func import ErrorHandlerT
-from .view.box import CallbackQueryViewT, InlineQueryViewT, MessageViewT, ViewsBox
+from .view.box import CallbackQueryViewT, InlineQueryViewT, MessageViewT, CompositionViewT, ViewsBox
 
 T = typing.TypeVar("T")
 DEFAULT_DATACLASS = Update
@@ -22,7 +22,7 @@ DEFAULT_DATACLASS = Update
 @dataclasses.dataclass(repr=False, frozen=True, kw_only=True)
 class Dispatch(
     ABCDispatch,
-    ViewsBox[CallbackQueryViewT, InlineQueryViewT, MessageViewT],
+    ViewsBox[CallbackQueryViewT, InlineQueryViewT, MessageViewT, CompositionViewT],
 ):
     global_context: TelegrinderCtx = dataclasses.field(
         init=False,

@@ -28,7 +28,7 @@ class Composition:
         return await self.func(**kwargs)
 
 
-class CompositionView(ABCView[Update]):
+class CompositionView(ABCView):
     def __init__(self):
         self.compositions: list[Composition] = []
 
@@ -44,7 +44,7 @@ class CompositionView(ABCView[Update]):
         return wrapper
 
     async def check(self, event: Update) -> bool:
-        return True
+        return bool(self.compositions)
 
     async def process(self, event: Update, api: ABCAPI):
         update = UpdateCute(**event.to_dict(), api=api)

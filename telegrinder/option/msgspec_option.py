@@ -39,3 +39,6 @@ class Option(typing.Generic[Value], typing.Protocol):
 
     def expect(self, error: str | BaseException, /) -> Value:
         ...
+
+    def unwrap_or_none(self) -> Value | None:
+        ...

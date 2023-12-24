@@ -7,7 +7,6 @@ api = API(token=Token.from_env())
 bot = Telegrinder(api)
 logging.basicConfig(level=logging.INFO)
 
-
 def character(c: str) -> str | None:
     if len(c) != 1:
         return None

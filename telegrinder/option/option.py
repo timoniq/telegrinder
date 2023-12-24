@@ -39,6 +39,9 @@ class Some(typing.Generic[Value]):
 
     def expect(self, error: str | BaseException, /) -> Value:
         return self.value
+    
+    def unwrap_or_none(self) -> Value:
+        return self.value
 
 
 class NothingType:
@@ -71,6 +74,9 @@ class NothingType:
 
     def expect(self, error: str | BaseException, /) -> typing.NoReturn:
         raise error if isinstance(error, BaseException) else Exception(error)
+    
+    def unwrap_or_none(self) -> None:
+        return None
 
 
 Nothing: typing.Final = NothingType()
