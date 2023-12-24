@@ -4,14 +4,12 @@ import typing_extensions as typing
 
 from .abc import ABCView
 from .callback_query import CallbackQueryView
-from .composition import CompositionView
 from .inline_query import InlineQueryView
 from .message import MessageView
 
 CallbackQueryViewT = typing.TypeVar(
     "CallbackQueryViewT", bound=ABCView, default=CallbackQueryView
 )
-CompositionViewT = typing.TypeVar("CompositionViewT", bound=ABCView, default=CompositionView)
 InlineQueryViewT = typing.TypeVar(
     "InlineQueryViewT", bound=ABCView, default=InlineQueryView
 )
@@ -19,12 +17,9 @@ MessageViewT = typing.TypeVar("MessageViewT", bound=ABCView, default=MessageView
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ViewBox(typing.Generic[CallbackQueryViewT, InlineQueryViewT, MessageViewT, CompositionViewT]):
+class ViewBox(typing.Generic[CallbackQueryViewT, InlineQueryViewT, MessageViewT]):
     callback_query: CallbackQueryViewT = dataclasses.field(  # type: ignore
         default_factory=lambda: CallbackQueryView(),
-    )
-    composition: CompositionViewT = dataclasses.field(  # type: ignore
-        default_factory=lambda: CompositionView(),
     )
     inline_query: InlineQueryViewT = dataclasses.field(  # type: ignore
         default_factory=lambda: InlineQueryView(),

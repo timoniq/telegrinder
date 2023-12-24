@@ -12,6 +12,7 @@ from .dispatch import (
     ABCMiddleware,
     ABCView,
     CallbackQueryView,
+    CompositionDispatch,
     Dispatch,
     FuncHandler,
     MessageReplyHandler,

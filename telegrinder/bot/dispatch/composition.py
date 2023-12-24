@@ -3,10 +3,9 @@ import typing
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import UpdateCute
+from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.node import ComposeError, Node, compose_node
 from telegrinder.types import Update
-
-from .abc import ABCView
 
 
 class Composition:
@@ -33,28 +32,27 @@ class Composition:
         return await self.func(**kwargs)
 
 
-class CompositionView(ABCView):
-    def __init__(self):
+class CompositionDispatch(ABCDispatch):
+    def __init__(self) -> None:
         self.compositions: list[Composition] = []
-
-    def __call__(self, is_blocking: bool = True):
-        def wrapper(func: typing.Callable):
-            self.compositions.append(Composition(func, is_blocking))
-            return func
-
-        return wrapper
-
-    async def check(self, event: Update) -> bool:
-        return bool(self.compositions)
-
-    async def process(self, event: Update, api: ABCAPI):
+    
+    async def feed(self, event: Update, api: ABCAPI) -> bool:
         update = UpdateCute(**event.to_dict(), api=api)
+        is_found = False
         for composition in self.compositions:
             nodes = await composition.compose_nodes(update)
             if nodes is not None:
                 await composition(**nodes)
                 if composition.is_blocking:
-                    break
-
+                    return True
+                is_found = True
+        return is_found
+    
     def load(self, external: typing.Self):
         self.compositions.extend(external.compositions)
+
+    def __call__(self, is_blocking: bool = True):
+        def wrapper(func: typing.Callable):
+            self.compositions.append(Composition(func, is_blocking))
+            return func
+        return wrapper

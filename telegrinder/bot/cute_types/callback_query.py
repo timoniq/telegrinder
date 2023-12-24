@@ -12,6 +12,7 @@ from telegrinder.types import (
 
 from .base import BaseCute
 
+
 class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     api: ABCAPI
 

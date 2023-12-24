@@ -5,6 +5,7 @@ import typing
 from vbml.patcher import Patcher
 
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.rules import ABCRule
 from telegrinder.modules import logger
 from telegrinder.tools.global_context import TelegrinderCtx
@@ -13,22 +14,22 @@ from telegrinder.types import Update
 from .abc import ABCDispatch
 from .handler import ABCHandler, FuncHandler
 from .handler.func import ErrorHandlerT
-from .view.box import (
-    CallbackQueryViewT,
-    CompositionViewT,
-    InlineQueryViewT,
-    MessageViewT,
-    ViewBox,
-)
+
+from .view.box import CallbackQueryViewT, InlineQueryViewT, MessageViewT, ViewBox
 
 T = typing.TypeVar("T")
+
+Event = typing.TypeVar("Event", bound=BaseCute)
+R = typing.TypeVar("R")
+P = typing.ParamSpec("P")
+
 DEFAULT_DATACLASS = Update
 
 
 @dataclasses.dataclass(repr=False, frozen=True, kw_only=True)
 class Dispatch(
     ABCDispatch,
-    ViewBox[CallbackQueryViewT, InlineQueryViewT, MessageViewT, CompositionViewT],
+    ViewBox[CallbackQueryViewT, InlineQueryViewT, MessageViewT],
 ):
     global_context: TelegrinderCtx = dataclasses.field(
         init=False,
@@ -95,3 +96,27 @@ class Dispatch(
             ), f"View {name!r} is undefined in external dispatch."
             view.load(view_external[name])
             setattr(external, name, view)
+    
+    @classmethod
+    def to_handler(
+        cls,
+        *rules: ABCRule[BaseCute],
+        is_blocking: bool = True,
+        error_handler: ErrorHandlerT | None = None,
+    ):
+        def wrapper(
+            func: typing.Callable[typing.Concatenate[T, P], typing.Awaitable[R]]
+        ) -> FuncHandler[
+            BaseCute,
+            typing.Callable[typing.Concatenate[T, P], typing.Awaitable[R]],
+            ErrorHandlerT,
+        ]:
+            return FuncHandler(
+                func,
+                list(rules),
+                is_blocking=is_blocking,
+                dataclass=None,
+                error_handler=error_handler,
+            )
+
+        return wrapper
