@@ -3,7 +3,6 @@ import typing
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import UpdateCute
-from telegrinder.bot.dispatch.handler.func import ErrorHandlerT
 from telegrinder.node import ComposeError, Node, compose_node
 from telegrinder.types import Update
 
@@ -13,12 +12,7 @@ from .abc import ABCView
 class Composition:
     nodes: dict[str, type[Node]]
 
-    def __init__(
-        self,
-        func: typing.Callable,
-        is_blocking: bool,
-        error_handler: ErrorHandlerT | None = None,
-    ) -> None:
+    def __init__(self, func: typing.Callable, is_blocking: bool) -> None:
         self.func = func
         self.nodes = {
             name: parameter.annotation
