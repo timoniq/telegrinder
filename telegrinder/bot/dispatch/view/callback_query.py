@@ -48,7 +48,7 @@ class CallbackQueryView(ABCStateView[CallbackQueryCute]):
     def get_state_key(self, event: CallbackQueryCute) -> int | None:
         return event.message.message_id  # type: ignore
 
-    async def process(self, event: Update, api: ABCAPI):
+    async def process(self, event: Update, api: ABCAPI) -> bool:
         query = CallbackQueryCute(**event.callback_query.unwrap().to_dict(), api=api)
         return await process_inner(query, event, self.middlewares, self.handlers)
 

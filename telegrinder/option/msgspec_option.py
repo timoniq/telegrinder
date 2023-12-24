@@ -1,13 +1,13 @@
 import typing
 
-from .option import NothingType, Some
+from .option import ErrorType, NothingType, Some
 
 T = typing.TypeVar("T")
 Value = typing.TypeVar("Value")
 
 
 @typing.runtime_checkable
-class Option(typing.Generic[Value], typing.Protocol):
+class Option(typing.Protocol[Value]):
     """Option protocol for `msgspec.Struct`."""
     
     def __repr__(self) -> str:
@@ -37,7 +37,7 @@ class Option(typing.Generic[Value], typing.Protocol):
     def map_or_else(self, default: typing.Callable[[], T], f: typing.Callable[[Value], T], /) -> T:
         ...
 
-    def expect(self, error: str | BaseException, /) -> Value:
+    def expect(self, error: ErrorType, /) -> Value:
         ...
 
     def unwrap_or_none(self) -> Value | None:

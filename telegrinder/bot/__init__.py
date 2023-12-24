@@ -16,7 +16,7 @@ from .dispatch import (
     FuncHandler,
     MessageReplyHandler,
     MessageView,
-    ViewsBox,
+    ViewBox,
     WaiterMachine,
 )
 from .polling import ABCPolling, Polling

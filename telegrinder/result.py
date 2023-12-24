@@ -6,6 +6,7 @@ import typing
 T = typing.TypeVar("T")
 Err = typing.TypeVar("Err", covariant=True)
 Value = typing.TypeVar("Value", covariant=True)
+ErrorType: typing.TypeAlias = str | BaseException | type[BaseException]
 
 
 @dataclasses.dataclass(frozen=True, repr=False)
@@ -41,7 +42,7 @@ class Ok(typing.Generic[Value]):
     def map_or_else(self, default: object, f: typing.Callable[[Value], T], /) -> T:
         return f(self.value)
 
-    def expect(self, msg: str, /) -> Value:
+    def expect(self, error: ErrorType, /) -> Value:
         return self.value
 
 
@@ -89,8 +90,8 @@ class Error(typing.Generic[Err]):
     def map_or_else(self, default: typing.Callable[[Err], T], f: object, /) -> T:
         return default(self.error)
 
-    def expect(self, msg: str, /) -> typing.NoReturn:
-        raise Exception(msg)
+    def expect(self, error: ErrorType, /) -> typing.NoReturn:
+        raise error if not isinstance(error, str) else Exception(error)
 
 
 Result = Ok[Value] | Error[Err]

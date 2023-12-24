@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import dataclasses
-import typing
 from abc import ABC, abstractmethod
 
-T = typing.TypeVar("T")
-CtxValue = typing.Union[typing.Any, "CtxVar[T]"]
+import typing_extensions as typing
+
+T = typing.TypeVar("T", default=typing.Any)
 
 
 @dataclasses.dataclass(repr=False, frozen=True)
@@ -32,32 +34,23 @@ class GlobalCtxVar(typing.Generic[T]):
         )
 
     @classmethod
-    def collect(cls, name: str, ctx_value: CtxValue) -> typing.Self:
-        ctx_value = ctx_value if isinstance(ctx_value, CtxVar) else CtxVar(ctx_value)
-        return cls(name, **dataclasses.asdict(ctx_value))
+    def collect(cls, name: str, ctx_value: T | CtxVariable[T]) -> typing.Self:
+        ctx_value = CtxVar(ctx_value) if not isinstance(ctx_value, CtxVar | GlobalCtxVar) else ctx_value
+        return cls(name, **dataclasses.asdict(ctx_value))  # type: ignore
 
 
-class ABCGlobalContext(ABC):
+class ABCGlobalContext(ABC, typing.Generic[T]):
     @abstractmethod
     def __getattr__(self, __name: str) -> typing.Any:
         pass
 
     @abstractmethod
-    def __setattr__(self, __name: str, __value: CtxValue) -> None:
+    def __setattr__(self, __name: str, __value: T | CtxVariable[T]) -> None:
         pass
 
     @abstractmethod
     def __delattr__(self, __name: str) -> None:
         pass
 
-    @abstractmethod
-    def get(self, name: str, var_value_type: type[T]) -> GlobalCtxVar[T]:
-        pass
 
-    @abstractmethod
-    def get_value(self, name: str, value_type: type[T]) -> T:
-        pass
-
-    @abstractmethod
-    def clear(self, *, include_consts: bool) -> None:
-        pass
+CtxVariable = CtxVar[T] | GlobalCtxVar[T]

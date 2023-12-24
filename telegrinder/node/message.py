@@ -11,6 +11,5 @@ class MessageNode(ScalarNode, MessageCute):
             return cls.compose_error()
         return MessageCute(
             **update.message.unwrap().to_dict(), 
-            api=update.api,  # type: ignore
+            api=update.api,
         )
-

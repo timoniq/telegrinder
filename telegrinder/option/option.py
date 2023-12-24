@@ -5,6 +5,7 @@ import typing
 
 T = typing.TypeVar("T")
 Value = typing.TypeVar("Value", covariant=True)
+ErrorType: typing.TypeAlias = str | BaseException | type[BaseException]
 
 
 @dataclasses.dataclass(repr=False, frozen=True)
@@ -37,7 +38,7 @@ class Some(typing.Generic[Value]):
     def map_or_else(self, default: object, f: typing.Callable[[Value], T], /) -> T:
         return f(self.value)
 
-    def expect(self, error: str | BaseException, /) -> Value:
+    def expect(self, error: ErrorType, /) -> Value:
         return self.value
     
     def unwrap_or_none(self) -> Value:
@@ -72,12 +73,12 @@ class NothingType:
     def map_or_else(self, default: typing.Callable[[], T], f: object, /) -> T:
         return default()
 
-    def expect(self, error: str | BaseException, /) -> typing.NoReturn:
-        raise error if isinstance(error, BaseException) else Exception(error)
+    def expect(self, error: ErrorType, /) -> typing.NoReturn:
+        raise error if not isinstance(error, str) else Exception(error)
     
     def unwrap_or_none(self) -> None:
         return None
 
 
 Nothing: typing.Final = NothingType()
-Option = Some[Value] | NothingType
+Option: typing.TypeAlias = Some[Value] | NothingType

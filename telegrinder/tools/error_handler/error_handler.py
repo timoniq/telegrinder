@@ -19,7 +19,9 @@ FuncCatcher = typing.Callable[
 class Catcher(typing.Generic[EventT]):
     func: FuncCatcher
     _: dataclasses.KW_ONLY
-    exceptions: list[type[BaseException] | BaseException] = dataclasses.field(default_factory=lambda: [])
+    exceptions: list[type[BaseException] | BaseException] = dataclasses.field(
+        default_factory=lambda: []
+    )
     logging: bool = dataclasses.field(default=False)
     raise_exception: bool = dataclasses.field(default=False)
     ignore_errors: bool = dataclasses.field(default=False)
@@ -113,6 +115,8 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         if not self.catcher:
             return Ok(await handler(event, **magic_bundle(handler, ctx)))
         
+        ok_none = Ok(None)
+        
         try:
             result = await self.catcher(handler, event, api, ctx)
         except BaseException as e:
@@ -122,19 +126,22 @@ class ErrorHandler(ABCErrorHandler[EventT]):
                 else f"{e.__class__.__name__!r}: {str(e)!r}",
                 self.catcher.func.__name__,
             )
+            result = ok_none
+            
             if not self.catcher.ignore_errors:
                 return Error(error_msg)
             if self.catcher.logging:
                 logger.error(error_msg)
-            result = Ok(None)
-
+           
         if self.catcher.raise_exception and not result:
             return result
+        
         if self.catcher.logging and not result:
             logger.error(
                 "Catcher {!r} failed with error: {!r}",
                 self.catcher.func.__name__,
                 result.error,
             )
-            return Ok(None)
-        return Ok(result.unwrap_or(None))
+            return ok_none
+        
+        return result or ok_none
