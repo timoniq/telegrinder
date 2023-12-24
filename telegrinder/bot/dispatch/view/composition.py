@@ -10,9 +10,14 @@ from .abc import ABCView
 
 
 class Composition:
+    nodes: dict[str, type[Node]]
+
     def __init__(self, func: typing.Callable, is_blocking: bool) -> None:
         self.func = func
-        self.nodes: dict[str, type[Node]] = {name: parameter.annotation for name, parameter in inspect.signature(func).parameters.items()}
+        self.nodes = {
+            name: parameter.annotation
+            for name, parameter in inspect.signature(func).parameters.items()
+        }
         self.is_blocking = is_blocking
     
     async def compose_nodes(self, update: UpdateCute) -> dict[str, Node] | None:
@@ -33,12 +38,8 @@ class CompositionView(ABCView):
         self.compositions: list[Composition] = []
 
     def __call__(self, is_blocking: bool = True):
-        def wrapper(
-            func: typing.Callable,
-        ):
-            self.compositions.append(
-                Composition(func, is_blocking),
-            )
+        def wrapper(func: typing.Callable):
+            self.compositions.append(Composition(func, is_blocking))
             return func
 
         return wrapper

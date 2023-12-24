@@ -48,7 +48,7 @@ class InlineQueryView(ABCStateView[InlineQueryCute]):
     def get_state_key(self, event: InlineQueryCute) -> int | None:
         return event.from_.id
 
-    async def process(self, event: Update, api: ABCAPI):
+    async def process(self, event: Update, api: ABCAPI) -> bool:
         query = InlineQueryCute(**event.inline_query.unwrap().to_dict(), api=api)
         return await process_inner(query, event, self.middlewares, self.handlers)
 

@@ -1,17 +1,12 @@
 import abc
 import inspect
-import types
 import typing
-from dataclasses import dataclass
 
-from telegrinder.types import Update
+T = typing.TypeVar("T")
 
 
 class ComposeError(Exception):
     pass
-
-
-T = typing.TypeVar("T")
 
 
 class Node(abc.ABC):
@@ -19,7 +14,7 @@ class Node(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> "typing.Self":
+    async def compose(cls, *args, **kwargs) -> typing.Self:
         pass
 
     @classmethod
@@ -37,7 +32,7 @@ class Node(abc.ABC):
         return sub_nodes
     
     @classmethod
-    def as_node(cls) -> type["typing.Self"]:
+    def as_node(cls) -> type[typing.Self]:
         return cls
 
 
@@ -47,7 +42,7 @@ class DataNode(Node, abc.ABC):
     @typing.dataclass_transform()
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> "typing.Self":
+    async def compose(cls, *args, **kwargs) -> typing.Self:
         pass
 
 
@@ -55,7 +50,7 @@ class ScalarNodeProto(Node, abc.ABC):
     
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> "typing.Self":
+    async def compose(cls, *args, **kwargs) -> typing.Self:
         pass
 
 

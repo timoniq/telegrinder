@@ -21,7 +21,7 @@ from .bot import (
     Polling,
     SingleChoice,
     Telegrinder,
-    ViewsBox,
+    ViewBox,
     WaiterMachine,
 )
 from .client import ABCClient, AiohttpClient

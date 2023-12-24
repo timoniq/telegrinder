@@ -1,18 +1,21 @@
 import collections
 import dataclasses
 import types
-import typing
+from copy import deepcopy
 from functools import wraps
+
+import typing_extensions as typing
 
 from telegrinder.modules import logger
 from telegrinder.option import Nothing, Option, Some
 from telegrinder.result import Error, Ok, Result
 
-from .abc import ABCGlobalContext, CtxValue, CtxVar, GlobalCtxVar
+from .abc import ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
 
 T = typing.TypeVar("T")
 F = typing.TypeVar("F", bound=typing.Callable)
-_: typing.TypeAlias = None
+CtxValueT = typing.TypeVar("CtxValueT", default=typing.Any)
+_: typing.TypeAlias = typing.Annotated[None, lambda: None]
 
 
 def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
@@ -26,6 +29,14 @@ def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
     return isinstance(value, origin_type)
 
 
+def is_dunder(name: str) -> bool:
+    return name.startswith("__") and name.endswith("__")
+
+
+def get_orig_class(obj: T) -> type[T]:
+    return getattr(obj, "__orig_class__", obj.__class__)
+
+
 def root_protection(func: F) -> F:
     if func.__name__ not in ("__setattr__", "__getattr__", "__delattr__"):
         raise RuntimeError(
@@ -37,11 +48,6 @@ def root_protection(func: F) -> F:
 
     @wraps(func)
     def wrapper(self: "GlobalContext", __name: str, *args) -> typing.Any:
-        if self.is_root_context_variable(__name):
-            raise AttributeError(
-                f"Unable to set, get, delete root context variable {__name!r}."
-            )
-
         if self.is_root_attribute(__name) and __name in (
             self.__dict__ | self.__class__.__dict__
         ):
@@ -80,11 +86,39 @@ def ctx_var(value: T, *, const: bool = False) -> T:
 @dataclasses.dataclass(frozen=True, eq=False)
 class RootAttr:
     name: str
+    _: dataclasses.KW_ONLY
     can_be_read: bool = dataclasses.field(default=True, kw_only=True)
-    can_be_rewritten: bool = dataclasses.field(default=True, kw_only=True)
+    can_be_rewritten: bool = dataclasses.field(default=False, kw_only=True)
 
     def __eq__(self, __value: str) -> bool:
         return self.name == __value
+
+
+@dataclasses.dataclass(repr=False, frozen=True)
+class Storage:
+    _storage: dict[str, "GlobalContext"] = dataclasses.field(
+        default_factory=lambda: {},
+        init=False,
+    )
+
+    def __repr__(self) -> str:
+        return "<ContextStorage: %s>" % ", ".join(
+            "ctx @" + repr(x) for x in self._storage
+        )
+
+    @property
+    def storage(self) -> dict[str, "GlobalContext"]:
+        return self._storage.copy()
+
+    def set(self, name: str, ctx: "GlobalContext") -> None:
+        self._storage.setdefault(name, ctx)
+
+    def get(self, ctx_name: str) -> Option["GlobalContext"]:
+        ctx = self._storage.get(ctx_name)
+        return Some(ctx) if ctx is not None else Nothing
+
+    def delete(self, ctx_name: str) -> None:
+        assert self._storage.pop(ctx_name, None) is not None, f"Context {ctx_name!r} is not defined in storage."
 
 
 @typing.dataclass_transform(
@@ -92,219 +126,280 @@ class RootAttr:
     order_default=True,
     field_specifiers=(ctx_var,),
 )
-class GlobalContext(ABCGlobalContext):
+class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, GlobalCtxVar[CtxValueT]]):
     __ctx_name__: str | None
-    __root_attributes__: typing.ClassVar = (
-        RootAttr("__ctx_name__", can_be_rewritten=False),
-        RootAttr("__root_attributes__", can_be_rewritten=False),
-        RootAttr("__root_context_variables__", can_be_rewritten=False),
+    __storage__: typing.ClassVar[Storage] = Storage()
+    __root_attributes__: typing.ClassVar[tuple[RootAttr, ...]] = (
+        RootAttr("__ctx_name__"),
+        RootAttr("__root_attributes__"),
+        RootAttr("__storage__"),
     )
-    __root_context_variables__: typing.ClassVar = ("__other_ctxs__",)
 
-    __context_storage: typing.ClassVar[dict[str, GlobalCtxVar[typing.Any]]] = {
-        "__other_ctxs__": GlobalCtxVar("__other_ctxs__", dict()),
-    }
+    def __new__(
+        cls,
+        ctx_name: str | None = None,
+        /,
+        **variables: typing.Any | CtxVar[CtxValueT],
+    ) -> typing.Self:
+        if not issubclass(GlobalContext, cls):
+            defaults = {}
+            for name in cls.__annotations__:
+                if (
+                    name in cls.__dict__
+                    and name not in cls.__root_attributes__
+                ):
+                    defaults[name] = getattr(cls, name)
+                    delattr(cls, name)
+                    if isinstance(defaults[name], CtxVar) and defaults[name].const:
+                        variables.pop(name, None)
+    
+            variables = defaults | variables 
+
+        ctx_name = getattr(cls, "__ctx_name__", ctx_name)
+        if ctx_name is None:
+            ctx = dict.__new__(cls)
+        elif ctx_name in cls.__storage__.storage:
+            ctx = cls.__storage__.get(ctx_name).unwrap()
+        else:
+            ctx = dict.__new__(cls, ctx_name)
+            cls.__storage__.set(ctx_name, ctx)
+        
+        for name, var in variables.items():
+            ctx[name] = var
+        
+        if not hasattr(ctx, "__ctx_name__"):
+            ctx.__ctx_name__ = ctx_name
+
+        return ctx  # type: ignore
 
     def __init__(
         self,
-        __ctx_name: str | None = None,
-        **variables: typing.Any | CtxVar[typing.Any],
+        ctx_name: str | None = None,
+        /,
+        **variables: CtxValueT | CtxVariable[CtxValueT],
     ):
-        if not hasattr(self.__class__, "__ctx_name__"):
-            self.__ctx_name__ = __ctx_name
-
-        if not issubclass(GlobalContext, self.__class__):
-            defaults = {}
-            for name in self.__class__.__annotations__:
-                if (
-                    name in self.__class__.__dict__
-                    and name not in self.__root_attributes__
-                ):
-                    defaults[name] = getattr(self.__class__, name)
-                    delattr(self.__class__, name)
-                    if isinstance(defaults[name], CtxVar) and defaults[name].const:
-                        variables.pop(name, None)
-
-            variables = defaults | variables
-
-        for name, value in variables.items():
-            self.__setattr__(name, value)
-
+        if not hasattr(self, "__ctx_name__"):
+            self.__ctx_name__ = ctx_name
+                
     def __repr__(self) -> str:
         return "<{!r} -> ({})>".format(
-            f"{self.__class__.__name__}@" + (self.__ctx_name__ or "MainContext"),
+            f"{self.__class__.__name__}@{self.ctx_name}",
             ", ".join(repr(var) for var in self),
         )
+    
+    def __iter__(self) -> typing.Iterator[GlobalCtxVar[CtxValueT]]:
+        return iter(self.values())
 
-    def __iter__(self):
-        return iter(
-            self.__copy_context_storage(exclude_root_context_vars=True).values()
-        )
-
-    def __next__(self):
+    def __next__(self) -> GlobalCtxVar[CtxValueT]:
         return next(iter(self))
 
-    def __contains__(self, __value: str) -> bool:
-        """Returns True if the context variable name
-        exists in a context."""
-        return __value in self.__get_context_storage()
-
-    def __eq__(self, __value: typing.Self) -> bool:
+    def __eq__(self, __value: "GlobalContext") -> bool:
         """Returns True if the names of context stores
         that use self and __value instances are equivalent."""
-        return self.__ctx_name__ == __value.__ctx_name__
 
-    def __bool__(self):
-        """Returns True if context is not empty otherwise False."""
-        return bool(self.__copy_context_storage(exclude_root_context_vars=True))
-
-    @root_protection
-    def __setattr__(self, __name: str, __value: CtxValue):
-        """Setting a root attribute or context variable."""
-        if self.is_root_attribute(__name):
-            return object.__setattr__(self, __name, __value)
-        ctx_storage = self.__get_context_storage()
-        var = ctx_storage.get(__name)
-        if var is not None and var.const:
+        return self.ctx_name == __value.ctx_name
+    
+    def __setitem__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]):
+        if is_dunder(__name):
+            raise NameError("Cannot set a context variable with dunder name.")
+        var = self.get(__name)
+        if var and var.unwrap().const:
             raise TypeError(
                 f"Unable to set variable {__name!r}, because it's a constant."
             )
-        ctx_storage[__name] = GlobalCtxVar.collect(__name, __value)
+        dict.__setitem__(self, __name, GlobalCtxVar.collect(__name, __value))
 
-    @root_protection
-    def __getattr__(self, __name: str) -> typing.Any:
-        """Getting a root attribute or context variable."""
-        if self.is_root_attribute(__name):
-            return object.__getattribute__(self, __name)
+    def __getitem__(self, __name: str) -> CtxValueT:
         return self.get(__name).unwrap().value
-
-    @root_protection
-    def __delattr__(self, __name: str):
-        """Removing a context variable."""
+    
+    def __delitem__(self, __name: str):
         var = self.get(__name).unwrap()
         if var.const:
             raise TypeError(
                 f"Unable to delete variable {__name!r}, because it's a constant."
             )
-        del self.__get_context_storage()[__name]
+        dict.__delitem__(self, __name)
 
-    def __get_context_storage(self) -> dict[str, GlobalCtxVar[typing.Any]]:
-        """Get context storage by `__ctx_name__`."""
-        main_ctx_storage = self.__class__.__context_storage
-        other_ctxs: dict = main_ctx_storage["__other_ctxs__"].value
-        if self.__ctx_name__ is None:
-            return main_ctx_storage
-        return other_ctxs.setdefault(self.__ctx_name__, dict())
+    @root_protection
+    def __setattr__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]):
+        """Setting a root attribute or context variable."""
 
-    def __copy_context_storage(
-        self,
-        *,
-        exclude_root_context_vars: bool = False,
-    ) -> dict[str, GlobalCtxVar[typing.Any]]:
-        """Copy context storage."""
-        ctx = self.__get_context_storage().copy()
-        if exclude_root_context_vars:
-            for root_ctx_var in self.__root_context_variables__:
-                ctx.pop(root_ctx_var, None)
-        return ctx
+        if is_dunder(__name):
+            return object.__setattr__(self, __name, __value)
+        self.__setitem__(__name, __value)
 
-    def is_root_context_variable(self, name: str) -> bool:
-        """Returns True if exists root context variable
-        otherwise False."""
-        return name in self.__root_context_variables__
+    @root_protection
+    def __getattr__(self, __name: str) -> CtxValueT:
+        """Getting a root attribute or context variable."""
 
-    def is_root_attribute(self, name: str) -> bool:
+        if is_dunder(__name):
+            return object.__getattribute__(self, __name)
+        return self.__getitem__(__name)
+
+    @root_protection
+    def __delattr__(self, __name: str) -> None:
+        """Removing a context variable."""
+
+        if is_dunder(__name):
+            return object.__delattr__(self, __name)
+        self.__delitem__(__name)
+
+    @property
+    def ctx_name(self) -> str:
+        return self.__ctx_name__ or "<Unnamed ctx at %#x>" % id(self)
+
+    @classmethod
+    def is_root_attribute(cls, name: str) -> bool:
         """Returns True if exists root attribute
         otherwise False."""
-        return name in self.__root_attributes__
+
+        return name in cls.__root_attributes__
 
     def get_root_attribute(self, name: str) -> Option[RootAttr]:
         """Get root attribute by name."""
+
         if self.is_root_attribute(name):
             for rattr in self.__root_attributes__:
                 if rattr.name == name:
                     return Some(rattr)
         return Nothing
-
+    
+    def items(self) -> list[tuple[str, GlobalCtxVar[CtxValueT]]]:
+        return list(dict.items(self))
+    
+    def keys(self) -> list[str]:
+        return list(dict.keys(self))
+    
+    def values(self) -> list[GlobalCtxVar[CtxValueT]]:
+        return list(dict.values(self))
+    
+    def update(self, other: typing.Self) -> None:
+        dict.update(dict(other.items()))
+    
+    def copy(self) -> dict[str, GlobalCtxVar[CtxValueT]]:
+        return deepcopy(self.dict())
+    
+    def dict(self) -> dict[str, GlobalCtxVar[CtxValueT]]:
+        return {
+            name: self.get(name).unwrap() for name in self.keys()
+        }
+    
+    @typing.overload
+    def pop(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]:
+        ...
+    
+    @typing.overload
+    def pop(
+        self,
+        var_name: str,
+        var_value_type: type[T],
+    ) -> Option[GlobalCtxVar[T]]:
+        ...
+    
+    def pop(
+        self,
+        var_name: str,
+        var_value_type: type[T] = typing.Any
+    ) -> Option[GlobalCtxVar[T]]:
+        val = self.get(var_name, var_value_type)
+        if val:
+            del self[var_name]
+            return val
+        return Nothing
+    
+    @typing.overload
+    def get(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]:
+        ...
+    
+    @typing.overload
+    def get(
+        self,
+        var_name: str,
+        var_value_type: type[T],
+    ) -> Option[GlobalCtxVar[T]]:
+        ...
+    
     def get(
         self,
         var_name: str,
         var_value_type: type[T] = typing.Any,
-    ) -> Result[GlobalCtxVar[T], str]:
+    ) -> Option[GlobalCtxVar[T]]:
         """Get context variable by name.
         Returns `GlobalCtxVar[value_type]` object."""
-        var = self.__get_context_storage().get(var_name)
+
+        generic_types = typing.get_args(get_orig_class(self))
+        if generic_types and var_value_type is typing.Any:
+            var_value_type = generic_types[0]
+        var = dict.get(self, var_name)
         if var is None:
-            return Error(
-                f"Variable {var_name!r} is not defined in global context {self.__ctx_name__!r}."
-            )
+            return Nothing
         assert type_check(var.value, var_value_type), (
             "Context variable value type of {!r} does not correspond to the expected type {!r}.".format(
                 type(var.value).__name__,
                 getattr(var_value_type, "__name__", repr(var_value_type)),
-            ),
+            )
         )
-        return Ok(var)
+        return Some(var)
+
+    @typing.overload
+    def get_value(self, var_name: str) -> Option[CtxValueT]:
+        ...
+    
+    @typing.overload
+    def get_value(
+        self,
+        var_name: str,
+        var_value_type: type[T],
+    ) -> Option[T]:
+        ...
 
     def get_value(
         self,
         var_name: str,
-        value_type: type[T] = typing.Any,
-    ) -> Result[T, str]:
+        var_value_type: type[T] = typing.Any,
+    ) -> Option[T]:
         """Get context variable value by name."""
-        return self.get(var_name, value_type).map(lambda var: var.value)
+
+        return self.get(var_name, var_value_type).map(lambda var: var.value)
 
     def rename(self, old_var_name: str, new_var_name: str) -> Result[_, str]:
         """Rename context variable."""
-        if self.is_root_context_variable(new_var_name):
-            return Error(
-                f"Cannot rename {old_var_name!r} to {new_var_name!r}, because "
-                f"{new_var_name!r} is a root context variable."
-            )
+
         var = self.get(old_var_name).unwrap()
         if var.const:
             return Error(
-                f"Unable to rename variable {old_var_name!r}, because it's a constant."
+                f"Unable to rename variable {old_var_name!r}, "
+                "because it's a constant."
             )
-        ctx_storage = self.__get_context_storage()
-        del ctx_storage[old_var_name]
-        ctx_storage[new_var_name] = GlobalCtxVar(
-            new_var_name, var.value, const=var.const
-        )
-        return Ok(_)  # type: ignore
+        del self[old_var_name]
+        self[new_var_name] = var.value
+        return Ok(_())
 
     def clear(self, *, include_consts: bool = False) -> None:
         """Clear context. If `include_consts = True`,
         then the context is completely cleared."""
-        ctx_storage = self.__get_context_storage()
-        if not ctx_storage:
+
+        if not self:
             return
         if include_consts:
             logger.warning(
                 "Constants from the global context {!r} have been cleaned up!",
-                self.__ctx_name__ or "MainContext at %#x" % id(self),
+                self.ctx_name + " at %#x" % id(self),
             )
+            return dict.clear(self)
 
-        for name, var in ctx_storage.copy().items():
-            if self.is_root_context_variable(name) or (
-                var.const and not include_consts
-            ):
+        for name, var in self.dict().items():
+            if var.const:
                 continue
-            ctx_storage.pop(name)
+            del self[name]
 
     def delete_ctx(self) -> Result[_, str]:
         """Delete context by `self.__ctx_name__`."""
-        if self.__ctx_name__ is None:
-            return Error(
-                "You are trying to delete the main context, but this is "
-                "not possible. If you want to clear it, use method '.clear'"
-            )
-        ctxs = self.__class__.__context_storage["__other_ctxs__"].value
-        ctxs.pop(self.__ctx_name__, None)
-        logger.warning(
-            f"Global context {self.__ctx_name__!r} has been deleted. "
-            f"If you still have instances of the {self.__class__.__name__!r} "
-            "class with the name of the deleted context, it is recommended "
-            "to delete them, for they will refer to the new empty context."
-        )
-        return Ok(_)  # type: ignore
+
+        if not self.__ctx_name__:
+            return Error("Cannot delete unnamed context.")
+        ctx = self.__storage__.get(self.ctx_name).unwrap()
+        dict.clear(ctx)
+        self.__storage__.delete(self.ctx_name)
+        logger.warning(f"Global context {self.ctx_name!r} has been deleted!!!")
+        return Ok(_())

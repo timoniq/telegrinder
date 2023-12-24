@@ -48,7 +48,7 @@ class MessageView(ABCStateView[MessageCute]):
     def get_state_key(self, event: MessageCute) -> int | None:
         return event.chat.id
 
-    async def process(self, event: Update, api: ABCAPI):
+    async def process(self, event: Update, api: ABCAPI) -> bool:
         msg = MessageCute(**event.message.unwrap().to_dict(), api=api)
         return await process_inner(msg, event, self.middlewares, self.handlers)
 
