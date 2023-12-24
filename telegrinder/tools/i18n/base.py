@@ -13,11 +13,11 @@ class ABCTranslator(ABC):
         self.locale = locale
 
     @abstractmethod
-    def get(self, key: str, **kwargs) -> str:
+    def get(self, __key: str, *args, **kwargs) -> str:
         """This translates a key to actual human-readable string"""
 
-    def __call__(self, key: str, **kwargs):
-        return self.get(key, **kwargs)
+    def __call__(self, __key: str, *args, **kwargs):
+        return self.get(__key, *args, **kwargs)
 
 
 class I18nEnum(enum.Enum):

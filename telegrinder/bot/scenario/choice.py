@@ -6,13 +6,12 @@ from .checkbox import Checkbox
 
 if typing.TYPE_CHECKING:
     from telegrinder.api import API
-    from telegrinder.bot.dispatch import Dispatch
+    from telegrinder.bot.dispatch.view.abc import ABCStateView
 
 
 class SingleChoice(Checkbox):
     async def handle(self, cb: CallbackQueryCute) -> bool:
-        code = cb.data.replace(self.random_code + "/", "", 1)
-
+        code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
         if code == "ready":
             return False
 
@@ -23,8 +22,8 @@ class SingleChoice(Checkbox):
             if choice.code == code:
                 self.choices[i].is_picked = True
                 await cb.ctx_api.edit_message_text(
-                    cb.message.chat.id,
-                    cb.message.message_id,
+                    cb.message.unwrap().chat.id,
+                    cb.message.unwrap().message_id,
                     text=self.msg,
                     parse_mode=self.PARSE_MODE,
                     reply_markup=self.get_markup(),
@@ -32,8 +31,12 @@ class SingleChoice(Checkbox):
 
         return True
 
-    async def wait(self, api: "API", dispatch: "Dispatch") -> tuple[str, int]:
+    async def wait(
+        self,
+        api: "API",
+        cb_view: "ABCStateView[CallbackQueryCute]",
+    ) -> tuple[str, int]:
         if len([choice for choice in self.choices if choice.is_picked]) != 1:
             raise ValueError("Exactly one choice must be picked")
-        choices, m_id = await super().wait(api, dispatch)
+        choices, m_id = await super().wait(api, cb_view)
         return list(choices.keys())[list(choices.values()).index(True)], m_id

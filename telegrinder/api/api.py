@@ -4,7 +4,7 @@ import msgspec
 
 from telegrinder.api.response import APIResponse
 from telegrinder.client import ABCClient, AiohttpClient
-from telegrinder.model import convert
+from telegrinder.model import convert, decoder
 from telegrinder.result import Error, Ok, Result
 from telegrinder.types.methods import APIMethods
 
@@ -19,9 +19,9 @@ def compose_data(client: ABCClient, data: dict) -> typing.Any:
 
 
 class API(ABCAPI, APIMethods):
-    API_URL = "https://api.telegram.org/"
+    API_URL: typing.ClassVar[str] = "https://api.telegram.org/"
 
-    def __init__(self, token: Token, http: ABCClient | None = None):
+    def __init__(self, token: Token, *, http: ABCClient | None = None):
         self.token = token
         self.http = http or AiohttpClient()
         super().__init__(self)
@@ -44,20 +44,18 @@ class API(ABCAPI, APIMethods):
         if response.get("ok"):
             assert "result" in response
             return Ok(response["result"])
-
-        code, msg = response.get("error_code", 0), response.get("description")
-        return Error(APIError(code, msg))
+        return Error(APIError(
+            code=response.get("error_code", -1),
+            error=response.get("description"),
+        ))
 
     async def request_raw(
         self,
         method: str,
         data: dict | None = None,
     ) -> Result[msgspec.Raw, APIError]:
-        data = compose_data(self.http, data or {})
         response_bytes = await self.http.request_bytes(
-            self.request_url + method, data=data
+            self.request_url + method,
+            data=compose_data(self.http, data or {})
         )
-        response_skeleton: APIResponse = msgspec.json.decode(
-            response_bytes, type=APIResponse
-        )
-        return response_skeleton.to_result()
+        return decoder.decode(response_bytes, type=APIResponse).to_result()

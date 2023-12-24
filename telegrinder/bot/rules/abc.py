@@ -2,18 +2,14 @@ import inspect
 import typing
 from abc import ABC, abstractmethod
 
-import vbml
-
-from telegrinder.bot.cute_types import MessageCute
-from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.bot.cute_types import BaseCute, MessageCute, UpdateCute
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, EventAdapter, RawUpdateAdapter
 from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_cached_translation
+from telegrinder.types.objects import Update as UpdateObject
 
-T = typing.TypeVar("T")
-patcher = vbml.Patcher()
-
+T = typing.TypeVar("T", bound=BaseCute)
 Message = MessageCute
 Update = UpdateCute
 
@@ -32,7 +28,7 @@ def with_caching_translations(func):
 
 
 class ABCRule(ABC, typing.Generic[T]):
-    adapter: ABCAdapter[Update, T] = RawUpdateAdapter()  # type: ignore
+    adapter: ABCAdapter[UpdateObject, T] = RawUpdateAdapter()  # type: ignore
     requires: list["ABCRule[T]"] = []
 
     @abstractmethod
@@ -49,24 +45,27 @@ class ABCRule(ABC, typing.Generic[T]):
         requirements.extend(requires or ())
         cls.requires = list(dict.fromkeys(requirements))
 
-    def __and__(self, other: "ABCRule"):
+    def __and__(self, other: "ABCRule[T]"):
         return AndRule(self, other)
 
-    def __or__(self, other: "ABCRule"):
+    def __or__(self, other: "ABCRule[T]"):
         return OrRule(self, other)
 
     def __neg__(self) -> "ABCRule[T]":
         return NotRule(self)
 
     def __repr__(self) -> str:
-        return f"(rule {self.__class__.__name__})"
+        return "<rule: {!r}, adapter: {!r}>".format(
+            self.__class__.__name__,
+            self.adapter.__class__.__name__,
+        )
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
         return self
 
 
-class AndRule(ABCRule):
-    def __init__(self, *rules: ABCRule):
+class AndRule(ABCRule[T]):
+    def __init__(self, *rules: ABCRule[T]):
         self.rules = rules
 
     async def check(self, event: Update, ctx: dict) -> bool:
@@ -78,8 +77,8 @@ class AndRule(ABCRule):
         return True
 
 
-class OrRule(ABCRule):
-    def __init__(self, *rules: ABCRule):
+class OrRule(ABCRule[T]):
+    def __init__(self, *rules: ABCRule[T]):
         self.rules = rules
 
     async def check(self, event: Update, ctx: dict) -> bool:
@@ -91,8 +90,8 @@ class OrRule(ABCRule):
         return False
 
 
-class NotRule(ABCRule):
-    def __init__(self, rule: ABCRule):
+class NotRule(ABCRule[T]):
+    def __init__(self, rule: ABCRule[T]):
         self.rule = rule
 
     async def check(self, event: Update, ctx: dict) -> bool:
@@ -101,7 +100,7 @@ class NotRule(ABCRule):
 
 
 class MessageRule(ABCRule[Message], ABC, requires=[]):
-    adapter = EventAdapter("message", Message)  # type: ignore
+    adapter = EventAdapter("message", Message)
 
     @abstractmethod
     async def check(self, message: Message, ctx: dict) -> bool:

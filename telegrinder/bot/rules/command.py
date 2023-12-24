@@ -12,7 +12,7 @@ def single_split(s: str, separator: str) -> tuple[str, str]:
     return left, (right[0] if right else "")
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Argument:
     name: str
     validators: list[Validator] = dataclasses.field(default_factory=lambda: [])
@@ -35,9 +35,7 @@ class Command(TextMessageRule):
         separator: str = " ",
         lazy: bool = False,
     ) -> None:
-        if isinstance(names, str):
-            names = [names]
-        self.names = names
+        self.names = [names] if isinstance(names, str) else names
         self.arguments = arguments
         self.prefixes = prefixes
         self.separator = separator
@@ -50,15 +48,18 @@ class Command(TextMessageRule):
         return None
 
     def parse_argument(
-        self, arguments: list[Argument], data_s: str, new_s: str, s: str
+        self,
+        arguments: list[Argument],
+        data_s: str,
+        new_s: str,
+        s: str,
     ) -> dict | None:
         argument = arguments[0]
         data = argument.check(data_s)
-
         if data is None and not argument.optional:
             return None
 
-        elif data is None:
+        if data is None:
             return self.parse_arguments(arguments[1:], s)
 
         with_argument = self.parse_arguments(arguments[1:], new_s)
@@ -78,7 +79,6 @@ class Command(TextMessageRule):
             return self.parse_argument(arguments, *single_split(s, self.separator), s)
 
         all_split = s.split(self.separator)
-
         for i in range(1, len(all_split) + 1):
             ctx = self.parse_argument(
                 arguments,
@@ -92,8 +92,7 @@ class Command(TextMessageRule):
         return None
 
     async def check(self, message: Message, ctx: dict) -> bool:
-        text = self.remove_prefix(message.text)
-
+        text = self.remove_prefix(message.text.unwrap())
         if text is None:
             return False
 

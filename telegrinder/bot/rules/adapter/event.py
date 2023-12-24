@@ -1,40 +1,27 @@
 import typing
 
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.rules.adapter.abc import ABCAdapter
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.result import Error, Ok, Result
 from telegrinder.types.objects import Model, Update
 
-Event = typing.TypeVar("Event", bound=Model)
+EventT = typing.TypeVar("EventT", bound=Model)
+CuteT = typing.TypeVar("CuteT", bound=BaseCute)
 
 
-def get_updates() -> dict[str, Model]:
-    dct = {}
-    for k, hint in typing.get_type_hints(Update).items():
-        if k in ("_dict_cached", "update_id"):
-            continue
-        dct[k] = hint.__args__[0]
-    return dct
-
-
-UPDATES = get_updates()
-
-
-class EventAdapter(ABCAdapter[Update, Event]):
-    def __init__(self, event_name: str, model: typing.Type[Event]) -> None:
+class EventAdapter(ABCAdapter[Update, CuteT]):
+    def __init__(self, event_name: str, model: type[CuteT]):
         self.event_name = event_name
         self.model = model
 
-    async def adapt(
-        self, api: ABCAPI, update: Update | Event
-    ) -> Result[Event, AdapterError]:
-        if isinstance(update, UPDATES[self.event_name]):
-            return Ok(update)
-
+    async def adapt(self, api: ABCAPI, update: Update) -> Result[CuteT, AdapterError]:
         update_dct = update.to_dict()
-        if self.event_name not in update_dct.keys():
+        if self.event_name not in update_dct:
             return Error(
                 AdapterError(f"Update is not of event type {self.event_name!r}")
             )
-        return Ok(self.model(**update_dct[self.event_name].to_dict(), api=api))
+        return Ok(
+            self.model.from_update(update_dct[self.event_name].unwrap(), bound_api=api)
+        )

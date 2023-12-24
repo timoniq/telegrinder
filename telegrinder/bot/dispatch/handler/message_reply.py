@@ -27,11 +27,10 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
 
     async def check(self, api: ABCAPI, event: Update, ctx: dict) -> bool:
         ctx = ctx or {}
-        preset_ctx = self.ctx.copy()
         self.ctx |= ctx
         for rule in self.rules:
             if not await check_rule(api, rule, event, self.ctx):
-                logger.debug("Rule {} failed", rule)
+                logger.debug("Rule {!r} failed", rule)
                 return False
         return True
 

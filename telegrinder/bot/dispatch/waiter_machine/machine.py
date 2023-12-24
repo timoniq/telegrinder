@@ -3,6 +3,7 @@ import datetime
 import typing
 
 from telegrinder.api.abc import ABCAPI
+from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.rules.abc import ABCRule
 
 from .middleware import WaiterMiddleware
@@ -10,6 +11,7 @@ from .short_state import Behaviour, EventModel, ShortState
 
 Identificator = str | int
 Storage = dict[str, dict[Identificator, "ShortState"]]
+Event = BaseCute
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.abc import ABCStateView
@@ -43,7 +45,7 @@ class WaiterMachine:
             future.cancel()
 
         await self.call_behaviour(
-            state_view,  # type: ignore
+            state_view,
             short_state.on_drop_behaviour,
             short_state.event,
             **context,
@@ -56,23 +58,20 @@ class WaiterMachine:
         *rules: ABCRule[EventModel],
         default: Behaviour = None,
         on_drop: Behaviour = None,
-        expiration: typing.Union[datetime.timedelta, int, None] = None,
-    ) -> typing.Tuple[EventModel, dict]:
+        expiration: datetime.timedelta | int | None = None,
+    ) -> tuple[EventModel, dict]:
         if isinstance(expiration, int):
             expiration = datetime.timedelta(seconds=expiration)
 
-        event = asyncio.Event()
-
         api: ABCAPI
         key: Identificator
-
+        event = asyncio.Event()
         if isinstance(linked, tuple):
             api, key = linked
         else:
-            api = linked.ctx_api  # type: ignore
-            key = state_view.get_state_key(linked)  # type: ignore
+            api, key = linked.ctx_api, state_view.get_state_key(linked)  # type: ignore
             if not key:
-                raise RuntimeError("Unable to get state key")
+                raise RuntimeError("Unable to get state key.")
 
         short_state = ShortState(
             key,
@@ -102,7 +101,7 @@ class WaiterMachine:
         self,
         view: "ABCStateView",
         behaviour: Behaviour,
-        event: EventModel,  # type: ignore
+        event: asyncio.Event | BaseCute,
         **context,
     ) -> None:
         if behaviour is None:

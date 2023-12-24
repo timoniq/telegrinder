@@ -30,7 +30,7 @@ class YesOrNo(enum.Enum):
 async def start(message: Message):
     await message.answer("Do you want some tee?")
     _, ctx = await wm.wait(
-        bot.on.message,
+        bot.dispatch.message,
         message,
         EnumTextRule(YesOrNo),
         default=MessageReplyHandler("You want, dont you?"),

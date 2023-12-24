@@ -21,7 +21,9 @@ class Text(TextMessageRule):
 
     async def check(self, message: Message, ctx: dict) -> bool:
         return (
-            message.text if not self.ignore_case else message.text.lower()
+            message.text.unwrap()
+            if not self.ignore_case
+            else message.text.unwrap().lower()
         ) in self.texts
 
     @with_caching_translations

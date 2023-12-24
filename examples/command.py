@@ -43,10 +43,15 @@ def int_validator(s: str) -> int | None:
     )
 )
 async def split_handler(
-    message: Message, string: str, sep: str = " ", count: int | None = None
+    message: Message,
+    string: str,
+    sep: str = " ",
+    count: int | None = None,
 ) -> None:
     await message.answer(
-        " | ".join(string.split(sep, count) if count is not None else string.split(sep))
+        " | ".join(string.split(sep, count)
+        if count is not None
+        else string.split(sep))
     )
 
 

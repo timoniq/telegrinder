@@ -1,7 +1,7 @@
 from telegrinder import Dispatch, Message
-from telegrinder.modules import logger
-from telegrinder.rules import RuleEnum, Text, Markup, TextMessageRule, HasText
 from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
+from telegrinder.modules import logger
+from telegrinder.rules import HasText, Markup, RuleEnum, Text, TextMessageRule
 
 from .client import wm
 
@@ -23,7 +23,7 @@ class WasNaughty(TextMessageRule):
             Text(["yes", "no"], ignore_case=True),
             default=MessageReplyHandler("Yes or no? Were you naughty??"),
         )
-        return m.text.lower() == "yes"
+        return m.text.unwrap().lower() == "yes"
 
 
 # The enumeration will only resolve once and save the state in context

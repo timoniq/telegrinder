@@ -6,7 +6,7 @@ Entity = str | MessageEntityType
 
 
 class HasEntities(MessageRule):
-    async def check(self, message: Message, _) -> bool:
+    async def check(self, message: Message, ctx: dict) -> bool:
         return bool(message.entities)
 
 
@@ -16,7 +16,7 @@ class MessageEntities(MessageRule, requires=[HasEntities()]):
 
     async def check(self, message: Message, ctx: dict) -> bool:
         message_entities = []
-        for entity in message.entities:
+        for entity in message.entities.unwrap():
             for entity_type in self.entities:
                 if entity_type == entity.type:
                     message_entities.append(entity)

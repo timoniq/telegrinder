@@ -14,7 +14,13 @@ from telegrinder.types import Message, User
 class _Message(Message):
     @property
     def from_user(self) -> "User":
-        return self.from_
+        return self.from_.unwrap()
 
     def __eq__(self, other: "Message"):
         return self.message_id == other.message_id and self.chat.id == other.chat.id
+
+
+class _User(User):
+    @property
+    def full_name(self) -> str:
+        return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")

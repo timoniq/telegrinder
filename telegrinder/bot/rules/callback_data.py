@@ -1,65 +1,69 @@
 import abc
 import typing
+from contextlib import suppress
 
 import msgspec
-import vbml
 
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.rules.adapter import EventAdapter
-from telegrinder.modules import json
+from telegrinder.model import decoder
+from telegrinder.tools.buttons import DataclassInstance
 
 from .abc import ABCRule
-from .markup import Markup, check_string
+from .markup import Markup, PatternLike, check_string
 
 CallbackQuery = CallbackQueryCute
-PatternLike = str | vbml.Pattern
 
 
 class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
-    adapter = EventAdapter("callback_query", CallbackQuery)  # type: ignore
+    adapter = EventAdapter("callback_query", CallbackQuery)
 
     @abc.abstractmethod
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
         pass
 
 
-class CallbackDataEq(CallbackQueryRule):
+class HasData(CallbackQueryRule):
+    async def check(self, event: CallbackQuery, ctx: dict) -> bool:
+        return bool(event.data or event.data.unwrap())
+
+
+class CallbackQueryDataRule(CallbackQueryRule, abc.ABC, requires=[HasData()]):
+    pass
+
+
+class CallbackDataEq(CallbackQueryDataRule):
     def __init__(self, value: str):
         self.value = value
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        return event.data == self.value
+        return event.data.unwrap() == self.value
 
 
-class CallbackDataJsonEq(CallbackQueryRule):
-    def __init__(self, d: dict):
+class CallbackDataJsonEq(CallbackQueryDataRule):
+    def __init__(self, d: dict[str, typing.Any]):
         self.d = d
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        if not event.data:
-            return False
-        try:
-            # todo: use msgspec
-            return json.loads(event.data) == self.d
-        except:  # noqa
-            return False
+        with suppress(BaseException):
+            return decoder.decode(event.data.unwrap(), type=dict) == self.d
+        return False
 
 
-class CallbackDataJsonModel(CallbackQueryRule):
-    def __init__(self, model: typing.Type[msgspec.Struct]):
-        self.decoder = msgspec.json.Decoder(type=model)
-
+class CallbackDataJsonModel(CallbackQueryDataRule):
+    def __init__(self, model: type[msgspec.Struct] | type[DataclassInstance]):
+        self.model = model
+        
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        try:
-            ctx["data"] = self.decoder.decode(event.data.encode())
+        with suppress(BaseException):
+            ctx["data"] = decoder.decode(event.data.unwrap().encode(), type=self.model)
             return True
-        except msgspec.DecodeError:
-            return False
+        return False
 
 
-class CallbackDataMarkup(CallbackQueryRule):
+class CallbackDataMarkup(CallbackQueryDataRule):
     def __init__(self, patterns: PatternLike | list[PatternLike]):
         self.patterns = Markup(patterns).patterns
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        return check_string(self.patterns, event.data, ctx)
+        return check_string(self.patterns, event.data.unwrap(), ctx)

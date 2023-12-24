@@ -23,7 +23,7 @@ def get_default_args(func: FuncType) -> dict[str, typing.Any]:
 
 def to_str(s: str | enum.Enum) -> str:
     if isinstance(s, enum.Enum):
-        return s.value
+        return str(s.value)
     return s
 
 

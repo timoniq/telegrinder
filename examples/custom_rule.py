@@ -13,12 +13,12 @@ logging.basicConfig(level=logging.INFO)
 
 class HasPhoto(MessageRule):
     async def check(self, message: Message, ctx: dict) -> bool:
-        return message.photo is not None
+        return bool(message.photo and message.photo.unwrap())
 
 
 class HasNicePhoto(MessageRule, requires=[HasPhoto()]):
     async def check(self, message: Message, ctx: dict) -> bool:
-        return message.photo[0].width > message.photo[0].height
+        return message.photo.unwrap()[0].width > message.photo.unwrap()[0].height
 
 
 @bot.on.to_handler()

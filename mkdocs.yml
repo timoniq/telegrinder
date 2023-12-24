@@ -4,7 +4,7 @@ site_description: Telegram bot framework
 site_url: https://telegrinder.rtfd.io/
 repo_name: timoniq/telegrinder
 repo_url: https://github.com/timoniq/telegrinder
-edit_uri: edit/master/docs/
+edit_uri: edit/dev/docs/
 copyright: timoniq, 2023 <a href="https://github.com/timoniq/telegrinder/blob/main/LICENSE" target="_blank" rel="noopener">(View license)</a>
 
 extra:
@@ -22,9 +22,11 @@ nav:
     - Code Separation: guide/code_separation.md
   - Tools:
     - Result: tools/result.md
+    - Option: tools/option.md
     - Checkbox: tools/checkbox.md
     - Formatting: tools/formatting.md
     - Keyboard Set: tools/keyboard_set.md
+    - Global Context: tools/global_context.md
 
 theme:
   name: readthedocs
