@@ -281,7 +281,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     
     def dict(self) -> dict[str, GlobalCtxVar[CtxValueT]]:
         return {
-            name: self.get(name).unwrap() for name in self.keys()
+            name: self.get(name).unwrap() for name in self
         }
     
     @typing.overload

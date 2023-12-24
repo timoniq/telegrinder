@@ -14,7 +14,6 @@ from telegrinder.types import Update
 from .abc import ABCDispatch
 from .handler import ABCHandler, FuncHandler
 from .handler.func import ErrorHandlerT
-
 from .view.box import CallbackQueryViewT, InlineQueryViewT, MessageViewT, ViewBox
 
 T = typing.TypeVar("T")

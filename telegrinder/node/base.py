@@ -9,12 +9,15 @@ class ComposeError(Exception):
     pass
 
 
+ComposeResult = typing.Coroutine[typing.Any, typing.Any, typing.Any] | typing.AsyncGenerator[typing.Any, None]
+
+
 class Node(abc.ABC):
     node: str = "node"
 
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> typing.Self:
+    def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
     @classmethod
@@ -34,6 +37,10 @@ class Node(abc.ABC):
     @classmethod
     def as_node(cls) -> type[typing.Self]:
         return cls
+    
+    @classmethod
+    def is_generator(cls) -> bool:
+        return inspect.isasyncgenfunction(cls.compose)
 
 
 class DataNode(Node, abc.ABC):
@@ -42,7 +49,7 @@ class DataNode(Node, abc.ABC):
     @typing.dataclass_transform()
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> typing.Self:
+    async def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
 
@@ -50,7 +57,7 @@ class ScalarNodeProto(Node, abc.ABC):
     
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> typing.Self:
+    async def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
 

@@ -1,6 +1,6 @@
 from .attachment import Attachment, Audio, Photo, Video
 from .base import ComposeError, DataNode, Node, ScalarNode
-from .composer import compose_node
+from .composer import NodeCollection, NodeSession, compose_node
 from .message import MessageNode
 from .source import Source
 from .text import Text
@@ -20,4 +20,5 @@ __all__ = (
     "ComposeError",
     "MessageNode",
     "Source",
+    "NodeSession",
 )
