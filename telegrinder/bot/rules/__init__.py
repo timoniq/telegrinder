@@ -3,6 +3,7 @@ from .callback_data import (
     CallbackDataEq,
     CallbackDataJsonEq,
     CallbackDataJsonModel,
+    CallbackDataMap,
     CallbackDataMarkup,
     CallbackQueryDataRule,
     CallbackQueryRule,

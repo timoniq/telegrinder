@@ -36,7 +36,7 @@ class GlobalCtxVar(typing.Generic[T]):
     @classmethod
     def collect(cls, name: str, ctx_value: T | CtxVariable[T]) -> typing.Self:
         ctx_value = CtxVar(ctx_value) if not isinstance(ctx_value, CtxVar | GlobalCtxVar) else ctx_value
-        return cls(name, **dataclasses.asdict(ctx_value))  # type: ignore
+        return cls(**dataclasses.asdict(ctx_value), name=name)  # type: ignore
 
 
 class ABCGlobalContext(ABC, typing.Generic[T]):

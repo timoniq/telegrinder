@@ -127,6 +127,18 @@ class Storage:
     field_specifiers=(ctx_var,),
 )
 class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, GlobalCtxVar[CtxValueT]]):
+    """GlobalContext.
+    
+    ```
+    ctx = GlobalContext()
+    ctx["client"] = Client()
+    ctx.address = CtxVar("128.0.0.7:8888", const=True)
+
+    def request():
+        data = {"user": "root_user", "password": "secret_password"}
+        ctx.client.request(ctx.address + "/login", data)
+    """
+    
     __ctx_name__: str | None
     __storage__: typing.ClassVar[Storage] = Storage()
     __root_attributes__: typing.ClassVar[tuple[RootAttr, ...]] = (
@@ -141,6 +153,8 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         /,
         **variables: typing.Any | CtxVar[CtxValueT],
     ) -> typing.Self:
+        """Create or get from storage a new `GlobalContext` object."""
+
         if not issubclass(GlobalContext, cls):
             defaults = {}
             for name in cls.__annotations__:
@@ -164,12 +178,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             ctx = dict.__new__(cls, ctx_name)
             cls.__storage__.set(ctx_name, ctx)
         
-        for name, var in variables.items():
-            ctx[name] = var
-        
-        if not hasattr(ctx, "__ctx_name__"):
-            ctx.__ctx_name__ = ctx_name
-
+        ctx.set_context_variables(variables)
         return ctx  # type: ignore
 
     def __init__(
@@ -178,8 +187,13 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         /,
         **variables: CtxValueT | CtxVariable[CtxValueT],
     ):
+        """Initialization of `GlobalContext` with passed variables."""
+
         if not hasattr(self, "__ctx_name__"):
             self.__ctx_name__ = ctx_name
+        
+        if variables and not self:
+            self.set_context_variables(variables)
                 
     def __repr__(self) -> str:
         return "<{!r} -> ({})>".format(
@@ -187,12 +201,6 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             ", ".join(repr(var) for var in self),
         )
     
-    def __iter__(self) -> typing.Iterator[GlobalCtxVar[CtxValueT]]:
-        return iter(self.values())
-
-    def __next__(self) -> GlobalCtxVar[CtxValueT]:
-        return next(iter(self))
-
     def __eq__(self, __value: "GlobalContext") -> bool:
         """Returns True if the names of context stores
         that use self and __value instances are equivalent."""
@@ -222,7 +230,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
 
     @root_protection
     def __setattr__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]):
-        """Setting a root attribute or context variable."""
+        """Setting a context variable."""
 
         if is_dunder(__name):
             return object.__setattr__(self, __name, __value)
@@ -230,7 +238,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
 
     @root_protection
     def __getattr__(self, __name: str) -> CtxValueT:
-        """Getting a root attribute or context variable."""
+        """Getting a context variable."""
 
         if is_dunder(__name):
             return object.__getattribute__(self, __name)
@@ -246,6 +254,8 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
 
     @property
     def ctx_name(self) -> str:
+        """Context name."""
+
         return self.__ctx_name__ or "<Unnamed ctx at %#x>" % id(self)
 
     @classmethod
@@ -255,6 +265,12 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
 
         return name in cls.__root_attributes__
 
+    def set_context_variables(self, variables: typing.Mapping[str, CtxValueT | CtxVariable[CtxValueT]]) -> None:    
+        """Set context variables from mapping."""
+        
+        for name, var in variables.items():
+            self[name] = var
+
     def get_root_attribute(self, name: str) -> Option[RootAttr]:
         """Get root attribute by name."""
 
@@ -263,26 +279,36 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
                 if rattr.name == name:
                     return Some(rattr)
         return Nothing
-    
+        
     def items(self) -> list[tuple[str, GlobalCtxVar[CtxValueT]]]:
+        """Return context variables as set-like items."""
+
         return list(dict.items(self))
     
     def keys(self) -> list[str]:
+        """Returns context variable names as keys."""
+
         return list(dict.keys(self))
     
     def values(self) -> list[GlobalCtxVar[CtxValueT]]:
+        """Returns context variables as values."""
+
         return list(dict.values(self))
     
     def update(self, other: typing.Self) -> None:
+        """Update context."""
+
         dict.update(dict(other.items()))
     
-    def copy(self) -> dict[str, GlobalCtxVar[CtxValueT]]:
-        return deepcopy(self.dict())
+    def copy(self) -> typing.Self:
+        """Copy context. Returns copied context without ctx_name."""
+
+        return self.__class__(**deepcopy(self.dict()))
     
     def dict(self) -> dict[str, GlobalCtxVar[CtxValueT]]:
-        return {
-            name: self.get(name).unwrap() for name in self
-        }
+        """Returns context as dict."""
+
+        return {name: var for name, var in self.items()}
     
     @typing.overload
     def pop(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]:
@@ -301,6 +327,10 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         var_name: str,
         var_value_type: type[T] = typing.Any
     ) -> Option[GlobalCtxVar[T]]:
+        """Pop context variable by name.
+        Returns Option[GlobalCtxVar[T]] object.
+        """
+
         val = self.get(var_name, var_value_type)
         if val:
             del self[var_name]
@@ -401,5 +431,5 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         ctx = self.__storage__.get(self.ctx_name).unwrap()
         dict.clear(ctx)
         self.__storage__.delete(self.ctx_name)
-        logger.warning(f"Global context {self.ctx_name!r} has been deleted!!!")
+        logger.warning(f"Global context {self.ctx_name!r} has been deleted!")
         return Ok(_())

@@ -19,4 +19,4 @@ class TelegrinderCtx(GlobalContext):
 
     __ctx_name__ = "telegrinder"
 
-    vbml_patcher: typing.ClassVar = ctx_var(vbml.Patcher(), const=True)
+    vbml_patcher: typing.ClassVar[vbml.Patcher] = ctx_var(vbml.Patcher(), const=True)

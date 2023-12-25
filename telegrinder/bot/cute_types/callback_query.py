@@ -1,6 +1,9 @@
+from contextlib import suppress
+
 from telegrinder.api import ABCAPI, APIError
-from telegrinder.model import get_params
+from telegrinder.model import decoder, get_params
 from telegrinder.option.msgspec_option import Option
+from telegrinder.option.option import Nothing, Some
 from telegrinder.result import Result
 from telegrinder.types import (
     CallbackQuery,
@@ -19,6 +22,12 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     @property
     def from_user(self) -> User:
         return self.from_
+    
+    @property
+    def callback_data_json(self) -> Option[dict]:
+        with suppress(BaseException):
+            return Some(decoder.decode(self.data.unwrap(), type=dict))
+        return Nothing
 
     async def answer(
         self,

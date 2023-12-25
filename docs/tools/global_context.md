@@ -27,7 +27,7 @@ from telegrinder.tools.global_context import GlobalContext, CtxVar
 ctx = GlobalContext(name="Alex", url=CtxVar("https://google.com", const=True))
 ```
 
-You can get a context variable value using the magic method `__getattr__` or method `.get_value()`:
+You can get a context variable value using the magic methods `__getattr__`, `__getitem__` or method `.get_value()`:
 
 `.get_value(var_name: str, value_type: type[T] = Any) -> Result[T, str]`
 
@@ -38,28 +38,30 @@ from telegrinder.tools.global_context import GlobalContext, CtxVar
 
 ctx = GlobalContext(arseny="cool programmer")
 ctx.arseny  # 'cool programmer' (but an unknown type)
+ctx["arseny"]  # 'cool programmer'
 ctx.get_value("arseny", str).unwrap()  # 'cool programmer' (type 'str')
 ctx.lul  # raises an exception 'NameError'
 ctx.get_value("lul").unwrap()  # Result.Error
 ```
 
-You can set the value of a context variable or create new context variable using the magic method `__setattr__`:
+You can set the value of a context variable or create new context variable using the magic methods `__setattr__`, `__setitem__`:
 
 ```python
 from telegrinder.tools.global_context import GlobalContext
 
 ctx = GlobalContext()
 ctx.value = 1  # cool!
+ctx["items"] = ["1", "2", "3"]  # very nice!
 ```
 
-You can delete a context variable using the magic method `__delattr__`:
+You can delete a context variable using the magic methods `__delattr__`, `__delitem__`:
 
 ```python
 from telegrinder.tools.global_context import GlobalContext, CtxVar
 
 ctx = GlobalContext(first=1, second=CtxVar(2, const=True))
 del ctx.value  # cool!
-del ctx.second  # you cant delete const context variable!
+del ctx["second"]  # you can't delete const context variable!
 ```
 
 If you want to get a context variable use the method `.get()`:
