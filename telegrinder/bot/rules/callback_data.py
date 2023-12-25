@@ -1,4 +1,5 @@
 import abc
+import inspect
 import typing
 from contextlib import suppress
 
@@ -7,12 +8,30 @@ import msgspec
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.rules.adapter import EventAdapter
 from telegrinder.model import decoder
+from telegrinder.option.option import Nothing, NothingType, Option, Some
 from telegrinder.tools.buttons import DataclassInstance
 
 from .abc import ABCRule
 from .markup import Markup, PatternLike, check_string
 
+if typing.TYPE_CHECKING:
+
+    T = typing.TypeVar("T")
+    Ref: typing.TypeAlias = typing.Annotated[T, ...]
+else:
+
+    class Ref:
+        def __class_getitem__(cls, code: str) -> typing.ForwardRef:
+            return typing.ForwardRef(code)
+
+
 CallbackQuery = CallbackQueryCute
+Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaitable[bool]]
+MapDict: typing.TypeAlias = dict[
+    str, typing.Any | type[typing.Any] | Validator | list[Ref["MapDict"]] | Ref["MapDict"]
+]
+CallbackMap: typing.TypeAlias = list[tuple[str, typing.Any | type | Validator | Ref["CallbackMap"]]]
+CallbackMapStrict: typing.TypeAlias = list[tuple[str, Validator | Ref["CallbackMapStrict"]]]
 
 
 class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
@@ -32,6 +51,86 @@ class CallbackQueryDataRule(CallbackQueryRule, abc.ABC, requires=[HasData()]):
     pass
 
 
+class CallbackDataMap(CallbackQueryDataRule):
+    def __init__(self, mapping: MapDict) -> None:
+        self.mapping = self.transform_to_callbacks(
+            self.transform_to_map(mapping),
+        )
+
+    @classmethod
+    def transform_to_map(cls, mapping: MapDict) -> CallbackMap:
+        """Transforms MapDict to CallbackMap."""
+        
+        callback_map = []
+        
+        for k, v in mapping.items():
+            if isinstance(v, dict):
+                v = cls.transform_to_map(v)
+            callback_map.append((k, v))
+        
+        return callback_map
+
+    @classmethod
+    def transform_to_callbacks(cls, callback_map: CallbackMap) -> CallbackMapStrict:
+        """Transforms `CallbackMap` to `CallbackMapStrict`."""
+        
+        callback_map_result = []
+
+        for key, value in callback_map:
+            if isinstance(value, type):
+                validator = (lambda tp: lambda v: isinstance(v, tp))(value)
+            elif isinstance(value, list):
+                validator = cls.transform_to_callbacks(value)
+            elif not callable(value):
+                validator = (lambda val: lambda v: val == v)(value)
+            else:
+                validator = value
+            callback_map_result.append((key, validator))
+        
+        return callback_map_result
+
+    @staticmethod
+    async def run_validator(value: typing.Any, validator: Validator) -> bool:
+        """Run async or sync validator."""
+        
+        with suppress(BaseException):
+            result = validator(value)
+            if inspect.isawaitable(result):
+                result = await result
+            return result  # type: ignore
+        
+        return False
+        
+
+    @classmethod
+    async def match(cls, callback_data: dict, callback_map: CallbackMapStrict) -> bool:
+        """Matches callback_data with callback_map recursively."""
+
+        for key, validator in callback_map:
+            if key not in callback_data:
+                return False
+            
+            if isinstance(validator, list):
+                if not (
+                    isinstance(callback_data[key], dict)
+                    and await cls.match(callback_data[key], validator)
+                ):
+                    return False
+            
+            elif not await cls.run_validator(callback_data[key], validator):
+                return False
+
+        return True
+    
+    async def check(self, event: CallbackQuery, ctx: dict) -> bool:
+        callback_data = event.callback_data_json.unwrap_or_none()
+        if callback_data is None:
+            return False
+        if await self.match(callback_data, self.mapping):
+            ctx.update(callback_data)
+            return True
+        return False
+
 class CallbackDataEq(CallbackQueryDataRule):
     def __init__(self, value: str):
         self.value = value
@@ -45,9 +144,7 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
         self.d = d
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        with suppress(BaseException):
-            return decoder.decode(event.data.unwrap(), type=dict) == self.d
-        return False
+        return event.callback_data_json.unwrap_or_none() == self.d
 
 
 class CallbackDataJsonModel(CallbackQueryDataRule):

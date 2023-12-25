@@ -80,5 +80,5 @@ class NothingType:
         return None
 
 
-Nothing: typing.Final = NothingType()
+Nothing: typing.Final[NothingType] = NothingType()
 Option: typing.TypeAlias = Some[Value] | NothingType
