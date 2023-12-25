@@ -17,7 +17,7 @@ async def action(m: Message):
         .add_option("apple", "Apple", "Apple 🍏")
         .add_option("banana", "Banana", "Banana 🍌", is_picked=True)
         .add_option("pear", "Pear", "Pear 🍐")
-        .wait(m.ctx_api, bot.dispatch)
+        .wait(m.ctx_api, bot.dispatch.callback_query)
     )
     await m.ctx_api.edit_message_text(
         m.chat.id,

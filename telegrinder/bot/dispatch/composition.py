@@ -25,6 +25,7 @@ class Composition:
             try:
                 nodes[name] = await compose_node(node_t, update)
             except ComposeError as err:
+                await NodeCollection(nodes).close_all()
                 return None
         return NodeCollection(nodes)
     
@@ -42,8 +43,8 @@ class CompositionDispatch(ABCDispatch):
         for composition in self.compositions:
             nodes = await composition.compose_nodes(update)
             if nodes is not None:
-                await composition(**nodes.values())
-                await nodes.close_all()
+                result = await composition(**nodes.values())
+                await nodes.close_all(with_value=result)
                 if composition.is_blocking:
                     return True
                 is_found = True

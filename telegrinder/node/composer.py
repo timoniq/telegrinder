@@ -15,14 +15,14 @@ class NodeSession:
         self.subnodes = subnodes
         self.generator = generator
     
-    async def close(self) -> None:
+    async def close(self, with_value: typing.Any | None = None) -> None:
         for subnode in self.subnodes.values():
             await subnode.close()
         
         if self.generator is None:
             return
         try:
-            await self.generator.asend(None)
+            await self.generator.asend(with_value)
         except StopAsyncIteration:
             self.generator = None
 
@@ -34,9 +34,9 @@ class NodeCollection:
     def values(self) -> dict[str, typing.Any]:
         return {name: session.value for name, session in self.sessions.items()}
     
-    async def close_all(self) -> None:
+    async def close_all(self, with_value: typing.Any | None = None) -> None:
         for session in self.sessions.values():
-            await session.close()
+            await session.close(with_value)
 
 
 
