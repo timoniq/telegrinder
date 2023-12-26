@@ -101,7 +101,6 @@ class CallbackDataMap(CallbackQueryDataRule):
         
         return False
         
-
     @classmethod
     async def match(cls, callback_data: dict, callback_map: CallbackMapStrict) -> bool:
         """Matches callback_data with callback_map recursively."""
@@ -123,13 +122,14 @@ class CallbackDataMap(CallbackQueryDataRule):
         return True
     
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        callback_data = event.callback_data_json.unwrap_or_none()
+        callback_data = event.data_json.unwrap_or_none()
         if callback_data is None:
             return False
         if await self.match(callback_data, self.mapping):
             ctx.update(callback_data)
             return True
         return False
+
 
 class CallbackDataEq(CallbackQueryDataRule):
     def __init__(self, value: str):
@@ -144,7 +144,7 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
         self.d = d
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        return event.callback_data_json.unwrap_or_none() == self.d
+        return event.data_json.unwrap_or_none() == self.d
 
 
 class CallbackDataJsonModel(CallbackQueryDataRule):

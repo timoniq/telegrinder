@@ -26,16 +26,21 @@ DEFAULT_ERROR_HANDLERS: dict[type[BaseException], list[ErrorHandler]] = {
 }
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass
 class DelayedTask:
     handler: CoroutineFunc
     seconds: float
     repeat: bool = dataclasses.field(default=False, kw_only=True)
+    _cancelled: bool = dataclasses.field(default=False, init=False, repr=False)
+
+    def cancel(self) -> None:
+        self._cancelled = True
 
     async def __call__(self, *args, **kwargs) -> None:
-        while True:
+        while not self._cancelled:
             await asyncio.sleep(self.seconds)
-            # NOTE: implement asyncio.Event to cancel the timer
+            if self._cancelled:
+                break
             await self.handler(*args, **kwargs)
             if not self.repeat:
                 break
@@ -71,12 +76,14 @@ class LoopWrapper(ABCLoopWrapper):
     
     def run(self) -> None:
         if not self.tasks:
-            logger.warning("You ran loop with 0 tasks. Is it ok?")
+            logger.warning("You run loop with 0 tasks!")
 
         for startup_task in self.on_startup:
             self._loop.run_until_complete(startup_task)
         for task in self.tasks:
             self._loop.create_task(task)
+        
+        self.tasks.clear()
 
         try:
             self.run_event_loop(asyncio.all_tasks(self._loop))
@@ -128,18 +135,15 @@ class LoopWrapper(ABCLoopWrapper):
         hours: int = 0,
         minutes: int = 0,
         seconds: float = 0,
-    ) -> typing.Callable[[typing.Callable], typing.Callable]:
+    ) -> typing.Callable[[typing.Callable], DelayedTask]:
         seconds += minutes * 60
         seconds += hours * 60 * 60
         seconds += days * 24 * 60 * 60
 
-        def decorator(func: typing.Callable):
-            self.add_task(DelayedTask(
-                func,
-                seconds,
-                repeat=False,
-            ))
-            return func
+        def decorator(func: typing.Callable) -> DelayedTask:
+            delayed_task = DelayedTask(func, seconds, repeat=False)
+            self.add_task(delayed_task)
+            return delayed_task
 
         return decorator
 
@@ -150,18 +154,15 @@ class LoopWrapper(ABCLoopWrapper):
         hours: int = 0,
         minutes: int = 0,
         seconds: float = 0,
-    ) -> typing.Callable[[typing.Callable], typing.Callable]:
+    ) -> typing.Callable[[typing.Callable], DelayedTask]:
         seconds += minutes * 60
         seconds += hours * 60 * 60
         seconds += days * 24 * 60 * 60
 
-        def decorator(func: typing.Callable):
-            self.add_task(DelayedTask(
-                func,
-                seconds,
-                repeat=True,
-            ))
-            return func
+        def decorator(func: typing.Callable) -> DelayedTask:
+            delayed_task = DelayedTask(func, seconds, repeat=True)
+            self.add_task(delayed_task)
+            return delayed_task
 
         return decorator
     
