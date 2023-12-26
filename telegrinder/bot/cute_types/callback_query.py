@@ -1,4 +1,5 @@
 from contextlib import suppress
+from functools import cached_property
 
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import decoder, get_params
@@ -16,15 +17,17 @@ from telegrinder.types import (
 from .base import BaseCute
 
 
-class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
+class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, dict=True):
     api: ABCAPI
 
     @property
     def from_user(self) -> User:
         return self.from_
     
-    @property
-    def callback_data_json(self) -> Option[dict]:
+    @cached_property
+    def data_json(self) -> Option[dict]:
+        """Get callback data as json."""
+
         with suppress(BaseException):
             return Some(decoder.decode(self.data.unwrap(), type=dict))
         return Nothing

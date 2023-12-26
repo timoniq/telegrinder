@@ -49,7 +49,7 @@ class LoggerModule(typing.Protocol):
 
 logger: LoggerModule
 json: JSONModule = choice_in_order(
-    ["ujson", "hyperjson", "orjson"], do_import=True, default="json"
+    ["ujson", "hyperjson", "orjson"], do_import=True, default="telegrinder.msgspec_json"
 )
 logging_module = choice_in_order(["loguru"], default="logging")
 logging_level = os.getenv("LOGGER_LEVEL", default="DEBUG").upper()
