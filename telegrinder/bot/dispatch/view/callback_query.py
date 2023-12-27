@@ -6,6 +6,7 @@ from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import process_inner
+from telegrinder.bot.dispatch.return_manager import CallbackQueryReturnManager
 from telegrinder.bot.rules import ABCRule
 from telegrinder.types import Update
 
@@ -17,6 +18,7 @@ class CallbackQueryView(ABCStateView[CallbackQueryCute]):
         self.auto_rules: list[ABCRule[CallbackQueryCute]] = []
         self.handlers: list[ABCHandler[CallbackQueryCute]] = []
         self.middlewares: list[ABCMiddleware[CallbackQueryCute]] = []
+        self.return_manager = CallbackQueryReturnManager()
 
     def __call__(
         self,
@@ -50,7 +52,7 @@ class CallbackQueryView(ABCStateView[CallbackQueryCute]):
 
     async def process(self, event: Update, api: ABCAPI) -> bool:
         query = CallbackQueryCute(**event.callback_query.unwrap().to_dict(), api=api)
-        return await process_inner(query, event, self.middlewares, self.handlers)
+        return await process_inner(query, event, self.middlewares, self.handlers, self.return_manager)
 
     def load(self, external: typing.Self):
         self.auto_rules.extend(external.auto_rules)

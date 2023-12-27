@@ -6,6 +6,7 @@ from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
 from telegrinder.bot.dispatch.process import process_inner
+from telegrinder.bot.dispatch.return_manager import MessageReturnManager
 from telegrinder.bot.rules import ABCRule
 from telegrinder.types import Update
 
@@ -17,6 +18,7 @@ class MessageView(ABCStateView[MessageCute]):
         self.auto_rules: list[ABCRule[MessageCute]] = []
         self.handlers: list[ABCHandler[MessageCute]] = []
         self.middlewares: list[ABCMiddleware[MessageCute]] = []
+        self.return_manager = MessageReturnManager()
 
     def __call__(
         self,
@@ -50,7 +52,7 @@ class MessageView(ABCStateView[MessageCute]):
 
     async def process(self, event: Update, api: ABCAPI) -> bool:
         msg = MessageCute(**event.message.unwrap().to_dict(), api=api)
-        return await process_inner(msg, event, self.middlewares, self.handlers)
+        return await process_inner(msg, event, self.middlewares, self.handlers, self.return_manager)
 
     def load(self, external: typing.Self):
         self.auto_rules.extend(external.auto_rules)
