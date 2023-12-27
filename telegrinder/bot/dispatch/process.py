@@ -8,6 +8,7 @@ from telegrinder.tools.i18n.base import I18nEnum
 from telegrinder.types import Update
 
 from .middleware.abc import ABCMiddleware
+from .return_manager.abc import ABCReturnManager
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.handler.abc import ABCHandler
@@ -22,6 +23,7 @@ async def process_inner(
     raw_event: Update,
     middlewares: list[ABCMiddleware[T]],
     handlers: list["ABCHandler[T]"],
+    return_manager: ABCReturnManager[T],
 ) -> bool:
     logger.debug("Processing {!r}...", event.__class__.__name__)
     ctx = {}
@@ -36,7 +38,9 @@ async def process_inner(
         if await handler.check(event.api, raw_event, ctx):
             found = True
             handler.ctx |= ctx
-            responses.append(await handler.run(event))
+            response = await handler.run(event)
+            responses.append(response)
+            await return_manager.run(response, event, ctx)
             if handler.is_blocking:
                 break
 
