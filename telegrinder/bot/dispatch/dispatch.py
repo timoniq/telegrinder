@@ -25,7 +25,7 @@ P = typing.ParamSpec("P")
 DEFAULT_DATACLASS = Update
 
 
-@dataclasses.dataclass(repr=False, frozen=True, kw_only=True)
+@dataclasses.dataclass(repr=False, kw_only=True)
 class Dispatch(
     ABCDispatch,
     ViewBox[CallbackQueryViewT, InlineQueryViewT, MessageViewT],

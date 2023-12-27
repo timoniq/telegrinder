@@ -16,7 +16,7 @@ InlineQueryViewT = typing.TypeVar(
 MessageViewT = typing.TypeVar("MessageViewT", bound=ABCView, default=MessageView)
 
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(kw_only=True)
 class ViewBox(typing.Generic[CallbackQueryViewT, InlineQueryViewT, MessageViewT]):
     callback_query: CallbackQueryViewT = dataclasses.field(  # type: ignore
         default_factory=lambda: CallbackQueryView(),
