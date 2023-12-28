@@ -32,11 +32,12 @@ def magic_bundle(
     kw: dict[str | enum.Enum, typing.Any],
     *,
     start_idx: int = 1,
+    bundle_ctx: bool = True,
 ) -> dict[str, typing.Any]:
     names = resolve_arg_names(handler, start_idx=start_idx)
     args = get_default_args(handler)
     args.update({to_str(k): v for k, v in kw.items() if to_str(k) in names})
-    if "ctx" in names:
+    if "ctx" in names and bundle_ctx:
         args["ctx"] = kw
     return args
 

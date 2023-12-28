@@ -3,6 +3,7 @@ from .base import ComposeError, DataNode, Node, ScalarNode
 from .composer import NodeCollection, NodeSession, compose_node
 from .container import ContainerNode
 from .message import MessageNode
+from .rule import RuleNode
 from .source import Source
 from .text import Text
 from .tools import generate
@@ -23,4 +24,8 @@ __all__ = (
     "MessageNode",
     "Source",
     "NodeSession",
+    "NodeCollection",
+    "ContainerNode",
+    "generate",
+    "RuleNode",
 )
