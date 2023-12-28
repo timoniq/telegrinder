@@ -12,10 +12,13 @@ from .dispatch import (
     ABCMiddleware,
     ABCReturnManager,
     ABCView,
+    BaseReturnManager,
+    CallbackQueryReturnManager,
     CallbackQueryView,
     CompositionDispatch,
     Dispatch,
     FuncHandler,
+    InlineQueryReturnManager,
     Manager,
     MessageReplyHandler,
     MessageReturnManager,
@@ -23,6 +26,7 @@ from .dispatch import (
     ReturnContext,
     ViewBox,
     WaiterMachine,
+    register_manager,
 )
 from .polling import ABCPolling, Polling
 from .rules import ABCRule, MessageRule
