@@ -3,7 +3,8 @@ from .message import MessageNode
 
 
 class Text(ScalarNode, str):
-    async def compose(self, message: MessageNode) -> "Text":
+    @classmethod
+    async def compose(cls, message: MessageNode) -> "Text":
         if not message.text:
-            self.compose_error("Message has no text")
+            cls.compose_error("Message has no text")
         return Text(message.text.unwrap())
