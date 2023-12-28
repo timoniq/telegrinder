@@ -26,6 +26,9 @@ class NodeSession:
         except StopAsyncIteration:
             self.generator = None
 
+    def __repr__(self) -> str:
+        return f"<NodeSession {self.value}" + ("ACTIVE>" if self.generator else ">")
+
 
 class NodeCollection:
     def __init__(self, sessions: dict[str, NodeSession]) -> None:
@@ -49,7 +52,7 @@ async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dic
         if subnode is UpdateCute:
             context.sessions[name] = NodeSession(update, {})
         else:
-            context.sessions[name] = await compose_node(subnode, update, context.sessions)
+            context.sessions[name] = await compose_node(subnode, update)
 
     generator: typing.AsyncGenerator | None
 

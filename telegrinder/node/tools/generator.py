@@ -23,8 +23,7 @@ def generate(
     casts: tuple[typing.Callable, ...] = (cast_false_to_none, error_on_none),
 ) -> type[ContainerNode]:
     
-    @classmethod
-    async def compose(cls, **kw) -> typing.Any:
+    async def compose(**kw) -> typing.Any:
         args = await ContainerNode.compose(**kw)
         result = func(*args)
         for cast in casts:
@@ -32,5 +31,4 @@ def generate(
         return result
 
     container = ContainerNode.link_nodes(list(subnodes))
-    container.compose = compose
-    return container
+    return type("_ContainerNode", (container,), {"compose": compose})

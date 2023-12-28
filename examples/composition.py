@@ -41,11 +41,25 @@ async def photo_handler(photo: Photo, source: Source, db: DB):
     logging.info("Finished handling")
 
 
+# Container generated node examples
+
 @bot.on(container=[
     generate((Text,), lambda text: text == "hello"),
+    generate((Source,), lambda src: src.chat.username.unwrap_or_none() == "weirdlashes"),
 ])
-async def generated_node_handler(source: Source):
-    await source.send("Hi!!")
+async def hi_handler(source: Source):
+    await source.send("Hi !!")
+
+
+@bot.on(container=[
+    generate((Text,), lambda text: int(text) if text.isdigit() else None)
+])
+async def integer_handler(
+    source: Source,
+    container: tuple[int],
+):
+    integer, = container
+    await source.send("{} + 3 = {}".format(integer, integer + 3))
 
 
 bot.loop_wrapper.add_task(create_tables())
