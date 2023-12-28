@@ -4,7 +4,15 @@ import typing
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
-from telegrinder.node import ComposeError, Node, NodeCollection, NodeSession, compose_node
+from telegrinder.node import (
+    ComposeError,
+    ContainerNode,
+    Node,
+    NodeCollection,
+    NodeSession,
+    compose_node,
+)
+from telegrinder.tools import magic_bundle
 from telegrinder.types import Update
 
 
@@ -30,7 +38,7 @@ class Composition:
         return NodeCollection(nodes)
     
     async def __call__(self, **kwargs) -> typing.Any:
-        return await self.func(**kwargs)
+        return await self.func(**magic_bundle(self.func, kwargs, start_idx=0))  # type: ignore
 
 
 class CompositionDispatch(ABCDispatch):
@@ -53,8 +61,11 @@ class CompositionDispatch(ABCDispatch):
     def load(self, external: typing.Self):
         self.compositions.extend(external.compositions)
 
-    def __call__(self, is_blocking: bool = True):
+    def __call__(self, *, is_blocking: bool = True, container: typing.Iterable[type[Node]] | None = None):
         def wrapper(func: typing.Callable):
-            self.compositions.append(Composition(func, is_blocking))
+            composition = Composition(func, is_blocking)
+            if container is not None:
+                composition.nodes["container"] = ContainerNode.link_nodes(list(container))
+            self.compositions.append(composition)
             return func
         return wrapper

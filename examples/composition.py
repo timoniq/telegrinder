@@ -1,11 +1,11 @@
 import logging
 import typing
+
 import aiosqlite
 
 from telegrinder import API, Telegrinder, Token
-
 from telegrinder.bot.dispatch import CompositionDispatch
-from telegrinder.node import Photo, Source, ScalarNode
+from telegrinder.node import Photo, ScalarNode, Source, Text, generate
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api, dispatch=CompositionDispatch())
@@ -39,6 +39,13 @@ async def photo_handler(photo: Photo, source: Source, db: DB):
     await db.execute("insert into logs(msg) values (?)", (photo.sizes[-1].file_id,))
     await db.commit()
     logging.info("Finished handling")
+
+
+@bot.on(container=[
+    generate((Text,), lambda text: text == "hello"),
+])
+async def generated_node_handler(source: Source):
+    await source.send("Hi!!")
 
 
 bot.loop_wrapper.add_task(create_tables())

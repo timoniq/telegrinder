@@ -1,3 +1,5 @@
+import typing
+
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import ReturnContext
 from telegrinder.modules import logger
@@ -7,11 +9,27 @@ logger.set_level("INFO")
 api = API(Token.from_env())
 bot = Telegrinder(api)
 
+T = typing.TypeVar("T")
+
 
 def int_validator(value: str) -> int | None:
     if value.isdigit():
         return int(value)
     return None
+
+
+class MappedValidator(typing.Generic[T]):
+    def __init__(self, validator: typing.Callable[[str], T]):
+        self.validator = validator
+
+    def __call__(self, value: str) -> list[T] | None:
+        values = []
+        for ch in value:
+            val_ch = self.validator(ch)
+            if val_ch is None:
+                return None
+            values.append(val_ch)
+        return values
 
 
 @bot.on.message(Command("get", Argument("count", validators=[int_validator])))
@@ -31,10 +49,10 @@ async def handler_command_me(message: Message) -> list[str]:
     ]
 
 
-@bot.on.message(Command("secret", Argument("code", validators=[int_validator])), is_blocking=False)
-async def handler_command_secret(message: Message, code: int) -> ReturnContext:
+@bot.on.message(Command("secret", Argument("code", validators=[MappedValidator(int_validator)])), is_blocking=False)
+async def handler_command_secret(message: Message, code: list[int]) -> ReturnContext:
     await message.answer("The secret code has been created!")
-    return ReturnContext(secret_code=code)
+    return ReturnContext(secret_code="".join(map(str, code)))
 
 
 @bot.on.message(IsPrivate())

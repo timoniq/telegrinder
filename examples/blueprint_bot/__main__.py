@@ -1,5 +1,6 @@
+from telegrinder import API, Dispatch, Telegrinder, Token
+
 from . import admin, start, with_enum
-from telegrinder import Dispatch, Telegrinder, API, Token
 
 dp = Dispatch()
 

@@ -12,8 +12,8 @@ FuncType = types.FunctionType | typing.Callable
 TRANSLATIONS_KEY = "_translations"
 
 
-def resolve_arg_names(func: FuncType) -> tuple[str, ...]:
-    return func.__code__.co_varnames[1 : func.__code__.co_argcount]
+def resolve_arg_names(func: FuncType, start_idx: int = 1) -> tuple[str, ...]:
+    return func.__code__.co_varnames[start_idx : func.__code__.co_argcount]
 
 
 def get_default_args(func: FuncType) -> dict[str, typing.Any]:
@@ -28,9 +28,12 @@ def to_str(s: str | enum.Enum) -> str:
 
 
 def magic_bundle(
-    handler: FuncType, kw: dict[str | enum.Enum, typing.Any]
+    handler: FuncType, 
+    kw: dict[str | enum.Enum, typing.Any],
+    *,
+    start_idx: int = 1,
 ) -> dict[str, typing.Any]:
-    names = resolve_arg_names(handler)
+    names = resolve_arg_names(handler, start_idx=start_idx)
     args = get_default_args(handler)
     args.update({to_str(k): v for k, v in kw.items() if to_str(k) in names})
     if "ctx" in names:
