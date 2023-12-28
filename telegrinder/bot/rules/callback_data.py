@@ -122,7 +122,7 @@ class CallbackDataMap(CallbackQueryDataRule):
         return True
     
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        callback_data = event.data_json.unwrap_or_none()
+        callback_data = event.decode_callback_data().unwrap_or_none()
         if callback_data is None:
             return False
         if await self.match(callback_data, self.mapping):
@@ -144,7 +144,7 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
         self.d = d
 
     async def check(self, event: CallbackQuery, ctx: dict) -> bool:
-        return event.data_json.unwrap_or_none() == self.d
+        return event.decode_callback_data().unwrap_or_none() == self.d
 
 
 class CallbackDataJsonModel(CallbackQueryDataRule):

@@ -9,12 +9,15 @@ from .bot import (
     ABCScenario,
     ABCView,
     BaseCute,
+    BaseReturnManager,
     CallbackQueryCute,
+    CallbackQueryReturnManager,
     CallbackQueryView,
     Checkbox,
     Dispatch,
     FuncHandler,
     InlineQueryCute,
+    InlineQueryReturnManager,
     MessageCute,
     MessageReplyHandler,
     MessageReturnManager,
@@ -25,6 +28,7 @@ from .bot import (
     Telegrinder,
     ViewBox,
     WaiterMachine,
+    register_manager,
 )
 from .client import ABCClient, AiohttpClient
 from .model import Model, decoder, encoder

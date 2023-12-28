@@ -6,9 +6,13 @@ from .middleware import ABCMiddleware
 from .process import check_rule
 from .return_manager import (
     ABCReturnManager,
+    BaseReturnManager,
+    CallbackQueryReturnManager,
+    InlineQueryReturnManager,
     Manager,
     MessageReturnManager,
     ReturnContext,
+    register_manager,
 )
 from .view import ABCView, CallbackQueryView, InlineQueryView, MessageView, ViewBox
 from .waiter_machine import WaiterMachine
