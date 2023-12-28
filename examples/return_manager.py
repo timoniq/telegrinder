@@ -19,7 +19,7 @@ def int_validator(value: str) -> int | None:
 
 
 class MappedValidator(typing.Generic[T]):
-    def __init__(self, validator: typing.Callable[[str], T]):
+    def __init__(self, validator: typing.Callable[[str], T | None]):
         self.validator = validator
 
     def __call__(self, value: str) -> list[T] | None:
