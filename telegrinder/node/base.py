@@ -30,6 +30,8 @@ class Node(abc.ABC):
         
         sub_nodes = {}
         for name, param in parameters.items():
+            if param.annotation is inspect._empty:
+                continue
             node = param.annotation
             sub_nodes[name] = node
         return sub_nodes

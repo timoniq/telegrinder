@@ -1,11 +1,13 @@
+import dataclasses
 import logging
 import typing
 
 import aiosqlite
 
 from telegrinder import API, Telegrinder, Token
+from telegrinder.bot import rules
 from telegrinder.bot.dispatch import CompositionDispatch
-from telegrinder.node import Photo, ScalarNode, Source, Text, generate
+from telegrinder.node import Photo, RuleNode, ScalarNode, Source, Text, generate
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api, dispatch=CompositionDispatch())
@@ -21,6 +23,8 @@ async def create_tables():
             ")"
         )
 
+
+# Pure node examples
 
 class DB(ScalarNode, aiosqlite.Connection):
     @classmethod
@@ -60,6 +64,42 @@ async def integer_handler(
 ):
     integer, = container
     await source.send("{} + 3 = {}".format(integer, integer + 3))
+
+
+# Rule node examples
+
+
+@bot.on()
+async def handler_ruleset_as_context(
+    ctx: RuleNode[
+        rules.Markup("/name <name>"),
+    ],
+    src: Source,
+) -> None:
+    name = ctx["name"]
+    await src.send(f"Hi, {name}")
+
+
+class Context(
+    RuleNode[
+        rules.Markup("<a:int> / <b:int> = <c:float>"),
+        rules.IsUser(),
+    ]
+):
+    a: int
+    b: int
+    c: float
+
+
+@bot.on()
+async def handler_ruleset_dataclass_context(
+    ctx: Context,
+    src: Source,
+) -> None:
+    if ctx.a / ctx.b == ctx.c:
+        await src.send("Right! ^___^")
+    else:
+        await src.send("Wrong! >:(")
 
 
 bot.loop_wrapper.add_task(create_tables())

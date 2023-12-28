@@ -1,3 +1,4 @@
+import inspect
 import typing
 
 from telegrinder.node.base import ComposeError, Node
@@ -26,6 +27,8 @@ def generate(
     async def compose(**kw) -> typing.Any:
         args = await ContainerNode.compose(**kw)
         result = func(*args)
+        if inspect.isawaitable(result):
+            result = await result
         for cast in casts:
             result = cast(result)
         return result
