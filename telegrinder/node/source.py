@@ -1,3 +1,4 @@
+import typing
 from dataclasses import dataclass
 
 from telegrinder.api import API
@@ -14,9 +15,9 @@ class Source(DataNode):
     thread_id: int | None = None
 
     @classmethod
-    async def compose(cls, message: MessageNode) -> "Source":
+    async def compose(cls, message: MessageNode) -> typing.Self:
         return cls(
-            api=message.api,  # type: ignore
+            api=message.ctx_api,
             chat=message.chat,
             thread_id=message.message_thread_id.unwrap_or_none(),
         )

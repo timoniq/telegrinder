@@ -6,11 +6,11 @@ from telegrinder.node import Node
 
 class NodeSession:
     def __init__(
-            self, 
-            value: typing.Any,
-            subnodes: dict[str, "NodeSession"],
-            generator: typing.AsyncGenerator[typing.Any, None] | None = None,
-        ):
+        self, 
+        value: typing.Any,
+        subnodes: dict[str, typing.Self],
+        generator: typing.AsyncGenerator[typing.Any, None] | None = None,
+    ):
         self.value = value
         self.subnodes = subnodes
         self.generator = generator
@@ -42,7 +42,6 @@ class NodeCollection:
             await session.close(with_value)
 
 
-
 async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dict[str, NodeSession] | None = None) -> NodeSession:
     node = _node.as_node()
 
@@ -64,4 +63,3 @@ async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dic
         value = await node.compose(**context.values())  # type: ignore
     
     return NodeSession(value, context.sessions, generator)
-

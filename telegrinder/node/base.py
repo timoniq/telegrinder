@@ -3,13 +3,11 @@ import inspect
 import typing
 
 T = typing.TypeVar("T")
-
-
-class ComposeError(Exception):
-    pass
-
-
 ComposeResult = typing.Coroutine[typing.Any, typing.Any, typing.Any] | typing.AsyncGenerator[typing.Any, None]
+
+
+class ComposeError(BaseException):
+    pass
 
 
 class Node(abc.ABC):
@@ -25,7 +23,7 @@ class Node(abc.ABC):
         raise ComposeError(error)
     
     @classmethod
-    def get_sub_nodes(cls) -> dict[str, type["Node"]]:
+    def get_sub_nodes(cls) -> dict[str, type[typing.Self]]:
         parameters = inspect.signature(cls.compose).parameters
         
         sub_nodes = {}
@@ -56,7 +54,6 @@ class DataNode(Node, abc.ABC):
 
 
 class ScalarNodeProto(Node, abc.ABC):
-    
     @classmethod
     @abc.abstractmethod
     async def compose(cls, *args, **kwargs) -> ComposeResult:
