@@ -7,7 +7,7 @@ import aiosqlite
 from telegrinder import API, Telegrinder, Token
 from telegrinder.bot import rules
 from telegrinder.bot.dispatch import CompositionDispatch
-from telegrinder.node import Photo, RuleNode, ScalarNode, Source, Text, generate
+from telegrinder.node import Photo, RuleContext, ScalarNode, Source, Text, generate
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api, dispatch=CompositionDispatch())
@@ -71,7 +71,7 @@ async def integer_handler(
 
 @bot.on()
 async def handler_ruleset_as_context(
-    ctx: RuleNode[
+    ctx: RuleContext[
         rules.Markup("/name <name>"),
     ],
     src: Source,
@@ -81,7 +81,7 @@ async def handler_ruleset_as_context(
 
 
 class Context(
-    RuleNode[
+    RuleContext[
         rules.Markup("<a:int> / <b:int> = <c:float>"),
         rules.IsUser(),
     ]

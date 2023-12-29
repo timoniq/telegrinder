@@ -8,7 +8,7 @@ api = API(Token.from_env())
 bot = Telegrinder(api)
 logging.basicConfig(level=logging.DEBUG)
 
-glossary = open("examples/assets/kaktovik.txt", "r", encoding="utf-8").read()
+glossary = open("examples/assets/kaktovik.txt", "r", encoding="utf-8").read()  # noqa
 
 
 @bot.on.message(Integer())

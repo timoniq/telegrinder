@@ -9,7 +9,7 @@ from telegrinder.node.update import UpdateNode
 T = typing.TypeVar("T")
 
 
-class RuleNode(dict):
+class RuleContext(dict):
     dataclass = dict
     rules: tuple[ABCRule, ...] = ()
 
