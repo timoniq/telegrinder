@@ -6,7 +6,7 @@ from telegrinder.model import Model
 UpdateT = typing.TypeVar("UpdateT", bound=Model)
 
 
-@typing.dataclass_transform(kw_only_default=True)
+@typing.dataclass_transform()
 class BaseCute(typing.Generic[UpdateT]):
     api: ABCAPI
 
@@ -16,11 +16,13 @@ class BaseCute(typing.Generic[UpdateT]):
 
     @property
     def ctx_api(self) -> API:
-        return self.api  # type: ignore
+        assert isinstance(self.api, API)
+        return self.api
 
     def to_dict(
         self,
         *,
         exclude_fields: set[str] | None = None,
     ):
-        return super().to_dict(exclude_fields={"api", *(exclude_fields or ())})  # type: ignore
+        exclude_fields = exclude_fields or set()
+        return super().to_dict(exclude_fields={"api"} | exclude_fields)  # type: ignore

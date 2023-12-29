@@ -9,9 +9,7 @@ from .message import MessageNode
 
 @dataclass
 class Attachment(DataNode):
-
     attachment_type: typing.Literal["photo", "video", "audio", "document"]
-
     photo: list[telegrinder.types.PhotoSize] | None = None
     video: telegrinder.types.Video | None = None
     audio: telegrinder.types.Audio | None = None
