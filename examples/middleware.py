@@ -12,7 +12,7 @@ global_ctx = GlobalContext(counter=dict())  # Let's imagine a dummy counter
 
 class ContextMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: dict) -> bool:
-        counter: dict[int, int] = global_ctx.counter
+        counter = global_ctx.get_value("counter", dict[int, int]).unwrap()
         counter[event.chat.id] = counter.get(event.chat.id, 0) + 1
         ctx.update({"count": counter[event.chat.id]})
         return True

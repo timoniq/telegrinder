@@ -1,6 +1,6 @@
 from telegrinder import Dispatch, Message
 from telegrinder.modules import logger
-from telegrinder.rules import HasText, MessageRule, Text
+from telegrinder.rules import HasText, Text
 
 from .client import wm
 

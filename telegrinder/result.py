@@ -94,4 +94,4 @@ class Error(typing.Generic[Err]):
         raise error if not isinstance(error, str) else Exception(error)
 
 
-Result = Ok[Value] | Error[Err]
+Result: typing.TypeAlias = Ok[Value] | Error[Err]

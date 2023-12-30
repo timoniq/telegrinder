@@ -19,7 +19,7 @@ class ImportantContext(GlobalContext):
     __ctx_name__ = "important_ctx"
 
     formatting: bool = False
-    users: typing.Final = ctx_var(dict[str, User](), const=True)
+    users: typing.ClassVar[dict[str, User]] = ctx_var({}, const=True)
 
 
 global_ctx = ImportantContext()
