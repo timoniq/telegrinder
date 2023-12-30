@@ -28,7 +28,9 @@ Install from github:
 
 ```
 pip install -U https://github.com/timoniq/telegrinder/archive/dev.zip
+```
 
+```
 poetry add git+https://github.com/timoniq/telegrinder.git#dev
 ```
 
