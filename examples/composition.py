@@ -1,4 +1,3 @@
-import dataclasses
 import logging
 import typing
 
@@ -47,17 +46,17 @@ async def photo_handler(photo: Photo, source: Source, db: DB):
 
 # Container generated node examples
 
-@bot.on(container=[
+@bot.on(
     generate((Text,), lambda text: text == "hello"),
     generate((Source,), lambda src: src.chat.username.unwrap_or_none() == "weirdlashes"),
-])
+)
 async def hi_handler(source: Source):
     await source.send("Hi !!")
 
 
-@bot.on(container=[
+@bot.on(
     generate((Text,), lambda text: int(text) if text.isdigit() else None)
-])
+)
 async def integer_handler(
     source: Source,
     container: tuple[int],

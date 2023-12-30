@@ -61,11 +61,11 @@ class CompositionDispatch(ABCDispatch):
     def load(self, external: typing.Self):
         self.compositions.extend(external.compositions)
 
-    def __call__(self, *, is_blocking: bool = True, container: typing.Iterable[type[Node]] | None = None):
+    def __call__(self, *container_nodes: type[Node], is_blocking: bool = True):
         def wrapper(func: typing.Callable):
             composition = Composition(func, is_blocking)
-            if container is not None:
-                composition.nodes["container"] = ContainerNode.link_nodes(list(container))
+            if container_nodes:
+                composition.nodes["container"] = ContainerNode.link_nodes(list(container_nodes))
             self.compositions.append(composition)
             return func
         return wrapper
