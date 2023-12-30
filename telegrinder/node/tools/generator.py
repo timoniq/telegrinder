@@ -12,6 +12,7 @@ def cast_false_to_none(value: T) -> T | None:
         return None
     return value
 
+
 def error_on_none(value: T | None) -> T:
     if value is None:
         raise ComposeError
@@ -23,7 +24,6 @@ def generate(
     func: typing.Callable[..., typing.Any],
     casts: tuple[typing.Callable, ...] = (cast_false_to_none, error_on_none),
 ) -> type[ContainerNode]:
-    
     async def compose(**kw) -> typing.Any:
         args = await ContainerNode.compose(**kw)
         result = func(*args)

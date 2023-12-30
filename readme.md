@@ -1,4 +1,4 @@
-# telegrinder
+# Telegrinder
 
 Framework for effective and reliable telegram bot building.
 
@@ -12,10 +12,24 @@ Still in development.
 
 # Getting started
 
-Install using PyPI:
+Install using pip:
 
 ```
 pip install telegrinder
+```
+
+Using poetry:
+
+```
+poetry add telegrinder
+```
+
+Install from github:
+
+```
+pip install -U https://github.com/timoniq/telegrinder/archive/dev.zip
+
+poetry add git+https://github.com/timoniq/telegrinder.git#dev
 ```
 
 Basic example:
