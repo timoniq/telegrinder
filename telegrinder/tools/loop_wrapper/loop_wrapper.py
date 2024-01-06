@@ -33,8 +33,13 @@ class DelayedTask:
     repeat: bool = dataclasses.field(default=False, kw_only=True)
     _cancelled: bool = dataclasses.field(default=False, init=False, repr=False)
 
+    @property
+    def is_cancelled(self) -> bool:
+        return self._cancelled
+
     def cancel(self) -> None:
-        self._cancelled = True
+        if not self._cancelled:
+            self._cancelled = True
 
     async def __call__(self, *args, **kwargs) -> None:
         while not self._cancelled:
@@ -52,18 +57,17 @@ class LoopWrapper(ABCLoopWrapper):
         tasks: list[CoroutineTask] | None = None,
         error_handlers: dict[type[BaseException], list[ErrorHandler]] | None = None,
     ):
-        self._loop = asyncio.new_event_loop()
         self.on_startup: list[CoroutineTask] = []
         self.on_shutdown: list[CoroutineTask] = []
         self.tasks = tasks or []
-        self.error_handlers = error_handlers or {}
-        self.error_handlers = DEFAULT_ERROR_HANDLERS | self.error_handlers
+        self.error_handlers = DEFAULT_ERROR_HANDLERS | (error_handlers or {})
+        self._loop = asyncio.new_event_loop()
         
     def run_error_handler(self, exception: BaseException) -> None:
-        handlers = self.error_handlers.get(exception.__class__)
-        if not handlers:
+        if exception.__class__ not in self.error_handlers:
             return
-        for handler in handlers:
+        
+        for handler in self.error_handlers[exception.__class__]:
             try:
                 self._loop.run_until_complete(handler(exception))
             except BaseException as exc:
@@ -97,7 +101,6 @@ class LoopWrapper(ABCLoopWrapper):
             if self._loop.is_running():
                 self._loop.close()
         
-
     def run_event_loop(self, tasks: set[asyncio.Task[typing.Any]]) -> None:
         while tasks:
             tasks_results, _ = self._loop.run_until_complete(
@@ -125,7 +128,7 @@ class LoopWrapper(ABCLoopWrapper):
         tasks = set(tasks) | asyncio.all_tasks(self._loop)  # type: ignore
         task_to_cancel = asyncio.gather(*tasks)
         task_to_cancel.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
+        with contextlib.suppress(BaseException):
             self._loop.run_until_complete(task_to_cancel)
 
     def timer(

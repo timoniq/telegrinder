@@ -1,6 +1,8 @@
 import re
 import typing
 
+from telegrinder.bot.dispatch.context import Context
+
 from .abc import Message
 from .text import TextMessageRule
 
@@ -21,7 +23,7 @@ class Regex(TextMessageRule):
                     for regexp in regexp
                 )
 
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         for regexp in self.regexp:
             response = re.match(regexp, message.text.unwrap())
             if response is not None:

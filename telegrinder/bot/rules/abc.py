@@ -3,6 +3,7 @@ import typing
 from abc import ABC, abstractmethod
 
 from telegrinder.bot.cute_types import BaseCute, MessageCute, UpdateCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, EventAdapter, RawUpdateAdapter
 from telegrinder.tools.i18n.base import ABCTranslator
@@ -32,7 +33,7 @@ class ABCRule(ABC, typing.Generic[T]):
     requires: list["ABCRule[T]"] = []
 
     @abstractmethod
-    async def check(self, event: T, ctx: dict) -> bool:
+    async def check(self, event: T, ctx: Context) -> bool:
         pass
 
     def __init_subclass__(cls, requires: list["ABCRule[T]"] | None = None):
@@ -68,7 +69,7 @@ class AndRule(ABCRule[T]):
     def __init__(self, *rules: ABCRule[T]):
         self.rules = rules
 
-    async def check(self, event: Update, ctx: dict) -> bool:
+    async def check(self, event: Update, ctx: Context) -> bool:
         ctx_copy = ctx.copy()
         for rule in self.rules:
             if not await check_rule(event.ctx_api, rule, event, ctx_copy):
@@ -81,7 +82,7 @@ class OrRule(ABCRule[T]):
     def __init__(self, *rules: ABCRule[T]):
         self.rules = rules
 
-    async def check(self, event: Update, ctx: dict) -> bool:
+    async def check(self, event: Update, ctx: Context) -> bool:
         for rule in self.rules:
             ctx_copy = ctx.copy()
             if await check_rule(event.ctx_api, rule, event, ctx_copy):
@@ -94,7 +95,7 @@ class NotRule(ABCRule[T]):
     def __init__(self, rule: ABCRule[T]):
         self.rule = rule
 
-    async def check(self, event: Update, ctx: dict) -> bool:
+    async def check(self, event: Update, ctx: Context) -> bool:
         ctx_copy = ctx.copy()
         return not await check_rule(event.ctx_api, self.rule, event, ctx_copy)
 
@@ -103,5 +104,5 @@ class MessageRule(ABCRule[Message], ABC, requires=[]):
     adapter = EventAdapter("message", Message)
 
     @abstractmethod
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         ...

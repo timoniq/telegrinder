@@ -1,10 +1,11 @@
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.tools.i18n.base import ABCTranslator
 
 from .abc import ABC, Message, MessageRule, with_caching_translations
 
 
 class HasText(MessageRule):
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         return bool(message.text)
 
 
@@ -19,7 +20,7 @@ class Text(TextMessageRule):
         self.texts = texts if not ignore_case else list(map(str.lower, texts))
         self.ignore_case = ignore_case
 
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         return (
             message.text.unwrap()
             if not self.ignore_case

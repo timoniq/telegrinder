@@ -1,7 +1,7 @@
 import typing
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.bot import ReturnContext
+from telegrinder.bot import Context
 from telegrinder.modules import logger
 from telegrinder.rules import Argument, Command, IsPrivate
 
@@ -33,12 +33,12 @@ class MappedValidator(typing.Generic[T]):
 
 
 @bot.on.message(Command("get", Argument("count", validators=[int_validator])))
-async def handler_command_get(message: Message, count: int) -> str:
+async def command_handler_get(message: Message, count: int) -> str:
     return f"You got {count} items."
 
 
 @bot.on.message(Command("me"))
-async def handler_command_me(message: Message) -> list[str]:
+async def command_handler_me(message: Message) -> list[str]:
     return [
         "First name:",
         message.from_user.first_name,
@@ -50,9 +50,9 @@ async def handler_command_me(message: Message) -> list[str]:
 
 
 @bot.on.message(Command("secret", Argument("code", validators=[MappedValidator(int_validator)])), is_blocking=False)
-async def handler_command_secret(message: Message, code: list[int]) -> ReturnContext:
+async def command_handler_secret(message: Message, code: list[int]) -> Context:
     await message.answer("The secret code has been created!")
-    return ReturnContext(secret_code="".join(map(str, code)))
+    return Context(secret_code="".join(map(str, code)))
 
 
 @bot.on.message(IsPrivate())

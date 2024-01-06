@@ -1,7 +1,7 @@
 import logging
 
 from telegrinder import API, Message, MessageRule, Telegrinder, Token
-from telegrinder.bot import WaiterMachine
+from telegrinder.bot import Context, WaiterMachine
 from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
@@ -12,12 +12,12 @@ logging.basicConfig(level=logging.INFO)
 
 
 class HasPhoto(MessageRule):
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         return bool(message.photo and message.photo.unwrap())
 
 
 class HasNicePhoto(MessageRule, requires=[HasPhoto()]):
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         return message.photo.unwrap()[0].width > message.photo.unwrap()[0].height
 
 

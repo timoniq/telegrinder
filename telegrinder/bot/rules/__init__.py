@@ -24,6 +24,7 @@ from .is_from import (
     IsLanguageCode,
     IsPremium,
     IsPrivate,
+    IsReply,
     IsSuperGroup,
     IsUser,
     IsUserId,

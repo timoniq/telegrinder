@@ -1,10 +1,11 @@
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.types.enums import MessageEntityType
 
 from .text import Message, TextMessageRule
 
 
 class HasMention(TextMessageRule):
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         if not message.entities.unwrap_or_none():
             return False
         return any(

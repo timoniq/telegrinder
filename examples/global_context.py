@@ -2,6 +2,7 @@ import typing
 from functools import reduce
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
+from telegrinder.bot import Context
 from telegrinder.modules import logger
 from telegrinder.rules import Markup, MessageEntities, Text
 from telegrinder.tools.formatting import HTMLFormatter, bold, code_inline
@@ -36,7 +37,7 @@ def formatting_text(*fmt_texts: str | TagFormat) -> dict:
 
 
 class UserRegistrarMiddleware(ABCMiddleware[Message]):
-    async def pre(self, event: Message, ctx: dict) -> bool:
+    async def pre(self, event: Message, ctx: Context) -> bool:
         if event.from_ and event.from_user.username:
             # register user by username
             global_ctx.users.setdefault(

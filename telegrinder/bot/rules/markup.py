@@ -1,5 +1,6 @@
 import vbml
 
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.tools.global_context import TelegrinderCtx
 
 from .abc import Message
@@ -9,7 +10,7 @@ PatternLike = str | vbml.Pattern
 global_ctx = TelegrinderCtx()
 
 
-def check_string(patterns: list[vbml.Pattern], s: str, ctx: dict) -> bool:
+def check_string(patterns: list[vbml.Pattern], s: str, ctx: Context) -> bool:
     for pattern in patterns:
         match global_ctx.vbml_patcher.check(pattern, s):
             case None | False:
@@ -29,5 +30,5 @@ class Markup(TextMessageRule):
             for pattern in patterns
         ]
 
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         return check_string(self.patterns, message.text.unwrap(), ctx)

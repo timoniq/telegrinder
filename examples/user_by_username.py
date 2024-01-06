@@ -5,6 +5,7 @@ to work with databases.
 import aiosqlite
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
+from telegrinder.bot import Context
 from telegrinder.model import decoder
 from telegrinder.option.msgspec_option import Option
 from telegrinder.option.option import Nothing, NothingType, Some
@@ -89,7 +90,7 @@ db = DummyDatabase()
 
 
 class UserRegistrarMiddleware(ABCMiddleware[Message]):
-    async def pre(self, event: Message, ctx: dict) -> bool:
+    async def pre(self, event: Message, ctx: Context) -> bool:
         if event.from_ and event.from_user.username:
             await db.set_user(event.from_user)
         return True

@@ -1,6 +1,8 @@
 import dataclasses
 import typing
 
+from telegrinder.bot.dispatch.context import Context
+
 from .abc import ABCRule, T, Update, check_rule
 from .func import FuncRule
 
@@ -55,7 +57,7 @@ class RuleEnum(ABCRule[T]):
             return False
         return real_state == state
 
-    async def check(self, event: Update, ctx: dict) -> bool:
+    async def check(self, event: Update, ctx: Context) -> bool:
         if self.check_state(ctx):
             return True
 

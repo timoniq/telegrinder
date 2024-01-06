@@ -2,9 +2,9 @@ import dataclasses
 import types
 import typing
 from abc import ABC, abstractmethod
-from collections import OrderedDict
 
 from telegrinder.bot.cute_types import BaseCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 
 T = typing.TypeVar("T")
@@ -24,22 +24,6 @@ def register_manager(return_type: type):
     return wrapper
 
 
-class ReturnContext(OrderedDict[str, typing.Any]):
-    """`ReturnContext` class is used to pass the context from the handler using return manager.
-    
-    ```
-    @bot.on.message(Markup("/say <text>"), is_blocking=False)
-    async def handler(message: Message, text: str) -> Context:
-        # some code...
-        return ReturnContext(user=User(...))
-    
-    @bot.on.message(IsPrivate())
-    async def next_handler(message: Message, user: User):
-        ...
-    ```
-    """
-
-
 @dataclasses.dataclass(frozen=True)
 class Manager:
     types: tuple[type, ...]
@@ -54,7 +38,7 @@ class Manager:
 
 class ABCReturnManager(ABC, typing.Generic[EventT]):
     @abstractmethod
-    async def run(self, response: typing.Any, event: EventT, ctx: dict) -> None:
+    async def run(self, response: typing.Any, event: EventT, ctx: Context) -> None:
         pass
 
 
@@ -67,20 +51,20 @@ class BaseReturnManager(ABCReturnManager[EventT]):
             if isinstance(manager, Manager)
         ]
 
-    @register_manager(ReturnContext)
+    @register_manager(Context)
     @staticmethod
-    async def ctx_manager(value: ReturnContext, event: EventT, ctx: dict) -> None:
+    async def ctx_manager(value: Context, event: EventT, ctx: Context) -> None:
         """Basic manager for returning context from handler."""
         
         ctx.update(value)
     
-    async def run(self, response: typing.Any, event: EventT, ctx: dict) -> None:
+    async def run(self, response: typing.Any, event: EventT, ctx: Context) -> None:
         for manager in self.managers:
             if typing.Any in manager.types or any(type(response) is x for x in manager.types):
                 await manager(response, event, ctx)
 
     def register(self, return_type: type[T]):
-        def wrapper(func: typing.Callable[[T, EventT, dict], typing.Awaitable]) -> Manager:
+        def wrapper(func: typing.Callable[[T, EventT, Context], typing.Awaitable]) -> Manager:
             manager = Manager(get_union_types(return_type) or (return_type,), func)
             setattr(self.__class__, func.__name__, manager)
             return manager

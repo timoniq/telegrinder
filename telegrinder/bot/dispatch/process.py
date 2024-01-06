@@ -2,6 +2,7 @@ import typing
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 from telegrinder.result import Error
 from telegrinder.tools.i18n.base import I18nEnum
@@ -54,9 +55,9 @@ async def check_rule(
     api: ABCAPI,
     rule: "ABCRule",
     update: Update,
-    ctx: dict[str, _],
+    ctx: Context,
 ) -> bool:
-    """Checks requirements, adapts update
+    """Checks requirements, adapts update.
     Returns check result."""
 
     ctx_copy = ctx.copy()

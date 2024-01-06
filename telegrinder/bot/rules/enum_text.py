@@ -1,6 +1,8 @@
 import typing
 from enum import Enum
 
+from telegrinder.bot.dispatch.context import Context
+
 from .abc import Message
 from .text import TextMessageRule
 
@@ -21,7 +23,7 @@ class EnumTextRule(TextMessageRule, typing.Generic[T]):
                 return enumeration
         raise KeyError("Enumeration is undefined")
 
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         text = message.text.unwrap().lower()
         if text not in self.texts:
             return False

@@ -1,6 +1,7 @@
 import abc
 
 from telegrinder.bot.cute_types import InlineQueryCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.adapter import EventAdapter
 
@@ -11,7 +12,7 @@ class InlineQueryRule(ABCRule[InlineQuery], abc.ABC):
     adapter = EventAdapter("inline_query", InlineQuery)
 
     @abc.abstractmethod
-    async def check(self, query: InlineQuery, ctx: dict) -> bool:
+    async def check(self, query: InlineQuery, ctx: Context) -> bool:
         pass
 
 
@@ -21,10 +22,10 @@ class InlineQueryText(InlineQueryRule):
             texts = [texts]
         self.texts = texts
 
-    async def check(self, query: InlineQuery, ctx: dict) -> bool:
+    async def check(self, query: InlineQuery, ctx: Context) -> bool:
         return query.query in self.texts
 
 
 class LocationInlineQuery(InlineQueryRule):
-    async def check(self, query: InlineQuery, ctx: dict) -> bool:
+    async def check(self, query: InlineQuery, ctx: Context) -> bool:
         return bool(query.location)

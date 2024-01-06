@@ -1,5 +1,6 @@
 from .abc import ABCDispatch
 from .composition import CompositionDispatch
+from .context import Context
 from .dispatch import ABCRule, Dispatch, TelegrinderCtx
 from .handler import ABCHandler, FuncHandler, MessageReplyHandler
 from .middleware import ABCMiddleware
@@ -11,7 +12,6 @@ from .return_manager import (
     InlineQueryReturnManager,
     Manager,
     MessageReturnManager,
-    ReturnContext,
     register_manager,
 )
 from .view import ABCView, CallbackQueryView, InlineQueryView, MessageView, ViewBox

@@ -1,6 +1,8 @@
 import dataclasses
 import typing
 
+from telegrinder.bot.dispatch.context import Context
+
 from .abc import Message
 from .text import TextMessageRule
 
@@ -91,7 +93,7 @@ class Command(TextMessageRule):
 
         return None
 
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         text = self.remove_prefix(message.text.unwrap())
         if text is None:
             return False
