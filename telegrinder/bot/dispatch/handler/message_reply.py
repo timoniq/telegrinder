@@ -2,6 +2,7 @@ import typing
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import MessageCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.modules import logger
@@ -23,10 +24,10 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         self.as_reply = as_reply
         self.is_blocking = is_blocking
         self.dataclass = MessageCute
-        self.ctx = {}
+        self.ctx = Context()
 
-    async def check(self, api: ABCAPI, event: Update, ctx: dict) -> bool:
-        ctx = ctx or {}
+    async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
+        ctx = ctx or Context()
         self.ctx |= ctx
         for rule in self.rules:
             if not await check_rule(api, rule, event, self.ctx):

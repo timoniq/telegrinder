@@ -4,6 +4,7 @@ import typing_extensions as typing_ext
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import logger
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
@@ -39,14 +40,14 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
         self.rules = rules
         self.dataclass = dataclass
         self.error_handler: ErrorHandlerT = error_handler or ErrorHandler()  # type: ignore
-        self.ctx = {}
+        self.ctx = Context()
     
     @property
     def on_error(self):
         return self.error_handler.catch
 
-    async def check(self, api: ABCAPI, event: Update, ctx: dict | None = None) -> bool:
-        ctx = ctx or {}
+    async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
+        ctx = ctx or Context()
         preset_ctx = self.ctx.copy()
         self.ctx |= ctx
         for rule in self.rules:
