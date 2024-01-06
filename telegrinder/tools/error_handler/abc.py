@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 from telegrinder.api import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.result import Result
 
 EventT = typing.TypeVar("EventT", bound=BaseCute)
@@ -13,18 +14,15 @@ Handler = typing.Callable[
 
 class ABCErrorHandler(ABC, typing.Generic[EventT]):
     @abstractmethod
-    def catch(
-        self,
-        *exceptions: type[BaseException] | BaseException,
-        **kwargs,
-    ) -> typing.Callable[..., typing.Awaitable[typing.Any]]:
+    def catch(self) -> typing.Callable[[typing.Callable], typing.Callable]:
         ...
 
+    @abstractmethod
     async def run(
         self,
         handler: Handler[EventT],
         event: EventT,
         api: ABCAPI,
-        ctx: dict,
+        ctx: Context,
     ) -> Result[typing.Any, typing.Any]:
         ...

@@ -2,6 +2,7 @@ import dataclasses
 import typing
 
 from telegrinder.api import ABCAPI
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 from telegrinder.result import Error, Ok, Result
 from telegrinder.tools.magic import magic_bundle
@@ -39,7 +40,7 @@ class Catcher(typing.Generic[EventT]):
         handler: Handler[EventT],
         event: EventT,
         api: ABCAPI,
-        ctx: dict,
+        ctx: Context,
     ) -> Result[typing.Any, typing.Any]:
         try:
             result = Ok(await handler(event, **magic_bundle(handler, ctx)))
@@ -51,6 +52,7 @@ class Catcher(typing.Generic[EventT]):
                 handler.__name__,
                 self.func.__name__,
             )
+            
             if self.match_exception(exc):
                 logger.debug(
                     "Catcher {!r} caught an exception in handler {!r}, "
@@ -59,8 +61,12 @@ class Catcher(typing.Generic[EventT]):
                         handler.__name__,
                     )
                 )
-                params: dict = {"event": event, "api": api} | ctx
-                result = Ok(await self.func(exc, **magic_bundle(self.func, params)))
+                result = Ok(
+                    await self.func(
+                        exc,
+                        **magic_bundle(self.func, {"event": event, "api": api} | ctx)
+                    )
+                )
             else:
                 logger.debug("Failed to match exception {!r}!", exc.__class__.__name__)
                 result = Error(exc)
@@ -93,6 +99,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         :param raise_exception: Raise an exception if the catcher hasn't started.
         :param ignore_errors: Ignore errors that may occur in the catcher.
         """
+
         def decorator(func: F) -> F:
             if not self.catcher:
                 self.catcher = Catcher(
@@ -110,7 +117,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         handler: Handler[EventT],
         event: EventT,
         api: ABCAPI,
-        ctx: dict,
+        ctx: Context,
     ) -> Result[typing.Any, typing.Any]:
         if not self.catcher:
             return Ok(await handler(event, **magic_bundle(handler, ctx)))
