@@ -11,9 +11,7 @@ from .abc import ABCErrorHandler, EventT, Handler
 
 F = typing.TypeVar("F", bound="FuncCatcher")
 ExceptionT = typing.TypeVar("ExceptionT", bound=BaseException, contravariant=True)
-FuncCatcher = typing.Callable[
-    typing.Concatenate[ExceptionT, ...], typing.Awaitable[typing.Any]
-]
+FuncCatcher = typing.Callable[typing.Concatenate[ExceptionT, ...], typing.Awaitable[typing.Any]]
 
 
 @dataclasses.dataclass(frozen=True)

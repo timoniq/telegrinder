@@ -14,5 +14,14 @@ from .return_manager import (
     MessageReturnManager,
     register_manager,
 )
-from .view import ABCView, CallbackQueryView, InlineQueryView, MessageView, ViewBox
+from .view import (
+    ABCStateView,
+    ABCView,
+    BaseStateView,
+    BaseView,
+    CallbackQueryView,
+    InlineQueryView,
+    MessageView,
+    ViewBox,
+)
 from .waiter_machine import WaiterMachine

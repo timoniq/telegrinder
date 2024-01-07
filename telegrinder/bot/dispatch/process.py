@@ -27,7 +27,7 @@ async def process_inner(
     return_manager: ABCReturnManager[T],
 ) -> bool:
     logger.debug("Processing {!r}...", event.__class__.__name__)
-    ctx = {}
+    ctx = Context()
 
     for middleware in middlewares:
         if await middleware.pre(event, ctx) is False:
@@ -75,6 +75,6 @@ async def check_rule(
     ctx |= ctx_copy
 
     if I18nEnum.I18N in ctx:
-        rule = await rule.translate(ctx[I18nEnum.I18N])
+        rule = await rule.translate(ctx.get(I18nEnum.I18N))
 
     return await rule.check(cute_model.unwrap(), ctx)

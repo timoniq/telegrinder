@@ -9,7 +9,7 @@ Value = typing.TypeVar("Value")
 @typing.runtime_checkable
 class Option(typing.Protocol[Value]):
     """Option protocol for `msgspec.Struct`."""
-    
+
     def __repr__(self) -> str:
         ...
 

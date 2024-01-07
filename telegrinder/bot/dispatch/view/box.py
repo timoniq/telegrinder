@@ -33,4 +33,3 @@ class ViewBox(typing.Generic[CallbackQueryViewT, InlineQueryViewT, MessageViewT]
             name: view for name, view in self.__dict__.items()
             if isinstance(view, ABCView)
         }
-    

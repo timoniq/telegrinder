@@ -1,6 +1,4 @@
-import typing
-
-import typing_extensions as typing_ext
+import typing_extensions as typing
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
@@ -15,15 +13,9 @@ from .abc import ABCHandler
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules import ABCRule
 
-F = typing.TypeVar("F", bound=typing.Callable[
-    typing.Concatenate[typing.Any, ...], typing.Awaitable
-])
+F = typing.TypeVar("F", bound=typing.Callable[typing.Concatenate[typing.Any, ...], typing.Awaitable])
 EventT = typing.TypeVar("EventT", bound=BaseCute)
-ErrorHandlerT = typing_ext.TypeVar(
-    "ErrorHandlerT",
-    bound=ABCErrorHandler,
-    default=ErrorHandler,
-)
+ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
 
 class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):

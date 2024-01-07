@@ -7,9 +7,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.result import Result
 
 EventT = typing.TypeVar("EventT", bound=BaseCute)
-Handler = typing.Callable[
-    typing.Concatenate[EventT, ...], typing.Awaitable[typing.Any]
-]
+Handler = typing.Callable[typing.Concatenate[EventT, ...], typing.Awaitable[typing.Any]]
 
 
 class ABCErrorHandler(ABC, typing.Generic[EventT]):

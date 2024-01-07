@@ -1,6 +1,7 @@
 import dataclasses
 import typing
 
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node.base import ComposeError, Node
@@ -15,7 +16,7 @@ class RuleContext(dict):
 
     @classmethod
     async def compose(cls, update: UpdateNode):
-        ctx = {}
+        ctx = Context()
         for rule in cls.rules:
             if not await check_rule(update.api, rule, update, ctx):
                 raise ComposeError

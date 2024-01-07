@@ -1,8 +1,12 @@
+import enum
 import typing
+
+Key: typing.TypeAlias = str | enum.Enum
+Value: typing.TypeAlias = typing.Any
 
 
 @typing.dataclass_transform(kw_only_default=True)
-class Context(dict[typing.Hashable, typing.Any]):
+class Context(dict[Key, Value]):
     """Context class for rules and middlewares.
     ```
     class MyRule(ABCRule[T]):
@@ -18,7 +22,7 @@ class Context(dict[typing.Hashable, typing.Any]):
     __getattr__ = dict.__getitem__  # type: ignore
     __delattr__ = dict.__delitem__  # type: ignore
 
-    def __init__(self, **kwargs: typing.Any) -> None:
+    def __init__(self, **kwargs: Value) -> None:
         cls_vars = vars(self.__class__)
         defaults = {}
         for k in self.__class__.__annotations__:
@@ -30,11 +34,11 @@ class Context(dict[typing.Hashable, typing.Any]):
     def copy(self) -> typing.Self:
         return self.__class__(**self)
 
-    def set(self, name: typing.Hashable, value: typing.Any) -> None:
-        self[name] = value
+    def set(self, key: Key, value: Value) -> None:
+        self[key] = value
     
-    def get(self, name: typing.Hashable) -> typing.Any:
-        return self[name]
+    def get(self, key: Key) -> Value:
+        return self[key]
     
-    def delete(self, name: typing.Hashable) -> None:
-        del self[name]
+    def delete(self, key: Key) -> None:
+        del self[key]
