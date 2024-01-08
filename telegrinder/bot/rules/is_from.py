@@ -1,5 +1,5 @@
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.types.enums import ChatType
+from telegrinder.types.enums import ChatType, DiceEmoji
 
 from .abc import Message, MessageRule
 
@@ -9,9 +9,19 @@ class HasFrom(MessageRule):
         return bool(message.from_)
 
 
+class HasDice(MessageRule):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return bool(message.dice)
+
+
 class IsReply(MessageRule):
     async def check(self, message: Message, ctx: Context) -> bool:
         return bool(message.reply_to_message)
+
+
+class IsSticker(MessageRule):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return bool(message.sticker)
 
 
 class IsBot(MessageRule, requires=[HasFrom()]):
@@ -78,3 +88,33 @@ class IsSuperGroup(MessageRule):
 class IsChat(MessageRule):
     async def check(self, message: Message, ctx: Context) -> bool:
         return message.chat.type in (ChatType.GROUP, ChatType.SUPERGROUP)
+
+
+class IsDice(MessageRule, requires=[HasDice()]):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return message.dice.unwrap().emoji == DiceEmoji.DICE
+
+
+class IsDartDice(MessageRule, requires=[HasDice()]):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return message.dice.unwrap().emoji == DiceEmoji.DART
+
+
+class IsBasketballDice(MessageRule, requires=[HasDice()]):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return message.dice.unwrap().emoji == DiceEmoji.BASKETBALL
+
+
+class IsFootballDice(MessageRule, requires=[HasDice()]):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return message.dice.unwrap().emoji == DiceEmoji.FOOTBALL
+
+
+class IsSlotMachineDice(MessageRule, requires=[HasDice()]):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return message.dice.unwrap().emoji == DiceEmoji.SLOT_MACHINE
+
+
+class IsBowlingDice(MessageRule, requires=[HasDice()]):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return message.dice.unwrap().emoji == DiceEmoji.BOWLING

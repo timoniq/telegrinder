@@ -2,11 +2,11 @@ import enum
 import typing
 
 Key: typing.TypeAlias = str | enum.Enum
-Value: typing.TypeAlias = typing.Any
+AnyValue: typing.TypeAlias = typing.Any
 
 
-@typing.dataclass_transform(kw_only_default=True)
-class Context(dict[Key, Value]):
+@typing.dataclass_transform(kw_only_default=True, order_default=True)
+class Context(dict[str, AnyValue]):
     """Context class for rules and middlewares.
     ```
     class MyRule(ABCRule[T]):
@@ -18,11 +18,7 @@ class Context(dict[Key, Value]):
     ```
     """
 
-    __setattr__ = dict.__setitem__  # type: ignore
-    __getattr__ = dict.__getitem__  # type: ignore
-    __delattr__ = dict.__delitem__  # type: ignore
-
-    def __init__(self, **kwargs: Value) -> None:
+    def __init__(self, **kwargs: AnyValue) -> None:
         cls_vars = vars(self.__class__)
         defaults = {}
         for k in self.__class__.__annotations__:
@@ -31,14 +27,36 @@ class Context(dict[Key, Value]):
                 delattr(self.__class__, k)
         dict.__init__(self, **defaults | kwargs)
     
+    def __setitem__(self, __key: Key, __value: AnyValue) -> None:
+        super().__setitem__(self.key_to_str(__key), __value)
+    
+    def __getitem__(self, __key: Key) -> AnyValue:
+        return super().__getitem__(self.key_to_str(__key))
+    
+    def __delitem__(self, __key: Key) -> None:
+        super().__delattr__(self.key_to_str(__key))
+
+    def __setattr__(self, __name: str, __value: AnyValue) -> None:
+        self.__setitem__(__name, __value)
+    
+    def __getattr__(self, __name: str) -> AnyValue:
+        return self.__getitem__(__name)
+    
+    def __delattr__(self, __name: str) -> None:
+        return self.__delitem__(__name)
+
+    @staticmethod
+    def key_to_str(key: Key) -> str:
+        return key if isinstance(key, str) else str(key.value)
+    
     def copy(self) -> typing.Self:
         return self.__class__(**self)
 
-    def set(self, key: Key, value: Value) -> None:
-        self[key] = value
+    def set(self, key: Key, value: AnyValue) -> None:
+        self[self.key_to_str(key)] = value
     
-    def get(self, key: Key) -> Value:
-        return self[key]
+    def get(self, key: Key) -> AnyValue:
+        return self[self.key_to_str(key)]
     
     def delete(self, key: Key) -> None:
-        del self[key]
+        del self[self.key_to_str(key)]

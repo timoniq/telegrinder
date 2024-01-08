@@ -16,9 +16,13 @@ from .fuzzy import FuzzyText
 from .inline import InlineQueryRule, InlineQueryText, LocationInlineQuery
 from .integer import Integer, IntegerInRange
 from .is_from import (
+    IsBasketballDice,
     IsBot,
+    IsBowlingDice,
     IsChat,
     IsChatId,
+    IsDartDice,
+    IsDice,
     IsForum,
     IsGroup,
     IsLanguageCode,

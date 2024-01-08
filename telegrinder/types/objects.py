@@ -337,7 +337,7 @@ class Dice(Model):
 
     Docs: https://core.telegram.org/bots/api/#dice"""
 
-    emoji: str
+    emoji: DiceEmoji
     value: int
 
 

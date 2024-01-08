@@ -11,5 +11,5 @@ class ABCLoopWrapper(ABC):
         ...
 
     @abstractmethod
-    def run(self) -> None:
+    def run_event_loop(self) -> None:
         ...
