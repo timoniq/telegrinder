@@ -7,24 +7,6 @@ from telegrinder.modules import logger
 
 from .abc import ABCLoopWrapper, CoroutineFunc, CoroutineTask
 
-ExceptionT = typing.TypeVar("ExceptionT", bound=BaseException)
-ErrorHandler = typing.Callable[[ExceptionT], CoroutineTask]
-
-
-async def keyboard_interrupt_handler(_: KeyboardInterrupt):
-    print()  # blank print for ^C
-    logger.info("KeyboardInterrupt")
-
-
-async def system_exit_handler(exc: SystemExit):
-    logger.info(f"System exit with code {exc.code}")
-
-
-DEFAULT_ERROR_HANDLERS: dict[type[BaseException], list[ErrorHandler]] = {
-    KeyboardInterrupt: [keyboard_interrupt_handler],
-    SystemExit: [system_exit_handler],
-}
-
 
 @dataclasses.dataclass
 class DelayedTask:
@@ -37,47 +19,27 @@ class DelayedTask:
     def is_cancelled(self) -> bool:
         return self._cancelled
 
-    def cancel(self) -> None:
-        if not self._cancelled:
-            self._cancelled = True
-
     async def __call__(self, *args, **kwargs) -> None:
-        while not self._cancelled:
+        while not self.is_cancelled:
             await asyncio.sleep(self.seconds)
-            if self._cancelled:
+            if self.is_cancelled:
                 break
             await self.handler(*args, **kwargs)
             if not self.repeat:
                 break
 
+    def cancel(self) -> None:
+        if not self._cancelled:
+            self._cancelled = True
+
 
 class LoopWrapper(ABCLoopWrapper):
-    def __init__(
-        self,
-        tasks: list[CoroutineTask] | None = None,
-        error_handlers: dict[type[BaseException], list[ErrorHandler]] | None = None,
-    ):
+    def __init__(self, tasks: list[CoroutineTask] | None = None):
         self.on_startup: list[CoroutineTask] = []
         self.on_shutdown: list[CoroutineTask] = []
         self.tasks = tasks or []
-        self.error_handlers = DEFAULT_ERROR_HANDLERS | (error_handlers or {})
         self._loop = asyncio.new_event_loop()
         
-    def run_error_handler(self, exception: BaseException) -> None:
-        if exception.__class__ not in self.error_handlers:
-            return
-        
-        for handler in self.error_handlers[exception.__class__]:
-            try:
-                self._loop.run_until_complete(handler(exception))
-            except BaseException as exc:
-                logger.exception(
-                    "Exception {!r} occurred during running error handler {!r} "
-                    "in loop wrapper.",
-                    exc.__class__.__name__,
-                    handler.__name__,
-                )
-    
     def run_event_loop(self) -> None:
         if not self.tasks:
             logger.warning("You run loop with 0 tasks!")
@@ -100,9 +62,9 @@ class LoopWrapper(ABCLoopWrapper):
                     except BaseException as ex:
                         logger.exception(ex)
                 tasks = asyncio.all_tasks(self._loop)
-        except BaseException as exc:
-            if self.error_handlers:
-                self.run_error_handler(exc)
+        except KeyboardInterrupt:
+            print()  # blank print for ^C
+            logger.info("KeyboardInterrupt")
             self.complete_tasks(tasks)
         finally:
             for shutdown_task in self.on_shutdown:
@@ -165,4 +127,3 @@ class LoopWrapper(ABCLoopWrapper):
             return delayed_task
 
         return decorator
-    
