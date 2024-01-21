@@ -1,5 +1,5 @@
-import typing
 from contextlib import suppress
+import typing
 
 import msgspec
 from msgspec import Raw, ValidationError
@@ -46,10 +46,24 @@ def msgspec_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
     )
 
 
+@typing.overload
 def full_result(
-    result: Result[msgspec.Raw, "APIError"], full_t: typing.Type["T"]
+    result: Result[msgspec.Raw, "APIError"], full_t: type["T"]
 ) -> Result["T", "APIError"]:
-    return result.map(lambda v: decoder.decode(v, type=full_t))
+    ...
+
+
+@typing.overload
+def full_result(
+    result: Result[msgspec.Raw, "APIError"], full_t: object
+) -> Result[typing.Any, "APIError"]:
+    ...
+
+
+def full_result(
+    result: Result[msgspec.Raw, "APIError"], full_t: type["T"] | object
+) -> Result[typing.Union["T", typing.Any], "APIError"]:
+    return result.map(lambda v: decoder.decode(v, type=full_t))  # type: ignore
 
 
 def convert(d: typing.Any, serialize: bool = True) -> typing.Any:

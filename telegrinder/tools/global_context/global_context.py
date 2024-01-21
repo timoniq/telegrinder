@@ -77,9 +77,10 @@ def ctx_var(value: T, *, const: bool = False) -> T:
 
     ctx = MyCtx(name=ctx_var("Alex", const=True))
     ctx.URL  #: 'https://google.com'
-    ctx.URL = '...'  #: type checking fail and raise exception 'TypeError'
+    ctx.URL = '...'  #: type checking error & exception 'TypeError'
     ```
     """
+    
     return typing.cast(T, CtxVar(value, const=const))
 
 

@@ -1,3 +1,5 @@
-from typegen.schema_generator import generate
+from typegen.generator import generate
 
-generate("telegrinder/types")
+
+if __name__ == "__main__":
+    generate("telegrinder/types")

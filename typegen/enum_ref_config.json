@@ -1,0 +1,546 @@
+{
+    "objects": [
+        {
+            "object_name": "Chat",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "ChatType"
+                }
+            ]
+        },
+        {
+            "object_name": "MessageEntity",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "MessageEntityType"
+                }
+            ]
+        },
+        {
+            "object_name": "BotCommandScopeAllChatAdministrators",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "BotCommandScopeType"
+                }
+            ]
+        },
+        {
+            "object_name": "BotCommandScopeDefault",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "BotCommandScopeType"
+                }
+            ]
+        },
+        {
+            "object_name": "BotCommandScopeAllPrivateChats",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "BotCommandScopeType"
+                }
+            ]
+        }
+        ,
+        {
+            "object_name": "BotCommandScopeAllGroupChats",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "BotCommandScopeType"
+                }
+            ]
+        },
+        {
+            "object_name": "BotCommandScopeChat",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "BotCommandScopeType"
+                }
+            ]
+        },
+        {
+            "object_name": "BotCommandScopeChatAdministrators",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "BotCommandScopeType"
+                }
+            ]
+        },
+        {
+            "object_name": "BotCommandScopeChatMember",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "BotCommandScopeType"
+                }
+            ]
+        },
+        {
+            "object_name": "ChatBoostSourceGiftCode",
+            "reference_fields": [
+                {
+                    "field_name": "source",
+                    "reference": "ChatBoostSourceType"
+                }
+            ]
+        }
+        ,
+        {
+            "object_name": "ChatBoostSourceGiveaway",
+            "reference_fields": [
+                {
+                    "field_name": "source",
+                    "reference": "ChatBoostSourceType"
+                }
+            ]
+        },
+        {
+            "object_name": "ChatBoostSourcePremium",
+            "reference_fields": [
+                {
+                    "field_name": "source",
+                    "reference": "ChatBoostSourceType"
+                }
+            ]
+        },
+        {
+            "object_name": "ChatMemberAdministrator",
+            "reference_fields": [
+                {
+                    "field_name": "status",
+                    "reference": "ChatMemberStatus"
+                }
+            ]
+        },
+        {
+            "object_name": "ChatMemberLeft",
+            "reference_fields": [
+                {
+                    "field_name": "status",
+                    "reference": "ChatMemberStatus"
+                }
+            ]
+        },
+        {
+            "object_name": "ChatMemberBanned",
+            "reference_fields": [
+                {
+                    "field_name": "status",
+                    "reference": "ChatMemberStatus"
+                }
+            ]
+        },
+        {
+            "object_name": "ChatMemberOwner",
+            "reference_fields": [
+                {
+                    "field_name": "status",
+                    "reference": "ChatMemberStatus"
+                }
+            ]
+        },
+        {
+            "object_name": "ChatMemberMember",
+            "reference_fields": [
+                {
+                    "field_name": "status",
+                    "reference": "ChatMemberStatus"
+                }
+            ]
+        },
+        {
+            "object_name": "ChatMemberRestricted",
+            "reference_fields": [
+                {
+                    "field_name": "status",
+                    "reference": "ChatMemberStatus"
+                }
+            ]
+        },
+        {
+            "object_name": "Dice",
+            "reference_fields": [
+                {
+                    "field_name": "emoji",
+                    "reference": "DiceEmoji"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultArticle",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultCachedAudio",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultCachedDocument",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultAudio",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultCachedGif",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultCachedMpeg4Gif",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultCachedPhoto",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultCachedSticker",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultCachedVideo",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultCachedVoice",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultArticle"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultContact",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultDocument",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultGame",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultGif",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultLocation",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultMpeg4Gif",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultPhoto",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultVenue",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultVideo",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InlineQueryResultVoice",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InlineQueryResultType"
+                }
+            ]
+        },
+        {
+            "object_name": "InputMediaAnimation",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InputMediaType"
+                }
+            ]
+        },
+        {
+            "object_name": "InputMediaAudio",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InputMediaType"
+                }
+            ]
+        },
+        {
+            "object_name": "InputMediaDocument",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InputMediaType"
+                }
+            ]
+        },
+        {
+            "object_name": "InputMediaPhoto",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InputMediaType"
+                }
+            ]
+        },
+        {
+            "object_name": "InputMediaVideo",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "InputMediaType"
+                }
+            ]
+        },
+        {
+            "object_name": "MenuButtonCommands",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "MenuButtonType"
+                }
+            ]
+        },
+        {
+            "object_name": "MenuButtonWebApp",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "MenuButtonType"
+                }
+            ]
+        },
+        {
+            "object_name": "MenuButtonDefault",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "MenuButtonType"
+                }
+            ]
+        },
+        {
+            "object_name": "MessageOriginHiddenUser",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "MessageOriginType"
+                }
+            ]
+        },
+        {
+            "object_name": "MessageOriginUser",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "MessageOriginType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorDataField",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "PassportElementErrorType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorFile",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "PassportElementErrorType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorFiles",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "PassportElementErrorType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorFrontSide",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "PassportElementErrorType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorReverseSide",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "PassportElementErrorType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorSelfie",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "PassportElementErrorType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorTranslationFile",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "PassportElementErrorType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorTranslationFiles",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "PassportElementErrorType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorUnspecified",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "PassportElementErrorType"
+                }
+            ]
+        },
+        {
+            "object_name": "ReactionTypeCustomEmoji",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "ReactionTypeType"
+                }
+            ]
+        },
+        {
+            "object_name": "ReactionTypeEmoji",
+            "reference_fields": [
+                {
+                    "field_name": "type",
+                    "reference": "ReactionTypeType"
+                }
+            ]
+        }
+    ]
+}

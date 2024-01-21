@@ -5,15 +5,16 @@ Nicifications are basically nice features for models which are included in auto-
 The difference between nicifications and cure types is: cute types can borrow view runtime properties and have context api
 (so they can implement model-specific methods).
 Nicifications can only implement methods/properties working only with model fields.
----
-Only types from telegrinder.types may be used and imports declared in types/objects
 """
+from telegrinder.model import Model
 from telegrinder.types import Message, User
 
 
 class _Message(Message):
     @property
     def from_user(self) -> "User":
+        """`from_user` instead of `from_.unwrap()`"""
+
         return self.from_.unwrap()
 
     def __eq__(self, other: "Message"):
@@ -23,4 +24,14 @@ class _Message(Message):
 class _User(User):
     @property
     def full_name(self) -> str:
+        """User's or bot's `first_name` + `last_name`."""
+
         return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
+
+
+class _InputFile(Model):
+    filename: str
+    """Filename."""
+
+    data: bytes
+    """Bytes of file."""
