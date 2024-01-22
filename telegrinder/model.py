@@ -8,10 +8,23 @@ from telegrinder.option import Nothing, NothingType, Some
 from telegrinder.option.msgspec_option import Option
 from telegrinder.result import Result
 
+T = typing.TypeVar("T")
+
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
 
-    T = typing.TypeVar("T")
+    UnionModels = typing.Union
+else:
+
+    @typing.runtime_checkable
+    class UnionType(typing.Protocol[T]):
+        def __str__(self) -> str:
+            ...
+        
+        def __class_getitem__(cls, t):
+            return super().__class_getitem__(typing.Union[t])
+    
+    UnionModels = UnionType
 
 DecHook = typing.Callable[[type["T"], typing.Any], typing.Any]
 EncHook = typing.Callable[["T"], typing.Any]
@@ -42,6 +55,17 @@ def msgspec_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
         "Expected `{}` for Option.Some, got `{}`".format(
             repr_type(value_type),
             repr_type(type(obj)),
+        )
+    )
+
+
+def union_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
+    for t in tp.__args__[0].__args__:
+        with suppress(NotImplementedError, msgspec.ValidationError):
+            return decoder.convert(obj, type=t)
+    raise TypeError(
+        "Object can't validated with `{}`".format(
+            repr(tp.__args__[0]),
         )
     )
 
@@ -113,6 +137,7 @@ class Decoder:
     def __init__(self) -> None:
         self.dec_hooks: dict[type, DecHook[typing.Any]] = {
             Option: msgspec_dec_hook,
+            UnionModels: union_dec_hook,  # type: ignore
         }
 
     def add_dec_hook(self, tp: type["T"]):  # type: ignore

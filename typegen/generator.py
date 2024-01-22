@@ -138,6 +138,7 @@ class TypesGenerator(ABCGenerator):
         }
         self.nicification_path = nicification_path
         self.enum_ref_configs = enum_ref_configs or []
+        self._parent_types: dict[str, list[str]] = {}
     
     def get_enum_ref(self, object_name: str, field_name: str) -> str | None:        
         for cfg in self.enum_ref_configs:
@@ -152,29 +153,44 @@ class TypesGenerator(ABCGenerator):
 
         if enum_ref is not None:
             union_types = (
-                f'list["{enum_ref}"]'
+                f"list[{enum_ref}]"
                 if any("Array of" in x for x in field.types)
-                else f'"{enum_ref}"'
+                else enum_ref
             )
         else:
-            union_types = " | ".join(convert_to_python_type(tp) for tp in field.types)
+            union_types = " | ".join(
+                convert_to_python_type(tp)
+                if tp not in self._parent_types
+                else "UnionModels[%s]" % ", ".join(
+                    f'"{p}"' for p in self._parent_types[tp]
+                )
+                for tp in field.types
+            )
         
             if '"' in union_types and len(field.types) > 1:
                 union_types = "typing.Union[%s]" % union_types.replace(" | ", ", ")
 
         if not field.required:
-            union_types = f"Option[{union_types}]"
+            union_types = f"Option[{union_types}] = Nothing"
         
-        code += union_types + (" = Nothing" if not field.required else "")
+        code += union_types
         if field.description:
             description = field.description.replace('"', "`")
             code += f'\n{TAB}"""{chunks_str(description, sep=TAB)}"""\n'
         
         return code
-
+    
+    def make_subtype_of(self, subtype_of: list[str] | None = None) -> str:
+        if not subtype_of:
+            return "Model"
+        return ", ".join(subtype_of)
+    
     def make_type(self, tp_schema: TypeSchema) -> str:
         object_name = camel_to_pascal(tp_schema.name)
-        code = f"class {camel_to_pascal(tp_schema.name)}(Model):\n{TAB}"
+        code = (
+            f"class {camel_to_pascal(tp_schema.name)}"
+            f"({self.make_subtype_of(tp_schema.subtype_of)}):\n{TAB}"
+        )
         
         if tp_schema.description:
             description = f"Object {object_name!r}, [docs]({tp_schema.href})"
@@ -186,7 +202,10 @@ class TypesGenerator(ABCGenerator):
         code += f"\n"
         nicifications = find_nicifications(object_name, self.nicification_path)
         if not tp_schema.fields and not nicifications:
-            logger.warning(f"Object {object_name!r} has not fields and nicifications! :(")
+            if not tp_schema.subtypes:
+                logger.warning(f"Object {object_name!r} has not fields, subtypes and nicifications! :(")
+            else:
+                self._parent_types[object_name] = tp_schema.subtypes
             code += f"{TAB}pass"
             return code
         
@@ -212,7 +231,7 @@ class TypesGenerator(ABCGenerator):
         logger.debug(f"Generation of {len(self.types)} objects...")
         lines = [
             "import typing\n\n",
-            "from telegrinder.model import Model\n",
+            "from telegrinder.model import Model, UnionModels\n",
             "from telegrinder.option.option import Nothing\n"
             "from telegrinder.option.msgspec_option import Option\n\n\n",
         ]
@@ -220,7 +239,7 @@ class TypesGenerator(ABCGenerator):
         if self.enum_ref_configs:
             lines.insert(1, "from telegrinder.types.enums import *\n")
 
-        for type_schema in self.types:
+        for type_schema in sorted(self.types, key=lambda x: x.subtypes or [], reverse=True):
             lines.append(self.make_type(type_schema) + "\n\n")
         
         with open(path + "/objects.py", mode="w", encoding="UTF-8") as f:

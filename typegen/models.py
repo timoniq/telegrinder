@@ -28,6 +28,8 @@ class TypeSchema(Model):
     href: str
     description: typing.Optional[list[str]] = None
     fields: typing.Optional[list["Field"]] = None
+    subtypes: typing.Optional[list[str]] = None
+    subtype_of: typing.Optional[list[str]] = None 
 
 
 class Field(Model):

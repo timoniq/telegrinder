@@ -43,7 +43,7 @@ async def start(message: Message):
     queue = itertools.cycle(["🫖🥨", "🥨🤗", "🤗🫖"])
     for _ in range(10):
         msg = next(queue)
-        await api.edit_message_text(message.chat.id, message_id, text=msg)
+        await api.edit_message_text(msg, message.chat.id, message_id)
         await asyncio.sleep(0.5)
     await message.answer("Tee session is over! Goodbye!")
 
