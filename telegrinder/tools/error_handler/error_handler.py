@@ -41,7 +41,7 @@ class Catcher(typing.Generic[EventT]):
         ctx: Context,
     ) -> Result[typing.Any, typing.Any]:
         try:
-            result = Ok(await handler(event, **magic_bundle(handler, ctx)))
+            result = Ok(await handler(event, **magic_bundle(handler, ctx)))  # type: ignore
         except BaseException as exc:
             logger.debug(
                 "Exception {!r} occurred while running handler {!r}. Matching  "
@@ -62,7 +62,10 @@ class Catcher(typing.Generic[EventT]):
                 result = Ok(
                     await self.func(
                         exc,
-                        **magic_bundle(self.func, {"event": event, "api": api} | ctx)
+                        **magic_bundle(
+                            self.func,
+                            {"event": event, "api": api} | ctx  # type: ignore
+                        )
                     )
                 )
             else:
@@ -118,7 +121,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         ctx: Context,
     ) -> Result[typing.Any, typing.Any]:
         if not self.catcher:
-            return Ok(await handler(event, **magic_bundle(handler, ctx)))
+            return Ok(await handler(event, **magic_bundle(handler, ctx)))  # type: ignore
         
         ok_none = Ok(None)
         

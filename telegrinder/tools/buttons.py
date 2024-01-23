@@ -63,3 +63,12 @@ class InlineButton(BaseButton):
     switch_inline_query: str | None = None
     switch_inline_query_current_chat: str | None = None
     web_app: dict | None = None
+
+
+__all__ = (
+    "DataclassInstance",
+    "RowButtons",
+    "BaseButton",
+    "Button",
+    "InlineButton"
+)

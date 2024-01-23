@@ -1,6 +1,4 @@
-import typing
-
-from telegrinder.model import Model, UnionModels
+from telegrinder.model import Model, Union
 from telegrinder.option.msgspec_option import Option
 from telegrinder.option.option import Nothing
 from telegrinder.types.enums import *
@@ -508,7 +506,7 @@ class Message(MaybeInaccessibleMessage):
     sent on behalf of a chat."""
 
     forward_origin: Option[
-        UnionModels[
+        Union[
             "MessageOriginUser",
             "MessageOriginHiddenUser",
             "MessageOriginChat",
@@ -675,7 +673,7 @@ class Message(MaybeInaccessibleMessage):
     it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this identifier."""
 
-    pinned_message: Option[UnionModels["Message", "InaccessibleMessage"]] = Nothing
+    pinned_message: Option[Union["Message", "InaccessibleMessage"]] = Nothing
     """Optional. Specified message was pinned. Note that the Message object in 
     this field will not contain further reply_to_message fields even if it 
     itself is a reply."""
@@ -857,7 +855,7 @@ class ExternalReplyInfo(Model):
     This object contains information about a message that is being replied to, which may come from another chat or forum topic.
     """
 
-    origin: UnionModels[
+    origin: Union[
         "MessageOriginUser",
         "MessageOriginHiddenUser",
         "MessageOriginChat",
@@ -2073,7 +2071,7 @@ class CallbackQuery(Model):
     """Global identifier, uniquely corresponding to the chat to which the message 
     with the callback button was sent. Useful for high scores in games."""
 
-    message: Option[UnionModels["Message", "InaccessibleMessage"]] = Nothing
+    message: Option[Union["Message", "InaccessibleMessage"]] = Nothing
     """Optional. Message sent by the bot with the callback button that originated 
     the query"""
 
@@ -2244,7 +2242,7 @@ class ChatMemberUpdated(Model):
     date: int
     """Date the change was done in Unix time"""
 
-    old_chat_member: UnionModels[
+    old_chat_member: Union[
         "ChatMemberOwner",
         "ChatMemberAdministrator",
         "ChatMemberMember",
@@ -2254,7 +2252,7 @@ class ChatMemberUpdated(Model):
     ]
     """Previous information about the chat member"""
 
-    new_chat_member: UnionModels[
+    new_chat_member: Union[
         "ChatMemberOwner",
         "ChatMemberAdministrator",
         "ChatMemberMember",
@@ -2590,7 +2588,7 @@ class ReactionCount(Model):
     Represents a reaction added to a message along with the number of times it was added.
     """
 
-    type: UnionModels["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]
+    type: Union["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]
     """Type of the reaction"""
 
     total_count: int
@@ -2859,7 +2857,7 @@ class ChatBoost(Model):
     """Point in time (Unix timestamp) when the boost will automatically expire, 
     unless the booster's Telegram Premium subscription is prolonged"""
 
-    source: UnionModels[
+    source: Union[
         "ChatBoostSourcePremium", "ChatBoostSourceGiftCode", "ChatBoostSourceGiveaway"
     ]
     """Source of the added boost"""
@@ -2889,7 +2887,7 @@ class ChatBoostRemoved(Model):
     remove_date: int
     """Point in time (Unix timestamp) when the boost was removed"""
 
-    source: UnionModels[
+    source: Union[
         "ChatBoostSourcePremium", "ChatBoostSourceGiftCode", "ChatBoostSourceGiveaway"
     ]
     """Source of the removed boost"""
@@ -2961,7 +2959,7 @@ class InputMediaVideo(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files"""
 
-    thumbnail: Option[typing.Union["InputFile", str]] = Nothing
+    thumbnail: Option[Union["InputFile", str]] = Nothing
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
     for the file is supported server-side. The thumbnail should be in JPEG format 
     and less than 200 kB in size. A thumbnail's width and height should not exceed 
@@ -3012,7 +3010,7 @@ class InputMediaAnimation(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files"""
 
-    thumbnail: Option[typing.Union["InputFile", str]] = Nothing
+    thumbnail: Option[Union["InputFile", str]] = Nothing
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
     for the file is supported server-side. The thumbnail should be in JPEG format 
     and less than 200 kB in size. A thumbnail's width and height should not exceed 
@@ -3059,7 +3057,7 @@ class InputMediaAudio(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files"""
 
-    thumbnail: Option[typing.Union["InputFile", str]] = Nothing
+    thumbnail: Option[Union["InputFile", str]] = Nothing
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
     for the file is supported server-side. The thumbnail should be in JPEG format 
     and less than 200 kB in size. A thumbnail's width and height should not exceed 
@@ -3103,7 +3101,7 @@ class InputMediaDocument(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files"""
 
-    thumbnail: Option[typing.Union["InputFile", str]] = Nothing
+    thumbnail: Option[Union["InputFile", str]] = Nothing
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
     for the file is supported server-side. The thumbnail should be in JPEG format 
     and less than 200 kB in size. A thumbnail's width and height should not exceed 
@@ -3250,7 +3248,7 @@ class InputSticker(Model):
     """Object 'InputSticker', [docs](https://core.telegram.org/bots/api#inputsticker)
     This object describes a sticker to be added to a sticker set."""
 
-    sticker: typing.Union["InputFile", str]
+    sticker: Union["InputFile", str]
     """The added sticker. Pass a file_id as a String to send a file that already exists 
     on the Telegram servers, pass an HTTP URL as a String for Telegram to get a 
     file from the Internet, upload a new one using multipart/form-data, or 
@@ -3337,7 +3335,7 @@ class InlineQueryResultArticle(InlineQueryResult):
     title: str
     """Title of the result"""
 
-    input_message_content: UnionModels[
+    input_message_content: Union[
         "InputTextMessageContent",
         "InputLocationMessageContent",
         "InputVenueMessageContent",
@@ -3414,7 +3412,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3474,7 +3472,7 @@ class InlineQueryResultGif(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3534,7 +3532,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3596,7 +3594,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3647,7 +3645,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3693,7 +3691,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3743,7 +3741,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3804,7 +3802,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3864,7 +3862,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3912,7 +3910,7 @@ class InlineQueryResultContact(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -3985,7 +3983,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -4029,7 +4027,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -4073,7 +4071,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -4102,7 +4100,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -4149,7 +4147,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -4196,7 +4194,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -4239,7 +4237,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",
@@ -4279,7 +4277,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
     input_message_content: Option[
-        UnionModels[
+        Union[
             "InputTextMessageContent",
             "InputLocationMessageContent",
             "InputVenueMessageContent",

@@ -21,3 +21,6 @@ class ABCTranslatorMiddleware(ABCMiddleware[T]):
             await self.get_locale(event)
         )
         return True
+
+
+__all__ = ("ABCTranslatorMiddleware",)

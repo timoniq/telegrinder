@@ -37,3 +37,12 @@ class Field(Model):
     types: list[str]
     required: bool = False
     description: typing.Optional[str] = None
+
+
+__all__ = (
+    "Model",
+    "Schema",
+    "MethodSchema",
+    "TypeSchema",
+    "Field",
+)

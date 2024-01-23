@@ -272,3 +272,33 @@ def resolve_domain(username: str, string: str | None = None) -> TagFormat:
 
 def underline(string: str) -> TagFormat:
     return TagFormat(string, tag="u")
+
+
+__all__ = (
+    "FormatString",
+    "SpecialFormat",
+    "HTMLFormatter",
+    "block_quote",
+    "bold",
+    "channel_boost_link",
+    "code_inline",
+    "escape",
+    "invite_chat_link",
+    "italic",
+    "link",
+    "mention",
+    "pre_code",
+    "resolve_domain",
+    "spoiler",
+    "start_bot_link",
+    "start_group_link",
+    "strike",
+    "tg_emoji",
+    "underline",
+    "get_channel_boost_link",
+    "get_invite_chat_link",
+    "get_mention_link",
+    "get_resolve_domain_link",
+    "get_start_bot_link",
+    "get_start_group_link",
+)

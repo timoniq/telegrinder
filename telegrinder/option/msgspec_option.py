@@ -42,3 +42,6 @@ class Option(typing.Protocol[Value]):
 
     def unwrap_or_none(self) -> Value | None:
         ...
+
+
+__all__ = ("Option",)

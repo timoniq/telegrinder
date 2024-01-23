@@ -59,3 +59,6 @@ class KeyboardSetYAML(KeyboardSetBase):
                 new_keyboard.add(new_keyboard.BUTTON(**button))  # type: ignore
 
             setattr(cls, name, new_keyboard)
+
+
+__all__ = ("KeyboardSetYAML",)

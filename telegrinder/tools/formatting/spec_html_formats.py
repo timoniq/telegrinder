@@ -104,3 +104,18 @@ class ResolveDomain(BaseSpecFormat):
 
     username: str
     string: str | None = None
+
+
+__all__ = (
+    "BaseSpecFormat",
+    "ChannelBoostLink",
+    "InviteChatLink",
+    "Link",
+    "Mention",
+    "PreCode",
+    "ResolveDomain",
+    "SpecialFormat",
+    "StartBotLink",
+    "StartGroupLink",
+    "TgEmoji",
+)

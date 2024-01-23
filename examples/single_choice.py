@@ -20,8 +20,8 @@ async def action(m: Message):
         .wait(m.ctx_api, bot.dispatch.callback_query)
     )
     await m.ctx_api.edit_message_text(
-        m.chat.id,
-        m_id,
+        chat_id=m.chat.id,
+        nessage_id=m_id,
         text=f"You chose {chosen}",
     )
 

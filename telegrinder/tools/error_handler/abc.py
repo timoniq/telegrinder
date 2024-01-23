@@ -24,3 +24,6 @@ class ABCErrorHandler(ABC, typing.Generic[EventT]):
         ctx: Context,
     ) -> Result[typing.Any, typing.Any]:
         ...
+
+
+__all__ = ("ABCErrorHandler",)

@@ -15,7 +15,13 @@ from .abc import ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
 T = typing.TypeVar("T")
 F = typing.TypeVar("F", bound=typing.Callable)
 CtxValueT = typing.TypeVar("CtxValueT", default=typing.Any)
-_: typing.TypeAlias = typing.Annotated[None, lambda: None]
+
+if typing.TYPE_CHECKING:
+
+    _: typing.TypeAlias = None
+else:
+
+    _ = lambda: None
 
 
 def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
@@ -434,3 +440,19 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         self.__storage__.delete(self.ctx_name)
         logger.warning(f"Global context {self.ctx_name!r} has been deleted!")
         return Ok(_())
+
+
+__all__ = (
+    "ABCGlobalContext",
+    "CtxVar",
+    "CtxVariable",
+    "GlobalCtxVar",
+    "GlobalContext",
+    "Storage",
+    "RootAttr",
+    "type_check",
+    "root_protection",
+    "is_dunder",
+    "ctx_var",
+    "get_orig_class",
+)

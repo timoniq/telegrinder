@@ -64,10 +64,11 @@ def chunks_str(s: str, sep: str = ""):
     return s.rstrip()
 
 
-def convert_to_python_type(tp: str) -> str:
+def convert_to_python_type(tp: str, parent_types: dict[str, list[str]] | None = None) -> str:
     if tp.startswith("Array of"):
-        return f'list[{convert_to_python_type(tp.removeprefix("Array of "))}]'
-    return TYPES.get(tp, f'"{tp}"')
+        return f'list[{convert_to_python_type(tp.removeprefix("Array of "), parent_types)}]'
+    parent_types = parent_types or {}
+    return TYPES.get(tp, f'"{tp}"' if tp not in parent_types else " | ".join(parent_types[tp]))
 
 
 def camel_to_snake(s: str) -> str:
@@ -138,7 +139,7 @@ class TypesGenerator(ABCGenerator):
         }
         self.nicification_path = nicification_path
         self.enum_ref_configs = enum_ref_configs or []
-        self._parent_types: dict[str, list[str]] = {}
+        self.parent_types: dict[str, list[str]] = {}
     
     def get_enum_ref(self, object_name: str, field_name: str) -> str | None:        
         for cfg in self.enum_ref_configs:
@@ -160,15 +161,15 @@ class TypesGenerator(ABCGenerator):
         else:
             union_types = " | ".join(
                 convert_to_python_type(tp)
-                if tp not in self._parent_types
-                else "UnionModels[%s]" % ", ".join(
-                    f'"{p}"' for p in self._parent_types[tp]
+                if tp not in self.parent_types
+                else "Union[%s]" % ", ".join(
+                    f'"{p}"' for p in self.parent_types[tp]
                 )
                 for tp in field.types
             )
         
             if '"' in union_types and len(field.types) > 1:
-                union_types = "typing.Union[%s]" % union_types.replace(" | ", ", ")
+                union_types = "Union[%s]" % union_types.replace(" | ", ", ")
 
         if not field.required:
             union_types = f"Option[{union_types}] = Nothing"
@@ -205,7 +206,7 @@ class TypesGenerator(ABCGenerator):
             if not tp_schema.subtypes:
                 logger.warning(f"Object {object_name!r} has not fields, subtypes and nicifications! :(")
             else:
-                self._parent_types[object_name] = tp_schema.subtypes
+                self.parent_types[object_name] = tp_schema.subtypes
             code += f"{TAB}pass"
             return code
         
@@ -230,8 +231,7 @@ class TypesGenerator(ABCGenerator):
 
         logger.debug(f"Generation of {len(self.types)} objects...")
         lines = [
-            "import typing\n\n",
-            "from telegrinder.model import Model, UnionModels\n",
+            "from telegrinder.model import Model, Union\n",
             "from telegrinder.option.option import Nothing\n"
             "from telegrinder.option.msgspec_option import Option\n\n\n",
         ]
@@ -249,17 +249,21 @@ class TypesGenerator(ABCGenerator):
 
 
 class MethodsGenerator(ABCGenerator):
-    def __init__(self, methods: list[MethodSchema]) -> None:
+    def __init__(self, methods: list[MethodSchema], parent_types: dict[str, list[str]]) -> None:
         self.methods = methods
+        self.parent_types = parent_types
     
     @staticmethod
-    def make_type_hint(types: list[str]) -> str:
+    def make_type_hint(types: list[str], parent_types: dict[str, list[str]] | None = None) -> str:
         if not types:
             return "typing.Any"
         return (
-            convert_to_python_type(types[0]).replace('"', "")
+            convert_to_python_type(types[0], parent_types).replace('"', "")
             if len(types) == 1
-            else " | ".join(convert_to_python_type(tp).replace('"', "") for tp in types)
+            else " | ".join(
+                convert_to_python_type(tp, parent_types).replace('"', "")
+                for tp in types
+            )
         )
     
     def make_method_body(self, method: MethodSchema) -> str:
@@ -285,7 +289,8 @@ class MethodsGenerator(ABCGenerator):
                 TAB * 2,
                 method.name,
             )
-            + f"{TAB * 2}return full_result(method_response, {self.make_type_hint(method.returns or [])})"
+            + f"{TAB * 2}return full_result(method_response, "
+            + f"{self.make_type_hint(method.returns or [], self.parent_types)})"
         )
 
     def make_method_params(self, params: list[Field] | None = None) -> list[str]:
@@ -310,7 +315,7 @@ class MethodsGenerator(ABCGenerator):
     def make_return_type(self, returns: list[str] | None = None) -> str:
         if not returns:
             return 'Result[bool, "APIError"]'
-        return f'Result[{self.make_type_hint(returns)}, "APIError"]'
+        return f'Result[{self.make_type_hint(returns, self.parent_types)}, "APIError"]'
     
     def make_method(self, method: MethodSchema) -> str:
         code = (
@@ -371,7 +376,12 @@ def generate(
             MAIN_DIR + "/nicifications.py",
             enum_ref_cfg["objects"],  # type: ignore
         )
-        methods_generator = methods_generator or MethodsGenerator(schema.methods)
+        methods_generator = methods_generator or MethodsGenerator(
+            schema.methods,
+            types_generator.parent_types
+            if isinstance(types_generator, TypesGenerator)
+            else {}
+        )
     
     types_generator.generate(path)
     methods_generator.generate(path)
@@ -384,7 +394,7 @@ def generate(
     logger.debug("Schema has been successfully generated.")
 
 
-__all__ = [
+__all__ = (
     "ABCGenerator",
     "TypesGenerator",
     "MethodsGenerator",
@@ -396,4 +406,4 @@ __all__ = [
     "convert_schema_to_model",
     "find_nicifications",
     "read_enum_ref_config",
-]
+)

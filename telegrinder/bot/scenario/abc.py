@@ -15,3 +15,6 @@ class ABCScenario(ABC, typing.Generic[EventT]):
     @abstractmethod
     def wait(self, api: "ABCAPI", view: "ABCStateView[EventT]") -> typing.Any:
         pass
+
+
+__all__ = ("ABCScenario",)

@@ -1891,7 +1891,17 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[list[ChatMember], "APIError"]:
+    ) -> Result[
+        list[
+            ChatMemberOwner
+            | ChatMemberAdministrator
+            | ChatMemberMember
+            | ChatMemberRestricted
+            | ChatMemberLeft
+            | ChatMemberBanned
+        ],
+        "APIError",
+    ]:
         """Method 'getChatAdministrators', [docs](https://core.telegram.org/bots/api#getchatadministrators)
         Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects.
 
@@ -1901,7 +1911,17 @@ class APIMethods:
         method_response = await self.api.request_raw(
             "getChatAdministrators", get_params(locals())
         )
-        return full_result(method_response, list[ChatMember])
+        return full_result(
+            method_response,
+            list[
+                ChatMemberOwner
+                | ChatMemberAdministrator
+                | ChatMemberMember
+                | ChatMemberRestricted
+                | ChatMemberLeft
+                | ChatMemberBanned
+            ],
+        )
 
     async def get_chat_member_count(
         self,
@@ -1924,7 +1944,15 @@ class APIMethods:
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[ChatMember, "APIError"]:
+    ) -> Result[
+        ChatMemberOwner
+        | ChatMemberAdministrator
+        | ChatMemberMember
+        | ChatMemberRestricted
+        | ChatMemberLeft
+        | ChatMemberBanned,
+        "APIError",
+    ]:
         """Method 'getChatMember', [docs](https://core.telegram.org/bots/api#getchatmember)
         Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success.
 
@@ -1936,7 +1964,15 @@ class APIMethods:
         method_response = await self.api.request_raw(
             "getChatMember", get_params(locals())
         )
-        return full_result(method_response, ChatMember)
+        return full_result(
+            method_response,
+            ChatMemberOwner
+            | ChatMemberAdministrator
+            | ChatMemberMember
+            | ChatMemberRestricted
+            | ChatMemberLeft
+            | ChatMemberBanned,
+        )
 
     async def set_chat_sticker_set(
         self,
@@ -2466,7 +2502,7 @@ class APIMethods:
         self,
         chat_id: int | Option[int] = Nothing,
         **other: typing.Any,
-    ) -> Result[MenuButton, "APIError"]:
+    ) -> Result[MenuButtonCommands | MenuButtonWebApp | MenuButtonDefault, "APIError"]:
         """Method 'getChatMenuButton', [docs](https://core.telegram.org/bots/api#getchatmenubutton)
         Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success.
 
@@ -2476,7 +2512,9 @@ class APIMethods:
         method_response = await self.api.request_raw(
             "getChatMenuButton", get_params(locals())
         )
-        return full_result(method_response, MenuButton)
+        return full_result(
+            method_response, MenuButtonCommands | MenuButtonWebApp | MenuButtonDefault
+        )
 
     async def set_my_default_administrator_rights(
         self,

@@ -13,3 +13,6 @@ class ABCLoopWrapper(ABC):
     @abstractmethod
     def run_event_loop(self) -> None:
         ...
+
+
+__all__ = ("ABCLoopWrapper",)

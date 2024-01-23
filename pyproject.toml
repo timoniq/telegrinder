@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "telegrinder"
-version = "0.1.dev20"
-description = "async telegram bot building"
+version = "0.1.dev145"
+description = "Framework for effective and reliable async telegram bot building."
 authors = ["timoniq <tesseradecades@mail.ru>"]
 license = "MIT"
 
