@@ -6,6 +6,11 @@ The difference between nicifications and cure types is: cute types can borrow vi
 (so they can implement model-specific methods).
 Nicifications can only implement methods/properties working only with model fields.
 """
+
+import typing
+
+import msgspec
+
 from telegrinder.model import Model
 from telegrinder.types import Message, User
 
@@ -35,3 +40,9 @@ class _InputFile(Model):
 
     data: bytes
     """Bytes of file."""
+
+
+class _InaccessibleMessage(Model):
+    date: typing.Annotated[int, msgspec.Meta(le=0, gt=-1)]
+    """Always 0. The field can be used to differentiate regular and inaccessible 
+    messages."""

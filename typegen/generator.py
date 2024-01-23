@@ -149,7 +149,7 @@ class TypesGenerator(ABCGenerator):
                         return ref_field["reference"]
         return None
 
-    def make_type_field(self, field: Field, enum_ref: str | None = None) -> str:
+    def make_field_type(self, field: Field, enum_ref: str | None = None) -> str:
         code = f"{self.rename_field_names.get(field.name, field.name)}: "
 
         if enum_ref is not None:
@@ -184,7 +184,7 @@ class TypesGenerator(ABCGenerator):
     def make_subtype_of(self, subtype_of: list[str] | None = None) -> str:
         if not subtype_of:
             return "Model"
-        return ", ".join(subtype_of)
+        return ", ".join(subtype_of) + ", forbid_unknown_fields=True"
     
     def make_type(self, tp_schema: TypeSchema) -> str:
         object_name = camel_to_pascal(tp_schema.name)
@@ -217,10 +217,16 @@ class TypesGenerator(ABCGenerator):
                 *filter(lambda f: not f.required, tp_schema.fields),
             ):
                 enum_ref = self.get_enum_ref(object_name, f.name)
-                code += f"\n{TAB}" + self.make_type_field(f, enum_ref)
+                code += f"\n{TAB}" + self.make_field_type(f, enum_ref)
         
         if nicifications:
-            code += "".join(nicifications)
+            n = nicifications[0]
+            if tp_schema.fields:
+                for f, t, d in re.findall(r'(\b\w+\b):\s*(.+)\s*"""(.*?)"""', n, flags=re.DOTALL):
+                    new_code = f'\n    {f}: {t.strip()}\n    """{d}"""'   
+                    code = re.sub(r"\n    " + f +  r": .+((?:.|\n {4}|\n$)+)", new_code, code)
+                    n = n.replace(new_code.strip(), "")
+            code += n
         
         return code
     
@@ -231,6 +237,8 @@ class TypesGenerator(ABCGenerator):
 
         logger.debug(f"Generation of {len(self.types)} objects...")
         lines = [
+            "import typing\n\n",
+            "import msgspec\n\n",
             "from telegrinder.model import Model, Union\n",
             "from telegrinder.option.option import Nothing\n"
             "from telegrinder.option.msgspec_option import Option\n\n\n",
@@ -266,31 +274,31 @@ class MethodsGenerator(ABCGenerator):
             )
         )
     
-    def make_method_body(self, method: MethodSchema) -> str:
+    def make_method_body(self, method_schema: MethodSchema) -> str:
         field_descriptions = filter(
             None,
             [
                 f':param {x.name}: '
                 + chunks_str(x.description).replace('"', "`")
                 if x.description else ""
-                for x in method.fields or []
+                for x in method_schema.fields or []
             ],
         )
         return (
             '"""' 
             + (
-                f"Method {method.name!r}, [docs]({method.href})\n"
-                + f"{TAB}\n".join(method.description or [])
+                f"Method {method_schema.name!r}, [docs]({method_schema.href})\n"
+                + f"{TAB}\n".join(method_schema.description or [])
                 + "\n\n"
                 + f"\n\n".join(field_descriptions)
             )
             + '"""\n\n'
             + '{}method_response = await self.api.request_raw("{}", get_params(locals()))\n'.format(
                 TAB * 2,
-                method.name,
+                method_schema.name,
             )
             + f"{TAB * 2}return full_result(method_response, "
-            + f"{self.make_type_hint(method.returns or [], self.parent_types)})"
+            + f"{self.make_type_hint(method_schema.returns or [], self.parent_types)})"
         )
 
     def make_method_params(self, params: list[Field] | None = None) -> list[str]:
@@ -317,15 +325,15 @@ class MethodsGenerator(ABCGenerator):
             return 'Result[bool, "APIError"]'
         return f'Result[{self.make_type_hint(returns, self.parent_types)}, "APIError"]'
     
-    def make_method(self, method: MethodSchema) -> str:
+    def make_method(self, method_schema: MethodSchema) -> str:
         code = (
-            f"{TAB}async def {camel_to_snake(method.name)}(self,"
-            + ",\n".join(self.make_method_params(method.fields))
-            + ("," if method.fields else "")
+            f"{TAB}async def {camel_to_snake(method_schema.name)}(self,"
+            + ",\n".join(self.make_method_params(method_schema.fields))
+            + ("," if method_schema.fields else "")
             + "**other: typing.Any,) -> "
-            + self.make_return_type(method.returns)
+            + self.make_return_type(method_schema.returns)
             + f":\n{TAB * 2}"
-            + self.make_method_body(method)
+            + self.make_method_body(method_schema)
         )
         return code
 
@@ -349,8 +357,8 @@ class MethodsGenerator(ABCGenerator):
             "        self.api = api\n\n"
         ]
         
-        for method in self.methods:
-            lines.append(self.make_method(method) + "\n\n")
+        for method_schema in self.methods:
+            lines.append(self.make_method(method_schema) + "\n\n")
         
         with open(path + "/methods.py", mode="w", encoding="UTF-8") as f:
             f.writelines(lines)

@@ -1,3 +1,7 @@
+import typing
+
+import msgspec
+
 from telegrinder.model import Model, Union
 from telegrinder.option.msgspec_option import Option
 from telegrinder.option.option import Nothing
@@ -474,7 +478,7 @@ class Chat(Model):
     Returned only in getChat."""
 
 
-class Message(MaybeInaccessibleMessage):
+class Message(MaybeInaccessibleMessage, forbid_unknown_fields=True):
     """Object 'Message', [docs](https://core.telegram.org/bots/api#message)
     This object represents a message."""
 
@@ -775,7 +779,7 @@ class MessageId(Model):
     """Unique message identifier"""
 
 
-class InaccessibleMessage(MaybeInaccessibleMessage):
+class InaccessibleMessage(MaybeInaccessibleMessage, forbid_unknown_fields=True):
     """Object 'InaccessibleMessage', [docs](https://core.telegram.org/bots/api#inaccessiblemessage)
     This object describes a message that was deleted or is otherwise inaccessible to the bot.
     """
@@ -786,7 +790,7 @@ class InaccessibleMessage(MaybeInaccessibleMessage):
     message_id: int
     """Unique message identifier inside the chat"""
 
-    date: int
+    date: typing.Annotated[int, msgspec.Meta(le=0, gt=-1)]
     """Always 0. The field can be used to differentiate regular and inaccessible 
     messages."""
 
@@ -971,7 +975,7 @@ class ReplyParameters(Model):
     """Optional. Position of the quote in the original message in UTF-16 code units"""
 
 
-class MessageOriginUser(MessageOrigin):
+class MessageOriginUser(MessageOrigin, forbid_unknown_fields=True):
     """Object 'MessageOriginUser', [docs](https://core.telegram.org/bots/api#messageoriginuser)
     The message was originally sent by a known user."""
 
@@ -985,7 +989,7 @@ class MessageOriginUser(MessageOrigin):
     """User that sent the message originally"""
 
 
-class MessageOriginHiddenUser(MessageOrigin):
+class MessageOriginHiddenUser(MessageOrigin, forbid_unknown_fields=True):
     """Object 'MessageOriginHiddenUser', [docs](https://core.telegram.org/bots/api#messageoriginhiddenuser)
     The message was originally sent by an unknown user."""
 
@@ -999,7 +1003,7 @@ class MessageOriginHiddenUser(MessageOrigin):
     """Name of the user that sent the message originally"""
 
 
-class MessageOriginChat(MessageOrigin):
+class MessageOriginChat(MessageOrigin, forbid_unknown_fields=True):
     """Object 'MessageOriginChat', [docs](https://core.telegram.org/bots/api#messageoriginchat)
     The message was originally sent on behalf of a chat to a group chat."""
 
@@ -1017,7 +1021,7 @@ class MessageOriginChat(MessageOrigin):
     original message author signature"""
 
 
-class MessageOriginChannel(MessageOrigin):
+class MessageOriginChannel(MessageOrigin, forbid_unknown_fields=True):
     """Object 'MessageOriginChannel', [docs](https://core.telegram.org/bots/api#messageoriginchannel)
     The message was originally sent to a channel chat."""
 
@@ -2270,7 +2274,7 @@ class ChatMemberUpdated(Model):
     """Optional. True, if the user joined the chat via a chat folder invite link"""
 
 
-class ChatMemberOwner(ChatMember):
+class ChatMemberOwner(ChatMember, forbid_unknown_fields=True):
     """Object 'ChatMemberOwner', [docs](https://core.telegram.org/bots/api#chatmemberowner)
     Represents a chat member that owns the chat and has all administrator privileges."""
 
@@ -2287,7 +2291,7 @@ class ChatMemberOwner(ChatMember):
     """Optional. Custom title for this user"""
 
 
-class ChatMemberAdministrator(ChatMember):
+class ChatMemberAdministrator(ChatMember, forbid_unknown_fields=True):
     """Object 'ChatMemberAdministrator', [docs](https://core.telegram.org/bots/api#chatmemberadministrator)
     Represents a chat member that has some additional privileges."""
 
@@ -2362,7 +2366,7 @@ class ChatMemberAdministrator(ChatMember):
     """Optional. Custom title for this user"""
 
 
-class ChatMemberMember(ChatMember):
+class ChatMemberMember(ChatMember, forbid_unknown_fields=True):
     """Object 'ChatMemberMember', [docs](https://core.telegram.org/bots/api#chatmembermember)
     Represents a chat member that has no additional privileges or restrictions."""
 
@@ -2373,7 +2377,7 @@ class ChatMemberMember(ChatMember):
     """Information about the user"""
 
 
-class ChatMemberRestricted(ChatMember):
+class ChatMemberRestricted(ChatMember, forbid_unknown_fields=True):
     """Object 'ChatMemberRestricted', [docs](https://core.telegram.org/bots/api#chatmemberrestricted)
     Represents a chat member that is under certain restrictions in the chat. Supergroups only.
     """
@@ -2436,7 +2440,7 @@ class ChatMemberRestricted(ChatMember):
     the user is restricted forever"""
 
 
-class ChatMemberLeft(ChatMember):
+class ChatMemberLeft(ChatMember, forbid_unknown_fields=True):
     """Object 'ChatMemberLeft', [docs](https://core.telegram.org/bots/api#chatmemberleft)
     Represents a chat member that isn't currently a member of the chat, but may join it themselves.
     """
@@ -2448,7 +2452,7 @@ class ChatMemberLeft(ChatMember):
     """Information about the user"""
 
 
-class ChatMemberBanned(ChatMember):
+class ChatMemberBanned(ChatMember, forbid_unknown_fields=True):
     """Object 'ChatMemberBanned', [docs](https://core.telegram.org/bots/api#chatmemberbanned)
     Represents a chat member that was banned in the chat and can't return to the chat or view chat messages.
     """
@@ -2556,7 +2560,7 @@ class ChatLocation(Model):
     """Location address; 1-64 characters, as defined by the chat owner"""
 
 
-class ReactionTypeEmoji(ReactionType):
+class ReactionTypeEmoji(ReactionType, forbid_unknown_fields=True):
     """Object 'ReactionTypeEmoji', [docs](https://core.telegram.org/bots/api#reactiontypeemoji)
     The reaction is based on an emoji."""
 
@@ -2572,7 +2576,7 @@ class ReactionTypeEmoji(ReactionType):
     `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`"""
 
 
-class ReactionTypeCustomEmoji(ReactionType):
+class ReactionTypeCustomEmoji(ReactionType, forbid_unknown_fields=True):
     """Object 'ReactionTypeCustomEmoji', [docs](https://core.telegram.org/bots/api#reactiontypecustomemoji)
     The reaction is based on a custom emoji."""
 
@@ -2668,7 +2672,7 @@ class BotCommand(Model):
     """Description of the command; 1-256 characters."""
 
 
-class BotCommandScopeDefault(BotCommandScope):
+class BotCommandScopeDefault(BotCommandScope, forbid_unknown_fields=True):
     """Object 'BotCommandScopeDefault', [docs](https://core.telegram.org/bots/api#botcommandscopedefault)
     Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
     """
@@ -2677,7 +2681,7 @@ class BotCommandScopeDefault(BotCommandScope):
     """Scope type, must be default"""
 
 
-class BotCommandScopeAllPrivateChats(BotCommandScope):
+class BotCommandScopeAllPrivateChats(BotCommandScope, forbid_unknown_fields=True):
     """Object 'BotCommandScopeAllPrivateChats', [docs](https://core.telegram.org/bots/api#botcommandscopeallprivatechats)
     Represents the scope of bot commands, covering all private chats."""
 
@@ -2685,7 +2689,7 @@ class BotCommandScopeAllPrivateChats(BotCommandScope):
     """Scope type, must be all_private_chats"""
 
 
-class BotCommandScopeAllGroupChats(BotCommandScope):
+class BotCommandScopeAllGroupChats(BotCommandScope, forbid_unknown_fields=True):
     """Object 'BotCommandScopeAllGroupChats', [docs](https://core.telegram.org/bots/api#botcommandscopeallgroupchats)
     Represents the scope of bot commands, covering all group and supergroup chats."""
 
@@ -2693,7 +2697,7 @@ class BotCommandScopeAllGroupChats(BotCommandScope):
     """Scope type, must be all_group_chats"""
 
 
-class BotCommandScopeAllChatAdministrators(BotCommandScope):
+class BotCommandScopeAllChatAdministrators(BotCommandScope, forbid_unknown_fields=True):
     """Object 'BotCommandScopeAllChatAdministrators', [docs](https://core.telegram.org/bots/api#botcommandscopeallchatadministrators)
     Represents the scope of bot commands, covering all group and supergroup chat administrators.
     """
@@ -2702,7 +2706,7 @@ class BotCommandScopeAllChatAdministrators(BotCommandScope):
     """Scope type, must be all_chat_administrators"""
 
 
-class BotCommandScopeChat(BotCommandScope):
+class BotCommandScopeChat(BotCommandScope, forbid_unknown_fields=True):
     """Object 'BotCommandScopeChat', [docs](https://core.telegram.org/bots/api#botcommandscopechat)
     Represents the scope of bot commands, covering a specific chat."""
 
@@ -2714,7 +2718,7 @@ class BotCommandScopeChat(BotCommandScope):
     (in the format @supergroupusername)"""
 
 
-class BotCommandScopeChatAdministrators(BotCommandScope):
+class BotCommandScopeChatAdministrators(BotCommandScope, forbid_unknown_fields=True):
     """Object 'BotCommandScopeChatAdministrators', [docs](https://core.telegram.org/bots/api#botcommandscopechatadministrators)
     Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
     """
@@ -2727,7 +2731,7 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
     (in the format @supergroupusername)"""
 
 
-class BotCommandScopeChatMember(BotCommandScope):
+class BotCommandScopeChatMember(BotCommandScope, forbid_unknown_fields=True):
     """Object 'BotCommandScopeChatMember', [docs](https://core.telegram.org/bots/api#botcommandscopechatmember)
     Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
     """
@@ -2767,7 +2771,7 @@ class BotShortDescription(Model):
     """The bot's short description"""
 
 
-class MenuButtonCommands(MenuButton):
+class MenuButtonCommands(MenuButton, forbid_unknown_fields=True):
     """Object 'MenuButtonCommands', [docs](https://core.telegram.org/bots/api#menubuttoncommands)
     Represents a menu button, which opens the bot's list of commands."""
 
@@ -2775,7 +2779,7 @@ class MenuButtonCommands(MenuButton):
     """Type of the button, must be commands"""
 
 
-class MenuButtonWebApp(MenuButton):
+class MenuButtonWebApp(MenuButton, forbid_unknown_fields=True):
     """Object 'MenuButtonWebApp', [docs](https://core.telegram.org/bots/api#menubuttonwebapp)
     Represents a menu button, which launches a Web App."""
 
@@ -2791,7 +2795,7 @@ class MenuButtonWebApp(MenuButton):
     the user using the method answerWebAppQuery."""
 
 
-class MenuButtonDefault(MenuButton):
+class MenuButtonDefault(MenuButton, forbid_unknown_fields=True):
     """Object 'MenuButtonDefault', [docs](https://core.telegram.org/bots/api#menubuttondefault)
     Describes that no specific value for the menu button was set."""
 
@@ -2799,7 +2803,7 @@ class MenuButtonDefault(MenuButton):
     """Type of the button, must be default"""
 
 
-class ChatBoostSourcePremium(ChatBoostSource):
+class ChatBoostSourcePremium(ChatBoostSource, forbid_unknown_fields=True):
     """Object 'ChatBoostSourcePremium', [docs](https://core.telegram.org/bots/api#chatboostsourcepremium)
     The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user.
     """
@@ -2811,7 +2815,7 @@ class ChatBoostSourcePremium(ChatBoostSource):
     """User that boosted the chat"""
 
 
-class ChatBoostSourceGiftCode(ChatBoostSource):
+class ChatBoostSourceGiftCode(ChatBoostSource, forbid_unknown_fields=True):
     """Object 'ChatBoostSourceGiftCode', [docs](https://core.telegram.org/bots/api#chatboostsourcegiftcode)
     The boost was obtained by the creation of Telegram Premium gift codes to boost a chat. Each such code boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
     """
@@ -2823,7 +2827,7 @@ class ChatBoostSourceGiftCode(ChatBoostSource):
     """User for which the gift code was created"""
 
 
-class ChatBoostSourceGiveaway(ChatBoostSource):
+class ChatBoostSourceGiveaway(ChatBoostSource, forbid_unknown_fields=True):
     """Object 'ChatBoostSourceGiveaway', [docs](https://core.telegram.org/bots/api#chatboostsourcegiveaway)
     The boost was obtained by the creation of a Telegram Premium giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
     """
@@ -2917,7 +2921,7 @@ class ResponseParameters(Model):
     to wait before the request can be repeated"""
 
 
-class InputMediaPhoto(InputMedia):
+class InputMediaPhoto(InputMedia, forbid_unknown_fields=True):
     """Object 'InputMediaPhoto', [docs](https://core.telegram.org/bots/api#inputmediaphoto)
     Represents a photo to be sent."""
 
@@ -2946,7 +2950,7 @@ class InputMediaPhoto(InputMedia):
     """Optional. Pass True if the photo needs to be covered with a spoiler animation"""
 
 
-class InputMediaVideo(InputMedia):
+class InputMediaVideo(InputMedia, forbid_unknown_fields=True):
     """Object 'InputMediaVideo', [docs](https://core.telegram.org/bots/api#inputmediavideo)
     Represents a video to be sent."""
 
@@ -2996,7 +3000,7 @@ class InputMediaVideo(InputMedia):
     """Optional. Pass True if the video needs to be covered with a spoiler animation"""
 
 
-class InputMediaAnimation(InputMedia):
+class InputMediaAnimation(InputMedia, forbid_unknown_fields=True):
     """Object 'InputMediaAnimation', [docs](https://core.telegram.org/bots/api#inputmediaanimation)
     Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
     """
@@ -3044,7 +3048,7 @@ class InputMediaAnimation(InputMedia):
     """Optional. Pass True if the animation needs to be covered with a spoiler animation"""
 
 
-class InputMediaAudio(InputMedia):
+class InputMediaAudio(InputMedia, forbid_unknown_fields=True):
     """Object 'InputMediaAudio', [docs](https://core.telegram.org/bots/api#inputmediaaudio)
     Represents an audio file to be treated as music to be sent."""
 
@@ -3088,7 +3092,7 @@ class InputMediaAudio(InputMedia):
     """Optional. Title of the audio"""
 
 
-class InputMediaDocument(InputMedia):
+class InputMediaDocument(InputMedia, forbid_unknown_fields=True):
     """Object 'InputMediaDocument', [docs](https://core.telegram.org/bots/api#inputmediadocument)
     Represents a general file to be sent."""
 
@@ -3322,7 +3326,7 @@ class InlineQueryResultsButton(Model):
     they wanted to use the bot's inline capabilities."""
 
 
-class InlineQueryResultArticle(InlineQueryResult):
+class InlineQueryResultArticle(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultArticle', [docs](https://core.telegram.org/bots/api#inlinequeryresultarticle)
     Represents a link to an article or web page."""
 
@@ -3366,7 +3370,7 @@ class InlineQueryResultArticle(InlineQueryResult):
     """Optional. Thumbnail height"""
 
 
-class InlineQueryResultPhoto(InlineQueryResult):
+class InlineQueryResultPhoto(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultPhoto', [docs](https://core.telegram.org/bots/api#inlinequeryresultphoto)
     Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
     """
@@ -3423,7 +3427,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the photo"""
 
 
-class InlineQueryResultGif(InlineQueryResult):
+class InlineQueryResultGif(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultGif', [docs](https://core.telegram.org/bots/api#inlinequeryresultgif)
     Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
@@ -3483,7 +3487,7 @@ class InlineQueryResultGif(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the GIF animation"""
 
 
-class InlineQueryResultMpeg4Gif(InlineQueryResult):
+class InlineQueryResultMpeg4Gif(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultMpeg4Gif', [docs](https://core.telegram.org/bots/api#inlinequeryresultmpeg4gif)
     Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
@@ -3543,7 +3547,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the video animation"""
 
 
-class InlineQueryResultVideo(InlineQueryResult):
+class InlineQueryResultVideo(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultVideo', [docs](https://core.telegram.org/bots/api#inlinequeryresultvideo)
     Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
     """
@@ -3607,7 +3611,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     result (e.g., a YouTube video)."""
 
 
-class InlineQueryResultAudio(InlineQueryResult):
+class InlineQueryResultAudio(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultAudio', [docs](https://core.telegram.org/bots/api#inlinequeryresultaudio)
     Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
     """
@@ -3656,7 +3660,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the audio"""
 
 
-class InlineQueryResultVoice(InlineQueryResult):
+class InlineQueryResultVoice(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultVoice', [docs](https://core.telegram.org/bots/api#inlinequeryresultvoice)
     Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
     """
@@ -3702,7 +3706,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the voice recording"""
 
 
-class InlineQueryResultDocument(InlineQueryResult):
+class InlineQueryResultDocument(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultDocument', [docs](https://core.telegram.org/bots/api#inlinequeryresultdocument)
     Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.
     """
@@ -3761,7 +3765,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     """Optional. Thumbnail height"""
 
 
-class InlineQueryResultLocation(InlineQueryResult):
+class InlineQueryResultLocation(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultLocation', [docs](https://core.telegram.org/bots/api#inlinequeryresultlocation)
     Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
     """
@@ -3822,7 +3826,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     """Optional. Thumbnail height"""
 
 
-class InlineQueryResultVenue(InlineQueryResult):
+class InlineQueryResultVenue(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultVenue', [docs](https://core.telegram.org/bots/api#inlinequeryresultvenue)
     Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
     """
@@ -3882,7 +3886,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     """Optional. Thumbnail height"""
 
 
-class InlineQueryResultContact(InlineQueryResult):
+class InlineQueryResultContact(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultContact', [docs](https://core.telegram.org/bots/api#inlinequeryresultcontact)
     Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.
     """
@@ -3930,7 +3934,7 @@ class InlineQueryResultContact(InlineQueryResult):
     """Optional. Thumbnail height"""
 
 
-class InlineQueryResultGame(InlineQueryResult):
+class InlineQueryResultGame(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultGame', [docs](https://core.telegram.org/bots/api#inlinequeryresultgame)
     Represents a Game."""
 
@@ -3947,7 +3951,7 @@ class InlineQueryResultGame(InlineQueryResult):
     """Optional. Inline keyboard attached to the message"""
 
 
-class InlineQueryResultCachedPhoto(InlineQueryResult):
+class InlineQueryResultCachedPhoto(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultCachedPhoto', [docs](https://core.telegram.org/bots/api#inlinequeryresultcachedphoto)
     Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
     """
@@ -3994,7 +3998,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the photo"""
 
 
-class InlineQueryResultCachedGif(InlineQueryResult):
+class InlineQueryResultCachedGif(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultCachedGif', [docs](https://core.telegram.org/bots/api#inlinequeryresultcachedgif)
     Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
     """
@@ -4038,7 +4042,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the GIF animation"""
 
 
-class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
+class InlineQueryResultCachedMpeg4Gif(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultCachedMpeg4Gif', [docs](https://core.telegram.org/bots/api#inlinequeryresultcachedmpeg4gif)
     Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
@@ -4082,7 +4086,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the video animation"""
 
 
-class InlineQueryResultCachedSticker(InlineQueryResult):
+class InlineQueryResultCachedSticker(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultCachedSticker', [docs](https://core.telegram.org/bots/api#inlinequeryresultcachedsticker)
     Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.
     """
@@ -4111,7 +4115,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the sticker"""
 
 
-class InlineQueryResultCachedDocument(InlineQueryResult):
+class InlineQueryResultCachedDocument(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultCachedDocument', [docs](https://core.telegram.org/bots/api#inlinequeryresultcacheddocument)
     Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
     """
@@ -4158,7 +4162,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the file"""
 
 
-class InlineQueryResultCachedVideo(InlineQueryResult):
+class InlineQueryResultCachedVideo(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultCachedVideo', [docs](https://core.telegram.org/bots/api#inlinequeryresultcachedvideo)
     Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
     """
@@ -4205,7 +4209,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the video"""
 
 
-class InlineQueryResultCachedVoice(InlineQueryResult):
+class InlineQueryResultCachedVoice(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultCachedVoice', [docs](https://core.telegram.org/bots/api#inlinequeryresultcachedvoice)
     Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
     """
@@ -4248,7 +4252,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the voice message"""
 
 
-class InlineQueryResultCachedAudio(InlineQueryResult):
+class InlineQueryResultCachedAudio(InlineQueryResult, forbid_unknown_fields=True):
     """Object 'InlineQueryResultCachedAudio', [docs](https://core.telegram.org/bots/api#inlinequeryresultcachedaudio)
     Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
     """
@@ -4288,7 +4292,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     """Optional. Content of the message to be sent instead of the audio"""
 
 
-class InputTextMessageContent(InputMessageContent):
+class InputTextMessageContent(InputMessageContent, forbid_unknown_fields=True):
     """Object 'InputTextMessageContent', [docs](https://core.telegram.org/bots/api#inputtextmessagecontent)
     Represents the content of a text message to be sent as the result of an inline query.
     """
@@ -4308,7 +4312,7 @@ class InputTextMessageContent(InputMessageContent):
     """Optional. Link preview generation options for the message"""
 
 
-class InputLocationMessageContent(InputMessageContent):
+class InputLocationMessageContent(InputMessageContent, forbid_unknown_fields=True):
     """Object 'InputLocationMessageContent', [docs](https://core.telegram.org/bots/api#inputlocationmessagecontent)
     Represents the content of a location message to be sent as the result of an inline query.
     """
@@ -4337,7 +4341,7 @@ class InputLocationMessageContent(InputMessageContent):
     100000 if specified."""
 
 
-class InputVenueMessageContent(InputMessageContent):
+class InputVenueMessageContent(InputMessageContent, forbid_unknown_fields=True):
     """Object 'InputVenueMessageContent', [docs](https://core.telegram.org/bots/api#inputvenuemessagecontent)
     Represents the content of a venue message to be sent as the result of an inline query.
     """
@@ -4368,7 +4372,7 @@ class InputVenueMessageContent(InputMessageContent):
     """Optional. Google Places type of the venue. (See supported types.)"""
 
 
-class InputContactMessageContent(InputMessageContent):
+class InputContactMessageContent(InputMessageContent, forbid_unknown_fields=True):
     """Object 'InputContactMessageContent', [docs](https://core.telegram.org/bots/api#inputcontactmessagecontent)
     Represents the content of a contact message to be sent as the result of an inline query.
     """
@@ -4387,7 +4391,7 @@ class InputContactMessageContent(InputMessageContent):
     bytes"""
 
 
-class InputInvoiceMessageContent(InputMessageContent):
+class InputInvoiceMessageContent(InputMessageContent, forbid_unknown_fields=True):
     """Object 'InputInvoiceMessageContent', [docs](https://core.telegram.org/bots/api#inputinvoicemessagecontent)
     Represents the content of an invoice message to be sent as the result of an inline query.
     """
@@ -4774,7 +4778,7 @@ class EncryptedCredentials(Model):
     for data decryption"""
 
 
-class PassportElementErrorDataField(PassportElementError):
+class PassportElementErrorDataField(PassportElementError, forbid_unknown_fields=True):
     """Object 'PassportElementErrorDataField', [docs](https://core.telegram.org/bots/api#passportelementerrordatafield)
     Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
     """
@@ -4797,7 +4801,7 @@ class PassportElementErrorDataField(PassportElementError):
     """Error message"""
 
 
-class PassportElementErrorFrontSide(PassportElementError):
+class PassportElementErrorFrontSide(PassportElementError, forbid_unknown_fields=True):
     """Object 'PassportElementErrorFrontSide', [docs](https://core.telegram.org/bots/api#passportelementerrorfrontside)
     Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes.
     """
@@ -4816,7 +4820,7 @@ class PassportElementErrorFrontSide(PassportElementError):
     """Error message"""
 
 
-class PassportElementErrorReverseSide(PassportElementError):
+class PassportElementErrorReverseSide(PassportElementError, forbid_unknown_fields=True):
     """Object 'PassportElementErrorReverseSide', [docs](https://core.telegram.org/bots/api#passportelementerrorreverseside)
     Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes.
     """
@@ -4835,7 +4839,7 @@ class PassportElementErrorReverseSide(PassportElementError):
     """Error message"""
 
 
-class PassportElementErrorSelfie(PassportElementError):
+class PassportElementErrorSelfie(PassportElementError, forbid_unknown_fields=True):
     """Object 'PassportElementErrorSelfie', [docs](https://core.telegram.org/bots/api#passportelementerrorselfie)
     Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes.
     """
@@ -4854,7 +4858,7 @@ class PassportElementErrorSelfie(PassportElementError):
     """Error message"""
 
 
-class PassportElementErrorFile(PassportElementError):
+class PassportElementErrorFile(PassportElementError, forbid_unknown_fields=True):
     """Object 'PassportElementErrorFile', [docs](https://core.telegram.org/bots/api#passportelementerrorfile)
     Represents an issue with a document scan. The error is considered resolved when the file with the document scan changes.
     """
@@ -4874,7 +4878,7 @@ class PassportElementErrorFile(PassportElementError):
     """Error message"""
 
 
-class PassportElementErrorFiles(PassportElementError):
+class PassportElementErrorFiles(PassportElementError, forbid_unknown_fields=True):
     """Object 'PassportElementErrorFiles', [docs](https://core.telegram.org/bots/api#passportelementerrorfiles)
     Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes.
     """
@@ -4894,7 +4898,9 @@ class PassportElementErrorFiles(PassportElementError):
     """Error message"""
 
 
-class PassportElementErrorTranslationFile(PassportElementError):
+class PassportElementErrorTranslationFile(
+    PassportElementError, forbid_unknown_fields=True
+):
     """Object 'PassportElementErrorTranslationFile', [docs](https://core.telegram.org/bots/api#passportelementerrortranslationfile)
     Represents an issue with one of the files that constitute the translation of a document. The error is considered resolved when the file changes.
     """
@@ -4915,7 +4921,9 @@ class PassportElementErrorTranslationFile(PassportElementError):
     """Error message"""
 
 
-class PassportElementErrorTranslationFiles(PassportElementError):
+class PassportElementErrorTranslationFiles(
+    PassportElementError, forbid_unknown_fields=True
+):
     """Object 'PassportElementErrorTranslationFiles', [docs](https://core.telegram.org/bots/api#passportelementerrortranslationfiles)
     Represents an issue with the translated version of a document. The error is considered resolved when a file with the document translation change.
     """
@@ -4936,7 +4944,7 @@ class PassportElementErrorTranslationFiles(PassportElementError):
     """Error message"""
 
 
-class PassportElementErrorUnspecified(PassportElementError):
+class PassportElementErrorUnspecified(PassportElementError, forbid_unknown_fields=True):
     """Object 'PassportElementErrorUnspecified', [docs](https://core.telegram.org/bots/api#passportelementerrorunspecified)
     Represents an issue in an unspecified place. The error is considered resolved when new data is added.
     """

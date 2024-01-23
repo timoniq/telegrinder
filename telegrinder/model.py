@@ -61,23 +61,29 @@ def option_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
 
 
 def union_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
+    union_types = typing.cast(tuple[type, ...], tp.__args__[0].__args__)
+    
     if isinstance(obj, dict):
         counter_fields = {
             m: len([k for k in obj.keys() if k in m.__struct_fields__])
-            for m in tp.__args__[0].__args__
+            for m in union_types
             if issubclass(m, Model)
         }
+        union_types = tuple(t for t in union_types if t not in counter_fields)
         reverse = False
+        
         if len(set(counter_fields.values())) != len(counter_fields.values()):
             counter_fields = {m: len(m.__struct_fields__) for m in counter_fields}
             reverse = True
-        for model in sorted(counter_fields, key=lambda k: counter_fields[k], reverse=reverse):
-            if (o := msgspec_convert(obj, model)):
-                return o.value
-    else:
-        for t in tp.__args__[0].__args__:
-            if (o := msgspec_convert(obj, t)):
-                return o.value
+        
+        union_types = (
+            *sorted(counter_fields, key=lambda k: counter_fields[k], reverse=reverse),
+            *union_types,
+        )
+        
+    for t in union_types:
+        if (o := msgspec_convert(obj, t)):
+            return o.value
 
     raise TypeError(
         "Object of type `{}` does not belong to types `{}`".format(
