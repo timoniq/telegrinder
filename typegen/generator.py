@@ -238,7 +238,6 @@ class TypesGenerator(ABCGenerator):
         logger.debug(f"Generation of {len(self.types)} objects...")
         lines = [
             "import typing\n\n",
-            "import msgspec\n\n",
             "from telegrinder.model import Model, Union\n",
             "from telegrinder.option.option import Nothing\n"
             "from telegrinder.option.msgspec_option import Option\n\n\n",

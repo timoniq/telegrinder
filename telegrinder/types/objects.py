@@ -1,7 +1,5 @@
 import typing
 
-import msgspec
-
 from telegrinder.model import Model, Union
 from telegrinder.option.msgspec_option import Option
 from telegrinder.option.option import Nothing
@@ -790,7 +788,7 @@ class InaccessibleMessage(MaybeInaccessibleMessage, forbid_unknown_fields=True):
     message_id: int
     """Unique message identifier inside the chat"""
 
-    date: typing.Annotated[int, msgspec.Meta(le=0, gt=-1)]
+    date: typing.Literal[0]
     """Always 0. The field can be used to differentiate regular and inaccessible 
     messages."""
 

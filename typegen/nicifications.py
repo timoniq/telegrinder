@@ -43,6 +43,6 @@ class _InputFile(Model):
 
 
 class _InaccessibleMessage(Model):
-    date: typing.Annotated[int, msgspec.Meta(le=0, gt=-1)]
+    date: typing.Literal[0]
     """Always 0. The field can be used to differentiate regular and inaccessible 
     messages."""
