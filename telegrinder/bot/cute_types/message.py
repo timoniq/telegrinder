@@ -2,6 +2,7 @@ import typing
 
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
+from telegrinder.option import Nothing, Some
 from telegrinder.option.msgspec_option import Option
 from telegrinder.result import Result
 from telegrinder.types import (
@@ -9,6 +10,9 @@ from telegrinder.types import (
     InlineKeyboardMarkup,
     Message,
     MessageEntity,
+    ReactionType,
+    ReactionTypeEmoji,
+    ReactionTypeType,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
     User,
@@ -25,56 +29,60 @@ ReplyMarkup = typing.Union[
 
 
 def get_enitity_value(
-    entities: list[MessageEntity], name_value: str
-) -> typing.Any | None:
+    entities: list[MessageEntity], entity_value: str
+) -> Option[typing.Any]:
     for entity in entities:
-        if (enitity_value := getattr(entity, name_value)) is not None:
-            return enitity_value
-    return None
+        if (obj := getattr(entity, entity_value, Nothing)):
+            return Some(obj.value if isinstance(obj, Some) else obj)
+    return Nothing
 
 
 class MessageCute(BaseCute[Message], Message, kw_only=True):
     api: ABCAPI
 
     @property
-    def mentioned_user(self) -> User | None:
+    def mentioned_user(self) -> Option[User]:
         """Mentioned user without username."""
+
         if not self.entities:
-            return
+            return Nothing
         return get_enitity_value(self.entities.unwrap(), "user")
 
     @property
-    def url(self) -> str | None:
-        """Clickable text URL"""
+    def url(self) -> Option[str]:
+        """Clickable text URL."""
+
         if not self.entities:
-            return
+            return Nothing
         return get_enitity_value(self.entities.unwrap(), "url")
 
     @property
-    def programming_language(self) -> str | None:
+    def programming_language(self) -> Option[str]:
         """The programming language of the entity text."""
+
         if not self.entities:
-            return
+            return Nothing
         return get_enitity_value(self.entities.unwrap(), "language")
 
     @property
-    def custom_emoji_id(self) -> str | None:
+    def custom_emoji_id(self) -> Option[str]:
         """Unique identifier of the custom emoji."""
+
         if not self.entities:
-            return
+            return Nothing
         return get_enitity_value(self.entities.unwrap(), "custom_emoji_id")
 
     async def answer(
         self,
-        text: str | Option[str] | None = None,
-        parse_mode: str | Option[str] | None = None,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] | None = None,
-        disable_web_page_preview: bool | Option[bool] | None = None,
-        disable_notification: bool | Option[bool] | None = None,
-        protect_content: bool | Option[bool] | None = None,
-        reply_to_message_id: int | Option[int] | None = None,
-        allow_sending_without_reply: bool | Option[bool] | None = None,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] | None = None,
+        text: str | Option[str] = Nothing,
+        parse_mode: str | Option[str] = Nothing,
+        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
+        disable_web_page_preview: bool | Option[bool] = Nothing,
+        disable_notification: bool | Option[bool] = Nothing,
+        protect_content: bool | Option[bool] = Nothing,
+        reply_to_message_id: int | Option[int] = Nothing,
+        allow_sending_without_reply: bool | Option[bool] = Nothing,
+        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
         **other,
     ) -> Result["Message", APIError]:
         params = get_params(locals())
@@ -84,14 +92,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     async def reply(
         self,
-        text: str | Option[str] | None = None,
-        parse_mode: str | Option[str] | None = None,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] | None = None,
-        disable_web_page_preview: bool | Option[bool] | None = None,
-        disable_notification: bool | Option[bool] | None = None,
-        protect_content: bool | Option[bool] | None = None,
-        allow_sending_without_reply: bool | Option[bool] | None = None,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] | None = None,
+        text: str | Option[str] = Nothing,
+        parse_mode: str | Option[str] = Nothing,
+        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
+        disable_web_page_preview: bool | Option[bool] = Nothing,
+        disable_notification: bool | Option[bool] = Nothing,
+        protect_content: bool | Option[bool] = Nothing,
+        allow_sending_without_reply: bool | Option[bool] = Nothing,
+        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
         **other,
     ) -> Result["Message", APIError]:
         params = get_params(locals())
@@ -115,13 +123,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     async def edit(
         self,
-        text: str | Option[str] | None = None,
-        parse_mode: str | Option[str] | None = None,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] | None = None,
-        disable_web_page_preview: bool | Option[bool] | None = None,
+        text: str | Option[str] = Nothing,
+        parse_mode: str | Option[str] = Nothing,
+        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
+        disable_web_page_preview: bool | Option[bool] = Nothing,
         reply_markup: InlineKeyboardMarkup
-        | Option[InlineKeyboardMarkup]
-        | None = None,
+        | Option[InlineKeyboardMarkup] = Nothing,
         **other,
     ) -> Result[Message | bool, APIError]:
         params = get_params(locals())
@@ -131,4 +138,27 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             chat_id=self.chat.id,
             message_id=self.message_id,
             **params,
+        )
+    
+    async def react(
+        self,
+        reaction: str | ReactionType
+        | list[str | ReactionType]
+        | Option[list[str | ReactionType]] = Nothing,
+        is_big: bool | Option[bool] = Nothing,
+    ) -> Result[bool, APIError]:
+        if reaction:
+            reaction = [
+                ReactionTypeEmoji(ReactionTypeType.EMOJI, r)
+                if isinstance(r, str)
+                else r
+                for r in (
+                    reaction.unwrap_or([]) if isinstance(reaction, Option)
+                    else [reaction] if not isinstance(reaction, list) else reaction
+                )
+            ]
+        return await self.ctx_api.set_message_reaction(
+            chat_id=self.chat.id,
+            message_id=self.message_id,
+            **get_params(locals())
         )

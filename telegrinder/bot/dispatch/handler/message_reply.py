@@ -6,6 +6,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.modules import logger
+from telegrinder.option.option import Nothing
 from telegrinder.types.objects import Update
 
 from .abc import ABCHandler
@@ -31,12 +32,12 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         self.ctx |= ctx
         for rule in self.rules:
             if not await check_rule(api, rule, event, self.ctx):
-                logger.debug("Rule {!r} failed", rule)
+                logger.debug("Rule {!r} failed!", rule)
                 return False
         return True
 
     async def run(self, event: MessageCute) -> typing.Any:
         await event.answer(
             text=self.text,
-            reply_to_message_id=(event.message_id if self.as_reply else None),
+            reply_to_message_id=(event.message_id if self.as_reply else Nothing),
         )

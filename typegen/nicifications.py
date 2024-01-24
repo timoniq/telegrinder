@@ -9,10 +9,9 @@ Nicifications can only implement methods/properties working only with model fiel
 
 import typing
 
-import msgspec
-
 from telegrinder.model import Model
-from telegrinder.types import Message, User
+from telegrinder.option import Nothing
+from telegrinder.types import ContentType, Message, User
 
 
 class _Message(Message):
@@ -21,6 +20,15 @@ class _Message(Message):
         """`from_user` instead of `from_.unwrap()`"""
 
         return self.from_.unwrap()
+    
+    @property
+    def content_type(self) -> ContentType:
+        """Type of content that the message contains."""
+
+        for content in ContentType:
+            if content.value in self.__struct_fields__ and getattr(self, content.value) is not Nothing:
+                return content
+        return ContentType.UNKNOWN
 
     def __eq__(self, other: "Message"):
         return self.message_id == other.message_id and self.chat.id == other.chat.id

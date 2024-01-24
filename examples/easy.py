@@ -1,20 +1,18 @@
-import logging
 import pathlib
 import random
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import WaiterMachine
 from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
-from telegrinder.rules import FuzzyText, Markup, Text
+from telegrinder.modules import logger
+from telegrinder.rules import FuzzyText, HasText, Markup, Text
 from telegrinder.types import InputFile
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine()
-
-logging.basicConfig(level=logging.DEBUG)
-
 kitten_bytes = pathlib.Path("assets/kitten.jpg").read_bytes()
+logger.set_level("INFO")
 
 
 @bot.on.message(Text("/start"))
@@ -41,6 +39,18 @@ async def start(message: Message):
                 caption="I'm sorry... You prob need some kitten pictures",
                 photo=InputFile("kitten.jpg", kitten_bytes),
             )
+
+
+@bot.on.message(Text("/react"))
+async def react(message: Message):
+    await message.reply("Send me any message...")
+    msg, _ = await wm.wait(
+        bot.dispatch.message,
+        message,
+        HasText(),
+        default=MessageReplyHandler("Your message has no text!"),
+    )
+    await msg.react("💋")
 
 
 @bot.on.message(Markup("/reverse <text>"))

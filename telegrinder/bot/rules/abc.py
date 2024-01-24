@@ -37,11 +37,12 @@ class ABCRule(ABC, typing.Generic[T]):
         pass
 
     def __init_subclass__(cls, requires: list["ABCRule[T]"] | None = None):
-        """Merges requirements from inherited classes and rule-specific requirements"""
+        """Merges requirements from inherited classes and rule-specific requirements."""
+
         requirements = []
         for base in inspect.getmro(cls):
             if issubclass(base, ABCRule) and base != cls:
-                requirements.extend(base.requires or ())
+                requirements.extend(base.requires or ())  # type: ignore
 
         requirements.extend(requires or ())
         cls.requires = list(dict.fromkeys(requirements))

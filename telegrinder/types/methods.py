@@ -3,6 +3,7 @@ import typing
 from telegrinder.api.error import APIError
 from telegrinder.model import full_result, get_params
 from telegrinder.option.msgspec_option import Option
+from telegrinder.option.option import Nothing
 from telegrinder.result import Result
 from telegrinder.types.objects import *
 

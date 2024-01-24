@@ -1,16 +1,54 @@
 import datetime
 import typing
 
+from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.bot.dispatch.handler.func import FuncHandler
+from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
+from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.dispatch.view.abc import ABCStateView
+from telegrinder.modules import logger
+from telegrinder.tools.magic import magic_bundle
 
 if typing.TYPE_CHECKING:
     from .machine import WaiterMachine
     from .short_state import ShortState
 
+    from telegrinder.bot.rules.abc import ABCRule
+
 EventType = typing.TypeVar("EventType", bound=BaseCute)
+
+
+class CuteFuncHandler(ABCHandler[EventType]):
+    def __init__(
+        self,
+        func: typing.Callable,
+        rules: list["ABCRule[EventType]"],
+        is_blocking: bool = True,
+        dataclass: type[typing.Any] | None = dict,
+    ):
+        self.func = func
+        self.is_blocking = is_blocking
+        self.rules = rules
+        self.dataclass = dataclass
+        self.ctx = Context()
+    
+    async def check(self, api: ABCAPI, event: EventType, ctx: Context | None = None) -> bool:
+        ctx = ctx or Context()
+        preset_ctx = self.ctx.copy()
+        self.ctx |= ctx
+        for rule in self.rules:
+            if not await check_rule(api, rule, event, self.ctx):
+                logger.debug("Rule {!r} failed!", rule)
+                self.ctx = preset_ctx
+                return False
+        return True
+    
+    async def run(self, event: EventType) -> typing.Any:
+        if self.dataclass is not None:
+            event = self.dataclass(**event.to_dict())
+        return await self.func(event, **magic_bundle(self.func, self.ctx))  # type: ignore
 
 
 class WaiterMiddleware(ABCMiddleware[EventType]):
@@ -22,7 +60,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         self.machine = machine
         self.view = view
 
-    async def pre(self, event: EventType, ctx: dict) -> bool:
+    async def pre(self, event: EventType, ctx: Context) -> bool:
         if not self.view or not hasattr(self.view, "get_state_key"):
             raise RuntimeError(
                 "WaiterMiddleware cannot be used inside a view which doesn't "
@@ -34,9 +72,12 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
             return True
 
         key = self.view.get_state_key(event)
+        if key is None:
+            raise RuntimeError("Unable to get state key.")
+
         short_state: typing.Optional["ShortState"] = self.machine.storage[
             view_name
-        ].get(key)  # type: ignore
+        ].get(key)
         if not short_state:
             return True
 
@@ -44,14 +85,14 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
             short_state.expiration is not None
             and datetime.datetime.now() >= short_state.expiration
         ):
-            await self.machine.drop(self.view, short_state.key)  # type: ignore
+            await self.machine.drop(self.view, short_state.key)
             return True
-
-        handler: FuncHandler = FuncHandler(
+    
+        handler = CuteFuncHandler(
             self.pass_runtime, list(short_state.rules), dataclass=None
         )
         handler.ctx["short_state"] = short_state
-        result = await handler.check(event.ctx_api, event, ctx)  # type: ignore
+        result = await handler.check(event.ctx_api, event, ctx)
         if result is True:
             await handler.run(event)
 
@@ -65,6 +106,6 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
 
         return False
 
-    async def pass_runtime(self, event, short_state: "ShortState", ctx: dict) -> None:
+    async def pass_runtime(self, event, short_state: "ShortState[EventType]", ctx: Context) -> None:
         setattr(short_state.event, "context", (event, ctx))
         short_state.event.set()

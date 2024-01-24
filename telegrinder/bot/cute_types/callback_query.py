@@ -34,10 +34,10 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
 
     async def answer(
         self,
-        text: str | Option[str] | None = None,
-        show_alert: bool | Option[bool] | None = None,
-        url: str | Option[str] | None = None,
-        cache_time: int | Option[int] | None = None,
+        text: str | Option[str] = Nothing,
+        show_alert: bool | Option[bool] = Nothing,
+        url: str | Option[str] = Nothing,
+        cache_time: int | Option[int] = Nothing,
         **other,
     ) -> Result[bool, APIError]:
         params = get_params(locals())
@@ -45,13 +45,13 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
 
     async def edit_text(
         self,
-        text: str | Option[str] | None = None,
-        parse_mode: str | Option[str] | None = None,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] | None = None,
-        disable_web_page_preview: bool | Option[bool] | None = None,
+        text: str | Option[str] = Nothing,
+        parse_mode: str | Option[str] = Nothing,
+        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
+        disable_web_page_preview: bool | Option[bool] = Nothing,
         reply_markup: InlineKeyboardMarkup
         | Option[InlineKeyboardMarkup]
-        | None = None,
+        = Nothing,
         **other,
     ) -> Result[Message | bool, APIError]:
         params = get_params(locals())

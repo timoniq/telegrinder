@@ -765,6 +765,18 @@ class Message(MaybeInaccessibleMessage, forbid_unknown_fields=True):
 
         return self.from_.unwrap()
 
+    @property
+    def content_type(self) -> ContentType:
+        """Type of content that the message contains."""
+
+        for content in ContentType:
+            if (
+                content.value in self.__struct_fields__
+                and getattr(self, content.value) is not Nothing
+            ):
+                return content
+        return ContentType.UNKNOWN
+
     def __eq__(self, other: "Message"):
         return self.message_id == other.message_id and self.chat.id == other.chat.id
 

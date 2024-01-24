@@ -346,6 +346,7 @@ class MethodsGenerator(ABCGenerator):
             "import typing\n\n",
             "from telegrinder.api.error import APIError\n",
             "from telegrinder.option.msgspec_option import Option\n",
+            "from telegrinder.option.option import Nothing\n",
             "from telegrinder.model import full_result, get_params\n",
             "from telegrinder.result import Result\n\n",
             "from telegrinder.types.objects import *\n\n",

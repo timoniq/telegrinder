@@ -97,6 +97,7 @@ class Polling(ABCPolling):
                         self.max_reconnetions,
                     )
                     self.stop()
+                    exit(9)
                 else:
                     logger.warning("Server disconnected, waiting 5 seconds to reconnetion...")
                     reconn_counter += 1
@@ -107,6 +108,7 @@ class Polling(ABCPolling):
                     "Please, check your internet connection."
                 )
                 self.stop()
+                exit(3)
             except BaseException as e:
                 logger.exception(e)
 

@@ -4,7 +4,7 @@ from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
-from telegrinder.result import Error
+from telegrinder.result import Error, Ok
 from telegrinder.tools.i18n.base import I18nEnum
 from telegrinder.types import Update
 
@@ -54,20 +54,25 @@ async def process_inner(
 async def check_rule(
     api: ABCAPI,
     rule: "ABCRule",
-    update: Update,
+    update: Update | BaseCute,
     ctx: Context,
 ) -> bool:
     """Checks requirements, adapts update.
     Returns check result."""
 
+    if isinstance(update, Update):
+        # Adaptation object 'Update' to 'CuteType'
+        cute_model = await rule.adapter.adapt(api, update)
+        match cute_model:
+            case Ok(cute):
+                cute_model = typing.cast(BaseCute, cute) 
+            case Error(err):
+                logger.debug("Adapter failed with error message: {!r}", str(err))
+                return False
+    else:
+        cute_model = update
+
     ctx_copy = ctx.copy()
-    cute_model = await rule.adapter.adapt(api, update)
-
-    match cute_model:
-        case Error(err):
-            logger.debug("Adapter failed with error message: {!r}", str(err))
-            return False
-
     for requirement in rule.requires:
         if not await check_rule(api, requirement, update, ctx_copy):
             return False
@@ -77,4 +82,4 @@ async def check_rule(
     if I18nEnum.I18N in ctx:
         rule = await rule.translate(ctx.get(I18nEnum.I18N))
 
-    return await rule.check(cute_model.unwrap(), ctx)
+    return await rule.check(cute_model, ctx)

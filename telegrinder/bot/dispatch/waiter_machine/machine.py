@@ -3,18 +3,17 @@ import datetime
 import typing
 
 from telegrinder.api.abc import ABCAPI
-from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
 
 from .middleware import WaiterMiddleware
 from .short_state import Behaviour, EventModel, ShortState
 
-Identificator = str | int
-Storage = dict[str, dict[Identificator, "ShortState"]]
-Event = BaseCute
+Identificator: typing.TypeAlias = str | int
+Storage: typing.TypeAlias = dict[str, dict[Identificator, "ShortState"]]
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.dispatch.view.abc import ABCStateView
+    from telegrinder.bot.dispatch.view.abc import ABCStateView, BaseStateView
 
 
 class WaiterMachine:
@@ -23,7 +22,7 @@ class WaiterMachine:
 
     async def drop(
         self,
-        state_view: "ABCStateView",
+        state_view: "ABCStateView[EventModel]",
         id: Identificator,
         **context,
     ) -> None:
@@ -35,12 +34,15 @@ class WaiterMachine:
         if not short_state:
             raise LookupError(
                 "Waiter with identificator {} is not found for view {!r}".format(
-                    id, view_name
+                    id,
+                    view_name,
                 )
             )
 
-        waiters: typing.Iterable[asyncio.Future] = short_state.event._waiters  # type: ignore
-
+        waiters = typing.cast(
+            typing.Iterable[asyncio.Future[typing.Any]],
+            short_state.event._waiters  # type: ignore
+        )
         for future in waiters:
             future.cancel()
 
@@ -53,13 +55,13 @@ class WaiterMachine:
 
     async def wait(
         self,
-        state_view: "ABCStateView",
+        state_view: "BaseStateView[EventModel]",
         linked: EventModel | tuple[ABCAPI, Identificator],
         *rules: ABCRule[EventModel],
         default: Behaviour = None,
         on_drop: Behaviour = None,
         expiration: datetime.timedelta | int | None = None,
-    ) -> tuple[EventModel, dict]:
+    ) -> tuple[EventModel, Context]:
         if isinstance(expiration, int):
             expiration = datetime.timedelta(seconds=expiration)
 
@@ -85,7 +87,7 @@ class WaiterMachine:
 
         view_name = state_view.__class__.__name__
         if view_name not in self.storage:
-            state_view.middlewares.insert(0, WaiterMiddleware(self, state_view))  # type: ignore
+            state_view.middlewares.insert(0, WaiterMiddleware(self, state_view))
             self.storage[view_name] = {}
 
         self.storage[view_name][key] = short_state
@@ -99,9 +101,9 @@ class WaiterMachine:
 
     async def call_behaviour(
         self,
-        view: "ABCStateView",
+        view: "ABCStateView[EventModel]",
         behaviour: Behaviour,
-        event: asyncio.Event | BaseCute,
+        event: asyncio.Event | EventModel,
         **context,
     ) -> None:
         if behaviour is None:
