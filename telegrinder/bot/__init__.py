@@ -35,7 +35,6 @@ from .polling import ABCPolling, Polling
 from .rules import ABCRule, CallbackQueryRule, MessageRule
 from .scenario import ABCScenario, Checkbox, SingleChoice
 
-
 __all__ = (
     "ABCPolling",
     "Polling",

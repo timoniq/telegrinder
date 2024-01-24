@@ -28,6 +28,7 @@ async def process_inner(
 ) -> bool:
     logger.debug("Processing {!r}...", event.__class__.__name__)
     ctx = Context()
+    ctx.set("raw_update", raw_event)
 
     for middleware in middlewares:
         if await middleware.pre(event, ctx) is False:
@@ -54,23 +55,17 @@ async def process_inner(
 async def check_rule(
     api: ABCAPI,
     rule: "ABCRule",
-    update: Update | BaseCute,
+    update: Update,
     ctx: Context,
 ) -> bool:
     """Checks requirements, adapts update.
     Returns check result."""
 
-    if isinstance(update, Update):
-        # Adaptation object 'Update' to 'CuteType'
-        cute_model = await rule.adapter.adapt(api, update)
-        match cute_model:
-            case Ok(cute):
-                cute_model = typing.cast(BaseCute, cute) 
-            case Error(err):
-                logger.debug("Adapter failed with error message: {!r}", str(err))
-                return False
-    else:
-        cute_model = update
+    cute_model = await rule.adapter.adapt(api, update)
+    match cute_model:
+        case Error(err):
+            logger.debug("Adapter failed with error message: {!r}", str(err))
+            return False
 
     ctx_copy = ctx.copy()
     for requirement in rule.requires:
@@ -82,4 +77,4 @@ async def check_rule(
     if I18nEnum.I18N in ctx:
         rule = await rule.translate(ctx.get(I18nEnum.I18N))
 
-    return await rule.check(cute_model, ctx)
+    return await rule.check(cute_model.unwrap(), ctx)

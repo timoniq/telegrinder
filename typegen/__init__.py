@@ -13,7 +13,6 @@ from .generator import (
 )
 from .models import Field, MethodSchema, Model, Schema, TypeSchema
 
-
 __all__ = (
     "ABCGenerator",
     "TypesGenerator",

@@ -41,7 +41,6 @@ from .spec_html_formats import (
     TgEmoji,
 )
 
-
 __all__ = (
     "FormatString",
     "BaseSpecFormat",

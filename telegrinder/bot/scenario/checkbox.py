@@ -13,7 +13,7 @@ from .abc import ABCScenario
 
 if typing.TYPE_CHECKING:
     from telegrinder.api import API
-    from telegrinder.bot.dispatch.view.abc import ABCStateView
+    from telegrinder.bot.dispatch.view.abc import BaseStateView
 
 
 @dataclasses.dataclass
@@ -102,7 +102,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
     async def wait(
         self,
         api: "API",
-        view: "ABCStateView[CallbackQueryCute]",
+        view: "BaseStateView[CallbackQueryCute]",
     ) -> tuple[dict[str, bool], int]:
         assert len(self.choices) > 1
         message = (

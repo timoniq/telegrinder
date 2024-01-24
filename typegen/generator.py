@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 
 import msgspec
 import requests
-
 from models import Field, MethodSchema, Schema, TypeSchema
 
 ModelT = typing.TypeVar("ModelT", bound=msgspec.structs.Struct)

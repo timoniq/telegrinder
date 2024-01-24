@@ -4,10 +4,8 @@ from contextlib import suppress
 import msgspec
 from msgspec import Raw, ValidationError
 
-from telegrinder.option import Nothing, NothingType, Some
-from telegrinder.option import Option
+from telegrinder.option import Nothing, NothingType, Option, Some
 from telegrinder.option.msgspec_option import Option as MsgspecOption
-from telegrinder.result import Result
 
 T = typing.TypeVar("T")
 
@@ -16,6 +14,7 @@ EncHook = typing.Callable[[T], typing.Any]
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
+    from telegrinder.result import Result
 
     Union = typing.Union
 else:
@@ -95,23 +94,23 @@ def union_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
 
 @typing.overload
 def full_result(
-    result: Result[msgspec.Raw, "APIError"], full_t: type[T]
-) -> Result[T, "APIError"]:
+    result: "Result[msgspec.Raw, APIError]", full_t: type[T]
+) -> "Result[T, APIError]":
     ...
 
 
 @typing.overload
 def full_result(
-    result: Result[msgspec.Raw, "APIError"],
+    result: "Result[msgspec.Raw, APIError]",
     full_t: tuple[type[T], ...],
-) -> Result[T, "APIError"]:
+) -> "Result[T, APIError]":
     ...
 
 
 def full_result(
-    result: Result[msgspec.Raw, "APIError"],
+    result: "Result[msgspec.Raw, APIError]",
     full_t: type[T] | tuple[type[T], ...],
-) -> Result[T, "APIError"]:
+) -> "Result[T, APIError]":
     return result.map(lambda v: decoder.decode(v, type=full_t))  # type: ignore
 
 

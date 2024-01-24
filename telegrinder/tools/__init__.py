@@ -67,7 +67,6 @@ from .loop_wrapper import ABCLoopWrapper, DelayedTask, LoopWrapper
 from .magic import magic_bundle, resolve_arg_names
 from .parse_mode import ParseMode
 
-
 __all__ = (
     "ABCErrorHandler",
     "ABCI18n",

@@ -6,7 +6,7 @@ from .checkbox import Checkbox
 
 if typing.TYPE_CHECKING:
     from telegrinder.api import API
-    from telegrinder.bot.dispatch.view.abc import ABCStateView
+    from telegrinder.bot.dispatch.view.abc import BaseStateView
 
 
 class SingleChoice(Checkbox):
@@ -34,7 +34,7 @@ class SingleChoice(Checkbox):
     async def wait(
         self,
         api: "API",
-        cb_view: "ABCStateView[CallbackQueryCute]",
+        cb_view: "BaseStateView[CallbackQueryCute]",
     ) -> tuple[str, int]:
         if len([choice for choice in self.choices if choice.is_picked]) != 1:
             raise ValueError("Exactly one choice must be picked")
