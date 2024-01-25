@@ -16,7 +16,7 @@ class ResultLoggingFactory:
     def __init__(
         self,
         log: typing.Callable[[str], None] = lambda _: None,
-        traceback_formatter: typing.Callable[[BaseException], str] | None = None,
+        traceback_formatter: typing.Callable[[], str] | None = None,
     ):
         self._log = log
         self._traceback_formatter = traceback_formatter or self.base_traceback_formatter
@@ -25,30 +25,23 @@ class ResultLoggingFactory:
         self._log(str(err))
     
     @staticmethod
-    def base_traceback_formatter(exception: BaseException) -> str:
-        fmt_exception = traceback.format_exception(exception)
-        if len(fmt_exception) == 1:
-            summary = traceback.extract_stack()
-            while len(summary) > 2:
-                if summary[-1].filename in (__file__, "<string>", "<module>"):
-                    summary.pop()
-                else:
-                    break
-            return (
-                "\n".join(traceback.format_list(summary))
-                + f'\n  Error in "Result.Error"'
-                + "\n    "
-                + repr(exception)
-            )
-        return ("\n".join(fmt_exception))
+    def base_traceback_formatter() -> str:
+        summary = traceback.extract_stack()
+        while len(summary) > 2:
+            if summary[-1].filename in (__file__, "<string>", "<module>"):
+                summary.pop()
+            else:
+                break
+        trace = traceback.format_list(summary)
+        return "\n".join(trace)
 
-    def format_traceback(self, exception: BaseException) -> str:            
-        return self._traceback_formatter(exception)
+    def format_traceback(self, error: typing.Any) -> str: 
+        return self._traceback_formatter() + "\n\n  " + repr(error)
     
     def set_log(self, log: typing.Callable[[str], None]) -> None:
         self._log = log
     
-    def set_traceback_formatter(self, formatter: typing.Callable[[BaseException], str]) -> None:
+    def set_traceback_formatter(self, formatter: typing.Callable[[], str]) -> None:
         self._traceback_formatter = formatter
 
 
@@ -97,18 +90,13 @@ class Error(typing.Generic[Err]):
     """`Result.Error` representing error and containing an error value."""
 
     error: Err
+
     tb: str | None = None
+    is_controlled: bool = False
 
     def __post_init__(self) -> None:
-        if isinstance(self.error, BaseException):
-            self.tb = RESULT_ERROR_LOGGER.format_traceback(self.error)
-        else:
-            self.tb = (
-                f'\n  Error in "Result.Error"'
-                + "\n    "
-                + repr(self.error)
-            )
-        self.tb = "Result logging\n" + self.tb
+        tb = RESULT_ERROR_LOGGER.format_traceback(self.error)
+        self.tb = "Result log\n" + tb
 
     def __repr__(self) -> str:
         return (
@@ -124,7 +112,6 @@ class Error(typing.Generic[Err]):
         return False
 
     def unwrap(self) -> typing.NoReturn:
-        if self.tb: self.tb = None
         raise (
             self.error
             if isinstance(self.error, BaseException)
@@ -152,8 +139,20 @@ class Error(typing.Generic[Err]):
     def expect(self, error: ErrorType, /) -> typing.NoReturn:
         raise error if not isinstance(error, str) else Exception(error)
     
+    def __getattribute__(self, __name: str) -> typing.Any:
+        """
+        If control over .error was passed to another logic 
+        (which is considered passed as soon as .error field is accessed) 
+        then there is no need to log on event of result deletion."""
+
+        if __name == "error" and self.tb is not None:
+            self.is_controlled = True
+        
+        return super().__getattribute__(__name)
+    
     def __del__(self):
-        if self.tb: RESULT_ERROR_LOGGER(self.tb)
+        if self.tb and not self.is_controlled:
+            RESULT_ERROR_LOGGER(self.tb)
 
 
 Result: typing.TypeAlias = Ok[Value] | Error[Err]

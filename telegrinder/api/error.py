@@ -6,7 +6,7 @@ class APIError(BaseException):
         return f"[{self.code}] {self.error}"
 
     def __repr__(self) -> str:
-        return f"<APIError [{self.code}] {self.error}>"
+        return f"<APIError {self.__str__()}>"
 
 
 class InvalidTokenError(BaseException):
