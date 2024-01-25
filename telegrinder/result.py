@@ -1,11 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
-import sys
 import traceback
 import typing
-
-from telegrinder.modules import logger
 
 T = typing.TypeVar("T")
 Err = typing.TypeVar("Err", covariant=True)
@@ -13,37 +10,49 @@ Value = typing.TypeVar("Value", covariant=True)
 ErrorType: typing.TypeAlias = str | BaseException | type[BaseException]
 
 
-@dataclasses.dataclass
-class ErrorTypeFormatter(typing.Generic[T]):
-    error_types: tuple[type[T], ...]
-    formatter: typing.Callable[[Error[T]], str]
+class ResultLoggingFactory:
+    """Sigleton for logging result errors."""
 
-
-class ResultLoggingFactoryClass:
-    """ Sigleton for logging result errors """
-    def __init__(self, log: typing.Callable[[typing.Any], None] = lambda _: None):
-        self.log = log
-
+    def __init__(
+        self,
+        log: typing.Callable[[str], None] = lambda _: None,
+        traceback_formatter: typing.Callable[[BaseException], str] | None = None,
+    ):
+        self._log = log
+        self._traceback_formatter = traceback_formatter or self.base_traceback_formatter
+ 
     def __call__(self, err: typing.Any) -> None:
-        self.log(err)
-
-    def set_log(self, log: typing.Callable[[typing.Any], None]) -> None:
-        self.log = log
-
+        self._log(str(err))
+    
     @staticmethod
-    def format_traceback():
-        summary = traceback.extract_stack()
-        while len(summary) > 2:
-            if summary[-1].filename in (__file__, "<string>"):
-                summary.pop()
-            else:
-                break
+    def base_traceback_formatter(exception: BaseException) -> str:
+        fmt_exception = traceback.format_exception(exception)
+        if len(fmt_exception) == 1:
+            summary = traceback.extract_stack()
+            while len(summary) > 2:
+                if summary[-1].filename in (__file__, "<string>", "<module>"):
+                    summary.pop()
+                else:
+                    break
+            return (
+                "\n".join(traceback.format_list(summary))
+                + f'\n  Error in "Result.Error"'
+                + "\n    "
+                + repr(exception)
+            )
+        return ("\n".join(fmt_exception))
 
-        trace = traceback.format_list(summary)
-        return "\n".join(trace)
+    def format_traceback(self, exception: BaseException) -> str:            
+        return self._traceback_formatter(exception)
+    
+    def set_log(self, log: typing.Callable[[str], None]) -> None:
+        self._log = log
+    
+    def set_traceback_formatter(self, formatter: typing.Callable[[BaseException], str]) -> None:
+        self._traceback_formatter = formatter
 
 
-RESULT_ERROR_LOGGER = ResultLoggingFactoryClass()
+RESULT_ERROR_LOGGER: typing.Final[ResultLoggingFactory] = ResultLoggingFactory()
 
 
 @dataclasses.dataclass(frozen=True, repr=False)
@@ -88,8 +97,18 @@ class Error(typing.Generic[Err]):
     """`Result.Error` representing error and containing an error value."""
 
     error: Err
-
     tb: str | None = None
+
+    def __post_init__(self) -> None:
+        if isinstance(self.error, BaseException):
+            self.tb = RESULT_ERROR_LOGGER.format_traceback(self.error)
+        else:
+            self.tb = (
+                f'\n  Error in "Result.Error"'
+                + "\n    "
+                + repr(self.error)
+            )
+        self.tb = "Result logging\n" + self.tb
 
     def __repr__(self) -> str:
         return (
@@ -101,13 +120,11 @@ class Error(typing.Generic[Err]):
             else f"<Result: Error({self.error!r})>"
         )
     
-    def __post_init__(self):
-        self.tb = RESULT_ERROR_LOGGER.format_traceback()
-
     def __bool__(self) -> typing.Literal[False]:
         return False
 
     def unwrap(self) -> typing.NoReturn:
+        if self.tb: self.tb = None
         raise (
             self.error
             if isinstance(self.error, BaseException)
@@ -136,13 +153,9 @@ class Error(typing.Generic[Err]):
         raise error if not isinstance(error, str) else Exception(error)
     
     def __del__(self):
-        # TODO: interaction with Error object must update .tb to None
-        if self.tb:
-            RESULT_ERROR_LOGGER(
-                self.tb + "\n  " + repr(self.error),
-            )
+        if self.tb: RESULT_ERROR_LOGGER(self.tb)
 
 
 Result: typing.TypeAlias = Ok[Value] | Error[Err]
 
-__all__ = ("Ok", "Error", "Result")
+__all__ = ("Ok", "Error", "Result", "RESULT_ERROR_LOGGER")
