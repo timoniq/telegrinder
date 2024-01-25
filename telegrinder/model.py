@@ -8,7 +8,6 @@ from telegrinder.option import Nothing, NothingType, Option, Some
 from telegrinder.option.msgspec_option import Option as MsgspecOption
 
 T = typing.TypeVar("T")
-Ts = typing.TypeVarTuple("Ts")
 
 DecHook = typing.Callable[[type[T], typing.Any], typing.Any]
 EncHook = typing.Callable[[T], typing.Any]
