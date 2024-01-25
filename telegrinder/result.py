@@ -45,14 +45,12 @@ class ResultLoggingFactory:
         self._traceback_formatter = formatter
 
 
-RESULT_ERROR_LOGGER: typing.Final[ResultLoggingFactory] = ResultLoggingFactory()
-
-
 @dataclasses.dataclass(frozen=True, repr=False)
 class Ok(typing.Generic[Value]):
     """`Result.Ok` representing success and containing a value."""
 
     value: Value
+    """Ok value."""
 
     def __repr__(self) -> str:
         return f"<Result: Ok({self.value!r})>"
@@ -90,13 +88,13 @@ class Error(typing.Generic[Err]):
     """`Result.Error` representing error and containing an error value."""
 
     error: Err
+    """Error value."""
 
-    tb: str | None = None
-    is_controlled: bool = False
+    tb: str | None = dataclasses.field(default=None, init=False, repr=False)
+    is_controlled: bool = dataclasses.field(default=False, init=False, repr=False)
 
     def __post_init__(self) -> None:
-        tb = RESULT_ERROR_LOGGER.format_traceback(self.error)
-        self.tb = "Result log\n" + tb
+        self.tb = "Result log\n" + RESULT_ERROR_LOGGER.format_traceback(self.error)
 
     def __repr__(self) -> str:
         return (
@@ -110,6 +108,20 @@ class Error(typing.Generic[Err]):
     
     def __bool__(self) -> typing.Literal[False]:
         return False
+
+    def __getattribute__(self, __name: str) -> typing.Any:
+        """If control over `Error.error` was passed to another logic 
+        (which is considered passed as soon as `Error.error` field is accessed) 
+        then there is no need to log on event of result deletion."""
+
+        if __name == "error" and self.tb:
+            self.is_controlled = True
+        
+        return super().__getattribute__(__name)
+    
+    def __del__(self) -> None:
+        if self.tb and not self.is_controlled:
+            RESULT_ERROR_LOGGER(self.tb)
 
     def unwrap(self) -> typing.NoReturn:
         raise (
@@ -138,23 +150,9 @@ class Error(typing.Generic[Err]):
 
     def expect(self, error: ErrorType, /) -> typing.NoReturn:
         raise error if not isinstance(error, str) else Exception(error)
-    
-    def __getattribute__(self, __name: str) -> typing.Any:
-        """
-        If control over .error was passed to another logic 
-        (which is considered passed as soon as .error field is accessed) 
-        then there is no need to log on event of result deletion."""
-
-        if __name == "error" and self.tb is not None:
-            self.is_controlled = True
-        
-        return super().__getattribute__(__name)
-    
-    def __del__(self):
-        if self.tb and not self.is_controlled:
-            RESULT_ERROR_LOGGER(self.tb)
 
 
 Result: typing.TypeAlias = Ok[Value] | Error[Err]
+RESULT_ERROR_LOGGER: typing.Final[ResultLoggingFactory] = ResultLoggingFactory()
 
 __all__ = ("Ok", "Error", "Result", "RESULT_ERROR_LOGGER")

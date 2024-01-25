@@ -8,6 +8,7 @@ from telegrinder.option import Nothing, NothingType, Option, Some
 from telegrinder.option.msgspec_option import Option as MsgspecOption
 
 T = typing.TypeVar("T")
+Ts = typing.TypeVarTuple("Ts")
 
 DecHook = typing.Callable[[type[T], typing.Any], typing.Any]
 EncHook = typing.Callable[[T], typing.Any]
@@ -20,11 +21,11 @@ if typing.TYPE_CHECKING:
 else:
 
     @typing.runtime_checkable
-    class UnionType(typing.Protocol[T]):        
+    class _Union(typing.Protocol[T]):        
         def __class_getitem__(cls, types):
             return super().__class_getitem__(typing.Union[types])
     
-    Union = UnionType
+    Union = _Union
 
 
 def get_origin(t: type[T]) -> type[T]:
