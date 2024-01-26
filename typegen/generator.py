@@ -183,7 +183,7 @@ class TypesGenerator(ABCGenerator):
     def make_subtype_of(self, subtype_of: list[str] | None = None) -> str:
         if not subtype_of:
             return "Model"
-        return ", ".join(subtype_of) + ", forbid_unknown_fields=True"
+        return ", ".join(subtype_of)
     
     def make_type(self, tp_schema: TypeSchema) -> str:
         object_name = camel_to_pascal(tp_schema.name)

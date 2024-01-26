@@ -36,7 +36,7 @@ def repr_type(t: type) -> str:
 
 
 def msgspec_convert(obj: typing.Any, t: type[T]) -> Option[T]:
-    with suppress(NotImplementedError, ValidationError):
+    with suppress(ValidationError):
         return Some(decoder.convert(obj, type=t))
     return Nothing
 
@@ -79,7 +79,7 @@ def union_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
             *sorted(counter_fields, key=lambda k: counter_fields[k], reverse=reverse),
             *union_types,
         )
-        
+    
     for t in union_types:
         if (o := msgspec_convert(obj, t)):
             return o.value
