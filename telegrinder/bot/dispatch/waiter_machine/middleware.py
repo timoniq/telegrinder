@@ -38,9 +38,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         if key is None:
             raise RuntimeError("Unable to get state key.")
 
-        short_state: typing.Optional["ShortState"] = self.machine.storage[
-            view_name
-        ].get(key)
+        short_state: typing.Optional["ShortState"] = self.machine.storage[view_name].get(key)
         if not short_state:
             return True
 
@@ -51,13 +49,11 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
             await self.machine.drop(self.view, short_state.key)
             return True
         
-        raw_event = ctx["raw_update"]
-    
         handler = FuncHandler(
             self.pass_runtime, list(short_state.rules), dataclass=None
         )
-        handler.ctx["short_state"] = short_state
-        result = await handler.check(event.ctx_api, raw_event, ctx)
+        handler.ctx.set("short_state", short_state)
+        result = await handler.check(event.ctx_api, ctx.raw_update, ctx)
 
         if result is True:
             await handler.run(event)
@@ -72,6 +68,6 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
 
         return False
 
-    async def pass_runtime(self, event, short_state: "ShortState[EventType]", ctx: Context) -> None:
+    async def pass_runtime(self, event: EventType, short_state: "ShortState[EventType]", ctx: Context) -> None:
         setattr(short_state.event, "context", (event, ctx))
         short_state.event.set()

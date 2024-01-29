@@ -5,8 +5,8 @@ from .telegrinder_ctx import TelegrinderCtx
 __all__ = (
     "ABCGlobalContext",
     "CtxVar",
-    "GlobalCtxVar",
     "GlobalContext",
+    "GlobalCtxVar",
+    "TelegrinderCtx",
     "ctx_var",
-    "TelegrinderCtx"
 )

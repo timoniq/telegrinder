@@ -66,9 +66,9 @@ class InlineButton(BaseButton):
 
 
 __all__ = (
-    "DataclassInstance",
-    "RowButtons",
     "BaseButton",
     "Button",
-    "InlineButton"
+    "DataclassInstance",
+    "InlineButton",
+    "RowButtons",
 )

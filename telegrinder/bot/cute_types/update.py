@@ -16,3 +16,6 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
             if update is not None:
                 return Some(UpdateType(name))
         return Nothing
+
+
+__all__ = ("UpdateCute",)

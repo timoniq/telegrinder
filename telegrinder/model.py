@@ -6,6 +6,7 @@ from msgspec import Raw, ValidationError
 
 from telegrinder.option import Nothing, NothingType, Option, Some
 from telegrinder.option.msgspec_option import Option as MsgspecOption
+from telegrinder.result import Error, Ok, Result
 
 T = typing.TypeVar("T")
 
@@ -14,17 +15,24 @@ EncHook = typing.Callable[[T], typing.Any]
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
-    from telegrinder.result import Result
-
+    
     Union = typing.Union
 else:
 
     @typing.runtime_checkable
     class _Union(typing.Protocol[T]):        
         def __class_getitem__(cls, types):
-            return super().__class_getitem__(typing.Union[types])
+            obj = super().__class_getitem__(typing.Any)
+            obj.__args__ = types
+            return obj
     
     Union = _Union
+
+MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
+    "omit_defaults": True,
+    "dict": True,
+    "rename": {"from_": "from"},
+}
 
 
 def get_origin(t: type[T]) -> type[T]:
@@ -35,10 +43,11 @@ def repr_type(t: type) -> str:
     return getattr(t, "__name__", repr(get_origin(t)))
 
 
-def msgspec_convert(obj: typing.Any, t: type[T]) -> Option[T]:
-    with suppress(ValidationError):
-        return Some(decoder.convert(obj, type=t))
-    return Nothing
+def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, ValidationError]:
+    try:
+        return Ok(decoder.convert(obj, type=t, strict=True))
+    except ValidationError as exc:
+        return Error(exc)
 
 
 def option_enc_hook(obj: Option[typing.Any]) -> typing.Any | None:
@@ -49,40 +58,34 @@ def option_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
     if obj is None:
         return Nothing
     value_type = (typing.get_args(tp) or (typing.Any,))[0]
-    return msgspec_convert({"value": obj}, Some[value_type]).expect(
-        TypeError(
-            "Expected `{}` for Option.Some, got `{}`".format(
-                repr_type(value_type),
-                repr_type(type(obj)),
-            )
-        )
-    )
+    return msgspec_convert({"value": obj}, Some[value_type]).unwrap()
 
 
 def union_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
-    union_types = typing.cast(tuple[type, ...], tp.__args__[0].__args__)
-    
+    union_types = typing.get_args(tp)
+
     if isinstance(obj, dict):
         counter_fields = {
-            m: len([k for k in obj.keys() if k in m.__struct_fields__])
+            m: sum(1 for k in obj if k in m.__struct_fields__)
             for m in union_types
             if issubclass(m, Model)
         }
         union_types = tuple(t for t in union_types if t not in counter_fields)
         reverse = False
-        
+
         if len(set(counter_fields.values())) != len(counter_fields.values()):
             counter_fields = {m: len(m.__struct_fields__) for m in counter_fields}
             reverse = True
-        
+
         union_types = (
             *sorted(counter_fields, key=lambda k: counter_fields[k], reverse=reverse),
             *union_types,
         )
-    
+
     for t in union_types:
-        if (o := msgspec_convert(obj, t)):
-            return o.value
+        match msgspec_convert(obj, t):
+            case Ok(value):
+                return value
 
     raise TypeError(
         "Object of type `{}` does not belong to types `{}`".format(
@@ -94,23 +97,23 @@ def union_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
 
 @typing.overload
 def full_result(
-    result: "Result[msgspec.Raw, APIError]", full_t: type[T]
-) -> "Result[T, APIError]":
+    result: Result[msgspec.Raw, "APIError"], full_t: type[T]
+) -> Result[T, "APIError"]:
     ...
 
 
 @typing.overload
 def full_result(
-    result: "Result[msgspec.Raw, APIError]",
+    result: Result[msgspec.Raw, "APIError"],
     full_t: tuple[type[T], ...],
-) -> "Result[T, APIError]":
+) -> Result[T, "APIError"]:
     ...
 
 
 def full_result(
-    result: "Result[msgspec.Raw, APIError]",
+    result: Result[msgspec.Raw, "APIError"],
     full_t: type[T] | tuple[type[T], ...],
-) -> "Result[T, APIError]":
+) -> Result[T, "APIError"]:
     return result.map(lambda v: decoder.decode(v, type=full_t))  # type: ignore
 
 
@@ -144,16 +147,19 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     }
 
 
-class Model(msgspec.Struct, omit_defaults=True, rename={"from_": "from"}):
+class Model(msgspec.Struct, **MODEL_CONFIG):
     def to_dict(
         self,
         *,
         exclude_fields: set[str] | None = None,
-    ):
+    ):  
+        exclude_fields = exclude_fields or set()
+        if "model_to_dict" not in self.__dict__:
+            self.__dict__["model_to_dict"] = msgspec.structs.asdict(self)
         return {
-            k: v
-            for k, v in msgspec.structs.asdict(self).items()
-            if k not in (exclude_fields or ())
+            key: value
+            for key, value in self.__dict__["model_to_dict"].items()
+            if key not in exclude_fields
         }
 
 
@@ -182,8 +188,8 @@ class Decoder:
     def convert(
         self,
         obj: object,
-        type: type["T"] = typing.Any,
         *,
+        type: type["T"] = dict,
         strict: bool = True,
         from_attributes: bool = False,
         builtin_types: typing.Iterable[type] | None = None,
@@ -203,7 +209,7 @@ class Decoder:
         self,
         buf: str | bytes,
         *,
-        type: type[T] = typing.Any,
+        type: type[T] = dict,
         strict: bool = True,
     ) -> T:
         return msgspec.json.decode(
@@ -249,22 +255,22 @@ class Encoder:
         return buf.decode() if as_str else buf
 
 
-decoder = Decoder()
-encoder = Encoder()
+decoder: typing.Final[Decoder] = Decoder()
+encoder: typing.Final[Encoder] = Encoder()
 
 
 __all__ = (
-    "convert",
-    "msgspec_convert",
-    "repr_type",
-    "get_origin",
-    "decoder",
-    "encoder",
-    "full_result",
-    "get_params",
-    "msgspec",
     "Decoder",
     "Encoder",
     "Model",
     "Raw",
+    "convert",
+    "decoder",
+    "encoder",
+    "full_result",
+    "get_origin",
+    "get_params",
+    "msgspec",
+    "msgspec_convert",
+    "repr_type",
 )

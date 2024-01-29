@@ -20,13 +20,16 @@ class _Message(Message):
         """`from_user` instead of `from_.unwrap()`"""
 
         return self.from_.unwrap()
-    
+
     @property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
 
         for content in ContentType:
-            if content.value in self.__struct_fields__ and getattr(self, content.value) is not Nothing:
+            if (
+                content.value in self.__struct_fields__
+                and getattr(self, content.value) is not Nothing
+            ):
                 return content
         return ContentType.UNKNOWN
 

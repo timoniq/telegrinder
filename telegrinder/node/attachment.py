@@ -1,50 +1,69 @@
+import dataclasses
 import typing
-from dataclasses import dataclass
 
 import telegrinder.types
+from telegrinder.option import Nothing, Option
 
-from .base import DataNode, ScalarNode
+from .base import ComposeError, DataNode, ScalarNode
 from .message import MessageNode
 
 
-@dataclass
+@dataclasses.dataclass
 class Attachment(DataNode):
-    attachment_type: typing.Literal["photo", "video", "audio", "document"]
-    photo: list[telegrinder.types.PhotoSize] | None = None
-    video: telegrinder.types.Video | None = None
-    audio: telegrinder.types.Audio | None = None
-    document: telegrinder.types.Document | None = None
+    attachment_type: typing.Literal["audio", "document", "photo", "poll", "video"]
+    _: dataclasses.KW_ONLY
+    audio: Option[telegrinder.types.Audio] = dataclasses.field(default_factory=lambda: Nothing)
+    document: Option[telegrinder.types.Document] = dataclasses.field(default_factory=lambda: Nothing)
+    photo: Option[list[telegrinder.types.PhotoSize]] = dataclasses.field(default_factory=lambda: Nothing)
+    poll: Option[telegrinder.types.Poll] = dataclasses.field(default_factory=lambda: Nothing)
+    video: Option[telegrinder.types.Video] = dataclasses.field(default_factory=lambda: Nothing)
 
     @classmethod
     async def compose(cls, message: MessageNode) -> "Attachment":
-        for attachment_type in ("photo", "video", "audio", "document"):
-            if attachment := getattr(message, attachment_type):
-                return cls(attachment_type, **{attachment_type: attachment.unwrap()})
+        for attachment_type in ("audio", "document", "photo", "poll", "video"):
+            if attachment := getattr(message, attachment_type, Nothing):
+                return cls(attachment_type, **{attachment_type: attachment})
         return cls.compose_error("No attachment found in message")
 
 
-@dataclass
+@dataclasses.dataclass
 class Photo(DataNode):
     sizes: list[telegrinder.types.PhotoSize]
 
     @classmethod
-    async def compose(cls, attachment: Attachment) -> "Photo":
-        if not attachment.photo:
-            cls.compose_error("Attachment is not a photo")
-        return cls(attachment.photo)
+    async def compose(cls, attachment: Attachment) -> typing.Self:
+        return cls(attachment.photo.expect(ComposeError("Attachment is not an photo")))
 
 
 class Video(ScalarNode, telegrinder.types.Video):
     @classmethod
-    async def compose(cls, attachment: Attachment) -> "telegrinder.types.Video":
-        if not attachment.video:
-            return cls.compose_error("Attachment is not a video")
-        return attachment.video
+    async def compose(cls, attachment: Attachment) -> telegrinder.types.Video:
+        return attachment.video.expect(ComposeError("Attachment is not an video"))
 
 
 class Audio(ScalarNode, telegrinder.types.Audio):
     @classmethod
-    async def compose(cls, attachment: Attachment) -> "telegrinder.types.Audio":
-        if not attachment.audio:
-            return cls.compose_error("Attachment is not an audio")
-        return attachment.audio
+    async def compose(cls, attachment: Attachment) -> telegrinder.types.Audio:
+        return attachment.audio.expect(ComposeError("Attachment is not an audio"))
+
+
+class Document(ScalarNode, telegrinder.types.Document):
+    @classmethod
+    async def compose(cls, attachment: Attachment) -> telegrinder.types.Document:
+        return attachment.document.expect(ComposeError("Attachment is not an document"))
+
+
+class Poll(ScalarNode, telegrinder.types.Poll):
+    @classmethod
+    async def compose(cls, attachment: Attachment) -> telegrinder.types.Poll:
+        return attachment.poll.expect(ComposeError("Attachment is not an poll"))
+
+
+__all__ = (
+    "Attachment",
+    "Audio",
+    "Document",
+    "Photo",
+    "Poll",
+    "Video",
+)

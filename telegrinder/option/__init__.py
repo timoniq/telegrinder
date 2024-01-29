@@ -4,5 +4,5 @@ __all__ = (
     "Nothing",
     "NothingType",
     "Option",
-    "Some"
+    "Some",
 )

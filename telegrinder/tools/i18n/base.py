@@ -27,5 +27,5 @@ class I18nEnum(enum.Enum):
 __all__ = (
     "ABCI18n",
     "ABCTranslator",
-    "I18nEnum"
+    "I18nEnum",
 )

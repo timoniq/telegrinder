@@ -155,4 +155,4 @@ class Error(typing.Generic[Err]):
 Result: typing.TypeAlias = Ok[Value] | Error[Err]
 RESULT_ERROR_LOGGER: typing.Final[ResultLoggingFactory] = ResultLoggingFactory()
 
-__all__ = ("Ok", "Error", "Result", "RESULT_ERROR_LOGGER")
+__all__ = ("Error", "Ok", "RESULT_ERROR_LOGGER", "Result")

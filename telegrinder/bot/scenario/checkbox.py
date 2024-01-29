@@ -128,4 +128,4 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         )
 
 
-__all__ = ("Choice", "Checkbox", "random_code")
+__all__ = ("Checkbox", "Choice", "random_code")

@@ -123,9 +123,9 @@ class InlineKeyboard(ABCMarkup[InlineButton]):
 
 
 __all__ = (
-    "keyboard_remove",
     "ABCMarkup",
-    "Keyboard",
     "InlineKeyboard",
-    "KeyboardModel"
+    "Keyboard",
+    "KeyboardModel",
+    "keyboard_remove",
 )

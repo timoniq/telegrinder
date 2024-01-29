@@ -54,3 +54,6 @@ class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
         logger.debug("Running blocking polling (id={})", self.api.id)
         self.loop_wrapper.add_task(self.run_polling(offset, skip_updates=skip_updates))
         self.loop_wrapper.run_event_loop()
+
+
+__all__ = ("Telegrinder",)

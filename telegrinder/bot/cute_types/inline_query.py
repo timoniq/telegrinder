@@ -33,3 +33,6 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
             switch_pm_text=switch_pm_text,
             switch_pm_parameter=switch_pm_parameter,
         )  # NOTE: param results: implement dataclass instead of dict
+
+
+__all__ = ("InlineQueryCute",)

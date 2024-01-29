@@ -117,3 +117,6 @@ class AiohttpClient(ABCClient):
             if self.session._connector is not None and self.session._connector_owner:
                 self.session._connector.close()
             self.session._connector = None
+
+
+__all__ = ("AiohttpClient",)

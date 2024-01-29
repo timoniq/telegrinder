@@ -87,6 +87,6 @@ Option: typing.TypeAlias = Some[Value] | NothingType
 __all__ = (
     "Nothing",
     "NothingType",
+    "Option",
     "Some",
-    "Option"
 )

@@ -332,7 +332,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def pop(
         self,
         var_name: str,
-        var_value_type: type[T] = typing.Any
+        var_value_type: type[T] = object
     ) -> Option[GlobalCtxVar[T]]:
         """Pop context variable by name.
         Returns Option[GlobalCtxVar[T]] object.
@@ -359,7 +359,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def get(
         self,
         var_name: str,
-        var_value_type: type[T] = typing.Any,
+        var_value_type: type[T] = object,
     ) -> Option[GlobalCtxVar[T]]:
         """Get context variable by name.
         Returns `GlobalCtxVar[value_type]` object."""
@@ -393,7 +393,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def get_value(
         self,
         var_name: str,
-        var_value_type: type[T] = typing.Any,
+        var_value_type: type[T] = object,
     ) -> Option[T]:
         """Get context variable value by name."""
 
@@ -446,13 +446,13 @@ __all__ = (
     "ABCGlobalContext",
     "CtxVar",
     "CtxVariable",
-    "GlobalCtxVar",
     "GlobalContext",
-    "Storage",
+    "GlobalCtxVar",
     "RootAttr",
-    "type_check",
-    "root_protection",
-    "is_dunder",
+    "Storage",
     "ctx_var",
     "get_orig_class",
+    "is_dunder",
+    "root_protection",
+    "type_check",
 )

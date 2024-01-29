@@ -1,6 +1,8 @@
 import enum
 import typing
 
+from telegrinder.types import Update
+
 Key: typing.TypeAlias = str | enum.Enum
 AnyValue: typing.TypeAlias = typing.Any
 
@@ -17,6 +19,8 @@ class Context(dict[str, AnyValue]):
             return True
     ```
     """
+
+    raw_update: Update
 
     def __init__(self, **kwargs: AnyValue) -> None:
         cls_vars = vars(self.__class__)

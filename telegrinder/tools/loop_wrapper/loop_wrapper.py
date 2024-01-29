@@ -129,4 +129,4 @@ class LoopWrapper(ABCLoopWrapper):
         return decorator
 
 
-__all__ = ("LoopWrapper", "DelayedTask")
+__all__ = ("DelayedTask", "LoopWrapper")

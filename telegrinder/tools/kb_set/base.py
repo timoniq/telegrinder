@@ -12,4 +12,4 @@ class KeyboardSetBase(ABC):
         pass
 
 
-__all__ = ("KeyboardSetError", "KeyboardSetBase")
+__all__ = ("KeyboardSetBase", "KeyboardSetError")

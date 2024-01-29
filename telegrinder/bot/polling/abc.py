@@ -19,3 +19,6 @@ class ABCPolling(ABC):
     @abstractmethod
     def stop(self) -> None:
         pass
+
+
+__all__ = ("ABCPolling",)

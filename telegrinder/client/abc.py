@@ -47,3 +47,6 @@ class ABCClient(ABC):
 
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         await self.close()
+
+
+__all__ = ("ABCClient", "ClientData")

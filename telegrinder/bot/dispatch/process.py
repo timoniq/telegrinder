@@ -4,7 +4,7 @@ from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
-from telegrinder.result import Error, Ok
+from telegrinder.result import Error
 from telegrinder.tools.i18n.base import I18nEnum
 from telegrinder.types import Update
 
@@ -27,8 +27,7 @@ async def process_inner(
     return_manager: ABCReturnManager[T],
 ) -> bool:
     logger.debug("Processing {!r}...", event.__class__.__name__)
-    ctx = Context()
-    ctx.set("raw_update", raw_event)
+    ctx = Context(raw_update=raw_event)
 
     for middleware in middlewares:
         if await middleware.pre(event, ctx) is False:

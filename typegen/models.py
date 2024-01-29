@@ -29,7 +29,7 @@ class TypeSchema(Model):
     description: typing.Optional[list[str]] = None
     fields: typing.Optional[list["Field"]] = None
     subtypes: typing.Optional[list[str]] = None
-    subtype_of: typing.Optional[list[str]] = None 
+    subtype_of: typing.Optional[list[str]] = None
 
 
 class Field(Model):
@@ -40,9 +40,9 @@ class Field(Model):
 
 
 __all__ = (
+    "Field",
+    "MethodSchema",
     "Model",
     "Schema",
-    "MethodSchema",
     "TypeSchema",
-    "Field",
 )

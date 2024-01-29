@@ -9,4 +9,4 @@ def dumps(o: dict | list) -> str:
     return encoder.encode(o)
 
 
-__all__ = ("loads", "dumps")
+__all__ = ("dumps", "loads")

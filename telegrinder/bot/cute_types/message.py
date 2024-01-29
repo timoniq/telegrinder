@@ -28,7 +28,7 @@ ReplyMarkup = typing.Union[
 ]
 
 
-def get_enitity_value(
+def get_entity_value(
     entities: list[MessageEntity], entity_value: str
 ) -> Option[typing.Any]:
     for entity in entities:
@@ -46,7 +46,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         if not self.entities:
             return Nothing
-        return get_enitity_value(self.entities.unwrap(), "user")
+        return get_entity_value(self.entities.unwrap(), "user")
 
     @property
     def url(self) -> Option[str]:
@@ -54,7 +54,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         if not self.entities:
             return Nothing
-        return get_enitity_value(self.entities.unwrap(), "url")
+        return get_entity_value(self.entities.unwrap(), "url")
 
     @property
     def programming_language(self) -> Option[str]:
@@ -62,7 +62,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         if not self.entities:
             return Nothing
-        return get_enitity_value(self.entities.unwrap(), "language")
+        return get_entity_value(self.entities.unwrap(), "language")
 
     @property
     def custom_emoji_id(self) -> Option[str]:
@@ -70,7 +70,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         if not self.entities:
             return Nothing
-        return get_enitity_value(self.entities.unwrap(), "custom_emoji_id")
+        return get_entity_value(self.entities.unwrap(), "custom_emoji_id")
 
     async def answer(
         self,
@@ -162,3 +162,6 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             message_id=self.message_id,
             **get_params(locals())
         )
+
+
+__all__ = ("MessageCute", "get_entity_value")

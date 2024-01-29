@@ -68,3 +68,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
             inline_message_id=self.inline_message_id,
             **params,
         )
+
+
+__all__ = ("CallbackQueryCute",)

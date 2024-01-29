@@ -42,3 +42,6 @@ else:
         def to_dict(self, *, exclude_fields=None):
             exclude_fields = exclude_fields or set()
             return super().to_dict(exclude_fields={"api"} | exclude_fields)
+
+
+__all__ = ("BaseCute",)

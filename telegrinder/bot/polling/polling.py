@@ -114,3 +114,6 @@ class Polling(ABCPolling):
 
     def stop(self) -> None:
         self._stop = True
+
+
+__all__ = ("Polling",)

@@ -59,3 +59,6 @@ class API(ABCAPI, APIMethods):
             data=compose_data(self.http, data or {})
         )
         return decoder.decode(response_bytes, type=APIResponse).to_result()
+
+
+__all__ = ("API",)

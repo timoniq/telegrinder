@@ -11,3 +11,6 @@ class APIError(BaseException):
 
 class InvalidTokenError(BaseException):
     ...
+
+
+__all__ = ("APIError", "InvalidTokenError")
