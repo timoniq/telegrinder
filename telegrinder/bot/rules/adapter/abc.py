@@ -15,3 +15,6 @@ class ABCAdapter(abc.ABC, typing.Generic[UpdateT, CuteT]):
     @abc.abstractmethod
     async def adapt(self, api: ABCAPI, update: UpdateT) -> Result[CuteT, AdapterError]:
         pass
+
+
+__all__ = ("ABCAdapter",)

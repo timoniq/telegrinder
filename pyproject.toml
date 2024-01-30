@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "telegrinder"
-version = "0.1.dev150"
+version = "0.1.dev151"
 description = "Framework for effective and reliable async telegram bot building."
 authors = ["timoniq <tesseradecades@mail.ru>"]
 license = "MIT"
@@ -30,7 +30,7 @@ target-version = "py311"
 select = ["I", "N", "ANN", "COM", "YTT", "TCH", "SIM"]
 ignore = [
     "ANN001", "ANN002", "ANN003", "ANN101", "ANN102", "ANN201", "ANN202",
-    "ANN204", "ANN206", "ANN401", "COM812", "TCH001", "TCH004", "N818"
+    "ANN204", "ANN206", "ANN401", "COM812", "N818", "TCH001", "TCH004"
 ]
 
 [tool.ruff.per-file-ignores]

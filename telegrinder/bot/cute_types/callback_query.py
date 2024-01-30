@@ -1,3 +1,4 @@
+import typing
 from contextlib import suppress
 
 from telegrinder.api import ABCAPI, APIError
@@ -38,7 +39,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
         show_alert: bool | Option[bool] = Nothing,
         url: str | Option[str] = Nothing,
         cache_time: int | Option[int] = Nothing,
-        **other,
+        **other: typing.Any,
     ) -> Result[bool, APIError]:
         params = get_params(locals())
         return await self.ctx_api.answer_callback_query(self.id, **params)
@@ -52,7 +53,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
         reply_markup: InlineKeyboardMarkup
         | Option[InlineKeyboardMarkup]
         = Nothing,
-        **other,
+        **other: typing.Any,
     ) -> Result[Message | bool, APIError]:
         params = get_params(locals())
         if self.message:

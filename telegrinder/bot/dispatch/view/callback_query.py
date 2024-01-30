@@ -18,3 +18,6 @@ class CallbackQueryView(BaseStateView[CallbackQueryCute]):
                 return message.message_id
             case _:
                 return None
+
+
+__all__ = ("CallbackQueryView",)

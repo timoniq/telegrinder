@@ -83,7 +83,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reply_to_message_id: int | Option[int] = Nothing,
         allow_sending_without_reply: bool | Option[bool] = Nothing,
         reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
-        **other,
+        **other: typing.Any,
     ) -> Result["Message", APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:
@@ -100,7 +100,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         protect_content: bool | Option[bool] = Nothing,
         allow_sending_without_reply: bool | Option[bool] = Nothing,
         reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
-        **other,
+        **other: typing.Any,
     ) -> Result["Message", APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:
@@ -111,7 +111,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             **params,
         )
 
-    async def delete(self, **other) -> Result[bool, APIError]:
+    async def delete(self, **other: typing.Any) -> Result[bool, APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:
             params["message_thread_id"] = self.message_thread_id
@@ -129,7 +129,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_web_page_preview: bool | Option[bool] = Nothing,
         reply_markup: InlineKeyboardMarkup
         | Option[InlineKeyboardMarkup] = Nothing,
-        **other,
+        **other: typing.Any,
     ) -> Result[Message | bool, APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:
@@ -146,6 +146,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | list[str | ReactionType]
         | Option[list[str | ReactionType]] = Nothing,
         is_big: bool | Option[bool] = Nothing,
+        **other: typing.Any,
     ) -> Result[bool, APIError]:
         if reaction:
             reaction = [

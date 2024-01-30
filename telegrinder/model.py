@@ -1,5 +1,4 @@
 import typing
-from contextlib import suppress
 
 import msgspec
 from msgspec import Raw, ValidationError
@@ -18,13 +17,12 @@ if typing.TYPE_CHECKING:
     
     Union = typing.Union
 else:
+    Ts = typing.TypeVarTuple("Ts")
 
     @typing.runtime_checkable
-    class _Union(typing.Protocol[T]):        
-        def __class_getitem__(cls, types):
-            obj = super().__class_getitem__(typing.Any)
-            obj.__args__ = types
-            return obj
+    class _Union(typing.Protocol[*Ts]):        
+        def __repr__(self) -> str:
+            ...
     
     Union = _Union
 
@@ -81,7 +79,7 @@ def union_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
             *sorted(counter_fields, key=lambda k: counter_fields[k], reverse=reverse),
             *union_types,
         )
-
+    
     for t in union_types:
         match msgspec_convert(obj, t):
             case Ok(value):
@@ -90,7 +88,7 @@ def union_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
     raise TypeError(
         "Object of type `{}` does not belong to types `{}`".format(
             repr_type(type(obj)),
-            " | ".join(map(repr_type, tp.__args__[0].__args__)),
+            " | ".join(map(repr_type, union_types)),
         )
     )
 

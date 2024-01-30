@@ -776,24 +776,24 @@ class Message(MaybeInaccessibleMessage):
     are represented as ordinary url buttons."""
 
     @property
-    def from_user(self) -> "User":
-        """`from_user` instead of `from_.unwrap()`"""
-
-        return self.from_.unwrap()
-
-    @property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
 
         for content in ContentType:
             if (
                 content.value in self.__struct_fields__
-                and getattr(self, content.value) is not Nothing
+                and getattr(self, content.value, Nothing) is not Nothing
             ):
                 return content
         return ContentType.UNKNOWN
 
-    def __eq__(self, other: "Message"):
+    @property
+    def from_user(self) -> "User":
+        """`from_user` instead of `from_.unwrap()`"""
+
+        return self.from_.unwrap()
+
+    def __eq__(self, other: "Message") -> bool:
         return self.message_id == other.message_id and self.chat.id == other.chat.id
 
 

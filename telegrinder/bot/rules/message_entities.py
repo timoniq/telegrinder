@@ -1,5 +1,6 @@
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.types.enums import MessageEntityType
+from telegrinder.types.objects import MessageEntity
 
 from .abc import Message, MessageRule
 
@@ -16,7 +17,7 @@ class MessageEntities(MessageRule, requires=[HasEntities()]):
         self.entities = [entities] if not isinstance(entities, list) else entities
 
     async def check(self, message: Message, ctx: Context) -> bool:
-        message_entities = []
+        message_entities: list[MessageEntity] = []
         for entity in message.entities.unwrap():
             for entity_type in self.entities:
                 if entity_type == entity.type:
@@ -27,3 +28,6 @@ class MessageEntities(MessageRule, requires=[HasEntities()]):
 
         ctx.message_entities = message_entities
         return True
+
+
+__all__ = ("HasEntities", "MessageEntities")

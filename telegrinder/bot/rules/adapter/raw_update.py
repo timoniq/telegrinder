@@ -15,3 +15,6 @@ class RawUpdateAdapter(ABCAdapter[Update, UpdateCute]):
         if not isinstance(update, UpdateCute):
             return Ok(UpdateCute.from_update(update, api))
         return Ok(update)
+
+
+__all__ = ("RawUpdateAdapter",)

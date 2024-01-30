@@ -9,3 +9,6 @@ class InlineQueryReturnManager(BaseReturnManager[InlineQueryCute]):
     @staticmethod
     async def dict_manager(value: dict, event: InlineQueryCute, ctx: Context) -> None:
         await event.answer(**value)
+
+
+__all__ = ("InlineQueryReturnManager",)

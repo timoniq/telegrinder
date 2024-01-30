@@ -11,15 +11,15 @@ T = typing.TypeVar("T")
 EventT = typing.TypeVar("EventT", bound=BaseCute, contravariant=True)
 
 
-def get_union_types(t: typing.Any) -> tuple[type, ...] | None:
+def get_union_types(t: types.UnionType) -> tuple[type, ...] | None:
     if type(t) in (types.UnionType, typing._UnionGenericAlias):  # type: ignore
         return tuple(typing.get_origin(x) or x for x in typing.get_args(t))
     return None
 
 
-def register_manager(return_type: type):
+def register_manager(return_type: type | types.UnionType):
     def wrapper(func: typing.Callable[..., typing.Awaitable]):
-        return Manager(get_union_types(return_type) or (return_type,), func)
+        return Manager(get_union_types(return_type) or (return_type,), func)  # type: ignore
     
     return wrapper
 
@@ -62,11 +62,34 @@ class BaseReturnManager(ABCReturnManager[EventT]):
         for manager in self.managers:
             if typing.Any in manager.types or any(type(response) is x for x in manager.types):
                 await manager(response, event, ctx)
+    
+    @typing.overload
+    def register_manager(self, return_type: type[T]) -> typing.Callable[
+        [typing.Callable[[T, EventT, Context], typing.Awaitable]], Manager
+    ]:
+        ...
+    
+    @typing.overload
+    def register_manager(self, return_type: tuple[type[T], ...]) -> typing.Callable[
+        [typing.Callable[[tuple[T, ...], EventT, Context], typing.Awaitable]], Manager
+    ]:
+        ...
 
-    def register(self, return_type: type[T]):
+    def register_manager(self, return_type: type[T] | tuple[type[T], ...]) -> typing.Callable[
+        [typing.Callable[[T | tuple[T, ...], EventT, Context], typing.Awaitable]], Manager
+    ]:
         def wrapper(func: typing.Callable[[T, EventT, Context], typing.Awaitable]) -> Manager:
-            manager = Manager(get_union_types(return_type) or (return_type,), func)
+            manager = Manager(get_union_types(return_type) or (return_type,), func)  # type: ignore
             setattr(self.__class__, func.__name__, manager)
             return manager
         
         return wrapper
+
+
+__all__ = (
+    "ABCReturnManager",
+    "BaseReturnManager",
+    "Manager",
+    "register_manager",
+    "get_union_types",
+)

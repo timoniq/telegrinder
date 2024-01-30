@@ -69,3 +69,6 @@ class CompositionDispatch(ABCDispatch):
             self.compositions.append(composition)
             return func
         return wrapper
+
+
+__all__ = ("Composition", "CompositionDispatch")

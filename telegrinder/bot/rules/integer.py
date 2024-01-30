@@ -14,3 +14,6 @@ class IntegerInRange(TextMessageRule, requires=[Integer()]):
 
     async def check(self, message: Message, ctx: Context) -> bool:
         return int(message.text.unwrap()) in self.rng
+
+
+__all__ = ("Integer", "IntegerInRange")

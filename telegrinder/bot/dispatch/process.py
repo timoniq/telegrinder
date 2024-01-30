@@ -77,3 +77,6 @@ async def check_rule(
         rule = await rule.translate(ctx.get(I18nEnum.I18N))
 
     return await rule.check(cute_model.unwrap(), ctx)
+
+
+__all__ = ("check_rule", "process_inner")

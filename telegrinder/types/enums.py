@@ -90,8 +90,6 @@ class ChatBoostSourceType(str, enum.Enum):
 class ContentType(str, enum.Enum):
     """Type of ContentType."""
 
-    UNKNOWN = "unknown"
-    ANY = "any"
     TEXT = "text"
     ANIMATION = "animation"
     AUDIO = "audio"
@@ -145,6 +143,7 @@ class ContentType(str, enum.Enum):
     VIDEO_CHAT_PARTICIPANTS_INVITED = "video_chat_participants_invited"
     WEB_APP_DATA = "web_app_data"
     USER_SHARED = "user_shared"
+    UNKNOWN = "unknown"
 
 
 class Currency(str, enum.Enum):

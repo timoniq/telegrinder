@@ -71,3 +71,6 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
     async def pass_runtime(self, event: EventType, short_state: "ShortState[EventType]", ctx: Context) -> None:
         setattr(short_state.event, "context", (event, ctx))
         short_state.event.set()
+
+
+__all__ = ("WaiterMiddleware",)

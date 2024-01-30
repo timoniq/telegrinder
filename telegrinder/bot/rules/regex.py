@@ -33,3 +33,6 @@ class Regex(TextMessageRule):
                     ctx |= {"matches": response.groups() or response.group()}
                 return True
         return False
+
+
+__all__ = ("Regex",)

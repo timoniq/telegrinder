@@ -42,12 +42,15 @@ class NodeCollection:
             await session.close(with_value)
 
 
-async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dict[str, NodeSession] | None = None) -> NodeSession:
-    node = _node.as_node()
-
+async def compose_node(
+    node: type[Node],
+    update: UpdateCute,
+    ready_context: dict[str, NodeSession] | None = None,
+) -> NodeSession:
+    _node = node.as_node()
     context = NodeCollection(ready_context.copy() if ready_context else {})
 
-    for name, subnode in node.get_sub_nodes().items():
+    for name, subnode in _node.get_sub_nodes().items():
         if subnode is UpdateCute:
             context.sessions[name] = NodeSession(update, {})
         else:
@@ -55,11 +58,14 @@ async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dic
 
     generator: typing.AsyncGenerator | None
 
-    if node.is_generator():
-        generator = typing.cast(typing.AsyncGenerator, node.compose(**context.values()))
+    if _node.is_generator():
+        generator = typing.cast(typing.AsyncGenerator, _node.compose(**context.values()))
         value = await generator.asend(None)
     else:
         generator = None
-        value = await node.compose(**context.values())  # type: ignore
+        value = await _node.compose(**context.values())  # type: ignore
     
     return NodeSession(value, context.sessions, generator)
+
+
+__all__ = ("NodeCollection", "NodeSession", "compose_node")

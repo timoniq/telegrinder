@@ -119,3 +119,6 @@ class Dispatch(
             )
 
         return wrapper
+
+
+__all__ = ("Dispatch",)

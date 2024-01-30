@@ -4,6 +4,7 @@ from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.rules.adapter.abc import ABCAdapter
 from telegrinder.bot.rules.adapter.errors import AdapterError
+from telegrinder.option.option import Nothing
 from telegrinder.result import Error, Ok, Result
 from telegrinder.types.objects import Model, Update
 
@@ -20,8 +21,15 @@ class EventAdapter(ABCAdapter[Update, CuteT]):
         update_dct = update.to_dict()
         if self.event_name not in update_dct:
             return Error(
-                AdapterError(f"Update is not of event type {self.event_name!r}")
+                AdapterError(f"Update is not of event type {self.event_name!r}.")
+            )
+        if update_dct[self.event_name] is Nothing:
+            return Error(
+                AdapterError(f"Update is not an {self.event_name!r}.")
             )
         return Ok(
             self.model.from_update(update_dct[self.event_name].unwrap(), bound_api=api)
         )
+
+
+__all__ = ("EventAdapter",)

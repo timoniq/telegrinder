@@ -1,11 +1,10 @@
-import collections
 import dataclasses
-import types
 from copy import deepcopy
 from functools import wraps
 
 import typing_extensions as typing
 
+from telegrinder.model import msgspec_convert
 from telegrinder.modules import logger
 from telegrinder.option import Nothing, Option, Some
 from telegrinder.result import Error, Ok, Result
@@ -25,14 +24,7 @@ else:
 
 
 def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
-    if value_type is typing.Any:
-        return True
-    origin_type = typing.get_origin(value_type) or value_type
-    if origin_type is collections.abc.Callable:  # type: ignore
-        return callable(value)
-    if origin_type in (typing.Union, types.UnionType):
-        origin_type = typing.get_args(value_type)
-    return isinstance(value, origin_type)
+    return True if value_type is object else bool(msgspec_convert(value, value_type))
 
 
 def is_dunder(name: str) -> bool:
@@ -365,7 +357,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         Returns `GlobalCtxVar[value_type]` object."""
 
         generic_types = typing.get_args(get_orig_class(self))
-        if generic_types and var_value_type is typing.Any:
+        if generic_types and var_value_type is object:
             var_value_type = generic_types[0]
         var = dict.get(self, var_name)
         if var is None:
@@ -373,7 +365,9 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         assert type_check(var.value, var_value_type), (
             "Context variable value type of {!r} does not correspond to the expected type {!r}.".format(
                 type(var.value).__name__,
-                getattr(var_value_type, "__name__", repr(var_value_type)),
+                getattr(var_value_type, "__name__")
+                if isinstance(var_value_type, type)
+                else repr(var_value_type),
             )
         )
         return Some(var)
@@ -431,7 +425,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             del self[name]
 
     def delete_ctx(self) -> Result[_, str]:
-        """Delete context by `self.__ctx_name__`."""
+        """Delete context by `ctx_name`."""
 
         if not self.__ctx_name__:
             return Error("Cannot delete unnamed context.")

@@ -111,3 +111,6 @@ class WaiterMachine:
         # TODO: add behaviour check
         # TODO: support view as a behaviour
         await behaviour.run(event)
+
+
+__all__ = ("WaiterMachine",)

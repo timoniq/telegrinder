@@ -20,3 +20,6 @@ class ABCHandler(ABC, typing.Generic[T]):
     @abstractmethod
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         pass
+
+
+__all__ = ("ABCHandler",)

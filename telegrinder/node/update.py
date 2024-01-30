@@ -7,3 +7,6 @@ class UpdateNode(ScalarNode, UpdateCute):
     @classmethod
     async def compose(cls, update: UpdateCute) -> UpdateCute:
         return update
+
+
+__all__ = ("UpdateNode",)

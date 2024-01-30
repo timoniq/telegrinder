@@ -13,3 +13,6 @@ class ABCMiddleware(ABC, typing.Generic[T]):
 
     async def post(self, event: T, responses: list[typing.Any], ctx: Context):
         ...
+
+
+__all__ = ("ABCMiddleware",)

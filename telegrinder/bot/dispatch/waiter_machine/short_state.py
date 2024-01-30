@@ -32,3 +32,6 @@ class ShortState(typing.Generic[EventModel]):
         self.default_behaviour = default_behaviour
         self.expiration = (datetime.datetime.now() + expiration) if expiration else None
         self.on_drop_behaviour = on_drop_behaviour
+
+
+__all__ = ("ShortState",)

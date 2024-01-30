@@ -53,3 +53,6 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
         if self.dataclass is not None:
             event = self.dataclass(**event.to_dict())
         return (await self.error_handler.run(self.func, event, event.api, self.ctx)).unwrap()
+
+
+__all__ = ("FuncHandler",)

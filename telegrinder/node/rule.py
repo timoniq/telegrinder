@@ -7,8 +7,6 @@ from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node.base import ComposeError, Node
 from telegrinder.node.update import UpdateNode
 
-T = typing.TypeVar("T")
-
 
 class RuleContext(dict):
     dataclass = dict
@@ -24,7 +22,7 @@ class RuleContext(dict):
             return cls.dataclass(**ctx)  # type: ignore
         except Exception as exc:
             raise ComposeError(f"Dataclass validation error: {exc}")
-    
+
     @classmethod
     def as_node(cls) -> type[typing.Self]:
         return cls
@@ -46,10 +44,13 @@ class RuleContext(dict):
         return cls(*item)
     
     @staticmethod
-    def generate_dataclass(cls_):  # noqa
+    def generate_dataclass(cls_: type["RuleContext"]):  # noqa: ANN205
         return dataclasses.dataclass(type(cls_.__name__, (object,), dict(cls_.__dict__)))
     
     def __init_subclass__(cls) -> None:
         if cls.__name__ == "_RuleNode":
             return
         cls.dataclass = cls.generate_dataclass(cls)
+
+
+__all__ = ("RuleContext",)

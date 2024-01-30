@@ -2,8 +2,7 @@ import abc
 import inspect
 import typing
 
-T = typing.TypeVar("T")
-ComposeResult = typing.Coroutine[typing.Any, typing.Any, typing.Any] | typing.AsyncGenerator[typing.Any, None]
+ComposeResult: typing.TypeAlias = typing.Coroutine[typing.Any, typing.Any, typing.Any] | typing.AsyncGenerator[typing.Any, None]
 
 
 class ComposeError(BaseException):
@@ -15,13 +14,13 @@ class Node(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def compose(cls, *args, **kwargs) -> ComposeResult:
+    def compose(cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any) -> ComposeResult:
         pass
 
     @classmethod
     def compose_error(cls, error: str | None = None) -> typing.NoReturn:
         raise ComposeError(error)
-    
+
     @classmethod
     def get_sub_nodes(cls) -> dict[str, type[typing.Self]]:
         parameters = inspect.signature(cls.compose).parameters
@@ -49,14 +48,14 @@ class DataNode(Node, abc.ABC):
     @typing.dataclass_transform()
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> ComposeResult:
+    async def compose(cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any) -> ComposeResult:
         pass
 
 
 class ScalarNodeProto(Node, abc.ABC):
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> ComposeResult:
+    async def compose(cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any) -> ComposeResult:
         pass
 
 
@@ -83,3 +82,12 @@ else:
 
     class ScalarNode(ScalarNodeProto, abc.ABC, metaclass=create_class):
         pass
+
+
+__all__ = (
+    "ScalarNode",
+    "SCALAR_NODE",
+    "DataNode",
+    "Node",
+    "ComposeError",
+)

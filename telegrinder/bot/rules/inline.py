@@ -29,3 +29,6 @@ class InlineQueryText(InlineQueryRule):
 class LocationInlineQuery(InlineQueryRule):
     async def check(self, query: InlineQuery, ctx: Context) -> bool:
         return bool(query.location)
+
+
+__all__ = ("InlineQueryRule", "InlineQueryText", "LocationInlineQuery")

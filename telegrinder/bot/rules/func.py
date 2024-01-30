@@ -21,3 +21,6 @@ class FuncRule(ABCRule, typing.Generic[T]):
         if inspect.isawaitable(result):
             return await result
         return result  # type: ignore
+
+
+__all__ = ("FuncRule",)

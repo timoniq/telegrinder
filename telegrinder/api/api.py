@@ -11,7 +11,7 @@ from telegrinder.types.methods import APIMethods
 from .abc import ABCAPI, APIError, Token
 
 
-def compose_data(client: ABCClient, data: dict) -> typing.Any:
+def compose_data(client: ABCClient, data: dict[str, typing.Any]) -> typing.Any:
     data = {k: convert(v) for k, v in data.items()}
     if any(isinstance(v, tuple) for v in data.values()):
         data = client.get_form(data)
@@ -52,7 +52,7 @@ class API(ABCAPI, APIMethods):
     async def request_raw(
         self,
         method: str,
-        data: dict | None = None,
+        data: dict[str, typing.Any] | None = None,
     ) -> Result[msgspec.Raw, APIError]:
         response_bytes = await self.http.request_bytes(
             self.request_url + method,

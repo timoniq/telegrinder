@@ -17,3 +17,6 @@ class ContainerNode(Node):
     @classmethod
     def link_nodes(cls, linked_nodes: list[type[Node]]) -> type["ContainerNode"]:
         return type("_ContainerNode", (cls,), {"linked_nodes": linked_nodes})
+
+
+__all__ = ("ContainerNode",)

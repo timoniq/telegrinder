@@ -24,7 +24,7 @@ def generate(
     func: typing.Callable[..., typing.Any],
     casts: tuple[typing.Callable, ...] = (cast_false_to_none, error_on_none),
 ) -> type[ContainerNode]:
-    async def compose(**kw) -> typing.Any:
+    async def compose(**kw: typing.Any) -> typing.Any:
         args = await ContainerNode.compose(**kw)
         result = func(*args)
         if inspect.isawaitable(result):
@@ -35,3 +35,6 @@ def generate(
 
     container = ContainerNode.link_nodes(list(subnodes))
     return type("_ContainerNode", (container,), {"compose": compose})
+
+
+__all__ = ("generate",)

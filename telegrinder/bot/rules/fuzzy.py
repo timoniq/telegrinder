@@ -22,3 +22,6 @@ class FuzzyText(TextMessageRule):
             return False
         ctx.fuzzy_ratio = match
         return True
+
+
+__all__ = ("FuzzyText",)

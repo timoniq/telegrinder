@@ -2,7 +2,7 @@ from .model import decoder, encoder
 
 
 def loads(s: str | bytes) -> dict | list:
-    return decoder.decode(s)  # type: ignore
+    return decoder.decode(s, type=dict | list)  # type: ignore
 
 
 def dumps(o: dict | list) -> str:

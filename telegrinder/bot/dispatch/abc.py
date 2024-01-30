@@ -16,3 +16,6 @@ class ABCDispatch(ABC):
     @abstractmethod
     def load(self, external: typing.Self):
         pass
+
+
+__all__ = ("ABCDispatch",)

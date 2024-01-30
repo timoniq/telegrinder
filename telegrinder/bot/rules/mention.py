@@ -12,3 +12,6 @@ class HasMention(TextMessageRule):
             entity.type == MessageEntityType.MENTION
             for entity in message.entities.unwrap()
         )
+
+
+__all__ = ("HasMention",)

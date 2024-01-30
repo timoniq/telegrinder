@@ -14,3 +14,6 @@ class CallbackQueryReturnManager(BaseReturnManager[CallbackQueryCute]):
     @staticmethod
     async def dict_manager(value: dict, event: CallbackQueryCute, ctx: Context) -> None:
         await event.answer(**value)
+
+
+__all__ = ("CallbackQueryReturnManager",)

@@ -20,3 +20,6 @@ class MessageReturnManager(BaseReturnManager[MessageCute]):
     @staticmethod
     async def dict_manager(value: dict, event: MessageCute, ctx: Context) -> None:
         await event.answer(**value)
+
+
+__all__ = ("MessageReturnManager",)

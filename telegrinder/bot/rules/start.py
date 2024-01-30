@@ -37,3 +37,6 @@ class StartCommand(
 
         ctx.set(self.alias or "param", validated_param)
         return True
+
+
+__all__ = ("StartCommand",)

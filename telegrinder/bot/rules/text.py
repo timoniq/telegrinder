@@ -21,11 +21,8 @@ class Text(TextMessageRule):
         self.ignore_case = ignore_case
 
     async def check(self, message: Message, ctx: Context) -> bool:
-        return (
-            message.text.unwrap()
-            if not self.ignore_case
-            else message.text.unwrap().lower()
-        ) in self.texts
+        text = message.text.unwrap()
+        return (text if not self.ignore_case else text.lower()) in self.texts
 
     @with_caching_translations
     async def translate(self, translator: ABCTranslator) -> "Text":
@@ -33,3 +30,6 @@ class Text(TextMessageRule):
             texts=[translator.get(text) for text in self.texts],
             ignore_case=self.ignore_case,
         )
+
+
+__all__ = ("HasText", "Text", "TextMessageRule")

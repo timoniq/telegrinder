@@ -1,10 +1,13 @@
-from .base import ScalarNode
+import typing
+
+from .base import ComposeError, ScalarNode
 from .message import MessageNode
 
 
 class Text(ScalarNode, str):
     @classmethod
-    async def compose(cls, message: MessageNode) -> "Text":
-        if not message.text:
-            cls.compose_error("Message has no text")
-        return Text(message.text.unwrap())
+    async def compose(cls, message: MessageNode) -> typing.Self:
+        return cls(message.text.expect(ComposeError("Message has no text")))
+
+
+__all__ = ("Text",)

@@ -41,3 +41,6 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
             text=self.text,
             reply_to_message_id=(event.message_id if self.as_reply else Nothing),
         )
+
+
+__all__ = ("MessageReplyHandler",)

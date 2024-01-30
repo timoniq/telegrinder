@@ -118,3 +118,23 @@ class IsSlotMachineDice(MessageRule, requires=[HasDice()]):
 class IsBowlingDice(MessageRule, requires=[HasDice()]):
     async def check(self, message: Message, ctx: Context) -> bool:
         return message.dice.unwrap().emoji == DiceEmoji.BOWLING
+
+
+__all__ = (
+    "IsBasketballDice",
+    "IsBot",
+    "IsBowlingDice",
+    "IsChat",
+    "IsChatId",
+    "IsDartDice",
+    "IsDice",
+    "IsForum",
+    "IsGroup",
+    "IsLanguageCode",
+    "IsPremium",
+    "IsPrivate",
+    "IsReply",
+    "IsSuperGroup",
+    "IsUser",
+    "IsUserId",
+)

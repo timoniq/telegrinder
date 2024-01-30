@@ -1,3 +1,5 @@
+import typing
+
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.option import Nothing
 from telegrinder.option.msgspec_option import Option
@@ -23,6 +25,7 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
         next_offset: str | Option[str] = Nothing,
         switch_pm_text: str | Option[str] = Nothing,
         switch_pm_parameter: str | Option[str] = Nothing,
+        **other: typing.Any,
     ) -> Result[bool, APIError]:
         return await self.ctx_api.answer_inline_query(
             self.id,
@@ -32,6 +35,7 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
             next_offset=next_offset,
             switch_pm_text=switch_pm_text,
             switch_pm_parameter=switch_pm_parameter,
+            **other,
         )  # NOTE: param results: implement dataclass instead of dict
 
 
