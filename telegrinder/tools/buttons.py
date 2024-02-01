@@ -8,6 +8,7 @@ from telegrinder.model import encoder
 ButtonT = typing.TypeVar("ButtonT", bound="BaseButton")
 
 
+@typing.runtime_checkable
 class DataclassInstance(typing.Protocol):
     __dataclass_fields__: typing.ClassVar[dict[str, dataclasses.Field[typing.Any]]]
 

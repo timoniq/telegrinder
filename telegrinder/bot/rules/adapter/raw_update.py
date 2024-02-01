@@ -7,6 +7,9 @@ from telegrinder.types.objects import Update
 
 
 class RawUpdateAdapter(ABCAdapter[Update, UpdateCute]):
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}: adapt Update -> UpdateCute>"
+
     async def adapt(
         self,
         api: ABCAPI,

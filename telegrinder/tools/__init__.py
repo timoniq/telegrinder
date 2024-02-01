@@ -1,3 +1,4 @@
+from .buttons import BaseButton
 from .error_handler import ABCErrorHandler, Catcher, ErrorHandler
 from .formatting import (
     BaseSpecFormat,
@@ -75,6 +76,7 @@ __all__ = (
     "ABCTranslator",
     "ABCTranslatorMiddleware",
     "AnyMarkup",
+    "BaseButton",
     "BaseSpecFormat",
     "Button",
     "Catcher",

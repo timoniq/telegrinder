@@ -204,7 +204,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         """Returns True if the names of context stores
         that use self and __value instances are equivalent."""
 
-        return self.ctx_name == __value.ctx_name
+        return self.__ctx_name__ == __value.__ctx_name__
     
     def __setitem__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]):
         if is_dunder(__name):
@@ -302,12 +302,12 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def copy(self) -> typing.Self:
         """Copy context. Returns copied context without ctx_name."""
 
-        return self.__class__(**deepcopy(self.dict()))
+        return self.__class__(**self.dict())
     
     def dict(self) -> dict[str, GlobalCtxVar[CtxValueT]]:
         """Returns context as dict."""
 
-        return {name: var for name, var in self.items()}
+        return {name: deepcopy(var) for name, var in self.items()}
     
     @typing.overload
     def pop(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]:

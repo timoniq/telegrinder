@@ -16,6 +16,13 @@ class EventAdapter(ABCAdapter[Update, CuteT]):
     def __init__(self, event_name: str, model: type[CuteT]):
         self.event_name = event_name
         self.model = model
+    
+    def __repr__(self) -> str:
+        return "<{}: adapt Update.{} -> {}>".format(
+            self.__class__.__name__,
+            self.event_name,
+            self.model.__name__,
+        )
 
     async def adapt(self, api: ABCAPI, update: Update) -> Result[CuteT, AdapterError]:
         update_dct = update.to_dict()

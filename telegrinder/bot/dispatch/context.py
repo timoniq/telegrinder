@@ -32,13 +32,13 @@ class Context(dict[str, AnyValue]):
         dict.__init__(self, **defaults | kwargs)
     
     def __setitem__(self, __key: Key, __value: AnyValue) -> None:
-        super().__setitem__(self.key_to_str(__key), __value)
+        dict.__setitem__(self, self.key_to_str(__key), __value)
     
     def __getitem__(self, __key: Key) -> AnyValue:
-        return super().__getitem__(self.key_to_str(__key))
+        return dict.__getitem__(self, self.key_to_str(__key))
     
     def __delitem__(self, __key: Key) -> None:
-        super().__delattr__(self.key_to_str(__key))
+        dict.__delitem__(self, self.key_to_str(__key))
 
     def __setattr__(self, __name: str, __value: AnyValue) -> None:
         self.__setitem__(__name, __value)
@@ -47,7 +47,7 @@ class Context(dict[str, AnyValue]):
         return self.__getitem__(__name)
     
     def __delattr__(self, __name: str) -> None:
-        return self.__delitem__(__name)
+        self.__delitem__(__name)
 
     @staticmethod
     def key_to_str(key: Key) -> str:
@@ -57,13 +57,13 @@ class Context(dict[str, AnyValue]):
         return self.__class__(**self)
 
     def set(self, key: Key, value: AnyValue) -> None:
-        self[self.key_to_str(key)] = value
+        self[key] = value
     
     def get(self, key: Key) -> AnyValue:
-        return self[self.key_to_str(key)]
+        return self[key]
     
     def delete(self, key: Key) -> None:
-        del self[self.key_to_str(key)]
+        del self[key]
 
 
 __all__ = ("Context",)

@@ -11,8 +11,9 @@ from telegrinder.tools.magic import cache_translation, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
 
 T = typing.TypeVar("T", bound=BaseCute)
-Message = MessageCute
-Update = UpdateCute
+
+Message: typing.TypeAlias = MessageCute
+Update: typing.TypeAlias = UpdateCute
 
 
 def with_caching_translations(func):
@@ -59,7 +60,7 @@ class ABCRule(ABC, typing.Generic[T]):
     def __repr__(self) -> str:
         return "<rule: {!r}, adapter: {!r}>".format(
             self.__class__.__name__,
-            self.adapter.__class__.__name__,
+            self.adapter,
         )
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
