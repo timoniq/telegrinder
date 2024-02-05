@@ -1,9 +1,10 @@
 import logging
 import time
 
+from fntypes.result import Error, Ok
+
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import Context
-from telegrinder.result import Error, Ok
 from telegrinder.rules import IsChat, Markup, MessageRule, Text
 from telegrinder.types import ChatPermissions
 
@@ -24,7 +25,7 @@ class IsChatAdmin(MessageRule, requires=[IsChat()]):
     async def check(self, message: Message, ctx: Context) -> bool:
         admins = (await bot.api.get_chat_administrators(message.chat.id)).unwrap()
         if message.from_user.id not in (
-            admin.user.id for admin in admins if admin.user
+            admin.v.user.id for admin in admins if admin.v.user
         ):
             await message.reply("You need to be an admin in this chat")
             return False

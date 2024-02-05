@@ -2,13 +2,14 @@ import asyncio
 import typing
 
 import aiohttp
+import msgspec
+from fntypes.result import Error, Ok
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.api.error import InvalidTokenError
 from telegrinder.bot.polling.abc import ABCPolling
-from telegrinder.model import Raw, decoder
 from telegrinder.modules import logger
-from telegrinder.result import Error, Ok
+from telegrinder.msgspec_utils import decoder
 from telegrinder.types import Update, UpdateType
 
 
@@ -56,7 +57,7 @@ class Polling(ABCPolling):
 
         return [x.value if isinstance(x, UpdateType) else x for x in allowed_updates]
 
-    async def get_updates(self) -> Raw | None:
+    async def get_updates(self) -> msgspec.Raw | None:
         raw_updates = await self.api.request_raw(
             "getUpdates",
             {"offset": self.offset, "allowed_updates": self.allowed_updates},

@@ -35,7 +35,7 @@ async def start(message: Message):
         EnumTextRule(YesOrNo),
         default=MessageReplyHandler("You want, dont you?"),
     )
-    if ctx["enum"] == YesOrNo.NO:
+    if ctx.enum == YesOrNo.NO:
         await message.answer("Leee thats sad dat tee is so sweet")
         return
     await message.answer("Yay here is you tee with a nice krendeliok")

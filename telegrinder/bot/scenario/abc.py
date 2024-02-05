@@ -2,7 +2,6 @@ import typing
 from abc import ABC, abstractmethod
 
 from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 
 if typing.TYPE_CHECKING:
     from telegrinder.api import ABCAPI

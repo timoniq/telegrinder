@@ -1,96 +1,22 @@
 import typing
+from types import NoneType
 
 import msgspec
-from msgspec import Raw, ValidationError
+from fntypes.co import Nothing, Result, Some
 
-from telegrinder.option import Nothing, NothingType, Option, Some
-from telegrinder.option.msgspec_option import Option as MsgspecOption
-from telegrinder.result import Error, Ok, Result
+from .msgspec_utils import decoder, encoder
 
 T = typing.TypeVar("T")
-
-DecHook = typing.Callable[[type[T], typing.Any], typing.Any]
-EncHook = typing.Callable[[T], typing.Any]
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
     
-    Union = typing.Union
-else:
-    Ts = typing.TypeVarTuple("Ts")
-
-    @typing.runtime_checkable
-    class _Union(typing.Protocol[*Ts]):        
-        def __repr__(self) -> str:
-            ...
-    
-    Union = _Union
 
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "omit_defaults": True,
     "dict": True,
     "rename": {"from_": "from"},
 }
-
-
-def get_origin(t: type[T]) -> type[T]:
-    return typing.cast(T, typing.get_origin(t)) or t
-
-
-def repr_type(t: type) -> str:
-    return getattr(t, "__name__", repr(get_origin(t)))
-
-
-def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, ValidationError]:
-    try:
-        return Ok(decoder.convert(obj, type=t, strict=True))
-    except ValidationError as exc:
-        return Error(exc)
-
-
-def option_enc_hook(obj: Option[typing.Any]) -> typing.Any | None:
-    return obj.value if isinstance(obj, Some) else None
-
-
-def option_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
-    if obj is None:
-        return Nothing
-    value_type = (typing.get_args(tp) or (typing.Any,))[0]
-    return msgspec_convert({"value": obj}, Some[value_type]).unwrap()
-
-
-def union_dec_hook(tp: type, obj: typing.Any) -> typing.Any:
-    union_types = typing.get_args(tp)
-
-    if isinstance(obj, dict):
-        counter_fields = {
-            m: sum(1 for k in obj if k in m.__struct_fields__)
-            for m in union_types
-            if issubclass(m, Model)
-        }
-        union_types = tuple(t for t in union_types if t not in counter_fields)
-        reverse = False
-
-        if len(set(counter_fields.values())) != len(counter_fields.values()):
-            counter_fields = {m: len(m.__struct_fields__) for m in counter_fields}
-            reverse = True
-
-        union_types = (
-            *sorted(counter_fields, key=lambda k: counter_fields[k], reverse=reverse),
-            *union_types,
-        )
-    
-    for t in union_types:
-        match msgspec_convert(obj, t):
-            case Ok(value):
-                return value
-
-    raise TypeError(
-        "Object of type `{}` does not belong to types `{}`".format(
-            repr_type(type(obj)),
-            " | ".join(map(repr_type, union_types)),
-        )
-    )
 
 
 @typing.overload
@@ -124,7 +50,7 @@ def convert(d: typing.Any, serialize: bool = True) -> typing.Any:
         return {
             k: convert(v, serialize=serialize)
             for k, v in d.items()
-            if v not in (None, Nothing)
+            if type(v) not in (NoneType, Nothing)
         }
     
     if isinstance(d, list):
@@ -141,7 +67,7 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
             *params.items(),
             *params.pop("other", {}).items(),
         )
-        if k != "self" and v not in (None, Nothing)
+        if k != "self" and type(v) not in (NoneType, Nothing)
     }
 
 
@@ -150,125 +76,21 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         self,
         *,
         exclude_fields: set[str] | None = None,
-    ):  
+    ) -> dict[str, typing.Any]:  
         exclude_fields = exclude_fields or set()
-        if "model_to_dict" not in self.__dict__:
-            self.__dict__["model_to_dict"] = msgspec.structs.asdict(self)
+        if "model_as_dict" not in self.__dict__:
+            self.__dict__["model_as_dict"] = msgspec.structs.asdict(self)
         return {
             key: value
-            for key, value in self.__dict__["model_to_dict"].items()
+            for key, value in self.__dict__["model_as_dict"].items()
             if key not in exclude_fields
         }
 
 
-class Decoder:
-    def __init__(self) -> None:
-        self.dec_hooks: dict[type, DecHook[typing.Any]] = {
-            MsgspecOption: option_dec_hook,
-            Union: union_dec_hook,  # type: ignore
-        }
-
-    def add_dec_hook(self, tp: type[T]):  # type: ignore
-        def decorator(func: DecHook[T]) -> DecHook[T]:
-            return self.dec_hooks.setdefault(get_origin(tp), func)
-        
-        return decorator
-    
-    def dec_hook(self, tp: type, obj: object) -> object:
-        origin_type = get_origin(tp)
-        if origin_type not in self.dec_hooks:
-            raise TypeError(
-                f"Unknown type `{repr_type(origin_type)}`. "
-                "You can implement decode hook for this type."
-            )
-        return self.dec_hooks[origin_type](tp, obj)
-    
-    def convert(
-        self,
-        obj: object,
-        *,
-        type: type["T"] = dict,
-        strict: bool = True,
-        from_attributes: bool = False,
-        builtin_types: typing.Iterable[type] | None = None,
-        str_keys: bool = False,
-    ) -> "T":
-        return msgspec.convert(
-            obj,
-            type,
-            strict=strict,
-            from_attributes=from_attributes,
-            dec_hook=self.dec_hook,
-            builtin_types=builtin_types,
-            str_keys=str_keys,
-        )
-
-    def decode(
-        self,
-        buf: str | bytes,
-        *,
-        type: type[T] = dict,
-        strict: bool = True,
-    ) -> T:
-        return msgspec.json.decode(
-            buf,
-            type=type,
-            strict=strict,
-            dec_hook=self.dec_hook,
-        )
-
-
-class Encoder:
-    def __init__(self) -> None:
-        self.enc_hooks: dict[type, EncHook] = {
-            Some: option_enc_hook,
-            NothingType: option_enc_hook,
-        }
-
-    def add_dec_hook(self, tp: type[T]):  # type: ignore
-        def decorator(func: EncHook[T]) -> EncHook[T]:
-            return self.enc_hooks.setdefault(get_origin(tp), func)
-        
-        return decorator
-    
-    def enc_hook(self, obj: object) -> object:
-        origin_type = get_origin(type(obj))
-        if origin_type not in self.enc_hooks:
-            raise NotImplementedError(
-                "Not implemented encode hook for "
-                f"object of type `{repr_type(origin_type)}`."
-            )
-        return self.enc_hooks[origin_type](obj)
-    
-    @typing.overload
-    def encode(self, obj: typing.Any) -> str:
-        ...
-
-    @typing.overload
-    def encode(self, obj: typing.Any, *, as_str: bool = False) -> bytes:
-        ...
-
-    def encode(self, obj: typing.Any, *, as_str: bool = True) -> str | bytes:
-        buf = msgspec.json.encode(obj, enc_hook=self.enc_hook)
-        return buf.decode() if as_str else buf
-
-
-decoder: typing.Final[Decoder] = Decoder()
-encoder: typing.Final[Encoder] = Encoder()
-
-
 __all__ = (
-    "Decoder",
-    "Encoder",
     "Model",
-    "Raw",
     "convert",
-    "decoder",
-    "encoder",
     "full_result",
-    "get_origin",
     "get_params",
-    "msgspec",
-    "msgspec_convert",
-    "repr_type",
+    "MODEL_CONFIG",
 )

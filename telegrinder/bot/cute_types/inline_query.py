@@ -1,9 +1,9 @@
 import typing
 
+from fntypes.result import Result
+
 from telegrinder.api import ABCAPI, APIError
-from telegrinder.option import Nothing
-from telegrinder.option.msgspec_option import Option
-from telegrinder.result import Result
+from telegrinder.msgspec_utils import Nothing, Option
 from telegrinder.types import InlineQuery, InlineQueryResult, User
 
 from .base import BaseCute

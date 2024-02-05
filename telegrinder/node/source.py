@@ -2,8 +2,7 @@ import dataclasses
 import typing
 
 from telegrinder.api import API
-from telegrinder.option.msgspec_option import Option
-from telegrinder.option.option import Nothing
+from telegrinder.msgspec_utils import Nothing, Option
 from telegrinder.types import Chat, Message
 
 from .base import DataNode

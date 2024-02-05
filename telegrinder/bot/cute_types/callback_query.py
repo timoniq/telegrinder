@@ -1,11 +1,12 @@
 import typing
 from contextlib import suppress
 
+import msgspec
+from fntypes.co import Ok, Result, Some, Union
+
 from telegrinder.api import ABCAPI, APIError
-from telegrinder.model import decoder, get_params
-from telegrinder.option.msgspec_option import Option
-from telegrinder.option.option import Nothing, Some
-from telegrinder.result import Result
+from telegrinder.model import get_params
+from telegrinder.msgspec_utils import Nothing, Option, decoder
 from telegrinder.types import (
     CallbackQuery,
     InlineKeyboardMarkup,
@@ -27,9 +28,11 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
     def decode_callback_data(self, *, strict: bool = True) -> Option[dict]:
         if "cached_callback_data" in self.__dict__:
             return self.__dict__["cached_callback_data"]
+
         data = Nothing
-        with suppress(BaseException):
-            data = Some(decoder.decode(self.data.unwrap(), type=dict, strict=strict))
+        with suppress(msgspec.ValidationError):
+            data = Some(decoder.decode(self.data.unwrap()))
+        
         self.__dict__["cached_callback_data"] = data
         return data
 
@@ -54,15 +57,14 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
         | Option[InlineKeyboardMarkup]
         = Nothing,
         **other: typing.Any,
-    ) -> Result[Message | bool, APIError]:
+    ) -> Result[Union[Message, bool], APIError]:
         params = get_params(locals())
-        if self.message:
-            message = self.message.unwrap()
-            if isinstance(message, Message) and message.message_thread_id and "message_thread_id" not in params:
-                params["message_thread_id"] = message.message_thread_id.unwrap()
+        if message := self.message.map(lambda message: message.only(Message)).unwrap_or_none():
+            if message.unwrap().message_thread_id and "message_thread_id" not in params:
+                params["message_thread_id"] = message.unwrap().message_thread_id.unwrap()
             return await self.ctx_api.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=message.message_id,
+                chat_id=message.unwrap().chat.id,
+                message_id=message.unwrap().message_id,
                 **params,
             )
         return await self.ctx_api.edit_message_text(

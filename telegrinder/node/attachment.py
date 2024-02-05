@@ -1,8 +1,10 @@
 import dataclasses
 import typing
 
+from fntypes.option import Nothing
+
 import telegrinder.types
-from telegrinder.option import Nothing, Option
+from telegrinder.msgspec_utils import Option
 
 from .base import ComposeError, DataNode, ScalarNode
 from .message import MessageNode
@@ -12,16 +14,16 @@ from .message import MessageNode
 class Attachment(DataNode):
     attachment_type: typing.Literal["audio", "document", "photo", "poll", "video"]
     _: dataclasses.KW_ONLY
-    audio: Option[telegrinder.types.Audio] = dataclasses.field(default_factory=lambda: Nothing)
-    document: Option[telegrinder.types.Document] = dataclasses.field(default_factory=lambda: Nothing)
-    photo: Option[list[telegrinder.types.PhotoSize]] = dataclasses.field(default_factory=lambda: Nothing)
-    poll: Option[telegrinder.types.Poll] = dataclasses.field(default_factory=lambda: Nothing)
-    video: Option[telegrinder.types.Video] = dataclasses.field(default_factory=lambda: Nothing)
+    audio: Option[telegrinder.types.Audio] = dataclasses.field(default_factory=lambda: Nothing())
+    document: Option[telegrinder.types.Document] = dataclasses.field(default_factory=lambda: Nothing())
+    photo: Option[list[telegrinder.types.PhotoSize]] = dataclasses.field(default_factory=lambda: Nothing())
+    poll: Option[telegrinder.types.Poll] = dataclasses.field(default_factory=lambda: Nothing())
+    video: Option[telegrinder.types.Video] = dataclasses.field(default_factory=lambda: Nothing())
 
     @classmethod
     async def compose(cls, message: MessageNode) -> "Attachment":
         for attachment_type in ("audio", "document", "photo", "poll", "video"):
-            if attachment := getattr(message, attachment_type, Nothing):
+            if (attachment := getattr(message, attachment_type, None)) is not None:
                 return cls(attachment_type, **{attachment_type: attachment})
         return cls.compose_error("No attachment found in message")
 

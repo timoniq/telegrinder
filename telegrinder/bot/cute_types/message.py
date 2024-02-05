@@ -1,10 +1,10 @@
 import typing
 
+from fntypes.co import Result, Some, Union
+
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
-from telegrinder.option import Nothing, Some
-from telegrinder.option.msgspec_option import Option
-from telegrinder.result import Result
+from telegrinder.msgspec_utils import Nothing, Option
 from telegrinder.types import (
     ForceReply,
     InlineKeyboardMarkup,
@@ -130,7 +130,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reply_markup: InlineKeyboardMarkup
         | Option[InlineKeyboardMarkup] = Nothing,
         **other: typing.Any,
-    ) -> Result[Message | bool, APIError]:
+    ) -> Result[Union[Message, bool], APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:
             params["message_thread_id"] = self.message_thread_id

@@ -74,7 +74,10 @@ def convert_to_python_type(
         return f'list[{convert_to_python_type(tp.removeprefix("Array of "), parent_types)}]'
     parent_types = parent_types or {}
     return TYPES.get(
-        tp, f'"{tp}"' if tp not in parent_types else " | ".join(parent_types[tp])
+        tp,
+        f'"{tp}"'
+        if tp not in parent_types
+        else "Union[%s]" % ", ".join(f'"{x}"' for x in parent_types[tp]),
     )
 
 
@@ -165,16 +168,20 @@ class TypesGenerator(ABCGenerator):
                 if any("Array of" in x for x in field.types)
                 else enum_ref
             )
-        else:
-            union_types = " | ".join(
+        elif len(field.types) > 1:
+            union_types = "Union[%s]" % ", ".join(
                 convert_to_python_type(tp)
                 if tp not in self.parent_types
                 else "Union[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
                 for tp in field.types
             )
-
-            if '"' in union_types and len(field.types) > 1:
-                union_types = "Union[%s]" % union_types.replace(" | ", ", ")
+        else:
+            tp = field.types[0]
+            union_types = (
+                convert_to_python_type(tp)
+                if tp not in self.parent_types
+                else "Union[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
+            )
 
         if not field.required:
             union_types = f"Option[{union_types}] = Nothing"
@@ -251,17 +258,15 @@ class TypesGenerator(ABCGenerator):
         logger.debug(f"Generation of {len(self.types)} objects...")
         lines = [
             "import typing\n\n",
-            "from telegrinder.model import Model, Union\n",
-            "from telegrinder.option.option import Nothing\n"
-            "from telegrinder.option.msgspec_option import Option\n\n\n",
+            "from fntypes.union import Union\n",
+            "from telegrinder.model import Model\n",
+            "from telegrinder.msgspec_utils import Option, Nothing\n\n",
         ]
 
         if self.enum_ref_configs:
-            lines.insert(1, "from telegrinder.types.enums import *\n")
+            lines.append("from telegrinder.types.enums import *  # noqa\n")
 
-        for type_schema in sorted(
-            self.types, key=lambda x: x.subtypes or [], reverse=True
-        ):
+        for type_schema in sorted(self.types, key=lambda x: x.subtypes or [], reverse=True):
             lines.append(self.make_type(type_schema) + "\n\n")
 
         with open(path + "/objects.py", mode="w", encoding="UTF-8") as f:
@@ -281,14 +286,17 @@ class MethodsGenerator(ABCGenerator):
 
     @staticmethod
     def make_type_hint(
-        types: list[str], parent_types: dict[str, list[str]] | None = None
+        types: list[str],
+        parent_types: dict[str, list[str]] | None = None,
+        is_return_type: bool = False,
     ) -> str:
         if not types:
             return "typing.Any"
+        sep = ", " if is_return_type else " | "
         return (
             convert_to_python_type(types[0], parent_types).replace('"', "")
             if len(types) == 1
-            else " | ".join(
+            else ("Union[%s]" if is_return_type else "%s") % sep.join(
                 convert_to_python_type(tp, parent_types).replace('"', "")
                 for tp in types
             )
@@ -308,17 +316,17 @@ class MethodsGenerator(ABCGenerator):
             '"""'
             + (
                 f"Method `{method_schema.name}`, see the [documentation]({method_schema.href})\n\n"
-                + f"{TAB}\n".join(method_schema.description or [])
+                + chunks_str(f"{TAB}\n".join(method_schema.description or []))
                 + "\n\n"
-                + f"\n\n".join(field_descriptions)
+                + (f"\n\n".join(field_descriptions)).strip()
             )
-            + '"""\n\n'
+            + f'\n{TAB * 2}"""\n\n'
             + '{}method_response = await self.api.request_raw("{}", get_params(locals()))\n'.format(
                 TAB * 2,
                 method_schema.name,
             )
             + f"{TAB * 2}return full_result(method_response, "
-            + f"{self.make_type_hint(method_schema.returns or [], self.parent_types)})"
+            + f"{self.make_type_hint(method_schema.returns or [], self.parent_types, is_return_type=True)})"
         )
 
     def make_method_params(self, params: list[Field] | None = None) -> list[str]:
@@ -343,7 +351,7 @@ class MethodsGenerator(ABCGenerator):
     def make_return_type(self, returns: list[str] | None = None) -> str:
         if not returns:
             return 'Result[bool, "APIError"]'
-        return f'Result[{self.make_type_hint(returns, self.parent_types)}, "APIError"]'
+        return f'Result[{self.make_type_hint(returns, self.parent_types, is_return_type=True)}, "APIError"]'
 
     def make_method(self, method_schema: MethodSchema) -> str:
         code = (
@@ -365,12 +373,11 @@ class MethodsGenerator(ABCGenerator):
         logger.debug(f"Generation of {len(self.methods)} methods...")
         lines = [
             "import typing\n\n",
+            "from fntypes.co import Result, Union\n"
             "from telegrinder.api.error import APIError\n",
-            "from telegrinder.option.msgspec_option import Option\n",
-            "from telegrinder.option.option import Nothing\n",
+            "from telegrinder.msgspec_utils import Option, Nothing\n",
             "from telegrinder.model import full_result, get_params\n",
-            "from telegrinder.result import Result\n\n",
-            "from telegrinder.types.objects import *\n\n",
+            "from telegrinder.types.objects import *  # noqa\n\n",
             "if typing.TYPE_CHECKING:\n",
             "    from telegrinder.api.abc import ABCAPI\n\n\n",
             "class APIMethods:\n",

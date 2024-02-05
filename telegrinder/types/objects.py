@@ -1,9 +1,10 @@
 import typing
 
-from telegrinder.model import Model, Union
-from telegrinder.option.msgspec_option import Option
-from telegrinder.option.option import Nothing
-from telegrinder.types.enums import *
+from fntypes.union import Union
+
+from telegrinder.model import Model
+from telegrinder.msgspec_utils import Nothing, Option
+from telegrinder.types.enums import *  # noqa
 
 
 class ReactionType(Model):
@@ -447,8 +448,7 @@ class Chat(Model):
 
     slow_mode_delay: Option[int] = Nothing
     """Optional. For supergroups, the minimum allowed delay between consecutive 
-    messages sent by each unpriviledged user; in seconds. Returned only in 
-    getChat."""
+    messages sent by each unprivileged user; in seconds. Returned only in getChat."""
 
     message_auto_delete_time: Option[int] = Nothing
     """Optional. The time after which all messages sent to the chat will be automatically 
@@ -979,7 +979,7 @@ class ReplyParameters(Model):
     """Identifier of the message that will be replied to in the current chat, or 
     in the chat chat_id if it is specified"""
 
-    chat_id: Option[int | str] = Nothing
+    chat_id: Option[Union[int, str]] = Nothing
     """Optional. If the message to be replied to is from a different chat, unique 
     identifier for the chat or username of the channel (in the format @channelusername)"""
 
@@ -1727,7 +1727,7 @@ class GiveawayWinners(Model):
     """The chat that created the giveaway"""
 
     giveaway_message_id: int
-    """Identifier of the messsage with the giveaway in the chat"""
+    """Identifier of the message with the giveaway in the chat"""
 
     winners_selection_date: int
     """Point in time (Unix timestamp) when winners of the giveaway were selected"""
@@ -1790,12 +1790,12 @@ class LinkPreviewOptions(Model):
     in the message text will be used"""
 
     prefer_small_media: Option[bool] = Nothing
-    """Optional. True, if the media in the link preview is suppposed to be shrunk; 
+    """Optional. True, if the media in the link preview is supposed to be shrunk; 
     ignored if the URL isn't explicitly specified or media size change isn't 
     supported for the preview"""
 
     prefer_large_media: Option[bool] = Nothing
-    """Optional. True, if the media in the link preview is suppposed to be enlarged; 
+    """Optional. True, if the media in the link preview is supposed to be enlarged; 
     ignored if the URL isn't explicitly specified or media size change isn't 
     supported for the preview"""
 
@@ -2825,7 +2825,7 @@ class BotCommandScopeChat(BotCommandScope):
     type: BotCommandScopeType
     """Scope type, must be chat"""
 
-    chat_id: int | str
+    chat_id: Union[int, str]
     """Unique identifier for the target chat or username of the target supergroup 
     (in the format @supergroupusername)"""
 
@@ -2839,7 +2839,7 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
     type: BotCommandScopeType
     """Scope type, must be chat_administrators"""
 
-    chat_id: int | str
+    chat_id: Union[int, str]
     """Unique identifier for the target chat or username of the target supergroup 
     (in the format @supergroupusername)"""
 
@@ -2853,7 +2853,7 @@ class BotCommandScopeChatMember(BotCommandScope):
     type: BotCommandScopeType
     """Scope type, must be chat_member"""
 
-    chat_id: int | str
+    chat_id: Union[int, str]
     """Unique identifier for the target chat or username of the target supergroup 
     (in the format @supergroupusername)"""
 
@@ -3000,7 +3000,7 @@ class ChatBoostUpdated(Model):
     """Chat which was boosted"""
 
     boost: "ChatBoost"
-    """Infomation about the chat boost"""
+    """Information about the chat boost"""
 
 
 class ChatBoostRemoved(Model):

@@ -4,10 +4,10 @@ from abc import ABC, abstractmethod
 
 import msgspec
 from envparse import env
+from fntypes.result import Result
 
 from telegrinder.api.error import APIError
 from telegrinder.client import ABCClient
-from telegrinder.result import Result
 
 from .error import InvalidTokenError
 

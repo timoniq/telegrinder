@@ -1,9 +1,11 @@
 import dataclasses
 import typing
 from abc import ABC, abstractmethod
+from types import NoneType
 
-from telegrinder.option import Nothing, Some
-from telegrinder.option.msgspec_option import Option
+from fntypes.option import Nothing, Some
+
+from telegrinder.msgspec_utils import Option
 from telegrinder.types.objects import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
@@ -19,7 +21,7 @@ AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 def keyboard_remove(*, selective: bool | None = None) -> ReplyKeyboardRemove:
     return ReplyKeyboardRemove(
         remove_keyboard=True,
-        selective=Nothing if selective is None else Some(selective),
+        selective=Nothing() if selective is None else Some(selective),
     )
 
 
@@ -105,7 +107,7 @@ class Keyboard(ABCMarkup[Button], KeyboardModel):
         return {
             k: v.unwrap() if v and isinstance(v, Some) else v
             for k, v in self.__dict__.items()
-            if v not in (None, Nothing)
+            if type(v) not in (NoneType, Nothing)
         }
 
     def get_markup(self) -> ReplyKeyboardMarkup:

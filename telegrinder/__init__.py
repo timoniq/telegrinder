@@ -1,3 +1,5 @@
+import typing
+
 from .api import ABCAPI, API, APIError, APIResponse, Token
 from .bot import (
     ABCDispatch,
@@ -34,10 +36,8 @@ from .bot import (
     register_manager,
 )
 from .client import ABCClient, AiohttpClient
-from .model import Model, decoder, encoder
+from .model import Model
 from .modules import logger
-from .option import Nothing, NothingType, Option, Some
-from .result import Error, Ok, Result
 from .tools import (
     ABCGlobalContext,
     ABCLoopWrapper,
@@ -66,10 +66,10 @@ from .tools import (
     magic_bundle,
 )
 
-Message = MessageCute
-CallbackQuery = CallbackQueryCute
-InlineQuery = InlineQueryCute
-Bot = Telegrinder
+Message: typing.TypeAlias = MessageCute
+CallbackQuery: typing.TypeAlias = CallbackQueryCute
+InlineQuery: typing.TypeAlias = InlineQueryCute
+Bot: typing.TypeAlias = Telegrinder
 
 
 __all__ = (
@@ -107,7 +107,6 @@ __all__ = (
     "CtxVar",
     "DelayedTask",
     "Dispatch",
-    "Error",
     "FormatString",
     "FuncHandler",
     "GlobalContext",
@@ -129,25 +128,17 @@ __all__ = (
     "MessageRule",
     "MessageView",
     "Model",
-    "Nothing",
-    "NothingType",
-    "Ok",
-    "Option",
     "ParseMode",
     "Polling",
-    "Result",
     "RowButtons",
     "SimpleI18n",
     "SimpleTranslator",
     "SingleChoice",
-    "Some",
     "Telegrinder",
     "Token",
     "ViewBox",
     "WaiterMachine",
     "ctx_var",
-    "decoder",
-    "encoder",
     "keyboard_remove",
     "logger",
     "magic_bundle",

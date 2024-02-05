@@ -51,7 +51,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         self.waiter_machine = waiter_machine
 
     def get_markup(self) -> InlineKeyboardMarkup:
-        kb = InlineKeyboard(resize_keyboard=True)
+        kb = InlineKeyboard()
         choices = self.choices.copy()
         while choices:
             while len(kb.keyboard[-1]) < self.max_in_row and choices:

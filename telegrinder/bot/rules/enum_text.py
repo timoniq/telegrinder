@@ -1,12 +1,12 @@
+import enum
 import typing
-from enum import StrEnum
 
 from telegrinder.bot.dispatch.context import Context
 
 from .abc import Message
 from .text import TextMessageRule
 
-T = typing.TypeVar("T", bound=StrEnum, covariant=True)
+T = typing.TypeVar("T", bound=enum.Enum, covariant=True)
 
 
 class EnumTextRule(TextMessageRule, typing.Generic[T]):

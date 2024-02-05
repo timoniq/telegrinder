@@ -2,13 +2,14 @@
 The example uses the aiosqlite driver. It is recommended to use asynchronous drivers
 to work with databases.
 """
+
 import aiosqlite
+from fntypes.co import Some
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot import Context
 from telegrinder.model import decoder
-from telegrinder.option.msgspec_option import Option
-from telegrinder.option.option import Nothing, NothingType, Some
+from telegrinder.msgspec_utils import Nothing, Option
 from telegrinder.rules import Markup, MessageEntities
 from telegrinder.types import User
 from telegrinder.types.enums import MessageEntityType
@@ -39,7 +40,7 @@ class DummyDatabase:
     def user_data(self, user: User) -> dict:
         return {
             k: (v.unwrap() if v else None)
-            if isinstance(v, Some | NothingType)
+            if isinstance(v, Some | type(Nothing))
             else v
             for k, v in user.to_dict(
                 exclude_fields={

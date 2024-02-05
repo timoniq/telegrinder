@@ -6,7 +6,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.modules import logger
-from telegrinder.option.option import Nothing
+from telegrinder.msgspec_utils import Nothing
 from telegrinder.types.objects import Update
 
 from .abc import ABCHandler

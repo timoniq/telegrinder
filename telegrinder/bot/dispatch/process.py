@@ -1,10 +1,11 @@
 import typing
 
+from fntypes.result import Error
+
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
-from telegrinder.result import Error
 from telegrinder.tools.i18n.base import I18nEnum
 from telegrinder.types import Update
 

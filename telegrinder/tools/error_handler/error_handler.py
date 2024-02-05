@@ -1,10 +1,11 @@
 import dataclasses
 import typing
 
+from fntypes.result import Error, Ok, Result
+
 from telegrinder.api import ABCAPI
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
-from telegrinder.result import Error, Ok, Result
 from telegrinder.tools.magic import magic_bundle
 
 from .abc import ABCErrorHandler, EventT, Handler

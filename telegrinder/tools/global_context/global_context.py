@@ -3,11 +3,10 @@ from copy import deepcopy
 from functools import wraps
 
 import typing_extensions as typing
+from fntypes.co import Error, Nothing, Ok, Option, Result, Some
 
-from telegrinder.model import msgspec_convert
 from telegrinder.modules import logger
-from telegrinder.option import Nothing, Option, Some
-from telegrinder.result import Error, Ok, Result
+from telegrinder.msgspec_utils import msgspec_convert
 
 from .abc import ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
 
@@ -114,7 +113,7 @@ class Storage:
 
     def get(self, ctx_name: str) -> Option["GlobalContext"]:
         ctx = self._storage.get(ctx_name)
-        return Some(ctx) if ctx is not None else Nothing
+        return Some(ctx) if ctx is not None else Nothing()
 
     def delete(self, ctx_name: str) -> None:
         assert self._storage.pop(ctx_name, None) is not None, f"Context {ctx_name!r} is not defined in storage."
@@ -277,7 +276,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             for rattr in self.__root_attributes__:
                 if rattr.name == name:
                     return Some(rattr)
-        return Nothing
+        return Nothing()
         
     def items(self) -> list[tuple[str, GlobalCtxVar[CtxValueT]]]:
         """Return context variables as set-like items."""
@@ -334,7 +333,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         if val:
             del self[var_name]
             return val
-        return Nothing
+        return Nothing()
     
     @typing.overload
     def get(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]:
@@ -361,7 +360,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             var_value_type = generic_types[0]
         var = dict.get(self, var_name)
         if var is None:
-            return Nothing
+            return Nothing()
         assert type_check(var.value, var_value_type), (
             "Context variable value type of {!r} does not correspond to the expected type {!r}.".format(
                 type(var.value).__name__,
@@ -375,7 +374,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     @typing.overload
     def get_value(self, var_name: str) -> Option[CtxValueT]:
         ...
-    
+
     @typing.overload
     def get_value(
         self,

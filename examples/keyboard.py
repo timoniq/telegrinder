@@ -42,8 +42,8 @@ async def start(message: Message):
 async def buy(event: CallbackQuery, data: ItemModel):
     message = event.message.unwrap()
     await api.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=message.message_id,
+        chat_id=message.v.chat.id,
+        message_id=message.v.message_id,
         text=f"You bought a {data.item} for {data.amount}",
     )
 

@@ -1,7 +1,8 @@
 import typing
 from abc import ABC, abstractmethod
 
-from telegrinder.model import Raw
+import msgspec
+
 from telegrinder.types import Update
 
 
@@ -9,7 +10,7 @@ class ABCPolling(ABC):
     offset: int
 
     @abstractmethod
-    async def get_updates(self) -> list[Raw]:
+    async def get_updates(self) -> list[msgspec.Raw]:
         pass
 
     @abstractmethod

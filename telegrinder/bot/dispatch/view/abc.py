@@ -1,6 +1,8 @@
 import typing
 from abc import ABC, abstractmethod
 
+from fntypes.co import Nothing, Some
+
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
@@ -10,7 +12,7 @@ from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.model import Model
-from telegrinder.option.option import Nothing, NothingType, Option, Some
+from telegrinder.msgspec_utils import Option
 from telegrinder.types.objects import Update
 
 EventType = typing.TypeVar("EventType", bound=BaseCute)
@@ -55,7 +57,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
                 for generic_type in typing.get_args(base):
                     if issubclass(typing.get_origin(generic_type) or generic_type, BaseCute):
                         return Some(generic_type)
-        return Nothing
+        return Nothing()
     
     @classmethod
     def get_event_raw(cls, update: Update) -> Option[Model]:
@@ -63,11 +65,11 @@ class BaseView(ABCView, typing.Generic[EventType]):
             case Some(event_type):
                 for field in update.__struct_fields__:
                     event_raw = getattr(update, field)
-                    if isinstance(event_raw, Some | NothingType):
+                    if isinstance(event_raw, Some | Nothing):
                         event_raw = event_raw.unwrap_or_none()
                     if event_raw is not None and issubclass(event_type, event_raw.__class__):
                         return Some(event_raw)
-        return Nothing
+        return Nothing()
 
     def __call__(
         self,

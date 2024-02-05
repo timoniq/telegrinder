@@ -1,6 +1,7 @@
+from fntypes.option import Some
+
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.return_manager import CallbackQueryReturnManager
-from telegrinder.option.option import Some
 
 from .abc import BaseStateView
 
@@ -13,11 +14,7 @@ class CallbackQueryView(BaseStateView[CallbackQueryCute]):
         self.return_manager = CallbackQueryReturnManager()
 
     def get_state_key(self, event: CallbackQueryCute) -> int | None:
-        match event.message:
-            case Some(message):
-                return message.message_id
-            case _:
-                return None
+        return event.message.map(lambda msg: msg.v.message_id).unwrap_or_none()
 
 
 __all__ = ("CallbackQueryView",)

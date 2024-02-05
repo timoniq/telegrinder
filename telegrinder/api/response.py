@@ -1,8 +1,8 @@
 import msgspec
+from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.error import APIError
 from telegrinder.model import Model
-from telegrinder.result import Error, Ok, Result
 
 
 class APIResponse(Model):

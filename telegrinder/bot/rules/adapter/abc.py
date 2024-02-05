@@ -1,11 +1,12 @@
 import abc
 import typing
 
+from fntypes.result import Result
+
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.model import Model
-from telegrinder.result import Result
 
 UpdateT = typing.TypeVar("UpdateT", bound=Model)
 CuteT = typing.TypeVar("CuteT", bound=BaseCute)

@@ -1,11 +1,11 @@
 import typing
 
 import msgspec
+from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.response import APIResponse
 from telegrinder.client import ABCClient, AiohttpClient
 from telegrinder.model import convert, decoder
-from telegrinder.result import Error, Ok, Result
 from telegrinder.types.methods import APIMethods
 
 from .abc import ABCAPI, APIError, Token
@@ -39,13 +39,15 @@ class API(ABCAPI, APIMethods):
         method: str,
         data: dict | None = None,
     ) -> Result[dict | list | bool, APIError]:
-        data = compose_data(self.http, data or {})
-        response = await self.http.request_json(self.request_url + method, data=data)
+        response = await self.http.request_json(
+            url=self.request_url + method,
+            data=compose_data(self.http, data or {})
+        )
         if response.get("ok"):
             assert "result" in response
             return Ok(response["result"])
         return Error(APIError(
-            code=response.get("error_code", -1),
+            code=response.get("error_code", 0),
             error=response.get("description"),
         ))
 
@@ -55,8 +57,8 @@ class API(ABCAPI, APIMethods):
         data: dict[str, typing.Any] | None = None,
     ) -> Result[msgspec.Raw, APIError]:
         response_bytes = await self.http.request_bytes(
-            self.request_url + method,
-            data=compose_data(self.http, data or {})
+            url=self.request_url + method,
+            data=compose_data(self.http, data or {}),
         )
         return decoder.decode(response_bytes, type=APIResponse).to_result()
 
