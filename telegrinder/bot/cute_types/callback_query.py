@@ -2,7 +2,7 @@ import typing
 from contextlib import suppress
 
 import msgspec
-from fntypes.co import Ok, Result, Some, Union
+from fntypes.co import Result, Some, Union
 
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params

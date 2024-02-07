@@ -54,6 +54,33 @@ from .i18n import (
     SimpleI18n,
     SimpleTranslator,
 )
+from .inline_query import (
+    inline_query_article,
+    inline_query_audio,
+    inline_query_cached_audio,
+    inline_query_cached_document,
+    inline_query_cached_gif,
+    inline_query_cached_mpeg4_gif,
+    inline_query_cached_photo,
+    inline_query_cached_sticker,
+    inline_query_cached_video,
+    inline_query_cached_voice,
+    inline_query_contact,
+    inline_query_document,
+    inline_query_game,
+    inline_query_gif,
+    inline_query_location,
+    inline_query_mpeg4_gif,
+    inline_query_photo,
+    inline_query_venue,
+    inline_query_video,
+    inline_query_voice,
+    input_contact_message_content,
+    input_invoice_message_content,
+    input_location_message_content,
+    input_text_message_content,
+    input_venue_message_content,
+)
 from .kb_set import KeyboardSetBase, KeyboardSetYAML
 from .keyboard import (
     AnyMarkup,

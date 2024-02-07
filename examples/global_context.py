@@ -12,7 +12,7 @@ from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import User
 
 logger.set_level("INFO")
-api = API(token=Token.from_env())
+api = API(token=Token("6617825227:AAF-NQvYorMXFYnDzqTOGYhls17nflHg4hs"))
 bot = Telegrinder(api)
 
 
@@ -36,6 +36,7 @@ def formatting_text(*fmt_texts: str | TagFormat) -> dict:
     return params
 
 
+@bot.dispatch.message.register_middleware()
 class UserRegistrarMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: Context) -> bool:
         if event.from_ and event.from_user.username:
@@ -71,5 +72,4 @@ async def get_user_by_username(message: Message, username: str):
     await message.answer(**formatting_text("User: ", code_inline(repr(user))))
 
 
-bot.on.message.middlewares.append(UserRegistrarMiddleware())
 bot.run_forever()

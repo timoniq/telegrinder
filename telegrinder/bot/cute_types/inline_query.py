@@ -18,8 +18,7 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
 
     async def answer(
         self,
-        results: list[InlineQueryResult | dict]
-        | Option[list[InlineQueryResult | dict]],
+        results: InlineQueryResult | list[InlineQueryResult],
         cache_time: int | Option[int] = Nothing,
         is_personal: bool | Option[bool] = Nothing,
         next_offset: str | Option[str] = Nothing,
@@ -29,14 +28,14 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
     ) -> Result[bool, APIError]:
         return await self.ctx_api.answer_inline_query(
             self.id,
-            results=results,  # type: ignore
+            results=[results] if not isinstance(results, list) else results,
             cache_time=cache_time,
             is_personal=is_personal,
             next_offset=next_offset,
             switch_pm_text=switch_pm_text,
             switch_pm_parameter=switch_pm_parameter,
             **other,
-        )  # NOTE: param results: implement dataclass instead of dict
+        )
 
 
 __all__ = ("InlineQueryCute",)

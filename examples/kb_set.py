@@ -82,7 +82,7 @@ async def choose_item_handler(m: Message):
 @bot.on.callback_query(CallbackDataEq("remove_kb"))
 async def edit_callback_handler(cb: CallbackQuery):
     await cb.answer("Yay")
-    chars = list(cb.message.unwrap().text.unwrap())
+    chars = list(cb.message.unwrap().only().unwrap().text.unwrap())
     random.shuffle(chars)
     await cb.edit_text("".join(chars))
 

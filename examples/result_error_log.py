@@ -1,6 +1,7 @@
+from fntypes.result import RESULT_ERROR_LOGGER, Error
+
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
-from telegrinder.result import RESULT_ERROR_LOGGER, Error
 from telegrinder.rules import Text
 
 api = API(token=Token.from_env())

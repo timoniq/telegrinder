@@ -24,5 +24,5 @@ class EnumTextRule(TextMessageRule, typing.Generic[T]):
         text = message.text.unwrap().lower()
         if text not in self.texts:
             return False
-        ctx["enum_text"] = self.find(text)
+        ctx.enum_text = self.find(text)
         return True
