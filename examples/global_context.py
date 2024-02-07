@@ -12,7 +12,7 @@ from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import User
 
 logger.set_level("INFO")
-api = API(token=Token("6617825227:AAF-NQvYorMXFYnDzqTOGYhls17nflHg4hs"))
+api = API(token=Token.from_env())
 bot = Telegrinder(api)
 
 
