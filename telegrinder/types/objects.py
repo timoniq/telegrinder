@@ -3428,7 +3428,7 @@ class InlineQuery(Model):
     offset: str
     """Offset of the results to be returned, can be controlled by the bot"""
 
-    chat_type: Option[str] = Nothing
+    chat_type: Option[ChatType] = Nothing
     """Optional. Type of the chat from which the inline query was sent. Can be either 
     `sender` for a private chat with the inline query sender, `private`, `group`, 
     `supergroup`, or `channel`. The chat type should be always known for requests 

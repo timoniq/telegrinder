@@ -1,12 +1,24 @@
+import typing
+
+from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.msgspec_utils import Option
 from telegrinder.types.enums import ChatType, DiceEmoji
+from telegrinder.types.objects import User
 
-from .abc import Message, MessageRule
+from .abc import ABCRule, Message, MessageRule
+
+T = typing.TypeVar("T", bound=BaseCute)
 
 
-class HasFrom(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
-        return bool(message.from_)
+@typing.runtime_checkable
+class HasFromProto(typing.Protocol):
+    from_: User | Option[User]
+
+
+class HasFrom(ABCRule[T]):
+    async def check(self, event: T, ctx: Context) -> bool:
+        return isinstance(event, HasFromProto) and bool(event.from_)
 
 
 class HasDice(MessageRule):

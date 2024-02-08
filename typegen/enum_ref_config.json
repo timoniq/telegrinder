@@ -10,6 +10,15 @@
             ]
         },
         {
+            "object_name": "InlineQuery",
+            "reference_fields": [
+                {
+                    "field_name": "chat_type",
+                    "reference": "ChatType"
+                }
+            ]
+        },
+        {
             "object_name": "MessageEntity",
             "reference_fields": [
                 {

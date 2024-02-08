@@ -203,10 +203,10 @@ class Option(typing.Protocol[Value]):
     def map_or_else(self, default: typing.Callable[[None], T], f: typing.Callable[[Value], T], /) -> T:
         ...
 
-    def expect(self, error: typing.Any, /) -> Value:
+    def unwrap_or_none(self) -> Value | None:
         ...
 
-    def unwrap_or_none(self) -> Value | None:
+    def expect(self, error: typing.Any, /) -> Value:
         ...
 
 

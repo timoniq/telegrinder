@@ -7,7 +7,7 @@ from .abc import ABCRule, T, Update, check_rule
 from .func import FuncRule
 
 
-@dataclasses.dataclass(unsafe_hash=True)
+@dataclasses.dataclass
 class RuleEnumState:
     name: str
     rule: ABCRule

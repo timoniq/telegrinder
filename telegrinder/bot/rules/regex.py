@@ -30,7 +30,7 @@ class Regex(TextMessageRule):
                 if matches := response.groupdict():
                     ctx |= matches
                 else:
-                    ctx |= {"matches": response.groups() or response.group()}
+                    ctx |= {"matches": response.groups() or (response.group(),)}
                 return True
         return False
 

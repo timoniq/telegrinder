@@ -13,7 +13,13 @@ from .command import Argument, Command
 from .enum_text import EnumTextRule
 from .func import FuncRule
 from .fuzzy import FuzzyText
-from .inline import InlineQueryRule, InlineQueryText, LocationInlineQuery
+from .inline import (
+    HasLocation,
+    InlineQueryChatType,
+    InlineQueryMarkup,
+    InlineQueryRule,
+    InlineQueryText,
+)
 from .integer import Integer, IntegerInRange
 from .is_from import (
     IsBasketballDice,
@@ -80,7 +86,9 @@ __all__ = (
     "IsSuperGroup",
     "IsUser",
     "IsUserId",
-    "LocationInlineQuery",
+    "HasLocation",
+    "InlineQueryChatType",
+    "InlineQueryMarkup",
     "Markup",
     "MessageEntities",
     "MessageRule",
