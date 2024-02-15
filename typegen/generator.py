@@ -44,17 +44,17 @@ def get_schema_json() -> "SchemaJson":
     return dct  # type: ignore
 
 
-def find_nicifications(name: str, path: str) -> list[str]:
+def find_nicifications(name: str, path: str) -> tuple[str | None, list[str]]:
     with open(path, mode="r", encoding="UTF-8") as f:
         ns = f.read()
-    regex = r"class _" + name + r"\(.+\):\n((?:.|\n {4}|\n$)+)"
+    regex = r"class _" + name + r"\((?P<base>.+)\):\n((?:.|\n {4}|\n$)+)"
     matches = list(re.finditer(regex, ns, flags=re.MULTILINE))
     if matches:
-        return [match.group(1) for match in matches]
-    return []
+        return matches[0].group("base"), [match.group(2) for match in matches]
+    return None, []
 
 
-def chunks_str(s: str, sep: str = ""):
+def chunks_str(s: str, sep: str = "\n"):
     words = s.split()
     s = ""
     line = 0
@@ -62,7 +62,7 @@ def chunks_str(s: str, sep: str = ""):
         s += word + " "
         line += len(word)
         if line >= 60:
-            s += f"\n{sep}"
+            s += sep
             line = 0
     return s.rstrip()
 
@@ -77,7 +77,7 @@ def convert_to_python_type(
         tp,
         f'"{tp}"'
         if tp not in parent_types
-        else "Union[%s]" % ", ".join(f'"{x}"' for x in parent_types[tp]),
+        else "Variative[%s]" % ", ".join(f'"{x}"' for x in parent_types[tp]),
     )
 
 
@@ -169,10 +169,10 @@ class TypesGenerator(ABCGenerator):
                 else enum_ref
             )
         elif len(field.types) > 1:
-            union_types = "Union[%s]" % ", ".join(
+            union_types = "Variative[%s]" % ", ".join(
                 convert_to_python_type(tp)
                 if tp not in self.parent_types
-                else "Union[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
+                else "Variative[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
                 for tp in field.types
             )
         else:
@@ -180,7 +180,7 @@ class TypesGenerator(ABCGenerator):
             union_types = (
                 convert_to_python_type(tp)
                 if tp not in self.parent_types
-                else "Union[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
+                else "Variative[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
             )
 
         if not field.required:
@@ -189,7 +189,8 @@ class TypesGenerator(ABCGenerator):
         code += union_types
         if field.description:
             description = field.description.replace('"', "`")
-            code += f'\n{TAB}"""{chunks_str(description, sep=TAB)}"""\n'
+            sep = "\n" + TAB
+            code += f'{sep}"""{chunks_str(description, sep=sep)}"""\n'
 
         return code
 
@@ -200,11 +201,12 @@ class TypesGenerator(ABCGenerator):
 
     def make_type(self, tp_schema: TypeSchema) -> str:
         object_name = camel_to_pascal(tp_schema.name)
+        base, nicifications = find_nicifications(object_name, self.nicification_path)
         code = (
             f"class {camel_to_pascal(tp_schema.name)}"
-            f"({self.make_subtype_of(tp_schema.subtype_of)}):\n{TAB}"
+            f"({base if base and base != object_name else self.make_subtype_of(tp_schema.subtype_of)}):\n{TAB}"
         )
-
+        
         if tp_schema.description:
             description = (
                 f"Object `{object_name}`, see the [documentation]({tp_schema.href})"
@@ -215,9 +217,8 @@ class TypesGenerator(ABCGenerator):
             )
 
         code += f"\n"
-        nicifications = find_nicifications(object_name, self.nicification_path)
         if not tp_schema.fields and not nicifications:
-            if not tp_schema.subtypes:
+            if (not tp_schema.subtypes and base is None) or not tp_schema.subtypes:
                 logger.warning(
                     f"Object {object_name!r} has not fields, subtypes and nicifications! :("
                 )
@@ -258,7 +259,7 @@ class TypesGenerator(ABCGenerator):
         logger.debug(f"Generation of {len(self.types)} objects...")
         lines = [
             "import typing\n\n",
-            "from fntypes.union import Union\n",
+            "from fntypes.variative import Variative\n",
             "from telegrinder.model import Model\n",
             "from telegrinder.msgspec_utils import Option, Nothing\n\n",
         ]
@@ -296,7 +297,7 @@ class MethodsGenerator(ABCGenerator):
         return (
             convert_to_python_type(types[0], parent_types).replace('"', "")
             if len(types) == 1
-            else ("Union[%s]" if is_return_type else "%s") % sep.join(
+            else ("Variative[%s]" if is_return_type else "%s") % sep.join(
                 convert_to_python_type(tp, parent_types).replace('"', "")
                 for tp in types
             )
@@ -306,7 +307,7 @@ class MethodsGenerator(ABCGenerator):
         field_descriptions = filter(
             None,
             [
-                f":param {x.name}: " + chunks_str(x.description).replace('"', "`")
+                f":param {x.name}: " + chunks_str(x.description, sep="\\\n" + TAB + TAB).replace('"', "`")
                 if x.description
                 else ""
                 for x in method_schema.fields or []
@@ -315,11 +316,11 @@ class MethodsGenerator(ABCGenerator):
         return (
             '"""'
             + (
-                f"Method `{method_schema.name}`, see the [documentation]({method_schema.href})\n\n"
-                + chunks_str(f"{TAB}\n".join(method_schema.description or []))
-                + "\n\n"
-                + (f"\n\n".join(field_descriptions)).strip()
-            )
+                f"Method `{method_schema.name}`, see the [documentation]({method_schema.href})\n\n{TAB * 2}"
+                + chunks_str(f"{TAB}\n".join(method_schema.description or []), sep="\n" + TAB + TAB)
+                + f"\n\n{TAB * 2}"
+                + (f"\n\n{TAB * 2}".join(field_descriptions)).strip()
+            ).strip()
             + f'\n{TAB * 2}"""\n\n'
             + '{}method_response = await self.api.request_raw("{}", get_params(locals()))\n'.format(
                 TAB * 2,
@@ -358,7 +359,7 @@ class MethodsGenerator(ABCGenerator):
             f"{TAB}async def {camel_to_snake(method_schema.name)}(self,"
             + ",\n".join(self.make_method_params(method_schema.fields))
             + ("," if method_schema.fields else "")
-            + "**other: typing.Any,) -> "
+            + f"**other: typing.Any{',' if method_schema.fields else ''}) -> "
             + self.make_return_type(method_schema.returns)
             + f":\n{TAB * 2}"
             + self.make_method_body(method_schema)
@@ -373,7 +374,7 @@ class MethodsGenerator(ABCGenerator):
         logger.debug(f"Generation of {len(self.methods)} methods...")
         lines = [
             "import typing\n\n",
-            "from fntypes.co import Result, Union\n"
+            "from fntypes.co import Result, Variative\n"
             "from telegrinder.api.error import APIError\n",
             "from telegrinder.msgspec_utils import Option, Nothing\n",
             "from telegrinder.model import full_result, get_params\n",

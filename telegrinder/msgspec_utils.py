@@ -1,17 +1,32 @@
+import types  # noqa: TCH003
 import typing
 
+import fntypes.option
 import msgspec
-from fntypes.co import Error, Ok, Result, Some, Union
-from fntypes.option import Nothing as NothingType
+from fntypes.co import Error, Ok, Result, Variative
 
 T = typing.TypeVar("T")
-Value = typing.TypeVar("Value")
 Ts = typing.TypeVarTuple("Ts")
+
+if typing.TYPE_CHECKING:
+    from fntypes.option import Option
+else:
+
+    Value = typing.TypeVar("Value")
+
+    class OptionMeta(type):
+        def __instancecheck__(cls, __instance: typing.Any) -> bool:
+            return isinstance(__instance, fntypes.option.Some | fntypes.option.Nothing)
+
+
+    class Option(typing.Generic[Value], metaclass=OptionMeta):
+        def __new__(cls) -> typing.NoReturn:
+            raise TypeError("Cannot instantiate typing.Union")
 
 DecHook: typing.TypeAlias = typing.Callable[[type[T], object], object]
 EncHook: typing.TypeAlias = typing.Callable[[T], object]
 
-Nothing: typing.Final[NothingType] = NothingType()
+Nothing: typing.Final[fntypes.option.Nothing] = fntypes.option.Nothing()
 
 
 def get_origin(t: type[T]) -> type[T]:
@@ -34,10 +49,10 @@ def option_dec_hook(tp: type["Option[typing.Any]"], obj: typing.Any) -> typing.A
         return Nothing
     generic_args = typing.get_args(tp)
     value_type: typing.Any | type[typing.Any] = typing.Any if not generic_args else generic_args[0]
-    return msgspec_convert({"value": obj}, Some[value_type]).unwrap()
+    return msgspec_convert({"value": obj}, fntypes.option.Some[value_type]).unwrap()
 
 
-def union_dec_hook(tp: type[Union], obj: typing.Any) -> Union:
+def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
     union_types = typing.get_args(tp)
     
     if isinstance(obj, dict):
@@ -72,18 +87,18 @@ def union_dec_hook(tp: type[Union], obj: typing.Any) -> Union:
 
 
 def option_enc_hook(obj: "Option[typing.Any]") -> typing.Any | None:
-    return obj.value if isinstance(obj, Some) else None
+    return obj.value if isinstance(obj, fntypes.option.Some) else None
 
 
-def union_enc_hook(obj: Union) -> typing.Any:
-    return typing.cast(typing.Any, obj.value)
+def variative_enc_hook(obj: Variative) -> typing.Any:
+    return typing.cast(typing.Any, obj.v)
 
 
 class Decoder:
     def __init__(self) -> None:
-        self.dec_hooks: dict[type, DecHook[typing.Any]] = {
+        self.dec_hooks: dict[type | types.UnionType, DecHook[typing.Any]] = {
             Option: option_dec_hook,
-            Union: union_dec_hook,
+            Variative: variative_dec_hook,
         }
 
     def add_dec_hook(self, tp: type[T]):
@@ -139,9 +154,9 @@ class Decoder:
 class Encoder:
     def __init__(self) -> None:
         self.enc_hooks: dict[type, EncHook] = {
-            Some: option_enc_hook,
-            NothingType: option_enc_hook,
-            Union: union_enc_hook,
+            fntypes.option.Some: option_enc_hook,
+            fntypes.option.Nothing: option_enc_hook,
+            Variative: variative_enc_hook,
         }
 
     def add_dec_hook(self, tp: type[T]):
@@ -172,44 +187,6 @@ class Encoder:
         return buf.decode() if as_str else buf
 
 
-@typing.runtime_checkable
-class Option(typing.Protocol[Value]):
-    """Option protocol for `msgspec.Struct`."""
-
-    def __repr__(self) -> str:
-        ...
-
-    def __bool__(self) -> bool:
-        ...
-
-    def __eq__(self, other: typing.Self) -> bool:
-        ...
-
-    def unwrap(self) -> Value:
-        ...
-
-    def unwrap_or(self, alternate_value: Value, /) -> Value:
-        ...
-
-    def unwrap_or_other(self, other: Some[T], /) -> Value | T:
-        ...
-
-    def map(self, op: typing.Callable[[Value], T], /) -> Some[T] | NothingType:
-        ...
-
-    def map_or(self, default: T, f: typing.Callable[[Value], T], /) -> T:
-        ...
-
-    def map_or_else(self, default: typing.Callable[[None], T], f: typing.Callable[[Value], T], /) -> T:
-        ...
-
-    def unwrap_or_none(self) -> Value | None:
-        ...
-
-    def expect(self, error: typing.Any, /) -> Value:
-        ...
-
-
 decoder: typing.Final[Decoder] = Decoder()
 encoder: typing.Final[Encoder] = Encoder()
 
@@ -224,7 +201,8 @@ __all__ = (
     "msgspec_convert",
     "option_dec_hook",
     "option_enc_hook",
-    "union_dec_hook",
+    "variative_dec_hook",
+    "variative_enc_hook",
     "decoder",
     "encoder",
 )

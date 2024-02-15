@@ -5,7 +5,7 @@ from .abc import BaseStateView
 
 
 class InlineQueryView(BaseStateView[InlineQueryCute]):
-    def __init__(self):
+    def __init__(self) -> None:
         self.auto_rules = []
         self.handlers = []
         self.middlewares = []

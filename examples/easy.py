@@ -34,10 +34,9 @@ async def start(message: Message):
         case "fine":
             await m.reply("Cool!")
         case "bad":
-            await message.ctx_api.send_photo(
-                message.chat.id,
+            await message.answer_file(
+                InputFile("kitten.jpg", kitten_bytes),
                 caption="I'm sorry... You prob need some kitten pictures",
-                photo=InputFile("kitten.jpg", kitten_bytes),
             )
 
 

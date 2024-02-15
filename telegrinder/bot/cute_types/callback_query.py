@@ -2,7 +2,7 @@ import typing
 from contextlib import suppress
 
 import msgspec
-from fntypes.co import Result, Some, Union
+from fntypes.co import Result, Some, Variative
 
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
@@ -49,7 +49,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
 
     async def edit_text(
         self,
-        text: str | Option[str] = Nothing,
+        text: str | Option[str],
         parse_mode: str | Option[str] = Nothing,
         entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
         disable_web_page_preview: bool | Option[bool] = Nothing,
@@ -57,16 +57,18 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
         | Option[InlineKeyboardMarkup]
         = Nothing,
         **other: typing.Any,
-    ) -> Result[Union[Message, bool], APIError]:
+    ) -> Result[Variative[Message, bool], APIError]:
         params = get_params(locals())
-        if message := self.message.map(lambda message: message.only(Message)).unwrap_or_none():
-            if message.unwrap().message_thread_id and "message_thread_id" not in params:
-                params["message_thread_id"] = message.unwrap().message_thread_id.unwrap()
+        
+        if message := self.message.map(lambda message: message.only().unwrap_or_none()).unwrap_or_none():
+            if message.message_thread_id and "message_thread_id" not in params:
+                params["message_thread_id"] = message.message_thread_id.unwrap()
             return await self.ctx_api.edit_message_text(
-                chat_id=message.unwrap().chat.id,
-                message_id=message.unwrap().message_id,
+                chat_id=message.chat.id,
+                message_id=message.message_id,
                 **params,
             )
+        
         return await self.ctx_api.edit_message_text(
             inline_message_id=self.inline_message_id,
             **params,

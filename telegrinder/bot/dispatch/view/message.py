@@ -5,7 +5,7 @@ from .abc import BaseStateView
 
 
 class MessageView(BaseStateView[MessageCute]):
-    def __init__(self):
+    def __init__(self) -> None:
         self.auto_rules = []
         self.handlers = []
         self.middlewares = []

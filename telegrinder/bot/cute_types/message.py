@@ -1,10 +1,10 @@
 import typing
 
-from fntypes.co import Result, Some, Union
+from fntypes.co import Option, Result, Some, Variative
 
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
-from telegrinder.msgspec_utils import Nothing, Option
+from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import (
     ForceReply,
     InlineKeyboardMarkup,
@@ -15,8 +15,10 @@ from telegrinder.types import (
     ReactionTypeType,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
+    ReplyParameters,
     User,
 )
+from telegrinder.types.objects import InputFile
 
 from .base import BaseCute
 
@@ -74,7 +76,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     async def answer(
         self,
-        text: str | Option[str] = Nothing,
+        text: str | Option[str],
         parse_mode: str | Option[str] = Nothing,
         entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
         disable_web_page_preview: bool | Option[bool] = Nothing,
@@ -89,10 +91,33 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         if "message_thread_id" not in params and self.is_topic_message:
             params["message_thread_id"] = self.message_thread_id
         return await self.ctx_api.send_message(chat_id=self.chat.id, **params)
+    
+    async def answer_file(
+        self,
+        file: str | InputFile,
+        caption: str | Option[str] = Nothing,
+        parse_mode: str | Option[str] = Nothing,
+        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
+        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
+        disable_content_type_detection: Option[bool] | bool = Nothing,
+        disable_notification: Option[bool] | bool = Nothing,
+        protect_content: bool | Option[bool] = Nothing,
+        reply_parameters: Option[ReplyParameters] | ReplyParameters = Nothing,
+        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        **other: typing.Any,
+    ) -> Result[Message, APIError]:
+        params = get_params(locals())
+        if "message_thread_id" not in params and self.is_topic_message:
+            params["message_thread_id"] = self.message_thread_id
+        return await self.ctx_api.send_document(
+            chat_id=self.chat.id,
+            document=file,
+            **params,
+        )
 
     async def reply(
         self,
-        text: str | Option[str] = Nothing,
+        text: str | Option[str],
         parse_mode: str | Option[str] = Nothing,
         entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
         disable_web_page_preview: bool | Option[bool] = Nothing,
@@ -130,7 +155,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reply_markup: InlineKeyboardMarkup
         | Option[InlineKeyboardMarkup] = Nothing,
         **other: typing.Any,
-    ) -> Result[Union[Message, bool], APIError]:
+    ) -> Result[Variative[Message, bool], APIError]:
         params = get_params(locals())
         if "message_thread_id" not in params and self.is_topic_message:
             params["message_thread_id"] = self.message_thread_id
@@ -154,7 +179,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                 if isinstance(r, str)
                 else r
                 for r in (
-                    reaction.unwrap_or([]) if isinstance(reaction, Option)
+                    reaction.unwrap_or([]) if isinstance(reaction, Some | type(Nothing))
                     else [reaction] if not isinstance(reaction, list) else reaction
                 )
             ]

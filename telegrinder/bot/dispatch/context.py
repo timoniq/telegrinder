@@ -3,6 +3,8 @@ import typing
 
 from telegrinder.types import Update
 
+T = typing.TypeVar("T")
+
 Key: typing.TypeAlias = str | enum.Enum
 AnyValue: typing.TypeAlias = typing.Any
 
@@ -59,8 +61,8 @@ class Context(dict[str, AnyValue]):
     def set(self, key: Key, value: AnyValue) -> None:
         self[key] = value
     
-    def get(self, key: Key) -> AnyValue:
-        return self[key]
+    def get(self, key: Key, default: T | None = None) -> T | AnyValue:
+        return dict.get(self, key, default)
     
     def delete(self, key: Key) -> None:
         del self[key]

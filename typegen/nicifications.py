@@ -10,7 +10,7 @@ Nicifications can only implement methods/properties working only with model fiel
 import typing
 
 from telegrinder.model import Model
-from telegrinder.option import Nothing
+from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import ContentType, Message, User
 
 
@@ -45,7 +45,7 @@ class _User(User):
         return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
 
 
-class _InputFile(Model):
+class _InputFile(typing.NamedTuple):
     filename: str
     """Filename."""
 

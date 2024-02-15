@@ -43,15 +43,15 @@ class RuleEnum(ABCRule[T]):
         setattr(cls, "__enum__", enum_lst)
 
     @classmethod
-    def save_state(cls, ctx: dict, enum: RuleEnumState) -> None:
+    def save_state(cls, ctx: Context, enum: RuleEnumState) -> None:
         ctx.update({cls.__class__.__name__ + "_state": enum})
 
     @classmethod
-    def check_state(cls, ctx: dict) -> RuleEnumState | None:
+    def check_state(cls, ctx: Context) -> RuleEnumState | None:
         return ctx.get(cls.__class__.__name__ + "_state")
 
     @classmethod
-    def must_be_state(cls, ctx: dict, state: RuleEnumState) -> bool:
+    def must_be_state(cls, ctx: Context, state: RuleEnumState) -> bool:
         real_state = cls.check_state(ctx)
         if not real_state:
             return False
