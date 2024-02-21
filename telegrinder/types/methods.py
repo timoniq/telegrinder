@@ -5,7 +5,7 @@ from fntypes.co import Result, Variative
 from telegrinder.api.error import APIError
 from telegrinder.model import full_result, get_params
 from telegrinder.msgspec_utils import Nothing, Option
-from telegrinder.types.objects import *  # noqa
+from telegrinder.types.objects import *  # noqa: F403
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.abc import ABCAPI
@@ -78,13 +78,13 @@ class APIMethods:
         If specified, the request will contain a header "X-Telegram-Bot-Api-Secret-Token" 
         with the secret token as content.
 
-        :param url: HTTPS URL to send updates to. Use an empty string to remove webhook integration \
+        :param url: HTTPS URL to send updates to. Use an empty string to remove webhook integration. \
 
         :param certificate: Upload your public key certificate so that the root certificate in use can \
         be checked. See our self-signed guide for details.
 
         :param ip_address: The fixed IP address which will be used to send webhook requests instead \
-        of the IP address resolved through DNS
+        of the IP address resolved through DNS.
 
         :param max_connections: The maximum allowed number of simultaneous HTTPS connections to the webhook \
         for update delivery, 1-100. Defaults to 40. Use lower values to limit the \
@@ -100,7 +100,7 @@ class APIMethods:
         to the setWebhook, so unwanted updates may be received for a short period \
         of time.
 
-        :param drop_pending_updates: Pass True to drop all pending updates
+        :param drop_pending_updates: Pass True to drop all pending updates.
 
         :param secret_token: A secret token to be sent in a header `X-Telegram-Bot-Api-Secret-Token` \
         in every webhook request, 1-256 characters. Only characters A-Z, a-z, \
@@ -121,7 +121,7 @@ class APIMethods:
         Use this method to remove webhook integration if you decide to switch back
         to getUpdates. Returns True on success.
 
-        :param drop_pending_updates: Pass True to drop all pending updates
+        :param drop_pending_updates: Pass True to drop all pending updates.
         """
 
         method_response = await self.api.request_raw(
@@ -210,26 +210,26 @@ class APIMethods:
         Use this method to send text messages. On success, the sent Message is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
-        :param text: Text of the message to be sent, 1-4096 characters after entities parsing \
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing. \
 
         :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
         more details.
 
         :param entities: A JSON-serialized list of special entities that appear in message text, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
-        :param link_preview_options: Link preview generation options for the message
+        :param link_preview_options: Link preview generation options for the message.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -258,19 +258,19 @@ class APIMethods:
         is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param from_chat_id: Unique identifier for the chat where the original message was sent (or channel \
-        username in the format @channelusername)
+        username in the format @channelusername).
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the forwarded message from forwarding and saving \
+        :param protect_content: Protects the contents of the forwarded message from forwarding and saving. \
 
-        :param message_id: Message identifier in the chat specified in from_chat_id
+        :param message_id: Message identifier in the chat specified in from_chat_id.
         """
 
         method_response = await self.api.request_raw(
@@ -297,13 +297,13 @@ class APIMethods:
         sent messages is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param from_chat_id: Unique identifier for the chat where the original messages were sent (or \
-        channel username in the format @channelusername)
+        channel username in the format @channelusername).
 
         :param message_ids: Identifiers of 1-100 messages in the chat from_chat_id to forward. The \
         identifiers must be specified in a strictly increasing order.
@@ -311,7 +311,7 @@ class APIMethods:
         :param disable_notification: Sends the messages silently. Users will receive a notification with no \
         sound.
 
-        :param protect_content: Protects the contents of the forwarded messages from forwarding and saving \
+        :param protect_content: Protects the contents of the forwarded messages from forwarding and saving. \
         """
 
         method_response = await self.api.request_raw(
@@ -353,30 +353,30 @@ class APIMethods:
         the MessageId of the sent message on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param from_chat_id: Unique identifier for the chat where the original message was sent (or channel \
-        username in the format @channelusername)
+        username in the format @channelusername).
 
-        :param message_id: Message identifier in the chat specified in from_chat_id
+        :param message_id: Message identifier in the chat specified in from_chat_id.
 
         :param caption: New caption for media, 0-1024 characters after entities parsing. If not \
-        specified, the original caption is kept
+        specified, the original caption is kept.
 
         :param parse_mode: Mode for parsing entities in the new caption. See formatting options for \
         more details.
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the new caption, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -411,13 +411,13 @@ class APIMethods:
         of the sent messages is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param from_chat_id: Unique identifier for the chat where the original messages were sent (or \
-        channel username in the format @channelusername)
+        channel username in the format @channelusername).
 
         :param message_ids: Identifiers of 1-100 messages in the chat from_chat_id to copy. The identifiers \
         must be specified in a strictly increasing order.
@@ -425,9 +425,9 @@ class APIMethods:
         :param disable_notification: Sends the messages silently. Users will receive a notification with no \
         sound.
 
-        :param protect_content: Protects the contents of the sent messages from forwarding and saving
+        :param protect_content: Protects the contents of the sent messages from forwarding and saving. \
 
-        :param remove_caption: Pass True to copy the messages without their captions
+        :param remove_caption: Pass True to copy the messages without their captions.
         """
 
         method_response = await self.api.request_raw(
@@ -464,34 +464,34 @@ class APIMethods:
         Use this method to send photos. On success, the sent Message is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
         photo from the Internet, or upload a new photo using multipart/form-data. \
         The photo must be at most 10 MB in size. The photo's width and height must not \
         exceed 10000 in total. Width and height ratio must be at most 20. More information \
-        on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024 \
-        characters after entities parsing
+        characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the photo caption. See formatting options \
         for more details.
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
-        :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation
+        :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -537,29 +537,29 @@ class APIMethods:
         voice messages, use the sendVoice method instead.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get an audio file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
-        :param caption: Audio caption, 0-1024 characters after entities parsing
+        :param caption: Audio caption, 0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the audio caption. See formatting options \
         for more details.
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
-        :param duration: Duration of the audio in seconds
+        :param duration: Duration of the audio in seconds.
 
-        :param performer: Performer
+        :param performer: Performer.
 
-        :param title: Track name
+        :param title: Track name.
 
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
         file is supported server-side. The thumbnail should be in JPEG format and \
@@ -567,13 +567,13 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -615,15 +615,15 @@ class APIMethods:
         may be changed in the future.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
         file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
         file is supported server-side. The thumbnail should be in JPEG format and \
@@ -631,25 +631,25 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param caption: Document caption (may also be used when resending documents by file_id), \
-        0-1024 characters after entities parsing
+        0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the document caption. See formatting options \
         for more details.
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
         :param disable_content_type_detection: Disables automatic server-side content type detection for files uploaded \
-        using multipart/form-data
+        using multipart/form-data.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -698,21 +698,21 @@ class APIMethods:
         limit may be changed in the future.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
         video from the Internet, or upload a new video using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
-        :param duration: Duration of sent video in seconds
+        :param duration: Duration of sent video in seconds.
 
-        :param width: Video width
+        :param width: Video width.
 
-        :param height: Video height
+        :param height: Video height.
 
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
         file is supported server-side. The thumbnail should be in JPEG format and \
@@ -720,26 +720,26 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param caption: Video caption (may also be used when resending videos by file_id), 0-1024 \
-        characters after entities parsing
+        characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the video caption. See formatting options \
         for more details.
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
-        :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation
+        :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
 
-        :param supports_streaming: Pass True if the uploaded video is suitable for streaming
+        :param supports_streaming: Pass True if the uploaded video is suitable for streaming.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -784,21 +784,21 @@ class APIMethods:
         animation files of up to 50 MB in size, this limit may be changed in the future.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param animation: Animation to send. Pass a file_id as String to send an animation that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get an animation from the Internet, or upload a new animation using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
-        :param duration: Duration of sent animation in seconds
+        :param duration: Duration of sent animation in seconds.
 
-        :param width: Animation width
+        :param width: Animation width.
 
-        :param height: Animation height
+        :param height: Animation height.
 
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
         file is supported server-side. The thumbnail should be in JPEG format and \
@@ -806,24 +806,24 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param caption: Animation caption (may also be used when resending animation by file_id), \
-        0-1024 characters after entities parsing
+        0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the animation caption. See formatting options \
         for more details.
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
-        :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation
+        :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation. \
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -868,31 +868,31 @@ class APIMethods:
         messages of up to 50 MB in size, this limit may be changed in the future.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get a file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
-        :param caption: Voice message caption, 0-1024 characters after entities parsing
+        :param caption: Voice message caption, 0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the voice message caption. See formatting \
         options for more details.
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
-        :param duration: Duration of the voice message in seconds
+        :param duration: Duration of the voice message in seconds.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -932,19 +932,19 @@ class APIMethods:
         sent Message is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that exists \
         on the Telegram servers (recommended) or upload a new video using multipart/form-data. \
         More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-        Sending video notes by a URL is currently unsupported
+        Sending video notes by a URL is currently unsupported.
 
-        :param duration: Duration of sent video in seconds
+        :param duration: Duration of sent video in seconds.
 
-        :param length: Video width and height, i.e. diameter of the video message
+        :param length: Video width and height, i.e. diameter of the video message.
 
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
         file is supported server-side. The thumbnail should be in JPEG format and \
@@ -952,13 +952,13 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -990,19 +990,19 @@ class APIMethods:
         of the same type. On success, an array of Messages that were sent is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param media: A JSON-serialized array describing messages to be sent, must include 2-10 \
-        items
+        items.
 
         :param disable_notification: Sends messages silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent messages from forwarding and saving
+        :param protect_content: Protects the contents of the sent messages from forwarding and saving. \
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
         """
 
         method_response = await self.api.request_raw(
@@ -1040,16 +1040,16 @@ class APIMethods:
         Use this method to send point on the map. On success, the sent Message is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
-        :param latitude: Latitude of the location
+        :param latitude: Latitude of the location.
 
-        :param longitude: Longitude of the location
+        :param longitude: Longitude of the location.
 
-        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500 \
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500. \
 
         :param live_period: Period in seconds for which the location will be updated (see Live Locations, \
         should be between 60 and 86400.
@@ -1062,9 +1062,9 @@ class APIMethods:
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -1109,33 +1109,33 @@ class APIMethods:
         is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
-        :param latitude: Latitude of the venue
+        :param latitude: Latitude of the venue.
 
-        :param longitude: Longitude of the venue
+        :param longitude: Longitude of the venue.
 
-        :param title: Name of the venue
+        :param title: Name of the venue.
 
-        :param address: Address of the venue
+        :param address: Address of the venue.
 
-        :param foursquare_id: Foursquare identifier of the venue
+        :param foursquare_id: Foursquare identifier of the venue.
 
         :param foursquare_type: Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, \
-        `arts_entertainment/aquarium` or `food/icecream`.)
+        `arts_entertainment/aquarium` or `food/icecream`.).
 
-        :param google_place_id: Google Places identifier of the venue
+        :param google_place_id: Google Places identifier of the venue.
 
-        :param google_place_type: Google Places type of the venue. (See supported types.)
+        :param google_place_type: Google Places type of the venue. (See supported types.).
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -1173,24 +1173,24 @@ class APIMethods:
         Use this method to send phone contacts. On success, the sent Message is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
-        :param phone_number: Contact's phone number
+        :param phone_number: Contact's phone number.
 
-        :param first_name: Contact's first name
+        :param first_name: Contact's first name.
 
-        :param last_name: Contact's last name
+        :param last_name: Contact's last name.
 
-        :param vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes
+        :param vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -1239,35 +1239,35 @@ class APIMethods:
         Use this method to send a native poll. On success, the sent Message is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
-        :param question: Poll question, 1-300 characters
+        :param question: Poll question, 1-300 characters.
 
         :param options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters \
-        each
+        each.
 
-        :param is_anonymous: True, if the poll needs to be anonymous, defaults to True
+        :param is_anonymous: True, if the poll needs to be anonymous, defaults to True.
 
-        :param type: Poll type, `quiz` or `regular`, defaults to `regular`
+        :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
         :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode, \
-        defaults to False
+        defaults to False.
 
         :param correct_option_id: 0-based identifier of the correct answer option, required for polls in \
-        quiz mode
+        quiz mode.
 
         :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lamp \
         icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after \
-        entities parsing
+        entities parsing.
 
         :param explanation_parse_mode: Mode for parsing entities in the explanation. See formatting options for \
         more details.
 
         :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
         :param open_period: Amount of time in seconds the poll will be active after creation, 5-600. \
         Can't be used together with close_date.
@@ -1281,9 +1281,9 @@ class APIMethods:
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -1319,20 +1319,20 @@ class APIMethods:
         On success, the sent Message is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param emoji: Emoji on which the dice throw animation is based. Currently, must be one \
         of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and \
-        `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`
+        `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`. \
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding
+        :param protect_content: Protects the contents of the sent message from forwarding.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -1358,9 +1358,9 @@ class APIMethods:
         bot will take a noticeable amount of time to arrive.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread; supergroups only
+        :param message_thread_id: Unique identifier for the target message thread; supergroups only.
 
         :param action: Type of action to broadcast. Choose one, depending on what the user is about \
         to receive: typing for text messages, upload_photo for photos, record_video \
@@ -1391,7 +1391,7 @@ class APIMethods:
         channel. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_id: Identifier of the target message. If the message belongs to a media group, \
         the reaction is set to the first non-deleted message in the group instead. \
@@ -1401,7 +1401,7 @@ class APIMethods:
         can be used if it is either already present on the message or explicitly allowed \
         by chat administrators.
 
-        :param is_big: Pass True to set the reaction with a big animation
+        :param is_big: Pass True to set the reaction with a big animation.
         """
 
         method_response = await self.api.request_raw(
@@ -1421,7 +1421,7 @@ class APIMethods:
         Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos 
         object.
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
 
         :param offset: Sequential number of the first photo to be returned. By default, all photos \
         are returned.
@@ -1451,7 +1451,7 @@ class APIMethods:
         the original file name and MIME type. You should save the file's MIME type
         and name (if available) when the File object is received.
 
-        :param file_id: File identifier to get information about
+        :param file_id: File identifier to get information about.
         """
 
         method_response = await self.api.request_raw("getFile", get_params(locals()))
@@ -1474,9 +1474,9 @@ class APIMethods:
         administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target group or username of the target supergroup \
-        or channel (in the format @channelusername)
+        or channel (in the format @channelusername).
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
 
         :param until_date: Date when the user will be unbanned; Unix time. If user is banned for more \
         than 366 days or less than 30 seconds from the current time they are considered \
@@ -1510,11 +1510,11 @@ class APIMethods:
         use the parameter only_if_banned. Returns True on success.
 
         :param chat_id: Unique identifier for the target group or username of the target supergroup \
-        or channel (in the format @channelusername)
+        or channel (in the format @channelusername).
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
 
-        :param only_if_banned: Do nothing if the user is not banned
+        :param only_if_banned: Do nothing if the user is not banned.
         """
 
         method_response = await self.api.request_raw(
@@ -1539,11 +1539,11 @@ class APIMethods:
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
 
-        :param permissions: A JSON-serialized object for new user permissions
+        :param permissions: A JSON-serialized object for new user permissions.
 
         :param use_independent_chat_permissions: Pass True if chat permissions are set independently. Otherwise, the can_send_other_messages \
         and can_add_web_page_previews permissions will imply the can_send_messages, \
@@ -1553,7 +1553,7 @@ class APIMethods:
 
         :param until_date: Date when restrictions will be lifted for the user; Unix time. If user is \
         restricted for more than 366 days or less than 30 seconds from the current \
-        time, they are considered to be restricted forever
+        time, they are considered to be restricted forever.
         """
 
         method_response = await self.api.request_raw(
@@ -1573,12 +1573,12 @@ class APIMethods:
         can_promote_members: bool | Option[bool] = Nothing,
         can_change_info: bool | Option[bool] = Nothing,
         can_invite_users: bool | Option[bool] = Nothing,
-        can_post_messages: bool | Option[bool] = Nothing,
-        can_edit_messages: bool | Option[bool] = Nothing,
-        can_pin_messages: bool | Option[bool] = Nothing,
         can_post_stories: bool | Option[bool] = Nothing,
         can_edit_stories: bool | Option[bool] = Nothing,
         can_delete_stories: bool | Option[bool] = Nothing,
+        can_post_messages: bool | Option[bool] = Nothing,
+        can_edit_messages: bool | Option[bool] = Nothing,
+        can_pin_messages: bool | Option[bool] = Nothing,
         can_manage_topics: bool | Option[bool] = Nothing,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
@@ -1590,52 +1590,48 @@ class APIMethods:
         to demote a user. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
 
-        :param is_anonymous: Pass True if the administrator's presence in the chat is hidden
+        :param is_anonymous: Pass True if the administrator's presence in the chat is hidden.
 
-        :param can_manage_chat: Pass True if the administrator can access the chat event log, boost list \
-        in channels, see channel members, report spam messages, see anonymous \
-        administrators in supergroups and ignore slow mode. Implied by any other \
-        administrator privilege
+        :param can_manage_chat: Pass True if the administrator can access the chat event log, get boost list, \
+        see hidden supergroup and channel members, report spam messages and ignore \
+        slow mode. Implied by any other administrator privilege.
 
-        :param can_delete_messages: Pass True if the administrator can delete messages of other users
+        :param can_delete_messages: Pass True if the administrator can delete messages of other users.
 
-        :param can_manage_video_chats: Pass True if the administrator can manage video chats
+        :param can_manage_video_chats: Pass True if the administrator can manage video chats.
 
         :param can_restrict_members: Pass True if the administrator can restrict, ban or unban chat members, \
-        or access supergroup statistics
+        or access supergroup statistics.
 
         :param can_promote_members: Pass True if the administrator can add new administrators with a subset \
         of their own privileges or demote administrators that they have promoted, \
         directly or indirectly (promoted by administrators that were appointed \
-        by him)
+        by him).
 
-        :param can_change_info: Pass True if the administrator can change chat title, photo and other settings \
+        :param can_change_info: Pass True if the administrator can change chat title, photo and other settings. \
 
-        :param can_invite_users: Pass True if the administrator can invite new users to the chat
+        :param can_invite_users: Pass True if the administrator can invite new users to the chat.
+
+        :param can_post_stories: Pass True if the administrator can post stories to the chat.
+
+        :param can_edit_stories: Pass True if the administrator can edit stories posted by other users.
+
+        :param can_delete_stories: Pass True if the administrator can delete stories posted by other users. \
 
         :param can_post_messages: Pass True if the administrator can post messages in the channel, or access \
-        channel statistics; channels only
+        channel statistics; channels only.
 
         :param can_edit_messages: Pass True if the administrator can edit messages of other users and can pin \
-        messages; channels only
+        messages; channels only.
 
-        :param can_pin_messages: Pass True if the administrator can pin messages, supergroups only
-
-        :param can_post_stories: Pass True if the administrator can post stories in the channel; channels \
-        only
-
-        :param can_edit_stories: Pass True if the administrator can edit stories posted by other users; channels \
-        only
-
-        :param can_delete_stories: Pass True if the administrator can delete stories posted by other users; \
-        channels only
+        :param can_pin_messages: Pass True if the administrator can pin messages, supergroups only.
 
         :param can_manage_topics: Pass True if the user is allowed to create, rename, close, and reopen forum \
-        topics, supergroups only
+        topics, supergroups only.
         """
 
         method_response = await self.api.request_raw(
@@ -1656,12 +1652,12 @@ class APIMethods:
         promoted by the bot. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
 
         :param custom_title: New custom title for the administrator; 0-16 characters, emoji are not \
-        allowed
+        allowed.
         """
 
         method_response = await self.api.request_raw(
@@ -1684,9 +1680,9 @@ class APIMethods:
         rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param sender_chat_id: Unique identifier of the target sender chat
+        :param sender_chat_id: Unique identifier of the target sender chat.
         """
 
         method_response = await self.api.request_raw(
@@ -1707,9 +1703,9 @@ class APIMethods:
         the appropriate administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param sender_chat_id: Unique identifier of the target sender chat
+        :param sender_chat_id: Unique identifier of the target sender chat.
         """
 
         method_response = await self.api.request_raw(
@@ -1732,9 +1728,9 @@ class APIMethods:
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param permissions: A JSON-serialized object for new default chat permissions
+        :param permissions: A JSON-serialized object for new default chat permissions.
 
         :param use_independent_chat_permissions: Pass True if chat permissions are set independently. Otherwise, the can_send_other_messages \
         and can_add_web_page_previews permissions will imply the can_send_messages, \
@@ -1761,7 +1757,7 @@ class APIMethods:
         Returns the new invite link as String on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
         """
 
         method_response = await self.api.request_raw(
@@ -1786,17 +1782,17 @@ class APIMethods:
         Returns the new invite link as ChatInviteLink object.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param name: Invite link name; 0-32 characters
+        :param name: Invite link name; 0-32 characters.
 
-        :param expire_date: Point in time (Unix timestamp) when the link will expire
+        :param expire_date: Point in time (Unix timestamp) when the link will expire.
 
         :param member_limit: The maximum number of users that can be members of the chat simultaneously \
-        after joining the chat via this invite link; 1-99999
+        after joining the chat via this invite link; 1-99999.
 
         :param creates_join_request: True, if users joining the chat via the link need to be approved by chat administrators. \
-        If True, member_limit can't be specified
+        If True, member_limit can't be specified.
         """
 
         method_response = await self.api.request_raw(
@@ -1822,19 +1818,19 @@ class APIMethods:
         ChatInviteLink object.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param invite_link: The invite link to edit
+        :param invite_link: The invite link to edit.
 
-        :param name: Invite link name; 0-32 characters
+        :param name: Invite link name; 0-32 characters.
 
-        :param expire_date: Point in time (Unix timestamp) when the link will expire
+        :param expire_date: Point in time (Unix timestamp) when the link will expire.
 
         :param member_limit: The maximum number of users that can be members of the chat simultaneously \
-        after joining the chat via this invite link; 1-99999
+        after joining the chat via this invite link; 1-99999.
 
         :param creates_join_request: True, if users joining the chat via the link need to be approved by chat administrators. \
-        If True, member_limit can't be specified
+        If True, member_limit can't be specified.
         """
 
         method_response = await self.api.request_raw(
@@ -1857,9 +1853,9 @@ class APIMethods:
         object.
 
         :param chat_id: Unique identifier of the target chat or username of the target channel (in \
-        the format @channelusername)
+        the format @channelusername).
 
-        :param invite_link: The invite link to revoke
+        :param invite_link: The invite link to revoke.
         """
 
         method_response = await self.api.request_raw(
@@ -1880,9 +1876,9 @@ class APIMethods:
         right. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
         """
 
         method_response = await self.api.request_raw(
@@ -1903,9 +1899,9 @@ class APIMethods:
         right. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
         """
 
         method_response = await self.api.request_raw(
@@ -1927,9 +1923,9 @@ class APIMethods:
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param photo: New chat photo, uploaded using multipart/form-data
+        :param photo: New chat photo, uploaded using multipart/form-data.
         """
 
         method_response = await self.api.request_raw(
@@ -1949,7 +1945,7 @@ class APIMethods:
         have the appropriate administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
         """
 
         method_response = await self.api.request_raw(
@@ -1970,9 +1966,9 @@ class APIMethods:
         and must have the appropriate administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param title: New chat title, 1-128 characters
+        :param title: New chat title, 1-128 characters.
         """
 
         method_response = await self.api.request_raw(
@@ -1993,9 +1989,9 @@ class APIMethods:
         the appropriate administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param description: New chat description, 0-255 characters
+        :param description: New chat description, 0-255 characters.
         """
 
         method_response = await self.api.request_raw(
@@ -2019,9 +2015,9 @@ class APIMethods:
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param message_id: Identifier of a message to pin
+        :param message_id: Identifier of a message to pin.
 
         :param disable_notification: Pass True if it is not necessary to send a notification to all chat members \
         about the new pinned message. Notifications are always disabled in channels \
@@ -2048,7 +2044,7 @@ class APIMethods:
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_id: Identifier of a message to unpin. If not specified, the most recent pinned \
         message (by sending date) will be unpinned.
@@ -2073,7 +2069,7 @@ class APIMethods:
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
         """
 
         method_response = await self.api.request_raw(
@@ -2092,7 +2088,7 @@ class APIMethods:
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        or channel (in the format @channelusername)
+        or channel (in the format @channelusername).
         """
 
         method_response = await self.api.request_raw("leaveChat", get_params(locals()))
@@ -2109,7 +2105,7 @@ class APIMethods:
         object on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        or channel (in the format @channelusername)
+        or channel (in the format @channelusername).
         """
 
         method_response = await self.api.request_raw("getChat", get_params(locals()))
@@ -2138,7 +2134,7 @@ class APIMethods:
         Returns an Array of ChatMember objects.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        or channel (in the format @channelusername)
+        or channel (in the format @channelusername).
         """
 
         method_response = await self.api.request_raw(
@@ -2168,7 +2164,7 @@ class APIMethods:
         Use this method to get the number of members in a chat. Returns Int on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        or channel (in the format @channelusername)
+        or channel (in the format @channelusername).
         """
 
         method_response = await self.api.request_raw(
@@ -2199,9 +2195,9 @@ class APIMethods:
         the chat. Returns a ChatMember object on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        or channel (in the format @channelusername)
+        or channel (in the format @channelusername).
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
         """
 
         method_response = await self.api.request_raw(
@@ -2234,9 +2230,9 @@ class APIMethods:
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param sticker_set_name: Name of the sticker set to be set as the group sticker set
+        :param sticker_set_name: Name of the sticker set to be set as the group sticker set.
         """
 
         method_response = await self.api.request_raw(
@@ -2258,7 +2254,7 @@ class APIMethods:
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
         """
 
         method_response = await self.api.request_raw(
@@ -2297,13 +2293,13 @@ class APIMethods:
         a ForumTopic object.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param name: Topic name, 1-128 characters
+        :param name: Topic name, 1-128 characters.
 
         :param icon_color: Color of the topic icon in RGB format. Currently, must be one of 7322096 (0x6FB9F0), \
         16766590 (0xFFD67E), 13338331 (0xCB86DB), 9367192 (0x8EEE98), 16749490 \
-        (0xFF93B2), or 16478047 (0xFB6F5F)
+        (0xFF93B2), or 16478047 (0xFB6F5F).
 
         :param icon_custom_emoji_id: Unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers \
         to get all allowed custom emoji identifiers.
@@ -2330,16 +2326,16 @@ class APIMethods:
         topic. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param message_thread_id: Unique identifier for the target message thread of the forum topic
+        :param message_thread_id: Unique identifier for the target message thread of the forum topic.
 
         :param name: New topic name, 0-128 characters. If not specified or empty, the current \
-        name of the topic will be kept
+        name of the topic will be kept.
 
         :param icon_custom_emoji_id: New unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers \
         to get all allowed custom emoji identifiers. Pass an empty string to remove \
-        the icon. If not specified, the current icon will be kept
+        the icon. If not specified, the current icon will be kept.
         """
 
         method_response = await self.api.request_raw(
@@ -2361,9 +2357,9 @@ class APIMethods:
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param message_thread_id: Unique identifier for the target message thread of the forum topic
+        :param message_thread_id: Unique identifier for the target message thread of the forum topic.
         """
 
         method_response = await self.api.request_raw(
@@ -2385,9 +2381,9 @@ class APIMethods:
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param message_thread_id: Unique identifier for the target message thread of the forum topic
+        :param message_thread_id: Unique identifier for the target message thread of the forum topic.
         """
 
         method_response = await self.api.request_raw(
@@ -2409,9 +2405,9 @@ class APIMethods:
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param message_thread_id: Unique identifier for the target message thread of the forum topic
+        :param message_thread_id: Unique identifier for the target message thread of the forum topic.
         """
 
         method_response = await self.api.request_raw(
@@ -2433,9 +2429,9 @@ class APIMethods:
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param message_thread_id: Unique identifier for the target message thread of the forum topic
+        :param message_thread_id: Unique identifier for the target message thread of the forum topic.
         """
 
         method_response = await self.api.request_raw(
@@ -2456,9 +2452,9 @@ class APIMethods:
         have can_manage_topics administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
 
-        :param name: New topic name, 1-128 characters
+        :param name: New topic name, 1-128 characters.
         """
 
         method_response = await self.api.request_raw(
@@ -2478,7 +2474,7 @@ class APIMethods:
         the can_manage_topics administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
         """
 
         method_response = await self.api.request_raw(
@@ -2499,7 +2495,7 @@ class APIMethods:
         unhidden if it was hidden. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
         """
 
         method_response = await self.api.request_raw(
@@ -2520,7 +2516,7 @@ class APIMethods:
         closed if it was open. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
         """
 
         method_response = await self.api.request_raw(
@@ -2540,7 +2536,7 @@ class APIMethods:
         the can_manage_topics administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
         """
 
         method_response = await self.api.request_raw(
@@ -2561,7 +2557,7 @@ class APIMethods:
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername)
+        (in the format @supergroupusername).
         """
 
         method_response = await self.api.request_raw(
@@ -2584,10 +2580,10 @@ class APIMethods:
         The answer will be displayed to the user as a notification at the top of the 
         chat screen or as an alert. On success, True is returned.
 
-        :param callback_query_id: Unique identifier for the query to be answered
+        :param callback_query_id: Unique identifier for the query to be answered.
 
         :param text: Text of the notification. If not specified, nothing will be shown to the \
-        user, 0-200 characters
+        user, 0-200 characters.
 
         :param show_alert: If True, an alert will be shown by the client instead of a notification at \
         the top of the chat screen. Defaults to false.
@@ -2620,9 +2616,9 @@ class APIMethods:
         administrator rights in the chat. Returns a UserChatBoosts object.
 
         :param chat_id: Unique identifier for the chat or username of the channel (in the format \
-        @channelusername)
+        @channelusername).
 
-        :param user_id: Unique identifier of the target user
+        :param user_id: Unique identifier of the target user.
         """
 
         method_response = await self.api.request_raw(
@@ -2650,7 +2646,7 @@ class APIMethods:
 
         :param language_code: A two-letter ISO 639-1 language code. If empty, commands will be applied \
         to all users from the given scope, for whose language there are no dedicated \
-        commands
+        commands.
         """
 
         method_response = await self.api.request_raw(
@@ -2675,7 +2671,7 @@ class APIMethods:
 
         :param language_code: A two-letter ISO 639-1 language code. If empty, commands will be applied \
         to all users from the given scope, for whose language there are no dedicated \
-        commands
+        commands.
         """
 
         method_response = await self.api.request_raw(
@@ -2697,7 +2693,7 @@ class APIMethods:
 
         :param scope: A JSON-serialized object, describing scope of users. Defaults to BotCommandScopeDefault. \
 
-        :param language_code: A two-letter ISO 639-1 language code or an empty string
+        :param language_code: A two-letter ISO 639-1 language code or an empty string.
         """
 
         method_response = await self.api.request_raw(
@@ -2735,7 +2731,7 @@ class APIMethods:
         Use this method to get the current bot name for the given user language. Returns
         BotName on success.
 
-        :param language_code: A two-letter ISO 639-1 language code or an empty string
+        :param language_code: A two-letter ISO 639-1 language code or an empty string.
         """
 
         method_response = await self.api.request_raw("getMyName", get_params(locals()))
@@ -2774,7 +2770,7 @@ class APIMethods:
         Use this method to get the current bot description for the given user language.
         Returns BotDescription on success.
 
-        :param language_code: A two-letter ISO 639-1 language code or an empty string
+        :param language_code: A two-letter ISO 639-1 language code or an empty string.
         """
 
         method_response = await self.api.request_raw(
@@ -2816,7 +2812,7 @@ class APIMethods:
         Use this method to get the current bot short description for the given user
         language. Returns BotShortDescription on success.
 
-        :param language_code: A two-letter ISO 639-1 language code or an empty string
+        :param language_code: A two-letter ISO 639-1 language code or an empty string.
         """
 
         method_response = await self.api.request_raw(
@@ -2836,9 +2832,9 @@ class APIMethods:
         menu button. Returns True on success.
 
         :param chat_id: Unique identifier for the target private chat. If not specified, default \
-        bot's menu button will be changed
+        bot's menu button will be changed.
 
-        :param menu_button: A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault \
+        :param menu_button: A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault. \
         """
 
         method_response = await self.api.request_raw(
@@ -2859,7 +2855,7 @@ class APIMethods:
         chat, or the default menu button. Returns MenuButton on success.
 
         :param chat_id: Unique identifier for the target private chat. If not specified, default \
-        bot's menu button will be returned
+        bot's menu button will be returned.
         """
 
         method_response = await self.api.request_raw(
@@ -2935,23 +2931,23 @@ class APIMethods:
         True is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername) \
+        the target chat or username of the target channel (in the format @channelusername). \
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the message \
-        to edit
+        to edit.
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
-        inline message
+        inline message.
 
-        :param text: New text of the message, 1-4096 characters after entities parsing
+        :param text: New text of the message, 1-4096 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
         more details.
 
         :param entities: A JSON-serialized list of special entities that appear in message text, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
-        :param link_preview_options: Link preview generation options for the message
+        :param link_preview_options: Link preview generation options for the message.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
@@ -2979,21 +2975,21 @@ class APIMethods:
         is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername) \
+        the target chat or username of the target channel (in the format @channelusername). \
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the message \
-        to edit
+        to edit.
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
-        inline message
+        inline message.
 
-        :param caption: New caption of the message, 0-1024 characters after entities parsing
+        :param caption: New caption of the message, 0-1024 characters after entities parsing. \
 
         :param parse_mode: Mode for parsing entities in the message caption. See formatting options \
         for more details.
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode
+        which can be specified instead of parse_mode.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
@@ -3023,15 +3019,15 @@ class APIMethods:
         otherwise True is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername) \
+        the target chat or username of the target channel (in the format @channelusername). \
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the message \
-        to edit
+        to edit.
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
-        inline message
+        inline message.
 
-        :param media: A JSON-serialized object for a new media content of the message
+        :param media: A JSON-serialized object for a new media content of the message.
 
         :param reply_markup: A JSON-serialized object for a new inline keyboard.
         """
@@ -3062,19 +3058,19 @@ class APIMethods:
         inline message, the edited Message is returned, otherwise True is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername) \
+        the target chat or username of the target channel (in the format @channelusername). \
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the message \
-        to edit
+        to edit.
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
-        inline message
+        inline message.
 
-        :param latitude: Latitude of new location
+        :param latitude: Latitude of new location.
 
-        :param longitude: Longitude of new location
+        :param longitude: Longitude of new location.
 
-        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500 \
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500. \
 
         :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360 \
         if specified.
@@ -3105,13 +3101,13 @@ class APIMethods:
         Message is returned, otherwise True is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername) \
+        the target chat or username of the target channel (in the format @channelusername). \
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the message \
-        with live location to stop
+        with live location to stop.
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
-        inline message
+        inline message.
 
         :param reply_markup: A JSON-serialized object for a new inline keyboard.
         """
@@ -3136,13 +3132,13 @@ class APIMethods:
         otherwise True is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername) \
+        the target chat or username of the target channel (in the format @channelusername). \
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the message \
-        to edit
+        to edit.
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
-        inline message
+        inline message.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
@@ -3165,9 +3161,9 @@ class APIMethods:
         Poll is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param message_id: Identifier of the original message with the poll
+        :param message_id: Identifier of the original message with the poll.
 
         :param reply_markup: A JSON-serialized object for a new message inline keyboard.
         """
@@ -3196,9 +3192,9 @@ class APIMethods:
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
-        :param message_id: Identifier of the message to delete
+        :param message_id: Identifier of the message to delete.
         """
 
         method_response = await self.api.request_raw(
@@ -3219,10 +3215,10 @@ class APIMethods:
         success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_ids: Identifiers of 1-100 messages to delete. See deleteMessage for limitations \
-        on which messages can be deleted
+        on which messages can be deleted.
         """
 
         method_response = await self.api.request_raw(
@@ -3257,10 +3253,10 @@ class APIMethods:
         On success, the sent Message is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
@@ -3269,13 +3265,13 @@ class APIMethods:
         Video stickers can only be sent by a file_id. Animated stickers can't be \
         sent via an HTTP URL.
 
-        :param emoji: Emoji associated with the sticker; only for just uploaded stickers
+        :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
@@ -3296,7 +3292,7 @@ class APIMethods:
 
         Use this method to get a sticker set. On success, a StickerSet object is returned.
 
-        :param name: Name of the sticker set
+        :param name: Name of the sticker set.
         """
 
         method_response = await self.api.request_raw(
@@ -3336,12 +3332,12 @@ class APIMethods:
         and addStickerToSet methods (the file can be used multiple times). Returns 
         the uploaded File on success.
 
-        :param user_id: User identifier of sticker file owner
+        :param user_id: User identifier of sticker file owner.
 
         :param sticker: A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See https://core.telegram.org/stickers \
-        for technical requirements. More information on Sending Files: https://core.telegram.org/bots/api#sending-files \
+        for technical requirements. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
-        :param sticker_format: Format of the sticker, must be one of `static`, `animated`, `video`
+        :param sticker_format: Format of the sticker, must be one of `static`, `animated`, `video`.
         """
 
         method_response = await self.api.request_raw(
@@ -3365,19 +3361,19 @@ class APIMethods:
         Use this method to create a new sticker set owned by a user. The bot will be 
         able to edit the sticker set thus created. Returns True on success.
 
-        :param user_id: User identifier of created sticker set owner
+        :param user_id: User identifier of created sticker set owner.
 
         :param name: Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). \
         Can contain only English letters, digits and underscores. Must begin with \
         a letter, can't contain consecutive underscores and must end in `_by_<bot_username>`. \
         <bot_username> is case insensitive. 1-64 characters.
 
-        :param title: Sticker set title, 1-64 characters
+        :param title: Sticker set title, 1-64 characters.
 
         :param stickers: A JSON-serialized list of 1-50 initial stickers to be added to the sticker \
-        set
+        set.
 
-        :param sticker_format: Format of stickers in the set, must be one of `static`, `animated`, `video` \
+        :param sticker_format: Format of stickers in the set, must be one of `static`, `animated`, `video`. \
 
         :param sticker_type: Type of stickers in the set, pass `regular`, `mask`, or `custom_emoji`. \
         By default, a regular sticker set is created.
@@ -3385,7 +3381,7 @@ class APIMethods:
         :param needs_repainting: Pass True if stickers in the sticker set must be repainted to the color of \
         text when used in messages, the accent color if used as emoji status, white \
         on chat photos, or another appropriate color based on context; for custom \
-        emoji sticker sets only
+        emoji sticker sets only.
         """
 
         method_response = await self.api.request_raw(
@@ -3408,9 +3404,9 @@ class APIMethods:
         sets can have up to 50 stickers. Static sticker sets can have up to 120 stickers. 
         Returns True on success.
 
-        :param user_id: User identifier of sticker set owner
+        :param user_id: User identifier of sticker set owner.
 
-        :param name: Sticker set name
+        :param name: Sticker set name.
 
         :param sticker: A JSON-serialized object with information about the added sticker. If \
         exactly the same sticker had already been added to the set, then the set isn't \
@@ -3433,9 +3429,9 @@ class APIMethods:
         Use this method to move a sticker in a set created by the bot to a specific position.
         Returns True on success.
 
-        :param sticker: File identifier of the sticker
+        :param sticker: File identifier of the sticker.
 
-        :param position: New sticker position in the set, zero-based
+        :param position: New sticker position in the set, zero-based.
         """
 
         method_response = await self.api.request_raw(
@@ -3453,7 +3449,7 @@ class APIMethods:
         Use this method to delete a sticker from a set created by the bot. Returns
         True on success.
 
-        :param sticker: File identifier of the sticker
+        :param sticker: File identifier of the sticker.
         """
 
         method_response = await self.api.request_raw(
@@ -3473,9 +3469,9 @@ class APIMethods:
         emoji sticker. The sticker must belong to a sticker set created by the bot.
         Returns True on success.
 
-        :param sticker: File identifier of the sticker
+        :param sticker: File identifier of the sticker.
 
-        :param emoji_list: A JSON-serialized list of 1-20 emoji associated with the sticker
+        :param emoji_list: A JSON-serialized list of 1-20 emoji associated with the sticker.
         """
 
         method_response = await self.api.request_raw(
@@ -3495,10 +3491,10 @@ class APIMethods:
         emoji sticker. The sticker must belong to a sticker set created by the bot. 
         Returns True on success.
 
-        :param sticker: File identifier of the sticker
+        :param sticker: File identifier of the sticker.
 
         :param keywords: A JSON-serialized list of 0-20 search keywords for the sticker with total \
-        length of up to 64 characters
+        length of up to 64 characters.
         """
 
         method_response = await self.api.request_raw(
@@ -3517,7 +3513,7 @@ class APIMethods:
         Use this method to change the mask position of a mask sticker. The sticker 
         must belong to a sticker set that was created by the bot. Returns True on success.
 
-        :param sticker: File identifier of the sticker
+        :param sticker: File identifier of the sticker.
 
         :param mask_position: A JSON-serialized object with the position where the mask should be placed \
         on faces. Omit the parameter to remove the mask position.
@@ -3539,9 +3535,9 @@ class APIMethods:
         Use this method to set the title of a created sticker set. Returns True on
         success.
 
-        :param name: Sticker set name
+        :param name: Sticker set name.
 
-        :param title: Sticker set title, 1-64 characters
+        :param title: Sticker set title, 1-64 characters.
         """
 
         method_response = await self.api.request_raw(
@@ -3562,9 +3558,9 @@ class APIMethods:
         format of the thumbnail file must match the format of the stickers in the 
         set. Returns True on success.
 
-        :param name: Sticker set name
+        :param name: Sticker set name.
 
-        :param user_id: User identifier of the sticker set owner
+        :param user_id: User identifier of the sticker set owner.
 
         :param thumbnail: A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size \
         and have a width and height of exactly 100px, or a .TGS animation with a thumbnail \
@@ -3596,7 +3592,7 @@ class APIMethods:
         Use this method to set the thumbnail of a custom emoji sticker set. Returns 
         True on success.
 
-        :param name: Sticker set name
+        :param name: Sticker set name.
 
         :param custom_emoji_id: Custom emoji identifier of a sticker from the sticker set; pass an empty \
         string to drop the thumbnail and use the first sticker as the thumbnail. \
@@ -3617,7 +3613,7 @@ class APIMethods:
         Use this method to delete a sticker set that was created by the bot. Returns
         True on success.
 
-        :param name: Sticker set name
+        :param name: Sticker set name.
         """
 
         method_response = await self.api.request_raw(
@@ -3640,9 +3636,9 @@ class APIMethods:
         Use this method to send answers to an inline query. On success, True is returned. 
         No more than 50 results per query are allowed.
 
-        :param inline_query_id: Unique identifier for the answered query
+        :param inline_query_id: Unique identifier for the answered query.
 
-        :param results: A JSON-serialized array of results for the inline query
+        :param results: A JSON-serialized array of results for the inline query.
 
         :param cache_time: The maximum amount of time in seconds that the result of the inline query \
         may be cached on the server. Defaults to 300.
@@ -3656,7 +3652,7 @@ class APIMethods:
         or if you don't support pagination. Offset length can't exceed 64 bytes. \
 
         :param button: A JSON-serialized object describing a button to be shown above inline query \
-        results
+        results.
         """
 
         method_response = await self.api.request_raw(
@@ -3676,9 +3672,9 @@ class APIMethods:
         a corresponding message on behalf of the user to the chat from which the query
         originated. On success, a SentWebAppMessage object is returned.
 
-        :param web_app_query_id: Unique identifier for the query to be answered
+        :param web_app_query_id: Unique identifier for the query to be answered.
 
-        :param result: A JSON-serialized object describing the message to be sent
+        :param result: A JSON-serialized object describing the message to be sent.
         """
 
         method_response = await self.api.request_raw(
@@ -3722,30 +3718,30 @@ class APIMethods:
         Use this method to send invoices. On success, the sent Message is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername)
+        (in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
-        :param title: Product name, 1-32 characters
+        :param title: Product name, 1-32 characters.
 
-        :param description: Product description, 1-255 characters
+        :param description: Product description, 1-255 characters.
 
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
         the user, use for your internal processes.
 
-        :param provider_token: Payment provider token, obtained via @BotFather
+        :param provider_token: Payment provider token, obtained via @BotFather.
 
-        :param currency: Three-letter ISO 4217 currency code, see more on currencies
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies.
 
         :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price, \
-        tax, discount, delivery cost, delivery tax, bonus, etc.)
+        tax, discount, delivery cost, delivery tax, bonus, etc.).
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
         (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
         pass max_tip_amount = 145. See the exp parameter in currencies.json, it \
         shows the number of digits past the decimal point for each currency (2 for \
-        the majority of currencies). Defaults to 0
+        the majority of currencies). Defaults to 0.
 
         :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units \
         of the currency (integer, not float/double). At most 4 suggested tip amounts \
@@ -3756,7 +3752,7 @@ class APIMethods:
         sent message will have a Pay button, allowing multiple users to pay directly \
         from the forwarded message, using the same invoice. If non-empty, forwarded \
         copies of the sent message will have a URL button with a deep link to the bot \
-        (instead of a Pay button), with the value used as the start parameter
+        (instead of a Pay button), with the value used as the start parameter.
 
         :param provider_data: JSON-serialized data about the invoice, which will be shared with the payment \
         provider. A detailed description of required fields should be provided \
@@ -3766,31 +3762,31 @@ class APIMethods:
         image for a service. People like it better when they see what they are paying \
         for.
 
-        :param photo_size: Photo size in bytes
+        :param photo_size: Photo size in bytes.
 
-        :param photo_width: Photo width
+        :param photo_width: Photo width.
 
-        :param photo_height: Photo height
+        :param photo_height: Photo height.
 
-        :param need_name: Pass True if you require the user's full name to complete the order
+        :param need_name: Pass True if you require the user's full name to complete the order.
 
-        :param need_phone_number: Pass True if you require the user's phone number to complete the order
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order.
 
-        :param need_email: Pass True if you require the user's email address to complete the order
+        :param need_email: Pass True if you require the user's email address to complete the order. \
 
-        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order \
+        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order. \
 
-        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to provider
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to provider.
 
-        :param send_email_to_provider: Pass True if the user's email address should be sent to provider
+        :param send_email_to_provider: Pass True if the user's email address should be sent to provider.
 
-        :param is_flexible: Pass True if the final price depends on the shipping method
+        :param is_flexible: Pass True if the final price depends on the shipping method.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total \
         price' button will be shown. If not empty, the first button must be a Pay button. \
@@ -3830,25 +3826,25 @@ class APIMethods:
         Use this method to create a link for an invoice. Returns the created invoice 
         link as String on success.
 
-        :param title: Product name, 1-32 characters
+        :param title: Product name, 1-32 characters.
 
-        :param description: Product description, 1-255 characters
+        :param description: Product description, 1-255 characters.
 
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
         the user, use for your internal processes.
 
-        :param provider_token: Payment provider token, obtained via BotFather
+        :param provider_token: Payment provider token, obtained via BotFather.
 
-        :param currency: Three-letter ISO 4217 currency code, see more on currencies
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies.
 
         :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price, \
-        tax, discount, delivery cost, delivery tax, bonus, etc.)
+        tax, discount, delivery cost, delivery tax, bonus, etc.).
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
         (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
         pass max_tip_amount = 145. See the exp parameter in currencies.json, it \
         shows the number of digits past the decimal point for each currency (2 for \
-        the majority of currencies). Defaults to 0
+        the majority of currencies). Defaults to 0.
 
         :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units \
         of the currency (integer, not float/double). At most 4 suggested tip amounts \
@@ -3862,25 +3858,25 @@ class APIMethods:
         :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketing \
         image for a service.
 
-        :param photo_size: Photo size in bytes
+        :param photo_size: Photo size in bytes.
 
-        :param photo_width: Photo width
+        :param photo_width: Photo width.
 
-        :param photo_height: Photo height
+        :param photo_height: Photo height.
 
-        :param need_name: Pass True if you require the user's full name to complete the order
+        :param need_name: Pass True if you require the user's full name to complete the order.
 
-        :param need_phone_number: Pass True if you require the user's phone number to complete the order
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order.
 
-        :param need_email: Pass True if you require the user's email address to complete the order
+        :param need_email: Pass True if you require the user's email address to complete the order. \
 
-        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order \
+        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order. \
 
-        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider.
 
-        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider
+        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider.
 
-        :param is_flexible: Pass True if the final price depends on the shipping method
+        :param is_flexible: Pass True if the final price depends on the shipping method.
         """
 
         method_response = await self.api.request_raw(
@@ -3903,11 +3899,11 @@ class APIMethods:
         to the bot. Use this method to reply to shipping queries. On success, True 
         is returned.
 
-        :param shipping_query_id: Unique identifier for the query to be answered
+        :param shipping_query_id: Unique identifier for the query to be answered.
 
         :param ok: Pass True if delivery to the specified address is possible and False if there \
         are any problems (for example, if delivery to the specified address is not \
-        possible)
+        possible).
 
         :param shipping_options: Required if ok is True. A JSON-serialized array of available shipping options. \
 
@@ -3937,7 +3933,7 @@ class APIMethods:
         is returned. Note: The Bot API must receive an answer within 10 seconds after 
         the pre-checkout query was sent.
 
-        :param pre_checkout_query_id: Unique identifier for the query to be answered
+        :param pre_checkout_query_id: Unique identifier for the query to be answered.
 
         :param ok: Specify True if everything is alright (goods are available, etc.) and the \
         bot is ready to proceed with the order. Use False if there are any problems. \
@@ -3971,9 +3967,9 @@ class APIMethods:
         is blurry, a scan shows evidence of tampering, etc. Supply some details
         in the error message to make sure the user knows how to correct the issues.
 
-        :param user_id: User identifier
+        :param user_id: User identifier.
 
-        :param errors: A JSON-serialized array describing the errors
+        :param errors: A JSON-serialized array describing the errors.
         """
 
         method_response = await self.api.request_raw(
@@ -3996,19 +3992,19 @@ class APIMethods:
 
         Use this method to send a game. On success, the sent Message is returned.
 
-        :param chat_id: Unique identifier for the target chat
+        :param chat_id: Unique identifier for the target chat.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only
+        forum supergroups only.
 
         :param game_short_name: Short name of the game, serves as the unique identifier for the game. Set \
         up your games via @BotFather.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
-        :param protect_content: Protects the contents of the sent message from forwarding and saving
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
-        :param reply_parameters: Description of the message to reply to
+        :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' \
         button will be shown. If not empty, the first button must launch the game. \
@@ -4035,24 +4031,24 @@ class APIMethods:
         otherwise True is returned. Returns an error, if the new score is not greater 
         than the user's current score in the chat and force is False.
 
-        :param user_id: User identifier
+        :param user_id: User identifier.
 
-        :param score: New score, must be non-negative
+        :param score: New score, must be non-negative.
 
         :param force: Pass True if the high score is allowed to decrease. This can be useful when \
-        fixing mistakes or banning cheaters
+        fixing mistakes or banning cheaters.
 
         :param disable_edit_message: Pass True if the game message should not be automatically edited to include \
-        the current scoreboard
+        the current scoreboard.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat
+        the target chat.
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the sent \
-        message
+        message.
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
-        inline message
+        inline message.
         """
 
         method_response = await self.api.request_raw(
@@ -4074,16 +4070,16 @@ class APIMethods:
         the specified user and several of their neighbors in a game. Returns an Array 
         of GameHighScore objects.
 
-        :param user_id: Target user id
+        :param user_id: Target user id.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat
+        the target chat.
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the sent \
-        message
+        message.
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
-        inline message
+        inline message.
         """
 
         method_response = await self.api.request_raw(

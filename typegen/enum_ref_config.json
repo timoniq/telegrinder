@@ -32,7 +32,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "BotCommandScopeType"
+                    "reference": "BotCommandScopeType",
+                    "specific_literals": ["all_chat_administrators"]
                 }
             ]
         },
@@ -41,7 +42,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "BotCommandScopeType"
+                    "reference": "BotCommandScopeType",
+                    "specific_literals": ["default"]
                 }
             ]
         },
@@ -50,7 +52,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "BotCommandScopeType"
+                    "reference": "BotCommandScopeType",
+                    "specific_literals": ["all_private_chats"]
                 }
             ]
         }
@@ -60,7 +63,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "BotCommandScopeType"
+                    "reference": "BotCommandScopeType",
+                    "specific_literals": ["all_group_chats"]
                 }
             ]
         },
@@ -69,7 +73,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "BotCommandScopeType"
+                    "reference": "BotCommandScopeType",
+                    "specific_literals": ["chat"]
                 }
             ]
         },
@@ -78,7 +83,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "BotCommandScopeType"
+                    "reference": "BotCommandScopeType",
+                    "specific_literals": ["chat_administrators"]
                 }
             ]
         },
@@ -87,7 +93,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "BotCommandScopeType"
+                    "reference": "BotCommandScopeType",
+                    "specific_literals": ["chat_member"]
                 }
             ]
         },
@@ -96,7 +103,8 @@
             "reference_fields": [
                 {
                     "field_name": "source",
-                    "reference": "ChatBoostSourceType"
+                    "reference": "ChatBoostSourceType",
+                    "specific_literals": ["gift_code"]
                 }
             ]
         }
@@ -106,7 +114,8 @@
             "reference_fields": [
                 {
                     "field_name": "source",
-                    "reference": "ChatBoostSourceType"
+                    "reference": "ChatBoostSourceType",
+                    "specific_literals": ["giveaway"]
                 }
             ]
         },
@@ -115,7 +124,8 @@
             "reference_fields": [
                 {
                     "field_name": "source",
-                    "reference": "ChatBoostSourceType"
+                    "reference": "ChatBoostSourceType",
+                    "specific_literals": ["premium"]
                 }
             ]
         },
@@ -124,7 +134,8 @@
             "reference_fields": [
                 {
                     "field_name": "status",
-                    "reference": "ChatMemberStatus"
+                    "reference": "ChatMemberStatus",
+                    "specific_literals": ["administrator"]
                 }
             ]
         },
@@ -133,7 +144,8 @@
             "reference_fields": [
                 {
                     "field_name": "status",
-                    "reference": "ChatMemberStatus"
+                    "reference": "ChatMemberStatus",
+                    "specific_literals": ["left"]
                 }
             ]
         },
@@ -142,7 +154,8 @@
             "reference_fields": [
                 {
                     "field_name": "status",
-                    "reference": "ChatMemberStatus"
+                    "reference": "ChatMemberStatus",
+                    "specific_literals": ["kicked"]
                 }
             ]
         },
@@ -151,7 +164,8 @@
             "reference_fields": [
                 {
                     "field_name": "status",
-                    "reference": "ChatMemberStatus"
+                    "reference": "ChatMemberStatus",
+                    "specific_literals": ["creator"]
                 }
             ]
         },
@@ -160,7 +174,8 @@
             "reference_fields": [
                 {
                     "field_name": "status",
-                    "reference": "ChatMemberStatus"
+                    "reference": "ChatMemberStatus",
+                    "specific_literals": ["member"]
                 }
             ]
         },
@@ -169,7 +184,8 @@
             "reference_fields": [
                 {
                     "field_name": "status",
-                    "reference": "ChatMemberStatus"
+                    "reference": "ChatMemberStatus",
+                    "specific_literals": ["restricted"]
                 }
             ]
         },
@@ -187,7 +203,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["article"]
                 }
             ]
         },
@@ -196,7 +213,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["audio"]
                 }
             ]
         },
@@ -205,7 +223,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["document"]
                 }
             ]
         },
@@ -214,7 +233,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["audio"]
                 }
             ]
         },
@@ -223,7 +243,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["gif"]
                 }
             ]
         },
@@ -232,7 +253,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["mpeg4_gif"]
                 }
             ]
         },
@@ -241,7 +263,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["photo"]
                 }
             ]
         },
@@ -250,7 +273,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["sticker"]
                 }
             ]
         },
@@ -259,7 +283,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["video"]
                 }
             ]
         },
@@ -268,7 +293,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["voice"]
                 }
             ]
         },
@@ -277,7 +303,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["contact"]
                 }
             ]
         },
@@ -286,7 +313,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["document"]
                 }
             ]
         },
@@ -295,7 +323,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["game"]
                 }
             ]
         },
@@ -304,7 +333,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["gif"]
                 }
             ]
         },
@@ -313,7 +343,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["location"]
                 }
             ]
         },
@@ -322,7 +353,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["mpeg4_gif"]
                 }
             ]
         },
@@ -331,7 +363,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["photo"]
                 }
             ]
         },
@@ -340,7 +373,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["venue"]
                 }
             ]
         },
@@ -349,7 +383,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["video"]
                 }
             ]
         },
@@ -358,7 +393,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InlineQueryResultType"
+                    "reference": "InlineQueryResultType",
+                    "specific_literals": ["voice"]
                 }
             ]
         },
@@ -367,7 +403,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InputMediaType"
+                    "reference": "InputMediaType",
+                    "specific_literals": ["animation"]
                 }
             ]
         },
@@ -376,7 +413,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InputMediaType"
+                    "reference": "InputMediaType",
+                    "specific_literals": ["audio"]
                 }
             ]
         },
@@ -385,7 +423,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InputMediaType"
+                    "reference": "InputMediaType",
+                    "specific_literals": ["document"]
                 }
             ]
         },
@@ -394,7 +433,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InputMediaType"
+                    "reference": "InputMediaType",
+                    "specific_literals": ["photo"]
                 }
             ]
         },
@@ -403,7 +443,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "InputMediaType"
+                    "reference": "InputMediaType",
+                    "specific_literals": ["video"]
                 }
             ]
         },
@@ -453,11 +494,26 @@
             ]
         },
         {
-            "object_name": "PassportElementErrorDataField",
+            "object_name": "EncryptedPassportElement",
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "PassportElementErrorType"
+                    "reference": "EncryptedPassportElementType"
+                }
+            ]
+        },
+        {
+            "object_name": "PassportElementErrorDataField",
+            "reference_fields": [
+                {
+                    "field_name": "source",
+                    "reference": "PassportElementErrorType",
+                    "specific_literals": ["data"]
+                },
+                {
+                    "field_name": "type",
+                    "reference": "EncryptedPassportElementType",
+                    "specific_literals": ["passport", "driver_license", "identity_card", "internal_passport", "address"]
                 }
             ]
         },
@@ -465,8 +521,14 @@
             "object_name": "PassportElementErrorFile",
             "reference_fields": [
                 {
+                    "field_name": "source",
+                    "reference": "PassportElementErrorType",
+                    "specific_literals": ["file"]
+                },
+                {
                     "field_name": "type",
-                    "reference": "PassportElementErrorType"
+                    "reference": "EncryptedPassportElementType",
+                    "specific_literals": ["utility_bill", "bank_statement", "rental_agreement", "passport_registration", "temporary_registration"]
                 }
             ]
         },
@@ -474,8 +536,14 @@
             "object_name": "PassportElementErrorFiles",
             "reference_fields": [
                 {
+                    "field_name": "source",
+                    "reference": "PassportElementErrorType",
+                    "specific_literals": ["files"]
+                },
+                {
                     "field_name": "type",
-                    "reference": "PassportElementErrorType"
+                    "reference": "EncryptedPassportElementType",
+                    "specific_literals": ["utility_bill", "bank_statement", "rental_agreement", "passport_registration", "temporary_registration"]
                 }
             ]
         },
@@ -483,8 +551,14 @@
             "object_name": "PassportElementErrorFrontSide",
             "reference_fields": [
                 {
+                    "field_name": "source",
+                    "reference": "PassportElementErrorType",
+                    "specific_literals": ["front_side"]
+                },
+                {
                     "field_name": "type",
-                    "reference": "PassportElementErrorType"
+                    "reference": "EncryptedPassportElementType",
+                    "specific_literals": ["passport", "driver_license", "identity_card", "internal_passport"]
                 }
             ]
         },
@@ -492,8 +566,14 @@
             "object_name": "PassportElementErrorReverseSide",
             "reference_fields": [
                 {
+                    "field_name": "source",
+                    "reference": "PassportElementErrorType",
+                    "specific_literals": ["reverse_side"]
+                },
+                {
                     "field_name": "type",
-                    "reference": "PassportElementErrorType"
+                    "reference": "EncryptedPassportElementType",
+                    "specific_literals": ["driver_license", "identity_card"]
                 }
             ]
         },
@@ -501,8 +581,14 @@
             "object_name": "PassportElementErrorSelfie",
             "reference_fields": [
                 {
+                    "field_name": "source",
+                    "reference": "PassportElementErrorType",
+                    "specific_literals": ["selfie"]
+                },
+                {
                     "field_name": "type",
-                    "reference": "PassportElementErrorType"
+                    "reference": "EncryptedPassportElementType",
+                    "specific_literals": ["passport", "driver_license", "identity_card", "internal_passport"]
                 }
             ]
         },
@@ -510,8 +596,24 @@
             "object_name": "PassportElementErrorTranslationFile",
             "reference_fields": [
                 {
+                    "field_name": "source",
+                    "reference": "PassportElementErrorType",
+                    "specific_literals": ["translation_file"]
+                },
+                {
                     "field_name": "type",
-                    "reference": "PassportElementErrorType"
+                    "reference": "EncryptedPassportElementType",
+                    "specific_literals": [
+                        "passport",
+                        "driver_license",
+                        "identity_card",
+                        "internal_passport",
+                        "utility_bill",
+                        "bank_statement",
+                        "rental_agreement",
+                        "passport_registration",
+                        "temporary_registration"
+                    ]
                 }
             ]
         },
@@ -519,8 +621,24 @@
             "object_name": "PassportElementErrorTranslationFiles",
             "reference_fields": [
                 {
+                    "field_name": "source",
+                    "reference": "PassportElementErrorType",
+                    "specific_literals": ["translation_files"]
+                },
+                {
                     "field_name": "type",
-                    "reference": "PassportElementErrorType"
+                    "reference": "EncryptedPassportElementType",
+                    "specific_literals": [
+                        "passport",
+                        "driver_license",
+                        "identity_card",
+                        "internal_passport",
+                        "utility_bill",
+                        "bank_statement",
+                        "rental_agreement",
+                        "passport_registration",
+                        "temporary_registration"
+                    ]
                 }
             ]
         },
@@ -528,8 +646,13 @@
             "object_name": "PassportElementErrorUnspecified",
             "reference_fields": [
                 {
+                    "field_name": "source",
+                    "reference": "PassportElementErrorType",
+                    "specific_literals": ["unspecified"]
+                },
+                {
                     "field_name": "type",
-                    "reference": "PassportElementErrorType"
+                    "reference": "EncryptedPassportElementType"
                 }
             ]
         },
@@ -538,7 +661,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "ReactionTypeType"
+                    "reference": "ReactionTypeType",
+                    "specific_literals": ["custom_emoji"]
                 }
             ]
         },
@@ -547,7 +671,8 @@
             "reference_fields": [
                 {
                     "field_name": "type",
-                    "reference": "ReactionTypeType"
+                    "reference": "ReactionTypeType",
+                    "specific_literals": ["emoji"]
                 }
             ]
         }

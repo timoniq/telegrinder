@@ -110,14 +110,17 @@ class SchemaJson(typing.TypedDict, total=True):
     types: typing.NotRequired[list[dict[str, typing.Any]]]
 
 
-class RefFields(typing.TypedDict):
-    """Mapping containing field name and their reference to enumeration."""
+class RefField(typing.TypedDict, total=True):
+    """Mapping containing field name, reference to enumeration and specific enumeration literals."""
 
     field_name: str
     """Field name."""
 
     reference: str
     """Reference to enumeration."""
+
+    specific_literals: typing.NotRequired[list[str]]
+    """Optional. List with enumeration literals."""
 
 
 class EnumRefConfig(typing.TypedDict):
@@ -126,7 +129,7 @@ class EnumRefConfig(typing.TypedDict):
     object_name: str
     """Object name."""
 
-    reference_fields: list[RefFields]
+    reference_fields: list[RefField]
     """Reference fields."""
 
 
@@ -151,25 +154,36 @@ class TypesGenerator(ABCGenerator):
         self.enum_ref_configs = enum_ref_configs or []
         self.parent_types: dict[str, list[str]] = {}
 
-    def get_enum_ref(self, object_name: str, field_name: str) -> str | None:
+    def get_enum_ref_field(self, object_name: str, field_name: str) -> RefField | None:
         for cfg in self.enum_ref_configs:
             if cfg["object_name"] == object_name:
                 for ref_field in cfg["reference_fields"]:
                     if ref_field["field_name"] == field_name:
-                        return ref_field["reference"]
+                        return ref_field
         return None
 
-    def make_field_type(self, field: Field, enum_ref: str | None = None) -> str:
+    def make_field_type(self, field: Field, enum_ref_field: RefField | None = None) -> str:
         code = f"{self.rename_field_names.get(field.name, field.name)}: "
 
-        if enum_ref is not None:
-            union_types = (
-                f"list[{enum_ref}]"
+        if enum_ref_field is not None:
+            specific_literals = enum_ref_field.get("specific_literals")
+            enum_type_hint = (
+                "typing.Literal[%s]" % ", ".join(
+                    enum_ref_field["reference"]
+                    + "."
+                    + x.upper()
+                    for x in specific_literals
+                )
+                if specific_literals
+                else enum_ref_field["reference"]
+            )
+            variative_types = (
+                f"list[{enum_type_hint}]"
                 if any("Array of" in x for x in field.types)
-                else enum_ref
+                else enum_type_hint
             )
         elif len(field.types) > 1:
-            union_types = "Variative[%s]" % ", ".join(
+            variative_types = "Variative[%s]" % ", ".join(
                 convert_to_python_type(tp)
                 if tp not in self.parent_types
                 else "Variative[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
@@ -177,20 +191,23 @@ class TypesGenerator(ABCGenerator):
             )
         else:
             tp = field.types[0]
-            union_types = (
+            variative_types = (
                 convert_to_python_type(tp)
                 if tp not in self.parent_types
                 else "Variative[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
             )
 
         if not field.required:
-            union_types = f"Option[{union_types}] = Nothing"
+            variative_types = f"Option[{variative_types}] = Nothing"
 
-        code += union_types
+        code += variative_types
         if field.description:
             description = field.description.replace('"', "`")
             sep = "\n" + TAB
-            code += f'{sep}"""{chunks_str(description, sep=sep)}"""\n'
+            code += (
+                f'{sep}"""{chunks_str(description, sep=sep)}'
+                f'{"." if not description.endswith(".") else ""}"""\n'
+            )
 
         return code
 
@@ -224,7 +241,7 @@ class TypesGenerator(ABCGenerator):
                 )
             else:
                 self.parent_types[object_name] = tp_schema.subtypes
-            code += f"{TAB}pass"
+            code += f"{TAB}pass" if not tp_schema.description else ""
             return code
 
         if tp_schema.fields:
@@ -233,8 +250,8 @@ class TypesGenerator(ABCGenerator):
                 *filter(lambda f: f.required, tp_schema.fields),
                 *filter(lambda f: not f.required, tp_schema.fields),
             ):
-                enum_ref = self.get_enum_ref(object_name, f.name)
-                code += f"\n{TAB}" + self.make_field_type(f, enum_ref)
+                enum_ref_field = self.get_enum_ref_field(object_name, f.name)
+                code += f"\n{TAB}" + self.make_field_type(f, enum_ref_field)
 
         if nicifications:
             n = nicifications[0]
@@ -265,7 +282,7 @@ class TypesGenerator(ABCGenerator):
         ]
 
         if self.enum_ref_configs:
-            lines.append("from telegrinder.types.enums import *  # noqa\n")
+            lines.append("from telegrinder.types.enums import *  # noqa: F403\n")
 
         for type_schema in sorted(self.types, key=lambda x: x.subtypes or [], reverse=True):
             lines.append(self.make_type(type_schema) + "\n\n")
@@ -307,7 +324,10 @@ class MethodsGenerator(ABCGenerator):
         field_descriptions = filter(
             None,
             [
-                f":param {x.name}: " + chunks_str(x.description, sep="\\\n" + TAB + TAB).replace('"', "`")
+                f":param {x.name}: " + chunks_str(
+                    x.description + ("." if not x.description.endswith(".") else ""),
+                    sep="\\\n" + TAB + TAB
+                ).replace('"', "`")
                 if x.description
                 else ""
                 for x in method_schema.fields or []
@@ -378,7 +398,7 @@ class MethodsGenerator(ABCGenerator):
             "from telegrinder.api.error import APIError\n",
             "from telegrinder.msgspec_utils import Option, Nothing\n",
             "from telegrinder.model import full_result, get_params\n",
-            "from telegrinder.types.objects import *  # noqa\n\n",
+            "from telegrinder.types.objects import *  # noqa: F403\n\n",
             "if typing.TYPE_CHECKING:\n",
             "    from telegrinder.api.abc import ABCAPI\n\n\n",
             "class APIMethods:\n",
@@ -445,7 +465,7 @@ __all__ = (
     "ABCGenerator",
     "EnumRefConfig",
     "MethodsGenerator",
-    "RefFields",
+    "RefField",
     "SchemaJson",
     "TypesGenerator",
     "convert_schema_to_model",

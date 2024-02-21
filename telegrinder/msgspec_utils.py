@@ -20,8 +20,7 @@ else:
 
 
     class Option(typing.Generic[Value], metaclass=OptionMeta):
-        def __new__(cls) -> typing.NoReturn:
-            raise TypeError("Cannot instantiate typing.Union")
+        pass
 
 DecHook: typing.TypeAlias = typing.Callable[[type[T], object], object]
 EncHook: typing.TypeAlias = typing.Callable[[T], object]

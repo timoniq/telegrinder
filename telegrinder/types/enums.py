@@ -113,6 +113,7 @@ class ContentType(str, enum.Enum):
     NEW_CHAT_PHOTO = "new_chat_photo"
     DELETE_CHAT_PHOTO = "delete_chat_photo"
     GROUP_CHAT_CREATED = "group_chat_created"
+    BOOST_ADDED = "boost_added"
     SUPERGROUP_CHAT_CREATED = "supergroup_chat_created"
     CHANNEL_CHAT_CREATED = "channel_chat_created"
     MESSAGE_AUTO_DELETE_TIMER_CHANGED = "message_auto_delete_timer_changed"
@@ -530,105 +531,6 @@ class EncryptedPassportElementType(str, enum.Enum):
     TEMPORARY_REGISTRATION = "temporary_registration"
     PHONE_NUMBER = "phone_number"
     EMAIL = "email"
-
-
-class PassportElementErrorDataFieldType(str, enum.Enum):
-    """The section of the user's Telegram Passport which has the error, one of “personal_details”,
-    “passport”, “driver_license”, “identity_card”, “internal_passport”,
-    “address”"""
-
-    PERSONAL_DETAILS = "personal_details"
-    PASSPORT = "passport"
-    DRIVER_LICENSE = "driver_license"
-    IDENTITY_CARD = "identity_card"
-    INTERNAL_PASSPORT = "internal_passport"
-    ADDRESS = "address"
-
-
-class PassportElementErrorFrontSideType(str, enum.Enum):
-    """The section of the user's Telegram Passport which has the issue, one of “passport”,
-    “driver_license”, “identity_card”, “internal_passport”"""
-
-    PASSPORT = "passport"
-    DRIVER_LICENSE = "driver_license"
-    IDENTITY_CARD = "identity_card"
-    INTERNAL_PASSPORT = "internal_passport"
-
-
-class PassportElementErrorReverseSideType(str, enum.Enum):
-    """The section of the user's Telegram Passport which has the issue, one of “driver_license”,
-    “identity_card”"""
-
-    DRIVER_LICENSE = "driver_license"
-    IDENTITY_CARD = "identity_card"
-
-
-class PassportElementErrorSelfieType(str, enum.Enum):
-    """The section of the user's Telegram Passport which has the issue, one of “passport”,
-    “driver_license”, “identity_card”, “internal_passport”"""
-
-    PASSPORT = "passport"
-    DRIVER_LICENSE = "driver_license"
-    IDENTITY_CARD = "identity_card"
-    INTERNAL_PASSPORT = "internal_passport"
-
-
-class PassportElementErrorFileType(str, enum.Enum):
-    """The section of the user's Telegram Passport which has the issue, one of “utility_bill”,
-    “bank_statement”, “rental_agreement”, “passport_registration”,
-    “temporary_registration”"""
-
-    UTILITY_BILL = "utility_bill"
-    BANK_STATEMENT = "bank_statement"
-    RENTAL_AGREEMENT = "rental_agreement"
-    PASSPORT_REGISTRATION = "passport_registration"
-    TEMPORARY_REGISTRATION = "temporary_registration"
-
-
-class PassportElementErrorFilesType(str, enum.Enum):
-    """The section of the user's Telegram Passport which has the issue, one of “utility_bill”,
-    “bank_statement”, “rental_agreement”, “passport_registration”,
-    “temporary_registration”"""
-
-    UTILITY_BILL = "utility_bill"
-    BANK_STATEMENT = "bank_statement"
-    RENTAL_AGREEMENT = "rental_agreement"
-    PASSPORT_REGISTRATION = "passport_registration"
-    TEMPORARY_REGISTRATION = "temporary_registration"
-
-
-class PassportElementErrorTranslationFileType(str, enum.Enum):
-    """Type of element of the user's Telegram Passport which has the issue, one
-    of “passport”, “driver_license”, “identity_card”, “internal_passport”,
-    “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration”,
-    “temporary_registration”"""
-
-    PASSPORT = "passport"
-    DRIVER_LICENSE = "driver_license"
-    IDENTITY_CARD = "identity_card"
-    INTERNAL_PASSPORT = "internal_passport"
-    UTILITY_BILL = "utility_bill"
-    BANK_STATEMENT = "bank_statement"
-    RENTAL_AGREEMENT = "rental_agreement"
-    PASSPORT_REGISTRATION = "passport_registration"
-    TEMPORARY_REGISTRATION = "temporary_registration"
-
-
-class PassportElementErrorTranslationFilesType(str, enum.Enum):
-    """Type of element of the user's Telegram Passport which has the issue, one
-    of “passport”, “driver_license”, “identity_card”, “internal_passport”,
-    “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration”,
-    “temporary_registration”"""
-
-    PASSPORT = "passport"
-    DRIVER_LICENSE = "driver_license"
-    IDENTITY_CARD = "identity_card"
-    INTERNAL_PASSPORT = "internal_passport"
-    UTILITY_BILL = "utility_bill"
-    BANK_STATEMENT = "bank_statement"
-    RENTAL_AGREEMENT = "rental_agreement"
-    PASSPORT_REGISTRATION = "passport_registration"
-    TEMPORARY_REGISTRATION = "temporary_registration"
 
 
 class StickerFormat(str, enum.Enum):
