@@ -11,7 +11,7 @@ import typing
 
 from telegrinder.model import Model
 from telegrinder.msgspec_utils import Nothing
-from telegrinder.types import ContentType, Message, User
+from telegrinder.types import ContentType, DefaultUserColor, Message, User
 
 
 class _Message(Message):
@@ -38,6 +38,12 @@ class _Message(Message):
 
 
 class _User(User):
+    @property
+    def color(self) -> DefaultUserColor:
+        """User's or bot's color."""
+
+        return DefaultUserColor(self.id % 7)
+
     @property
     def full_name(self) -> str:
         """User's or bot's `first_name` + `last_name`."""

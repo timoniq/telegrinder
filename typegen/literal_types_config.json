@@ -1,0 +1,850 @@
+{
+    "objects": [
+        {
+            "name": "BotCommandScopeAllChatAdministrators",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "all_chat_administrators"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BotCommandScopeAllGroupChats",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "all_group_chats"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BotCommandScopeAllPrivateChats",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "all_private_chats"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BotCommandScopeChat",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "chat"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BotCommandScopeChatAdministrators",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "chat_administrators"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BotCommandScopeChatMember",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "chat_member"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BotCommandScopeDefault",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "default"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Chat",
+            "fields": [
+                {
+                    "name": "type",
+                    "enum": "ChatType"
+                }
+            ]
+        },
+        {
+            "name": "ChatBoostSourceGiftCode",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "gift_code"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ChatBoostSourceGiveaway",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "giveaway"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ChatBoostSourcePremium",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "premium"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ChatMemberAdministrator",
+            "fields": [
+                {
+                    "name": "status",
+                    "literals": [
+                        "administrator"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ChatMemberBanned",
+            "fields": [
+                {
+                    "name": "status",
+                    "literals": [
+                        "kicked"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ChatMemberLeft",
+            "fields": [
+                {
+                    "name": "status",
+                    "literals": [
+                        "left"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ChatMemberMember",
+            "fields": [
+                {
+                    "name": "status",
+                    "literals": [
+                        "member"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ChatMemberOwner",
+            "fields": [
+                {
+                    "name": "status",
+                    "literals": [
+                        "creator"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ChatMemberRestricted",
+            "fields": [
+                {
+                    "name": "status",
+                    "literals": [
+                        "restricted"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Dice",
+            "fields": [
+                {
+                    "name": "emoji",
+                    "enum": "DiceEmoji"
+                }
+            ]
+        },
+        {
+            "name": "EncryptedPassportElement",
+            "fields": [
+                {
+                    "name": "type",
+                    "enum": "EncryptedPassportElementType"
+                }
+            ]
+        },
+        {
+            "name": "ForumTopic",
+            "fields": [
+                {
+                    "name": "icon_color",
+                    "enum": "TopicIconColor"
+                }
+            ]
+        },
+        {
+            "name": "ForumTopicCreated",
+            "fields": [
+                {
+                    "name": "icon_color",
+                    "enum": "TopicIconColor"
+                }
+            ]
+        },
+        {
+            "name": "InlineQuery",
+            "fields": [
+                {
+                    "name": "chat_type",
+                    "enum": "ChatType"
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultArticle",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "article"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultAudio",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "audio"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultCachedAudio",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "audio"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultCachedDocument",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "document"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultCachedGif",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "gif"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultCachedMpeg4Gif",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "mpeg4_gif"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultCachedPhoto",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "photo"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultCachedSticker",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "sticker"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultCachedVideo",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "video"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultCachedVoice",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "voice"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultContact",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "contact"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultDocument",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "document"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultGame",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "game"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultGif",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "gif"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultLocation",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "location"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultMpeg4Gif",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "mpeg4_gif"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultPhoto",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "photo"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultVenue",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "venue"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultVideo",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "video"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InlineQueryResultVoice",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "voice"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InputMediaAnimation",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "animation"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InputMediaAudio",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "audio"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InputMediaDocument",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "document"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InputMediaPhoto",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "photo"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InputMediaVideo",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "video"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MenuButtonCommands",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "commands"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MenuButtonDefault",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "default"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MenuButtonWebApp",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "web_app"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MessageEntity",
+            "fields": [
+                {
+                    "name": "type",
+                    "enum": "MessageEntityType"
+                }
+            ]
+        },
+        {
+            "name": "MessageOriginChannel",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "channel"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MessageOriginChat",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "chat"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MessageOriginHiddenUser",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "hidden_user"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MessageOriginUser",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "user"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PassportElementErrorDataField",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "data"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "literals": [
+                        "passport",
+                        "driver_license",
+                        "identity_card",
+                        "internal_passport",
+                        "address"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PassportElementErrorFile",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "file"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "literals": [
+                        "utility_bill",
+                        "bank_statement",
+                        "rental_agreement",
+                        "passport_registration",
+                        "temporary_registration"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PassportElementErrorFiles",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "files"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "literals": [
+                        "utility_bill",
+                        "bank_statement",
+                        "rental_agreement",
+                        "passport_registration",
+                        "temporary_registration"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PassportElementErrorFrontSide",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "front_side"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "literals": [
+                        "passport",
+                        "driver_license",
+                        "identity_card",
+                        "internal_passport"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PassportElementErrorReverseSide",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "reverse_side"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "literals": [
+                        "driver_license",
+                        "identity_card"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PassportElementErrorSelfie",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "selfie"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "literals": [
+                        "passport",
+                        "driver_license",
+                        "identity_card",
+                        "internal_passport"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PassportElementErrorTranslationFile",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "translation_file"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "literals": [
+                        "passport",
+                        "driver_license",
+                        "identity_card",
+                        "internal_passport",
+                        "utility_bill",
+                        "bank_statement",
+                        "rental_agreement",
+                        "passport_registration",
+                        "temporary_registration"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PassportElementErrorTranslationFiles",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "translation_files"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "literals": [
+                        "passport",
+                        "driver_license",
+                        "identity_card",
+                        "internal_passport",
+                        "utility_bill",
+                        "bank_statement",
+                        "rental_agreement",
+                        "passport_registration",
+                        "temporary_registration"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PassportElementErrorUnspecified",
+            "fields": [
+                {
+                    "name": "source",
+                    "literals": [
+                        "unspecified"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "enum": "EncryptedPassportElementType"
+                }
+            ]
+        },
+        {
+            "name": "Pool",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "regular",
+                        "quiz"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ReactionTypeCustomEmoji",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "custom_emoji"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ReactionTypeEmoji",
+            "fields": [
+                {
+                    "name": "emoji",
+                    "enum": "ReactionEmoji"
+                }
+            ]
+        },
+        {
+            "name": "ReactionTypeEmoji",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "emoji"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Sticker",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "regular",
+                        "mask",
+                        "custom_emoji"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "StickerSet",
+            "fields": [
+                {
+                    "name": "sticker_type",
+                    "literals": [
+                        "regular",
+                        "mask",
+                        "custom_emoji"
+                    ]
+                }
+            ]
+        }
+    ]
+}

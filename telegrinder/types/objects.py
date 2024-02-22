@@ -8,7 +8,7 @@ from telegrinder.types.enums import *  # noqa: F403
 
 
 class ReactionType(Model):
-    """Object `ReactionType`, see the [documentation](https://core.telegram.org/bots/api#reactiontype)
+    """Base object `ReactionType`, see the [documentation](https://core.telegram.org/bots/api#reactiontype)
 
     This object describes the type of a reaction. Currently, it can be one of
     - ReactionTypeEmoji
@@ -16,7 +16,7 @@ class ReactionType(Model):
 
 
 class PassportElementError(Model):
-    """Object `PassportElementError`, see the [documentation](https://core.telegram.org/bots/api#passportelementerror)
+    """Base object `PassportElementError`, see the [documentation](https://core.telegram.org/bots/api#passportelementerror)
 
     This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
     - PassportElementErrorDataField
@@ -31,7 +31,7 @@ class PassportElementError(Model):
 
 
 class MessageOrigin(Model):
-    """Object `MessageOrigin`, see the [documentation](https://core.telegram.org/bots/api#messageorigin)
+    """Base object `MessageOrigin`, see the [documentation](https://core.telegram.org/bots/api#messageorigin)
 
     This object describes the origin of a message. It can be one of
     - MessageOriginUser
@@ -41,7 +41,7 @@ class MessageOrigin(Model):
 
 
 class MaybeInaccessibleMessage(Model):
-    """Object `MaybeInaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#maybeinaccessiblemessage)
+    """Base object `MaybeInaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#maybeinaccessiblemessage)
 
     This object describes a message that can be inaccessible to the bot. It can be one of
     - Message
@@ -49,7 +49,7 @@ class MaybeInaccessibleMessage(Model):
 
 
 class MenuButton(Model):
-    """Object `MenuButton`, see the [documentation](https://core.telegram.org/bots/api#menubutton)
+    """Base object `MenuButton`, see the [documentation](https://core.telegram.org/bots/api#menubutton)
 
     This object describes the bot's menu button in a private chat. It should be one of
     - MenuButtonCommands
@@ -60,7 +60,7 @@ class MenuButton(Model):
 
 
 class InputMessageContent(Model):
-    """Object `InputMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputmessagecontent)
+    """Base object `InputMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputmessagecontent)
 
     This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
     - InputTextMessageContent
@@ -71,7 +71,7 @@ class InputMessageContent(Model):
 
 
 class InputMedia(Model):
-    """Object `InputMedia`, see the [documentation](https://core.telegram.org/bots/api#inputmedia)
+    """Base object `InputMedia`, see the [documentation](https://core.telegram.org/bots/api#inputmedia)
 
     This object represents the content of a media message to be sent. It should be one of
     - InputMediaAnimation
@@ -82,7 +82,7 @@ class InputMedia(Model):
 
 
 class InlineQueryResult(Model):
-    """Object `InlineQueryResult`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresult)
+    """Base object `InlineQueryResult`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresult)
 
     This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
     - InlineQueryResultCachedAudio
@@ -110,7 +110,7 @@ class InlineQueryResult(Model):
 
 
 class ChatMember(Model):
-    """Object `ChatMember`, see the [documentation](https://core.telegram.org/bots/api#chatmember)
+    """Base object `ChatMember`, see the [documentation](https://core.telegram.org/bots/api#chatmember)
 
     This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
     - ChatMemberOwner
@@ -122,7 +122,7 @@ class ChatMember(Model):
 
 
 class ChatBoostSource(Model):
-    """Object `ChatBoostSource`, see the [documentation](https://core.telegram.org/bots/api#chatboostsource)
+    """Base object `ChatBoostSource`, see the [documentation](https://core.telegram.org/bots/api#chatboostsource)
 
     This object describes the source of a chat boost. It can be one of
     - ChatBoostSourcePremium
@@ -131,7 +131,7 @@ class ChatBoostSource(Model):
 
 
 class BotCommandScope(Model):
-    """Object `BotCommandScope`, see the [documentation](https://core.telegram.org/bots/api#botcommandscope)
+    """Base object `BotCommandScope`, see the [documentation](https://core.telegram.org/bots/api#botcommandscope)
 
     This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
     - BotCommandScopeDefault
@@ -275,7 +275,7 @@ class WebhookInfo(Model):
 
 
 class User(Model):
-    """Object `User`, see the [documentation](https://core.telegram.org/bots/api#user)
+    """User object `User`, see the [documentation](https://core.telegram.org/bots/api#user)
 
     This object represents a Telegram user or bot."""
 
@@ -315,6 +315,12 @@ class User(Model):
 
     supports_inline_queries: Option[bool] = Nothing
     """Optional. True, if the bot supports inline queries. Returned only in getMe."""
+
+    @property
+    def color(self) -> DefaultUserColor:
+        """User's or bot's color."""
+
+        return DefaultUserColor(self.id % 7)
 
     @property
     def full_name(self) -> str:
@@ -359,7 +365,9 @@ class Chat(Model):
     """Optional. If non-empty, the list of all active chat usernames; for private 
     chats, supergroups and channels. Returned only in getChat."""
 
-    available_reactions: Option[list["ReactionType"]] = Nothing
+    available_reactions: Option[
+        list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]
+    ] = Nothing
     """Optional. List of available reactions allowed in the chat. If omitted, 
     then all emoji reactions are allowed. Returned only in getChat."""
 
@@ -480,7 +488,7 @@ class Chat(Model):
 
 
 class Message(MaybeInaccessibleMessage):
-    """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message)
+    """Message object `Message`, see the [documentation](https://core.telegram.org/bots/api#message)
 
     This object represents a message."""
 
@@ -805,7 +813,7 @@ class MessageId(Model):
 
 
 class InaccessibleMessage(Model):
-    """Object `InaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#inaccessiblemessage)
+    """Model object `InaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#inaccessiblemessage)
 
     This object describes a message that was deleted or is otherwise inaccessible to the bot.
     """
@@ -1010,7 +1018,7 @@ class MessageOriginUser(MessageOrigin):
 
     The message was originally sent by a known user."""
 
-    type: MessageOriginType
+    type: typing.Literal["user"]
     """Type of the message origin, always `user`."""
 
     date: int
@@ -1025,7 +1033,7 @@ class MessageOriginHiddenUser(MessageOrigin):
 
     The message was originally sent by an unknown user."""
 
-    type: MessageOriginType
+    type: typing.Literal["hidden_user"]
     """Type of the message origin, always `hidden_user`."""
 
     date: int
@@ -1040,7 +1048,7 @@ class MessageOriginChat(MessageOrigin):
 
     The message was originally sent on behalf of a chat to a group chat."""
 
-    type: str
+    type: typing.Literal["chat"]
     """Type of the message origin, always `chat`."""
 
     date: int
@@ -1059,7 +1067,7 @@ class MessageOriginChannel(MessageOrigin):
 
     The message was originally sent to a channel chat."""
 
-    type: str
+    type: typing.Literal["channel"]
     """Type of the message origin, always `channel`."""
 
     date: int
@@ -1533,7 +1541,7 @@ class ForumTopicCreated(Model):
     name: str
     """Name of the topic."""
 
-    icon_color: int
+    icon_color: TopicIconColor
     """Color of the topic icon in RGB format."""
 
     icon_custom_emoji_id: Option[str] = Nothing
@@ -2364,7 +2372,7 @@ class ChatMemberOwner(ChatMember):
 
     Represents a chat member that owns the chat and has all administrator privileges."""
 
-    status: typing.Literal[ChatMemberStatus.CREATOR]
+    status: typing.Literal["creator"]
     """The member's status in the chat, always `creator`."""
 
     user: "User"
@@ -2382,7 +2390,7 @@ class ChatMemberAdministrator(ChatMember):
 
     Represents a chat member that has some additional privileges."""
 
-    status: typing.Literal[ChatMemberStatus.ADMINISTRATOR]
+    status: typing.Literal["administrator"]
     """The member's status in the chat, always `administrator`."""
 
     user: "User"
@@ -2454,7 +2462,7 @@ class ChatMemberMember(ChatMember):
 
     Represents a chat member that has no additional privileges or restrictions."""
 
-    status: typing.Literal[ChatMemberStatus.MEMBER]
+    status: typing.Literal["member"]
     """The member's status in the chat, always `member`."""
 
     user: "User"
@@ -2467,7 +2475,7 @@ class ChatMemberRestricted(ChatMember):
     Represents a chat member that is under certain restrictions in the chat. Supergroups only.
     """
 
-    status: typing.Literal[ChatMemberStatus.RESTRICTED]
+    status: typing.Literal["restricted"]
     """The member's status in the chat, always `restricted`."""
 
     user: "User"
@@ -2531,7 +2539,7 @@ class ChatMemberLeft(ChatMember):
     Represents a chat member that isn't currently a member of the chat, but may join it themselves.
     """
 
-    status: typing.Literal[ChatMemberStatus.LEFT]
+    status: typing.Literal["left"]
     """The member's status in the chat, always `left`."""
 
     user: "User"
@@ -2544,7 +2552,7 @@ class ChatMemberBanned(ChatMember):
     Represents a chat member that was banned in the chat and can't return to the chat or view chat messages.
     """
 
-    status: typing.Literal[ChatMemberStatus.KICKED]
+    status: typing.Literal["kicked"]
     """The member's status in the chat, always `kicked`."""
 
     user: "User"
@@ -2655,10 +2663,10 @@ class ReactionTypeEmoji(ReactionType):
 
     The reaction is based on an emoji."""
 
-    type: typing.Literal[ReactionTypeType.EMOJI]
+    type: typing.Literal["emoji"]
     """Type of the reaction, always `emoji`."""
 
-    emoji: str
+    emoji: ReactionEmoji
     """Reaction emoji. Currently, it can be one of `👍`, `👎`, `❤`, `🔥`, `🥰`, `👏`, 
     `😁`, `🤔`, `🤯`, `😱`, `🤬`, `😢`, `🎉`, `🤩`, `🤮`, `💩`, `🙏`, `👌`, `🕊`, `🤡`, `🥱`, 
     `🥴`, `😍`, `🐳`, `❤‍🔥`, `🌚`, `🌭`, `💯`, `🤣`, `⚡`, `🍌`, `🏆`, `💔`, `🤨`, `😐`, `🍓`, 
@@ -2672,7 +2680,7 @@ class ReactionTypeCustomEmoji(ReactionType):
 
     The reaction is based on a custom emoji."""
 
-    type: typing.Literal[ReactionTypeType.CUSTOM_EMOJI]
+    type: typing.Literal["custom_emoji"]
     """Type of the reaction, always `custom_emoji`."""
 
     custom_emoji_id: str
@@ -2706,10 +2714,10 @@ class MessageReactionUpdated(Model):
     date: int
     """Date of the change in Unix time."""
 
-    old_reaction: list["ReactionType"]
+    old_reaction: list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]
     """Previous list of reaction types that were set by the user."""
 
-    new_reaction: list["ReactionType"]
+    new_reaction: list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]
     """New list of reaction types that have been set by the user."""
 
     user: Option["User"] = Nothing
@@ -2749,7 +2757,7 @@ class ForumTopic(Model):
     name: str
     """Name of the topic."""
 
-    icon_color: int
+    icon_color: TopicIconColor
     """Color of the topic icon in RGB format."""
 
     icon_custom_emoji_id: Option[str] = Nothing
@@ -2775,7 +2783,7 @@ class BotCommandScopeDefault(BotCommandScope):
     Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
     """
 
-    type: typing.Literal[BotCommandScopeType.DEFAULT]
+    type: typing.Literal["default"]
     """Scope type, must be default."""
 
 
@@ -2784,7 +2792,7 @@ class BotCommandScopeAllPrivateChats(BotCommandScope):
 
     Represents the scope of bot commands, covering all private chats."""
 
-    type: typing.Literal[BotCommandScopeType.ALL_PRIVATE_CHATS]
+    type: typing.Literal["all_private_chats"]
     """Scope type, must be all_private_chats."""
 
 
@@ -2793,7 +2801,7 @@ class BotCommandScopeAllGroupChats(BotCommandScope):
 
     Represents the scope of bot commands, covering all group and supergroup chats."""
 
-    type: typing.Literal[BotCommandScopeType.ALL_GROUP_CHATS]
+    type: typing.Literal["all_group_chats"]
     """Scope type, must be all_group_chats."""
 
 
@@ -2803,7 +2811,7 @@ class BotCommandScopeAllChatAdministrators(BotCommandScope):
     Represents the scope of bot commands, covering all group and supergroup chat administrators.
     """
 
-    type: typing.Literal[BotCommandScopeType.ALL_CHAT_ADMINISTRATORS]
+    type: typing.Literal["all_chat_administrators"]
     """Scope type, must be all_chat_administrators."""
 
 
@@ -2812,7 +2820,7 @@ class BotCommandScopeChat(BotCommandScope):
 
     Represents the scope of bot commands, covering a specific chat."""
 
-    type: typing.Literal[BotCommandScopeType.CHAT]
+    type: typing.Literal["chat"]
     """Scope type, must be chat."""
 
     chat_id: Variative[int, str]
@@ -2826,7 +2834,7 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
     Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
     """
 
-    type: typing.Literal[BotCommandScopeType.CHAT_ADMINISTRATORS]
+    type: typing.Literal["chat_administrators"]
     """Scope type, must be chat_administrators."""
 
     chat_id: Variative[int, str]
@@ -2840,7 +2848,7 @@ class BotCommandScopeChatMember(BotCommandScope):
     Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
     """
 
-    type: typing.Literal[BotCommandScopeType.CHAT_MEMBER]
+    type: typing.Literal["chat_member"]
     """Scope type, must be chat_member."""
 
     chat_id: Variative[int, str]
@@ -2883,7 +2891,7 @@ class MenuButtonCommands(MenuButton):
 
     Represents a menu button, which opens the bot's list of commands."""
 
-    type: MenuButtonType
+    type: typing.Literal["commands"]
     """Type of the button, must be commands."""
 
 
@@ -2892,7 +2900,7 @@ class MenuButtonWebApp(MenuButton):
 
     Represents a menu button, which launches a Web App."""
 
-    type: MenuButtonType
+    type: typing.Literal["web_app"]
     """Type of the button, must be web_app."""
 
     text: str
@@ -2909,7 +2917,7 @@ class MenuButtonDefault(MenuButton):
 
     Describes that no specific value for the menu button was set."""
 
-    type: MenuButtonType
+    type: typing.Literal["default"]
     """Type of the button, must be default."""
 
 
@@ -2919,7 +2927,7 @@ class ChatBoostSourcePremium(ChatBoostSource):
     The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user.
     """
 
-    source: typing.Literal[ChatBoostSourceType.PREMIUM]
+    source: typing.Literal["premium"]
     """Source of the boost, always `premium`."""
 
     user: "User"
@@ -2932,7 +2940,7 @@ class ChatBoostSourceGiftCode(ChatBoostSource):
     The boost was obtained by the creation of Telegram Premium gift codes to boost a chat. Each such code boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
     """
 
-    source: typing.Literal[ChatBoostSourceType.GIFT_CODE]
+    source: typing.Literal["gift_code"]
     """Source of the boost, always `gift_code`."""
 
     user: "User"
@@ -2945,7 +2953,7 @@ class ChatBoostSourceGiveaway(ChatBoostSource):
     The boost was obtained by the creation of a Telegram Premium giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
     """
 
-    source: typing.Literal[ChatBoostSourceType.GIVEAWAY]
+    source: typing.Literal["giveaway"]
     """Source of the boost, always `giveaway`."""
 
     giveaway_message_id: int
@@ -3044,7 +3052,7 @@ class InputMediaPhoto(InputMedia):
 
     Represents a photo to be sent."""
 
-    type: typing.Literal[InputMediaType.PHOTO]
+    type: typing.Literal["photo"]
     """Type of the result, must be photo."""
 
     media: str
@@ -3074,7 +3082,7 @@ class InputMediaVideo(InputMedia):
 
     Represents a video to be sent."""
 
-    type: typing.Literal[InputMediaType.VIDEO]
+    type: typing.Literal["video"]
     """Type of the result, must be video."""
 
     media: str
@@ -3126,7 +3134,7 @@ class InputMediaAnimation(InputMedia):
     Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
     """
 
-    type: typing.Literal[InputMediaType.ANIMATION]
+    type: typing.Literal["animation"]
     """Type of the result, must be animation."""
 
     media: str
@@ -3174,7 +3182,7 @@ class InputMediaAudio(InputMedia):
 
     Represents an audio file to be treated as music to be sent."""
 
-    type: typing.Literal[InputMediaType.AUDIO]
+    type: typing.Literal["audio"]
     """Type of the result, must be audio."""
 
     media: str
@@ -3219,7 +3227,7 @@ class InputMediaDocument(InputMedia):
 
     Represents a general file to be sent."""
 
-    type: typing.Literal[InputMediaType.DOCUMENT]
+    type: typing.Literal["document"]
     """Type of the result, must be document."""
 
     media: str
@@ -3256,7 +3264,7 @@ class InputMediaDocument(InputMedia):
 
 
 class InputFile(typing.NamedTuple):
-    """Object `InputFile`, see the [documentation](https://core.telegram.org/bots/api#inputfile)
+    """NamedTuple object `InputFile`, see the [documentation](https://core.telegram.org/bots/api#inputfile)
 
     This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
     """
@@ -3280,7 +3288,7 @@ class Sticker(Model):
     """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
-    type: str
+    type: typing.Literal["regular", "mask", "custom_emoji"]
     """Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`. 
     The type of the sticker is independent from its format, which is determined 
     by the fields is_animated and is_video."""
@@ -3335,7 +3343,7 @@ class StickerSet(Model):
     title: str
     """Sticker set title."""
 
-    sticker_type: str
+    sticker_type: typing.Literal["regular", "mask", "custom_emoji"]
     """Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`."""
 
     is_animated: bool
@@ -3461,7 +3469,7 @@ class InlineQueryResultArticle(InlineQueryResult):
 
     Represents a link to an article or web page."""
 
-    type: typing.Literal[InlineQueryResultType.ARTICLE]
+    type: typing.Literal["article"]
     """Type of the result, must be article."""
 
     id: str
@@ -3507,7 +3515,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
     """
 
-    type: typing.Literal[InlineQueryResultType.PHOTO]
+    type: typing.Literal["photo"]
     """Type of the result, must be photo."""
 
     id: str
@@ -3565,7 +3573,7 @@ class InlineQueryResultGif(InlineQueryResult):
     Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
 
-    type: typing.Literal[InlineQueryResultType.GIF]
+    type: typing.Literal["gif"]
     """Type of the result, must be gif."""
 
     id: str
@@ -3626,7 +3634,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
 
-    type: typing.Literal[InlineQueryResultType.MPEG4_GIF]
+    type: typing.Literal["mpeg4_gif"]
     """Type of the result, must be mpeg4_gif."""
 
     id: str
@@ -3687,7 +3695,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
     """
 
-    type: typing.Literal[InlineQueryResultType.VIDEO]
+    type: typing.Literal["video"]
     """Type of the result, must be video."""
 
     id: str
@@ -3752,7 +3760,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
     """
 
-    type: typing.Literal[InlineQueryResultType.AUDIO]
+    type: typing.Literal["audio"]
     """Type of the result, must be audio."""
 
     id: str
@@ -3802,7 +3810,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
     """
 
-    type: typing.Literal[InlineQueryResultType.VOICE]
+    type: typing.Literal["voice"]
     """Type of the result, must be voice."""
 
     id: str
@@ -3849,7 +3857,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.
     """
 
-    type: typing.Literal[InlineQueryResultType.DOCUMENT]
+    type: typing.Literal["document"]
     """Type of the result, must be document."""
 
     id: str
@@ -3909,7 +3917,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
     """
 
-    type: typing.Literal[InlineQueryResultType.LOCATION]
+    type: typing.Literal["location"]
     """Type of the result, must be location."""
 
     id: str
@@ -3971,7 +3979,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
     """
 
-    type: typing.Literal[InlineQueryResultType.VENUE]
+    type: typing.Literal["venue"]
     """Type of the result, must be venue."""
 
     id: str
@@ -4032,7 +4040,7 @@ class InlineQueryResultContact(InlineQueryResult):
     Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.
     """
 
-    type: typing.Literal[InlineQueryResultType.CONTACT]
+    type: typing.Literal["contact"]
     """Type of the result, must be contact."""
 
     id: str
@@ -4080,7 +4088,7 @@ class InlineQueryResultGame(InlineQueryResult):
 
     Represents a Game."""
 
-    type: typing.Literal[InlineQueryResultType.GAME]
+    type: typing.Literal["game"]
     """Type of the result, must be game."""
 
     id: str
@@ -4099,7 +4107,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
     """
 
-    type: typing.Literal[InlineQueryResultType.PHOTO]
+    type: typing.Literal["photo"]
     """Type of the result, must be photo."""
 
     id: str
@@ -4147,7 +4155,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
     """
 
-    type: typing.Literal[InlineQueryResultType.GIF]
+    type: typing.Literal["gif"]
     """Type of the result, must be gif."""
 
     id: str
@@ -4192,7 +4200,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
 
-    type: typing.Literal[InlineQueryResultType.MPEG4_GIF]
+    type: typing.Literal["mpeg4_gif"]
     """Type of the result, must be mpeg4_gif."""
 
     id: str
@@ -4237,7 +4245,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.
     """
 
-    type: typing.Literal[InlineQueryResultType.STICKER]
+    type: typing.Literal["sticker"]
     """Type of the result, must be sticker."""
 
     id: str
@@ -4267,7 +4275,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
     """
 
-    type: typing.Literal[InlineQueryResultType.DOCUMENT]
+    type: typing.Literal["document"]
     """Type of the result, must be document."""
 
     id: str
@@ -4315,7 +4323,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
     """
 
-    type: typing.Literal[InlineQueryResultType.VIDEO]
+    type: typing.Literal["video"]
     """Type of the result, must be video."""
 
     id: str
@@ -4363,7 +4371,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
     """
 
-    type: typing.Literal[InlineQueryResultType.VOICE]
+    type: typing.Literal["voice"]
     """Type of the result, must be voice."""
 
     id: str
@@ -4407,7 +4415,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
     """
 
-    type: typing.Literal[InlineQueryResultType.AUDIO]
+    type: typing.Literal["audio"]
     """Type of the result, must be audio."""
 
     id: str
@@ -4953,15 +4961,11 @@ class PassportElementErrorDataField(PassportElementError):
     Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
     """
 
-    source: typing.Literal[PassportElementErrorType.DATA]
+    source: typing.Literal["data"]
     """Error source, must be data."""
 
     type: typing.Literal[
-        EncryptedPassportElementType.PASSPORT,
-        EncryptedPassportElementType.DRIVER_LICENSE,
-        EncryptedPassportElementType.IDENTITY_CARD,
-        EncryptedPassportElementType.INTERNAL_PASSPORT,
-        EncryptedPassportElementType.ADDRESS,
+        "passport", "driver_license", "identity_card", "internal_passport", "address"
     ]
     """The section of the user's Telegram Passport which has the error, one of `personal_details`, 
     `passport`, `driver_license`, `identity_card`, `internal_passport`, 
@@ -4983,14 +4987,11 @@ class PassportElementErrorFrontSide(PassportElementError):
     Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes.
     """
 
-    source: typing.Literal[PassportElementErrorType.FRONT_SIDE]
+    source: typing.Literal["front_side"]
     """Error source, must be front_side."""
 
     type: typing.Literal[
-        EncryptedPassportElementType.PASSPORT,
-        EncryptedPassportElementType.DRIVER_LICENSE,
-        EncryptedPassportElementType.IDENTITY_CARD,
-        EncryptedPassportElementType.INTERNAL_PASSPORT,
+        "passport", "driver_license", "identity_card", "internal_passport"
     ]
     """The section of the user's Telegram Passport which has the issue, one of `passport`, 
     `driver_license`, `identity_card`, `internal_passport`."""
@@ -5008,13 +5009,10 @@ class PassportElementErrorReverseSide(PassportElementError):
     Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes.
     """
 
-    source: typing.Literal[PassportElementErrorType.REVERSE_SIDE]
+    source: typing.Literal["reverse_side"]
     """Error source, must be reverse_side."""
 
-    type: typing.Literal[
-        EncryptedPassportElementType.DRIVER_LICENSE,
-        EncryptedPassportElementType.IDENTITY_CARD,
-    ]
+    type: typing.Literal["driver_license", "identity_card"]
     """The section of the user's Telegram Passport which has the issue, one of `driver_license`, 
     `identity_card`."""
 
@@ -5031,14 +5029,11 @@ class PassportElementErrorSelfie(PassportElementError):
     Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes.
     """
 
-    source: typing.Literal[PassportElementErrorType.SELFIE]
+    source: typing.Literal["selfie"]
     """Error source, must be selfie."""
 
     type: typing.Literal[
-        EncryptedPassportElementType.PASSPORT,
-        EncryptedPassportElementType.DRIVER_LICENSE,
-        EncryptedPassportElementType.IDENTITY_CARD,
-        EncryptedPassportElementType.INTERNAL_PASSPORT,
+        "passport", "driver_license", "identity_card", "internal_passport"
     ]
     """The section of the user's Telegram Passport which has the issue, one of `passport`, 
     `driver_license`, `identity_card`, `internal_passport`."""
@@ -5056,15 +5051,15 @@ class PassportElementErrorFile(PassportElementError):
     Represents an issue with a document scan. The error is considered resolved when the file with the document scan changes.
     """
 
-    source: typing.Literal[PassportElementErrorType.FILE]
+    source: typing.Literal["file"]
     """Error source, must be file."""
 
     type: typing.Literal[
-        EncryptedPassportElementType.UTILITY_BILL,
-        EncryptedPassportElementType.BANK_STATEMENT,
-        EncryptedPassportElementType.RENTAL_AGREEMENT,
-        EncryptedPassportElementType.PASSPORT_REGISTRATION,
-        EncryptedPassportElementType.TEMPORARY_REGISTRATION,
+        "utility_bill",
+        "bank_statement",
+        "rental_agreement",
+        "passport_registration",
+        "temporary_registration",
     ]
     """The section of the user's Telegram Passport which has the issue, one of `utility_bill`, 
     `bank_statement`, `rental_agreement`, `passport_registration`, 
@@ -5083,15 +5078,15 @@ class PassportElementErrorFiles(PassportElementError):
     Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes.
     """
 
-    source: typing.Literal[PassportElementErrorType.FILES]
+    source: typing.Literal["files"]
     """Error source, must be files."""
 
     type: typing.Literal[
-        EncryptedPassportElementType.UTILITY_BILL,
-        EncryptedPassportElementType.BANK_STATEMENT,
-        EncryptedPassportElementType.RENTAL_AGREEMENT,
-        EncryptedPassportElementType.PASSPORT_REGISTRATION,
-        EncryptedPassportElementType.TEMPORARY_REGISTRATION,
+        "utility_bill",
+        "bank_statement",
+        "rental_agreement",
+        "passport_registration",
+        "temporary_registration",
     ]
     """The section of the user's Telegram Passport which has the issue, one of `utility_bill`, 
     `bank_statement`, `rental_agreement`, `passport_registration`, 
@@ -5110,19 +5105,19 @@ class PassportElementErrorTranslationFile(PassportElementError):
     Represents an issue with one of the files that constitute the translation of a document. The error is considered resolved when the file changes.
     """
 
-    source: typing.Literal[PassportElementErrorType.TRANSLATION_FILE]
+    source: typing.Literal["translation_file"]
     """Error source, must be translation_file."""
 
     type: typing.Literal[
-        EncryptedPassportElementType.PASSPORT,
-        EncryptedPassportElementType.DRIVER_LICENSE,
-        EncryptedPassportElementType.IDENTITY_CARD,
-        EncryptedPassportElementType.INTERNAL_PASSPORT,
-        EncryptedPassportElementType.UTILITY_BILL,
-        EncryptedPassportElementType.BANK_STATEMENT,
-        EncryptedPassportElementType.RENTAL_AGREEMENT,
-        EncryptedPassportElementType.PASSPORT_REGISTRATION,
-        EncryptedPassportElementType.TEMPORARY_REGISTRATION,
+        "passport",
+        "driver_license",
+        "identity_card",
+        "internal_passport",
+        "utility_bill",
+        "bank_statement",
+        "rental_agreement",
+        "passport_registration",
+        "temporary_registration",
     ]
     """Type of element of the user's Telegram Passport which has the issue, one 
     of `passport`, `driver_license`, `identity_card`, `internal_passport`, 
@@ -5142,19 +5137,19 @@ class PassportElementErrorTranslationFiles(PassportElementError):
     Represents an issue with the translated version of a document. The error is considered resolved when a file with the document translation change.
     """
 
-    source: typing.Literal[PassportElementErrorType.TRANSLATION_FILES]
+    source: typing.Literal["translation_files"]
     """Error source, must be translation_files."""
 
     type: typing.Literal[
-        EncryptedPassportElementType.PASSPORT,
-        EncryptedPassportElementType.DRIVER_LICENSE,
-        EncryptedPassportElementType.IDENTITY_CARD,
-        EncryptedPassportElementType.INTERNAL_PASSPORT,
-        EncryptedPassportElementType.UTILITY_BILL,
-        EncryptedPassportElementType.BANK_STATEMENT,
-        EncryptedPassportElementType.RENTAL_AGREEMENT,
-        EncryptedPassportElementType.PASSPORT_REGISTRATION,
-        EncryptedPassportElementType.TEMPORARY_REGISTRATION,
+        "passport",
+        "driver_license",
+        "identity_card",
+        "internal_passport",
+        "utility_bill",
+        "bank_statement",
+        "rental_agreement",
+        "passport_registration",
+        "temporary_registration",
     ]
     """Type of element of the user's Telegram Passport which has the issue, one 
     of `passport`, `driver_license`, `identity_card`, `internal_passport`, 
@@ -5174,7 +5169,7 @@ class PassportElementErrorUnspecified(PassportElementError):
     Represents an issue in an unspecified place. The error is considered resolved when new data is added.
     """
 
-    source: typing.Literal[PassportElementErrorType.UNSPECIFIED]
+    source: typing.Literal["unspecified"]
     """Error source, must be unspecified."""
 
     type: EncryptedPassportElementType

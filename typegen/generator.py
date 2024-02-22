@@ -96,8 +96,8 @@ def convert_schema_to_model(schema_json: "SchemaJson", model: type[ModelT]) -> M
     return schema
 
 
-def read_enum_ref_config(path: str | None = None) -> dict:
-    path = path or MAIN_DIR + "/enum_ref_config.json"
+def read_literal_types_cfg(path: str | None = None) -> dict[typing.Literal["objects"], list["ObjectLiteralTypesConfig"]]:
+    path = path or MAIN_DIR + "/literal_types_config.json"
     with open(path, mode="r", encoding="UTF-8") as f:
         return JSON_DECODER.decode(f.read())
 
@@ -110,27 +110,27 @@ class SchemaJson(typing.TypedDict, total=True):
     types: typing.NotRequired[list[dict[str, typing.Any]]]
 
 
-class RefField(typing.TypedDict, total=True):
+class FieldLiteralTypes(typing.TypedDict, total=True):
     """Mapping containing field name, reference to enumeration and specific enumeration literals."""
 
-    field_name: str
+    name: str
     """Field name."""
 
-    reference: str
-    """Reference to enumeration."""
+    enum: typing.NotRequired[str]
+    """Optional. Reference to enumeration."""
 
-    specific_literals: typing.NotRequired[list[str]]
+    literals: typing.NotRequired[list[str | int]]
     """Optional. List with enumeration literals."""
 
 
-class EnumRefConfig(typing.TypedDict):
-    """References to enumerations in object fields."""
+class ObjectLiteralTypesConfig(typing.TypedDict):
+    """Configuration object fields literal types."""
 
-    object_name: str
+    name: str
     """Object name."""
 
-    reference_fields: list[RefField]
-    """Reference fields."""
+    fields: list[FieldLiteralTypes]
+    """Object fields."""
 
 
 class ABCGenerator(ABC):
@@ -144,7 +144,7 @@ class TypesGenerator(ABCGenerator):
         self,
         types: list[TypeSchema],
         nicification_path: str,
-        enum_ref_configs: list[EnumRefConfig] | None = None,
+        enum_ref_configs: list[ObjectLiteralTypesConfig] | None = None,
     ) -> None:
         self.types = types
         self.rename_field_names = {
@@ -152,55 +152,43 @@ class TypesGenerator(ABCGenerator):
         }
         self.nicification_path = nicification_path
         self.enum_ref_configs = enum_ref_configs or []
-        self.parent_types: dict[str, list[str]] = {}
+        self.parent_types: dict[str, list[str]] = {
+            t.name: t.subtypes for t in types if t.subtypes
+        }
 
-    def get_enum_ref_field(self, object_name: str, field_name: str) -> RefField | None:
+    def get_field_literal_types(self, object_name: str, field_name: str) -> FieldLiteralTypes | None:
         for cfg in self.enum_ref_configs:
-            if cfg["object_name"] == object_name:
-                for ref_field in cfg["reference_fields"]:
-                    if ref_field["field_name"] == field_name:
+            if cfg["name"] == object_name:
+                for ref_field in cfg["fields"]:
+                    if ref_field["name"] == field_name:
                         return ref_field
         return None
 
-    def make_field_type(self, field: Field, enum_ref_field: RefField | None = None) -> str:
+    def make_field_type(self, field: Field, literal_types: FieldLiteralTypes | None = None) -> str:
         code = f"{self.rename_field_names.get(field.name, field.name)}: "
 
-        if enum_ref_field is not None:
-            specific_literals = enum_ref_field.get("specific_literals")
-            enum_type_hint = (
-                "typing.Literal[%s]" % ", ".join(
-                    enum_ref_field["reference"]
-                    + "."
-                    + x.upper()
-                    for x in specific_literals
-                )
-                if specific_literals
-                else enum_ref_field["reference"]
+        if literal_types is not None and any(x in literal_types for x in ("literals", "enum")):
+            literal_type_hint = literal_types.get("enum") or "typing.Literal[%s]" % ", ".join(
+                f'"{x}"' if isinstance(x, str) else str(x)
+                for x in literal_types.get("literals", [])
             )
-            variative_types = (
-                f"list[{enum_type_hint}]"
+            field_type = (
+                f"list[{literal_type_hint}]"
                 if any("Array of" in x for x in field.types)
-                else enum_type_hint
+                else literal_type_hint
             )
         elif len(field.types) > 1:
-            variative_types = "Variative[%s]" % ", ".join(
-                convert_to_python_type(tp)
-                if tp not in self.parent_types
-                else "Variative[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
+            field_type = "Variative[%s]" % ", ".join(
+                convert_to_python_type(tp, self.parent_types)
                 for tp in field.types
             )
         else:
-            tp = field.types[0]
-            variative_types = (
-                convert_to_python_type(tp)
-                if tp not in self.parent_types
-                else "Variative[%s]" % ", ".join(f'"{p}"' for p in self.parent_types[tp])
-            )
+            field_type = convert_to_python_type(field.types[0], self.parent_types)
 
         if not field.required:
-            variative_types = f"Option[{variative_types}] = Nothing"
+            field_type = f"Option[{field_type}] = Nothing"
 
-        code += variative_types
+        code += field_type
         if field.description:
             description = field.description.replace('"', "`")
             sep = "\n" + TAB
@@ -219,14 +207,18 @@ class TypesGenerator(ABCGenerator):
     def make_type(self, tp_schema: TypeSchema) -> str:
         object_name = camel_to_pascal(tp_schema.name)
         base, nicifications = find_nicifications(object_name, self.nicification_path)
+        sybtypes_of = self.make_subtype_of(tp_schema.subtype_of)
         code = (
             f"class {camel_to_pascal(tp_schema.name)}"
-            f"({base if base and base != object_name else self.make_subtype_of(tp_schema.subtype_of)}):\n{TAB}"
+            f"({base if base and base != object_name else sybtypes_of}):\n{TAB}"
         )
         
         if tp_schema.description:
             description = (
-                f"Object `{object_name}`, see the [documentation]({tp_schema.href})"
+                (
+                    "Base object" if tp_schema.subtypes else "Object"
+                    if base is None else base.split(".")[-1] + " object"
+                ) + f" `{object_name}`, see the [documentation]({tp_schema.href})"
             )
             code += '"""%s\n\n%s\n"""' % (
                 description,
@@ -239,19 +231,17 @@ class TypesGenerator(ABCGenerator):
                 logger.warning(
                     f"Object {object_name!r} has not fields, subtypes and nicifications! :("
                 )
-            else:
-                self.parent_types[object_name] = tp_schema.subtypes
             code += f"{TAB}pass" if not tp_schema.description else ""
             return code
 
         if tp_schema.fields:
             code += TAB
-            for f in (
+            for field in (
                 *filter(lambda f: f.required, tp_schema.fields),
                 *filter(lambda f: not f.required, tp_schema.fields),
             ):
-                enum_ref_field = self.get_enum_ref_field(object_name, f.name)
-                code += f"\n{TAB}" + self.make_field_type(f, enum_ref_field)
+                literal_types = self.get_field_literal_types(object_name, field.name)
+                code += f"\n{TAB}" + self.make_field_type(field, literal_types)
 
         if nicifications:
             n = nicifications[0]
@@ -419,7 +409,7 @@ class MethodsGenerator(ABCGenerator):
 
 def generate(
     path: str | None = None,
-    enum_ref_cfg_path: str | None = None,
+    literal_types_cfg_path: str | None = None,
     types_generator: ABCGenerator | None = None,
     methods_generator: ABCGenerator | None = None,
 ) -> None:
@@ -430,11 +420,11 @@ def generate(
 
     if not types_generator or not methods_generator:
         schema = convert_schema_to_model(get_schema_json(), Schema)
-        enum_ref_cfg = read_enum_ref_config(enum_ref_cfg_path)
+        literal_types_cfg = read_literal_types_cfg(literal_types_cfg_path)
         types_generator = types_generator or TypesGenerator(
             schema.types,
             MAIN_DIR + "/nicifications.py",
-            enum_ref_cfg["objects"],  # type: ignore
+            literal_types_cfg["objects"],
         )
         methods_generator = methods_generator or MethodsGenerator(
             schema.methods,
@@ -463,14 +453,14 @@ def generate(
 
 __all__ = (
     "ABCGenerator",
-    "EnumRefConfig",
+    "ObjectLiteralTypesConfig",
     "MethodsGenerator",
-    "RefField",
+    "FieldLiteralTypes",
     "SchemaJson",
     "TypesGenerator",
     "convert_schema_to_model",
     "find_nicifications",
     "generate",
     "get_schema_json",
-    "read_enum_ref_config",
+    "read_literal_types_cfg",
 )

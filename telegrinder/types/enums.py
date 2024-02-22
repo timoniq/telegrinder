@@ -65,8 +65,118 @@ class ChatAction(str, enum.Enum):
     UPLOAD_VIDEO_NOTE = "upload_video_note"
 
 
+class ReactionEmoji(str, enum.Enum):
+    """Type of ReactionEmoji.
+
+    Currently, it can be one of `👍`, `👎`, `❤`, `🔥`, `🥰`, `👏`,
+    `😁`, `🤔`, `🤯`, `😱`, `🤬`, `😢`, `🎉`, `🤩`, `🤮`, `💩`, `🙏`, `👌`, `🕊`, `🤡`, `🥱`,
+    `🥴`, `😍`, `🐳`, `❤‍🔥`, `🌚`, `🌭`, `💯`, `🤣`, `⚡`, `🍌`, `🏆`, `💔`, `🤨`, `😐`, `🍓`,
+    `🍾`, `💋`, `🖕`, `😈`, `😴`, `😭`, `🤓`, `👻`, `👨‍💻`, `👀`, `🎃`, `🙈`, `😇`, `😨`, `🤝`,
+    `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`,
+    `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`.
+
+    Docs: https://core.telegram.org/bots/api#reactiontypeemoji"""
+
+    THUMBS_UP = "👍"
+    THUMBS_DOWN = "👎"
+    RED_HEART = "❤"
+    FIRE = "🔥"
+    SMILING_FACE_WITH_HEARTS = "🥰"
+    CLAPPING_HANDS = "👏"
+    BEAMING_FACE_WITH_SMILING_EYES = "😁"
+    THINKING_FACE = "🤔"
+    EXPLODING_HEAD = "🤯"
+    FACE_SCREAMING_IN_FEAR = "😱"
+    FACE_WITH_SYMBOLS_ON_MOUTH = "🤬"
+    CRYING_FACE = "😢"
+    PARTY_POPPER = "🎉"
+    STAR_STRUCK = "🤩"
+    FACE_VOMITING = "🤮"
+    PILE_OF_POO = "💩"
+    FOLDED_HANDS = "🙏"
+    OK_HAND = "👌"
+    DOVE = "🕊"
+    CLOWN_FACE = "🤡"
+    YAWNING_FACE = "🥱"
+    WOOZY_FACE = "🥴"
+    SMILING_FACE_WITH_HEART_EYES = "😍"
+    SPOUTING_WHALE = "🐳"
+    HEART_ON_FIRE = "❤‍🔥"
+    NEW_MOON_FACE = "🌚"
+    HOT_DOG = "🌭"
+    HUNDRED_POINTS = "💯"
+    ROLLING_ON_THE_FLOOR_LAUGHING = "🤣"
+    HIGH_VOLTAGE = "⚡"
+    BANANA = "🍌"
+    TROPHY = "🏆"
+    BROKEN_HEART = "💔"
+    FACE_WITH_RAISED_EYEBROW = "🤨"
+    NEUTRAL_FACE = "😐"
+    STRAWBERRY = "🍓"
+    BOTTLE_WITH_POPPING_CORK = "🍾"
+    KISS_MARK = "💋"
+    MIDDLE_FINGER = "🖕"
+    SMILING_FACE_WITH_HORNS = "😈"
+    SLEEPING_FACE = "😴"
+    LOUDLY_CRYING_FACE = "😭"
+    NERD_FACE = "🤓"
+    GHOST = "👻"
+    MAN_TECHNOLOGIST = "👨‍💻"
+    EYES = "👀"
+    JACK_O_LANTERN = "🎃"
+    SEE_NO_EVIL_MONKEY = "🙈"
+    SMILING_FACE_WITH_HALO = "😇"
+    FEARFUL_FACE = "😨"
+    HANDSHAKE = "🤝"
+    WRITING_HAND = "✍"
+    SMILING_FACE_WITH_OPEN_HANDS = "🤗"
+    SALUTING_FACE = "🫡"
+    SANTA_CLAUS = "🎅"
+    CHRISTMAS_TREE = "🎄"
+    SNOWMAN = "☃"
+    NAIL_POLISH = "💅"
+    ZANY_FACE = "🤪"
+    MOAI = "🗿"
+    COOL_BUTTON = "🆒"
+    HEART_WITH_ARROW = "💘"
+    HEAR_NO_EVIL_MONKEY = "🙉"
+    UNICORN = "🦄"
+    FACE_BLOWING_A_KISS = "😘"
+    PILL = "💊"
+    SPEAK_NO_EVIL_MONKEY = "🙊"
+    SMILING_FACE_WITH_SUNGLASSES = "😎"
+    ALIEN_MONSTER = "👾"
+    MAN_SHRUGGING = "🤷‍♂"
+    PERSON_SHRUGGING = "🤷"
+    WOMAN_SHRUGGING = "🤷‍♀"
+    ENRAGED_FACE = "😡"
+
+
+class DefaultUserColor(int, enum.Enum):
+    """Type of DefaultUserColor.
+
+    One of 7 possible user colors:
+    - red
+    - orange
+    - purple
+    - green
+    - cyan
+    - blue
+    - pink
+    """
+
+    RED = 0
+    ORANGE = 1
+    PURPLE = 2
+    GREEN = 3
+    CYAN = 4
+    BLUE = 5
+    PINK = 6
+
+
 class TopicIconColor(int, enum.Enum):
     """Type of TopicIconColor.
+
     Docs: https://github.com/telegramdesktop/tdesktop/blob/991fe491c5ae62705d77aa8fdd44a79caf639c45/Telegram/SourceFiles/data/data_forum_topic.cpp#L51-L56
     """
 
