@@ -16,6 +16,7 @@ from telegrinder.msgspec_utils import Option
 from telegrinder.types.objects import Update
 
 EventType = typing.TypeVar("EventType", bound=BaseCute)
+MiddlewareT = typing.TypeVar("MiddlewareT", bound=ABCMiddleware)
 
 
 class ABCView(ABC):
@@ -60,16 +61,12 @@ class BaseView(ABCView, typing.Generic[EventType]):
         return Nothing()
     
     @classmethod
-    def get_event_raw(cls, update: Update) -> Option[Model]:
-        match cls.get_event_type():
-            case Some(event_type):
-                for field in update.__struct_fields__:
-                    event_raw = getattr(update, field)
-                    if isinstance(event_raw, Some | Nothing):
-                        event_raw = event_raw.unwrap_or_none()
-                    if event_raw is not None and issubclass(event_type, event_raw.__class__):
-                        return Some(event_raw)
-        return Nothing()
+    def get_raw_event(cls, update: Update) -> Option[Model]:
+        match update.update_type:
+            case Some(update_type):
+                return getattr(update, update_type.value)
+            case _:
+                return Nothing()
 
     def __call__(
         self,
@@ -96,20 +93,30 @@ class BaseView(ABCView, typing.Generic[EventType]):
         return wrapper
     
     def register_middleware(self, *args: typing.Any, **kwargs: typing.Any):
-        def wrapper(cls: type[ABCMiddleware[EventType]]):
+        def wrapper(cls: type[MiddlewareT]):
             self.middlewares.append(cls(*args, **kwargs))
             return cls
         
         return wrapper
     
     async def check(self, event: Update) -> bool:
-        return bool(self.get_event_raw(event))
+        match self.get_raw_event(event):
+            case Some(e) if issubclass(
+                self.get_event_type().expect(
+                    "{!r} has no event type in generic.".format(self.__class__.__name__),
+                ),
+                e.__class__,
+            ):
+                return True
+            case _:
+                return False
         
     async def process(self, event: Update, api: ABCAPI) -> bool:
-        event_raw = self.get_event_raw(event).unwrap()
-        event_type = self.get_event_type().unwrap()
         return await process_inner(
-            event_type(**event_raw.to_dict(), api=api),
+            self.get_event_type().unwrap().from_update(
+                update=self.get_raw_event(event).unwrap(),
+                bound_api=api,
+            ),
             event,
             self.middlewares,
             self.handlers,

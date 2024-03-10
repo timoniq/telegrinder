@@ -14,14 +14,20 @@ CuteT = typing.TypeVar("CuteT", bound=BaseCute)
 
 
 class EventAdapter(ABCAdapter[Update, CuteT]):
-    def __init__(self, event_name: str, model: type[CuteT]):
+    def __init__(self, event_name: str, model: type[CuteT]) -> None:
         self.event_name = event_name
         self.model = model
     
     def __repr__(self) -> str:
-        return "<{}: adapt Update.{} -> {}>".format(
+        raw_update_type = Update.__annotations__.get(self.event_name, "Unknown")
+        raw_update_type = (
+            typing.get_args(raw_update_type)[0].__forward_arg__
+            if typing.get_args(raw_update_type)
+            else raw_update_type
+        )
+        return "<{}: adapt {} -> {}>".format(
             self.__class__.__name__,
-            self.event_name,
+            raw_update_type,
             self.model.__name__,
         )
 
@@ -29,14 +35,14 @@ class EventAdapter(ABCAdapter[Update, CuteT]):
         update_dct = update.to_dict()
         if self.event_name not in update_dct:
             return Error(
-                AdapterError(f"Update is not of event type {self.event_name!r}.")
+                AdapterError(f"Update is not of event type {self.event_name!r}."),
             )
         if update_dct[self.event_name] is Nothing:
             return Error(
-                AdapterError(f"Update is not an {self.event_name!r}.")
+                AdapterError(f"Update is not an {self.event_name!r}."),
             )
         return Ok(
-            self.model.from_update(update_dct[self.event_name].unwrap(), bound_api=api)
+            self.model.from_update(update_dct[self.event_name].unwrap(), bound_api=api),
         )
 
 

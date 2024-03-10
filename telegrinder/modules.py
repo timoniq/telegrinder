@@ -5,10 +5,10 @@ from choicelib import choice_in_order
 
 
 class JSONModule(typing.Protocol):
-    def loads(self, s: str) -> dict | list:
+    def loads(self, s: str) -> dict[str, typing.Any] | list[typing.Any]:
         ...
 
-    def dumps(self, o: dict | list) -> str:
+    def dumps(self, o: dict[str, typing.Any] | list[typing.Any]) -> str:
         ...
 
 

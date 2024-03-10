@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "telegrinder"
-version = "0.1.dev158"
+version = "0.1.dev159"
 description = "Framework for effective and reliable async telegram bot building."
 authors = ["timoniq <tesseradecades@mail.ru>"]
 maintainers = ["luwqz1"]
@@ -36,7 +36,7 @@ vbml = "^1.1.post1"
 choicelib = "^0.1.5"
 envparse = "^0.2.0"
 PyYAML = "^6.0"
-certifi = "^2022.6.15"
+certifi = "^2023.7.22"
 msgspec = "^0.18.4"
 requests = "^2.28.1"
 typing-extensions = "^4.8.0"

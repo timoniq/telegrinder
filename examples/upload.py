@@ -15,8 +15,9 @@ cool_bytes = pathlib.Path("assets/satie.jpeg").read_bytes()
 
 @bot.on.message(Text("/photo"))
 async def start(message: Message):
-    await api.send_photo(
-        message.chat.id, caption="Erik", photo=InputFile("satie.jpeg", cool_bytes)
+    await message.answer_photo(
+        InputFile("satie.jpeg", cool_bytes),
+        caption="Erik",
     )
 
 

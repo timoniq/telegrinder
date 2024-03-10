@@ -53,7 +53,10 @@ class APIMethods:
         of time.
         """
 
-        method_response = await self.api.request_raw("getUpdates", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "getUpdates",
+            get_params(locals()),
+        )
         return full_result(method_response, list[Update])
 
     async def set_webhook(
@@ -108,7 +111,10 @@ class APIMethods:
         from a webhook set by you.
         """
 
-        method_response = await self.api.request_raw("setWebhook", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "setWebhook",
+            get_params(locals()),
+        )
         return full_result(method_response, bool)
 
     async def delete_webhook(
@@ -125,7 +131,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "deleteWebhook", get_params(locals())
+            "deleteWebhook",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -140,7 +147,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getWebhookInfo", get_params(locals())
+            "getWebhookInfo",
+            get_params(locals()),
         )
         return full_result(method_response, WebhookInfo)
 
@@ -152,7 +160,10 @@ class APIMethods:
         object.
         """
 
-        method_response = await self.api.request_raw("getMe", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "getMe",
+            get_params(locals()),
+        )
         return full_result(method_response, User)
 
     async def log_out(self, **other: typing.Any) -> Result[bool, "APIError"]:
@@ -166,7 +177,10 @@ class APIMethods:
         Requires no parameters.
         """
 
-        method_response = await self.api.request_raw("logOut", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "logOut",
+            get_params(locals()),
+        )
         return full_result(method_response, bool)
 
     async def close(self, **other: typing.Any) -> Result[bool, "APIError"]:
@@ -179,7 +193,10 @@ class APIMethods:
         True on success. Requires no parameters.
         """
 
-        method_response = await self.api.request_raw("close", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "close",
+            get_params(locals()),
+        )
         return full_result(method_response, bool)
 
     async def send_message(
@@ -237,7 +254,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendMessage", get_params(locals())
+            "sendMessage",
+            get_params(locals()),
         )
         return full_result(method_response, Message)
 
@@ -274,7 +292,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "forwardMessage", get_params(locals())
+            "forwardMessage",
+            get_params(locals()),
         )
         return full_result(method_response, Message)
 
@@ -305,8 +324,9 @@ class APIMethods:
         :param from_chat_id: Unique identifier for the chat where the original messages were sent (or \
         channel username in the format @channelusername).
 
-        :param message_ids: Identifiers of 1-100 messages in the chat from_chat_id to forward. The \
-        identifiers must be specified in a strictly increasing order.
+        :param message_ids: A JSON-serialized list of 1-100 identifiers of messages in the chat from_chat_id \
+        to forward. The identifiers must be specified in a strictly increasing \
+        order.
 
         :param disable_notification: Sends the messages silently. Users will receive a notification with no \
         sound.
@@ -315,7 +335,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "forwardMessages", get_params(locals())
+            "forwardMessages",
+            get_params(locals()),
         )
         return full_result(method_response, list[MessageId])
 
@@ -384,7 +405,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "copyMessage", get_params(locals())
+            "copyMessage",
+            get_params(locals()),
         )
         return full_result(method_response, MessageId)
 
@@ -419,8 +441,8 @@ class APIMethods:
         :param from_chat_id: Unique identifier for the chat where the original messages were sent (or \
         channel username in the format @channelusername).
 
-        :param message_ids: Identifiers of 1-100 messages in the chat from_chat_id to copy. The identifiers \
-        must be specified in a strictly increasing order.
+        :param message_ids: A JSON-serialized list of 1-100 identifiers of messages in the chat from_chat_id \
+        to copy. The identifiers must be specified in a strictly increasing order. \
 
         :param disable_notification: Sends the messages silently. Users will receive a notification with no \
         sound.
@@ -431,7 +453,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "copyMessages", get_params(locals())
+            "copyMessages",
+            get_params(locals()),
         )
         return full_result(method_response, list[MessageId])
 
@@ -498,7 +521,10 @@ class APIMethods:
         or to force a reply from the user.
         """
 
-        method_response = await self.api.request_raw("sendPhoto", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "sendPhoto",
+            get_params(locals()),
+        )
         return full_result(method_response, Message)
 
     async def send_audio(
@@ -580,7 +606,10 @@ class APIMethods:
         or to force a reply from the user.
         """
 
-        method_response = await self.api.request_raw("sendAudio", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "sendAudio",
+            get_params(locals()),
+        )
         return full_result(method_response, Message)
 
     async def send_document(
@@ -657,7 +686,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendDocument", get_params(locals())
+            "sendDocument",
+            get_params(locals()),
         )
         return full_result(method_response, Message)
 
@@ -746,7 +776,10 @@ class APIMethods:
         or to force a reply from the user.
         """
 
-        method_response = await self.api.request_raw("sendVideo", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "sendVideo",
+            get_params(locals()),
+        )
         return full_result(method_response, Message)
 
     async def send_animation(
@@ -831,7 +864,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendAnimation", get_params(locals())
+            "sendAnimation",
+            get_params(locals()),
         )
         return full_result(method_response, Message)
 
@@ -899,7 +933,10 @@ class APIMethods:
         or to force a reply from the user.
         """
 
-        method_response = await self.api.request_raw("sendVoice", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "sendVoice",
+            get_params(locals()),
+        )
         return full_result(method_response, Message)
 
     async def send_video_note(
@@ -966,17 +1003,17 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendVideoNote", get_params(locals())
+            "sendVideoNote",
+            get_params(locals()),
         )
         return full_result(method_response, Message)
 
     async def send_media_group(
         self,
         chat_id: int | str,
-        media: list[InputMediaAudio]
-        | list[InputMediaDocument]
-        | list[InputMediaPhoto]
-        | list[InputMediaVideo],
+        media: list[
+            InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
+        ],
         message_thread_id: int | Option[int] = Nothing,
         disable_notification: bool | Option[bool] = Nothing,
         protect_content: bool | Option[bool] = Nothing,
@@ -1006,7 +1043,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendMediaGroup", get_params(locals())
+            "sendMediaGroup",
+            get_params(locals()),
         )
         return full_result(method_response, list[Message])
 
@@ -1072,7 +1110,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendLocation", get_params(locals())
+            "sendLocation",
+            get_params(locals()),
         )
         return full_result(method_response, Message)
 
@@ -1142,7 +1181,10 @@ class APIMethods:
         or to force a reply from the user.
         """
 
-        method_response = await self.api.request_raw("sendVenue", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "sendVenue",
+            get_params(locals()),
+        )
         return full_result(method_response, Message)
 
     async def send_contact(
@@ -1198,7 +1240,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendContact", get_params(locals())
+            "sendContact",
+            get_params(locals()),
         )
         return full_result(method_response, Message)
 
@@ -1209,7 +1252,8 @@ class APIMethods:
         options: list[str],
         message_thread_id: int | Option[int] = Nothing,
         is_anonymous: bool | Option[bool] = Nothing,
-        type: str | Option[str] = Nothing,
+        type: typing.Literal["quiz", "regular"]
+        | Option[typing.Literal["quiz", "regular"]] = Nothing,
         allows_multiple_answers: bool | Option[bool] = Nothing,
         correct_option_id: int | Option[int] = Nothing,
         explanation: str | Option[str] = Nothing,
@@ -1217,7 +1261,7 @@ class APIMethods:
         explanation_entities: list[MessageEntity]
         | Option[list[MessageEntity]] = Nothing,
         open_period: int | Option[int] = Nothing,
-        close_date: int | Option[int] = Nothing,
+        close_date: datetime | int | Option[datetime | int] = Nothing,
         is_closed: bool | Option[bool] = Nothing,
         disable_notification: bool | Option[bool] = Nothing,
         protect_content: bool | Option[bool] = Nothing,
@@ -1290,14 +1334,17 @@ class APIMethods:
         or to force a reply from the user.
         """
 
-        method_response = await self.api.request_raw("sendPoll", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "sendPoll",
+            get_params(locals()),
+        )
         return full_result(method_response, Message)
 
     async def send_dice(
         self,
         chat_id: int | str,
         message_thread_id: int | Option[int] = Nothing,
-        emoji: str | Option[str] = Nothing,
+        emoji: DiceEmoji | Option[DiceEmoji] = Nothing,
         disable_notification: bool | Option[bool] = Nothing,
         protect_content: bool | Option[bool] = Nothing,
         reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
@@ -1339,13 +1386,16 @@ class APIMethods:
         or to force a reply from the user.
         """
 
-        method_response = await self.api.request_raw("sendDice", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "sendDice",
+            get_params(locals()),
+        )
         return full_result(method_response, Message)
 
     async def send_chat_action(
         self,
         chat_id: int | str,
-        action: str,
+        action: ChatAction,
         message_thread_id: int | Option[int] = Nothing,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
@@ -1360,7 +1410,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread; supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread; for supergroups only. \
 
         :param action: Type of action to broadcast. Choose one, depending on what the user is about \
         to receive: typing for text messages, upload_photo for photos, record_video \
@@ -1371,7 +1421,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendChatAction", get_params(locals())
+            "sendChatAction",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1396,16 +1447,17 @@ class APIMethods:
         :param message_id: Identifier of the target message. If the message belongs to a media group, \
         the reaction is set to the first non-deleted message in the group instead. \
 
-        :param reaction: New list of reaction types to set on the message. Currently, as non-premium \
-        users, bots can set up to one reaction per message. A custom emoji reaction \
-        can be used if it is either already present on the message or explicitly allowed \
-        by chat administrators.
+        :param reaction: A JSON-serialized list of reaction types to set on the message. Currently, \
+        as non-premium users, bots can set up to one reaction per message. A custom \
+        emoji reaction can be used if it is either already present on the message \
+        or explicitly allowed by chat administrators.
 
         :param is_big: Pass True to set the reaction with a big animation.
         """
 
         method_response = await self.api.request_raw(
-            "setMessageReaction", get_params(locals())
+            "setMessageReaction",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1431,7 +1483,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getUserProfilePhotos", get_params(locals())
+            "getUserProfilePhotos",
+            get_params(locals()),
         )
         return full_result(method_response, UserProfilePhotos)
 
@@ -1454,14 +1507,17 @@ class APIMethods:
         :param file_id: File identifier to get information about.
         """
 
-        method_response = await self.api.request_raw("getFile", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "getFile",
+            get_params(locals()),
+        )
         return full_result(method_response, File)
 
     async def ban_chat_member(
         self,
         chat_id: int | str,
         user_id: int,
-        until_date: int | Option[int] = Nothing,
+        until_date: datetime | int | Option[datetime | int] = Nothing,
         revoke_messages: bool | Option[bool] = Nothing,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
@@ -1488,7 +1544,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "banChatMember", get_params(locals())
+            "banChatMember",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1518,7 +1575,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "unbanChatMember", get_params(locals())
+            "unbanChatMember",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1528,7 +1586,7 @@ class APIMethods:
         user_id: int,
         permissions: ChatPermissions,
         use_independent_chat_permissions: bool | Option[bool] = Nothing,
-        until_date: int | Option[int] = Nothing,
+        until_date: datetime | int | Option[datetime | int] = Nothing,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
         """Method `restrictChatMember`, see the [documentation](https://core.telegram.org/bots/api#restrictchatmember)
@@ -1557,7 +1615,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "restrictChatMember", get_params(locals())
+            "restrictChatMember",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1623,19 +1682,20 @@ class APIMethods:
         :param can_delete_stories: Pass True if the administrator can delete stories posted by other users. \
 
         :param can_post_messages: Pass True if the administrator can post messages in the channel, or access \
-        channel statistics; channels only.
+        channel statistics; for channels only.
 
         :param can_edit_messages: Pass True if the administrator can edit messages of other users and can pin \
-        messages; channels only.
+        messages; for channels only.
 
-        :param can_pin_messages: Pass True if the administrator can pin messages, supergroups only.
+        :param can_pin_messages: Pass True if the administrator can pin messages; for supergroups only. \
 
         :param can_manage_topics: Pass True if the user is allowed to create, rename, close, and reopen forum \
-        topics, supergroups only.
+        topics; for supergroups only.
         """
 
         method_response = await self.api.request_raw(
-            "promoteChatMember", get_params(locals())
+            "promoteChatMember",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1661,7 +1721,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setChatAdministratorCustomTitle", get_params(locals())
+            "setChatAdministratorCustomTitle",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1686,7 +1747,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "banChatSenderChat", get_params(locals())
+            "banChatSenderChat",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1709,7 +1771,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "unbanChatSenderChat", get_params(locals())
+            "unbanChatSenderChat",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1740,7 +1803,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setChatPermissions", get_params(locals())
+            "setChatPermissions",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1761,7 +1825,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "exportChatInviteLink", get_params(locals())
+            "exportChatInviteLink",
+            get_params(locals()),
         )
         return full_result(method_response, str)
 
@@ -1769,7 +1834,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         name: str | Option[str] = Nothing,
-        expire_date: int | Option[int] = Nothing,
+        expire_date: datetime | int | Option[datetime | int] = Nothing,
         member_limit: int | Option[int] = Nothing,
         creates_join_request: bool | Option[bool] = Nothing,
         **other: typing.Any,
@@ -1796,7 +1861,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "createChatInviteLink", get_params(locals())
+            "createChatInviteLink",
+            get_params(locals()),
         )
         return full_result(method_response, ChatInviteLink)
 
@@ -1805,7 +1871,7 @@ class APIMethods:
         chat_id: int | str,
         invite_link: str,
         name: str | Option[str] = Nothing,
-        expire_date: int | Option[int] = Nothing,
+        expire_date: datetime | int | Option[datetime | int] = Nothing,
         member_limit: int | Option[int] = Nothing,
         creates_join_request: bool | Option[bool] = Nothing,
         **other: typing.Any,
@@ -1834,7 +1900,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "editChatInviteLink", get_params(locals())
+            "editChatInviteLink",
+            get_params(locals()),
         )
         return full_result(method_response, ChatInviteLink)
 
@@ -1859,7 +1926,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "revokeChatInviteLink", get_params(locals())
+            "revokeChatInviteLink",
+            get_params(locals()),
         )
         return full_result(method_response, ChatInviteLink)
 
@@ -1882,7 +1950,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "approveChatJoinRequest", get_params(locals())
+            "approveChatJoinRequest",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1905,7 +1974,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "declineChatJoinRequest", get_params(locals())
+            "declineChatJoinRequest",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1929,7 +1999,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setChatPhoto", get_params(locals())
+            "setChatPhoto",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1949,7 +2020,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "deleteChatPhoto", get_params(locals())
+            "deleteChatPhoto",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1972,7 +2044,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setChatTitle", get_params(locals())
+            "setChatTitle",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -1995,7 +2068,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setChatDescription", get_params(locals())
+            "setChatDescription",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2025,7 +2099,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "pinChatMessage", get_params(locals())
+            "pinChatMessage",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2051,7 +2126,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "unpinChatMessage", get_params(locals())
+            "unpinChatMessage",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2073,7 +2149,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "unpinAllChatMessages", get_params(locals())
+            "unpinAllChatMessages",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2091,7 +2168,10 @@ class APIMethods:
         or channel (in the format @channelusername).
         """
 
-        method_response = await self.api.request_raw("leaveChat", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "leaveChat",
+            get_params(locals()),
+        )
         return full_result(method_response, bool)
 
     async def get_chat(
@@ -2108,7 +2188,10 @@ class APIMethods:
         or channel (in the format @channelusername).
         """
 
-        method_response = await self.api.request_raw("getChat", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "getChat",
+            get_params(locals()),
+        )
         return full_result(method_response, Chat)
 
     async def get_chat_administrators(
@@ -2138,7 +2221,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getChatAdministrators", get_params(locals())
+            "getChatAdministrators",
+            get_params(locals()),
         )
         return full_result(
             method_response,
@@ -2168,7 +2252,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getChatMemberCount", get_params(locals())
+            "getChatMemberCount",
+            get_params(locals()),
         )
         return full_result(method_response, int)
 
@@ -2201,7 +2286,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getChatMember", get_params(locals())
+            "getChatMember",
+            get_params(locals()),
         )
         return full_result(
             method_response,
@@ -2236,7 +2322,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setChatStickerSet", get_params(locals())
+            "setChatStickerSet",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2258,7 +2345,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "deleteChatStickerSet", get_params(locals())
+            "deleteChatStickerSet",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2273,7 +2361,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getForumTopicIconStickers", get_params(locals())
+            "getForumTopicIconStickers",
+            get_params(locals()),
         )
         return full_result(method_response, list[Sticker])
 
@@ -2281,7 +2370,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         name: str,
-        icon_color: int | Option[int] = Nothing,
+        icon_color: TopicIconColor | Option[TopicIconColor] = Nothing,
         icon_custom_emoji_id: str | Option[str] = Nothing,
         **other: typing.Any,
     ) -> Result[ForumTopic, "APIError"]:
@@ -2306,7 +2395,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "createForumTopic", get_params(locals())
+            "createForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, ForumTopic)
 
@@ -2339,7 +2429,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "editForumTopic", get_params(locals())
+            "editForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2363,7 +2454,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "closeForumTopic", get_params(locals())
+            "closeForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2387,7 +2479,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "reopenForumTopic", get_params(locals())
+            "reopenForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2411,7 +2504,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "deleteForumTopic", get_params(locals())
+            "deleteForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2435,7 +2529,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "unpinAllForumTopicMessages", get_params(locals())
+            "unpinAllForumTopicMessages",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2458,7 +2553,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "editGeneralForumTopic", get_params(locals())
+            "editGeneralForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2478,7 +2574,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "closeGeneralForumTopic", get_params(locals())
+            "closeGeneralForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2499,7 +2596,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "reopenGeneralForumTopic", get_params(locals())
+            "reopenGeneralForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2520,7 +2618,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "hideGeneralForumTopic", get_params(locals())
+            "hideGeneralForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2540,7 +2639,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "unhideGeneralForumTopic", get_params(locals())
+            "unhideGeneralForumTopic",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2561,7 +2661,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "unpinAllGeneralForumTopicMessages", get_params(locals())
+            "unpinAllGeneralForumTopicMessages",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2600,7 +2701,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "answerCallbackQuery", get_params(locals())
+            "answerCallbackQuery",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2622,7 +2724,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getUserChatBoosts", get_params(locals())
+            "getUserChatBoosts",
+            get_params(locals()),
         )
         return full_result(method_response, UserChatBoosts)
 
@@ -2650,7 +2753,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setMyCommands", get_params(locals())
+            "setMyCommands",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2675,7 +2779,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "deleteMyCommands", get_params(locals())
+            "deleteMyCommands",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2697,7 +2802,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getMyCommands", get_params(locals())
+            "getMyCommands",
+            get_params(locals()),
         )
         return full_result(method_response, list[BotCommand])
 
@@ -2718,7 +2824,10 @@ class APIMethods:
         all users for whose language there is no dedicated name.
         """
 
-        method_response = await self.api.request_raw("setMyName", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "setMyName",
+            get_params(locals()),
+        )
         return full_result(method_response, bool)
 
     async def get_my_name(
@@ -2734,7 +2843,10 @@ class APIMethods:
         :param language_code: A two-letter ISO 639-1 language code or an empty string.
         """
 
-        method_response = await self.api.request_raw("getMyName", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "getMyName",
+            get_params(locals()),
+        )
         return full_result(method_response, BotName)
 
     async def set_my_description(
@@ -2756,7 +2868,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setMyDescription", get_params(locals())
+            "setMyDescription",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2774,7 +2887,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getMyDescription", get_params(locals())
+            "getMyDescription",
+            get_params(locals()),
         )
         return full_result(method_response, BotDescription)
 
@@ -2798,7 +2912,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setMyShortDescription", get_params(locals())
+            "setMyShortDescription",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2816,7 +2931,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getMyShortDescription", get_params(locals())
+            "getMyShortDescription",
+            get_params(locals()),
         )
         return full_result(method_response, BotShortDescription)
 
@@ -2838,7 +2954,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setChatMenuButton", get_params(locals())
+            "setChatMenuButton",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2859,7 +2976,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getChatMenuButton", get_params(locals())
+            "getChatMenuButton",
+            get_params(locals()),
         )
         return full_result(
             method_response,
@@ -2888,7 +3006,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setMyDefaultAdministratorRights", get_params(locals())
+            "setMyDefaultAdministratorRights",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -2908,7 +3027,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getMyDefaultAdministratorRights", get_params(locals())
+            "getMyDefaultAdministratorRights",
+            get_params(locals()),
         )
         return full_result(method_response, ChatAdministratorRights)
 
@@ -2953,7 +3073,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "editMessageText", get_params(locals())
+            "editMessageText",
+            get_params(locals()),
         )
         return full_result(method_response, Variative[Message, bool])
 
@@ -2995,7 +3116,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "editMessageCaption", get_params(locals())
+            "editMessageCaption",
+            get_params(locals()),
         )
         return full_result(method_response, Variative[Message, bool])
 
@@ -3033,7 +3155,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "editMessageMedia", get_params(locals())
+            "editMessageMedia",
+            get_params(locals()),
         )
         return full_result(method_response, Variative[Message, bool])
 
@@ -3082,7 +3205,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "editMessageLiveLocation", get_params(locals())
+            "editMessageLiveLocation",
+            get_params(locals()),
         )
         return full_result(method_response, Variative[Message, bool])
 
@@ -3113,7 +3237,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "stopMessageLiveLocation", get_params(locals())
+            "stopMessageLiveLocation",
+            get_params(locals()),
         )
         return full_result(method_response, Variative[Message, bool])
 
@@ -3144,7 +3269,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "editMessageReplyMarkup", get_params(locals())
+            "editMessageReplyMarkup",
+            get_params(locals()),
         )
         return full_result(method_response, Variative[Message, bool])
 
@@ -3168,7 +3294,10 @@ class APIMethods:
         :param reply_markup: A JSON-serialized object for a new message inline keyboard.
         """
 
-        method_response = await self.api.request_raw("stopPoll", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "stopPoll",
+            get_params(locals()),
+        )
         return full_result(method_response, Poll)
 
     async def delete_message(
@@ -3198,7 +3327,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "deleteMessage", get_params(locals())
+            "deleteMessage",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3217,12 +3347,13 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_ids: Identifiers of 1-100 messages to delete. See deleteMessage for limitations \
-        on which messages can be deleted.
+        :param message_ids: A JSON-serialized list of 1-100 identifiers of messages to delete. See \
+        deleteMessage for limitations on which messages can be deleted.
         """
 
         method_response = await self.api.request_raw(
-            "deleteMessages", get_params(locals())
+            "deleteMessages",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3279,7 +3410,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendSticker", get_params(locals())
+            "sendSticker",
+            get_params(locals()),
         )
         return full_result(method_response, Message)
 
@@ -3296,7 +3428,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getStickerSet", get_params(locals())
+            "getStickerSet",
+            get_params(locals()),
         )
         return full_result(method_response, StickerSet)
 
@@ -3310,12 +3443,13 @@ class APIMethods:
         Use this method to get information about custom emoji stickers by their 
         identifiers. Returns an Array of Sticker objects.
 
-        :param custom_emoji_ids: List of custom emoji identifiers. At most 200 custom emoji identifiers \
-        can be specified.
+        :param custom_emoji_ids: A JSON-serialized list of custom emoji identifiers. At most 200 custom \
+        emoji identifiers can be specified.
         """
 
         method_response = await self.api.request_raw(
-            "getCustomEmojiStickers", get_params(locals())
+            "getCustomEmojiStickers",
+            get_params(locals()),
         )
         return full_result(method_response, list[Sticker])
 
@@ -3323,7 +3457,7 @@ class APIMethods:
         self,
         user_id: int,
         sticker: InputFile,
-        sticker_format: str,
+        sticker_format: typing.Literal["static", "animated", "video"],
         **other: typing.Any,
     ) -> Result[File, "APIError"]:
         """Method `uploadStickerFile`, see the [documentation](https://core.telegram.org/bots/api#uploadstickerfile)
@@ -3341,7 +3475,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "uploadStickerFile", get_params(locals())
+            "uploadStickerFile",
+            get_params(locals()),
         )
         return full_result(method_response, File)
 
@@ -3351,8 +3486,9 @@ class APIMethods:
         name: str,
         title: str,
         stickers: list[InputSticker],
-        sticker_format: str,
-        sticker_type: str | Option[str] = Nothing,
+        sticker_format: typing.Literal["static", "animated", "video"],
+        sticker_type: typing.Literal["regular", "mask", "custom_emoji"]
+        | Option[typing.Literal["regular", "mask", "custom_emoji"]] = Nothing,
         needs_repainting: bool | Option[bool] = Nothing,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
@@ -3385,7 +3521,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "createNewStickerSet", get_params(locals())
+            "createNewStickerSet",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3414,7 +3551,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "addStickerToSet", get_params(locals())
+            "addStickerToSet",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3435,7 +3573,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setStickerPositionInSet", get_params(locals())
+            "setStickerPositionInSet",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3453,7 +3592,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "deleteStickerFromSet", get_params(locals())
+            "deleteStickerFromSet",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3475,7 +3615,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setStickerEmojiList", get_params(locals())
+            "setStickerEmojiList",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3498,7 +3639,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setStickerKeywords", get_params(locals())
+            "setStickerKeywords",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3520,7 +3662,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setStickerMaskPosition", get_params(locals())
+            "setStickerMaskPosition",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3541,7 +3684,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setStickerSetTitle", get_params(locals())
+            "setStickerSetTitle",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3577,7 +3721,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setStickerSetThumbnail", get_params(locals())
+            "setStickerSetThumbnail",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3599,7 +3744,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setCustomEmojiStickerSetThumbnail", get_params(locals())
+            "setCustomEmojiStickerSetThumbnail",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3617,7 +3763,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "deleteStickerSet", get_params(locals())
+            "deleteStickerSet",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3656,7 +3803,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "answerInlineQuery", get_params(locals())
+            "answerInlineQuery",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3678,7 +3826,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "answerWebAppQuery", get_params(locals())
+            "answerWebAppQuery",
+            get_params(locals()),
         )
         return full_result(method_response, SentWebAppMessage)
 
@@ -3793,7 +3942,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "sendInvoice", get_params(locals())
+            "sendInvoice",
+            get_params(locals()),
         )
         return full_result(method_response, Message)
 
@@ -3880,7 +4030,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "createInvoiceLink", get_params(locals())
+            "createInvoiceLink",
+            get_params(locals()),
         )
         return full_result(method_response, str)
 
@@ -3914,7 +4065,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "answerShippingQuery", get_params(locals())
+            "answerShippingQuery",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3946,7 +4098,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "answerPreCheckoutQuery", get_params(locals())
+            "answerPreCheckoutQuery",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -3973,7 +4126,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setPassportDataErrors", get_params(locals())
+            "setPassportDataErrors",
+            get_params(locals()),
         )
         return full_result(method_response, bool)
 
@@ -4010,7 +4164,10 @@ class APIMethods:
         button will be shown. If not empty, the first button must launch the game. \
         """
 
-        method_response = await self.api.request_raw("sendGame", get_params(locals()))
+        method_response = await self.api.request_raw(
+            "sendGame",
+            get_params(locals()),
+        )
         return full_result(method_response, Message)
 
     async def set_game_score(
@@ -4052,7 +4209,8 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "setGameScore", get_params(locals())
+            "setGameScore",
+            get_params(locals()),
         )
         return full_result(method_response, Variative[Message, bool])
 
@@ -4083,6 +4241,7 @@ class APIMethods:
         """
 
         method_response = await self.api.request_raw(
-            "getGameHighScores", get_params(locals())
+            "getGameHighScores",
+            get_params(locals()),
         )
         return full_result(method_response, list[GameHighScore])

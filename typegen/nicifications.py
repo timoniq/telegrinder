@@ -9,9 +9,29 @@ Nicifications can only implement methods/properties working only with model fiel
 
 import typing
 
-from telegrinder.model import Model
+from fntypes.option import Option, Some
+
 from telegrinder.msgspec_utils import Nothing
-from telegrinder.types import ContentType, DefaultUserColor, Message, User
+from telegrinder.types import (
+    Chat,
+    ChatType,
+    ContentType,
+    DefaultAccentColor,
+    InaccessibleMessage,
+    Message,
+    Update,
+    UpdateType,
+    User,
+)
+
+
+class _Chat(Chat):
+    @property
+    def full_name(self) -> Option[str]:
+        """Optional. Full name (`first_name` + `last_name`) of the
+        other party in a `private` chat."""
+
+        return self.first_name.map(lambda x: x + " " + self.last_name.unwrap_or(""))
 
 
 class _Message(Message):
@@ -29,37 +49,70 @@ class _Message(Message):
     
     @property
     def from_user(self) -> "User":
-        """`from_user` instead of `from_.unwrap()`"""
+        """`from_user` instead of `from_.unwrap()`."""
 
         return self.from_.unwrap()
+    
+    @property
+    def chat_id(self) -> int:
+        """`chat_id` instead of `chat.id`."""
 
+        return self.chat.id
+    
+    @property
+    def chat_title(self) -> str:
+        """Chat title, for `supergroups`, `channels` and `group` chats.
+        Full name, for `private` chat."""
+        
+        return (
+            self.chat.full_name.unwrap()
+            if self.chat.type == ChatType.PRIVATE
+            else self.chat.title.unwrap()
+        )
+    
     def __eq__(self, other: "Message") -> bool:
-        return self.message_id == other.message_id and self.chat.id == other.chat.id
+        return self.message_id == other.message_id and self.chat_id == other.chat_id
 
 
 class _User(User):
     @property
-    def color(self) -> DefaultUserColor:
-        """User's or bot's color."""
+    def default_accent_color(self) -> DefaultAccentColor:
+        """User's or bot's accent color (non-premium)."""
 
-        return DefaultUserColor(self.id % 7)
+        return DefaultAccentColor(self.id % 7)
 
     @property
     def full_name(self) -> str:
-        """User's or bot's `first_name` + `last_name`."""
+        """User's or bot's full name (`first_name` + `last_name`)."""
 
         return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
 
 
+class _Update(Update):
+    @property
+    def update_type(self) -> Option[UpdateType]:
+        """Incoming update type."""
+
+        if (update := next(
+            filter(
+                lambda x: bool(x[1]),
+                self.to_dict(exclude_fields={"update_id"}).items(),
+            ),
+            None,
+        )):
+            return Some(UpdateType(update[0]))
+        return Nothing
+
+
 class _InputFile(typing.NamedTuple):
     filename: str
-    """Filename."""
+    """File name."""
 
     data: bytes
     """Bytes of file."""
 
 
-class _InaccessibleMessage(Model):
+class _InaccessibleMessage(InaccessibleMessage):
     date: typing.Literal[0]
     """Always 0. The field can be used to differentiate regular and inaccessible 
     messages."""

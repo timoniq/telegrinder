@@ -152,17 +152,19 @@ class ReactionEmoji(str, enum.Enum):
     ENRAGED_FACE = "😡"
 
 
-class DefaultUserColor(int, enum.Enum):
-    """Type of DefaultUserColor.
+class DefaultAccentColor(int, enum.Enum):
+    """Type of DefaultAccentColor.
 
     One of 7 possible user colors:
-    - red
-    - orange
-    - purple
-    - green
-    - cyan
-    - blue
-    - pink
+    - Red
+    - Orange
+    - Purple
+    - Green
+    - Cyan
+    - Blue
+    - Pink
+
+    Docs: https://core.telegram.org/bots/api#accent-colors
     """
 
     RED = 0

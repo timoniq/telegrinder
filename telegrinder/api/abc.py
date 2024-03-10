@@ -15,7 +15,7 @@ from .error import InvalidTokenError
 class Token(str):
     def __new__(cls, token: str) -> typing.Self:
         if token.count(":") != 1 or not token.split(":")[0].isdigit():
-            raise InvalidTokenError("Invalid token, it should look like this '123:token'.")
+            raise InvalidTokenError("Invalid token, it should look like this '123:ABC'.")
         return super().__new__(cls, token)
 
     @classmethod
@@ -42,15 +42,15 @@ class ABCAPI(ABC):
     async def request(
         self,
         method: str,
-        data: dict | None = None,
-    ) -> Result[list | dict | bool, APIError]:
+        data: dict[str, typing.Any] | None = None,
+    ) -> Result[list[typing.Any] | dict[str, typing.Any] | bool, APIError]:
         pass
 
     @abstractmethod
     async def request_raw(
         self,
         method: str,
-        data: dict | None = None,
+        data: dict[str, typing.Any] | None = None,
     ) -> Result[msgspec.Raw, APIError]:
         pass
 

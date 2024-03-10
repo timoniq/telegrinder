@@ -5,26 +5,38 @@ from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.response import APIResponse
 from telegrinder.client import ABCClient, AiohttpClient
-from telegrinder.model import convert, decoder
+from telegrinder.model import DataConverter, decoder
 from telegrinder.types.methods import APIMethods
 
 from .abc import ABCAPI, APIError, Token
 
 
-def compose_data(client: ABCClient, data: dict[str, typing.Any]) -> typing.Any:
-    data = {k: convert(v) for k, v in data.items()}
-    if any(isinstance(v, tuple) for v in data.values()):
-        data = client.get_form(data)
-    return data
+def compose_data(
+    client: ABCClient,
+    data: dict[str, typing.Any],
+    files: dict[str, tuple[str, bytes]],
+) -> typing.Any:
+    converter = DataConverter(files=files)
+    return client.get_form(
+        data={k: converter.convert(v) for k, v in data.items()},
+        files=converter.files,
+    )
 
 
 class API(ABCAPI, APIMethods):
     API_URL: typing.ClassVar[str] = "https://api.telegram.org/"
 
-    def __init__(self, token: Token, *, http: ABCClient | None = None):
+    def __init__(self, token: Token, *, http: ABCClient | None = None) -> None:
         self.token = token
         self.http = http or AiohttpClient()
         super().__init__(self)
+    
+    def __repr__(self) -> str:
+        return "<{}: id={}, http={!r}>".format(
+            self.__class__.__name__,
+            self.id,
+            self.http,
+        )
 
     @property
     def id(self) -> int:
@@ -37,11 +49,12 @@ class API(ABCAPI, APIMethods):
     async def request(
         self,
         method: str,
-        data: dict | None = None,
-    ) -> Result[dict | list | bool, APIError]:
+        data: dict[str, typing.Any] | None = None,
+        files: dict[str, tuple[str, bytes]] | None = None,
+    ) -> Result[dict[str, typing.Any] | list[typing.Any] | bool, APIError]:
         response = await self.http.request_json(
             url=self.request_url + method,
-            data=compose_data(self.http, data or {})
+            data=compose_data(self.http, data or {}, files or {})
         )
         if response.get("ok"):
             assert "result" in response
@@ -55,10 +68,11 @@ class API(ABCAPI, APIMethods):
         self,
         method: str,
         data: dict[str, typing.Any] | None = None,
+        files: dict[str, tuple[str, bytes]] | None = None,
     ) -> Result[msgspec.Raw, APIError]:
         response_bytes = await self.http.request_bytes(
             url=self.request_url + method,
-            data=compose_data(self.http, data or {}),
+            data=compose_data(self.http, data or {}, files or {}),
         )
         return decoder.decode(response_bytes, type=APIResponse).to_result()
 

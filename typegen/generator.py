@@ -1,7 +1,5 @@
-import logging
 import os
 import re
-import sys
 import typing
 from abc import ABC, abstractmethod
 
@@ -9,9 +7,11 @@ import msgspec
 import requests
 from models import Field, MethodSchema, Schema, TypeSchema
 
+from telegrinder.modules import logger
+
 ModelT = typing.TypeVar("ModelT", bound=msgspec.structs.Struct)
 
-JSON_DECODER: typing.Final[msgspec.json.Decoder] = msgspec.json.Decoder(strict=True)
+JSON_DECODER: typing.Final[msgspec.json.Decoder[typing.Any]] = msgspec.json.Decoder(strict=True)
 URL: typing.Final[str] = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/main/api.json"
 TAB: typing.Final[str] = "    "
 TYPES: typing.Final[dict[str, str]] = {
@@ -19,29 +19,26 @@ TYPES: typing.Final[dict[str, str]] = {
     "Integer": "int",
     "Float": "float",
     "Boolean": "bool",
+    "Unixtime": "datetime",
 }
+INPUTFILE_DOCSTRING: typing.Final[str] = "to upload a new one using multipart/form-data under <file_attach_name> name."
 MAIN_DIR: typing.Final[str] = "typegen"
 
-logger = logging.getLogger("telegrinder_typegen")
-handler = logging.StreamHandler(sys.stderr)
-handler.setFormatter(
-    logging.Formatter(
-        "{levelname: <8} | {asctime} {funcName}:{lineno} - {message}", style="{"
-    )
-)
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
 
-
-def get_schema_json() -> "SchemaJson":
+def get_schema_json():
     logger.debug(f"Requesting {URL!r} to retrieve the schema...")
     raw = requests.get(URL).text
     logger.debug("Schema successfully received! Decoding...")
-    dct: dict = JSON_DECODER.decode(raw)
+    dct: dict[str, typing.Any] = JSON_DECODER.decode(raw)
     dct["methods"] = [d for d in dct["methods"].values()]
     dct["types"] = [d for d in dct["types"].values()]
-    logger.debug(f"Schema {dct['version']!r} successfully decoded!")
-    return dct  # type: ignore
+    logger.debug(
+        "Schema (version={!r}, release_date={!r}) successfully decoded!".format(
+            dct["version"],
+            dct["release_date"],
+        )
+    )
+    return typing.cast(SchemaJson, dct)
 
 
 def find_nicifications(name: str, path: str) -> tuple[str | None, list[str]]:
@@ -68,16 +65,26 @@ def chunks_str(s: str, sep: str = "\n"):
 
 
 def convert_to_python_type(
-    tp: str, parent_types: dict[str, list[str]] | None = None
+    tp: str,
+    parent_types: dict[str, list[str]] | None = None,
+    as_forward_ref: bool = True,
 ) -> str:
     if tp.startswith("Array of"):
-        return f'list[{convert_to_python_type(tp.removeprefix("Array of "), parent_types)}]'
+        return "list[{}]".format(
+            " | ".join(
+                convert_to_python_type(t, parent_types, as_forward_ref=as_forward_ref)
+                for t in tp.removeprefix("Array of ").split(", ")
+            )
+        )
+    if tp.startswith("typing.Literal"):
+        return tp
     parent_types = parent_types or {}
+    hint = '"{}"' if as_forward_ref else "{}"
     return TYPES.get(
         tp,
-        f'"{tp}"'
+        hint.format(tp)
         if tp not in parent_types
-        else "Variative[%s]" % ", ".join(f'"{x}"' for x in parent_types[tp]),
+        else "Variative[%s]" % ", ".join(hint.format(x) for x in parent_types[tp]),
     )
 
 
@@ -96,18 +103,34 @@ def convert_schema_to_model(schema_json: "SchemaJson", model: type[ModelT]) -> M
     return schema
 
 
-def read_literal_types_cfg(path: str | None = None) -> dict[typing.Literal["objects"], list["ObjectLiteralTypesConfig"]]:
-    path = path or MAIN_DIR + "/literal_types_config.json"
+def read_config_literal_types(path: str | None = None) -> "ConfigLiteralTypes":
+    path = path or MAIN_DIR + "/config_literal_types.json"
     with open(path, mode="r", encoding="UTF-8") as f:
         return JSON_DECODER.decode(f.read())
 
 
-class SchemaJson(typing.TypedDict, total=True):
+def is_unixtime_type(name: str, types: list[str], description: str) -> bool:
+    return (
+        "date" in name
+        and "Integer" in types
+        and any(
+            x in description.lower()
+            for x in ("unix timestamp", "unix time")
+        )
+    )
+
+
+class SchemaJson(typing.TypedDict):
     version: str
     release_date: str
     changelog: str
-    methods: typing.NotRequired[list[dict[str, typing.Any]]]
-    types: typing.NotRequired[list[dict[str, typing.Any]]]
+    methods: list[dict[str, typing.Any]]
+    types: list[dict[str, typing.Any]]
+
+
+class ConfigLiteralTypes(typing.TypedDict, total=True):
+    objects: typing.NotRequired[list["ConfigObjectLiteralTypes"]]
+    methods: typing.NotRequired[list["ConfigMethodLiteralTypes"]]
 
 
 class FieldLiteralTypes(typing.TypedDict, total=True):
@@ -123,7 +146,20 @@ class FieldLiteralTypes(typing.TypedDict, total=True):
     """Optional. List with enumeration literals."""
 
 
-class ObjectLiteralTypesConfig(typing.TypedDict):
+class ParamLiteralTypes(typing.TypedDict, total=True):
+    """Mapping containing param name, reference to enumeration and specific enumeration literals."""
+
+    name: str
+    """Param name."""
+
+    enum: typing.NotRequired[str]
+    """Optional. Reference to enumeration."""
+
+    literals: typing.NotRequired[list[str | int]]
+    """Optional. List with enumeration literals."""    
+
+
+class ConfigObjectLiteralTypes(typing.TypedDict):
     """Configuration object fields literal types."""
 
     name: str
@@ -131,6 +167,16 @@ class ObjectLiteralTypesConfig(typing.TypedDict):
 
     fields: list[FieldLiteralTypes]
     """Object fields."""
+
+
+class ConfigMethodLiteralTypes(typing.TypedDict):
+    """Configuration method params literal types."""
+
+    name: str
+    """Method name."""
+
+    params: list[ParamLiteralTypes]
+    """Method params."""
 
 
 class ABCGenerator(ABC):
@@ -144,20 +190,22 @@ class TypesGenerator(ABCGenerator):
         self,
         types: list[TypeSchema],
         nicification_path: str,
-        enum_ref_configs: list[ObjectLiteralTypesConfig] | None = None,
+        config_literal_types: list[ConfigObjectLiteralTypes] | None = None,
     ) -> None:
         self.types = types
         self.rename_field_names = {
             "from": "from_",
+            "for": "for_",
+            "in": "in_",
         }
         self.nicification_path = nicification_path
-        self.enum_ref_configs = enum_ref_configs or []
+        self.config_literal_types = config_literal_types or []
         self.parent_types: dict[str, list[str]] = {
             t.name: t.subtypes for t in types if t.subtypes
         }
 
     def get_field_literal_types(self, object_name: str, field_name: str) -> FieldLiteralTypes | None:
-        for cfg in self.enum_ref_configs:
+        for cfg in self.config_literal_types:
             if cfg["name"] == object_name:
                 for ref_field in cfg["fields"]:
                     if ref_field["name"] == field_name:
@@ -177,13 +225,21 @@ class TypesGenerator(ABCGenerator):
                 if any("Array of" in x for x in field.types)
                 else literal_type_hint
             )
-        elif len(field.types) > 1:
-            field_type = "Variative[%s]" % ", ".join(
-                convert_to_python_type(tp, self.parent_types)
-                for tp in field.types
-            )
         else:
-            field_type = convert_to_python_type(field.types[0], self.parent_types)
+            if field.description:
+                if is_unixtime_type(field.name, field.types, field.description):
+                    field.types.remove("Integer")
+                    field_type = "datetime"
+                elif "InputFile" not in field.types and INPUTFILE_DOCSTRING in field.description:
+                    field.types.insert(0, "InputFile")
+
+            if len(field.types) > 1:
+                field_type = "Variative[%s]" % ", ".join(
+                    convert_to_python_type(tp, self.parent_types)
+                    for tp in field.types
+                )
+            elif len(field.types) == 1:
+                field_type = convert_to_python_type(field.types[0], self.parent_types)
 
         if not field.required:
             field_type = f"Option[{field_type}] = Nothing"
@@ -217,7 +273,8 @@ class TypesGenerator(ABCGenerator):
             description = (
                 (
                     "Base object" if tp_schema.subtypes else "Object"
-                    if base is None else base.split(".")[-1] + " object"
+                    if base is None or base == object_name
+                    else base.split(".")[-1] + " object"
                 ) + f" `{object_name}`, see the [documentation]({tp_schema.href})"
             )
             code += '"""%s\n\n%s\n"""' % (
@@ -266,12 +323,12 @@ class TypesGenerator(ABCGenerator):
         logger.debug(f"Generation of {len(self.types)} objects...")
         lines = [
             "import typing\n\n",
-            "from fntypes.variative import Variative\n",
+            "from fntypes.co import Some, Variative\n",
             "from telegrinder.model import Model\n",
-            "from telegrinder.msgspec_utils import Option, Nothing\n\n",
+            "from telegrinder.msgspec_utils import Option, Nothing, datetime\n\n",
         ]
 
-        if self.enum_ref_configs:
+        if self.config_literal_types:
             lines.append("from telegrinder.types.enums import *  # noqa: F403\n")
 
         for type_schema in sorted(self.types, key=lambda x: x.subtypes or [], reverse=True):
@@ -280,17 +337,21 @@ class TypesGenerator(ABCGenerator):
         with open(path + "/objects.py", mode="w", encoding="UTF-8") as f:
             f.writelines(lines)
 
-        logger.debug(
-            f"Successful generation of {len(self.types)} objects into {path + '/objects.py'!r}!"
+        logger.info(
+            f"Successful generation of {len(self.types)} objects into {path + '/objects.py'!r}!",
         )
 
 
 class MethodsGenerator(ABCGenerator):
     def __init__(
-        self, methods: list[MethodSchema], parent_types: dict[str, list[str]]
+        self,
+        methods: list[MethodSchema],
+        parent_types: dict[str, list[str]],
+        config_literal_types: list[ConfigMethodLiteralTypes] | None = None,
     ) -> None:
         self.methods = methods
         self.parent_types = parent_types
+        self.config_literal_types = config_literal_types or []
 
     @staticmethod
     def make_type_hint(
@@ -300,15 +361,30 @@ class MethodsGenerator(ABCGenerator):
     ) -> str:
         if not types:
             return "typing.Any"
+        if len(types) == 1:
+            return convert_to_python_type(types[0], parent_types, as_forward_ref=False)
+        if len([x for x in types if x.startswith("Array of")]) > 1:
+            array_of_types = [
+                types.remove(v) or v.removeprefix("Array of")
+                for v in types[:]
+                if v.startswith("Array of")
+            ]
+            types.append("Array of " + ", ".join(array_of_types))
         sep = ", " if is_return_type else " | "
         return (
-            convert_to_python_type(types[0], parent_types).replace('"', "")
-            if len(types) == 1
-            else ("Variative[%s]" if is_return_type else "%s") % sep.join(
-                convert_to_python_type(tp, parent_types).replace('"', "")
+            ("Variative[%s]" if is_return_type else "%s") % sep.join(
+                convert_to_python_type(tp, parent_types, as_forward_ref=False)
                 for tp in types
             )
         )
+    
+    def get_param_literal_types(self, method_name: str, param_name: str) -> ParamLiteralTypes | None:
+        for cfg in self.config_literal_types:
+            if cfg["name"] == method_name:
+                for param in cfg["params"]:
+                    if param["name"] == param_name:
+                        return param
+        return None
 
     def make_method_body(self, method_schema: MethodSchema) -> str:
         field_descriptions = filter(
@@ -332,7 +408,7 @@ class MethodsGenerator(ABCGenerator):
                 + (f"\n\n{TAB * 2}".join(field_descriptions)).strip()
             ).strip()
             + f'\n{TAB * 2}"""\n\n'
-            + '{}method_response = await self.api.request_raw("{}", get_params(locals()))\n'.format(
+            + '{}method_response = await self.api.request_raw("{}", get_params(locals()),)\n'.format(
                 TAB * 2,
                 method_schema.name,
             )
@@ -340,7 +416,7 @@ class MethodsGenerator(ABCGenerator):
             + f"{self.make_type_hint(method_schema.returns or [], self.parent_types, is_return_type=True)})"
         )
 
-    def make_method_params(self, params: list[Field] | None = None) -> list[str]:
+    def make_method_params(self, method_name: str, params: list[Field] | None = None) -> list[str]:
         result = []
         if not params:
             return result
@@ -349,6 +425,22 @@ class MethodsGenerator(ABCGenerator):
             *filter(lambda x: x.required, params),
             *filter(lambda x: not x.required, params),
         ):
+            literal_types = self.get_param_literal_types(method_name, p.name)
+
+            if literal_types is not None:
+                tp = (
+                    literal_types["enum"]
+                    if "enum" in literal_types
+                    else "typing.Literal[%s]" % ", ".join(
+                        f'"{x}"' if isinstance(x, str) else str(x)
+                        for x in literal_types.get("literals", [])
+                    )
+                )
+                p.types = [tp]
+
+            if p.description and is_unixtime_type(p.name, p.types, p.description):
+                p.types.insert(p.types.index("Integer"), "Unixtime")
+            
             code = f"{TAB * 2}{p.name}: "
             if not p.required:
                 type_hint = self.make_type_hint(p.types)
@@ -367,7 +459,7 @@ class MethodsGenerator(ABCGenerator):
     def make_method(self, method_schema: MethodSchema) -> str:
         code = (
             f"{TAB}async def {camel_to_snake(method_schema.name)}(self,"
-            + ",\n".join(self.make_method_params(method_schema.fields))
+            + ",\n".join(self.make_method_params(method_schema.name, method_schema.fields))
             + ("," if method_schema.fields else "")
             + f"**other: typing.Any{',' if method_schema.fields else ''}) -> "
             + self.make_return_type(method_schema.returns)
@@ -402,14 +494,14 @@ class MethodsGenerator(ABCGenerator):
         with open(path + "/methods.py", mode="w", encoding="UTF-8") as f:
             f.writelines(lines)
 
-        logger.debug(
-            f"Successful generation of {len(self.methods)} methods into {path + '/methods.py'!r}!"
+        logger.info(
+            f"Successful generation of {len(self.methods)} methods into {path + '/methods.py'!r}!",
         )
 
 
 def generate(
     path: str | None = None,
-    literal_types_cfg_path: str | None = None,
+    path_cfg_literal_types: str | None = None,
     types_generator: ABCGenerator | None = None,
     methods_generator: ABCGenerator | None = None,
 ) -> None:
@@ -418,49 +510,52 @@ def generate(
         logger.warning(f"Path dir {path!r} not found! Making dir...")
         os.makedirs(path)
 
-    if not types_generator or not methods_generator:
+    if types_generator is None or methods_generator is None:
         schema = convert_schema_to_model(get_schema_json(), Schema)
-        literal_types_cfg = read_literal_types_cfg(literal_types_cfg_path)
+        cfg_literal_types = read_config_literal_types(path_cfg_literal_types)
         types_generator = types_generator or TypesGenerator(
-            schema.types,
-            MAIN_DIR + "/nicifications.py",
-            literal_types_cfg["objects"],
+            types=schema.types,
+            nicification_path=MAIN_DIR + "/nicifications.py",
+            config_literal_types=cfg_literal_types.get("objects"),
         )
         methods_generator = methods_generator or MethodsGenerator(
-            schema.methods,
-            types_generator.parent_types
+            methods=schema.methods,
+            parent_types=types_generator.parent_types
             if isinstance(types_generator, TypesGenerator)
             else {},
+            config_literal_types=cfg_literal_types.get("methods"),
         )
 
     types_generator.generate(path)
     methods_generator.generate(path)
+    logger.info("Schema has been successfully generated.")
 
     logger.debug("Run black formatter...")
     if os.system(f"black {path}") != 0:
-        logger.debug("Black formatter failed!")
+        logger.error("Black formatter failed!")
     else:
-        logger.debug("Black formatter successfully formatted files.")
+        logger.info("Black formatter successfully formatted files.")
     
     logger.debug("Run isort...")
     if os.system(f"isort {path}") != 0:
-        logger.debug("isort failed!")
+        logger.error("isort failed!")
     else:
-        logger.debug("isort successfully sorted imports.")
-    
-    logger.debug("Schema has been successfully generated.")
+        logger.info("isort successfully sorted imports.")
 
 
 __all__ = (
     "ABCGenerator",
-    "ObjectLiteralTypesConfig",
+    "ConfigLiteralTypes",
+    "ConfigObjectLiteralTypes",
+    "ConfigMethodLiteralTypes",
     "MethodsGenerator",
     "FieldLiteralTypes",
+    "ParamLiteralTypes",
     "SchemaJson",
     "TypesGenerator",
     "convert_schema_to_model",
     "find_nicifications",
     "generate",
     "get_schema_json",
-    "read_literal_types_cfg",
+    "read_config_literal_types",
 )

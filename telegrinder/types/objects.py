@@ -1,9 +1,9 @@
 import typing
 
-from fntypes.variative import Variative
+from fntypes.co import Some, Variative
 
 from telegrinder.model import Model
-from telegrinder.msgspec_utils import Nothing, Option
+from telegrinder.msgspec_utils import Nothing, Option, datetime
 from telegrinder.types.enums import *  # noqa: F403
 
 
@@ -235,6 +235,20 @@ class Update(Model):
     """Optional. A boost was removed from a chat. The bot must be an administrator 
     in the chat to receive these updates."""
 
+    @property
+    def update_type(self) -> Option[UpdateType]:
+        """Incoming update type."""
+
+        if update := next(
+            filter(
+                lambda x: bool(x[1]),
+                self.to_dict(exclude_fields={"update_id"}).items(),
+            ),
+            None,
+        ):
+            return Some(UpdateType(update[0]))
+        return Nothing
+
 
 class WebhookInfo(Model):
     """Object `WebhookInfo`, see the [documentation](https://core.telegram.org/bots/api#webhookinfo)
@@ -253,7 +267,7 @@ class WebhookInfo(Model):
     ip_address: Option[str] = Nothing
     """Optional. Currently used webhook IP address."""
 
-    last_error_date: Option[int] = Nothing
+    last_error_date: Option[datetime] = Nothing
     """Optional. Unix time for the most recent error that happened when trying 
     to deliver an update via webhook."""
 
@@ -261,7 +275,7 @@ class WebhookInfo(Model):
     """Optional. Error message in human-readable format for the most recent error 
     that happened when trying to deliver an update via webhook."""
 
-    last_synchronization_error_date: Option[int] = Nothing
+    last_synchronization_error_date: Option[datetime] = Nothing
     """Optional. Unix time of the most recent error that happened when trying to 
     synchronize available updates with Telegram datacenters."""
 
@@ -275,7 +289,7 @@ class WebhookInfo(Model):
 
 
 class User(Model):
-    """User object `User`, see the [documentation](https://core.telegram.org/bots/api#user)
+    """Object `User`, see the [documentation](https://core.telegram.org/bots/api#user)
 
     This object represents a Telegram user or bot."""
 
@@ -317,14 +331,14 @@ class User(Model):
     """Optional. True, if the bot supports inline queries. Returned only in getMe."""
 
     @property
-    def color(self) -> DefaultUserColor:
-        """User's or bot's color."""
+    def default_accent_color(self) -> DefaultAccentColor:
+        """User's or bot's accent color (non-premium)."""
 
-        return DefaultUserColor(self.id % 7)
+        return DefaultAccentColor(self.id % 7)
 
     @property
     def full_name(self) -> str:
-        """User's or bot's `first_name` + `last_name`."""
+        """User's or bot's full name (`first_name` + `last_name`)."""
 
         return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
 
@@ -392,7 +406,7 @@ class Chat(Model):
     """Optional. Custom emoji identifier of the emoji status of the chat or the 
     other party in a private chat. Returned only in getChat."""
 
-    emoji_status_expiration_date: Option[int] = Nothing
+    emoji_status_expiration_date: Option[datetime] = Nothing
     """Optional. Expiration date of the emoji status of the chat or the other party 
     in a private chat, in Unix time, if any. Returned only in getChat."""
 
@@ -486,16 +500,23 @@ class Chat(Model):
     """Optional. For supergroups, the location to which the supergroup is connected. 
     Returned only in getChat."""
 
+    @property
+    def full_name(self) -> Option[str]:
+        """Optional. Full name (`first_name` + `last_name`) of the
+        other party in a `private` chat."""
+
+        return self.first_name.map(lambda x: x + " " + self.last_name.unwrap_or(""))
+
 
 class Message(MaybeInaccessibleMessage):
-    """Message object `Message`, see the [documentation](https://core.telegram.org/bots/api#message)
+    """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message)
 
     This object represents a message."""
 
     message_id: int
     """Unique message identifier inside this chat."""
 
-    date: int
+    date: datetime
     """Date the message was sent in Unix time. It is always a positive number, representing 
     a valid date."""
 
@@ -559,7 +580,7 @@ class Message(MaybeInaccessibleMessage):
     via_bot: Option["User"] = Nothing
     """Optional. Bot through which the message was sent."""
 
-    edit_date: Option[int] = Nothing
+    edit_date: Option[datetime] = Nothing
     """Optional. Date the message was last edited in Unix time."""
 
     has_protected_content: Option[bool] = Nothing
@@ -795,12 +816,29 @@ class Message(MaybeInaccessibleMessage):
 
     @property
     def from_user(self) -> "User":
-        """`from_user` instead of `from_.unwrap()`"""
+        """`from_user` instead of `from_.unwrap()`."""
 
         return self.from_.unwrap()
 
+    @property
+    def chat_id(self) -> int:
+        """`chat_id` instead of `chat.id`."""
+
+        return self.chat.id
+
+    @property
+    def chat_title(self) -> str:
+        """Chat title, for `supergroups`, `channels` and `group` chats.
+        Full name, for `private` chat."""
+
+        return (
+            self.chat.full_name.unwrap()
+            if self.chat.type == ChatType.PRIVATE
+            else self.chat.title.unwrap()
+        )
+
     def __eq__(self, other: "Message") -> bool:
-        return self.message_id == other.message_id and self.chat.id == other.chat.id
+        return self.message_id == other.message_id and self.chat_id == other.chat_id
 
 
 class MessageId(Model):
@@ -812,8 +850,8 @@ class MessageId(Model):
     """Unique message identifier."""
 
 
-class InaccessibleMessage(Model):
-    """Model object `InaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#inaccessiblemessage)
+class InaccessibleMessage(MaybeInaccessibleMessage):
+    """Object `InaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#inaccessiblemessage)
 
     This object describes a message that was deleted or is otherwise inaccessible to the bot.
     """
@@ -1021,7 +1059,7 @@ class MessageOriginUser(MessageOrigin):
     type: typing.Literal["user"]
     """Type of the message origin, always `user`."""
 
-    date: int
+    date: datetime
     """Date the message was sent originally in Unix time."""
 
     sender_user: "User"
@@ -1036,7 +1074,7 @@ class MessageOriginHiddenUser(MessageOrigin):
     type: typing.Literal["hidden_user"]
     """Type of the message origin, always `hidden_user`."""
 
-    date: int
+    date: datetime
     """Date the message was sent originally in Unix time."""
 
     sender_user_name: str
@@ -1051,7 +1089,7 @@ class MessageOriginChat(MessageOrigin):
     type: typing.Literal["chat"]
     """Type of the message origin, always `chat`."""
 
-    date: int
+    date: datetime
     """Date the message was sent originally in Unix time."""
 
     sender_chat: "Chat"
@@ -1070,7 +1108,7 @@ class MessageOriginChannel(MessageOrigin):
     type: typing.Literal["channel"]
     """Type of the message origin, always `channel`."""
 
-    date: int
+    date: datetime
     """Date the message was sent originally in Unix time."""
 
     chat: "Chat"
@@ -1401,7 +1439,7 @@ class Poll(Model):
     is_anonymous: bool
     """True, if the poll is anonymous."""
 
-    type: str
+    type: typing.Literal["regular", "quiz"]
     """Poll type, currently can be `regular` or `quiz`."""
 
     allows_multiple_answers: bool
@@ -1423,7 +1461,7 @@ class Poll(Model):
     open_period: Option[int] = Nothing
     """Optional. Amount of time in seconds the poll will be active after creation."""
 
-    close_date: Option[int] = Nothing
+    close_date: Option[datetime] = Nothing
     """Optional. Point in time (Unix timestamp) when the poll will be automatically 
     closed."""
 
@@ -1650,7 +1688,7 @@ class VideoChatScheduled(Model):
     This object represents a service message about a video chat scheduled in the chat.
     """
 
-    start_date: int
+    start_date: datetime
     """Point in time (Unix timestamp) when the video chat is supposed to be started 
     by a chat administrator."""
 
@@ -1696,7 +1734,7 @@ class Giveaway(Model):
     chats: list["Chat"]
     """The list of chats which the user must join to participate in the giveaway."""
 
-    winners_selection_date: int
+    winners_selection_date: datetime
     """Point in time (Unix timestamp) when winners of the giveaway will be selected."""
 
     winner_count: int
@@ -1735,7 +1773,7 @@ class GiveawayWinners(Model):
     giveaway_message_id: int
     """Identifier of the message with the giveaway in the chat."""
 
-    winners_selection_date: int
+    winners_selection_date: datetime
     """Point in time (Unix timestamp) when winners of the giveaway were selected."""
 
     winner_count: int
@@ -2005,7 +2043,7 @@ class KeyboardButtonPollType(Model):
     This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
     """
 
-    type: Option[str] = Nothing
+    type: Option[typing.Literal["quiz", "regular"]] = Nothing
     """Optional. If quiz is passed, the user will be allowed to create only polls 
     in the quiz mode. If regular is passed, only regular polls will be allowed. 
     Otherwise, the user will be allowed to create a poll of any type."""
@@ -2253,7 +2291,7 @@ class ChatInviteLink(Model):
     name: Option[str] = Nothing
     """Optional. Invite link name."""
 
-    expire_date: Option[int] = Nothing
+    expire_date: Option[datetime] = Nothing
     """Optional. Point in time (Unix timestamp) when the link will expire or has 
     been expired."""
 
@@ -2310,19 +2348,19 @@ class ChatAdministratorRights(Model):
 
     can_post_messages: Option[bool] = Nothing
     """Optional. True, if the administrator can post messages in the channel, 
-    or access channel statistics; channels only."""
+    or access channel statistics; for channels only."""
 
     can_edit_messages: Option[bool] = Nothing
     """Optional. True, if the administrator can edit messages of other users and 
-    can pin messages; channels only."""
+    can pin messages; for channels only."""
 
     can_pin_messages: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to pin messages; groups and supergroups 
+    """Optional. True, if the user is allowed to pin messages; for groups and supergroups 
     only."""
 
     can_manage_topics: Option[bool] = Nothing
     """Optional. True, if the user is allowed to create, rename, close, and reopen 
-    forum topics; supergroups only."""
+    forum topics; for supergroups only."""
 
 
 class ChatMemberUpdated(Model):
@@ -2336,7 +2374,7 @@ class ChatMemberUpdated(Model):
     from_: "User"
     """Performer of the action, which resulted in the change."""
 
-    date: int
+    date: datetime
     """Date the change was done in Unix time."""
 
     old_chat_member: Variative[
@@ -2439,19 +2477,19 @@ class ChatMemberAdministrator(ChatMember):
 
     can_post_messages: Option[bool] = Nothing
     """Optional. True, if the administrator can post messages in the channel, 
-    or access channel statistics; channels only."""
+    or access channel statistics; for channels only."""
 
     can_edit_messages: Option[bool] = Nothing
     """Optional. True, if the administrator can edit messages of other users and 
-    can pin messages; channels only."""
+    can pin messages; for channels only."""
 
     can_pin_messages: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to pin messages; groups and supergroups 
+    """Optional. True, if the user is allowed to pin messages; for groups and supergroups 
     only."""
 
     can_manage_topics: Option[bool] = Nothing
     """Optional. True, if the user is allowed to create, rename, close, and reopen 
-    forum topics; supergroups only."""
+    forum topics; for supergroups only."""
 
     custom_title: Option[str] = Nothing
     """Optional. Custom title for this user."""
@@ -2528,7 +2566,7 @@ class ChatMemberRestricted(ChatMember):
     can_manage_topics: bool
     """True, if the user is allowed to create forum topics."""
 
-    until_date: int
+    until_date: datetime
     """Date when restrictions will be lifted for this user; Unix time. If 0, then 
     the user is restricted forever."""
 
@@ -2558,7 +2596,7 @@ class ChatMemberBanned(ChatMember):
     user: "User"
     """Information about the user."""
 
-    until_date: int
+    until_date: datetime
     """Date when restrictions will be lifted for this user; Unix time. If 0, then 
     the user is banned forever."""
 
@@ -2583,7 +2621,7 @@ class ChatJoinRequest(Model):
     5 minutes to send messages until the join request is processed, assuming 
     no other administrator contacted the user."""
 
-    date: int
+    date: datetime
     """Date the request was sent in Unix time."""
 
     bio: Option[str] = Nothing
@@ -2711,7 +2749,7 @@ class MessageReactionUpdated(Model):
     message_id: int
     """Unique identifier of the message inside the chat."""
 
-    date: int
+    date: datetime
     """Date of the change in Unix time."""
 
     old_reaction: list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]
@@ -2739,7 +2777,7 @@ class MessageReactionCountUpdated(Model):
     message_id: int
     """Unique message identifier inside the chat."""
 
-    date: int
+    date: datetime
     """Date of the change in Unix time."""
 
     reactions: list["ReactionCount"]
@@ -2976,10 +3014,10 @@ class ChatBoost(Model):
     boost_id: str
     """Unique identifier of the boost."""
 
-    add_date: int
+    add_date: datetime
     """Point in time (Unix timestamp) when the chat was boosted."""
 
-    expiration_date: int
+    expiration_date: datetime
     """Point in time (Unix timestamp) when the boost will automatically expire, 
     unless the booster's Telegram Premium subscription is prolonged."""
 
@@ -3012,7 +3050,7 @@ class ChatBoostRemoved(Model):
     boost_id: str
     """Unique identifier of the boost."""
 
-    remove_date: int
+    remove_date: datetime
     """Point in time (Unix timestamp) when the boost was removed."""
 
     source: Variative[
@@ -3055,7 +3093,7 @@ class InputMediaPhoto(InputMedia):
     type: typing.Literal["photo"]
     """Type of the result, must be photo."""
 
-    media: str
+    media: Variative["InputFile", str]
     """File to send. Pass a file_id to send a file that exists on the Telegram servers 
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
@@ -3085,7 +3123,7 @@ class InputMediaVideo(InputMedia):
     type: typing.Literal["video"]
     """Type of the result, must be video."""
 
-    media: str
+    media: Variative["InputFile", str]
     """File to send. Pass a file_id to send a file that exists on the Telegram servers 
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
@@ -3137,7 +3175,7 @@ class InputMediaAnimation(InputMedia):
     type: typing.Literal["animation"]
     """Type of the result, must be animation."""
 
-    media: str
+    media: Variative["InputFile", str]
     """File to send. Pass a file_id to send a file that exists on the Telegram servers 
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
@@ -3185,7 +3223,7 @@ class InputMediaAudio(InputMedia):
     type: typing.Literal["audio"]
     """Type of the result, must be audio."""
 
-    media: str
+    media: Variative["InputFile", str]
     """File to send. Pass a file_id to send a file that exists on the Telegram servers 
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
@@ -3230,7 +3268,7 @@ class InputMediaDocument(InputMedia):
     type: typing.Literal["document"]
     """Type of the result, must be document."""
 
-    media: str
+    media: Variative["InputFile", str]
     """File to send. Pass a file_id to send a file that exists on the Telegram servers 
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
@@ -3270,7 +3308,7 @@ class InputFile(typing.NamedTuple):
     """
 
     filename: str
-    """Filename."""
+    """File name."""
 
     data: bytes
     """Bytes of file."""
@@ -3594,7 +3632,9 @@ class InlineQueryResultGif(InlineQueryResult):
     gif_duration: Option[int] = Nothing
     """Optional. Duration of the GIF in seconds."""
 
-    thumbnail_mime_type: Option[str] = Nothing
+    thumbnail_mime_type: Option[
+        typing.Literal["image/jpeg", "image/gif", "video/mp4"]
+    ] = Nothing
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, 
     or `video/mp4`. Defaults to `image/jpeg`."""
 
@@ -3655,7 +3695,9 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     mpeg4_duration: Option[int] = Nothing
     """Optional. Video duration in seconds."""
 
-    thumbnail_mime_type: Option[str] = Nothing
+    thumbnail_mime_type: Option[
+        typing.Literal["image/jpeg", "image/gif", "video/mp4"]
+    ] = Nothing
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, 
     or `video/mp4`. Defaults to `image/jpeg`."""
 
@@ -3869,7 +3911,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     document_url: str
     """A valid URL for the file."""
 
-    mime_type: str
+    mime_type: typing.Literal["application/pdf", "application/zip"]
     """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
 
     caption: Option[str] = Nothing
@@ -4873,7 +4915,7 @@ class PassportFile(Model):
     file_size: int
     """File size in bytes."""
 
-    file_date: int
+    file_date: datetime
     """Unix time when the file was uploaded."""
 
 
@@ -4894,43 +4936,43 @@ class EncryptedPassportElement(Model):
 
     data: Option[str] = Nothing
     """Optional. Base64-encoded encrypted Telegram Passport element data provided 
-    by the user, available for `personal_details`, `passport`, `driver_license`, 
+    by the user; available only for `personal_details`, `passport`, `driver_license`, 
     `identity_card`, `internal_passport` and `address` types. Can be decrypted 
     and verified using the accompanying EncryptedCredentials."""
 
     phone_number: Option[str] = Nothing
-    """Optional. User's verified phone number, available only for `phone_number` 
+    """Optional. User's verified phone number; available only for `phone_number` 
     type."""
 
     email: Option[str] = Nothing
-    """Optional. User's verified email address, available only for `email` type."""
+    """Optional. User's verified email address; available only for `email` type."""
 
     files: Option[list["PassportFile"]] = Nothing
-    """Optional. Array of encrypted files with documents provided by the user, 
-    available for `utility_bill`, `bank_statement`, `rental_agreement`, 
+    """Optional. Array of encrypted files with documents provided by the user; 
+    available only for `utility_bill`, `bank_statement`, `rental_agreement`, 
     `passport_registration` and `temporary_registration` types. Files 
     can be decrypted and verified using the accompanying EncryptedCredentials."""
 
     front_side: Option["PassportFile"] = Nothing
     """Optional. Encrypted file with the front side of the document, provided 
-    by the user. Available for `passport`, `driver_license`, `identity_card` 
+    by the user; available only for `passport`, `driver_license`, `identity_card` 
     and `internal_passport`. The file can be decrypted and verified using 
     the accompanying EncryptedCredentials."""
 
     reverse_side: Option["PassportFile"] = Nothing
     """Optional. Encrypted file with the reverse side of the document, provided 
-    by the user. Available for `driver_license` and `identity_card`. The 
-    file can be decrypted and verified using the accompanying EncryptedCredentials."""
+    by the user; available only for `driver_license` and `identity_card`. 
+    The file can be decrypted and verified using the accompanying EncryptedCredentials."""
 
     selfie: Option["PassportFile"] = Nothing
     """Optional. Encrypted file with the selfie of the user holding a document, 
-    provided by the user; available for `passport`, `driver_license`, `identity_card` 
-    and `internal_passport`. The file can be decrypted and verified using 
-    the accompanying EncryptedCredentials."""
+    provided by the user; available if requested for `passport`, `driver_license`, 
+    `identity_card` and `internal_passport`. The file can be decrypted and 
+    verified using the accompanying EncryptedCredentials."""
 
     translation: Option[list["PassportFile"]] = Nothing
     """Optional. Array of encrypted files with translated versions of documents 
-    provided by the user. Available if requested for `passport`, `driver_license`, 
+    provided by the user; available if requested for `passport`, `driver_license`, 
     `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, 
     `rental_agreement`, `passport_registration` and `temporary_registration` 
     types. Files can be decrypted and verified using the accompanying EncryptedCredentials."""

@@ -1,4 +1,3 @@
-import types  # noqa: TCH003
 import typing
 
 import fntypes.option
@@ -9,10 +8,16 @@ T = typing.TypeVar("T")
 Ts = typing.TypeVarTuple("Ts")
 
 if typing.TYPE_CHECKING:
+    import types
+    from datetime import datetime
+
     from fntypes.option import Option
 else:
+    from datetime import datetime as dt
 
     Value = typing.TypeVar("Value")
+
+    datetime = type("datetime", (dt,), {})
 
     class OptionMeta(type):
         def __instancecheck__(cls, __instance: typing.Any) -> bool:
@@ -22,8 +27,8 @@ else:
     class Option(typing.Generic[Value], metaclass=OptionMeta):
         pass
 
-DecHook: typing.TypeAlias = typing.Callable[[type[T], object], object]
-EncHook: typing.TypeAlias = typing.Callable[[T], object]
+DecHook: typing.TypeAlias = typing.Callable[[type[T], typing.Any], object]
+EncHook: typing.TypeAlias = typing.Callable[[T], typing.Any]
 
 Nothing: typing.Final[fntypes.option.Nothing] = fntypes.option.Nothing()
 
@@ -43,7 +48,11 @@ def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, msgspec.Validation
         return Error(exc)
 
 
-def option_dec_hook(tp: type["Option[typing.Any]"], obj: typing.Any) -> typing.Any:
+def datetime_dec_hook(tp: type[datetime], obj: int | float) -> datetime:
+    return tp.fromtimestamp(obj)
+
+
+def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
     if obj is None:
         return Nothing
     generic_args = typing.get_args(tp)
@@ -85,19 +94,26 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
     )
 
 
-def option_enc_hook(obj: "Option[typing.Any]") -> typing.Any | None:
+def datetime_enc_hook(obj: datetime) -> int:
+    return int(obj.timestamp())
+
+
+def option_enc_hook(obj: Option[typing.Any]) -> typing.Any | None:
     return obj.value if isinstance(obj, fntypes.option.Some) else None
 
 
-def variative_enc_hook(obj: Variative) -> typing.Any:
-    return typing.cast(typing.Any, obj.v)
+def variative_enc_hook(obj: Variative[typing.Any]) -> typing.Any:
+    return obj.v
 
 
 class Decoder:
     def __init__(self) -> None:
-        self.dec_hooks: dict[type | types.UnionType, DecHook[typing.Any]] = {
+        self.dec_hooks: dict[
+            typing.Union[type[typing.Any], "types.UnionType"], DecHook[typing.Any]
+        ] = {
             Option: option_dec_hook,
             Variative: variative_dec_hook,
+            datetime: datetime_dec_hook,
         }
 
     def add_dec_hook(self, tp: type[T]):
@@ -156,6 +172,7 @@ class Encoder:
             fntypes.option.Some: option_enc_hook,
             fntypes.option.Nothing: option_enc_hook,
             Variative: variative_enc_hook,
+            datetime: datetime_enc_hook,
         }
 
     def add_dec_hook(self, tp: type[T]):
@@ -198,10 +215,13 @@ __all__ = (
     "get_origin",
     "repr_type",
     "msgspec_convert",
+    "datetime_dec_hook",
+    "datetime_enc_hook",
     "option_dec_hook",
     "option_enc_hook",
     "variative_dec_hook",
     "variative_enc_hook",
+    "datetime",
     "decoder",
     "encoder",
 )

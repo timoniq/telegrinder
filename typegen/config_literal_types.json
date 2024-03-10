@@ -359,6 +359,13 @@
                     "literals": [
                         "document"
                     ]
+                },
+                {
+                    "name": "mime_type",
+                    "literals": [
+                        "application/pdf",
+                        "application/zip"
+                    ]
                 }
             ]
         },
@@ -381,6 +388,14 @@
                     "literals": [
                         "gif"
                     ]
+                },
+                {
+                    "name": "thumbnail_mime_type",
+                    "literals": [
+                        "image/jpeg",
+                        "image/gif",
+                        "video/mp4"
+                    ]
                 }
             ]
         },
@@ -402,6 +417,14 @@
                     "name": "type",
                     "literals": [
                         "mpeg4_gif"
+                    ]
+                },
+                {
+                    "name": "thumbnail_mime_type",
+                    "literals": [
+                        "image/jpeg",
+                        "image/gif",
+                        "video/mp4"
                     ]
                 }
             ]
@@ -501,6 +524,18 @@
                     "name": "type",
                     "literals": [
                         "video"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "KeyboardButtonPollType",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "quiz",
+                        "regular"
                     ]
                 }
             ]
@@ -778,7 +813,7 @@
             ]
         },
         {
-            "name": "Pool",
+            "name": "Poll",
             "fields": [
                 {
                     "name": "type",
@@ -840,6 +875,81 @@
                     "name": "sticker_type",
                     "literals": [
                         "regular",
+                        "mask",
+                        "custom_emoji"
+                    ]
+                }
+            ]
+        }
+    ],
+    "methods": [
+        {
+            "name": "sendDice",
+            "params": [
+                {
+                    "name": "emoji",
+                    "enum": "DiceEmoji"
+                }
+            ]
+        },
+        {
+            "name": "sendPoll",
+            "params": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "quiz", 
+                        "regular"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "sendChatAction",
+            "params": [
+                {
+                    "name": "action",
+                    "enum": "ChatAction"
+                }
+            ]
+        },
+        {
+            "name": "createForumTopic",
+            "params": [
+                {
+                    "name": "icon_color",
+                    "enum": "TopicIconColor"
+                }
+            ]
+        },
+        {
+            "name": "uploadStickerFile",
+            "params": [
+                {
+                    "name": "sticker_format",
+                    "literals": [
+                        "static", 
+                        "animated",
+                        "video"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "createNewStickerSet",
+            "params": [
+                {
+                    "name": "sticker_format",
+                    "literals": [
+                        "static", 
+                        "animated",
+                        "video"
+                    ]
+                },
+                {
+                    "name": "sticker_type",
+                    "literals": [
+                        "regular", 
                         "mask",
                         "custom_emoji"
                     ]
