@@ -2,11 +2,11 @@ import typing
 from contextlib import suppress
 
 import msgspec
-from fntypes.co import Result, Some, Variative
+from fntypes.co import Nothing, Result, Some, Variative, unwrapping
 
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
-from telegrinder.msgspec_utils import Nothing, Option, decoder
+from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.types import (
     CallbackQuery,
     InlineKeyboardMarkup,
@@ -23,22 +23,20 @@ from .base import BaseCute, compose_method_params, shortcut
 from .message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
 
 
-class CallbackQueryCute(
-    BaseCute[CallbackQuery], CallbackQuery, kw_only=True, dict=True
-):
+class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, dict=True):
     api: ABCAPI
 
     @property
     def from_user(self) -> User:
         return self.from_
-    
+
     @property
     def chat_id(self) -> Option[int]:
         """Optional. Message from chat ID. This will be present if the message is sent
         by the bot with the callback button that originated the query."""
 
         return self.message.map(lambda m: m.v.chat.id)
-    
+
     @property
     def is_topic_message(self) -> Option[bool]:
         """Optional. True, if the message is a topic message with a name,
@@ -46,22 +44,24 @@ class CallbackQueryCute(
         by the bot with the callback button that originated the query."""
 
         return self.message.map(
-            lambda m: m.only().map(
-                lambda m: m.is_topic_message.unwrap_or(False)
-            ).unwrap_or(False)
+            lambda m: m.only()
+            .map(lambda m: m.is_topic_message.unwrap_or(False))
+            .unwrap_or(False)
         )
-    
+
     @property
+    @unwrapping
     def message_thread_id(self) -> Option[int]:
         """Optional. Unique identifier of the target message thread (for forum supergroups only).
         This will be present if the message is sent
         by the bot with the callback button that originated the query."""
 
-        return self.message.map(
-            lambda m: m.only().map(
-                lambda m: m.message_thread_id,
-            ).unwrap_or(Nothing)
-        ).unwrap_or(Nothing)
+        return (
+            self.message.unwrap()
+            .only()
+            .map(lambda m: m.message_thread_id.unwrap())
+            .cast(Some, Nothing)
+        )
 
     @property
     def message_id(self) -> Option[int]:
@@ -71,23 +71,23 @@ class CallbackQueryCute(
 
         return self.message.map(lambda m: m.v.message_id)
 
-    def decode_callback_data(self, *, strict: bool = True) -> Option[dict[str, typing.Any]]:
+    def decode_callback_data(self) -> Option[dict[str, typing.Any]]:
         if "cached_callback_data" in self.__dict__:
             return self.__dict__["cached_callback_data"]
-        data = Nothing
+        data = Nothing()
         with suppress(msgspec.ValidationError):
-            data = Some(decoder.decode(self.data.unwrap(), strict=strict))
+            data = Some(decoder.decode(self.data.unwrap()))
         self.__dict__["cached_callback_data"] = data
         return data
 
     @shortcut("answer_callback_query")
     async def answer(
         self,
-        text: str | Option[str] = Nothing,
-        callback_query_id: str | Option[str] = Nothing,
-        show_alert: bool | Option[bool] = Nothing,
-        url: str | Option[str] = Nothing,
-        cache_time: int | Option[int] = Nothing,
+        text: str | None = None,
+        callback_query_id: str | None = None,
+        show_alert: bool | None = None,
+        url: str | None = None,
+        cache_time: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.answer_callback_query()`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)
@@ -118,26 +118,24 @@ class CallbackQueryCute(
             get_params(locals()), self, default_params={("callback_query_id", "id")}
         )
         return await self.ctx_api.answer_callback_query(**params)
-    
+
     @shortcut(
         "copy_message",
         custom_params={"reply_parameters", "message_thread_id"},
     )
     async def copy(
         self,
-        chat_id: int | str | Option[int | str] = Nothing,
-        from_chat_id: int | str | Option[int | str] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        caption: Option[str] | str = Nothing,
-        parse_mode: Option[str] | str = Nothing,
-        caption_entities: Option[list[MessageEntity]] | list[MessageEntity] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        from_chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
@@ -185,9 +183,9 @@ class CallbackQueryCute(
     @shortcut("delete_message", custom_params={"message_thread_id"})
     async def delete(
         self,
-        chat_id: int | Option[int] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
+        chat_id: int | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
@@ -217,21 +215,19 @@ class CallbackQueryCute(
     @shortcut(
         "edit_message_text",
         executor=execute_method_edit,
-        custom_params={"message_thread_id", "link_preview_options"}
+        custom_params={"message_thread_id", "link_preview_options"},
     )
     async def edit_text(
         self,
-        text: str | Option[str],
-        inline_message_id: int | Option[int] = Nothing,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        link_preview_options: Option[LinkPreviewOptions | dict[str, typing.Any]]
-        | LinkPreviewOptions
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        text: str | None,
+        inline_message_id: int | None = None,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
@@ -265,7 +261,7 @@ class CallbackQueryCute(
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
 
         ...
-    
+
     @shortcut(
         "edit_message_live_location",
         executor=execute_method_edit,
@@ -275,14 +271,14 @@ class CallbackQueryCute(
         self,
         latitude: float,
         longitude: float,
-        inline_message_id: Option[str] | str = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        horizontal_accuracy: Option[float] | float = Nothing,
-        heading: Option[int] | int = Nothing,
-        proximity_alert_radius: Option[int] | int = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        inline_message_id: str | None = None,
+        message_thread_id: int | None = None,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        horizontal_accuracy: float | None = None,
+        heading: int | None = None,
+        proximity_alert_radius: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_live_location()`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
@@ -319,7 +315,7 @@ class CallbackQueryCute(
         :param reply_markup: A JSON-serialized object for a new inline keyboard."""
 
         ...
-    
+
     @shortcut(
         "edit_message_caption",
         executor=execute_method_edit,
@@ -327,14 +323,14 @@ class CallbackQueryCute(
     )
     async def edit_caption(
         self,
-        caption: Option[str] | str,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        inline_message_id: Option[str] | str = Nothing,
-        parse_mode: Option[str] | str = Nothing,
-        caption_entities: Option[list[MessageEntity]] | list[MessageEntity] = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        caption: str,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        inline_message_id: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
@@ -381,15 +377,15 @@ class CallbackQueryCute(
     async def edit_media(
         self,
         media: str | InputFile | InputMedia,
-        type: MediaType | Option[MediaType] = Nothing,
-        caption: Option[str] | str = Nothing,
-        parse_mode: Option[str] | str = Nothing,
-        caption_entities: Option[list[MessageEntity]] | list[MessageEntity] = Nothing,
-        inline_message_id: Option[str] | str = Nothing,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        type: MediaType | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        inline_message_id: str | None = None,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
@@ -438,11 +434,11 @@ class CallbackQueryCute(
     )
     async def edit_reply_markup(
         self,
-        inline_message_id: Option[str] | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        chat_id: Option[int | str] | int | str = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        inline_message_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        chat_id: int | str | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)

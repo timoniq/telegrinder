@@ -1,14 +1,15 @@
-import logging
+import pathlib
 
 from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.modules import logger
 from telegrinder.rules import Integer, IsPrivate
 from telegrinder.tools.formatting import HTMLFormatter, Link
 
 api = API(Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.DEBUG)
+glossary = pathlib.Path("examples/assets/kaktovik.txt").read_text(encoding="UTF-8")
 
-glossary = open("examples/assets/kaktovik.txt", "r", encoding="utf-8").read()  # noqa
+logger.set_level("INFO")
 
 
 @bot.on.message(Integer())

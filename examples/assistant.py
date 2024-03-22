@@ -1,16 +1,16 @@
-import logging
 import time
 
 from fntypes.result import Error, Ok
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import Context
+from telegrinder.modules import logger
 from telegrinder.rules import IsChat, Markup, MessageRule, Text
 from telegrinder.types import ChatPermissions
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+logger.set_level("INFO")
 
 
 class WithReply(MessageRule):

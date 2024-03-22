@@ -14,18 +14,10 @@ from telegrinder.tools.buttons import DataclassInstance
 from .abc import ABCRule
 from .markup import Markup, PatternLike, check_string
 
-if typing.TYPE_CHECKING:
+T = typing.TypeVar("T")
 
-    T = typing.TypeVar("T")
-    Ref: typing.TypeAlias = typing.Annotated[T, ...]
-else:
-
-    class Ref:
-        def __class_getitem__(cls, code: str) -> typing.ForwardRef:
-            return typing.ForwardRef(code)
-
-
-CallbackQuery = CallbackQueryCute
+Ref: typing.TypeAlias = typing.Annotated[T, ...]
+CallbackQuery: typing.TypeAlias = CallbackQueryCute
 Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaitable[bool]]
 MapDict: typing.TypeAlias = dict[
     str, typing.Any | type[typing.Any] | Validator | list[Ref["MapDict"]] | Ref["MapDict"]

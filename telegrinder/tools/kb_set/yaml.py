@@ -8,7 +8,7 @@ from telegrinder.tools.keyboard import InlineKeyboard, Keyboard
 
 from .base import KeyboardSetBase, KeyboardSetError
 
-PathLike = str | os.PathLike[str]
+PathLike: typing.TypeAlias = str | os.PathLike[str]
 
 
 class KeyboardSetYAML(KeyboardSetBase):
@@ -27,7 +27,7 @@ class KeyboardSetYAML(KeyboardSetBase):
                 encoding="UTF-8",
             ),
             yaml.Loader,
-        ) 
+        )
         for name, hint in typing.get_type_hints(cls).items():
             g = re.match(r"(?:kb_|keyboard_)(.+)", name.lower())
             if not g:
@@ -47,7 +47,7 @@ class KeyboardSetYAML(KeyboardSetBase):
                     "Keyboard should be dict with field buttons which must be a list, "
                     "check documentation."
                 )
-            
+
             buttons = kb_config.pop("buttons")
             new_keyboard: Keyboard | InlineKeyboard = hint(**kb_config)
             for button in buttons:

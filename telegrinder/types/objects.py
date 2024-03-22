@@ -12,7 +12,8 @@ class ReactionType(Model):
 
     This object describes the type of a reaction. Currently, it can be one of
     - ReactionTypeEmoji
-    - ReactionTypeCustomEmoji"""
+    - ReactionTypeCustomEmoji
+    """
 
 
 class PassportElementError(Model):
@@ -27,7 +28,8 @@ class PassportElementError(Model):
     - PassportElementErrorFiles
     - PassportElementErrorTranslationFile
     - PassportElementErrorTranslationFiles
-    - PassportElementErrorUnspecified"""
+    - PassportElementErrorUnspecified
+    """
 
 
 class MessageOrigin(Model):
@@ -37,7 +39,8 @@ class MessageOrigin(Model):
     - MessageOriginUser
     - MessageOriginHiddenUser
     - MessageOriginChat
-    - MessageOriginChannel"""
+    - MessageOriginChannel
+    """
 
 
 class MaybeInaccessibleMessage(Model):
@@ -45,7 +48,8 @@ class MaybeInaccessibleMessage(Model):
 
     This object describes a message that can be inaccessible to the bot. It can be one of
     - Message
-    - InaccessibleMessage"""
+    - InaccessibleMessage
+    """
 
 
 class MenuButton(Model):
@@ -67,7 +71,8 @@ class InputMessageContent(Model):
     - InputLocationMessageContent
     - InputVenueMessageContent
     - InputContactMessageContent
-    - InputInvoiceMessageContent"""
+    - InputInvoiceMessageContent
+    """
 
 
 class InputMedia(Model):
@@ -78,7 +83,8 @@ class InputMedia(Model):
     - InputMediaDocument
     - InputMediaAudio
     - InputMediaPhoto
-    - InputMediaVideo"""
+    - InputMediaVideo
+    """
 
 
 class InlineQueryResult(Model):
@@ -118,7 +124,8 @@ class ChatMember(Model):
     - ChatMemberMember
     - ChatMemberRestricted
     - ChatMemberLeft
-    - ChatMemberBanned"""
+    - ChatMemberBanned
+    """
 
 
 class ChatBoostSource(Model):
@@ -127,7 +134,8 @@ class ChatBoostSource(Model):
     This object describes the source of a chat boost. It can be one of
     - ChatBoostSourcePremium
     - ChatBoostSourceGiftCode
-    - ChatBoostSourceGiveaway"""
+    - ChatBoostSourceGiveaway
+    """
 
 
 class BotCommandScope(Model):
@@ -140,14 +148,16 @@ class BotCommandScope(Model):
     - BotCommandScopeAllChatAdministrators
     - BotCommandScopeChat
     - BotCommandScopeChatAdministrators
-    - BotCommandScopeChatMember"""
+    - BotCommandScopeChatMember
+    """
 
 
 class Update(Model):
     """Object `Update`, see the [documentation](https://core.telegram.org/bots/api#update)
 
     This object represents an incoming update.
-    At most one of the optional parameters can be present in any given update."""
+    At most one of the optional parameters can be present in any given update.
+    """
 
     update_id: int
     """The update's unique identifier. Update identifiers start from a certain 
@@ -253,7 +263,8 @@ class Update(Model):
 class WebhookInfo(Model):
     """Object `WebhookInfo`, see the [documentation](https://core.telegram.org/bots/api#webhookinfo)
 
-    Describes the current status of a webhook."""
+    Describes the current status of a webhook.
+    """
 
     url: str
     """Webhook URL, may be empty if webhook is not set up."""
@@ -291,7 +302,8 @@ class WebhookInfo(Model):
 class User(Model):
     """Object `User`, see the [documentation](https://core.telegram.org/bots/api#user)
 
-    This object represents a Telegram user or bot."""
+    This object represents a Telegram user or bot.
+    """
 
     id: int
     """Unique identifier for this user or bot. This number may have more than 32 
@@ -346,7 +358,8 @@ class User(Model):
 class Chat(Model):
     """Object `Chat`, see the [documentation](https://core.telegram.org/bots/api#chat)
 
-    This object represents a chat."""
+    This object represents a chat.
+    """
 
     id: int
     """Unique identifier for this chat. This number may have more than 32 significant 
@@ -511,7 +524,8 @@ class Chat(Model):
 class Message(MaybeInaccessibleMessage):
     """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message)
 
-    This object represents a message."""
+    This object represents a message.
+    """
 
     message_id: int
     """Unique message identifier inside this chat."""
@@ -837,14 +851,19 @@ class Message(MaybeInaccessibleMessage):
             else self.chat.title.unwrap()
         )
 
-    def __eq__(self, other: "Message") -> bool:
-        return self.message_id == other.message_id and self.chat_id == other.chat_id
+    def __eq__(self, other: typing.Any) -> bool:
+        return (
+            isinstance(other, self.__class__)
+            and self.message_id == other.message_id
+            and self.chat_id == other.chat_id
+        )
 
 
 class MessageId(Model):
     """Object `MessageId`, see the [documentation](https://core.telegram.org/bots/api#messageid)
 
-    This object represents a unique message identifier."""
+    This object represents a unique message identifier.
+    """
 
     message_id: int
     """Unique message identifier."""
@@ -1017,7 +1036,8 @@ class ExternalReplyInfo(Model):
 class ReplyParameters(Model):
     """Object `ReplyParameters`, see the [documentation](https://core.telegram.org/bots/api#replyparameters)
 
-    Describes reply parameters for the message that is being sent."""
+    Describes reply parameters for the message that is being sent.
+    """
 
     message_id: int
     """Identifier of the message that will be replied to in the current chat, or 
@@ -1054,7 +1074,8 @@ class ReplyParameters(Model):
 class MessageOriginUser(MessageOrigin):
     """Object `MessageOriginUser`, see the [documentation](https://core.telegram.org/bots/api#messageoriginuser)
 
-    The message was originally sent by a known user."""
+    The message was originally sent by a known user.
+    """
 
     type: typing.Literal["user"]
     """Type of the message origin, always `user`."""
@@ -1069,7 +1090,8 @@ class MessageOriginUser(MessageOrigin):
 class MessageOriginHiddenUser(MessageOrigin):
     """Object `MessageOriginHiddenUser`, see the [documentation](https://core.telegram.org/bots/api#messageoriginhiddenuser)
 
-    The message was originally sent by an unknown user."""
+    The message was originally sent by an unknown user.
+    """
 
     type: typing.Literal["hidden_user"]
     """Type of the message origin, always `hidden_user`."""
@@ -1084,7 +1106,8 @@ class MessageOriginHiddenUser(MessageOrigin):
 class MessageOriginChat(MessageOrigin):
     """Object `MessageOriginChat`, see the [documentation](https://core.telegram.org/bots/api#messageoriginchat)
 
-    The message was originally sent on behalf of a chat to a group chat."""
+    The message was originally sent on behalf of a chat to a group chat.
+    """
 
     type: typing.Literal["chat"]
     """Type of the message origin, always `chat`."""
@@ -1103,7 +1126,8 @@ class MessageOriginChat(MessageOrigin):
 class MessageOriginChannel(MessageOrigin):
     """Object `MessageOriginChannel`, see the [documentation](https://core.telegram.org/bots/api#messageoriginchannel)
 
-    The message was originally sent to a channel chat."""
+    The message was originally sent to a channel chat.
+    """
 
     type: typing.Literal["channel"]
     """Type of the message origin, always `channel`."""
@@ -1124,7 +1148,8 @@ class MessageOriginChannel(MessageOrigin):
 class PhotoSize(Model):
     """Object `PhotoSize`, see the [documentation](https://core.telegram.org/bots/api#photosize)
 
-    This object represents one size of a photo or a file / sticker thumbnail."""
+    This object represents one size of a photo or a file / sticker thumbnail.
+    """
 
     file_id: str
     """Identifier for this file, which can be used to download or reuse the file."""
@@ -1251,7 +1276,8 @@ class Document(Model):
 class Story(Model):
     """Object `Story`, see the [documentation](https://core.telegram.org/bots/api#story)
 
-    This object represents a story."""
+    This object represents a story.
+    """
 
     chat: "Chat"
     """Chat that posted the story."""
@@ -1263,7 +1289,8 @@ class Story(Model):
 class Video(Model):
     """Object `Video`, see the [documentation](https://core.telegram.org/bots/api#video)
 
-    This object represents a video file."""
+    This object represents a video file.
+    """
 
     file_id: str
     """Identifier for this file, which can be used to download or reuse the file."""
@@ -1300,7 +1327,8 @@ class Video(Model):
 class VideoNote(Model):
     """Object `VideoNote`, see the [documentation](https://core.telegram.org/bots/api#videonote)
 
-    This object represents a video message (available in Telegram apps as of v.4.0)."""
+    This object represents a video message (available in Telegram apps as of v.4.0).
+    """
 
     file_id: str
     """Identifier for this file, which can be used to download or reuse the file."""
@@ -1325,7 +1353,8 @@ class VideoNote(Model):
 class Voice(Model):
     """Object `Voice`, see the [documentation](https://core.telegram.org/bots/api#voice)
 
-    This object represents a voice note."""
+    This object represents a voice note.
+    """
 
     file_id: str
     """Identifier for this file, which can be used to download or reuse the file."""
@@ -1350,7 +1379,8 @@ class Voice(Model):
 class Contact(Model):
     """Object `Contact`, see the [documentation](https://core.telegram.org/bots/api#contact)
 
-    This object represents a phone contact."""
+    This object represents a phone contact.
+    """
 
     phone_number: str
     """Contact's phone number."""
@@ -1374,7 +1404,8 @@ class Contact(Model):
 class Dice(Model):
     """Object `Dice`, see the [documentation](https://core.telegram.org/bots/api#dice)
 
-    This object represents an animated emoji that displays a random value."""
+    This object represents an animated emoji that displays a random value.
+    """
 
     emoji: DiceEmoji
     """Emoji on which the dice throw animation is based."""
@@ -1387,7 +1418,8 @@ class Dice(Model):
 class PollOption(Model):
     """Object `PollOption`, see the [documentation](https://core.telegram.org/bots/api#polloption)
 
-    This object contains information about one answer option in a poll."""
+    This object contains information about one answer option in a poll.
+    """
 
     text: str
     """Option text, 1-100 characters."""
@@ -1399,7 +1431,8 @@ class PollOption(Model):
 class PollAnswer(Model):
     """Object `PollAnswer`, see the [documentation](https://core.telegram.org/bots/api#pollanswer)
 
-    This object represents an answer of a user in a non-anonymous poll."""
+    This object represents an answer of a user in a non-anonymous poll.
+    """
 
     poll_id: str
     """Unique poll identifier."""
@@ -1419,7 +1452,8 @@ class PollAnswer(Model):
 class Poll(Model):
     """Object `Poll`, see the [documentation](https://core.telegram.org/bots/api#poll)
 
-    This object contains information about a poll."""
+    This object contains information about a poll.
+    """
 
     id: str
     """Unique poll identifier."""
@@ -1469,7 +1503,8 @@ class Poll(Model):
 class Location(Model):
     """Object `Location`, see the [documentation](https://core.telegram.org/bots/api#location)
 
-    This object represents a point on the map."""
+    This object represents a point on the map.
+    """
 
     latitude: float
     """Latitude as defined by sender."""
@@ -1497,7 +1532,8 @@ class Location(Model):
 class Venue(Model):
     """Object `Venue`, see the [documentation](https://core.telegram.org/bots/api#venue)
 
-    This object represents a venue."""
+    This object represents a venue.
+    """
 
     location: "Location"
     """Venue location. Can't be a live location."""
@@ -1525,7 +1561,8 @@ class Venue(Model):
 class WebAppData(Model):
     """Object `WebAppData`, see the [documentation](https://core.telegram.org/bots/api#webappdata)
 
-    Describes data sent from a Web App to the bot."""
+    Describes data sent from a Web App to the bot.
+    """
 
     data: str
     """The data. Be aware that a bad client can send arbitrary data in this field."""
@@ -1564,7 +1601,8 @@ class MessageAutoDeleteTimerChanged(Model):
 class ChatBoostAdded(Model):
     """Object `ChatBoostAdded`, see the [documentation](https://core.telegram.org/bots/api#chatboostadded)
 
-    This object represents a service message about a user boosting a chat."""
+    This object represents a service message about a user boosting a chat.
+    """
 
     boost_count: int
     """Number of boosts added by the user."""
@@ -1596,7 +1634,8 @@ class ForumTopicClosed(Model):
 class ForumTopicEdited(Model):
     """Object `ForumTopicEdited`, see the [documentation](https://core.telegram.org/bots/api#forumtopicedited)
 
-    This object represents a service message about an edited forum topic."""
+    This object represents a service message about an edited forum topic.
+    """
 
     name: Option[str] = Nothing
     """Optional. New name of the topic, if it was edited."""
@@ -1703,7 +1742,8 @@ class VideoChatStarted(Model):
 class VideoChatEnded(Model):
     """Object `VideoChatEnded`, see the [documentation](https://core.telegram.org/bots/api#videochatended)
 
-    This object represents a service message about a video chat ended in the chat."""
+    This object represents a service message about a video chat ended in the chat.
+    """
 
     duration: int
     """Video chat duration in seconds."""
@@ -1729,7 +1769,8 @@ class GiveawayCreated(Model):
 class Giveaway(Model):
     """Object `Giveaway`, see the [documentation](https://core.telegram.org/bots/api#giveaway)
 
-    This object represents a message about a scheduled giveaway."""
+    This object represents a message about a scheduled giveaway.
+    """
 
     chats: list["Chat"]
     """The list of chats which the user must join to participate in the giveaway."""
@@ -1824,7 +1865,8 @@ class GiveawayCompleted(Model):
 class LinkPreviewOptions(Model):
     """Object `LinkPreviewOptions`, see the [documentation](https://core.telegram.org/bots/api#linkpreviewoptions)
 
-    Describes the options used for link preview generation."""
+    Describes the options used for link preview generation.
+    """
 
     is_disabled: Option[bool] = Nothing
     """Optional. True, if the link preview is disabled."""
@@ -1851,7 +1893,8 @@ class LinkPreviewOptions(Model):
 class UserProfilePhotos(Model):
     """Object `UserProfilePhotos`, see the [documentation](https://core.telegram.org/bots/api#userprofilephotos)
 
-    This object represent a user's profile pictures."""
+    This object represent a user's profile pictures.
+    """
 
     total_count: int
     """Total number of profile pictures the target user has."""
@@ -1887,7 +1930,8 @@ class File(Model):
 class WebAppInfo(Model):
     """Object `WebAppInfo`, see the [documentation](https://core.telegram.org/bots/api#webappinfo)
 
-    Describes a Web App."""
+    Describes a Web App.
+    """
 
     url: str
     """An HTTPS URL of a Web App to be opened with additional data as specified in 
@@ -1931,6 +1975,12 @@ class ReplyKeyboardMarkup(Model):
     forum topic, sender of the original message. Example: A user requests to 
     change the bot's language, bot replies to the request with a keyboard to 
     select the new language. Other users in the group don't see the keyboard."""
+
+    @property
+    def empty_markup(self) -> "ReplyKeyboardRemove":
+        """Empty keyboard to remove the custom keyboard."""
+
+        return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective)
 
 
 class KeyboardButton(Model):
@@ -2142,7 +2192,8 @@ class LoginUrl(Model):
     """Object `LoginUrl`, see the [documentation](https://core.telegram.org/bots/api#loginurl)
 
     This object represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
-    Telegram apps support these buttons as of version 5.7."""
+    Telegram apps support these buttons as of version 5.7.
+    """
 
     url: str
     """An HTTPS URL to be opened with user authorization data added to the query 
@@ -2246,7 +2297,8 @@ class ForceReply(Model):
 class ChatPhoto(Model):
     """Object `ChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#chatphoto)
 
-    This object represents a chat photo."""
+    This object represents a chat photo.
+    """
 
     small_file_id: str
     """File identifier of small (160x160) chat photo. This file_id can be used 
@@ -2270,7 +2322,8 @@ class ChatPhoto(Model):
 class ChatInviteLink(Model):
     """Object `ChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#chatinvitelink)
 
-    Represents an invite link for a chat."""
+    Represents an invite link for a chat.
+    """
 
     invite_link: str
     """The invite link. If the link was created by another chat administrator, 
@@ -2306,7 +2359,8 @@ class ChatInviteLink(Model):
 class ChatAdministratorRights(Model):
     """Object `ChatAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#chatadministratorrights)
 
-    Represents the rights of an administrator in a chat."""
+    Represents the rights of an administrator in a chat.
+    """
 
     is_anonymous: bool
     """True, if the user's presence in the chat is hidden."""
@@ -2366,7 +2420,8 @@ class ChatAdministratorRights(Model):
 class ChatMemberUpdated(Model):
     """Object `ChatMemberUpdated`, see the [documentation](https://core.telegram.org/bots/api#chatmemberupdated)
 
-    This object represents changes in the status of a chat member."""
+    This object represents changes in the status of a chat member.
+    """
 
     chat: "Chat"
     """Chat the user belongs to."""
@@ -2408,7 +2463,8 @@ class ChatMemberUpdated(Model):
 class ChatMemberOwner(ChatMember):
     """Object `ChatMemberOwner`, see the [documentation](https://core.telegram.org/bots/api#chatmemberowner)
 
-    Represents a chat member that owns the chat and has all administrator privileges."""
+    Represents a chat member that owns the chat and has all administrator privileges.
+    """
 
     status: typing.Literal["creator"]
     """The member's status in the chat, always `creator`."""
@@ -2426,7 +2482,8 @@ class ChatMemberOwner(ChatMember):
 class ChatMemberAdministrator(ChatMember):
     """Object `ChatMemberAdministrator`, see the [documentation](https://core.telegram.org/bots/api#chatmemberadministrator)
 
-    Represents a chat member that has some additional privileges."""
+    Represents a chat member that has some additional privileges.
+    """
 
     status: typing.Literal["administrator"]
     """The member's status in the chat, always `administrator`."""
@@ -2498,7 +2555,8 @@ class ChatMemberAdministrator(ChatMember):
 class ChatMemberMember(ChatMember):
     """Object `ChatMemberMember`, see the [documentation](https://core.telegram.org/bots/api#chatmembermember)
 
-    Represents a chat member that has no additional privileges or restrictions."""
+    Represents a chat member that has no additional privileges or restrictions.
+    """
 
     status: typing.Literal["member"]
     """The member's status in the chat, always `member`."""
@@ -2604,7 +2662,8 @@ class ChatMemberBanned(ChatMember):
 class ChatJoinRequest(Model):
     """Object `ChatJoinRequest`, see the [documentation](https://core.telegram.org/bots/api#chatjoinrequest)
 
-    Represents a join request sent to a chat."""
+    Represents a join request sent to a chat.
+    """
 
     chat: "Chat"
     """Chat to which the request was sent."""
@@ -2634,7 +2693,8 @@ class ChatJoinRequest(Model):
 class ChatPermissions(Model):
     """Object `ChatPermissions`, see the [documentation](https://core.telegram.org/bots/api#chatpermissions)
 
-    Describes actions that a non-administrator user is allowed to take in a chat."""
+    Describes actions that a non-administrator user is allowed to take in a chat.
+    """
 
     can_send_messages: Option[bool] = Nothing
     """Optional. True, if the user is allowed to send text messages, contacts, 
@@ -2687,7 +2747,8 @@ class ChatPermissions(Model):
 class ChatLocation(Model):
     """Object `ChatLocation`, see the [documentation](https://core.telegram.org/bots/api#chatlocation)
 
-    Represents a location to which a chat is connected."""
+    Represents a location to which a chat is connected.
+    """
 
     location: "Location"
     """The location to which the supergroup is connected. Can't be a live location."""
@@ -2699,7 +2760,8 @@ class ChatLocation(Model):
 class ReactionTypeEmoji(ReactionType):
     """Object `ReactionTypeEmoji`, see the [documentation](https://core.telegram.org/bots/api#reactiontypeemoji)
 
-    The reaction is based on an emoji."""
+    The reaction is based on an emoji.
+    """
 
     type: typing.Literal["emoji"]
     """Type of the reaction, always `emoji`."""
@@ -2716,7 +2778,8 @@ class ReactionTypeEmoji(ReactionType):
 class ReactionTypeCustomEmoji(ReactionType):
     """Object `ReactionTypeCustomEmoji`, see the [documentation](https://core.telegram.org/bots/api#reactiontypecustomemoji)
 
-    The reaction is based on a custom emoji."""
+    The reaction is based on a custom emoji.
+    """
 
     type: typing.Literal["custom_emoji"]
     """Type of the reaction, always `custom_emoji`."""
@@ -2741,7 +2804,8 @@ class ReactionCount(Model):
 class MessageReactionUpdated(Model):
     """Object `MessageReactionUpdated`, see the [documentation](https://core.telegram.org/bots/api#messagereactionupdated)
 
-    This object represents a change of a reaction on a message performed by a user."""
+    This object represents a change of a reaction on a message performed by a user.
+    """
 
     chat: "Chat"
     """The chat containing the message the user reacted to."""
@@ -2769,7 +2833,8 @@ class MessageReactionUpdated(Model):
 class MessageReactionCountUpdated(Model):
     """Object `MessageReactionCountUpdated`, see the [documentation](https://core.telegram.org/bots/api#messagereactioncountupdated)
 
-    This object represents reaction changes on a message with anonymous reactions."""
+    This object represents reaction changes on a message with anonymous reactions.
+    """
 
     chat: "Chat"
     """The chat containing the message."""
@@ -2787,7 +2852,8 @@ class MessageReactionCountUpdated(Model):
 class ForumTopic(Model):
     """Object `ForumTopic`, see the [documentation](https://core.telegram.org/bots/api#forumtopic)
 
-    This object represents a forum topic."""
+    This object represents a forum topic.
+    """
 
     message_thread_id: int
     """Unique identifier of the forum topic."""
@@ -2805,7 +2871,8 @@ class ForumTopic(Model):
 class BotCommand(Model):
     """Object `BotCommand`, see the [documentation](https://core.telegram.org/bots/api#botcommand)
 
-    This object represents a bot command."""
+    This object represents a bot command.
+    """
 
     command: str
     """Text of the command; 1-32 characters. Can contain only lowercase English 
@@ -2828,7 +2895,8 @@ class BotCommandScopeDefault(BotCommandScope):
 class BotCommandScopeAllPrivateChats(BotCommandScope):
     """Object `BotCommandScopeAllPrivateChats`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopeallprivatechats)
 
-    Represents the scope of bot commands, covering all private chats."""
+    Represents the scope of bot commands, covering all private chats.
+    """
 
     type: typing.Literal["all_private_chats"]
     """Scope type, must be all_private_chats."""
@@ -2837,7 +2905,8 @@ class BotCommandScopeAllPrivateChats(BotCommandScope):
 class BotCommandScopeAllGroupChats(BotCommandScope):
     """Object `BotCommandScopeAllGroupChats`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopeallgroupchats)
 
-    Represents the scope of bot commands, covering all group and supergroup chats."""
+    Represents the scope of bot commands, covering all group and supergroup chats.
+    """
 
     type: typing.Literal["all_group_chats"]
     """Scope type, must be all_group_chats."""
@@ -2856,7 +2925,8 @@ class BotCommandScopeAllChatAdministrators(BotCommandScope):
 class BotCommandScopeChat(BotCommandScope):
     """Object `BotCommandScopeChat`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopechat)
 
-    Represents the scope of bot commands, covering a specific chat."""
+    Represents the scope of bot commands, covering a specific chat.
+    """
 
     type: typing.Literal["chat"]
     """Scope type, must be chat."""
@@ -2900,7 +2970,8 @@ class BotCommandScopeChatMember(BotCommandScope):
 class BotName(Model):
     """Object `BotName`, see the [documentation](https://core.telegram.org/bots/api#botname)
 
-    This object represents the bot's name."""
+    This object represents the bot's name.
+    """
 
     name: str
     """The bot's name."""
@@ -2909,7 +2980,8 @@ class BotName(Model):
 class BotDescription(Model):
     """Object `BotDescription`, see the [documentation](https://core.telegram.org/bots/api#botdescription)
 
-    This object represents the bot's description."""
+    This object represents the bot's description.
+    """
 
     description: str
     """The bot's description."""
@@ -2918,7 +2990,8 @@ class BotDescription(Model):
 class BotShortDescription(Model):
     """Object `BotShortDescription`, see the [documentation](https://core.telegram.org/bots/api#botshortdescription)
 
-    This object represents the bot's short description."""
+    This object represents the bot's short description.
+    """
 
     short_description: str
     """The bot's short description."""
@@ -2927,7 +3000,8 @@ class BotShortDescription(Model):
 class MenuButtonCommands(MenuButton):
     """Object `MenuButtonCommands`, see the [documentation](https://core.telegram.org/bots/api#menubuttoncommands)
 
-    Represents a menu button, which opens the bot's list of commands."""
+    Represents a menu button, which opens the bot's list of commands.
+    """
 
     type: typing.Literal["commands"]
     """Type of the button, must be commands."""
@@ -2936,7 +3010,8 @@ class MenuButtonCommands(MenuButton):
 class MenuButtonWebApp(MenuButton):
     """Object `MenuButtonWebApp`, see the [documentation](https://core.telegram.org/bots/api#menubuttonwebapp)
 
-    Represents a menu button, which launches a Web App."""
+    Represents a menu button, which launches a Web App.
+    """
 
     type: typing.Literal["web_app"]
     """Type of the button, must be web_app."""
@@ -2953,7 +3028,8 @@ class MenuButtonWebApp(MenuButton):
 class MenuButtonDefault(MenuButton):
     """Object `MenuButtonDefault`, see the [documentation](https://core.telegram.org/bots/api#menubuttondefault)
 
-    Describes that no specific value for the menu button was set."""
+    Describes that no specific value for the menu button was set.
+    """
 
     type: typing.Literal["default"]
     """Type of the button, must be default."""
@@ -3009,7 +3085,8 @@ class ChatBoostSourceGiveaway(ChatBoostSource):
 class ChatBoost(Model):
     """Object `ChatBoost`, see the [documentation](https://core.telegram.org/bots/api#chatboost)
 
-    This object contains information about a chat boost."""
+    This object contains information about a chat boost.
+    """
 
     boost_id: str
     """Unique identifier of the boost."""
@@ -3030,7 +3107,8 @@ class ChatBoost(Model):
 class ChatBoostUpdated(Model):
     """Object `ChatBoostUpdated`, see the [documentation](https://core.telegram.org/bots/api#chatboostupdated)
 
-    This object represents a boost added to a chat or changed."""
+    This object represents a boost added to a chat or changed.
+    """
 
     chat: "Chat"
     """Chat which was boosted."""
@@ -3042,7 +3120,8 @@ class ChatBoostUpdated(Model):
 class ChatBoostRemoved(Model):
     """Object `ChatBoostRemoved`, see the [documentation](https://core.telegram.org/bots/api#chatboostremoved)
 
-    This object represents a boost removed from a chat."""
+    This object represents a boost removed from a chat.
+    """
 
     chat: "Chat"
     """Chat which was boosted."""
@@ -3062,7 +3141,8 @@ class ChatBoostRemoved(Model):
 class UserChatBoosts(Model):
     """Object `UserChatBoosts`, see the [documentation](https://core.telegram.org/bots/api#userchatboosts)
 
-    This object represents a list of boosts added to a chat by a user."""
+    This object represents a list of boosts added to a chat by a user.
+    """
 
     boosts: list["ChatBoost"]
     """The list of boosts added to the chat by the user."""
@@ -3071,7 +3151,8 @@ class UserChatBoosts(Model):
 class ResponseParameters(Model):
     """Object `ResponseParameters`, see the [documentation](https://core.telegram.org/bots/api#responseparameters)
 
-    Describes why a request was unsuccessful."""
+    Describes why a request was unsuccessful.
+    """
 
     migrate_to_chat_id: Option[int] = Nothing
     """Optional. The group has been migrated to a supergroup with the specified 
@@ -3088,7 +3169,8 @@ class ResponseParameters(Model):
 class InputMediaPhoto(InputMedia):
     """Object `InputMediaPhoto`, see the [documentation](https://core.telegram.org/bots/api#inputmediaphoto)
 
-    Represents a photo to be sent."""
+    Represents a photo to be sent.
+    """
 
     type: typing.Literal["photo"]
     """Type of the result, must be photo."""
@@ -3118,7 +3200,8 @@ class InputMediaPhoto(InputMedia):
 class InputMediaVideo(InputMedia):
     """Object `InputMediaVideo`, see the [documentation](https://core.telegram.org/bots/api#inputmediavideo)
 
-    Represents a video to be sent."""
+    Represents a video to be sent.
+    """
 
     type: typing.Literal["video"]
     """Type of the result, must be video."""
@@ -3218,7 +3301,8 @@ class InputMediaAnimation(InputMedia):
 class InputMediaAudio(InputMedia):
     """Object `InputMediaAudio`, see the [documentation](https://core.telegram.org/bots/api#inputmediaaudio)
 
-    Represents an audio file to be treated as music to be sent."""
+    Represents an audio file to be treated as music to be sent.
+    """
 
     type: typing.Literal["audio"]
     """Type of the result, must be audio."""
@@ -3263,7 +3347,8 @@ class InputMediaAudio(InputMedia):
 class InputMediaDocument(InputMedia):
     """Object `InputMediaDocument`, see the [documentation](https://core.telegram.org/bots/api#inputmediadocument)
 
-    Represents a general file to be sent."""
+    Represents a general file to be sent.
+    """
 
     type: typing.Literal["document"]
     """Type of the result, must be document."""
@@ -3317,7 +3402,8 @@ class InputFile(typing.NamedTuple):
 class Sticker(Model):
     """Object `Sticker`, see the [documentation](https://core.telegram.org/bots/api#sticker)
 
-    This object represents a sticker."""
+    This object represents a sticker.
+    """
 
     file_id: str
     """Identifier for this file, which can be used to download or reuse the file."""
@@ -3373,7 +3459,8 @@ class Sticker(Model):
 class StickerSet(Model):
     """Object `StickerSet`, see the [documentation](https://core.telegram.org/bots/api#stickerset)
 
-    This object represents a sticker set."""
+    This object represents a sticker set.
+    """
 
     name: str
     """Sticker set name."""
@@ -3424,7 +3511,8 @@ class MaskPosition(Model):
 class InputSticker(Model):
     """Object `InputSticker`, see the [documentation](https://core.telegram.org/bots/api#inputsticker)
 
-    This object describes a sticker to be added to a sticker set."""
+    This object describes a sticker to be added to a sticker set.
+    """
 
     sticker: Variative["InputFile", str]
     """The added sticker. Pass a file_id as a String to send a file that already exists 
@@ -3505,7 +3593,8 @@ class InlineQueryResultsButton(Model):
 class InlineQueryResultArticle(InlineQueryResult):
     """Object `InlineQueryResultArticle`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultarticle)
 
-    Represents a link to an article or web page."""
+    Represents a link to an article or web page.
+    """
 
     type: typing.Literal["article"]
     """Type of the result, must be article."""
@@ -4128,7 +4217,8 @@ class InlineQueryResultContact(InlineQueryResult):
 class InlineQueryResultGame(InlineQueryResult):
     """Object `InlineQueryResultGame`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultgame)
 
-    Represents a Game."""
+    Represents a Game.
+    """
 
     type: typing.Literal["game"]
     """Type of the result, must be game."""
@@ -4705,7 +4795,8 @@ class ChosenInlineResult(Model):
 class SentWebAppMessage(Model):
     """Object `SentWebAppMessage`, see the [documentation](https://core.telegram.org/bots/api#sentwebappmessage)
 
-    Describes an inline message sent by a Web App on behalf of a user."""
+    Describes an inline message sent by a Web App on behalf of a user.
+    """
 
     inline_message_id: Option[str] = Nothing
     """Optional. Identifier of the sent inline message. Available only if there 
@@ -4715,7 +4806,8 @@ class SentWebAppMessage(Model):
 class LabeledPrice(Model):
     """Object `LabeledPrice`, see the [documentation](https://core.telegram.org/bots/api#labeledprice)
 
-    This object represents a portion of the price for goods or services."""
+    This object represents a portion of the price for goods or services.
+    """
 
     label: str
     """Portion label."""
@@ -4730,7 +4822,8 @@ class LabeledPrice(Model):
 class Invoice(Model):
     """Object `Invoice`, see the [documentation](https://core.telegram.org/bots/api#invoice)
 
-    This object contains basic information about an invoice."""
+    This object contains basic information about an invoice.
+    """
 
     title: str
     """Product name."""
@@ -4754,7 +4847,8 @@ class Invoice(Model):
 class ShippingAddress(Model):
     """Object `ShippingAddress`, see the [documentation](https://core.telegram.org/bots/api#shippingaddress)
 
-    This object represents a shipping address."""
+    This object represents a shipping address.
+    """
 
     country_code: str
     """Two-letter ISO 3166-1 alpha-2 country code."""
@@ -4778,7 +4872,8 @@ class ShippingAddress(Model):
 class OrderInfo(Model):
     """Object `OrderInfo`, see the [documentation](https://core.telegram.org/bots/api#orderinfo)
 
-    This object represents information about an order."""
+    This object represents information about an order.
+    """
 
     name: Option[str] = Nothing
     """Optional. User name."""
@@ -4796,7 +4891,8 @@ class OrderInfo(Model):
 class ShippingOption(Model):
     """Object `ShippingOption`, see the [documentation](https://core.telegram.org/bots/api#shippingoption)
 
-    This object represents one shipping option."""
+    This object represents one shipping option.
+    """
 
     id: str
     """Shipping option identifier."""
@@ -4811,7 +4907,8 @@ class ShippingOption(Model):
 class SuccessfulPayment(Model):
     """Object `SuccessfulPayment`, see the [documentation](https://core.telegram.org/bots/api#successfulpayment)
 
-    This object contains basic information about a successful payment."""
+    This object contains basic information about a successful payment.
+    """
 
     currency: str
     """Three-letter ISO 4217 currency code."""
@@ -4841,7 +4938,8 @@ class SuccessfulPayment(Model):
 class ShippingQuery(Model):
     """Object `ShippingQuery`, see the [documentation](https://core.telegram.org/bots/api#shippingquery)
 
-    This object contains information about an incoming shipping query."""
+    This object contains information about an incoming shipping query.
+    """
 
     id: str
     """Unique query identifier."""
@@ -4859,7 +4957,8 @@ class ShippingQuery(Model):
 class PreCheckoutQuery(Model):
     """Object `PreCheckoutQuery`, see the [documentation](https://core.telegram.org/bots/api#precheckoutquery)
 
-    This object contains information about an incoming pre-checkout query."""
+    This object contains information about an incoming pre-checkout query.
+    """
 
     id: str
     """Unique query identifier."""
@@ -4889,7 +4988,8 @@ class PreCheckoutQuery(Model):
 class PassportData(Model):
     """Object `PassportData`, see the [documentation](https://core.telegram.org/bots/api#passportdata)
 
-    Describes Telegram Passport data shared with the bot by the user."""
+    Describes Telegram Passport data shared with the bot by the user.
+    """
 
     data: list["EncryptedPassportElement"]
     """Array with information about documents and other Telegram Passport elements 
@@ -5007,7 +5107,11 @@ class PassportElementErrorDataField(PassportElementError):
     """Error source, must be data."""
 
     type: typing.Literal[
-        "passport", "driver_license", "identity_card", "internal_passport", "address"
+        "passport",
+        "driver_license",
+        "identity_card",
+        "internal_passport",
+        "address",
     ]
     """The section of the user's Telegram Passport which has the error, one of `personal_details`, 
     `passport`, `driver_license`, `identity_card`, `internal_passport`, 
@@ -5033,7 +5137,10 @@ class PassportElementErrorFrontSide(PassportElementError):
     """Error source, must be front_side."""
 
     type: typing.Literal[
-        "passport", "driver_license", "identity_card", "internal_passport"
+        "passport",
+        "driver_license",
+        "identity_card",
+        "internal_passport",
     ]
     """The section of the user's Telegram Passport which has the issue, one of `passport`, 
     `driver_license`, `identity_card`, `internal_passport`."""
@@ -5075,7 +5182,10 @@ class PassportElementErrorSelfie(PassportElementError):
     """Error source, must be selfie."""
 
     type: typing.Literal[
-        "passport", "driver_license", "identity_card", "internal_passport"
+        "passport",
+        "driver_license",
+        "identity_card",
+        "internal_passport",
     ]
     """The section of the user's Telegram Passport which has the issue, one of `passport`, 
     `driver_license`, `identity_card`, `internal_passport`."""
@@ -5257,13 +5367,15 @@ class Game(Model):
 class CallbackGame(Model):
     """Object `CallbackGame`, see the [documentation](https://core.telegram.org/bots/api#callbackgame)
 
-    A placeholder, currently holds no information. Use BotFather to set up your game."""
+    A placeholder, currently holds no information. Use BotFather to set up your game.
+    """
 
 
 class GameHighScore(Model):
     """Object `GameHighScore`, see the [documentation](https://core.telegram.org/bots/api#gamehighscore)
 
-    This object represents one row of the high scores table for a game."""
+    This object represents one row of the high scores table for a game.
+    """
 
     position: int
     """Position in high score table for the game."""

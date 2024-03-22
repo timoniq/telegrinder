@@ -1,13 +1,12 @@
-import logging
-
 from telegrinder import API, Message, SingleChoice, Telegrinder, Token, WaiterMachine
 from telegrinder.rules import Text
+from telegrinder.modules import logger
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.DEBUG)
-
 wm = WaiterMachine()
+
+logger.set_level("INFO")
 
 
 @bot.on.message(Text("/choice"))
@@ -19,11 +18,7 @@ async def action(m: Message):
         .add_option("pear", "Pear 🔴", "Pear 🟢")
         .wait(m.ctx_api, bot.dispatch.callback_query)
     )
-    await m.ctx_api.edit_message_text(
-        chat_id=m.chat.id,
-        nessage_id=m_id,
-        text=f"You chose {chosen}",
-    )
+    await m.edit(text=f"You chose {chosen}", nessage_id=m_id)
 
 
 bot.run_forever()

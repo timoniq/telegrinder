@@ -9,13 +9,15 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
+from telegrinder.modules import logger
 from telegrinder.rules import CallbackDataJsonModel, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
+logger.set_level("INFO")
 
 
-# alternative to msgspec.Struct: use @dataclasses.dataclass
+# Alternative to msgspec.Struct: use @dataclasses.dataclass decorator
 class ItemModel(msgspec.Struct):
     item: str
     amount: int
@@ -32,20 +34,14 @@ kb = (
 @bot.on.message(Text("/start"))
 async def start(message: Message):
     await message.answer(
-        chat_id=message.chat.id,
-        reply_markup=kb,
         text="Hello! Choose what you need:",
+        reply_markup=kb,
     )
 
 
 @bot.on.callback_query(CallbackDataJsonModel(ItemModel))
-async def buy(event: CallbackQuery, data: ItemModel):
-    message = event.message.unwrap()
-    await api.edit_message_text(
-        chat_id=message.v.chat.id,
-        message_id=message.v.message_id,
-        text=f"You bought a {data.item} for {data.amount}",
-    )
+async def buy(cb: CallbackQuery, data: ItemModel):
+    await cb.edit_text(f"You bought a {data.item} for {data.amount}")
 
 
 bot.run_forever()

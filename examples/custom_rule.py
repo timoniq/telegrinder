@@ -1,14 +1,13 @@
-import logging
-
 from telegrinder import API, Message, MessageRule, Telegrinder, Token
 from telegrinder.bot import Context, WaiterMachine
+from telegrinder.modules import logger
 from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine()
 
-logging.basicConfig(level=logging.INFO)
+logger.set_level("INFO")
 
 
 class HasPhoto(MessageRule):

@@ -1,4 +1,4 @@
-from generator import generate
+import generator
 
 if __name__ == "__main__":
-    generate("telegrinder/types")
+    generator.generate()

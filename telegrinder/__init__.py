@@ -39,6 +39,7 @@ from .client import ABCClient, AiohttpClient
 from .model import Model
 from .modules import logger
 from .tools import (
+    ABCErrorHandler,
     ABCGlobalContext,
     ABCLoopWrapper,
     ABCTranslator,
@@ -47,6 +48,7 @@ from .tools import (
     Button,
     CtxVar,
     DelayedTask,
+    ErrorHandler,
     FormatString,
     GlobalContext,
     HTMLFormatter,
@@ -62,7 +64,6 @@ from .tools import (
     SimpleI18n,
     SimpleTranslator,
     ctx_var,
-    keyboard_remove,
     magic_bundle,
 )
 
@@ -76,6 +77,7 @@ __all__ = (
     "ABCAPI",
     "ABCClient",
     "ABCDispatch",
+    "ABCErrorHandler",
     "ABCGlobalContext",
     "ABCHandler",
     "ABCLoopWrapper",
@@ -107,6 +109,7 @@ __all__ = (
     "CtxVar",
     "DelayedTask",
     "Dispatch",
+    "ErrorHandler",
     "FormatString",
     "FuncHandler",
     "GlobalContext",
@@ -139,7 +142,6 @@ __all__ = (
     "ViewBox",
     "WaiterMachine",
     "ctx_var",
-    "keyboard_remove",
     "logger",
     "magic_bundle",
     "register_manager",

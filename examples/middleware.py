@@ -1,16 +1,17 @@
-import logging
-
-from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
+from telegrinder import ABCMiddleware, API, Message, Telegrinder, Token
 from telegrinder.bot import Context
+from telegrinder.modules import logger
 from telegrinder.rules import IsChat, IsPrivate, Text
 from telegrinder.tools import GlobalContext
 
-logging.basicConfig(level=logging.INFO)
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 global_ctx = GlobalContext(counter=dict())  # Let's imagine a dummy counter
 
+logger.set_level("INFO")
 
+
+@bot.on.message.register_middleware()
 class ContextMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: Context) -> bool:
         counter = global_ctx.get_value("counter", dict[int, int]).unwrap()
@@ -31,5 +32,4 @@ async def testme_private(m: Message, count: int):
     await m.reply(f"You wrote me {count} messages since my last reload")
 
 
-bot.on.message.middlewares.append(ContextMiddleware())
 bot.run_forever()

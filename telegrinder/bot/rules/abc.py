@@ -19,7 +19,7 @@ Update: typing.TypeAlias = UpdateCute
 def with_caching_translations(func):
     """Should be used as decorator for .translate method. Caches rule translations."""
 
-    async def wrapper(self: "ABCRule", translator: ABCTranslator):
+    async def wrapper(self: "ABCRule[typing.Any]", translator: ABCTranslator):
         if translation := get_cached_translation(self, translator.locale):
             return translation
         translation = await func(self, translator)

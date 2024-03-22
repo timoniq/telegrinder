@@ -34,7 +34,7 @@ async def start(message: Message):
         case "fine":
             await m.reply("Cool!")
         case "bad":
-            await message.answer_file(
+            await message.answer_photo(
                 InputFile("kitten.jpg", kitten_bytes),
                 caption="I'm sorry... You prob need some kitten pictures",
             )

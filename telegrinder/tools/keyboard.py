@@ -14,15 +14,8 @@ from telegrinder.types.objects import (
 
 from .buttons import Button, ButtonT, InlineButton, RowButtons
 
-DictStrAny = dict[str, typing.Any]
-AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
-
-
-def keyboard_remove(*, selective: bool | None = None) -> ReplyKeyboardRemove:
-    return ReplyKeyboardRemove(
-        remove_keyboard=True,
-        selective=Nothing() if selective is None else Some(selective),
-    )
+DictStrAny: typing.TypeAlias = dict[str, typing.Any]
+AnyMarkup: typing.TypeAlias = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
 
 @dataclasses.dataclass
@@ -31,12 +24,12 @@ class KeyboardModel:
     one_time_keyboard: bool | Option[bool]
     selective: bool | Option[bool]
     is_persistent: bool | Option[bool]
-    keyboard: list[list[dict[str, typing.Any]]]
+    keyboard: list[list[DictStrAny]]
 
 
 class ABCMarkup(ABC, typing.Generic[ButtonT]):
     BUTTON: type[ButtonT]
-    keyboard: list[list[dict[str, typing.Any]]]
+    keyboard: list[list[DictStrAny]]
 
     @abstractmethod
     def dict(self) -> DictStrAny:
@@ -70,7 +63,7 @@ class ABCMarkup(ABC, typing.Generic[ButtonT]):
         self.keyboard.append([])
         return self
 
-    def format(self, **format_data: typing.Dict[str, str]) -> "ABCMarkup":
+    def format(self, **format_data: str) -> typing.Self:
         copy_keyboard = self.__class__()
         for row in self.keyboard:
             for button in row:
@@ -85,22 +78,21 @@ class ABCMarkup(ABC, typing.Generic[ButtonT]):
         return self
 
 
+@dataclasses.dataclass(kw_only=True)
 class Keyboard(ABCMarkup[Button], KeyboardModel):
     BUTTON = Button
 
-    def __init__(
-        self,
-        *,
-        resize_keyboard: bool = True,
-        one_time_keyboard: bool = False,
-        selective: bool = False,
-        is_persistent: bool = False,
-    ):
-        self.keyboard = [[]]
-        self.resize_keyboard = resize_keyboard
-        self.one_time_keyboard = one_time_keyboard
-        self.selective = selective
-        self.is_persistent = is_persistent
+    keyboard: list[list[DictStrAny]] = dataclasses.field(
+        default_factory=lambda: [[]],
+        init=False,
+    )
+    resize_keyboard: bool = dataclasses.field(default=True)
+    one_time_keyboard: bool = dataclasses.field(default=False)
+    selective: bool = dataclasses.field(default=False)
+    is_persistent: bool = dataclasses.field(default=False)
+
+    def get_empty_markup(self, *, selective: bool = False) -> ReplyKeyboardRemove:
+        return ReplyKeyboardRemove(remove_keyboard=True, selective=selective)  # type: ignore
 
     def dict(self) -> DictStrAny:
         self.keyboard = [row for row in self.keyboard if row]
@@ -133,5 +125,4 @@ __all__ = (
     "InlineKeyboard",
     "Keyboard",
     "KeyboardModel",
-    "keyboard_remove",
 )

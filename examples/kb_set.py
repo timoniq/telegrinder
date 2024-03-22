@@ -12,10 +12,16 @@ from telegrinder import (
     Telegrinder,
     Token,
     WaiterMachine,
-    keyboard_remove,
 )
 from telegrinder.modules import logger
 from telegrinder.rules import CallbackDataEq, CallbackDataJsonModel, Text
+
+
+api = API(token=Token.from_env())
+bot = Telegrinder(api=api)
+wm = WaiterMachine()
+
+logger.set_level("INFO")
 
 
 @dataclasses.dataclass
@@ -30,14 +36,6 @@ class KeyboardSet(KeyboardSetYAML):
     KEYBOARD_MENU: Keyboard
     KEYBOARD_YES_NO: Keyboard
     KEYBOARD_ITEMS: InlineKeyboard
-
-
-KeyboardSet.load()
-logger.set_level("INFO")
-
-api = API(token=Token.from_env())
-bot = Telegrinder(api=api)
-wm = WaiterMachine()
 
 
 @bot.on.message(Text("/menu"))
@@ -94,7 +92,11 @@ async def buy_item(cb: CallbackQuery, data: Item):
 
 @bot.on.message(Text("/nokeyboard"))
 async def no_keyboard(m: Message):
-    await m.answer("No more keyboard", reply_markup=keyboard_remove())
+    await m.answer(
+        "No more keyboard",
+        reply_markup=KeyboardSet.KEYBOARD_MENU.get_empty_markup(),
+    )
 
 
+KeyboardSet.load()
 bot.run_forever()

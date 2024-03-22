@@ -1,4 +1,5 @@
 import abc
+import typing
 
 from telegrinder.bot.cute_types import InlineQueryCute
 from telegrinder.bot.dispatch.context import Context
@@ -8,7 +9,7 @@ from telegrinder.types.enums import ChatType
 
 from .markup import Markup, PatternLike, check_string
 
-InlineQuery = InlineQueryCute
+InlineQuery: typing.TypeAlias = InlineQueryCute
 
 
 class InlineQueryRule(ABCRule[InlineQuery], abc.ABC):

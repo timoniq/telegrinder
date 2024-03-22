@@ -36,7 +36,7 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
     
     @property
     def on_error(self):
-        return self.error_handler.catch
+        return self.error_handler.register_catcher
     
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         ctx = ctx or Context()

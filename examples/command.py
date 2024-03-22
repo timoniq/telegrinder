@@ -1,11 +1,11 @@
-import logging
-
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.rules import Argument, Command
+from telegrinder.modules import logger
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+logger.set_level("INFO")
+
 
 def character(c: str) -> str | None:
     if len(c) != 1:
@@ -31,8 +31,6 @@ def int_validator(s: str) -> int | None:
 # /split 'hello,_my_friend' _
 # /split 'hello, my friend'   2
 # /split 'hello, my friend' ,
-
-
 @bot.on.message(
     Command(
         "split",

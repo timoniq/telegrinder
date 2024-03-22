@@ -77,14 +77,21 @@ async def execute_method_answer(
         params["reply_parameters"] = compose_reply_params(**reply_parameters)
 
     if link_preview_options is not None and isinstance(link_preview_options, dict):
-        params["link_preview_options"] = compose_link_preview_options(**link_preview_options)
-    
+        params["link_preview_options"] = compose_link_preview_options(
+            **link_preview_options
+        )
+
     result = await getattr(message.ctx_api, method_name)(**params)
     return result.map(
-        lambda x: x if isinstance(x, bool)
-        else MessageCute.from_update(x, bound_api=message.api)
-        if not isinstance(x, list)
-        else [MessageCute.from_update(m, bound_api=message.api) for m in x]
+        lambda x: (
+            x
+            if isinstance(x, bool)
+            else (
+                MessageCute.from_update(x, bound_api=message.api)
+                if not isinstance(x, list)
+                else [MessageCute.from_update(m, bound_api=message.api) for m in x]
+            )
+        )
     )
 
 
@@ -93,7 +100,7 @@ async def execute_method_reply(
     method_name: str,
     params: dict[str, typing.Any],
 ) -> Result[typing.Any, APIError]:
-    params.setdefault("reply_params", {})
+    params.setdefault("reply_parameters", {})
     return await execute_method_answer(message, method_name, params)
 
 
@@ -105,12 +112,19 @@ async def execute_method_edit(
     params = compose_method_params(
         params=params,
         update=update,
-        default_params={"chat_id", "message_id", "message_thread_id", "inline_message_id"},
+        default_params={
+            "chat_id",
+            "message_id",
+            "message_thread_id",
+            "inline_message_id",
+        },
         validators={
             "inline_message_id": lambda x: not x.message_id,
-            "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            if isinstance(x, MessageCute) else bool(x.message) and getattr(
-                x.message.unwrap().v, "is_topic_message", False
+            "message_thread_id": lambda x: (
+                x.is_topic_message.unwrap_or(False)
+                if isinstance(x, MessageCute)
+                else bool(x.message)
+                and getattr(x.message.unwrap().v, "is_topic_message", False)
             ),
         },
     )
@@ -120,9 +134,11 @@ async def execute_method_edit(
     result = await getattr(update.ctx_api, method_name)(**params)
     return result.map(
         lambda v: Variative[MessageCute, bool](
-            v.only().map(
+            v.only()
+            .map(
                 lambda x: MessageCute.from_update(x, bound_api=update.api),
-            ).unwrap_or(typing.cast(bool, v.v))
+            )
+            .unwrap_or(typing.cast(bool, v.v))
         )
     )
 
@@ -175,20 +191,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer(
         self,
-        text: str | Option[str] = Nothing,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        link_preview_options: Option[LinkPreviewOptions | dict[str, typing.Any]]
-        | LinkPreviewOptions
-        | dict[str, typing.Any] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        text: str | None = None,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
@@ -230,21 +242,17 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply(
         self,
-        text: str | Option[str] = Nothing,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        link_preview_options: Option[LinkPreviewOptions | dict[str, typing.Any]]
-        | LinkPreviewOptions
-        | dict[str, typing.Any] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        text: str | None = None,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
@@ -282,9 +290,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut("delete_message", custom_params={"message_thread_id"})
     async def delete(
         self,
-        chat_id: int | Option[int] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
+        chat_id: int | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
@@ -313,7 +321,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+            validators={
+                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
+            },
         )
         return await self.ctx_api.delete_message(**params)
 
@@ -324,16 +334,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def edit(
         self,
-        text: str | Option[str] = Nothing,
-        chat_id: int | Option[int] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        link_preview_options: Option[LinkPreviewOptions | dict[str, typing.Any]]
-        | LinkPreviewOptions
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        text: str | None = None,
+        chat_id: int | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
@@ -371,19 +379,17 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def copy(
         self,
-        chat_id: int | str | Option[int | str] = Nothing,
-        from_chat_id: int | str | Option[int | str] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        caption: Option[str] | str = Nothing,
-        parse_mode: Option[str] | str = Nothing,
-        caption_entities: Option[list[MessageEntity]] | list[MessageEntity] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        from_chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
@@ -435,7 +441,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                 ("from_chat_id", "chat_id"),
                 "message_thread_id",
             },
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+            validators={
+                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
+            },
         )
         if isinstance(reply_parameters, dict):
             reply_parameters.setdefault("message_id", params.get("message_id"))
@@ -449,20 +457,17 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def react(
         self,
-        reaction: str
-        | ReactionEmoji
-        | ReactionType
-        | list[str | ReactionEmoji | ReactionType]
-        | Option[
+        reaction: (
             str
             | ReactionEmoji
             | ReactionType
             | list[str | ReactionEmoji | ReactionType]
-        ] = Nothing,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        message_id: int | Option[int] = Nothing,
-        is_big: bool | Option[bool] = Nothing,
+            | None
+        ) = None,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        message_id: int | None = None,
+        is_big: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.set_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
@@ -493,23 +498,25 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+            validators={
+                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
+            },
         )
         if reaction:
             params["reaction"] = compose_reactions(
                 reaction.unwrap() if isinstance(reaction, Some) else reaction,
             )
         return await self.ctx_api.set_message_reaction(**params)
-    
+
     @shortcut("forward_message", custom_params={"message_thread_id"})
     async def forward(
         self,
         chat_id: int | str,
-        message_id: int | Option[int] = Nothing,
-        from_chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
+        message_id: int | None = None,
+        from_chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.forward_message()`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
@@ -536,20 +543,26 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
-            default_params={("from_chat_id", "chat_id"), "message_id", "message_thread_id"},
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+            default_params={
+                ("from_chat_id", "chat_id"),
+                "message_id",
+                "message_thread_id",
+            },
+            validators={
+                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
+            },
         )
         return (await self.ctx_api.forward_message(**params)).map(
             lambda message: MessageCute.from_update(message, bound_api=self.api),
         )
-    
+
     @shortcut("pin_chat_message", custom_params={"message_thread_id"})
     async def pin(
         self,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.pin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
@@ -577,16 +590,18 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+            validators={
+                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
+            },
         )
         return await self.ctx_api.pin_chat_message(**params)
 
     @shortcut("unpin_chat_message", custom_params={"message_thread_id"})
     async def unpin(
         self,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.unpin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
@@ -608,7 +623,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+            validators={
+                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
+            },
         )
         return await self.ctx_api.pin_chat_message(**params)
 
@@ -619,22 +636,20 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_audio(
         self,
-        audio: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        performer: str | Option[str] = Nothing,
-        title: str | Option[str] = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        audio: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        performer: str | None = None,
+        title: str | None = None,
+        thumbnail: InputFile | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
@@ -697,23 +712,21 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_animation(
         self,
-        animation: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        width: int | Option[int] = Nothing,
-        height: int | Option[int] = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        has_spoiler: bool | Option[bool] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        animation: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        has_spoiler: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
@@ -777,20 +790,18 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_document(
         self,
-        document: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        disable_content_type_detection: Option[bool] | bool = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        document: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_content_type_detection: bool | None = None,
+        thumbnail: InputFile | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
@@ -849,19 +860,17 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_photo(
         self,
-        photo: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        has_spoiler: bool | Option[bool] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        photo: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        has_spoiler: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
@@ -911,16 +920,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_sticker(
         self,
-        sticker: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        emoji: str | Option[str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        sticker: InputFile | str,
+        chat_id: int | str | None = None,
+        emoji: str | None = None,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
@@ -962,24 +969,22 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_video(
         self,
-        video: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        width: int | Option[int] = Nothing,
-        height: int | Option[int] = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        has_spoiler: bool | Option[bool] = Nothing,
-        supports_streaming: bool | Option[bool] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        video: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        has_spoiler: bool | None = None,
+        supports_streaming: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
@@ -1046,18 +1051,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_video_note(
         self,
-        video_note: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        duration: int | Option[int] = Nothing,
-        length: int | Option[int] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        video_note: InputFile | str,
+        chat_id: int | str | None = None,
+        duration: int | None = None,
+        length: int | None = None,
+        message_thread_id: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
@@ -1108,19 +1111,17 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_voice(
         self,
-        voice: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        voice: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
@@ -1173,26 +1174,22 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         question: str,
         options: list[str],
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        is_anonymous: Option[bool] | bool = Nothing,
-        type: Option[typing.Literal["quiz", "regular"]]
-        | typing.Literal["quiz", "regular"] = Nothing,
-        allows_multiple_answers: Option[bool] | bool = Nothing,
-        correct_option_id: Option[int] | int = Nothing,
-        explanation: Option[str] | str = Nothing,
-        explanation_parse_mode: Option[str] | str = Nothing,
-        explanation_entities: Option[list[MessageEntity]]
-        | list[MessageEntity] = Nothing,
-        open_period: Option[int] | int = Nothing,
-        close_date: Option[datetime | int] | datetime | int = Nothing,
-        is_closed: Option[bool] | bool = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        is_anonymous: bool | None = None,
+        type: typing.Literal["quiz", "regular"] | None = None,
+        allows_multiple_answers: bool | None = None,
+        correct_option_id: int | None = None,
+        explanation: str | None = None,
+        explanation_parse_mode: str | None = None,
+        explanation_entities: list[MessageEntity] | None = None,
+        open_period: int | None = None,
+        close_date: datetime | int | None = None,
+        is_closed: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
@@ -1263,18 +1260,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         longitude: float,
         title: str,
         address: str,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        foursquare_id: Option[str] | str = Nothing,
-        foursquare_type: Option[str] | str = Nothing,
-        google_place_id: Option[str] | str = Nothing,
-        google_place_type: Option[str] | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        foursquare_id: str | None = None,
+        foursquare_type: str | None = None,
+        google_place_id: str | None = None,
+        google_place_type: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
@@ -1324,15 +1319,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_dice(
         self,
-        emoji: Option[DiceEmoji] | DiceEmoji = Nothing,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        emoji: DiceEmoji | None = None,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
@@ -1369,15 +1362,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_game(
         self,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        game_short_name: Option[str] | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        game_short_name: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
@@ -1416,29 +1407,27 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        max_tip_amount: Option[int] | int = Nothing,
-        suggested_tip_amounts: Option[list[int]] | list[int] = Nothing,
-        start_parameter: Option[str] | str = Nothing,
-        provider_data: Option[str] | str = Nothing,
-        photo_url: Option[str] | str = Nothing,
-        photo_size: Option[int] | int = Nothing,
-        photo_width: Option[int] | int = Nothing,
-        photo_height: Option[int] | int = Nothing,
-        need_name: Option[bool] | bool = Nothing,
-        need_phone_number: Option[bool] | bool = Nothing,
-        need_email: Option[bool] | bool = Nothing,
-        need_shipping_address: Option[bool] | bool = Nothing,
-        send_phone_number_to_provider: Option[bool] | bool = Nothing,
-        send_email_to_provider: Option[bool] | bool = Nothing,
-        is_flexible: Option[bool] | bool = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        max_tip_amount: int | None = None,
+        suggested_tip_amounts: list[int] | None = None,
+        start_parameter: str | None = None,
+        provider_data: str | None = None,
+        photo_url: str | None = None,
+        photo_size: int | None = None,
+        photo_width: int | None = None,
+        photo_height: int | None = None,
+        need_name: bool | None = None,
+        need_phone_number: bool | None = None,
+        need_email: bool | None = None,
+        need_shipping_address: bool | None = None,
+        send_phone_number_to_provider: bool | None = None,
+        send_email_to_provider: bool | None = None,
+        is_flexible: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
@@ -1529,8 +1518,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_chat_action(
         self,
         action: ChatAction,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.send_chat_action()`, see the [documentation](https://core.telegram.org/bots/api#sendchataction)
@@ -1562,16 +1551,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_media_group(
         self,
         media: list[InputMedia | tuple[MediaType, InputFile | str]],
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
         **other: typing.Any,
     ) -> Result[list[MessageCute], APIError]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
@@ -1602,7 +1589,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param protect_content: Protects the contents of the sent messages from forwarding and saving. \
 
         :param reply_parameters: Description of the message to reply to."""
-        
+
         params = get_params(locals())
 
         for i, m in enumerate(media[:]):
@@ -1616,7 +1603,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                         parse_mode=parse_mode,
                     ),
                 )
-    
+
         return await execute_method_answer(self, "send_media_group", params)
 
     @shortcut(
@@ -1628,18 +1615,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         latitude: float,
         longitude: float,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        horizontal_accuracy: Option[float] | float = Nothing,
-        heading: Option[int] | int = Nothing,
-        live_period: Option[int] | int = Nothing,
-        proximity_alert_radius: Option[int] | int = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        horizontal_accuracy: float | None = None,
+        heading: int | None = None,
+        live_period: int | None = None,
+        proximity_alert_radius: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
@@ -1688,16 +1673,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         phone_number: str,
         first_name: str,
-        last_name: Option[str] | str = Nothing,
-        vcard: Option[str] | str = Nothing,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        last_name: str | None = None,
+        vcard: str | None = None,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
@@ -1737,22 +1720,20 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_audio(
         self,
-        audio: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        performer: str | Option[str] = Nothing,
-        title: str | Option[str] = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        audio: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        performer: str | None = None,
+        title: str | None = None,
+        thumbnail: InputFile | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
@@ -1815,23 +1796,21 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_animation(
         self,
-        animation: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        width: int | Option[int] = Nothing,
-        height: int | Option[int] = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        has_spoiler: bool | Option[bool] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        animation: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        has_spoiler: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
@@ -1895,20 +1874,18 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_document(
         self,
-        document: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        disable_content_type_detection: Option[bool] | bool = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        document: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_content_type_detection: bool | None = None,
+        thumbnail: InputFile | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
@@ -1967,19 +1944,17 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_photo(
         self,
-        photo: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        has_spoiler: bool | Option[bool] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        photo: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        has_spoiler: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
@@ -2029,16 +2004,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_sticker(
         self,
-        sticker: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        emoji: str | Option[str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        sticker: InputFile | str,
+        chat_id: int | str | None = None,
+        emoji: str | None = None,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
@@ -2080,24 +2053,22 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_video(
         self,
-        video: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        width: int | Option[int] = Nothing,
-        height: int | Option[int] = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        has_spoiler: bool | Option[bool] = Nothing,
-        supports_streaming: bool | Option[bool] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        video: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        has_spoiler: bool | None = None,
+        supports_streaming: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
@@ -2164,18 +2135,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_video_note(
         self,
-        video_note: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        duration: int | Option[int] = Nothing,
-        length: int | Option[int] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        thumbnail: Option[InputFile | str] | InputFile | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        video_note: InputFile | str,
+        chat_id: int | str | None = None,
+        duration: int | None = None,
+        length: int | None = None,
+        message_thread_id: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
@@ -2226,19 +2195,17 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_voice(
         self,
-        voice: str | InputFile,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: ReplyMarkup | Option[ReplyMarkup] = Nothing,
+        voice: InputFile | str,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
@@ -2291,26 +2258,22 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         question: str,
         options: list[str],
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        is_anonymous: Option[bool] | bool = Nothing,
-        type: Option[typing.Literal["quiz", "regular"]]
-        | typing.Literal["quiz", "regular"] = Nothing,
-        allows_multiple_answers: Option[bool] | bool = Nothing,
-        correct_option_id: Option[int] | int = Nothing,
-        explanation: Option[str] | str = Nothing,
-        explanation_parse_mode: Option[str] | str = Nothing,
-        explanation_entities: Option[list[MessageEntity]]
-        | list[MessageEntity] = Nothing,
-        open_period: Option[int] | int = Nothing,
-        close_date: Option[datetime | int] | datetime | int = Nothing,
-        is_closed: Option[bool] | bool = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        is_anonymous: bool | None = None,
+        type: typing.Literal["quiz", "regular"] | None = None,
+        allows_multiple_answers: bool | None = None,
+        correct_option_id: int | None = None,
+        explanation: str | None = None,
+        explanation_parse_mode: str | None = None,
+        explanation_entities: list[MessageEntity] | None = None,
+        open_period: int | None = None,
+        close_date: datetime | int | None = None,
+        is_closed: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
@@ -2381,18 +2344,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         longitude: float,
         title: str,
         address: str,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        foursquare_id: Option[str] | str = Nothing,
-        foursquare_type: Option[str] | str = Nothing,
-        google_place_id: Option[str] | str = Nothing,
-        google_place_type: Option[str] | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        foursquare_id: str | None = None,
+        foursquare_type: str | None = None,
+        google_place_id: str | None = None,
+        google_place_type: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
@@ -2442,15 +2403,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_dice(
         self,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        emoji: Option[DiceEmoji] | DiceEmoji = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        emoji: DiceEmoji | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
@@ -2487,15 +2446,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_game(
         self,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        game_short_name: Option[str] | str = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        game_short_name: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
@@ -2534,29 +2491,27 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        max_tip_amount: Option[int] | int = Nothing,
-        suggested_tip_amounts: Option[list[int]] | list[int] = Nothing,
-        start_parameter: Option[str] | str = Nothing,
-        provider_data: Option[str] | str = Nothing,
-        photo_url: Option[str] | str = Nothing,
-        photo_size: Option[int] | int = Nothing,
-        photo_width: Option[int] | int = Nothing,
-        photo_height: Option[int] | int = Nothing,
-        need_name: Option[bool] | bool = Nothing,
-        need_phone_number: Option[bool] | bool = Nothing,
-        need_email: Option[bool] | bool = Nothing,
-        need_shipping_address: Option[bool] | bool = Nothing,
-        send_phone_number_to_provider: Option[bool] | bool = Nothing,
-        send_email_to_provider: Option[bool] | bool = Nothing,
-        is_flexible: Option[bool] | bool = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        max_tip_amount: int | None = None,
+        suggested_tip_amounts: list[int] | None = None,
+        start_parameter: str | None = None,
+        provider_data: str | None = None,
+        photo_url: str | None = None,
+        photo_size: int | None = None,
+        photo_width: int | None = None,
+        photo_height: int | None = None,
+        need_name: bool | None = None,
+        need_phone_number: bool | None = None,
+        need_email: bool | None = None,
+        need_shipping_address: bool | None = None,
+        send_phone_number_to_provider: bool | None = None,
+        send_email_to_provider: bool | None = None,
+        is_flexible: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
@@ -2653,16 +2608,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_media_group(
         self,
         media: list[InputMedia | tuple[MediaType, InputFile | str]],
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
         **other: typing.Any,
     ) -> Result[list[MessageCute], APIError]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
@@ -2707,18 +2660,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         latitude: float,
         longitude: float,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        horizontal_accuracy: Option[float] | float = Nothing,
-        heading: Option[int] | int = Nothing,
-        live_period: Option[int] | int = Nothing,
-        proximity_alert_radius: Option[int] | int = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        horizontal_accuracy: float | None = None,
+        heading: int | None = None,
+        live_period: int | None = None,
+        proximity_alert_radius: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
@@ -2767,16 +2718,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         phone_number: str,
         first_name: str,
-        last_name: Option[str] | str = Nothing,
-        vcard: Option[str] | str = Nothing,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        disable_notification: Option[bool] | bool = Nothing,
-        protect_content: Option[bool] | bool = Nothing,
-        reply_parameters: Option[ReplyParameters | dict[str, typing.Any]]
-        | ReplyParameters
-        | dict[str, typing.Any] = Nothing,
-        reply_markup: Option[ReplyMarkup] | ReplyMarkup = Nothing,
+        last_name: str | None = None,
+        vcard: str | None = None,
+        chat_id: int | str | None = None,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_markup: ReplyMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
@@ -2818,13 +2767,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         latitude: float,
         longitude: float,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        horizontal_accuracy: Option[float] | float = Nothing,
-        heading: Option[int] | int = Nothing,
-        proximity_alert_radius: Option[int] | int = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        horizontal_accuracy: float | None = None,
+        heading: int | None = None,
+        proximity_alert_radius: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_live_location()`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
@@ -2866,13 +2815,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def edit_caption(
         self,
-        caption: Option[str] | str,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: int | Option[int] = Nothing,
-        parse_mode: Option[str] | str = Nothing,
-        caption_entities: Option[list[MessageEntity]] | list[MessageEntity] = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        caption: str,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
@@ -2904,19 +2853,26 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     @shortcut(
         "edit_message_media",
-        custom_params={"media", "type", "message_thread_id", "caption", "parse_mode", "caption_entities"},
+        custom_params={
+            "media",
+            "type",
+            "message_thread_id",
+            "caption",
+            "parse_mode",
+            "caption_entities",
+        },
     )
     async def edit_media(
         self,
-        media: str | InputFile | InputMedia,
-        type: MediaType | Option[MediaType] = Nothing,
-        caption: Option[str] | str = Nothing,
-        parse_mode: Option[str] | str = Nothing,
-        caption_entities: Option[list[MessageEntity]] | list[MessageEntity] = Nothing,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        media: InputFile | InputMedia | str,
+        type: MediaType | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
@@ -2966,7 +2922,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                 caption_entities=caption_entities,
                 parse_mode=parse_mode,
             )
-    
+
         return await execute_method_edit(self, "edit_message_media", params)
 
     @shortcut(
@@ -2976,10 +2932,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def edit_reply_markup(
         self,
-        chat_id: Option[int | str] | int | str = Nothing,
-        message_id: Option[int] | int = Nothing,
-        message_thread_id: Option[int] | int = Nothing,
-        reply_markup: Option[InlineKeyboardMarkup] | InlineKeyboardMarkup = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)

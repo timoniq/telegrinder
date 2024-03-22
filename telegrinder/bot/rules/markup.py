@@ -1,3 +1,5 @@
+import typing
+
 import vbml
 
 from telegrinder.bot.dispatch.context import Context
@@ -6,7 +8,7 @@ from telegrinder.tools.global_context import TelegrinderCtx
 from .abc import Message
 from .text import TextMessageRule
 
-PatternLike = str | vbml.Pattern
+PatternLike: typing.TypeAlias = str | vbml.Pattern
 global_ctx = TelegrinderCtx()
 
 

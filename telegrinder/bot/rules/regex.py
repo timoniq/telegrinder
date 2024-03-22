@@ -6,7 +6,7 @@ from telegrinder.bot.dispatch.context import Context
 from .abc import Message
 from .text import TextMessageRule
 
-PatternLike = str | typing.Pattern[str]
+PatternLike: typing.TypeAlias = str | typing.Pattern[str]
 
 
 class Regex(TextMessageRule):

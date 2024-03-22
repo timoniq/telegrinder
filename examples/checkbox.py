@@ -1,13 +1,12 @@
-import logging
-
 from telegrinder import API, Checkbox, Message, Telegrinder, Token, WaiterMachine
 from telegrinder.rules import Text
+from telegrinder.modules import logger
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine()
 
-logging.basicConfig(level=logging.DEBUG)
+logger.set_level("INFO")
 
 
 @bot.on.message(Text("/checkbox"))

@@ -3,19 +3,36 @@ The example uses the aiosqlite driver. It is recommended to use asynchronous dri
 to work with databases.
 """
 
-import aiosqlite
-from fntypes.co import Some
+import aiosqlite  # type: ignore
+from fntypes.co import Nothing, Some, Option
 
-from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
+from telegrinder import ABCMiddleware, API, Message, Telegrinder, Token
 from telegrinder.bot import Context
 from telegrinder.model import decoder
-from telegrinder.msgspec_utils import Nothing, Option
+from telegrinder.modules import logger
 from telegrinder.rules import Markup, MessageEntities
 from telegrinder.types import User
 from telegrinder.types.enums import MessageEntityType
 
 db_path = "examples/assets/users.db"
 bot = Telegrinder(API(Token.from_env()))
+logger.set_level("INFO")
+
+
+async def create_table():
+    async with aiosqlite.connect(db_path) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                "create table if not exists users("
+                "id integer unique,"
+                "is_bot boolean,"
+                "is_premium boolean,"
+                "first_name varchar(64),"
+                "last_name varchar(64),"
+                "username varchar(32),"
+                "language_code varchar(5))"
+            )
+            await conn.commit()
 
 
 def get_result_with_names(
@@ -80,7 +97,7 @@ class DummyDatabase:
                 )
             ).fetchone()
             if row is None:
-                return Nothing
+                return Nothing()
             return decoder.convert(
                 obj=get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
                 type=Option[User],
@@ -90,6 +107,7 @@ class DummyDatabase:
 db = DummyDatabase()
 
 
+@bot.on.message.register_middleware()
 class UserRegistrarMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: Context) -> bool:
         if event.from_ and event.from_user.username:
@@ -102,23 +120,22 @@ class UserRegistrarMiddleware(ABCMiddleware[Message]):
     & Markup("/get_user @<username>")
 )
 async def get_user(message: Message, username: str):
-    user = await db.get_user(username)
-    if not user:
-        await message.answer(f"User with username {username!r} not found!")
-        return
-    user = user.unwrap()
-    await message.reply(
-        f"""
-        id -> {user.id}
-        is bot -> {'yes' if user.is_bot else 'no'}
-        first name -> {user.first_name} 
-        last name -> {user.last_name.unwrap_or('')}
-        is premium -> {'yes' if user.is_premium.unwrap_or(False) else 'no'}
-        lang code -> {user.language_code.unwrap()}
-        """
-        .replace("    ", "")
-    )
+    match await db.get_user(username):
+        case Some(user):
+            await message.reply(
+                f"""
+                id -> {user.id}
+                is bot -> {'yes' if user.is_bot else 'no'}
+                first name -> {user.first_name} 
+                last name -> {user.last_name.unwrap_or('')}
+                is premium -> {'yes' if user.is_premium.unwrap_or(False) else 'no'}
+                lang code -> {user.language_code.unwrap()}
+                """
+                .replace("    ", "")
+            )
+        case Nothing():
+            await message.reply(f"User with username {username!r} not found!")
 
 
-bot.on.message.middlewares.append(UserRegistrarMiddleware())
+bot.loop_wrapper.on_startup.append(create_table())
 bot.run_forever()

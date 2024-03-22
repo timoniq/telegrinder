@@ -5,11 +5,12 @@ from telegrinder.bot import Context
 from telegrinder.modules import logger
 from telegrinder.rules import Argument, Command, IsPrivate
 
-logger.set_level("INFO")
+T = typing.TypeVar("T")
+
 api = API(Token.from_env())
 bot = Telegrinder(api)
 
-T = typing.TypeVar("T")
+logger.set_level("INFO")
 
 
 def int_validator(value: str) -> int | None:
@@ -56,7 +57,7 @@ async def command_handler_secret(message: Message, code: list[int]) -> Context:
 
 
 @bot.on.message(IsPrivate())
-async def handler_secret_code(message: Message, secret_code: int | None = None):
+async def handler_secret_code(_: Message, secret_code: int | None = None):
     if secret_code is None:
         return
     return f"Hey! Secret code: {secret_code!r}"

@@ -1,14 +1,13 @@
-import logging
-
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.rules import HasEntities, IsChat, IsPrivate, MessageEntities
 from telegrinder.tools.formatting import HTMLFormatter, mention
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity
+from telegrinder.modules import logger
 
 api = API(Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+logger.set_level("INFO")
 
 
 @bot.on.message(IsChat(), MessageEntities(MessageEntityType.MENTION))

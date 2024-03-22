@@ -8,7 +8,7 @@ if typing.TYPE_CHECKING:
 
     T = typing.TypeVar("T", bound=ABCRule)
 
-FuncType = types.FunctionType | typing.Callable
+FuncType: typing.TypeAlias = types.FunctionType | typing.Callable[..., typing.Any]
 TRANSLATIONS_KEY = "_translations"
 
 

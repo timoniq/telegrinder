@@ -1,14 +1,13 @@
-import logging
-
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot.rules import Text
 from telegrinder.tools.i18n import ABCTranslatorMiddleware, SimpleI18n, SimpleTranslator
+from telegrinder.modules import logger
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.DEBUG)
 i18n = SimpleI18n(folder="examples/assets/i18n", domain="messages", default_locale="en")
 
+logger.set_level("INFO")
 
 class I18nMiddleware(ABCTranslatorMiddleware[Message]):
     async def get_locale(self, event: Message) -> str:

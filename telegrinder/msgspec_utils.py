@@ -191,11 +191,11 @@ class Encoder:
         return self.enc_hooks[origin_type](obj)
     
     @typing.overload
-    def encode(self, obj: typing.Any) -> str:
+    def encode(self, obj: typing.Any, *, as_str: typing.Literal[True] = True) -> str:
         ...
 
     @typing.overload
-    def encode(self, obj: typing.Any, *, as_str: bool = False) -> bytes:
+    def encode(self, obj: typing.Any, *, as_str: typing.Literal[False] = False) -> bytes:
         ...
 
     def encode(self, obj: typing.Any, *, as_str: bool = True) -> str | bytes:

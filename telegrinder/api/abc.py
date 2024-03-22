@@ -43,6 +43,7 @@ class ABCAPI(ABC):
         self,
         method: str,
         data: dict[str, typing.Any] | None = None,
+        files: dict[str, tuple[str, bytes]] | None = None,
     ) -> Result[list[typing.Any] | dict[str, typing.Any] | bool, APIError]:
         pass
 
@@ -51,6 +52,7 @@ class ABCAPI(ABC):
         self,
         method: str,
         data: dict[str, typing.Any] | None = None,
+        files: dict[str, tuple[str, bytes]] | None = None,
     ) -> Result[msgspec.Raw, APIError]:
         pass
 

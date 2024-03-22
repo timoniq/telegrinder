@@ -18,7 +18,7 @@ def compose_data(
 ) -> typing.Any:
     converter = DataConverter(files=files)
     return client.get_form(
-        data={k: converter.convert(v) for k, v in data.items()},
+        data={k: converter(v) for k, v in data.items()},
         files=converter.files,
     )
 

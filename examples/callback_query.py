@@ -1,5 +1,4 @@
 import dataclasses
-import logging
 
 from telegrinder import (
     API,
@@ -10,6 +9,7 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
+from telegrinder.modules import logger
 from telegrinder.rules import (
     CallbackDataEq,
     CallbackDataJsonModel,
@@ -19,7 +19,7 @@ from telegrinder.rules import (
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+logger.set_level("INFO")
 
 
 @dataclasses.dataclass

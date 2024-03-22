@@ -4,10 +4,13 @@ import datetime
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.rules import Text
+from telegrinder.modules import logger
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 RAVIOLI_TIME_TO_COOK = 9 * 60
+
+logger.set_level("INFO")
 
 
 @dataclasses.dataclass

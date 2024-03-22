@@ -1,5 +1,5 @@
 from .buttons import BaseButton
-from .error_handler import ABCErrorHandler, Catcher, ErrorHandler
+from .error_handler import ABCErrorHandler, Catcher, CatcherError, ErrorHandler
 from .formatting import (
     BaseSpecFormat,
     ChannelBoostLink,
@@ -62,7 +62,6 @@ from .keyboard import (
     InlineKeyboard,
     Keyboard,
     RowButtons,
-    keyboard_remove,
 )
 from .loop_wrapper import ABCLoopWrapper, DelayedTask, LoopWrapper
 from .magic import magic_bundle, resolve_arg_names
@@ -80,6 +79,7 @@ __all__ = (
     "BaseSpecFormat",
     "Button",
     "Catcher",
+    "CatcherError",
     "ChannelBoostLink",
     "CtxVar",
     "DelayedTask",
@@ -123,7 +123,6 @@ __all__ = (
     "get_start_group_link",
     "invite_chat_link",
     "italic",
-    "keyboard_remove",
     "link",
     "magic_bundle",
     "mention",

@@ -9,33 +9,30 @@ bot = Telegrinder(API(Token.from_env()))
 async def forward_message(message: Message) -> str:
     result = (await message.forward(message.chat_id)).unwrap()
     forward_origin = result.forward_origin.unwrap().v
-    text_for_response = "Forwarded message that was sent on {!r} from {}: {!r}"
+    text_response = "Forwarded message that was sent on {!r} from {}: {!r}".format(
+        forward_origin.date.ctime(),
+        forward_origin.type,
+    )
 
     match forward_origin.type:
         case "chat":
-            return text_for_response.format(
-                forward_origin.date.ctime(),
-                forward_origin.type,
+            text_response = text_response.format(
                 forward_origin.sender_chat,
             )
         case "channel":
-            return text_for_response.format(
-                forward_origin.date.ctime(),
-                forward_origin.type,
+            text_response = text_response.format(
                 forward_origin.chat.title.unwrap(),
             )
         case "hidden_user":
-            return text_for_response.format(
-                forward_origin.date.ctime(),
-                forward_origin.type,
+            text_response = text_response.format(
                 forward_origin.sender_user_name,
             )
         case "user":
-            return text_for_response.format(
-                forward_origin.date.ctime(),
-                forward_origin.type,
+            text_response = text_response.format(
                 forward_origin.sender_user.full_name,
             )
+    
+    return text_response
 
 
 bot.run_forever()

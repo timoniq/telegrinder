@@ -13,7 +13,11 @@ Handler = typing.Callable[typing.Concatenate[EventT, ...], typing.Awaitable[typi
 
 class ABCErrorHandler(ABC, typing.Generic[EventT]):
     @abstractmethod
-    def catch(self) -> typing.Callable[[typing.Callable], typing.Callable]:
+    def register_catcher(
+        self,
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> typing.Callable[[typing.Callable[..., typing.Any]], typing.Callable[..., typing.Any]]:
         ...
 
     @abstractmethod

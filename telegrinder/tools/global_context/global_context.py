@@ -23,7 +23,11 @@ else:
 
 
 def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
-    return True if value_type is object else bool(msgspec_convert(value, value_type))
+    return (
+        True
+        if value_type in (typing.Any, object)
+        else bool(msgspec_convert(value, value_type))
+    )
 
 
 def is_dunder(name: str) -> bool:
@@ -44,23 +48,23 @@ def root_protection(func: F) -> F:
         )
 
     @wraps(func)
-    def wrapper(self: "GlobalContext", __name: str, *args) -> typing.Any:
-        if self.is_root_attribute(__name) and __name in (
+    def wrapper(self: "GlobalContext", name: str, /, *args) -> typing.Any:
+        if self.is_root_attribute(name) and name in (
             self.__dict__ | self.__class__.__dict__
         ):
-            root_attr = self.get_root_attribute(__name).unwrap()
+            root_attr = self.get_root_attribute(name).unwrap()
             if all((not root_attr.can_be_rewritten, not root_attr.can_be_read)):
                 raise AttributeError(
-                    f"Unable to set, get, delete root attribute {__name!r}."
+                    f"Unable to set, get, delete root attribute {name!r}."
                 )
             if func.__name__ == "__setattr__" and not root_attr.can_be_rewritten:
-                raise AttributeError(f"Unable to set root attribute {__name!r}.")
+                raise AttributeError(f"Unable to set root attribute {name!r}.")
             if func.__name__ == "__getattr__" and not root_attr.can_be_read:
-                raise AttributeError(f"Unable to get root attribute {__name!r}.")
+                raise AttributeError(f"Unable to get root attribute {name!r}.")
             if func.__name__ == "__delattr__":
-                raise AttributeError(f"Unable to delete root attribute {__name!r}.")
+                raise AttributeError(f"Unable to delete root attribute {name!r}.")
 
-        return func(self, __name, *args)  # type: ignore
+        return func(self, name, *args)  # type: ignore
 
     return wrapper  # type: ignore
 
@@ -77,7 +81,7 @@ def ctx_var(value: T, *, const: bool = False) -> T:
     ctx.URL = '...'  #: type checking error & exception 'TypeError'
     ```
     """
-    
+
     return typing.cast(T, CtxVar(value, const=const))
 
 
@@ -116,7 +120,9 @@ class Storage:
         return Some(ctx) if ctx is not None else Nothing()
 
     def delete(self, ctx_name: str) -> None:
-        assert self._storage.pop(ctx_name, None) is not None, f"Context {ctx_name!r} is not defined in storage."
+        assert (
+            self._storage.pop(ctx_name, None) is not None
+        ), f"Context {ctx_name!r} is not defined in storage."
 
 
 @typing.dataclass_transform(
@@ -126,7 +132,7 @@ class Storage:
 )
 class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, GlobalCtxVar[CtxValueT]]):
     """GlobalContext.
-    
+
     ```
     ctx = GlobalContext()
     ctx["client"] = Client()
@@ -136,7 +142,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         data = {"user": "root_user", "password": "secret_password"}
         ctx.client.request(ctx.address + "/login", data)
     """
-    
+
     __ctx_name__: str | None
     __storage__: typing.ClassVar[Storage] = Storage()
     __root_attributes__: typing.ClassVar[tuple[RootAttr, ...]] = (
@@ -156,16 +162,13 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         if not issubclass(GlobalContext, cls):
             defaults = {}
             for name in cls.__annotations__:
-                if (
-                    name in cls.__dict__
-                    and name not in cls.__root_attributes__
-                ):
+                if name in cls.__dict__ and name not in cls.__root_attributes__:
                     defaults[name] = getattr(cls, name)
                     delattr(cls, name)
                     if isinstance(defaults[name], CtxVar) and defaults[name].const:
                         variables.pop(name, None)
-    
-            variables = defaults | variables 
+
+            variables = defaults | variables
 
         ctx_name = getattr(cls, "__ctx_name__", ctx_name)
         if ctx_name is None:
@@ -175,7 +178,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         else:
             ctx = dict.__new__(cls, ctx_name)
             cls.__storage__.set(ctx_name, ctx)
-        
+
         ctx.set_context_variables(variables)
         return ctx  # type: ignore
 
@@ -189,22 +192,25 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
 
         if not hasattr(self, "__ctx_name__"):
             self.__ctx_name__ = ctx_name
-        
+
         if variables and not self:
             self.set_context_variables(variables)
-                
+
     def __repr__(self) -> str:
         return "<{!r} -> ({})>".format(
             f"{self.__class__.__name__}@{self.ctx_name}",
             ", ".join(repr(var) for var in self),
         )
-    
+
     def __eq__(self, __value: "GlobalContext") -> bool:
         """Returns True if the names of context stores
         that use self and __value instances are equivalent."""
 
-        return self.__ctx_name__ == __value.__ctx_name__
-    
+        return (
+            isinstance(__value, GlobalContext)
+            and self.__ctx_name__ == __value.__ctx_name__
+        )
+
     def __setitem__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]):
         if is_dunder(__name):
             raise NameError("Cannot set a context variable with dunder name.")
@@ -217,7 +223,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
 
     def __getitem__(self, __name: str) -> CtxValueT:
         return self.get(__name).unwrap().value
-    
+
     def __delitem__(self, __name: str):
         var = self.get(__name).unwrap()
         if var.const:
@@ -263,9 +269,11 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
 
         return name in cls.__root_attributes__
 
-    def set_context_variables(self, variables: typing.Mapping[str, CtxValueT | CtxVariable[CtxValueT]]) -> None:    
+    def set_context_variables(
+        self, variables: typing.Mapping[str, CtxValueT | CtxVariable[CtxValueT]]
+    ) -> None:
         """Set context variables from mapping."""
-        
+
         for name, var in variables.items():
             self[name] = var
 
@@ -277,83 +285,74 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
                 if rattr.name == name:
                     return Some(rattr)
         return Nothing()
-        
+
     def items(self) -> list[tuple[str, GlobalCtxVar[CtxValueT]]]:
         """Return context variables as set-like items."""
 
         return list(dict.items(self))
-    
+
     def keys(self) -> list[str]:
         """Returns context variable names as keys."""
 
         return list(dict.keys(self))
-    
+
     def values(self) -> list[GlobalCtxVar[CtxValueT]]:
         """Returns context variables as values."""
 
         return list(dict.values(self))
-    
+
     def update(self, other: typing.Self) -> None:
         """Update context."""
 
         dict.update(dict(other.items()))
-    
+
     def copy(self) -> typing.Self:
         """Copy context. Returns copied context without ctx_name."""
 
         return self.__class__(**self.dict())
-    
+
     def dict(self) -> dict[str, GlobalCtxVar[CtxValueT]]:
         """Returns context as dict."""
 
         return {name: deepcopy(var) for name, var in self.items()}
-    
+
     @typing.overload
-    def pop(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]:
-        ...
-    
+    def pop(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]: ...
+
     @typing.overload
     def pop(
         self,
         var_name: str,
         var_value_type: type[T],
-    ) -> Option[GlobalCtxVar[T]]:
-        ...
-    
+    ) -> Option[GlobalCtxVar[T]]: ...
+
     def pop(
-        self,
-        var_name: str,
-        var_value_type: type[T] = object
+        self, var_name: str, var_value_type: type[T] = object
     ) -> Option[GlobalCtxVar[T]]:
-        """Pop context variable by name.
-        Returns Option[GlobalCtxVar[T]] object.
-        """
+        """Pop context variable by name."""
 
         val = self.get(var_name, var_value_type)
         if val:
             del self[var_name]
             return val
         return Nothing()
-    
+
     @typing.overload
-    def get(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]:
-        ...
-    
+    def get(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]: ...
+
     @typing.overload
     def get(
         self,
         var_name: str,
         var_value_type: type[T],
-    ) -> Option[GlobalCtxVar[T]]:
-        ...
-    
+    ) -> Option[GlobalCtxVar[T]]: ...
+
     def get(
         self,
         var_name: str,
         var_value_type: type[T] = object,
     ) -> Option[GlobalCtxVar[T]]:
-        """Get context variable by name.
-        Returns `GlobalCtxVar[value_type]` object."""
+        """Get context variable by name."""
 
         generic_types = typing.get_args(get_orig_class(self))
         if generic_types and var_value_type is object:
@@ -361,27 +360,27 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         var = dict.get(self, var_name)
         if var is None:
             return Nothing()
-        assert type_check(var.value, var_value_type), (
-            "Context variable value type of {!r} does not correspond to the expected type {!r}.".format(
-                type(var.value).__name__,
+        assert type_check(
+            var.value, var_value_type
+        ), "Context variable value type of {!r} does not correspond to the expected type {!r}.".format(
+            type(var.value).__name__,
+            (
                 getattr(var_value_type, "__name__")
                 if isinstance(var_value_type, type)
-                else repr(var_value_type),
-            )
+                else repr(var_value_type)
+            ),
         )
         return Some(var)
 
     @typing.overload
-    def get_value(self, var_name: str) -> Option[CtxValueT]:
-        ...
+    def get_value(self, var_name: str) -> Option[CtxValueT]: ...
 
     @typing.overload
     def get_value(
         self,
         var_name: str,
         var_value_type: type[T],
-    ) -> Option[T]:
-        ...
+    ) -> Option[T]: ...
 
     def get_value(
         self,
@@ -398,8 +397,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         var = self.get(old_var_name).unwrap()
         if var.const:
             return Error(
-                f"Unable to rename variable {old_var_name!r}, "
-                "because it's a constant."
+                f"Unable to rename variable {old_var_name!r}, " "because it's a constant."
             )
         del self[old_var_name]
         self[new_var_name] = var.value

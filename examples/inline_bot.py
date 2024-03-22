@@ -1,12 +1,11 @@
-import logging
-
 from telegrinder import API, InlineQuery, Telegrinder, Token
 from telegrinder.rules import InlineQueryText
-from telegrinder.tools.inline_query import inline_query_article, input_text_message_content
+from telegrinder.bot.cute_types.utils import inline_query_article, input_text_message_content
+from telegrinder.modules import logger
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.DEBUG)
+logger.set_level("INFO")
 
 
 @bot.on.inline_query(InlineQueryText("test"))

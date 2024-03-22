@@ -35,6 +35,8 @@ class ProgrammingLanguage(str, enum.Enum):
     HTML = "html"
     YAML = "yaml"
     JSON = "json"
+    MARKDOWN = "markdown"
+    MARKUP = "markup"
 
 
 class ChatAction(str, enum.Enum):

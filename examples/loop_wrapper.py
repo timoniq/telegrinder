@@ -1,9 +1,12 @@
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.rules import Text
+from telegrinder.modules import logger
 
 SECRET_CHAT_ID = 123456789
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
+
+logger.set_level("INFO")
 
 
 @bot.loop_wrapper.timer(minutes=1)

@@ -1,4 +1,4 @@
-from fntypes.result import RESULT_ERROR_LOGGER, Error
+from fntypes.result import Error, RESULT_ERROR_LOGGER
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger

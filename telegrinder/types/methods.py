@@ -4,7 +4,6 @@ from fntypes.co import Result, Variative
 
 from telegrinder.api.error import APIError
 from telegrinder.model import full_result, get_params
-from telegrinder.msgspec_utils import Nothing, Option
 from telegrinder.types.objects import *  # noqa: F403
 
 if typing.TYPE_CHECKING:
@@ -17,12 +16,12 @@ class APIMethods:
 
     async def get_updates(
         self,
-        offset: int | Option[int] = Nothing,
-        limit: int | Option[int] = Nothing,
-        timeout: int | Option[int] = Nothing,
-        allowed_updates: list[str] | Option[list[str]] = Nothing,
+        offset: int | None = None,
+        limit: int | None = None,
+        timeout: int | None = None,
+        allowed_updates: list[str] | None = None,
         **other: typing.Any,
-    ) -> Result[list[Update], "APIError"]:
+    ) -> Result[list[Update], APIError]:
         """Method `getUpdates`, see the [documentation](https://core.telegram.org/bots/api#getupdates)
 
         Use this method to receive incoming updates using long polling (wiki). 
@@ -62,14 +61,14 @@ class APIMethods:
     async def set_webhook(
         self,
         url: str,
-        certificate: InputFile | Option[InputFile] = Nothing,
-        ip_address: str | Option[str] = Nothing,
-        max_connections: int | Option[int] = Nothing,
-        allowed_updates: list[str] | Option[list[str]] = Nothing,
-        drop_pending_updates: bool | Option[bool] = Nothing,
-        secret_token: str | Option[str] = Nothing,
+        certificate: InputFile | None = None,
+        ip_address: str | None = None,
+        max_connections: int | None = None,
+        allowed_updates: list[str] | None = None,
+        drop_pending_updates: bool | None = None,
+        secret_token: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setWebhook`, see the [documentation](https://core.telegram.org/bots/api#setwebhook)
 
         Use this method to specify a URL and receive incoming updates via an outgoing 
@@ -119,9 +118,9 @@ class APIMethods:
 
     async def delete_webhook(
         self,
-        drop_pending_updates: bool | Option[bool] = Nothing,
+        drop_pending_updates: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `deleteWebhook`, see the [documentation](https://core.telegram.org/bots/api#deletewebhook)
 
         Use this method to remove webhook integration if you decide to switch back
@@ -138,7 +137,7 @@ class APIMethods:
 
     async def get_webhook_info(
         self, **other: typing.Any
-    ) -> Result[WebhookInfo, "APIError"]:
+    ) -> Result[WebhookInfo, APIError]:
         """Method `getWebhookInfo`, see the [documentation](https://core.telegram.org/bots/api#getwebhookinfo)
 
         Use this method to get current webhook status. Requires no parameters.
@@ -152,7 +151,7 @@ class APIMethods:
         )
         return full_result(method_response, WebhookInfo)
 
-    async def get_me(self, **other: typing.Any) -> Result[User, "APIError"]:
+    async def get_me(self, **other: typing.Any) -> Result[User, APIError]:
         """Method `getMe`, see the [documentation](https://core.telegram.org/bots/api#getme)
 
         A simple method for testing your bot's authentication token. Requires
@@ -166,7 +165,7 @@ class APIMethods:
         )
         return full_result(method_response, User)
 
-    async def log_out(self, **other: typing.Any) -> Result[bool, "APIError"]:
+    async def log_out(self, **other: typing.Any) -> Result[bool, APIError]:
         """Method `logOut`, see the [documentation](https://core.telegram.org/bots/api#logout)
 
         Use this method to log out from the cloud Bot API server before launching
@@ -183,7 +182,7 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
-    async def close(self, **other: typing.Any) -> Result[bool, "APIError"]:
+    async def close(self, **other: typing.Any) -> Result[bool, APIError]:
         """Method `close`, see the [documentation](https://core.telegram.org/bots/api#close)
 
         Use this method to close the bot instance before moving it from one local
@@ -203,25 +202,22 @@ class APIMethods:
         self,
         chat_id: int | str,
         text: str,
-        message_thread_id: int | Option[int] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        link_preview_options: LinkPreviewOptions | Option[LinkPreviewOptions] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendMessage`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
 
         Use this method to send text messages. On success, the sent Message is returned.
@@ -264,11 +260,11 @@ class APIMethods:
         chat_id: int | str,
         from_chat_id: int | str,
         message_id: int,
-        message_thread_id: int | Option[int] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `forwardMessage`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
 
         Use this method to forward messages of any kind. Service messages and messages 
@@ -302,11 +298,11 @@ class APIMethods:
         chat_id: int | str,
         from_chat_id: int | str,
         message_ids: list[int],
-        message_thread_id: int | Option[int] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
         **other: typing.Any,
-    ) -> Result[list[MessageId], "APIError"]:
+    ) -> Result[list[MessageId], APIError]:
         """Method `forwardMessages`, see the [documentation](https://core.telegram.org/bots/api#forwardmessages)
 
         Use this method to forward multiple messages of any kind. If some of the specified 
@@ -345,25 +341,22 @@ class APIMethods:
         chat_id: int | str,
         from_chat_id: int | str,
         message_id: int,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[MessageId, "APIError"]:
+    ) -> Result[MessageId, APIError]:
         """Method `copyMessage`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
         Use this method to copy messages of any kind. Service messages, giveaway 
@@ -415,12 +408,12 @@ class APIMethods:
         chat_id: int | str,
         from_chat_id: int | str,
         message_ids: list[int],
-        message_thread_id: int | Option[int] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        remove_caption: bool | Option[bool] = Nothing,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        remove_caption: bool | None = None,
         **other: typing.Any,
-    ) -> Result[list[MessageId], "APIError"]:
+    ) -> Result[list[MessageId], APIError]:
         """Method `copyMessages`, see the [documentation](https://core.telegram.org/bots/api#copymessages)
 
         Use this method to copy messages of any kind. If some of the specified messages 
@@ -462,26 +455,23 @@ class APIMethods:
         self,
         chat_id: int | str,
         photo: InputFile | str,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        has_spoiler: bool | Option[bool] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        has_spoiler: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendPhoto`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
 
         Use this method to send photos. On success, the sent Message is returned.
@@ -531,29 +521,26 @@ class APIMethods:
         self,
         chat_id: int | str,
         audio: InputFile | str,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        performer: str | Option[str] = Nothing,
-        title: str | Option[str] = Nothing,
-        thumbnail: InputFile | str | Option[InputFile | str] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        performer: str | None = None,
+        title: str | None = None,
+        thumbnail: InputFile | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendAudio`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
 
         Use this method to send audio files, if you want Telegram clients to display 
@@ -616,27 +603,24 @@ class APIMethods:
         self,
         chat_id: int | str,
         document: InputFile | str,
-        message_thread_id: int | Option[int] = Nothing,
-        thumbnail: InputFile | str | Option[InputFile | str] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        disable_content_type_detection: bool | Option[bool] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        disable_content_type_detection: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendDocument`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
 
         Use this method to send general files. On success, the sent Message is returned. 
@@ -695,31 +679,28 @@ class APIMethods:
         self,
         chat_id: int | str,
         video: InputFile | str,
-        message_thread_id: int | Option[int] = Nothing,
-        duration: int | Option[int] = Nothing,
-        width: int | Option[int] = Nothing,
-        height: int | Option[int] = Nothing,
-        thumbnail: InputFile | str | Option[InputFile | str] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        has_spoiler: bool | Option[bool] = Nothing,
-        supports_streaming: bool | Option[bool] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        has_spoiler: bool | None = None,
+        supports_streaming: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendVideo`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
 
         Use this method to send video files, Telegram clients support MPEG4 videos 
@@ -786,30 +767,27 @@ class APIMethods:
         self,
         chat_id: int | str,
         animation: InputFile | str,
-        message_thread_id: int | Option[int] = Nothing,
-        duration: int | Option[int] = Nothing,
-        width: int | Option[int] = Nothing,
-        height: int | Option[int] = Nothing,
-        thumbnail: InputFile | str | Option[InputFile | str] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        has_spoiler: bool | Option[bool] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        has_spoiler: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendAnimation`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
 
         Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without 
@@ -873,26 +851,23 @@ class APIMethods:
         self,
         chat_id: int | str,
         voice: InputFile | str,
-        message_thread_id: int | Option[int] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        duration: int | Option[int] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        duration: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendVoice`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
 
         Use this method to send audio files, if you want Telegram clients to display 
@@ -943,25 +918,22 @@ class APIMethods:
         self,
         chat_id: int | str,
         video_note: InputFile | str,
-        message_thread_id: int | Option[int] = Nothing,
-        duration: int | Option[int] = Nothing,
-        length: int | Option[int] = Nothing,
-        thumbnail: InputFile | str | Option[InputFile | str] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        duration: int | None = None,
+        length: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendVideoNote`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
         As of v.4.0, Telegram clients support rounded square MPEG4 videos of up 
@@ -1014,12 +986,12 @@ class APIMethods:
         media: list[
             InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
         ],
-        message_thread_id: int | Option[int] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
-    ) -> Result[list[Message], "APIError"]:
+    ) -> Result[list[Message], APIError]:
         """Method `sendMediaGroup`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
 
         Use this method to send a group of photos, videos, documents or audios as 
@@ -1053,26 +1025,23 @@ class APIMethods:
         chat_id: int | str,
         latitude: float,
         longitude: float,
-        message_thread_id: int | Option[int] = Nothing,
-        horizontal_accuracy: float | Option[float] = Nothing,
-        live_period: int | Option[int] = Nothing,
-        heading: int | Option[int] = Nothing,
-        proximity_alert_radius: int | Option[int] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        horizontal_accuracy: float | None = None,
+        live_period: int | None = None,
+        heading: int | None = None,
+        proximity_alert_radius: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendLocation`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
 
         Use this method to send point on the map. On success, the sent Message is returned.
@@ -1122,26 +1091,23 @@ class APIMethods:
         longitude: float,
         title: str,
         address: str,
-        message_thread_id: int | Option[int] = Nothing,
-        foursquare_id: str | Option[str] = Nothing,
-        foursquare_type: str | Option[str] = Nothing,
-        google_place_id: str | Option[str] = Nothing,
-        google_place_type: str | Option[str] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        foursquare_id: str | None = None,
+        foursquare_type: str | None = None,
+        google_place_id: str | None = None,
+        google_place_type: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendVenue`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
 
         Use this method to send information about a venue. On success, the sent Message 
@@ -1192,24 +1158,21 @@ class APIMethods:
         chat_id: int | str,
         phone_number: str,
         first_name: str,
-        message_thread_id: int | Option[int] = Nothing,
-        last_name: str | Option[str] = Nothing,
-        vcard: str | Option[str] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        last_name: str | None = None,
+        vcard: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendContact`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
 
         Use this method to send phone contacts. On success, the sent Message is returned.
@@ -1250,34 +1213,29 @@ class APIMethods:
         chat_id: int | str,
         question: str,
         options: list[str],
-        message_thread_id: int | Option[int] = Nothing,
-        is_anonymous: bool | Option[bool] = Nothing,
-        type: typing.Literal["quiz", "regular"]
-        | Option[typing.Literal["quiz", "regular"]] = Nothing,
-        allows_multiple_answers: bool | Option[bool] = Nothing,
-        correct_option_id: int | Option[int] = Nothing,
-        explanation: str | Option[str] = Nothing,
-        explanation_parse_mode: str | Option[str] = Nothing,
-        explanation_entities: list[MessageEntity]
-        | Option[list[MessageEntity]] = Nothing,
-        open_period: int | Option[int] = Nothing,
-        close_date: datetime | int | Option[datetime | int] = Nothing,
-        is_closed: bool | Option[bool] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        is_anonymous: bool | None = None,
+        type: typing.Literal["quiz", "regular"] | None = None,
+        allows_multiple_answers: bool | None = None,
+        correct_option_id: int | None = None,
+        explanation: str | None = None,
+        explanation_parse_mode: str | None = None,
+        explanation_entities: list[MessageEntity] | None = None,
+        open_period: int | None = None,
+        close_date: datetime | int | None = None,
+        is_closed: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendPoll`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
 
         Use this method to send a native poll. On success, the sent Message is returned.
@@ -1343,23 +1301,20 @@ class APIMethods:
     async def send_dice(
         self,
         chat_id: int | str,
-        message_thread_id: int | Option[int] = Nothing,
-        emoji: DiceEmoji | Option[DiceEmoji] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        emoji: DiceEmoji | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendDice`, see the [documentation](https://core.telegram.org/bots/api#senddice)
 
         Use this method to send an animated emoji that will display a random value. 
@@ -1396,9 +1351,9 @@ class APIMethods:
         self,
         chat_id: int | str,
         action: ChatAction,
-        message_thread_id: int | Option[int] = Nothing,
+        message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `sendChatAction`, see the [documentation](https://core.telegram.org/bots/api#sendchataction)
 
         Use this method when you need to tell the user that something is happening 
@@ -1430,10 +1385,10 @@ class APIMethods:
         self,
         chat_id: int | str,
         message_id: int,
-        reaction: list[ReactionType] | Option[list[ReactionType]] = Nothing,
-        is_big: bool | Option[bool] = Nothing,
+        reaction: list[ReactionType] | None = None,
+        is_big: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setMessageReaction`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
 
         Use this method to change the chosen reactions on a message. Service messages 
@@ -1464,10 +1419,10 @@ class APIMethods:
     async def get_user_profile_photos(
         self,
         user_id: int,
-        offset: int | Option[int] = Nothing,
-        limit: int | Option[int] = Nothing,
+        offset: int | None = None,
+        limit: int | None = None,
         **other: typing.Any,
-    ) -> Result[UserProfilePhotos, "APIError"]:
+    ) -> Result[UserProfilePhotos, APIError]:
         """Method `getUserProfilePhotos`, see the [documentation](https://core.telegram.org/bots/api#getuserprofilephotos)
 
         Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos 
@@ -1492,7 +1447,7 @@ class APIMethods:
         self,
         file_id: str,
         **other: typing.Any,
-    ) -> Result[File, "APIError"]:
+    ) -> Result[File, APIError]:
         """Method `getFile`, see the [documentation](https://core.telegram.org/bots/api#getfile)
 
         Use this method to get basic information about a file and prepare it for downloading.
@@ -1517,10 +1472,10 @@ class APIMethods:
         self,
         chat_id: int | str,
         user_id: int,
-        until_date: datetime | int | Option[datetime | int] = Nothing,
-        revoke_messages: bool | Option[bool] = Nothing,
+        until_date: datetime | int | None = None,
+        revoke_messages: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `banChatMember`, see the [documentation](https://core.telegram.org/bots/api#banchatmember)
 
         Use this method to ban a user in a group, a supergroup or a channel. In the case 
@@ -1553,9 +1508,9 @@ class APIMethods:
         self,
         chat_id: int | str,
         user_id: int,
-        only_if_banned: bool | Option[bool] = Nothing,
+        only_if_banned: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `unbanChatMember`, see the [documentation](https://core.telegram.org/bots/api#unbanchatmember)
 
         Use this method to unban a previously banned user in a supergroup or channel. 
@@ -1585,10 +1540,10 @@ class APIMethods:
         chat_id: int | str,
         user_id: int,
         permissions: ChatPermissions,
-        use_independent_chat_permissions: bool | Option[bool] = Nothing,
-        until_date: datetime | int | Option[datetime | int] = Nothing,
+        use_independent_chat_permissions: bool | None = None,
+        until_date: datetime | int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `restrictChatMember`, see the [documentation](https://core.telegram.org/bots/api#restrictchatmember)
 
         Use this method to restrict a user in a supergroup. The bot must be an administrator 
@@ -1624,23 +1579,23 @@ class APIMethods:
         self,
         chat_id: int | str,
         user_id: int,
-        is_anonymous: bool | Option[bool] = Nothing,
-        can_manage_chat: bool | Option[bool] = Nothing,
-        can_delete_messages: bool | Option[bool] = Nothing,
-        can_manage_video_chats: bool | Option[bool] = Nothing,
-        can_restrict_members: bool | Option[bool] = Nothing,
-        can_promote_members: bool | Option[bool] = Nothing,
-        can_change_info: bool | Option[bool] = Nothing,
-        can_invite_users: bool | Option[bool] = Nothing,
-        can_post_stories: bool | Option[bool] = Nothing,
-        can_edit_stories: bool | Option[bool] = Nothing,
-        can_delete_stories: bool | Option[bool] = Nothing,
-        can_post_messages: bool | Option[bool] = Nothing,
-        can_edit_messages: bool | Option[bool] = Nothing,
-        can_pin_messages: bool | Option[bool] = Nothing,
-        can_manage_topics: bool | Option[bool] = Nothing,
+        is_anonymous: bool | None = None,
+        can_manage_chat: bool | None = None,
+        can_delete_messages: bool | None = None,
+        can_manage_video_chats: bool | None = None,
+        can_restrict_members: bool | None = None,
+        can_promote_members: bool | None = None,
+        can_change_info: bool | None = None,
+        can_invite_users: bool | None = None,
+        can_post_stories: bool | None = None,
+        can_edit_stories: bool | None = None,
+        can_delete_stories: bool | None = None,
+        can_post_messages: bool | None = None,
+        can_edit_messages: bool | None = None,
+        can_pin_messages: bool | None = None,
+        can_manage_topics: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `promoteChatMember`, see the [documentation](https://core.telegram.org/bots/api#promotechatmember)
 
         Use this method to promote or demote a user in a supergroup or a channel. The 
@@ -1705,7 +1660,7 @@ class APIMethods:
         user_id: int,
         custom_title: str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setChatAdministratorCustomTitle`, see the [documentation](https://core.telegram.org/bots/api#setchatadministratorcustomtitle)
 
         Use this method to set a custom title for an administrator in a supergroup 
@@ -1731,7 +1686,7 @@ class APIMethods:
         chat_id: int | str,
         sender_chat_id: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `banChatSenderChat`, see the [documentation](https://core.telegram.org/bots/api#banchatsenderchat)
 
         Use this method to ban a channel chat in a supergroup or a channel. Until the 
@@ -1757,7 +1712,7 @@ class APIMethods:
         chat_id: int | str,
         sender_chat_id: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `unbanChatSenderChat`, see the [documentation](https://core.telegram.org/bots/api#unbanchatsenderchat)
 
         Use this method to unban a previously banned channel chat in a supergroup 
@@ -1780,9 +1735,9 @@ class APIMethods:
         self,
         chat_id: int | str,
         permissions: ChatPermissions,
-        use_independent_chat_permissions: bool | Option[bool] = Nothing,
+        use_independent_chat_permissions: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setChatPermissions`, see the [documentation](https://core.telegram.org/bots/api#setchatpermissions)
 
         Use this method to set default chat permissions for all members. The bot 
@@ -1812,7 +1767,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[str, "APIError"]:
+    ) -> Result[str, APIError]:
         """Method `exportChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#exportchatinvitelink)
 
         Use this method to generate a new primary invite link for a chat; any previously 
@@ -1833,12 +1788,12 @@ class APIMethods:
     async def create_chat_invite_link(
         self,
         chat_id: int | str,
-        name: str | Option[str] = Nothing,
-        expire_date: datetime | int | Option[datetime | int] = Nothing,
-        member_limit: int | Option[int] = Nothing,
-        creates_join_request: bool | Option[bool] = Nothing,
+        name: str | None = None,
+        expire_date: datetime | int | None = None,
+        member_limit: int | None = None,
+        creates_join_request: bool | None = None,
         **other: typing.Any,
-    ) -> Result[ChatInviteLink, "APIError"]:
+    ) -> Result[ChatInviteLink, APIError]:
         """Method `createChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#createchatinvitelink)
 
         Use this method to create an additional invite link for a chat. The bot must 
@@ -1870,12 +1825,12 @@ class APIMethods:
         self,
         chat_id: int | str,
         invite_link: str,
-        name: str | Option[str] = Nothing,
-        expire_date: datetime | int | Option[datetime | int] = Nothing,
-        member_limit: int | Option[int] = Nothing,
-        creates_join_request: bool | Option[bool] = Nothing,
+        name: str | None = None,
+        expire_date: datetime | int | None = None,
+        member_limit: int | None = None,
+        creates_join_request: bool | None = None,
         **other: typing.Any,
-    ) -> Result[ChatInviteLink, "APIError"]:
+    ) -> Result[ChatInviteLink, APIError]:
         """Method `editChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#editchatinvitelink)
 
         Use this method to edit a non-primary invite link created by the bot. The 
@@ -1910,7 +1865,7 @@ class APIMethods:
         chat_id: int | str,
         invite_link: str,
         **other: typing.Any,
-    ) -> Result[ChatInviteLink, "APIError"]:
+    ) -> Result[ChatInviteLink, APIError]:
         """Method `revokeChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#revokechatinvitelink)
 
         Use this method to revoke an invite link created by the bot. If the primary 
@@ -1936,7 +1891,7 @@ class APIMethods:
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `approveChatJoinRequest`, see the [documentation](https://core.telegram.org/bots/api#approvechatjoinrequest)
 
         Use this method to approve a chat join request. The bot must be an administrator 
@@ -1960,7 +1915,7 @@ class APIMethods:
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `declineChatJoinRequest`, see the [documentation](https://core.telegram.org/bots/api#declinechatjoinrequest)
 
         Use this method to decline a chat join request. The bot must be an administrator 
@@ -1984,7 +1939,7 @@ class APIMethods:
         chat_id: int | str,
         photo: InputFile,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#setchatphoto)
 
         Use this method to set a new profile photo for the chat. Photos can't be changed 
@@ -2008,7 +1963,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `deleteChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#deletechatphoto)
 
         Use this method to delete a chat photo. Photos can't be changed for private 
@@ -2030,7 +1985,7 @@ class APIMethods:
         chat_id: int | str,
         title: str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setChatTitle`, see the [documentation](https://core.telegram.org/bots/api#setchattitle)
 
         Use this method to change the title of a chat. Titles can't be changed for 
@@ -2052,9 +2007,9 @@ class APIMethods:
     async def set_chat_description(
         self,
         chat_id: int | str,
-        description: str | Option[str] = Nothing,
+        description: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setChatDescription`, see the [documentation](https://core.telegram.org/bots/api#setchatdescription)
 
         Use this method to change the description of a group, a supergroup or a channel. 
@@ -2077,9 +2032,9 @@ class APIMethods:
         self,
         chat_id: int | str,
         message_id: int,
-        disable_notification: bool | Option[bool] = Nothing,
+        disable_notification: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `pinChatMessage`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
 
         Use this method to add a message to the list of pinned messages in a chat. If 
@@ -2107,9 +2062,9 @@ class APIMethods:
     async def unpin_chat_message(
         self,
         chat_id: int | str,
-        message_id: int | Option[int] = Nothing,
+        message_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `unpinChatMessage`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
 
         Use this method to remove a message from the list of pinned messages in a chat. 
@@ -2135,7 +2090,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `unpinAllChatMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallchatmessages)
 
         Use this method to clear the list of pinned messages in a chat. If the chat 
@@ -2158,7 +2113,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `leaveChat`, see the [documentation](https://core.telegram.org/bots/api#leavechat)
 
         Use this method for your bot to leave a group, supergroup or channel. Returns 
@@ -2178,7 +2133,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[Chat, "APIError"]:
+    ) -> Result[Chat, APIError]:
         """Method `getChat`, see the [documentation](https://core.telegram.org/bots/api#getchat)
 
         Use this method to get up to date information about the chat. Returns a Chat 
@@ -2209,7 +2164,7 @@ class APIMethods:
                 ChatMemberBanned,
             ]
         ],
-        "APIError",
+        APIError,
     ]:
         """Method `getChatAdministrators`, see the [documentation](https://core.telegram.org/bots/api#getchatadministrators)
 
@@ -2242,7 +2197,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[int, "APIError"]:
+    ) -> Result[int, APIError]:
         """Method `getChatMemberCount`, see the [documentation](https://core.telegram.org/bots/api#getchatmembercount)
 
         Use this method to get the number of members in a chat. Returns Int on success.
@@ -2271,7 +2226,7 @@ class APIMethods:
             ChatMemberLeft,
             ChatMemberBanned,
         ],
-        "APIError",
+        APIError,
     ]:
         """Method `getChatMember`, see the [documentation](https://core.telegram.org/bots/api#getchatmember)
 
@@ -2306,7 +2261,7 @@ class APIMethods:
         chat_id: int | str,
         sticker_set_name: str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setChatStickerSet`, see the [documentation](https://core.telegram.org/bots/api#setchatstickerset)
 
         Use this method to set a new group sticker set for a supergroup. The bot must 
@@ -2331,7 +2286,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `deleteChatStickerSet`, see the [documentation](https://core.telegram.org/bots/api#deletechatstickerset)
 
         Use this method to delete a group sticker set from a supergroup. The bot must 
@@ -2352,7 +2307,7 @@ class APIMethods:
 
     async def get_forum_topic_icon_stickers(
         self, **other: typing.Any
-    ) -> Result[list[Sticker], "APIError"]:
+    ) -> Result[list[Sticker], APIError]:
         """Method `getForumTopicIconStickers`, see the [documentation](https://core.telegram.org/bots/api#getforumtopiciconstickers)
 
         Use this method to get custom emoji stickers, which can be used as a forum
@@ -2370,10 +2325,10 @@ class APIMethods:
         self,
         chat_id: int | str,
         name: str,
-        icon_color: TopicIconColor | Option[TopicIconColor] = Nothing,
-        icon_custom_emoji_id: str | Option[str] = Nothing,
+        icon_color: TopicIconColor | None = None,
+        icon_custom_emoji_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[ForumTopic, "APIError"]:
+    ) -> Result[ForumTopic, APIError]:
         """Method `createForumTopic`, see the [documentation](https://core.telegram.org/bots/api#createforumtopic)
 
         Use this method to create a topic in a forum supergroup chat. The bot must 
@@ -2404,10 +2359,10 @@ class APIMethods:
         self,
         chat_id: int | str,
         message_thread_id: int,
-        name: str | Option[str] = Nothing,
-        icon_custom_emoji_id: str | Option[str] = Nothing,
+        name: str | None = None,
+        icon_custom_emoji_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `editForumTopic`, see the [documentation](https://core.telegram.org/bots/api#editforumtopic)
 
         Use this method to edit name and icon of a topic in a forum supergroup chat. 
@@ -2439,7 +2394,7 @@ class APIMethods:
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `closeForumTopic`, see the [documentation](https://core.telegram.org/bots/api#closeforumtopic)
 
         Use this method to close an open topic in a forum supergroup chat. The bot 
@@ -2464,7 +2419,7 @@ class APIMethods:
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `reopenForumTopic`, see the [documentation](https://core.telegram.org/bots/api#reopenforumtopic)
 
         Use this method to reopen a closed topic in a forum supergroup chat. The bot 
@@ -2489,7 +2444,7 @@ class APIMethods:
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `deleteForumTopic`, see the [documentation](https://core.telegram.org/bots/api#deleteforumtopic)
 
         Use this method to delete a forum topic along with all its messages in a forum 
@@ -2514,7 +2469,7 @@ class APIMethods:
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `unpinAllForumTopicMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallforumtopicmessages)
 
         Use this method to clear the list of pinned messages in a forum topic. The 
@@ -2539,7 +2494,7 @@ class APIMethods:
         chat_id: int | str,
         name: str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `editGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#editgeneralforumtopic)
 
         Use this method to edit the name of the 'General' topic in a forum supergroup 
@@ -2562,7 +2517,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `closeGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#closegeneralforumtopic)
 
         Use this method to close an open 'General' topic in a forum supergroup chat. 
@@ -2583,7 +2538,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `reopenGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#reopengeneralforumtopic)
 
         Use this method to reopen a closed 'General' topic in a forum supergroup 
@@ -2605,7 +2560,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `hideGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#hidegeneralforumtopic)
 
         Use this method to hide the 'General' topic in a forum supergroup chat. The 
@@ -2627,7 +2582,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `unhideGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#unhidegeneralforumtopic)
 
         Use this method to unhide the 'General' topic in a forum supergroup chat. 
@@ -2648,7 +2603,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `unpinAllGeneralForumTopicMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallgeneralforumtopicmessages)
 
         Use this method to clear the list of pinned messages in a General forum topic. 
@@ -2669,12 +2624,12 @@ class APIMethods:
     async def answer_callback_query(
         self,
         callback_query_id: str,
-        text: str | Option[str] = Nothing,
-        show_alert: bool | Option[bool] = Nothing,
-        url: str | Option[str] = Nothing,
-        cache_time: int | Option[int] = Nothing,
+        text: str | None = None,
+        show_alert: bool | None = None,
+        url: str | None = None,
+        cache_time: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `answerCallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)
 
         Use this method to send answers to callback queries sent from inline keyboards. 
@@ -2711,7 +2666,7 @@ class APIMethods:
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[UserChatBoosts, "APIError"]:
+    ) -> Result[UserChatBoosts, APIError]:
         """Method `getUserChatBoosts`, see the [documentation](https://core.telegram.org/bots/api#getuserchatboosts)
 
         Use this method to get the list of boosts added to a chat by a user. Requires 
@@ -2732,10 +2687,10 @@ class APIMethods:
     async def set_my_commands(
         self,
         commands: list[BotCommand],
-        scope: BotCommandScope | Option[BotCommandScope] = Nothing,
-        language_code: str | Option[str] = Nothing,
+        scope: BotCommandScope | None = None,
+        language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setMyCommands`, see the [documentation](https://core.telegram.org/bots/api#setmycommands)
 
         Use this method to change the list of the bot's commands. See this manual 
@@ -2760,10 +2715,10 @@ class APIMethods:
 
     async def delete_my_commands(
         self,
-        scope: BotCommandScope | Option[BotCommandScope] = Nothing,
-        language_code: str | Option[str] = Nothing,
+        scope: BotCommandScope | None = None,
+        language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `deleteMyCommands`, see the [documentation](https://core.telegram.org/bots/api#deletemycommands)
 
         Use this method to delete the list of the bot's commands for the given scope 
@@ -2786,10 +2741,10 @@ class APIMethods:
 
     async def get_my_commands(
         self,
-        scope: BotCommandScope | Option[BotCommandScope] = Nothing,
-        language_code: str | Option[str] = Nothing,
+        scope: BotCommandScope | None = None,
+        language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[list[BotCommand], "APIError"]:
+    ) -> Result[list[BotCommand], APIError]:
         """Method `getMyCommands`, see the [documentation](https://core.telegram.org/bots/api#getmycommands)
 
         Use this method to get the current list of the bot's commands for the given 
@@ -2809,10 +2764,10 @@ class APIMethods:
 
     async def set_my_name(
         self,
-        name: str | Option[str] = Nothing,
-        language_code: str | Option[str] = Nothing,
+        name: str | None = None,
+        language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setMyName`, see the [documentation](https://core.telegram.org/bots/api#setmyname)
 
         Use this method to change the bot's name. Returns True on success.
@@ -2832,9 +2787,9 @@ class APIMethods:
 
     async def get_my_name(
         self,
-        language_code: str | Option[str] = Nothing,
+        language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[BotName, "APIError"]:
+    ) -> Result[BotName, APIError]:
         """Method `getMyName`, see the [documentation](https://core.telegram.org/bots/api#getmyname)
 
         Use this method to get the current bot name for the given user language. Returns
@@ -2851,10 +2806,10 @@ class APIMethods:
 
     async def set_my_description(
         self,
-        description: str | Option[str] = Nothing,
-        language_code: str | Option[str] = Nothing,
+        description: str | None = None,
+        language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setMyDescription`, see the [documentation](https://core.telegram.org/bots/api#setmydescription)
 
         Use this method to change the bot's description, which is shown in the chat 
@@ -2875,9 +2830,9 @@ class APIMethods:
 
     async def get_my_description(
         self,
-        language_code: str | Option[str] = Nothing,
+        language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[BotDescription, "APIError"]:
+    ) -> Result[BotDescription, APIError]:
         """Method `getMyDescription`, see the [documentation](https://core.telegram.org/bots/api#getmydescription)
 
         Use this method to get the current bot description for the given user language.
@@ -2894,10 +2849,10 @@ class APIMethods:
 
     async def set_my_short_description(
         self,
-        short_description: str | Option[str] = Nothing,
-        language_code: str | Option[str] = Nothing,
+        short_description: str | None = None,
+        language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setMyShortDescription`, see the [documentation](https://core.telegram.org/bots/api#setmyshortdescription)
 
         Use this method to change the bot's short description, which is shown on 
@@ -2919,9 +2874,9 @@ class APIMethods:
 
     async def get_my_short_description(
         self,
-        language_code: str | Option[str] = Nothing,
+        language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[BotShortDescription, "APIError"]:
+    ) -> Result[BotShortDescription, APIError]:
         """Method `getMyShortDescription`, see the [documentation](https://core.telegram.org/bots/api#getmyshortdescription)
 
         Use this method to get the current bot short description for the given user
@@ -2938,10 +2893,10 @@ class APIMethods:
 
     async def set_chat_menu_button(
         self,
-        chat_id: int | Option[int] = Nothing,
-        menu_button: MenuButton | Option[MenuButton] = Nothing,
+        chat_id: int | None = None,
+        menu_button: MenuButton | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setChatMenuButton`, see the [documentation](https://core.telegram.org/bots/api#setchatmenubutton)
 
         Use this method to change the bot's menu button in a private chat, or the default 
@@ -2961,10 +2916,10 @@ class APIMethods:
 
     async def get_chat_menu_button(
         self,
-        chat_id: int | Option[int] = Nothing,
+        chat_id: int | None = None,
         **other: typing.Any,
     ) -> Result[
-        Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], "APIError"
+        Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], APIError
     ]:
         """Method `getChatMenuButton`, see the [documentation](https://core.telegram.org/bots/api#getchatmenubutton)
 
@@ -2986,10 +2941,10 @@ class APIMethods:
 
     async def set_my_default_administrator_rights(
         self,
-        rights: ChatAdministratorRights | Option[ChatAdministratorRights] = Nothing,
-        for_channels: bool | Option[bool] = Nothing,
+        rights: ChatAdministratorRights | None = None,
+        for_channels: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setMyDefaultAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#setmydefaultadministratorrights)
 
         Use this method to change the default administrator rights requested by 
@@ -3013,9 +2968,9 @@ class APIMethods:
 
     async def get_my_default_administrator_rights(
         self,
-        for_channels: bool | Option[bool] = Nothing,
+        for_channels: bool | None = None,
         **other: typing.Any,
-    ) -> Result[ChatAdministratorRights, "APIError"]:
+    ) -> Result[ChatAdministratorRights, APIError]:
         """Method `getMyDefaultAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#getmydefaultadministratorrights)
 
         Use this method to get the current default administrator rights of the bot. 
@@ -3035,15 +2990,15 @@ class APIMethods:
     async def edit_message_text(
         self,
         text: str,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        inline_message_id: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        link_preview_options: LinkPreviewOptions | Option[LinkPreviewOptions] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        parse_mode: str | None = None,
+        entities: list[MessageEntity] | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], "APIError"]:
+    ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageText`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
         Use this method to edit text and game messages. On success, if the edited 
@@ -3080,15 +3035,15 @@ class APIMethods:
 
     async def edit_message_caption(
         self,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        inline_message_id: str | Option[str] = Nothing,
-        caption: str | Option[str] = Nothing,
-        parse_mode: str | Option[str] = Nothing,
-        caption_entities: list[MessageEntity] | Option[list[MessageEntity]] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], "APIError"]:
+    ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageCaption`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
 
         Use this method to edit captions of messages. On success, if the edited message 
@@ -3124,12 +3079,12 @@ class APIMethods:
     async def edit_message_media(
         self,
         media: InputMedia,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        inline_message_id: str | Option[str] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], "APIError"]:
+    ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageMedia`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
         Use this method to edit animation, audio, document, photo, or video messages. 
@@ -3164,15 +3119,15 @@ class APIMethods:
         self,
         latitude: float,
         longitude: float,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        inline_message_id: str | Option[str] = Nothing,
-        horizontal_accuracy: float | Option[float] = Nothing,
-        heading: int | Option[int] = Nothing,
-        proximity_alert_radius: int | Option[int] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        horizontal_accuracy: float | None = None,
+        heading: int | None = None,
+        proximity_alert_radius: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], "APIError"]:
+    ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageLiveLocation`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
 
         Use this method to edit live location messages. A location can be edited 
@@ -3212,12 +3167,12 @@ class APIMethods:
 
     async def stop_message_live_location(
         self,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        inline_message_id: str | Option[str] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], "APIError"]:
+    ) -> Result[Variative[Message, bool], APIError]:
         """Method `stopMessageLiveLocation`, see the [documentation](https://core.telegram.org/bots/api#stopmessagelivelocation)
 
         Use this method to stop updating a live location message before live_period 
@@ -3244,12 +3199,12 @@ class APIMethods:
 
     async def edit_message_reply_markup(
         self,
-        chat_id: int | str | Option[int | str] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        inline_message_id: str | Option[str] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], "APIError"]:
+    ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageReplyMarkup`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)
 
         Use this method to edit only the reply markup of messages. On success, if 
@@ -3278,9 +3233,9 @@ class APIMethods:
         self,
         chat_id: int | str,
         message_id: int,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Poll, "APIError"]:
+    ) -> Result[Poll, APIError]:
         """Method `stopPoll`, see the [documentation](https://core.telegram.org/bots/api#stoppoll)
 
         Use this method to stop a poll which was sent by the bot. On success, the stopped 
@@ -3305,7 +3260,7 @@ class APIMethods:
         chat_id: int | str,
         message_id: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `deleteMessage`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
 
         Use this method to delete a message, including service messages, with the 
@@ -3337,7 +3292,7 @@ class APIMethods:
         chat_id: int | str,
         message_ids: list[int],
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `deleteMessages`, see the [documentation](https://core.telegram.org/bots/api#deletemessages)
 
         Use this method to delete multiple messages simultaneously. If some of 
@@ -3361,23 +3316,20 @@ class APIMethods:
         self,
         chat_id: int | str,
         sticker: InputFile | str,
-        message_thread_id: int | Option[int] = Nothing,
-        emoji: str | Option[str] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | Option[
+        message_thread_id: int | None = None,
+        emoji: str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: (
             InlineKeyboardMarkup
             | ReplyKeyboardMarkup
             | ReplyKeyboardRemove
             | ForceReply
-        ] = Nothing,
+            | None
+        ) = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendSticker`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
 
         Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. 
@@ -3419,7 +3371,7 @@ class APIMethods:
         self,
         name: str,
         **other: typing.Any,
-    ) -> Result[StickerSet, "APIError"]:
+    ) -> Result[StickerSet, APIError]:
         """Method `getStickerSet`, see the [documentation](https://core.telegram.org/bots/api#getstickerset)
 
         Use this method to get a sticker set. On success, a StickerSet object is returned.
@@ -3437,7 +3389,7 @@ class APIMethods:
         self,
         custom_emoji_ids: list[str],
         **other: typing.Any,
-    ) -> Result[list[Sticker], "APIError"]:
+    ) -> Result[list[Sticker], APIError]:
         """Method `getCustomEmojiStickers`, see the [documentation](https://core.telegram.org/bots/api#getcustomemojistickers)
 
         Use this method to get information about custom emoji stickers by their 
@@ -3459,7 +3411,7 @@ class APIMethods:
         sticker: InputFile,
         sticker_format: typing.Literal["static", "animated", "video"],
         **other: typing.Any,
-    ) -> Result[File, "APIError"]:
+    ) -> Result[File, APIError]:
         """Method `uploadStickerFile`, see the [documentation](https://core.telegram.org/bots/api#uploadstickerfile)
 
         Use this method to upload a file with a sticker for later use in the createNewStickerSet 
@@ -3487,11 +3439,10 @@ class APIMethods:
         title: str,
         stickers: list[InputSticker],
         sticker_format: typing.Literal["static", "animated", "video"],
-        sticker_type: typing.Literal["regular", "mask", "custom_emoji"]
-        | Option[typing.Literal["regular", "mask", "custom_emoji"]] = Nothing,
-        needs_repainting: bool | Option[bool] = Nothing,
+        sticker_type: typing.Literal["regular", "mask", "custom_emoji"] | None = None,
+        needs_repainting: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `createNewStickerSet`, see the [documentation](https://core.telegram.org/bots/api#createnewstickerset)
 
         Use this method to create a new sticker set owned by a user. The bot will be 
@@ -3532,7 +3483,7 @@ class APIMethods:
         name: str,
         sticker: InputSticker,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `addStickerToSet`, see the [documentation](https://core.telegram.org/bots/api#addstickertoset)
 
         Use this method to add a new sticker to a set created by the bot. The format 
@@ -3561,7 +3512,7 @@ class APIMethods:
         sticker: str,
         position: int,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setStickerPositionInSet`, see the [documentation](https://core.telegram.org/bots/api#setstickerpositioninset)
 
         Use this method to move a sticker in a set created by the bot to a specific position.
@@ -3582,7 +3533,7 @@ class APIMethods:
         self,
         sticker: str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `deleteStickerFromSet`, see the [documentation](https://core.telegram.org/bots/api#deletestickerfromset)
 
         Use this method to delete a sticker from a set created by the bot. Returns
@@ -3602,7 +3553,7 @@ class APIMethods:
         sticker: str,
         emoji_list: list[str],
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setStickerEmojiList`, see the [documentation](https://core.telegram.org/bots/api#setstickeremojilist)
 
         Use this method to change the list of emoji assigned to a regular or custom
@@ -3623,9 +3574,9 @@ class APIMethods:
     async def set_sticker_keywords(
         self,
         sticker: str,
-        keywords: list[str] | Option[list[str]] = Nothing,
+        keywords: list[str] | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setStickerKeywords`, see the [documentation](https://core.telegram.org/bots/api#setstickerkeywords)
 
         Use this method to change search keywords assigned to a regular or custom 
@@ -3647,9 +3598,9 @@ class APIMethods:
     async def set_sticker_mask_position(
         self,
         sticker: str,
-        mask_position: MaskPosition | Option[MaskPosition] = Nothing,
+        mask_position: MaskPosition | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setStickerMaskPosition`, see the [documentation](https://core.telegram.org/bots/api#setstickermaskposition)
 
         Use this method to change the mask position of a mask sticker. The sticker 
@@ -3672,7 +3623,7 @@ class APIMethods:
         name: str,
         title: str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setStickerSetTitle`, see the [documentation](https://core.telegram.org/bots/api#setstickersettitle)
 
         Use this method to set the title of a created sticker set. Returns True on
@@ -3693,9 +3644,9 @@ class APIMethods:
         self,
         name: str,
         user_id: int,
-        thumbnail: InputFile | str | Option[InputFile | str] = Nothing,
+        thumbnail: InputFile | str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setStickerSetThumbnail`, see the [documentation](https://core.telegram.org/bots/api#setstickersetthumbnail)
 
         Use this method to set the thumbnail of a regular or mask sticker set. The 
@@ -3729,9 +3680,9 @@ class APIMethods:
     async def set_custom_emoji_sticker_set_thumbnail(
         self,
         name: str,
-        custom_emoji_id: str | Option[str] = Nothing,
+        custom_emoji_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setCustomEmojiStickerSetThumbnail`, see the [documentation](https://core.telegram.org/bots/api#setcustomemojistickersetthumbnail)
 
         Use this method to set the thumbnail of a custom emoji sticker set. Returns 
@@ -3753,7 +3704,7 @@ class APIMethods:
         self,
         name: str,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `deleteStickerSet`, see the [documentation](https://core.telegram.org/bots/api#deletestickerset)
 
         Use this method to delete a sticker set that was created by the bot. Returns
@@ -3772,12 +3723,12 @@ class APIMethods:
         self,
         inline_query_id: str,
         results: list[InlineQueryResult],
-        cache_time: int | Option[int] = Nothing,
-        is_personal: bool | Option[bool] = Nothing,
-        next_offset: str | Option[str] = Nothing,
-        button: InlineQueryResultsButton | Option[InlineQueryResultsButton] = Nothing,
+        cache_time: int | None = None,
+        is_personal: bool | None = None,
+        next_offset: str | None = None,
+        button: InlineQueryResultsButton | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `answerInlineQuery`, see the [documentation](https://core.telegram.org/bots/api#answerinlinequery)
 
         Use this method to send answers to an inline query. On success, True is returned. 
@@ -3813,7 +3764,7 @@ class APIMethods:
         web_app_query_id: str,
         result: InlineQueryResult,
         **other: typing.Any,
-    ) -> Result[SentWebAppMessage, "APIError"]:
+    ) -> Result[SentWebAppMessage, APIError]:
         """Method `answerWebAppQuery`, see the [documentation](https://core.telegram.org/bots/api#answerwebappquery)
 
         Use this method to set the result of an interaction with a Web App and send
@@ -3840,28 +3791,28 @@ class APIMethods:
         provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
-        message_thread_id: int | Option[int] = Nothing,
-        max_tip_amount: int | Option[int] = Nothing,
-        suggested_tip_amounts: list[int] | Option[list[int]] = Nothing,
-        start_parameter: str | Option[str] = Nothing,
-        provider_data: str | Option[str] = Nothing,
-        photo_url: str | Option[str] = Nothing,
-        photo_size: int | Option[int] = Nothing,
-        photo_width: int | Option[int] = Nothing,
-        photo_height: int | Option[int] = Nothing,
-        need_name: bool | Option[bool] = Nothing,
-        need_phone_number: bool | Option[bool] = Nothing,
-        need_email: bool | Option[bool] = Nothing,
-        need_shipping_address: bool | Option[bool] = Nothing,
-        send_phone_number_to_provider: bool | Option[bool] = Nothing,
-        send_email_to_provider: bool | Option[bool] = Nothing,
-        is_flexible: bool | Option[bool] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        message_thread_id: int | None = None,
+        max_tip_amount: int | None = None,
+        suggested_tip_amounts: list[int] | None = None,
+        start_parameter: str | None = None,
+        provider_data: str | None = None,
+        photo_url: str | None = None,
+        photo_size: int | None = None,
+        photo_width: int | None = None,
+        photo_height: int | None = None,
+        need_name: bool | None = None,
+        need_phone_number: bool | None = None,
+        need_email: bool | None = None,
+        need_shipping_address: bool | None = None,
+        send_phone_number_to_provider: bool | None = None,
+        send_email_to_provider: bool | None = None,
+        is_flexible: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendInvoice`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
         Use this method to send invoices. On success, the sent Message is returned.
@@ -3955,22 +3906,22 @@ class APIMethods:
         provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
-        max_tip_amount: int | Option[int] = Nothing,
-        suggested_tip_amounts: list[int] | Option[list[int]] = Nothing,
-        provider_data: str | Option[str] = Nothing,
-        photo_url: str | Option[str] = Nothing,
-        photo_size: int | Option[int] = Nothing,
-        photo_width: int | Option[int] = Nothing,
-        photo_height: int | Option[int] = Nothing,
-        need_name: bool | Option[bool] = Nothing,
-        need_phone_number: bool | Option[bool] = Nothing,
-        need_email: bool | Option[bool] = Nothing,
-        need_shipping_address: bool | Option[bool] = Nothing,
-        send_phone_number_to_provider: bool | Option[bool] = Nothing,
-        send_email_to_provider: bool | Option[bool] = Nothing,
-        is_flexible: bool | Option[bool] = Nothing,
+        max_tip_amount: int | None = None,
+        suggested_tip_amounts: list[int] | None = None,
+        provider_data: str | None = None,
+        photo_url: str | None = None,
+        photo_size: int | None = None,
+        photo_width: int | None = None,
+        photo_height: int | None = None,
+        need_name: bool | None = None,
+        need_phone_number: bool | None = None,
+        need_email: bool | None = None,
+        need_shipping_address: bool | None = None,
+        send_phone_number_to_provider: bool | None = None,
+        send_email_to_provider: bool | None = None,
+        is_flexible: bool | None = None,
         **other: typing.Any,
-    ) -> Result[str, "APIError"]:
+    ) -> Result[str, APIError]:
         """Method `createInvoiceLink`, see the [documentation](https://core.telegram.org/bots/api#createinvoicelink)
 
         Use this method to create a link for an invoice. Returns the created invoice 
@@ -4039,10 +3990,10 @@ class APIMethods:
         self,
         shipping_query_id: str,
         ok: bool,
-        shipping_options: list[ShippingOption] | Option[list[ShippingOption]] = Nothing,
-        error_message: str | Option[str] = Nothing,
+        shipping_options: list[ShippingOption] | None = None,
+        error_message: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `answerShippingQuery`, see the [documentation](https://core.telegram.org/bots/api#answershippingquery)
 
         If you sent an invoice requesting a shipping address and the parameter is_flexible 
@@ -4074,9 +4025,9 @@ class APIMethods:
         self,
         pre_checkout_query_id: str,
         ok: bool,
-        error_message: str | Option[str] = Nothing,
+        error_message: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `answerPreCheckoutQuery`, see the [documentation](https://core.telegram.org/bots/api#answerprecheckoutquery)
 
         Once the user has confirmed their payment and shipping details, the Bot 
@@ -4108,7 +4059,7 @@ class APIMethods:
         user_id: int,
         errors: list[PassportElementError],
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Method `setPassportDataErrors`, see the [documentation](https://core.telegram.org/bots/api#setpassportdataerrors)
 
         Informs a user that some of the Telegram Passport elements they provided
@@ -4135,13 +4086,13 @@ class APIMethods:
         self,
         chat_id: int,
         game_short_name: str,
-        message_thread_id: int | Option[int] = Nothing,
-        disable_notification: bool | Option[bool] = Nothing,
-        protect_content: bool | Option[bool] = Nothing,
-        reply_parameters: ReplyParameters | Option[ReplyParameters] = Nothing,
-        reply_markup: InlineKeyboardMarkup | Option[InlineKeyboardMarkup] = Nothing,
+        message_thread_id: int | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Message, "APIError"]:
+    ) -> Result[Message, APIError]:
         """Method `sendGame`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
 
         Use this method to send a game. On success, the sent Message is returned.
@@ -4174,13 +4125,13 @@ class APIMethods:
         self,
         user_id: int,
         score: int,
-        force: bool | Option[bool] = Nothing,
-        disable_edit_message: bool | Option[bool] = Nothing,
-        chat_id: int | Option[int] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        inline_message_id: str | Option[str] = Nothing,
+        force: bool | None = None,
+        disable_edit_message: bool | None = None,
+        chat_id: int | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], "APIError"]:
+    ) -> Result[Variative[Message, bool], APIError]:
         """Method `setGameScore`, see the [documentation](https://core.telegram.org/bots/api#setgamescore)
 
         Use this method to set the score of the specified user in a game message. On 
@@ -4217,11 +4168,11 @@ class APIMethods:
     async def get_game_high_scores(
         self,
         user_id: int,
-        chat_id: int | Option[int] = Nothing,
-        message_id: int | Option[int] = Nothing,
-        inline_message_id: str | Option[str] = Nothing,
+        chat_id: int | None = None,
+        message_id: int | None = None,
+        inline_message_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[list[GameHighScore], "APIError"]:
+    ) -> Result[list[GameHighScore], APIError]:
         """Method `getGameHighScores`, see the [documentation](https://core.telegram.org/bots/api#getgamehighscores)
 
         Use this method to get data for high score tables. Will return the score of 

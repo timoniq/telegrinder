@@ -18,6 +18,11 @@ from telegrinder.types.objects import Update
 EventType = typing.TypeVar("EventType", bound=BaseCute)
 MiddlewareT = typing.TypeVar("MiddlewareT", bound=ABCMiddleware)
 
+FuncType: typing.TypeAlias = typing.Callable[
+    typing.Concatenate[EventType, ...],
+    typing.Coroutine[typing.Any, typing.Any, typing.Any],
+]
+
 
 class ABCView(ABC):
     @abstractmethod
@@ -41,7 +46,7 @@ class ABCStateView(ABCView, typing.Generic[EventType]):
     def __repr__(self) -> str:
         return "<{!r}: {}>".format(
             self.__class__.__name__,
-            ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items())
+            ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items()),
         )
 
 
@@ -56,10 +61,12 @@ class BaseView(ABCView, typing.Generic[EventType]):
         for base in cls.__dict__.get("__orig_bases__", ()):
             if issubclass(typing.get_origin(base) or base, ABCView):
                 for generic_type in typing.get_args(base):
-                    if issubclass(typing.get_origin(generic_type) or generic_type, BaseCute):
+                    if issubclass(
+                        typing.get_origin(generic_type) or generic_type, BaseCute
+                    ):
                         return Some(generic_type)
         return Nothing()
-    
+
     @classmethod
     def get_raw_event(cls, update: Update) -> Option[Model]:
         match update.update_type:
@@ -74,13 +81,8 @@ class BaseView(ABCView, typing.Generic[EventType]):
         is_blocking: bool = True,
         error_handler: ErrorHandlerT | None = None,
     ):
-        def wrapper(
-            func: typing.Callable[
-                typing.Concatenate[EventType, ...],
-                typing.Coroutine,
-            ]
-        ):
-            func_handler = FuncHandler(
+        def wrapper(func: FuncType[EventType]):
+            func_handler = FuncHandler[EventType, FuncType[EventType], ErrorHandlerT](
                 func,
                 [*self.auto_rules, *rules],
                 is_blocking,
@@ -91,14 +93,14 @@ class BaseView(ABCView, typing.Generic[EventType]):
             return func_handler
 
         return wrapper
-    
+
     def register_middleware(self, *args: typing.Any, **kwargs: typing.Any):
-        def wrapper(cls: type[MiddlewareT]):
+        def wrapper(cls: type[MiddlewareT]) -> type[MiddlewareT]:
             self.middlewares.append(cls(*args, **kwargs))
             return cls
-        
+
         return wrapper
-    
+
     async def check(self, event: Update) -> bool:
         match self.get_raw_event(event):
             case Some(e) if issubclass(
@@ -110,10 +112,12 @@ class BaseView(ABCView, typing.Generic[EventType]):
                 return True
             case _:
                 return False
-        
+
     async def process(self, event: Update, api: ABCAPI) -> bool:
         return await process_inner(
-            self.get_event_type().unwrap().from_update(
+            self.get_event_type()
+            .unwrap()
+            .from_update(
                 update=self.get_raw_event(event).unwrap(),
                 bound_api=api,
             ),

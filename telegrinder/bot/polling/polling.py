@@ -71,16 +71,14 @@ class Polling(ABCPolling):
     async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
         logger.debug("Listening polling")
         reconn_counter = 0
-        
+
         while not self._stop:
             try:
                 updates = await self.get_updates()
                 reconn_counter = 0
                 if not updates:
                     continue
-                updates_list: list[Update] = decoder.decode(
-                    updates, type=list[Update]
-                )
+                updates_list: list[Update] = decoder.decode(updates, type=list[Update])
                 if updates_list:
                     yield updates_list
                     self.offset = updates_list[-1].update_id + 1
@@ -100,16 +98,14 @@ class Polling(ABCPolling):
                     self.stop()
                     exit(9)
                 else:
-                    logger.warning("Server disconnected, waiting 5 seconds to reconnetion...")
+                    logger.warning(
+                        "Server disconnected, waiting 5 seconds to reconnetion...",
+                    )
                     reconn_counter += 1
                     await asyncio.sleep(self.reconnection_timeout)
             except aiohttp.ClientConnectorError:
-                logger.error(
-                    "Client connection failed, polling stopping! "
-                    "Please, check your internet connection."
-                )
-                self.stop()
-                exit(3)
+                logger.error("Client connection failed, attempted to reconnect...")
+                await asyncio.sleep(self.reconnection_timeout)
             except BaseException as e:
                 logger.exception(e)
 
