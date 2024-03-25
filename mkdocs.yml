@@ -5,7 +5,7 @@ site_url: https://telegrinder.rtfd.io/
 repo_name: timoniq/telegrinder
 repo_url: https://github.com/timoniq/telegrinder
 edit_uri: edit/dev/docs/
-copyright: timoniq, 2023 <a href="https://github.com/timoniq/telegrinder/blob/main/LICENSE" target="_blank" rel="noopener">(View license)</a>
+copyright: timoniq, 2024 <a href="https://github.com/timoniq/telegrinder/blob/main/LICENSE" target="_blank" rel="noopener">(View license)</a>
 
 extra:
   generator: false
@@ -25,6 +25,7 @@ nav:
     - Formatting: tools/formatting.md
     - Keyboard Set: tools/keyboard_set.md
     - Global Context: tools/global_context.md
+    - Error Handler: tools/error_handler.md
 
 theme:
   name: readthedocs

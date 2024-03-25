@@ -34,11 +34,11 @@ class SingleChoice(Checkbox):
     async def wait(
         self,
         api: "API",
-        cb_view: "BaseStateView[CallbackQueryCute]",
+        view: "BaseStateView[CallbackQueryCute]",
     ) -> tuple[str, int]:
         if len([choice for choice in self.choices if choice.is_picked]) != 1:
             raise ValueError("Exactly one choice must be picked")
-        choices, m_id = await super().wait(api, cb_view)
+        choices, m_id = await super().wait(api, view)
         return list(choices.keys())[list(choices.values()).index(True)], m_id
 
 

@@ -24,7 +24,7 @@ def compose_data(
 
 
 class API(ABCAPI, APIMethods):
-    API_URL: typing.ClassVar[str] = "https://api.telegram.org/"
+    API_URL = "https://api.telegram.org/"
 
     def __init__(self, token: Token, *, http: ABCClient | None = None) -> None:
         self.token = token
@@ -32,9 +32,9 @@ class API(ABCAPI, APIMethods):
         super().__init__(self)
     
     def __repr__(self) -> str:
-        return "<{}: id={}, http={!r}>".format(
+        return "<{}: token={!r}, http={!r}>".format(
             self.__class__.__name__,
-            self.id,
+            self.token,
             self.http,
         )
 

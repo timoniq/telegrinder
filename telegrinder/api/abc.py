@@ -17,6 +17,9 @@ class Token(str):
         if token.count(":") != 1 or not token.split(":")[0].isdigit():
             raise InvalidTokenError("Invalid token, it should look like this '123:ABC'.")
         return super().__new__(cls, token)
+    
+    def __repr__(self) -> str:
+        return f"<Token: {self.bot_id}:{''.join(self.split(':')[-1])[:6]}...>"
 
     @classmethod
     def from_env(

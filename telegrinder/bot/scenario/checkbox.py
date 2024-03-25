@@ -1,6 +1,5 @@
 import dataclasses
-import random
-import string
+import secrets
 import typing
 
 from telegrinder.bot.cute_types import CallbackQueryCute
@@ -25,29 +24,26 @@ class Choice:
     code: str
 
 
-def random_code(length: int) -> str:
-    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
-
-
 class Checkbox(ABCScenario[CallbackQueryCute]):
-    INVALID_CODE: typing.ClassVar[str] = "Invalid code"
-    CALLBACK_ANSWER: typing.ClassVar[str] = "Done"
-    PARSE_MODE: typing.ClassVar[str] = ParseMode.MARKDOWNV2
+    INVALID_CODE = "Invalid code"
+    CALLBACK_ANSWER = "Done"
+    PARSE_MODE = ParseMode.HTML
 
     def __init__(
         self,
         waiter_machine: WaiterMachine,
         chat_id: int,
         msg: str,
+        *,
         ready_text: str = "Ready",
         max_in_row: int = 3,
-    ):
+    ) -> None:
         self.chat_id = chat_id
         self.msg = msg
         self.choices: list[Choice] = []
         self.ready = ready_text
         self.max_in_row = max_in_row
-        self.random_code = random_code(16)
+        self.random_code = secrets.token_hex(16)
         self.waiter_machine = waiter_machine
 
     def get_markup(self) -> InlineKeyboardMarkup:
@@ -77,7 +73,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         is_picked: bool = False,
     ) -> typing.Self:
         self.choices.append(
-            Choice(name, is_picked, default_text, picked_text, random_code(16)),
+            Choice(name, is_picked, default_text, picked_text, secrets.token_hex(16)),
         )
         return self
 
@@ -128,4 +124,4 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         )
 
 
-__all__ = ("Checkbox", "Choice", "random_code")
+__all__ = ("Checkbox", "Choice")
