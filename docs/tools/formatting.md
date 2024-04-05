@@ -25,6 +25,7 @@ Formatter is derived from `FormatString` to work string formatting with the foll
 * `strike(string: str) -> TagFormat` -> ~~strikethrough text~~
 * `tg_emoji(string: str, emoji_id: int) -> TagFormat` | telegram emoji by emoji id
 * `underline(string: str) -> TagFormat` -> <u>underline text</u>
+* `user_open_message(user_id: int, message: str | None = None, string: str | None = None) -> TagFormat` | tg://openmessage?user_id=123456789&msg?text=AnyMessage
 
 ```python
 from telegrinder.tools.formatting import HTMLFormatter, bold, spoiler
@@ -61,6 +62,7 @@ To use special formats, you have to use special dataclasses:
 * `StartBotLink(bot_username: str, data: str, string: str | None = None)` -> `start_bot_link`
 * `StartGroupLink(bot_username: str, data: str, string: str | None = None)` -> `start_group_link`
 * `TgEmoji(string: str, emoji_id: int)` -> `tg_emoji`
+* `UserOpenMessage(user_id: int, message: str | None = None, string: str | None = None)` -> `user_open_message`
 
 ```python
 from telegrinder.tools.formatting import HTMLFormatter, Mention, Link, CodeBlock
@@ -88,19 +90,21 @@ HTMLFormatter("{:bold} very nice telegram user!").format(Mention("arseny", 54901
 
 HTMLFormatter("{:italic} very nice framework!").format(Link("https://github.com/timoniq/telegrinder", "telegrinder"))
 
-HTMLFormatter("echo bot on telegrinder:\n{}").format(PreCode(PYTHON_CODE_ECHO_BOT, ProgrammingLanguage.PYTHON))
+HTMLFormatter("Echo bot on python framework telegrinder:\n{}").format(PreCode(PYTHON_CODE_ECHO_BOT, ProgrammingLanguage.PYTHON))
 
-HTMLFormatter("i {} telegrinder!").format(TgEmoji("👍", 5368324170671202286))
+HTMLFormatter("I {} telegrinder!").format(TgEmoji("👍", 5368324170671202286))
 
-HTMLFormatter("cool telegram chat: {:bold+underline}").format(ResolveDomain("botoforum", "botoforum chat"))
+HTMLFormatter("Cool telegram chat: {:bold+underline}").format(ResolveDomain("botoforum", "botoforum chat"))
 
-HTMLFormatter("pls, boost {:bold+italic+underline} ^_^").format(ChannelBoostLink("hurricaneivykiosk", "Arseny's channel"))
+HTMLFormatter("Please, boost {:bold+italic+underline} ^_^").format(ChannelBoostLink("hurricaneivykiosk", "Arseny's channel"))
 
 HTMLFormatter("start game in the {:spoiler}").format(StartBotLink("telegrinder_bot", "game", "bot ^_^"))
 
-HTMLFormatter("get a bonus from the {:italic} in the chosen group").format(StartGroupLink("nice123_bot", "get_bonus", "nice cool bot"))
+HTMLFormatter("Get a bonus from the {:italic} in the chosen group").format(StartGroupLink("nice123_bot", "get_bonus", "nice cool bot"))
 
-HTMLFormatter("join our {:bold+underline}").format(InviteChatLink("+kMj2234KklsSka2-", "chat"))
+HTMLFormatter("Join our {:bold+underline}").format(InviteChatLink("+kMj2234KklsSka2-", "chat"))
+
+HTMLFormatter("Please, write about your problem to our {:underline}").format(UserOpenMessage(123456789, string="manager"))
 ```
 
 HTMLFormatter also has a property of parse mode string.

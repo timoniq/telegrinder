@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
     from .machine import Identificator
 
 EventModel = typing.TypeVar("EventModel", bound=BaseCute)
-Behaviour = ABCHandler | None
+Behaviour: typing.TypeAlias = ABCHandler | None
 
 
 class ShortState(typing.Generic[EventModel]):

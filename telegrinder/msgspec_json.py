@@ -3,11 +3,11 @@ import typing
 from .msgspec_utils import decoder, encoder
 
 
-def loads(s: str | bytes) -> dict[str, typing.Any] | list[typing.Any]:
-    return decoder.decode(s, type=dict[str, typing.Any] | list[typing.Any])  # type: ignore
+def loads(s: str | bytes) -> typing.Any:
+    return decoder.decode(s)
 
 
-def dumps(o: dict[str, typing.Any] | list[typing.Any]) -> str:
+def dumps(o: typing.Any) -> str:
     return encoder.encode(o)
 
 

@@ -91,9 +91,6 @@ class Keyboard(ABCMarkup[Button], KeyboardModel):
     selective: bool = dataclasses.field(default=False)
     is_persistent: bool = dataclasses.field(default=False)
 
-    def get_empty_markup(self, *, selective: bool = False) -> ReplyKeyboardRemove:
-        return ReplyKeyboardRemove(remove_keyboard=True, selective=selective)  # type: ignore
-
     def dict(self) -> DictStrAny:
         self.keyboard = [row for row in self.keyboard if row]
         return {
@@ -104,6 +101,9 @@ class Keyboard(ABCMarkup[Button], KeyboardModel):
 
     def get_markup(self) -> ReplyKeyboardMarkup:
         return ReplyKeyboardMarkup(**self.dict())
+
+    def get_empty_markup(self, *, selective: bool = False) -> ReplyKeyboardRemove:
+        return ReplyKeyboardRemove(remove_keyboard=True, selective=Some(selective))
 
 
 class InlineKeyboard(ABCMarkup[InlineButton]):

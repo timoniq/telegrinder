@@ -5,14 +5,16 @@ from telegrinder.types.enums import ProgrammingLanguage
 
 SpecialFormat = typing.Union[
     "ChannelBoostLink",
-    "Mention",
+    "InviteChatLink",
     "Link",
+    "Mention",
     "PreCode",
-    "TgEmoji",
+    "ResolveDomain",
+    "SpecialFormat",
     "StartBotLink",
     "StartGroupLink",
-    "ResolveDomain",
-    "InviteChatLink",
+    "TgEmoji",
+    "UserOpenMessage",
 ]
 
 
@@ -26,13 +28,13 @@ def is_spec_format(obj: typing.Any) -> typing.TypeGuard[SpecialFormat]:
 
 @dataclasses.dataclass(repr=False)
 class BaseSpecFormat:
-    __formatter_name__: typing.ClassVar[str]
+    __formatter_name__: typing.ClassVar[str] = dataclasses.field(init=False, repr=False)
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__!r}: {self.__formatter_name__!r}>"
+        return f"<Special formatter {self.__class__.__name__!r} -> {self.__formatter_name__!r}>"
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class ChannelBoostLink(BaseSpecFormat):
     __formatter_name__ = "channel_boost_link"
 
@@ -40,7 +42,7 @@ class ChannelBoostLink(BaseSpecFormat):
     string: str | None = None
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class InviteChatLink(BaseSpecFormat):
     __formatter_name__ = "invite_chat_link"
 
@@ -48,7 +50,7 @@ class InviteChatLink(BaseSpecFormat):
     string: str | None = None
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class Mention(BaseSpecFormat):
     __formatter_name__ = "mention"
 
@@ -56,7 +58,7 @@ class Mention(BaseSpecFormat):
     user_id: int
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class Link(BaseSpecFormat):
     __formatter_name__ = "link"
 
@@ -64,7 +66,7 @@ class Link(BaseSpecFormat):
     string: str | None = None
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class PreCode(BaseSpecFormat):
     __formatter_name__ = "pre_code"
 
@@ -72,7 +74,7 @@ class PreCode(BaseSpecFormat):
     lang: str | ProgrammingLanguage | None = None
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class TgEmoji(BaseSpecFormat):
     __formatter_name__ = "tg_emoji"
     
@@ -80,7 +82,7 @@ class TgEmoji(BaseSpecFormat):
     emoji_id: int
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class StartBotLink(BaseSpecFormat):
     __formatter_name__ = "start_bot_link"
 
@@ -89,7 +91,7 @@ class StartBotLink(BaseSpecFormat):
     string: str | None
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class StartGroupLink(BaseSpecFormat):
     __formatter_name__ = "start_group_link"
 
@@ -98,11 +100,20 @@ class StartGroupLink(BaseSpecFormat):
     string: str | None = None
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False)
 class ResolveDomain(BaseSpecFormat):
     __formatter_name__ = "resolve_domain"
 
     username: str
+    string: str | None = None
+
+
+@dataclasses.dataclass(repr=False)
+class UserOpenMessage(BaseSpecFormat):
+    __formatter_name__ = "user_open_message"
+
+    user_id: int
+    message: str | None = None
     string: str | None = None
 
 
@@ -118,4 +129,5 @@ __all__ = (
     "StartBotLink",
     "StartGroupLink",
     "TgEmoji",
+    "UserOpenMessage",
 )

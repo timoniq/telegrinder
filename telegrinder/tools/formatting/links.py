@@ -22,6 +22,12 @@ def get_invite_chat_link(invite_link: str) -> str:
     return f"tg://join?invite={invite_link}"
 
 
+def user_open_message_link(user_id: int, message: str | None = None) -> str:
+    return f"tg://openmessage?user_id={user_id}" + (
+        "" if not message else f"&msg?text={message}"
+    )
+
+
 __all__ = (
     "get_channel_boost_link",
     "get_invite_chat_link",
@@ -29,4 +35,5 @@ __all__ = (
     "get_resolve_domain_link",
     "get_start_bot_link",
     "get_start_group_link",
+    "user_open_message_link",
 )

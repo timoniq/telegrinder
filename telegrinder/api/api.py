@@ -16,7 +16,7 @@ def compose_data(
     data: dict[str, typing.Any],
     files: dict[str, tuple[str, bytes]],
 ) -> typing.Any:
-    converter = DataConverter(files=files)
+    converter = DataConverter(files=files.copy())
     return client.get_form(
         data={k: converter(v) for k, v in data.items()},
         files=converter.files,
@@ -24,6 +24,8 @@ def compose_data(
 
 
 class API(ABCAPI, APIMethods):
+    """Bot API with available API methods."""
+
     API_URL = "https://api.telegram.org/"
 
     def __init__(self, token: Token, *, http: ABCClient | None = None) -> None:
@@ -60,7 +62,7 @@ class API(ABCAPI, APIMethods):
             assert "result" in response
             return Ok(response["result"])
         return Error(APIError(
-            code=response.get("error_code", 0),
+            code=response.get("error_code", 400),
             error=response.get("description"),
         ))
 

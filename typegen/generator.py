@@ -1,3 +1,4 @@
+import datetime
 import os
 import re
 import typing
@@ -284,19 +285,19 @@ class ObjectGenerator(ABCGenerator):
             f"class {camel_to_pascal(object_schema.name)}"
             f"({base if base and base != object_name else sybtypes_of}):\n{TAB}"
         )
-        
-        if object_schema.description:
-            description = (
-                (
-                    "Base object" if object_schema.subtypes else "Object"
-                    if base is None or base == object_name
-                    else base.split(".")[-1] + " object"
-                ) + f" `{object_name}`, see the [documentation]({object_schema.href})"
-            )
-            code += '"""%s\n\n%s\n"""' % (
-                description,
-                "\n".join(object_schema.description),
-            )
+        description = (
+            (
+                "Base object" if object_schema.subtypes else "Object"
+                if base is None or base == object_name
+                else base.split(".")[-1] + " object"
+            ) + f" `{object_name}`, see the [documentation]({object_schema.href})."
+        )
+        code += '"""%s\n\n%s\n"""' % (
+            description,
+            "No description yet."
+            if not object_schema.description
+            else "\n".join(object_schema.description),
+        )
 
         code += f"\n"
         if not object_schema.fields and not nicifications:
@@ -366,10 +367,15 @@ class MethodGenerator(ABCGenerator):
         methods: list[MethodSchema],
         parent_types: dict[str, list[str]],
         config_literal_types: list[ConfigMethodLiteralTypes] | None = None,
+        *,
+        api_version: str | None = None,
+        release_date: str | None = None,
     ) -> None:
         self.methods = methods
         self.parent_types = parent_types
         self.config_literal_types = config_literal_types or []
+        self.api_version = api_version
+        self.release_date = release_date
 
     @staticmethod
     def make_type_hint(
@@ -492,6 +498,12 @@ class MethodGenerator(ABCGenerator):
             exit(-1)
 
         logger.debug("Generate methods...")
+        docstring = "" if not self.api_version or not self.release_date else (
+            '    """Telegram {} methods, released `{}`."""\n\n'.format(
+                self.api_version or "Bot API",
+                self.release_date or datetime.datetime.now().ctime(),
+            )
+        )
         lines = [
             "import typing\n\n",
             "from fntypes.co import Result, Variative\n"
@@ -500,7 +512,7 @@ class MethodGenerator(ABCGenerator):
             "from telegrinder.types.objects import *  # noqa: F403\n\n",
             "if typing.TYPE_CHECKING:\n",
             "    from telegrinder.api.abc import ABCAPI\n\n\n",
-            "class APIMethods:\n",
+            "class APIMethods:\n" + docstring,
             '    def __init__(self, api: "ABCAPI") -> None:\n',
             "        self.api = api\n\n",
         ]
@@ -530,19 +542,22 @@ def generate(
         os.makedirs(path)
 
     if types_generator is None or methods_generator is None:
-        schema = convert_schema_to_model(get_schema_json(), TelegramBotAPISchema)
+        schema_json = get_schema_json()
+        schema_model = convert_schema_to_model(schema_json, TelegramBotAPISchema)
         cfg_literal_types = read_config_literal_types(path_cfg_literal_types)
         object_generator = types_generator or ObjectGenerator(
-            objects=schema.objects,
+            objects=schema_model.objects,
             nicification_path=MAIN_DIR + "/nicifications.py",
             config_literal_types=cfg_literal_types.get("objects"),
         )
         method_generator = methods_generator or MethodGenerator(
-            methods=schema.methods,
+            methods=schema_model.methods,
             parent_types=object_generator.parent_types
             if isinstance(object_generator, ObjectGenerator)
             else {},
             config_literal_types=cfg_literal_types.get("methods"),
+            api_version=schema_json["version"],
+            release_date=schema_json["release_date"],
         )
 
     object_generator.generate(path)

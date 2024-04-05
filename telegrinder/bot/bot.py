@@ -15,7 +15,7 @@ class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
     dispatch: DispatchT
     polling: PollingT
     loop_wrapper: LoopWrapperT
-
+    
     def __init__(
         self,
         api: API,
@@ -23,7 +23,7 @@ class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
         polling: PollingT | None = None,
         dispatch: DispatchT | None = None,
         loop_wrapper: LoopWrapperT | None = None,
-    ):
+    ) -> None:
         self.api = api
         self.dispatch = dispatch or Dispatch()  # type: ignore
         self.polling = polling or Polling(api)  # type: ignore

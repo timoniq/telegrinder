@@ -415,6 +415,10 @@ class UpdateType(str, enum.Enum):
     CHAT_JOIN_REQUEST = "chat_join_request"
     CHAT_BOOST = "chat_boost"
     REMOVED_CHAT_BOOST = "removed_chat_boost"
+    BUSINESS_CONNECTION = "business_connection"
+    BUSINESS_MESSAGE = "business_message"
+    EDITED_BUSINESS_MESSAGE = "edited_business_message"
+    DELETE_BUSINESS_MESSAGE = "delete_business_messages"
 
 
 class BotCommandScopeType(str, enum.Enum):

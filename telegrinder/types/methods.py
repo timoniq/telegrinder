@@ -11,6 +11,8 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
+    """Telegram Bot API 7.2 methods, released `March 31, 2024`."""
+
     def __init__(self, api: "ABCAPI") -> None:
         self.api = api
 
@@ -202,6 +204,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         text: str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         parse_mode: str | None = None,
         entities: list[MessageEntity] | None = None,
@@ -221,6 +224,9 @@ class APIMethods:
         """Method `sendMessage`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
 
         Use this method to send text messages. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -245,8 +251,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -455,6 +462,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         photo: InputFile | str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -475,6 +483,9 @@ class APIMethods:
         """Method `sendPhoto`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
 
         Use this method to send photos. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -507,8 +518,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -521,6 +533,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         audio: InputFile | str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -548,6 +561,9 @@ class APIMethods:
         success, the sent Message is returned. Bots can currently send audio files 
         of up to 50 MB in size, this limit may be changed in the future. For sending 
         voice messages, use the sendVoice method instead.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -589,8 +605,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -603,6 +620,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         document: InputFile | str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         thumbnail: InputFile | str | None = None,
         caption: str | None = None,
@@ -626,6 +644,9 @@ class APIMethods:
         Use this method to send general files. On success, the sent Message is returned. 
         Bots can currently send files of any type of up to 50 MB in size, this limit 
         may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -665,8 +686,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -679,6 +701,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         video: InputFile | str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         duration: int | None = None,
         width: int | None = None,
@@ -707,6 +730,9 @@ class APIMethods:
         (other formats may be sent as Document). On success, the sent Message is 
         returned. Bots can currently send video files of up to 50 MB in size, this 
         limit may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -753,8 +779,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -767,6 +794,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         animation: InputFile | str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         duration: int | None = None,
         width: int | None = None,
@@ -793,6 +821,9 @@ class APIMethods:
         Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without 
         sound). On success, the sent Message is returned. Bots can currently send 
         animation files of up to 50 MB in size, this limit may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -837,8 +868,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -851,6 +883,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         voice: InputFile | str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -875,6 +908,9 @@ class APIMethods:
         in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). 
         On success, the sent Message is returned. Bots can currently send voice 
         messages of up to 50 MB in size, this limit may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -904,8 +940,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -918,6 +955,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         video_note: InputFile | str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         duration: int | None = None,
         length: int | None = None,
@@ -939,6 +977,9 @@ class APIMethods:
         As of v.4.0, Telegram clients support rounded square MPEG4 videos of up 
         to 1 minute long. Use this method to send video messages. On success, the 
         sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -970,8 +1011,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -986,6 +1028,7 @@ class APIMethods:
         media: list[
             InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
         ],
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
@@ -997,6 +1040,9 @@ class APIMethods:
         Use this method to send a group of photos, videos, documents or audios as 
         an album. Documents and audio files can be only grouped in an album with messages 
         of the same type. On success, an array of Messages that were sent is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1025,6 +1071,7 @@ class APIMethods:
         chat_id: int | str,
         latitude: float,
         longitude: float,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         horizontal_accuracy: float | None = None,
         live_period: int | None = None,
@@ -1045,6 +1092,9 @@ class APIMethods:
         """Method `sendLocation`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
 
         Use this method to send point on the map. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1074,8 +1124,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -1091,6 +1142,7 @@ class APIMethods:
         longitude: float,
         title: str,
         address: str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         foursquare_id: str | None = None,
         foursquare_type: str | None = None,
@@ -1112,6 +1164,9 @@ class APIMethods:
 
         Use this method to send information about a venue. On success, the sent Message 
         is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1143,8 +1198,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -1158,6 +1214,7 @@ class APIMethods:
         chat_id: int | str,
         phone_number: str,
         first_name: str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         last_name: str | None = None,
         vcard: str | None = None,
@@ -1176,6 +1233,9 @@ class APIMethods:
         """Method `sendContact`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
 
         Use this method to send phone contacts. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1198,8 +1258,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -1213,6 +1274,7 @@ class APIMethods:
         chat_id: int | str,
         question: str,
         options: list[str],
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
@@ -1239,6 +1301,9 @@ class APIMethods:
         """Method `sendPoll`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
 
         Use this method to send a native poll. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1288,8 +1353,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -1301,6 +1367,7 @@ class APIMethods:
     async def send_dice(
         self,
         chat_id: int | str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         emoji: DiceEmoji | None = None,
         disable_notification: bool | None = None,
@@ -1320,6 +1387,9 @@ class APIMethods:
         Use this method to send an animated emoji that will display a random value. 
         On success, the sent Message is returned.
 
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
+
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
@@ -1337,8 +1407,9 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -1351,6 +1422,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         action: ChatAction,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -1361,6 +1433,9 @@ class APIMethods:
         from your bot, Telegram clients clear its typing status). Returns True 
         on success. We only recommend using this method when a response from the 
         bot will take a noticeable amount of time to arrive.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the action \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2684,6 +2759,25 @@ class APIMethods:
         )
         return full_result(method_response, UserChatBoosts)
 
+    async def get_business_connection(
+        self,
+        business_connection_id: str,
+        **other: typing.Any,
+    ) -> Result[BusinessConnection, APIError]:
+        """Method `getBusinessConnection`, see the [documentation](https://core.telegram.org/bots/api#getbusinessconnection)
+
+        Use this method to get information about the connection of the bot with a
+        business account. Returns a BusinessConnection object on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+        """
+
+        method_response = await self.api.request_raw(
+            "getBusinessConnection",
+            get_params(locals()),
+        )
+        return full_result(method_response, BusinessConnection)
+
     async def set_my_commands(
         self,
         commands: list[BotCommand],
@@ -3316,6 +3410,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         sticker: InputFile | str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         emoji: str | None = None,
         disable_notification: bool | None = None,
@@ -3335,6 +3430,9 @@ class APIMethods:
         Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. 
         On success, the sent Message is returned.
 
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
+
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
@@ -3343,10 +3441,10 @@ class APIMethods:
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
-        to get a .WEBP sticker from the Internet, or upload a new .WEBP or .TGS sticker \
-        using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-        Video stickers can only be sent by a file_id. Animated stickers can't be \
-        sent via an HTTP URL.
+        to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM \
+        sticker using multipart/form-data. More information on Sending Files: \
+        https://core.telegram.org/bots/api#sending-files. Video and animated \
+        stickers can't be sent via an HTTP URL.
 
         :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
 
@@ -3358,7 +3456,8 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
+        or to force a reply from the user. Not supported for messages sent on behalf \
+        of a business account.
         """
 
         method_response = await self.api.request_raw(
@@ -3414,9 +3513,9 @@ class APIMethods:
     ) -> Result[File, APIError]:
         """Method `uploadStickerFile`, see the [documentation](https://core.telegram.org/bots/api#uploadstickerfile)
 
-        Use this method to upload a file with a sticker for later use in the createNewStickerSet 
-        and addStickerToSet methods (the file can be used multiple times). Returns 
-        the uploaded File on success.
+        Use this method to upload a file with a sticker for later use in the createNewStickerSet, 
+        addStickerToSet, or replaceStickerInSet methods (the file can be used 
+        multiple times). Returns the uploaded File on success.
 
         :param user_id: User identifier of sticker file owner.
 
@@ -3438,7 +3537,6 @@ class APIMethods:
         name: str,
         title: str,
         stickers: list[InputSticker],
-        sticker_format: typing.Literal["static", "animated", "video"],
         sticker_type: typing.Literal["regular", "mask", "custom_emoji"] | None = None,
         needs_repainting: bool | None = None,
         **other: typing.Any,
@@ -3459,8 +3557,6 @@ class APIMethods:
 
         :param stickers: A JSON-serialized list of 1-50 initial stickers to be added to the sticker \
         set.
-
-        :param sticker_format: Format of stickers in the set, must be one of `static`, `animated`, `video`. \
 
         :param sticker_type: Type of stickers in the set, pass `regular`, `mask`, or `custom_emoji`. \
         By default, a regular sticker set is created.
@@ -3486,10 +3582,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `addStickerToSet`, see the [documentation](https://core.telegram.org/bots/api#addstickertoset)
 
-        Use this method to add a new sticker to a set created by the bot. The format 
-        of the added sticker must match the format of the other stickers in the set. 
-        Emoji sticker sets can have up to 200 stickers. Animated and video sticker 
-        sets can have up to 50 stickers. Static sticker sets can have up to 120 stickers. 
+        Use this method to add a new sticker to a set created by the bot. Emoji sticker 
+        sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. 
         Returns True on success.
 
         :param user_id: User identifier of sticker set owner.
@@ -3544,6 +3638,37 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "deleteStickerFromSet",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def replace_sticker_in_set(
+        self,
+        user_id: int,
+        name: str,
+        old_sticker: str,
+        sticker: InputSticker,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `replaceStickerInSet`, see the [documentation](https://core.telegram.org/bots/api#replacestickerinset)
+
+        Use this method to replace an existing sticker in a sticker set with a new 
+        one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, 
+        then setStickerPositionInSet. Returns True on success.
+
+        :param user_id: User identifier of the sticker set owner.
+
+        :param name: Sticker set name.
+
+        :param old_sticker: File identifier of the replaced sticker.
+
+        :param sticker: A JSON-serialized object with information about the added sticker. If \
+        exactly the same sticker had already been added to the set, then the set remains \
+        unchanged.
+        """
+
+        method_response = await self.api.request_raw(
+            "replaceStickerInSet",
             get_params(locals()),
         )
         return full_result(method_response, bool)
@@ -3644,6 +3769,7 @@ class APIMethods:
         self,
         name: str,
         user_id: int,
+        format: str,
         thumbnail: InputFile | str | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -3669,6 +3795,9 @@ class APIMethods:
         Animated and video sticker set thumbnails can't be uploaded via HTTP URL. \
         If omitted, then the thumbnail is dropped and the first sticker is used as \
         the thumbnail.
+
+        :param format: Format of the thumbnail, must be one of `static` for a .WEBP or .PNG image, \
+        `animated` for a .TGS animation, or `video` for a WEBM video.
         """
 
         method_response = await self.api.request_raw(
@@ -4086,6 +4215,7 @@ class APIMethods:
         self,
         chat_id: int,
         game_short_name: str,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
@@ -4096,6 +4226,9 @@ class APIMethods:
         """Method `sendGame`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
 
         Use this method to send a game. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat.
 
@@ -4113,6 +4246,7 @@ class APIMethods:
 
         :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' \
         button will be shown. If not empty, the first button must launch the game. \
+        Not supported for messages sent on behalf of a business account.
         """
 
         method_response = await self.api.request_raw(

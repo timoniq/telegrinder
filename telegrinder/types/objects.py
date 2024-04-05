@@ -8,7 +8,7 @@ from telegrinder.types.enums import *  # noqa: F403
 
 
 class ReactionType(Model):
-    """Base object `ReactionType`, see the [documentation](https://core.telegram.org/bots/api#reactiontype)
+    """Base object `ReactionType`, see the [documentation](https://core.telegram.org/bots/api#reactiontype).
 
     This object describes the type of a reaction. Currently, it can be one of
     - ReactionTypeEmoji
@@ -17,7 +17,7 @@ class ReactionType(Model):
 
 
 class PassportElementError(Model):
-    """Base object `PassportElementError`, see the [documentation](https://core.telegram.org/bots/api#passportelementerror)
+    """Base object `PassportElementError`, see the [documentation](https://core.telegram.org/bots/api#passportelementerror).
 
     This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
     - PassportElementErrorDataField
@@ -33,7 +33,7 @@ class PassportElementError(Model):
 
 
 class MessageOrigin(Model):
-    """Base object `MessageOrigin`, see the [documentation](https://core.telegram.org/bots/api#messageorigin)
+    """Base object `MessageOrigin`, see the [documentation](https://core.telegram.org/bots/api#messageorigin).
 
     This object describes the origin of a message. It can be one of
     - MessageOriginUser
@@ -44,7 +44,7 @@ class MessageOrigin(Model):
 
 
 class MaybeInaccessibleMessage(Model):
-    """Base object `MaybeInaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#maybeinaccessiblemessage)
+    """Base object `MaybeInaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#maybeinaccessiblemessage).
 
     This object describes a message that can be inaccessible to the bot. It can be one of
     - Message
@@ -53,7 +53,7 @@ class MaybeInaccessibleMessage(Model):
 
 
 class MenuButton(Model):
-    """Base object `MenuButton`, see the [documentation](https://core.telegram.org/bots/api#menubutton)
+    """Base object `MenuButton`, see the [documentation](https://core.telegram.org/bots/api#menubutton).
 
     This object describes the bot's menu button in a private chat. It should be one of
     - MenuButtonCommands
@@ -64,7 +64,7 @@ class MenuButton(Model):
 
 
 class InputMessageContent(Model):
-    """Base object `InputMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputmessagecontent)
+    """Base object `InputMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputmessagecontent).
 
     This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
     - InputTextMessageContent
@@ -76,7 +76,7 @@ class InputMessageContent(Model):
 
 
 class InputMedia(Model):
-    """Base object `InputMedia`, see the [documentation](https://core.telegram.org/bots/api#inputmedia)
+    """Base object `InputMedia`, see the [documentation](https://core.telegram.org/bots/api#inputmedia).
 
     This object represents the content of a media message to be sent. It should be one of
     - InputMediaAnimation
@@ -88,7 +88,7 @@ class InputMedia(Model):
 
 
 class InlineQueryResult(Model):
-    """Base object `InlineQueryResult`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresult)
+    """Base object `InlineQueryResult`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresult).
 
     This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
     - InlineQueryResultCachedAudio
@@ -116,7 +116,7 @@ class InlineQueryResult(Model):
 
 
 class ChatMember(Model):
-    """Base object `ChatMember`, see the [documentation](https://core.telegram.org/bots/api#chatmember)
+    """Base object `ChatMember`, see the [documentation](https://core.telegram.org/bots/api#chatmember).
 
     This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
     - ChatMemberOwner
@@ -129,7 +129,7 @@ class ChatMember(Model):
 
 
 class ChatBoostSource(Model):
-    """Base object `ChatBoostSource`, see the [documentation](https://core.telegram.org/bots/api#chatboostsource)
+    """Base object `ChatBoostSource`, see the [documentation](https://core.telegram.org/bots/api#chatboostsource).
 
     This object describes the source of a chat boost. It can be one of
     - ChatBoostSourcePremium
@@ -139,7 +139,7 @@ class ChatBoostSource(Model):
 
 
 class BotCommandScope(Model):
-    """Base object `BotCommandScope`, see the [documentation](https://core.telegram.org/bots/api#botcommandscope)
+    """Base object `BotCommandScope`, see the [documentation](https://core.telegram.org/bots/api#botcommandscope).
 
     This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
     - BotCommandScopeDefault
@@ -153,7 +153,7 @@ class BotCommandScope(Model):
 
 
 class Update(Model):
-    """Object `Update`, see the [documentation](https://core.telegram.org/bots/api#update)
+    """Object `Update`, see the [documentation](https://core.telegram.org/bots/api#update).
 
     This object represents an incoming update.
     At most one of the optional parameters can be present in any given update.
@@ -183,6 +183,19 @@ class Update(Model):
     """Optional. New version of a channel post that is known to the bot and was edited. 
     This update may at times be triggered by changes to message fields that are 
     either unavailable or not actively used by your bot."""
+
+    business_connection: Option["BusinessConnection"] = Nothing
+    """Optional. The bot was connected to or disconnected from a business account, 
+    or a user edited an existing connection with the bot."""
+
+    business_message: Option["Message"] = Nothing
+    """Optional. New non-service message from a connected business account."""
+
+    edited_business_message: Option["Message"] = Nothing
+    """Optional. New version of a message from a connected business account."""
+
+    deleted_business_messages: Option["BusinessMessagesDeleted"] = Nothing
+    """Optional. Messages were deleted from a connected business account."""
 
     message_reaction: Option["MessageReactionUpdated"] = Nothing
     """Optional. A reaction to a message was changed by a user. The bot must be an 
@@ -261,7 +274,7 @@ class Update(Model):
 
 
 class WebhookInfo(Model):
-    """Object `WebhookInfo`, see the [documentation](https://core.telegram.org/bots/api#webhookinfo)
+    """Object `WebhookInfo`, see the [documentation](https://core.telegram.org/bots/api#webhookinfo).
 
     Describes the current status of a webhook.
     """
@@ -300,7 +313,7 @@ class WebhookInfo(Model):
 
 
 class User(Model):
-    """Object `User`, see the [documentation](https://core.telegram.org/bots/api#user)
+    """Object `User`, see the [documentation](https://core.telegram.org/bots/api#user).
 
     This object represents a Telegram user or bot.
     """
@@ -342,6 +355,10 @@ class User(Model):
     supports_inline_queries: Option[bool] = Nothing
     """Optional. True, if the bot supports inline queries. Returned only in getMe."""
 
+    can_connect_to_business: Option[bool] = Nothing
+    """Optional. True, if the bot can be connected to a Telegram Business account 
+    to receive its messages. Returned only in getMe."""
+
     @property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
@@ -356,7 +373,7 @@ class User(Model):
 
 
 class Chat(Model):
-    """Object `Chat`, see the [documentation](https://core.telegram.org/bots/api#chat)
+    """Object `Chat`, see the [documentation](https://core.telegram.org/bots/api#chat).
 
     This object represents a chat.
     """
@@ -391,6 +408,26 @@ class Chat(Model):
     active_usernames: Option[list[str]] = Nothing
     """Optional. If non-empty, the list of all active chat usernames; for private 
     chats, supergroups and channels. Returned only in getChat."""
+
+    birthdate: Option["Birthdate"] = Nothing
+    """Optional. For private chats, the date of birth of the user. Returned only 
+    in getChat."""
+
+    business_intro: Option["BusinessIntro"] = Nothing
+    """Optional. For private chats with business accounts, the intro of the business. 
+    Returned only in getChat."""
+
+    business_location: Option["BusinessLocation"] = Nothing
+    """Optional. For private chats with business accounts, the location of the 
+    business. Returned only in getChat."""
+
+    business_opening_hours: Option["BusinessOpeningHours"] = Nothing
+    """Optional. For private chats with business accounts, the opening hours 
+    of the business. Returned only in getChat."""
+
+    personal_chat: Option["Chat"] = Nothing
+    """Optional. For private chats, the personal channel of the user. Returned 
+    only in getChat."""
 
     available_reactions: Option[
         list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]
@@ -522,7 +559,7 @@ class Chat(Model):
 
 
 class Message(MaybeInaccessibleMessage):
-    """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message)
+    """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message).
 
     This object represents a message.
     """
@@ -557,6 +594,17 @@ class Message(MaybeInaccessibleMessage):
     sender_boost_count: Option[int] = Nothing
     """Optional. If the sender of the message boosted the chat, the number of boosts 
     added by the user."""
+
+    sender_business_bot: Option["User"] = Nothing
+    """Optional. The bot that actually sent the message on behalf of the business 
+    account. Available only for outgoing messages sent on behalf of the connected 
+    business account."""
+
+    business_connection_id: Option[str] = Nothing
+    """Optional. Unique identifier of the business connection from which the 
+    message was received. If non-empty, the message belongs to a chat of the 
+    corresponding business account that is independent from any potential 
+    bot chat which might share the same identifier."""
 
     forward_origin: Option[
         Variative[
@@ -599,6 +647,10 @@ class Message(MaybeInaccessibleMessage):
 
     has_protected_content: Option[bool] = Nothing
     """Optional. True, if the message can't be forwarded."""
+
+    is_from_offline: Option[bool] = Nothing
+    """Optional. True, if the message was sent by an implicit action, for example, 
+    as an away or a greeting business message, or as a scheduled message."""
 
     media_group_id: Option[str] = Nothing
     """Optional. The unique identifier of a media message group this message belongs 
@@ -860,7 +912,7 @@ class Message(MaybeInaccessibleMessage):
 
 
 class MessageId(Model):
-    """Object `MessageId`, see the [documentation](https://core.telegram.org/bots/api#messageid)
+    """Object `MessageId`, see the [documentation](https://core.telegram.org/bots/api#messageid).
 
     This object represents a unique message identifier.
     """
@@ -870,7 +922,7 @@ class MessageId(Model):
 
 
 class InaccessibleMessage(MaybeInaccessibleMessage):
-    """Object `InaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#inaccessiblemessage)
+    """Object `InaccessibleMessage`, see the [documentation](https://core.telegram.org/bots/api#inaccessiblemessage).
 
     This object describes a message that was deleted or is otherwise inaccessible to the bot.
     """
@@ -887,7 +939,7 @@ class InaccessibleMessage(MaybeInaccessibleMessage):
 
 
 class MessageEntity(Model):
-    """Object `MessageEntity`, see the [documentation](https://core.telegram.org/bots/api#messageentity)
+    """Object `MessageEntity`, see the [documentation](https://core.telegram.org/bots/api#messageentity).
 
     This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
     """
@@ -925,7 +977,7 @@ class MessageEntity(Model):
 
 
 class TextQuote(Model):
-    """Object `TextQuote`, see the [documentation](https://core.telegram.org/bots/api#textquote)
+    """Object `TextQuote`, see the [documentation](https://core.telegram.org/bots/api#textquote).
 
     This object contains information about the quoted part of a message that is replied to by the given message.
     """
@@ -948,7 +1000,7 @@ class TextQuote(Model):
 
 
 class ExternalReplyInfo(Model):
-    """Object `ExternalReplyInfo`, see the [documentation](https://core.telegram.org/bots/api#externalreplyinfo)
+    """Object `ExternalReplyInfo`, see the [documentation](https://core.telegram.org/bots/api#externalreplyinfo).
 
     This object contains information about a message that is being replied to, which may come from another chat or forum topic.
     """
@@ -1034,7 +1086,7 @@ class ExternalReplyInfo(Model):
 
 
 class ReplyParameters(Model):
-    """Object `ReplyParameters`, see the [documentation](https://core.telegram.org/bots/api#replyparameters)
+    """Object `ReplyParameters`, see the [documentation](https://core.telegram.org/bots/api#replyparameters).
 
     Describes reply parameters for the message that is being sent.
     """
@@ -1045,12 +1097,13 @@ class ReplyParameters(Model):
 
     chat_id: Option[Variative[int, str]] = Nothing
     """Optional. If the message to be replied to is from a different chat, unique 
-    identifier for the chat or username of the channel (in the format @channelusername)."""
+    identifier for the chat or username of the channel (in the format @channelusername). 
+    Not supported for messages sent on behalf of a business account."""
 
     allow_sending_without_reply: Option[bool] = Nothing
     """Optional. Pass True if the message should be sent even if the specified message 
-    to be replied to is not found; can be used only for replies in the same chat 
-    and forum topic."""
+    to be replied to is not found. Always False for replies in another chat or 
+    forum topic. Always True for messages sent on behalf of a business account."""
 
     quote: Option[str] = Nothing
     """Optional. Quoted part of the message to be replied to; 0-1024 characters 
@@ -1072,7 +1125,7 @@ class ReplyParameters(Model):
 
 
 class MessageOriginUser(MessageOrigin):
-    """Object `MessageOriginUser`, see the [documentation](https://core.telegram.org/bots/api#messageoriginuser)
+    """Object `MessageOriginUser`, see the [documentation](https://core.telegram.org/bots/api#messageoriginuser).
 
     The message was originally sent by a known user.
     """
@@ -1088,7 +1141,7 @@ class MessageOriginUser(MessageOrigin):
 
 
 class MessageOriginHiddenUser(MessageOrigin):
-    """Object `MessageOriginHiddenUser`, see the [documentation](https://core.telegram.org/bots/api#messageoriginhiddenuser)
+    """Object `MessageOriginHiddenUser`, see the [documentation](https://core.telegram.org/bots/api#messageoriginhiddenuser).
 
     The message was originally sent by an unknown user.
     """
@@ -1104,7 +1157,7 @@ class MessageOriginHiddenUser(MessageOrigin):
 
 
 class MessageOriginChat(MessageOrigin):
-    """Object `MessageOriginChat`, see the [documentation](https://core.telegram.org/bots/api#messageoriginchat)
+    """Object `MessageOriginChat`, see the [documentation](https://core.telegram.org/bots/api#messageoriginchat).
 
     The message was originally sent on behalf of a chat to a group chat.
     """
@@ -1124,7 +1177,7 @@ class MessageOriginChat(MessageOrigin):
 
 
 class MessageOriginChannel(MessageOrigin):
-    """Object `MessageOriginChannel`, see the [documentation](https://core.telegram.org/bots/api#messageoriginchannel)
+    """Object `MessageOriginChannel`, see the [documentation](https://core.telegram.org/bots/api#messageoriginchannel).
 
     The message was originally sent to a channel chat.
     """
@@ -1146,7 +1199,7 @@ class MessageOriginChannel(MessageOrigin):
 
 
 class PhotoSize(Model):
-    """Object `PhotoSize`, see the [documentation](https://core.telegram.org/bots/api#photosize)
+    """Object `PhotoSize`, see the [documentation](https://core.telegram.org/bots/api#photosize).
 
     This object represents one size of a photo or a file / sticker thumbnail.
     """
@@ -1169,7 +1222,7 @@ class PhotoSize(Model):
 
 
 class Animation(Model):
-    """Object `Animation`, see the [documentation](https://core.telegram.org/bots/api#animation)
+    """Object `Animation`, see the [documentation](https://core.telegram.org/bots/api#animation).
 
     This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
     """
@@ -1207,7 +1260,7 @@ class Animation(Model):
 
 
 class Audio(Model):
-    """Object `Audio`, see the [documentation](https://core.telegram.org/bots/api#audio)
+    """Object `Audio`, see the [documentation](https://core.telegram.org/bots/api#audio).
 
     This object represents an audio file to be treated as music by the Telegram clients.
     """
@@ -1245,7 +1298,7 @@ class Audio(Model):
 
 
 class Document(Model):
-    """Object `Document`, see the [documentation](https://core.telegram.org/bots/api#document)
+    """Object `Document`, see the [documentation](https://core.telegram.org/bots/api#document).
 
     This object represents a general file (as opposed to photos, voice messages and audio files).
     """
@@ -1274,7 +1327,7 @@ class Document(Model):
 
 
 class Story(Model):
-    """Object `Story`, see the [documentation](https://core.telegram.org/bots/api#story)
+    """Object `Story`, see the [documentation](https://core.telegram.org/bots/api#story).
 
     This object represents a story.
     """
@@ -1287,7 +1340,7 @@ class Story(Model):
 
 
 class Video(Model):
-    """Object `Video`, see the [documentation](https://core.telegram.org/bots/api#video)
+    """Object `Video`, see the [documentation](https://core.telegram.org/bots/api#video).
 
     This object represents a video file.
     """
@@ -1325,7 +1378,7 @@ class Video(Model):
 
 
 class VideoNote(Model):
-    """Object `VideoNote`, see the [documentation](https://core.telegram.org/bots/api#videonote)
+    """Object `VideoNote`, see the [documentation](https://core.telegram.org/bots/api#videonote).
 
     This object represents a video message (available in Telegram apps as of v.4.0).
     """
@@ -1351,7 +1404,7 @@ class VideoNote(Model):
 
 
 class Voice(Model):
-    """Object `Voice`, see the [documentation](https://core.telegram.org/bots/api#voice)
+    """Object `Voice`, see the [documentation](https://core.telegram.org/bots/api#voice).
 
     This object represents a voice note.
     """
@@ -1377,7 +1430,7 @@ class Voice(Model):
 
 
 class Contact(Model):
-    """Object `Contact`, see the [documentation](https://core.telegram.org/bots/api#contact)
+    """Object `Contact`, see the [documentation](https://core.telegram.org/bots/api#contact).
 
     This object represents a phone contact.
     """
@@ -1402,7 +1455,7 @@ class Contact(Model):
 
 
 class Dice(Model):
-    """Object `Dice`, see the [documentation](https://core.telegram.org/bots/api#dice)
+    """Object `Dice`, see the [documentation](https://core.telegram.org/bots/api#dice).
 
     This object represents an animated emoji that displays a random value.
     """
@@ -1416,7 +1469,7 @@ class Dice(Model):
 
 
 class PollOption(Model):
-    """Object `PollOption`, see the [documentation](https://core.telegram.org/bots/api#polloption)
+    """Object `PollOption`, see the [documentation](https://core.telegram.org/bots/api#polloption).
 
     This object contains information about one answer option in a poll.
     """
@@ -1429,7 +1482,7 @@ class PollOption(Model):
 
 
 class PollAnswer(Model):
-    """Object `PollAnswer`, see the [documentation](https://core.telegram.org/bots/api#pollanswer)
+    """Object `PollAnswer`, see the [documentation](https://core.telegram.org/bots/api#pollanswer).
 
     This object represents an answer of a user in a non-anonymous poll.
     """
@@ -1450,7 +1503,7 @@ class PollAnswer(Model):
 
 
 class Poll(Model):
-    """Object `Poll`, see the [documentation](https://core.telegram.org/bots/api#poll)
+    """Object `Poll`, see the [documentation](https://core.telegram.org/bots/api#poll).
 
     This object contains information about a poll.
     """
@@ -1501,7 +1554,7 @@ class Poll(Model):
 
 
 class Location(Model):
-    """Object `Location`, see the [documentation](https://core.telegram.org/bots/api#location)
+    """Object `Location`, see the [documentation](https://core.telegram.org/bots/api#location).
 
     This object represents a point on the map.
     """
@@ -1530,7 +1583,7 @@ class Location(Model):
 
 
 class Venue(Model):
-    """Object `Venue`, see the [documentation](https://core.telegram.org/bots/api#venue)
+    """Object `Venue`, see the [documentation](https://core.telegram.org/bots/api#venue).
 
     This object represents a venue.
     """
@@ -1559,7 +1612,7 @@ class Venue(Model):
 
 
 class WebAppData(Model):
-    """Object `WebAppData`, see the [documentation](https://core.telegram.org/bots/api#webappdata)
+    """Object `WebAppData`, see the [documentation](https://core.telegram.org/bots/api#webappdata).
 
     Describes data sent from a Web App to the bot.
     """
@@ -1573,7 +1626,7 @@ class WebAppData(Model):
 
 
 class ProximityAlertTriggered(Model):
-    """Object `ProximityAlertTriggered`, see the [documentation](https://core.telegram.org/bots/api#proximityalerttriggered)
+    """Object `ProximityAlertTriggered`, see the [documentation](https://core.telegram.org/bots/api#proximityalerttriggered).
 
     This object represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user.
     """
@@ -1589,7 +1642,7 @@ class ProximityAlertTriggered(Model):
 
 
 class MessageAutoDeleteTimerChanged(Model):
-    """Object `MessageAutoDeleteTimerChanged`, see the [documentation](https://core.telegram.org/bots/api#messageautodeletetimerchanged)
+    """Object `MessageAutoDeleteTimerChanged`, see the [documentation](https://core.telegram.org/bots/api#messageautodeletetimerchanged).
 
     This object represents a service message about a change in auto-delete timer settings.
     """
@@ -1599,7 +1652,7 @@ class MessageAutoDeleteTimerChanged(Model):
 
 
 class ChatBoostAdded(Model):
-    """Object `ChatBoostAdded`, see the [documentation](https://core.telegram.org/bots/api#chatboostadded)
+    """Object `ChatBoostAdded`, see the [documentation](https://core.telegram.org/bots/api#chatboostadded).
 
     This object represents a service message about a user boosting a chat.
     """
@@ -1609,7 +1662,7 @@ class ChatBoostAdded(Model):
 
 
 class ForumTopicCreated(Model):
-    """Object `ForumTopicCreated`, see the [documentation](https://core.telegram.org/bots/api#forumtopiccreated)
+    """Object `ForumTopicCreated`, see the [documentation](https://core.telegram.org/bots/api#forumtopiccreated).
 
     This object represents a service message about a new forum topic created in the chat.
     """
@@ -1625,14 +1678,14 @@ class ForumTopicCreated(Model):
 
 
 class ForumTopicClosed(Model):
-    """Object `ForumTopicClosed`, see the [documentation](https://core.telegram.org/bots/api#forumtopicclosed)
+    """Object `ForumTopicClosed`, see the [documentation](https://core.telegram.org/bots/api#forumtopicclosed).
 
     This object represents a service message about a forum topic closed in the chat. Currently holds no information.
     """
 
 
 class ForumTopicEdited(Model):
-    """Object `ForumTopicEdited`, see the [documentation](https://core.telegram.org/bots/api#forumtopicedited)
+    """Object `ForumTopicEdited`, see the [documentation](https://core.telegram.org/bots/api#forumtopicedited).
 
     This object represents a service message about an edited forum topic.
     """
@@ -1646,28 +1699,56 @@ class ForumTopicEdited(Model):
 
 
 class ForumTopicReopened(Model):
-    """Object `ForumTopicReopened`, see the [documentation](https://core.telegram.org/bots/api#forumtopicreopened)
+    """Object `ForumTopicReopened`, see the [documentation](https://core.telegram.org/bots/api#forumtopicreopened).
 
     This object represents a service message about a forum topic reopened in the chat. Currently holds no information.
     """
 
 
 class GeneralForumTopicHidden(Model):
-    """Object `GeneralForumTopicHidden`, see the [documentation](https://core.telegram.org/bots/api#generalforumtopichidden)
+    """Object `GeneralForumTopicHidden`, see the [documentation](https://core.telegram.org/bots/api#generalforumtopichidden).
 
     This object represents a service message about General forum topic hidden in the chat. Currently holds no information.
     """
 
 
 class GeneralForumTopicUnhidden(Model):
-    """Object `GeneralForumTopicUnhidden`, see the [documentation](https://core.telegram.org/bots/api#generalforumtopicunhidden)
+    """Object `GeneralForumTopicUnhidden`, see the [documentation](https://core.telegram.org/bots/api#generalforumtopicunhidden).
 
     This object represents a service message about General forum topic unhidden in the chat. Currently holds no information.
     """
 
 
+class SharedUser(Model):
+    """Object `SharedUser`, see the [documentation](https://core.telegram.org/bots/api#shareduser).
+
+    This object contains information about a user that was shared with the bot using a KeyboardButtonRequestUser button.
+    """
+
+    user_id: int
+    """Identifier of the shared user. This number may have more than 32 significant 
+    bits and some programming languages may have difficulty/silent defects 
+    in interpreting it. But it has at most 52 significant bits, so 64-bit integers 
+    or double-precision float types are safe for storing these identifiers. 
+    The bot may not have access to the user and could be unable to use this identifier, 
+    unless the user is already known to the bot by some other means."""
+
+    first_name: Option[str] = Nothing
+    """Optional. First name of the user, if the name was requested by the bot."""
+
+    last_name: Option[str] = Nothing
+    """Optional. Last name of the user, if the name was requested by the bot."""
+
+    username: Option[str] = Nothing
+    """Optional. Username of the user, if the username was requested by the bot."""
+
+    photo: Option[list["PhotoSize"]] = Nothing
+    """Optional. Available sizes of the chat photo, if the photo was requested 
+    by the bot."""
+
+
 class UsersShared(Model):
-    """Object `UsersShared`, see the [documentation](https://core.telegram.org/bots/api#usersshared)
+    """Object `UsersShared`, see the [documentation](https://core.telegram.org/bots/api#usersshared).
 
     This object contains information about the users whose identifiers were shared with the bot using a KeyboardButtonRequestUsers button.
     """
@@ -1675,19 +1756,14 @@ class UsersShared(Model):
     request_id: int
     """Identifier of the request."""
 
-    user_ids: list[int]
-    """Identifiers of the shared users. These numbers may have more than 32 significant 
-    bits and some programming languages may have difficulty/silent defects 
-    in interpreting them. But they have at most 52 significant bits, so 64-bit 
-    integers or double-precision float types are safe for storing these identifiers. 
-    The bot may not have access to the users and could be unable to use these identifiers, 
-    unless the users are already known to the bot by some other means."""
+    users: list["SharedUser"]
+    """Information about users shared with the bot."""
 
 
 class ChatShared(Model):
-    """Object `ChatShared`, see the [documentation](https://core.telegram.org/bots/api#chatshared)
+    """Object `ChatShared`, see the [documentation](https://core.telegram.org/bots/api#chatshared).
 
-    This object contains information about the chat whose identifier was shared with the bot using a KeyboardButtonRequestChat button.
+    This object contains information about a chat that was shared with the bot using a KeyboardButtonRequestChat button.
     """
 
     request_id: int
@@ -1701,9 +1777,20 @@ class ChatShared(Model):
     bot may not have access to the chat and could be unable to use this identifier, 
     unless the chat is already known to the bot by some other means."""
 
+    title: Option[str] = Nothing
+    """Optional. Title of the chat, if the title was requested by the bot."""
+
+    username: Option[str] = Nothing
+    """Optional. Username of the chat, if the username was requested by the bot 
+    and available."""
+
+    photo: Option[list["PhotoSize"]] = Nothing
+    """Optional. Available sizes of the chat photo, if the photo was requested 
+    by the bot."""
+
 
 class WriteAccessAllowed(Model):
-    """Object `WriteAccessAllowed`, see the [documentation](https://core.telegram.org/bots/api#writeaccessallowed)
+    """Object `WriteAccessAllowed`, see the [documentation](https://core.telegram.org/bots/api#writeaccessallowed).
 
     This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess.
     """
@@ -1722,7 +1809,7 @@ class WriteAccessAllowed(Model):
 
 
 class VideoChatScheduled(Model):
-    """Object `VideoChatScheduled`, see the [documentation](https://core.telegram.org/bots/api#videochatscheduled)
+    """Object `VideoChatScheduled`, see the [documentation](https://core.telegram.org/bots/api#videochatscheduled).
 
     This object represents a service message about a video chat scheduled in the chat.
     """
@@ -1733,14 +1820,14 @@ class VideoChatScheduled(Model):
 
 
 class VideoChatStarted(Model):
-    """Object `VideoChatStarted`, see the [documentation](https://core.telegram.org/bots/api#videochatstarted)
+    """Object `VideoChatStarted`, see the [documentation](https://core.telegram.org/bots/api#videochatstarted).
 
     This object represents a service message about a video chat started in the chat. Currently holds no information.
     """
 
 
 class VideoChatEnded(Model):
-    """Object `VideoChatEnded`, see the [documentation](https://core.telegram.org/bots/api#videochatended)
+    """Object `VideoChatEnded`, see the [documentation](https://core.telegram.org/bots/api#videochatended).
 
     This object represents a service message about a video chat ended in the chat.
     """
@@ -1750,7 +1837,7 @@ class VideoChatEnded(Model):
 
 
 class VideoChatParticipantsInvited(Model):
-    """Object `VideoChatParticipantsInvited`, see the [documentation](https://core.telegram.org/bots/api#videochatparticipantsinvited)
+    """Object `VideoChatParticipantsInvited`, see the [documentation](https://core.telegram.org/bots/api#videochatparticipantsinvited).
 
     This object represents a service message about new members invited to a video chat.
     """
@@ -1760,14 +1847,14 @@ class VideoChatParticipantsInvited(Model):
 
 
 class GiveawayCreated(Model):
-    """Object `GiveawayCreated`, see the [documentation](https://core.telegram.org/bots/api#giveawaycreated)
+    """Object `GiveawayCreated`, see the [documentation](https://core.telegram.org/bots/api#giveawaycreated).
 
     This object represents a service message about the creation of a scheduled giveaway. Currently holds no information.
     """
 
 
 class Giveaway(Model):
-    """Object `Giveaway`, see the [documentation](https://core.telegram.org/bots/api#giveaway)
+    """Object `Giveaway`, see the [documentation](https://core.telegram.org/bots/api#giveaway).
 
     This object represents a message about a scheduled giveaway.
     """
@@ -1803,7 +1890,7 @@ class Giveaway(Model):
 
 
 class GiveawayWinners(Model):
-    """Object `GiveawayWinners`, see the [documentation](https://core.telegram.org/bots/api#giveawaywinners)
+    """Object `GiveawayWinners`, see the [documentation](https://core.telegram.org/bots/api#giveawaywinners).
 
     This object represents a message about the completion of a giveaway with public winners.
     """
@@ -1847,7 +1934,7 @@ class GiveawayWinners(Model):
 
 
 class GiveawayCompleted(Model):
-    """Object `GiveawayCompleted`, see the [documentation](https://core.telegram.org/bots/api#giveawaycompleted)
+    """Object `GiveawayCompleted`, see the [documentation](https://core.telegram.org/bots/api#giveawaycompleted).
 
     This object represents a service message about the completion of a giveaway without public winners.
     """
@@ -1863,7 +1950,7 @@ class GiveawayCompleted(Model):
 
 
 class LinkPreviewOptions(Model):
-    """Object `LinkPreviewOptions`, see the [documentation](https://core.telegram.org/bots/api#linkpreviewoptions)
+    """Object `LinkPreviewOptions`, see the [documentation](https://core.telegram.org/bots/api#linkpreviewoptions).
 
     Describes the options used for link preview generation.
     """
@@ -1891,7 +1978,7 @@ class LinkPreviewOptions(Model):
 
 
 class UserProfilePhotos(Model):
-    """Object `UserProfilePhotos`, see the [documentation](https://core.telegram.org/bots/api#userprofilephotos)
+    """Object `UserProfilePhotos`, see the [documentation](https://core.telegram.org/bots/api#userprofilephotos).
 
     This object represent a user's profile pictures.
     """
@@ -1904,7 +1991,7 @@ class UserProfilePhotos(Model):
 
 
 class File(Model):
-    """Object `File`, see the [documentation](https://core.telegram.org/bots/api#file)
+    """Object `File`, see the [documentation](https://core.telegram.org/bots/api#file).
 
     This object represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
     """
@@ -1928,7 +2015,7 @@ class File(Model):
 
 
 class WebAppInfo(Model):
-    """Object `WebAppInfo`, see the [documentation](https://core.telegram.org/bots/api#webappinfo)
+    """Object `WebAppInfo`, see the [documentation](https://core.telegram.org/bots/api#webappinfo).
 
     Describes a Web App.
     """
@@ -1939,7 +2026,7 @@ class WebAppInfo(Model):
 
 
 class ReplyKeyboardMarkup(Model):
-    """Object `ReplyKeyboardMarkup`, see the [documentation](https://core.telegram.org/bots/api#replykeyboardmarkup)
+    """Object `ReplyKeyboardMarkup`, see the [documentation](https://core.telegram.org/bots/api#replykeyboardmarkup).
 
     This object represents a custom keyboard with reply options (see Introduction to bots for details and examples).
     """
@@ -1984,7 +2071,7 @@ class ReplyKeyboardMarkup(Model):
 
 
 class KeyboardButton(Model):
-    """Object `KeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#keyboardbutton)
+    """Object `KeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#keyboardbutton).
 
     This object represents one button of the reply keyboard. For simple text buttons, String can be used instead of this object to specify the button text. The optional fields web_app, request_users, request_chat, request_contact, request_location, and request_poll are mutually exclusive.
     Note: request_users and request_chat options will only work in Telegram versions released after 3 February, 2023. Older clients will display unsupported message.
@@ -2023,9 +2110,9 @@ class KeyboardButton(Model):
 
 
 class KeyboardButtonRequestUsers(Model):
-    """Object `KeyboardButtonRequestUsers`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestusers)
+    """Object `KeyboardButtonRequestUsers`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestusers).
 
-    This object defines the criteria used to request suitable users. The identifiers of the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users: https://core.telegram.org/bots/features#chat-and-user-selection
+    This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users: https://core.telegram.org/bots/features#chat-and-user-selection
     """
 
     request_id: int
@@ -2044,11 +2131,20 @@ class KeyboardButtonRequestUsers(Model):
     """Optional. The maximum number of users to be selected; 1-10. Defaults to 
     1."""
 
+    request_name: Option[bool] = Nothing
+    """Optional. Pass True to request the users' first and last name."""
+
+    request_username: Option[bool] = Nothing
+    """Optional. Pass True to request the users' username."""
+
+    request_photo: Option[bool] = Nothing
+    """Optional. Pass True to request the users' photo."""
+
 
 class KeyboardButtonRequestChat(Model):
-    """Object `KeyboardButtonRequestChat`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestchat)
+    """Object `KeyboardButtonRequestChat`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestchat).
 
-    This object defines the criteria used to request a suitable chat. The identifier of the selected chat will be shared with the bot when the corresponding button is pressed. More about requesting chats: https://core.telegram.org/bots/features#chat-and-user-selection
+    This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the сhat if appropriate More about requesting chats: https://core.telegram.org/bots/features#chat-and-user-selection
     """
 
     request_id: int
@@ -2086,9 +2182,18 @@ class KeyboardButtonRequestChat(Model):
     """Optional. Pass True to request a chat with the bot as a member. Otherwise, 
     no additional restrictions are applied."""
 
+    request_title: Option[bool] = Nothing
+    """Optional. Pass True to request the chat's title."""
+
+    request_username: Option[bool] = Nothing
+    """Optional. Pass True to request the chat's username."""
+
+    request_photo: Option[bool] = Nothing
+    """Optional. Pass True to request the chat's photo."""
+
 
 class KeyboardButtonPollType(Model):
-    """Object `KeyboardButtonPollType`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonpolltype)
+    """Object `KeyboardButtonPollType`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonpolltype).
 
     This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
     """
@@ -2100,7 +2205,7 @@ class KeyboardButtonPollType(Model):
 
 
 class ReplyKeyboardRemove(Model):
-    """Object `ReplyKeyboardRemove`, see the [documentation](https://core.telegram.org/bots/api#replykeyboardremove)
+    """Object `ReplyKeyboardRemove`, see the [documentation](https://core.telegram.org/bots/api#replykeyboardremove).
 
     Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup).
     """
@@ -2121,7 +2226,7 @@ class ReplyKeyboardRemove(Model):
 
 
 class InlineKeyboardMarkup(Model):
-    """Object `InlineKeyboardMarkup`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardmarkup)
+    """Object `InlineKeyboardMarkup`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardmarkup).
 
     This object represents an inline keyboard that appears right next to the message it belongs to.
     """
@@ -2132,7 +2237,7 @@ class InlineKeyboardMarkup(Model):
 
 
 class InlineKeyboardButton(Model):
-    """Object `InlineKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardbutton)
+    """Object `InlineKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardbutton).
 
     This object represents one button of an inline keyboard. You must use exactly one of the optional fields.
     """
@@ -2189,7 +2294,7 @@ class InlineKeyboardButton(Model):
 
 
 class LoginUrl(Model):
-    """Object `LoginUrl`, see the [documentation](https://core.telegram.org/bots/api#loginurl)
+    """Object `LoginUrl`, see the [documentation](https://core.telegram.org/bots/api#loginurl).
 
     This object represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
     Telegram apps support these buttons as of version 5.7.
@@ -2218,7 +2323,7 @@ class LoginUrl(Model):
 
 
 class SwitchInlineQueryChosenChat(Model):
-    """Object `SwitchInlineQueryChosenChat`, see the [documentation](https://core.telegram.org/bots/api#switchinlinequerychosenchat)
+    """Object `SwitchInlineQueryChosenChat`, see the [documentation](https://core.telegram.org/bots/api#switchinlinequerychosenchat).
 
     This object represents an inline button that switches the current user to inline mode in a chosen chat, with an optional default inline query.
     """
@@ -2241,7 +2346,7 @@ class SwitchInlineQueryChosenChat(Model):
 
 
 class CallbackQuery(Model):
-    """Object `CallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#callbackquery)
+    """Object `CallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#callbackquery).
 
     This object represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
     """
@@ -2274,7 +2379,7 @@ class CallbackQuery(Model):
 
 
 class ForceReply(Model):
-    """Object `ForceReply`, see the [documentation](https://core.telegram.org/bots/api#forcereply)
+    """Object `ForceReply`, see the [documentation](https://core.telegram.org/bots/api#forcereply).
 
     Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode.
     """
@@ -2295,7 +2400,7 @@ class ForceReply(Model):
 
 
 class ChatPhoto(Model):
-    """Object `ChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#chatphoto)
+    """Object `ChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#chatphoto).
 
     This object represents a chat photo.
     """
@@ -2320,7 +2425,7 @@ class ChatPhoto(Model):
 
 
 class ChatInviteLink(Model):
-    """Object `ChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#chatinvitelink)
+    """Object `ChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#chatinvitelink).
 
     Represents an invite link for a chat.
     """
@@ -2357,7 +2462,7 @@ class ChatInviteLink(Model):
 
 
 class ChatAdministratorRights(Model):
-    """Object `ChatAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#chatadministratorrights)
+    """Object `ChatAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#chatadministratorrights).
 
     Represents the rights of an administrator in a chat.
     """
@@ -2418,7 +2523,7 @@ class ChatAdministratorRights(Model):
 
 
 class ChatMemberUpdated(Model):
-    """Object `ChatMemberUpdated`, see the [documentation](https://core.telegram.org/bots/api#chatmemberupdated)
+    """Object `ChatMemberUpdated`, see the [documentation](https://core.telegram.org/bots/api#chatmemberupdated).
 
     This object represents changes in the status of a chat member.
     """
@@ -2461,7 +2566,7 @@ class ChatMemberUpdated(Model):
 
 
 class ChatMemberOwner(ChatMember):
-    """Object `ChatMemberOwner`, see the [documentation](https://core.telegram.org/bots/api#chatmemberowner)
+    """Object `ChatMemberOwner`, see the [documentation](https://core.telegram.org/bots/api#chatmemberowner).
 
     Represents a chat member that owns the chat and has all administrator privileges.
     """
@@ -2480,7 +2585,7 @@ class ChatMemberOwner(ChatMember):
 
 
 class ChatMemberAdministrator(ChatMember):
-    """Object `ChatMemberAdministrator`, see the [documentation](https://core.telegram.org/bots/api#chatmemberadministrator)
+    """Object `ChatMemberAdministrator`, see the [documentation](https://core.telegram.org/bots/api#chatmemberadministrator).
 
     Represents a chat member that has some additional privileges.
     """
@@ -2553,7 +2658,7 @@ class ChatMemberAdministrator(ChatMember):
 
 
 class ChatMemberMember(ChatMember):
-    """Object `ChatMemberMember`, see the [documentation](https://core.telegram.org/bots/api#chatmembermember)
+    """Object `ChatMemberMember`, see the [documentation](https://core.telegram.org/bots/api#chatmembermember).
 
     Represents a chat member that has no additional privileges or restrictions.
     """
@@ -2566,7 +2671,7 @@ class ChatMemberMember(ChatMember):
 
 
 class ChatMemberRestricted(ChatMember):
-    """Object `ChatMemberRestricted`, see the [documentation](https://core.telegram.org/bots/api#chatmemberrestricted)
+    """Object `ChatMemberRestricted`, see the [documentation](https://core.telegram.org/bots/api#chatmemberrestricted).
 
     Represents a chat member that is under certain restrictions in the chat. Supergroups only.
     """
@@ -2630,7 +2735,7 @@ class ChatMemberRestricted(ChatMember):
 
 
 class ChatMemberLeft(ChatMember):
-    """Object `ChatMemberLeft`, see the [documentation](https://core.telegram.org/bots/api#chatmemberleft)
+    """Object `ChatMemberLeft`, see the [documentation](https://core.telegram.org/bots/api#chatmemberleft).
 
     Represents a chat member that isn't currently a member of the chat, but may join it themselves.
     """
@@ -2643,7 +2748,7 @@ class ChatMemberLeft(ChatMember):
 
 
 class ChatMemberBanned(ChatMember):
-    """Object `ChatMemberBanned`, see the [documentation](https://core.telegram.org/bots/api#chatmemberbanned)
+    """Object `ChatMemberBanned`, see the [documentation](https://core.telegram.org/bots/api#chatmemberbanned).
 
     Represents a chat member that was banned in the chat and can't return to the chat or view chat messages.
     """
@@ -2660,7 +2765,7 @@ class ChatMemberBanned(ChatMember):
 
 
 class ChatJoinRequest(Model):
-    """Object `ChatJoinRequest`, see the [documentation](https://core.telegram.org/bots/api#chatjoinrequest)
+    """Object `ChatJoinRequest`, see the [documentation](https://core.telegram.org/bots/api#chatjoinrequest).
 
     Represents a join request sent to a chat.
     """
@@ -2691,7 +2796,7 @@ class ChatJoinRequest(Model):
 
 
 class ChatPermissions(Model):
-    """Object `ChatPermissions`, see the [documentation](https://core.telegram.org/bots/api#chatpermissions)
+    """Object `ChatPermissions`, see the [documentation](https://core.telegram.org/bots/api#chatpermissions).
 
     Describes actions that a non-administrator user is allowed to take in a chat.
     """
@@ -2744,8 +2849,81 @@ class ChatPermissions(Model):
     defaults to the value of can_pin_messages."""
 
 
+class Birthdate(Model):
+    """Object `Birthdate`, see the [documentation](https://core.telegram.org/bots/api#birthdate).
+
+    No description yet.
+    """
+
+    day: int
+    """Day of the user's birth; 1-31."""
+
+    month: int
+    """Month of the user's birth; 1-12."""
+
+    year: Option[int] = Nothing
+    """Optional. Year of the user's birth."""
+
+
+class BusinessIntro(Model):
+    """Object `BusinessIntro`, see the [documentation](https://core.telegram.org/bots/api#businessintro).
+
+    No description yet.
+    """
+
+    title: Option[str] = Nothing
+    """Optional. Title text of the business intro."""
+
+    message: Option[str] = Nothing
+    """Optional. Message text of the business intro."""
+
+    sticker: Option["Sticker"] = Nothing
+    """Optional. Sticker of the business intro."""
+
+
+class BusinessLocation(Model):
+    """Object `BusinessLocation`, see the [documentation](https://core.telegram.org/bots/api#businesslocation).
+
+    No description yet.
+    """
+
+    address: str
+    """Address of the business."""
+
+    location: Option["Location"] = Nothing
+    """Optional. Location of the business."""
+
+
+class BusinessOpeningHoursInterval(Model):
+    """Object `BusinessOpeningHoursInterval`, see the [documentation](https://core.telegram.org/bots/api#businessopeninghoursinterval).
+
+    No description yet.
+    """
+
+    opening_minute: int
+    """The minute's sequence number in a week, starting on Monday, marking the 
+    start of the time interval during which the business is open; 0 - 7 24 60."""
+
+    closing_minute: int
+    """The minute's sequence number in a week, starting on Monday, marking the 
+    end of the time interval during which the business is open; 0 - 8 24 60."""
+
+
+class BusinessOpeningHours(Model):
+    """Object `BusinessOpeningHours`, see the [documentation](https://core.telegram.org/bots/api#businessopeninghours).
+
+    No description yet.
+    """
+
+    time_zone_name: str
+    """Unique name of the time zone for which the opening hours are defined."""
+
+    opening_hours: list["BusinessOpeningHoursInterval"]
+    """List of time intervals describing business opening hours."""
+
+
 class ChatLocation(Model):
-    """Object `ChatLocation`, see the [documentation](https://core.telegram.org/bots/api#chatlocation)
+    """Object `ChatLocation`, see the [documentation](https://core.telegram.org/bots/api#chatlocation).
 
     Represents a location to which a chat is connected.
     """
@@ -2758,7 +2936,7 @@ class ChatLocation(Model):
 
 
 class ReactionTypeEmoji(ReactionType):
-    """Object `ReactionTypeEmoji`, see the [documentation](https://core.telegram.org/bots/api#reactiontypeemoji)
+    """Object `ReactionTypeEmoji`, see the [documentation](https://core.telegram.org/bots/api#reactiontypeemoji).
 
     The reaction is based on an emoji.
     """
@@ -2776,7 +2954,7 @@ class ReactionTypeEmoji(ReactionType):
 
 
 class ReactionTypeCustomEmoji(ReactionType):
-    """Object `ReactionTypeCustomEmoji`, see the [documentation](https://core.telegram.org/bots/api#reactiontypecustomemoji)
+    """Object `ReactionTypeCustomEmoji`, see the [documentation](https://core.telegram.org/bots/api#reactiontypecustomemoji).
 
     The reaction is based on a custom emoji.
     """
@@ -2789,7 +2967,7 @@ class ReactionTypeCustomEmoji(ReactionType):
 
 
 class ReactionCount(Model):
-    """Object `ReactionCount`, see the [documentation](https://core.telegram.org/bots/api#reactioncount)
+    """Object `ReactionCount`, see the [documentation](https://core.telegram.org/bots/api#reactioncount).
 
     Represents a reaction added to a message along with the number of times it was added.
     """
@@ -2802,7 +2980,7 @@ class ReactionCount(Model):
 
 
 class MessageReactionUpdated(Model):
-    """Object `MessageReactionUpdated`, see the [documentation](https://core.telegram.org/bots/api#messagereactionupdated)
+    """Object `MessageReactionUpdated`, see the [documentation](https://core.telegram.org/bots/api#messagereactionupdated).
 
     This object represents a change of a reaction on a message performed by a user.
     """
@@ -2831,7 +3009,7 @@ class MessageReactionUpdated(Model):
 
 
 class MessageReactionCountUpdated(Model):
-    """Object `MessageReactionCountUpdated`, see the [documentation](https://core.telegram.org/bots/api#messagereactioncountupdated)
+    """Object `MessageReactionCountUpdated`, see the [documentation](https://core.telegram.org/bots/api#messagereactioncountupdated).
 
     This object represents reaction changes on a message with anonymous reactions.
     """
@@ -2850,7 +3028,7 @@ class MessageReactionCountUpdated(Model):
 
 
 class ForumTopic(Model):
-    """Object `ForumTopic`, see the [documentation](https://core.telegram.org/bots/api#forumtopic)
+    """Object `ForumTopic`, see the [documentation](https://core.telegram.org/bots/api#forumtopic).
 
     This object represents a forum topic.
     """
@@ -2869,7 +3047,7 @@ class ForumTopic(Model):
 
 
 class BotCommand(Model):
-    """Object `BotCommand`, see the [documentation](https://core.telegram.org/bots/api#botcommand)
+    """Object `BotCommand`, see the [documentation](https://core.telegram.org/bots/api#botcommand).
 
     This object represents a bot command.
     """
@@ -2883,7 +3061,7 @@ class BotCommand(Model):
 
 
 class BotCommandScopeDefault(BotCommandScope):
-    """Object `BotCommandScopeDefault`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopedefault)
+    """Object `BotCommandScopeDefault`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopedefault).
 
     Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
     """
@@ -2893,7 +3071,7 @@ class BotCommandScopeDefault(BotCommandScope):
 
 
 class BotCommandScopeAllPrivateChats(BotCommandScope):
-    """Object `BotCommandScopeAllPrivateChats`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopeallprivatechats)
+    """Object `BotCommandScopeAllPrivateChats`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopeallprivatechats).
 
     Represents the scope of bot commands, covering all private chats.
     """
@@ -2903,7 +3081,7 @@ class BotCommandScopeAllPrivateChats(BotCommandScope):
 
 
 class BotCommandScopeAllGroupChats(BotCommandScope):
-    """Object `BotCommandScopeAllGroupChats`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopeallgroupchats)
+    """Object `BotCommandScopeAllGroupChats`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopeallgroupchats).
 
     Represents the scope of bot commands, covering all group and supergroup chats.
     """
@@ -2913,7 +3091,7 @@ class BotCommandScopeAllGroupChats(BotCommandScope):
 
 
 class BotCommandScopeAllChatAdministrators(BotCommandScope):
-    """Object `BotCommandScopeAllChatAdministrators`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopeallchatadministrators)
+    """Object `BotCommandScopeAllChatAdministrators`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopeallchatadministrators).
 
     Represents the scope of bot commands, covering all group and supergroup chat administrators.
     """
@@ -2923,7 +3101,7 @@ class BotCommandScopeAllChatAdministrators(BotCommandScope):
 
 
 class BotCommandScopeChat(BotCommandScope):
-    """Object `BotCommandScopeChat`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopechat)
+    """Object `BotCommandScopeChat`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopechat).
 
     Represents the scope of bot commands, covering a specific chat.
     """
@@ -2937,7 +3115,7 @@ class BotCommandScopeChat(BotCommandScope):
 
 
 class BotCommandScopeChatAdministrators(BotCommandScope):
-    """Object `BotCommandScopeChatAdministrators`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopechatadministrators)
+    """Object `BotCommandScopeChatAdministrators`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopechatadministrators).
 
     Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
     """
@@ -2951,7 +3129,7 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
 
 
 class BotCommandScopeChatMember(BotCommandScope):
-    """Object `BotCommandScopeChatMember`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopechatmember)
+    """Object `BotCommandScopeChatMember`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopechatmember).
 
     Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
     """
@@ -2968,7 +3146,7 @@ class BotCommandScopeChatMember(BotCommandScope):
 
 
 class BotName(Model):
-    """Object `BotName`, see the [documentation](https://core.telegram.org/bots/api#botname)
+    """Object `BotName`, see the [documentation](https://core.telegram.org/bots/api#botname).
 
     This object represents the bot's name.
     """
@@ -2978,7 +3156,7 @@ class BotName(Model):
 
 
 class BotDescription(Model):
-    """Object `BotDescription`, see the [documentation](https://core.telegram.org/bots/api#botdescription)
+    """Object `BotDescription`, see the [documentation](https://core.telegram.org/bots/api#botdescription).
 
     This object represents the bot's description.
     """
@@ -2988,7 +3166,7 @@ class BotDescription(Model):
 
 
 class BotShortDescription(Model):
-    """Object `BotShortDescription`, see the [documentation](https://core.telegram.org/bots/api#botshortdescription)
+    """Object `BotShortDescription`, see the [documentation](https://core.telegram.org/bots/api#botshortdescription).
 
     This object represents the bot's short description.
     """
@@ -2998,7 +3176,7 @@ class BotShortDescription(Model):
 
 
 class MenuButtonCommands(MenuButton):
-    """Object `MenuButtonCommands`, see the [documentation](https://core.telegram.org/bots/api#menubuttoncommands)
+    """Object `MenuButtonCommands`, see the [documentation](https://core.telegram.org/bots/api#menubuttoncommands).
 
     Represents a menu button, which opens the bot's list of commands.
     """
@@ -3008,7 +3186,7 @@ class MenuButtonCommands(MenuButton):
 
 
 class MenuButtonWebApp(MenuButton):
-    """Object `MenuButtonWebApp`, see the [documentation](https://core.telegram.org/bots/api#menubuttonwebapp)
+    """Object `MenuButtonWebApp`, see the [documentation](https://core.telegram.org/bots/api#menubuttonwebapp).
 
     Represents a menu button, which launches a Web App.
     """
@@ -3026,7 +3204,7 @@ class MenuButtonWebApp(MenuButton):
 
 
 class MenuButtonDefault(MenuButton):
-    """Object `MenuButtonDefault`, see the [documentation](https://core.telegram.org/bots/api#menubuttondefault)
+    """Object `MenuButtonDefault`, see the [documentation](https://core.telegram.org/bots/api#menubuttondefault).
 
     Describes that no specific value for the menu button was set.
     """
@@ -3036,7 +3214,7 @@ class MenuButtonDefault(MenuButton):
 
 
 class ChatBoostSourcePremium(ChatBoostSource):
-    """Object `ChatBoostSourcePremium`, see the [documentation](https://core.telegram.org/bots/api#chatboostsourcepremium)
+    """Object `ChatBoostSourcePremium`, see the [documentation](https://core.telegram.org/bots/api#chatboostsourcepremium).
 
     The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user.
     """
@@ -3049,7 +3227,7 @@ class ChatBoostSourcePremium(ChatBoostSource):
 
 
 class ChatBoostSourceGiftCode(ChatBoostSource):
-    """Object `ChatBoostSourceGiftCode`, see the [documentation](https://core.telegram.org/bots/api#chatboostsourcegiftcode)
+    """Object `ChatBoostSourceGiftCode`, see the [documentation](https://core.telegram.org/bots/api#chatboostsourcegiftcode).
 
     The boost was obtained by the creation of Telegram Premium gift codes to boost a chat. Each such code boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
     """
@@ -3062,7 +3240,7 @@ class ChatBoostSourceGiftCode(ChatBoostSource):
 
 
 class ChatBoostSourceGiveaway(ChatBoostSource):
-    """Object `ChatBoostSourceGiveaway`, see the [documentation](https://core.telegram.org/bots/api#chatboostsourcegiveaway)
+    """Object `ChatBoostSourceGiveaway`, see the [documentation](https://core.telegram.org/bots/api#chatboostsourcegiveaway).
 
     The boost was obtained by the creation of a Telegram Premium giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
     """
@@ -3083,7 +3261,7 @@ class ChatBoostSourceGiveaway(ChatBoostSource):
 
 
 class ChatBoost(Model):
-    """Object `ChatBoost`, see the [documentation](https://core.telegram.org/bots/api#chatboost)
+    """Object `ChatBoost`, see the [documentation](https://core.telegram.org/bots/api#chatboost).
 
     This object contains information about a chat boost.
     """
@@ -3105,7 +3283,7 @@ class ChatBoost(Model):
 
 
 class ChatBoostUpdated(Model):
-    """Object `ChatBoostUpdated`, see the [documentation](https://core.telegram.org/bots/api#chatboostupdated)
+    """Object `ChatBoostUpdated`, see the [documentation](https://core.telegram.org/bots/api#chatboostupdated).
 
     This object represents a boost added to a chat or changed.
     """
@@ -3118,7 +3296,7 @@ class ChatBoostUpdated(Model):
 
 
 class ChatBoostRemoved(Model):
-    """Object `ChatBoostRemoved`, see the [documentation](https://core.telegram.org/bots/api#chatboostremoved)
+    """Object `ChatBoostRemoved`, see the [documentation](https://core.telegram.org/bots/api#chatboostremoved).
 
     This object represents a boost removed from a chat.
     """
@@ -3139,7 +3317,7 @@ class ChatBoostRemoved(Model):
 
 
 class UserChatBoosts(Model):
-    """Object `UserChatBoosts`, see the [documentation](https://core.telegram.org/bots/api#userchatboosts)
+    """Object `UserChatBoosts`, see the [documentation](https://core.telegram.org/bots/api#userchatboosts).
 
     This object represents a list of boosts added to a chat by a user.
     """
@@ -3148,8 +3326,56 @@ class UserChatBoosts(Model):
     """The list of boosts added to the chat by the user."""
 
 
+class BusinessConnection(Model):
+    """Object `BusinessConnection`, see the [documentation](https://core.telegram.org/bots/api#businessconnection).
+
+    Describes the connection of the bot with a business account.
+    """
+
+    id: str
+    """Unique identifier of the business connection."""
+
+    user: "User"
+    """Business account user that created the business connection."""
+
+    user_chat_id: int
+    """Identifier of a private chat with the user who created the business connection. 
+    This number may have more than 32 significant bits and some programming 
+    languages may have difficulty/silent defects in interpreting it. But 
+    it has at most 52 significant bits, so a 64-bit integer or double-precision 
+    float type are safe for storing this identifier."""
+
+    date: datetime
+    """Date the connection was established in Unix time."""
+
+    can_reply: bool
+    """True, if the bot can act on behalf of the business account in chats that were 
+    active in the last 24 hours."""
+
+    is_enabled: bool
+    """True, if the connection is active."""
+
+
+class BusinessMessagesDeleted(Model):
+    """Object `BusinessMessagesDeleted`, see the [documentation](https://core.telegram.org/bots/api#businessmessagesdeleted).
+
+    This object is received when messages are deleted from a connected business account.
+    """
+
+    business_connection_id: str
+    """Unique identifier of the business connection."""
+
+    chat: "Chat"
+    """Information about a chat in the business account. The bot may not have access 
+    to the chat or the corresponding user."""
+
+    message_ids: list[int]
+    """A JSON-serialized list of identifiers of deleted messages in the chat of 
+    the business account."""
+
+
 class ResponseParameters(Model):
-    """Object `ResponseParameters`, see the [documentation](https://core.telegram.org/bots/api#responseparameters)
+    """Object `ResponseParameters`, see the [documentation](https://core.telegram.org/bots/api#responseparameters).
 
     Describes why a request was unsuccessful.
     """
@@ -3167,7 +3393,7 @@ class ResponseParameters(Model):
 
 
 class InputMediaPhoto(InputMedia):
-    """Object `InputMediaPhoto`, see the [documentation](https://core.telegram.org/bots/api#inputmediaphoto)
+    """Object `InputMediaPhoto`, see the [documentation](https://core.telegram.org/bots/api#inputmediaphoto).
 
     Represents a photo to be sent.
     """
@@ -3198,7 +3424,7 @@ class InputMediaPhoto(InputMedia):
 
 
 class InputMediaVideo(InputMedia):
-    """Object `InputMediaVideo`, see the [documentation](https://core.telegram.org/bots/api#inputmediavideo)
+    """Object `InputMediaVideo`, see the [documentation](https://core.telegram.org/bots/api#inputmediavideo).
 
     Represents a video to be sent.
     """
@@ -3250,7 +3476,7 @@ class InputMediaVideo(InputMedia):
 
 
 class InputMediaAnimation(InputMedia):
-    """Object `InputMediaAnimation`, see the [documentation](https://core.telegram.org/bots/api#inputmediaanimation)
+    """Object `InputMediaAnimation`, see the [documentation](https://core.telegram.org/bots/api#inputmediaanimation).
 
     Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
     """
@@ -3299,7 +3525,7 @@ class InputMediaAnimation(InputMedia):
 
 
 class InputMediaAudio(InputMedia):
-    """Object `InputMediaAudio`, see the [documentation](https://core.telegram.org/bots/api#inputmediaaudio)
+    """Object `InputMediaAudio`, see the [documentation](https://core.telegram.org/bots/api#inputmediaaudio).
 
     Represents an audio file to be treated as music to be sent.
     """
@@ -3345,7 +3571,7 @@ class InputMediaAudio(InputMedia):
 
 
 class InputMediaDocument(InputMedia):
-    """Object `InputMediaDocument`, see the [documentation](https://core.telegram.org/bots/api#inputmediadocument)
+    """Object `InputMediaDocument`, see the [documentation](https://core.telegram.org/bots/api#inputmediadocument).
 
     Represents a general file to be sent.
     """
@@ -3387,7 +3613,7 @@ class InputMediaDocument(InputMedia):
 
 
 class InputFile(typing.NamedTuple):
-    """NamedTuple object `InputFile`, see the [documentation](https://core.telegram.org/bots/api#inputfile)
+    """NamedTuple object `InputFile`, see the [documentation](https://core.telegram.org/bots/api#inputfile).
 
     This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
     """
@@ -3400,7 +3626,7 @@ class InputFile(typing.NamedTuple):
 
 
 class Sticker(Model):
-    """Object `Sticker`, see the [documentation](https://core.telegram.org/bots/api#sticker)
+    """Object `Sticker`, see the [documentation](https://core.telegram.org/bots/api#sticker).
 
     This object represents a sticker.
     """
@@ -3457,7 +3683,7 @@ class Sticker(Model):
 
 
 class StickerSet(Model):
-    """Object `StickerSet`, see the [documentation](https://core.telegram.org/bots/api#stickerset)
+    """Object `StickerSet`, see the [documentation](https://core.telegram.org/bots/api#stickerset).
 
     This object represents a sticker set.
     """
@@ -3471,12 +3697,6 @@ class StickerSet(Model):
     sticker_type: typing.Literal["regular", "mask", "custom_emoji"]
     """Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`."""
 
-    is_animated: bool
-    """True, if the sticker set contains animated stickers."""
-
-    is_video: bool
-    """True, if the sticker set contains video stickers."""
-
     stickers: list["Sticker"]
     """List of all set stickers."""
 
@@ -3485,7 +3705,7 @@ class StickerSet(Model):
 
 
 class MaskPosition(Model):
-    """Object `MaskPosition`, see the [documentation](https://core.telegram.org/bots/api#maskposition)
+    """Object `MaskPosition`, see the [documentation](https://core.telegram.org/bots/api#maskposition).
 
     This object describes the position on faces where a mask should be placed by default.
     """
@@ -3509,7 +3729,7 @@ class MaskPosition(Model):
 
 
 class InputSticker(Model):
-    """Object `InputSticker`, see the [documentation](https://core.telegram.org/bots/api#inputsticker)
+    """Object `InputSticker`, see the [documentation](https://core.telegram.org/bots/api#inputsticker).
 
     This object describes a sticker to be added to a sticker set.
     """
@@ -3521,6 +3741,10 @@ class InputSticker(Model):
     pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. Animated and video stickers can't be uploaded 
     via HTTP URL. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    format: str
+    """Format of the added sticker, must be one of `static` for a .WEBP or .PNG image, 
+    `animated` for a .TGS animation, `video` for a WEBM video."""
 
     emoji_list: list[str]
     """List of 1-20 emoji associated with the sticker."""
@@ -3535,7 +3759,7 @@ class InputSticker(Model):
 
 
 class InlineQuery(Model):
-    """Object `InlineQuery`, see the [documentation](https://core.telegram.org/bots/api#inlinequery)
+    """Object `InlineQuery`, see the [documentation](https://core.telegram.org/bots/api#inlinequery).
 
     This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
     """
@@ -3564,7 +3788,7 @@ class InlineQuery(Model):
 
 
 class InlineQueryResultsButton(Model):
-    """Object `InlineQueryResultsButton`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultsbutton)
+    """Object `InlineQueryResultsButton`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultsbutton).
 
     This object represents a button to be shown above inline query results. You must use exactly one of the optional fields.
     """
@@ -3591,7 +3815,7 @@ class InlineQueryResultsButton(Model):
 
 
 class InlineQueryResultArticle(InlineQueryResult):
-    """Object `InlineQueryResultArticle`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultarticle)
+    """Object `InlineQueryResultArticle`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultarticle).
 
     Represents a link to an article or web page.
     """
@@ -3637,7 +3861,7 @@ class InlineQueryResultArticle(InlineQueryResult):
 
 
 class InlineQueryResultPhoto(InlineQueryResult):
-    """Object `InlineQueryResultPhoto`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultphoto)
+    """Object `InlineQueryResultPhoto`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultphoto).
 
     Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
     """
@@ -3695,7 +3919,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
 
 
 class InlineQueryResultGif(InlineQueryResult):
-    """Object `InlineQueryResultGif`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultgif)
+    """Object `InlineQueryResultGif`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultgif).
 
     Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
@@ -3758,7 +3982,7 @@ class InlineQueryResultGif(InlineQueryResult):
 
 
 class InlineQueryResultMpeg4Gif(InlineQueryResult):
-    """Object `InlineQueryResultMpeg4Gif`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultmpeg4gif)
+    """Object `InlineQueryResultMpeg4Gif`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultmpeg4gif).
 
     Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
@@ -3821,7 +4045,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
 
 
 class InlineQueryResultVideo(InlineQueryResult):
-    """Object `InlineQueryResultVideo`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultvideo)
+    """Object `InlineQueryResultVideo`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultvideo).
 
     Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
     """
@@ -3886,7 +4110,7 @@ class InlineQueryResultVideo(InlineQueryResult):
 
 
 class InlineQueryResultAudio(InlineQueryResult):
-    """Object `InlineQueryResultAudio`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultaudio)
+    """Object `InlineQueryResultAudio`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultaudio).
 
     Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
     """
@@ -3936,7 +4160,7 @@ class InlineQueryResultAudio(InlineQueryResult):
 
 
 class InlineQueryResultVoice(InlineQueryResult):
-    """Object `InlineQueryResultVoice`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultvoice)
+    """Object `InlineQueryResultVoice`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultvoice).
 
     Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
     """
@@ -3983,7 +4207,7 @@ class InlineQueryResultVoice(InlineQueryResult):
 
 
 class InlineQueryResultDocument(InlineQueryResult):
-    """Object `InlineQueryResultDocument`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultdocument)
+    """Object `InlineQueryResultDocument`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultdocument).
 
     Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.
     """
@@ -4043,7 +4267,7 @@ class InlineQueryResultDocument(InlineQueryResult):
 
 
 class InlineQueryResultLocation(InlineQueryResult):
-    """Object `InlineQueryResultLocation`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultlocation)
+    """Object `InlineQueryResultLocation`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultlocation).
 
     Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
     """
@@ -4105,7 +4329,7 @@ class InlineQueryResultLocation(InlineQueryResult):
 
 
 class InlineQueryResultVenue(InlineQueryResult):
-    """Object `InlineQueryResultVenue`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultvenue)
+    """Object `InlineQueryResultVenue`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultvenue).
 
     Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
     """
@@ -4166,7 +4390,7 @@ class InlineQueryResultVenue(InlineQueryResult):
 
 
 class InlineQueryResultContact(InlineQueryResult):
-    """Object `InlineQueryResultContact`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcontact)
+    """Object `InlineQueryResultContact`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcontact).
 
     Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.
     """
@@ -4215,7 +4439,7 @@ class InlineQueryResultContact(InlineQueryResult):
 
 
 class InlineQueryResultGame(InlineQueryResult):
-    """Object `InlineQueryResultGame`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultgame)
+    """Object `InlineQueryResultGame`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultgame).
 
     Represents a Game.
     """
@@ -4234,7 +4458,7 @@ class InlineQueryResultGame(InlineQueryResult):
 
 
 class InlineQueryResultCachedPhoto(InlineQueryResult):
-    """Object `InlineQueryResultCachedPhoto`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedphoto)
+    """Object `InlineQueryResultCachedPhoto`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedphoto).
 
     Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
     """
@@ -4282,7 +4506,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
 
 
 class InlineQueryResultCachedGif(InlineQueryResult):
-    """Object `InlineQueryResultCachedGif`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedgif)
+    """Object `InlineQueryResultCachedGif`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedgif).
 
     Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
     """
@@ -4327,7 +4551,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
 
 
 class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
-    """Object `InlineQueryResultCachedMpeg4Gif`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedmpeg4gif)
+    """Object `InlineQueryResultCachedMpeg4Gif`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedmpeg4gif).
 
     Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
@@ -4372,7 +4596,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
 
 
 class InlineQueryResultCachedSticker(InlineQueryResult):
-    """Object `InlineQueryResultCachedSticker`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedsticker)
+    """Object `InlineQueryResultCachedSticker`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedsticker).
 
     Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.
     """
@@ -4402,7 +4626,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
 
 
 class InlineQueryResultCachedDocument(InlineQueryResult):
-    """Object `InlineQueryResultCachedDocument`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcacheddocument)
+    """Object `InlineQueryResultCachedDocument`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcacheddocument).
 
     Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
     """
@@ -4450,7 +4674,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
 
 
 class InlineQueryResultCachedVideo(InlineQueryResult):
-    """Object `InlineQueryResultCachedVideo`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedvideo)
+    """Object `InlineQueryResultCachedVideo`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedvideo).
 
     Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
     """
@@ -4498,7 +4722,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
 
 
 class InlineQueryResultCachedVoice(InlineQueryResult):
-    """Object `InlineQueryResultCachedVoice`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedvoice)
+    """Object `InlineQueryResultCachedVoice`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedvoice).
 
     Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
     """
@@ -4542,7 +4766,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
 
 
 class InlineQueryResultCachedAudio(InlineQueryResult):
-    """Object `InlineQueryResultCachedAudio`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedaudio)
+    """Object `InlineQueryResultCachedAudio`, see the [documentation](https://core.telegram.org/bots/api#inlinequeryresultcachedaudio).
 
     Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
     """
@@ -4583,7 +4807,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
 
 
 class InputTextMessageContent(InputMessageContent):
-    """Object `InputTextMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputtextmessagecontent)
+    """Object `InputTextMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputtextmessagecontent).
 
     Represents the content of a text message to be sent as the result of an inline query.
     """
@@ -4604,7 +4828,7 @@ class InputTextMessageContent(InputMessageContent):
 
 
 class InputLocationMessageContent(InputMessageContent):
-    """Object `InputLocationMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputlocationmessagecontent)
+    """Object `InputLocationMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputlocationmessagecontent).
 
     Represents the content of a location message to be sent as the result of an inline query.
     """
@@ -4634,7 +4858,7 @@ class InputLocationMessageContent(InputMessageContent):
 
 
 class InputVenueMessageContent(InputMessageContent):
-    """Object `InputVenueMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputvenuemessagecontent)
+    """Object `InputVenueMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputvenuemessagecontent).
 
     Represents the content of a venue message to be sent as the result of an inline query.
     """
@@ -4666,7 +4890,7 @@ class InputVenueMessageContent(InputMessageContent):
 
 
 class InputContactMessageContent(InputMessageContent):
-    """Object `InputContactMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputcontactmessagecontent)
+    """Object `InputContactMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputcontactmessagecontent).
 
     Represents the content of a contact message to be sent as the result of an inline query.
     """
@@ -4686,7 +4910,7 @@ class InputContactMessageContent(InputMessageContent):
 
 
 class InputInvoiceMessageContent(InputMessageContent):
-    """Object `InputInvoiceMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputinvoicemessagecontent)
+    """Object `InputInvoiceMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputinvoicemessagecontent).
 
     Represents the content of an invoice message to be sent as the result of an inline query.
     """
@@ -4768,7 +4992,7 @@ class InputInvoiceMessageContent(InputMessageContent):
 
 
 class ChosenInlineResult(Model):
-    """Object `ChosenInlineResult`, see the [documentation](https://core.telegram.org/bots/api#choseninlineresult)
+    """Object `ChosenInlineResult`, see the [documentation](https://core.telegram.org/bots/api#choseninlineresult).
 
     Represents a result of an inline query that was chosen by the user and sent to their chat partner.
     Note: It is necessary to enable inline feedback via @BotFather in order to receive these objects in updates.
@@ -4793,7 +5017,7 @@ class ChosenInlineResult(Model):
 
 
 class SentWebAppMessage(Model):
-    """Object `SentWebAppMessage`, see the [documentation](https://core.telegram.org/bots/api#sentwebappmessage)
+    """Object `SentWebAppMessage`, see the [documentation](https://core.telegram.org/bots/api#sentwebappmessage).
 
     Describes an inline message sent by a Web App on behalf of a user.
     """
@@ -4804,7 +5028,7 @@ class SentWebAppMessage(Model):
 
 
 class LabeledPrice(Model):
-    """Object `LabeledPrice`, see the [documentation](https://core.telegram.org/bots/api#labeledprice)
+    """Object `LabeledPrice`, see the [documentation](https://core.telegram.org/bots/api#labeledprice).
 
     This object represents a portion of the price for goods or services.
     """
@@ -4820,7 +5044,7 @@ class LabeledPrice(Model):
 
 
 class Invoice(Model):
-    """Object `Invoice`, see the [documentation](https://core.telegram.org/bots/api#invoice)
+    """Object `Invoice`, see the [documentation](https://core.telegram.org/bots/api#invoice).
 
     This object contains basic information about an invoice.
     """
@@ -4845,7 +5069,7 @@ class Invoice(Model):
 
 
 class ShippingAddress(Model):
-    """Object `ShippingAddress`, see the [documentation](https://core.telegram.org/bots/api#shippingaddress)
+    """Object `ShippingAddress`, see the [documentation](https://core.telegram.org/bots/api#shippingaddress).
 
     This object represents a shipping address.
     """
@@ -4870,7 +5094,7 @@ class ShippingAddress(Model):
 
 
 class OrderInfo(Model):
-    """Object `OrderInfo`, see the [documentation](https://core.telegram.org/bots/api#orderinfo)
+    """Object `OrderInfo`, see the [documentation](https://core.telegram.org/bots/api#orderinfo).
 
     This object represents information about an order.
     """
@@ -4889,7 +5113,7 @@ class OrderInfo(Model):
 
 
 class ShippingOption(Model):
-    """Object `ShippingOption`, see the [documentation](https://core.telegram.org/bots/api#shippingoption)
+    """Object `ShippingOption`, see the [documentation](https://core.telegram.org/bots/api#shippingoption).
 
     This object represents one shipping option.
     """
@@ -4905,7 +5129,7 @@ class ShippingOption(Model):
 
 
 class SuccessfulPayment(Model):
-    """Object `SuccessfulPayment`, see the [documentation](https://core.telegram.org/bots/api#successfulpayment)
+    """Object `SuccessfulPayment`, see the [documentation](https://core.telegram.org/bots/api#successfulpayment).
 
     This object contains basic information about a successful payment.
     """
@@ -4936,7 +5160,7 @@ class SuccessfulPayment(Model):
 
 
 class ShippingQuery(Model):
-    """Object `ShippingQuery`, see the [documentation](https://core.telegram.org/bots/api#shippingquery)
+    """Object `ShippingQuery`, see the [documentation](https://core.telegram.org/bots/api#shippingquery).
 
     This object contains information about an incoming shipping query.
     """
@@ -4955,7 +5179,7 @@ class ShippingQuery(Model):
 
 
 class PreCheckoutQuery(Model):
-    """Object `PreCheckoutQuery`, see the [documentation](https://core.telegram.org/bots/api#precheckoutquery)
+    """Object `PreCheckoutQuery`, see the [documentation](https://core.telegram.org/bots/api#precheckoutquery).
 
     This object contains information about an incoming pre-checkout query.
     """
@@ -4986,7 +5210,7 @@ class PreCheckoutQuery(Model):
 
 
 class PassportData(Model):
-    """Object `PassportData`, see the [documentation](https://core.telegram.org/bots/api#passportdata)
+    """Object `PassportData`, see the [documentation](https://core.telegram.org/bots/api#passportdata).
 
     Describes Telegram Passport data shared with the bot by the user.
     """
@@ -5000,7 +5224,7 @@ class PassportData(Model):
 
 
 class PassportFile(Model):
-    """Object `PassportFile`, see the [documentation](https://core.telegram.org/bots/api#passportfile)
+    """Object `PassportFile`, see the [documentation](https://core.telegram.org/bots/api#passportfile).
 
     This object represents a file uploaded to Telegram Passport. Currently all Telegram Passport files are in JPEG format when decrypted and don't exceed 10MB.
     """
@@ -5020,7 +5244,7 @@ class PassportFile(Model):
 
 
 class EncryptedPassportElement(Model):
-    """Object `EncryptedPassportElement`, see the [documentation](https://core.telegram.org/bots/api#encryptedpassportelement)
+    """Object `EncryptedPassportElement`, see the [documentation](https://core.telegram.org/bots/api#encryptedpassportelement).
 
     Describes documents or other Telegram Passport elements shared with the bot by the user.
     """
@@ -5079,7 +5303,7 @@ class EncryptedPassportElement(Model):
 
 
 class EncryptedCredentials(Model):
-    """Object `EncryptedCredentials`, see the [documentation](https://core.telegram.org/bots/api#encryptedcredentials)
+    """Object `EncryptedCredentials`, see the [documentation](https://core.telegram.org/bots/api#encryptedcredentials).
 
     Describes data required for decrypting and authenticating EncryptedPassportElement. See the Telegram Passport Documentation for a complete description of the data decryption and authentication processes.
     """
@@ -5098,7 +5322,7 @@ class EncryptedCredentials(Model):
 
 
 class PassportElementErrorDataField(PassportElementError):
-    """Object `PassportElementErrorDataField`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrordatafield)
+    """Object `PassportElementErrorDataField`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrordatafield).
 
     Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
     """
@@ -5128,7 +5352,7 @@ class PassportElementErrorDataField(PassportElementError):
 
 
 class PassportElementErrorFrontSide(PassportElementError):
-    """Object `PassportElementErrorFrontSide`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorfrontside)
+    """Object `PassportElementErrorFrontSide`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorfrontside).
 
     Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes.
     """
@@ -5153,7 +5377,7 @@ class PassportElementErrorFrontSide(PassportElementError):
 
 
 class PassportElementErrorReverseSide(PassportElementError):
-    """Object `PassportElementErrorReverseSide`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorreverseside)
+    """Object `PassportElementErrorReverseSide`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorreverseside).
 
     Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes.
     """
@@ -5173,7 +5397,7 @@ class PassportElementErrorReverseSide(PassportElementError):
 
 
 class PassportElementErrorSelfie(PassportElementError):
-    """Object `PassportElementErrorSelfie`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorselfie)
+    """Object `PassportElementErrorSelfie`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorselfie).
 
     Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes.
     """
@@ -5198,7 +5422,7 @@ class PassportElementErrorSelfie(PassportElementError):
 
 
 class PassportElementErrorFile(PassportElementError):
-    """Object `PassportElementErrorFile`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorfile)
+    """Object `PassportElementErrorFile`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorfile).
 
     Represents an issue with a document scan. The error is considered resolved when the file with the document scan changes.
     """
@@ -5225,7 +5449,7 @@ class PassportElementErrorFile(PassportElementError):
 
 
 class PassportElementErrorFiles(PassportElementError):
-    """Object `PassportElementErrorFiles`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorfiles)
+    """Object `PassportElementErrorFiles`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorfiles).
 
     Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes.
     """
@@ -5252,7 +5476,7 @@ class PassportElementErrorFiles(PassportElementError):
 
 
 class PassportElementErrorTranslationFile(PassportElementError):
-    """Object `PassportElementErrorTranslationFile`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrortranslationfile)
+    """Object `PassportElementErrorTranslationFile`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrortranslationfile).
 
     Represents an issue with one of the files that constitute the translation of a document. The error is considered resolved when the file changes.
     """
@@ -5284,7 +5508,7 @@ class PassportElementErrorTranslationFile(PassportElementError):
 
 
 class PassportElementErrorTranslationFiles(PassportElementError):
-    """Object `PassportElementErrorTranslationFiles`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrortranslationfiles)
+    """Object `PassportElementErrorTranslationFiles`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrortranslationfiles).
 
     Represents an issue with the translated version of a document. The error is considered resolved when a file with the document translation change.
     """
@@ -5316,7 +5540,7 @@ class PassportElementErrorTranslationFiles(PassportElementError):
 
 
 class PassportElementErrorUnspecified(PassportElementError):
-    """Object `PassportElementErrorUnspecified`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorunspecified)
+    """Object `PassportElementErrorUnspecified`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorunspecified).
 
     Represents an issue in an unspecified place. The error is considered resolved when new data is added.
     """
@@ -5335,7 +5559,7 @@ class PassportElementErrorUnspecified(PassportElementError):
 
 
 class Game(Model):
-    """Object `Game`, see the [documentation](https://core.telegram.org/bots/api#game)
+    """Object `Game`, see the [documentation](https://core.telegram.org/bots/api#game).
 
     This object represents a game. Use BotFather to create and edit games, their short names will act as unique identifiers.
     """
@@ -5365,14 +5589,14 @@ class Game(Model):
 
 
 class CallbackGame(Model):
-    """Object `CallbackGame`, see the [documentation](https://core.telegram.org/bots/api#callbackgame)
+    """Object `CallbackGame`, see the [documentation](https://core.telegram.org/bots/api#callbackgame).
 
     A placeholder, currently holds no information. Use BotFather to set up your game.
     """
 
 
 class GameHighScore(Model):
-    """Object `GameHighScore`, see the [documentation](https://core.telegram.org/bots/api#gamehighscore)
+    """Object `GameHighScore`, see the [documentation](https://core.telegram.org/bots/api#gamehighscore).
 
     This object represents one row of the high scores table for a game.
     """

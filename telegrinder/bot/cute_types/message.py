@@ -194,6 +194,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         text: str | None = None,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         parse_mode: str | None = None,
         entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = None,
@@ -206,6 +207,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
 
         Use this method to send a message with text messages. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -246,6 +250,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         parse_mode: str | None = None,
         entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = None,
@@ -259,6 +264,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         Use this method to send a reply to a message with text messages. On success, the sent Message is returned.
 
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.    
+    
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
@@ -639,6 +647,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         audio: InputFile | str,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
@@ -659,6 +668,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         success, the sent Message is returned. Bots can currently send audio files 
         of up to 50 MB in size, this limit may be changed in the future. For sending 
         voice messages, use the sendVoice method instead.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -715,6 +727,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         animation: InputFile | str,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
@@ -734,6 +747,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without 
         sound). On success, the sent Message is returned. Bots can currently send 
         animation files of up to 50 MB in size, this limit may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -793,6 +809,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         document: InputFile | str,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
@@ -809,6 +826,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send general files. On success, the sent Message is returned. 
         Bots can currently send files of any type of up to 50 MB in size, this limit 
         may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -863,6 +883,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         photo: InputFile | str,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
@@ -876,6 +897,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
 
         Use this method to send photos. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -924,6 +948,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         emoji: str | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
@@ -934,6 +959,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. 
         On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -972,6 +1000,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         video: InputFile | str,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
@@ -993,6 +1022,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         (other formats may be sent as Document). On success, the sent Message is 
         returned. Bots can currently send video files of up to 50 MB in size, this 
         limit may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1053,6 +1085,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         video_note: InputFile | str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         duration: int | None = None,
         length: int | None = None,
         message_thread_id: int | None = None,
@@ -1068,6 +1101,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         As of v.4.0, Telegram clients support rounded square MPEG4 videos of up 
         to 1 minute long. Use this method to send video messages. On success, the 
         sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1114,6 +1150,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         voice: InputFile | str,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
@@ -1131,6 +1168,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). 
         On success, the sent Message is returned. Bots can currently send voice 
         messages of up to 50 MB in size, this limit may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1175,6 +1215,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         question: str,
         options: list[str],
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
@@ -1195,6 +1236,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
 
         Use this method to send a native poll. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1261,6 +1305,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         title: str,
         address: str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         foursquare_id: str | None = None,
         foursquare_type: str | None = None,
@@ -1276,6 +1321,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         Use this method to send information about a venue. On success, the sent Message 
         is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1321,6 +1369,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         emoji: DiceEmoji | None = None,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
@@ -1332,6 +1381,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         Use this method to send an animated emoji that will display a random value. 
         On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1363,6 +1415,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_game(
         self,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         game_short_name: str | None = None,
         disable_notification: bool | None = None,
@@ -1374,6 +1427,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
 
         Use this method to send a game. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat.
 
@@ -1408,6 +1464,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         currency: str,
         prices: list[LabeledPrice],
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         max_tip_amount: int | None = None,
         suggested_tip_amounts: list[int] | None = None,
@@ -1433,6 +1490,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
         Use this method to send invoices. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1519,6 +1579,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         action: ChatAction,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -1529,6 +1590,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         from your bot, Telegram clients clear its typing status). Returns True 
         on success. We only recommend using this method when a response from the 
         bot will take a noticeable amount of time to arrive.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1552,6 +1616,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         media: list[InputMedia | tuple[MediaType, InputFile | str]],
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -1566,6 +1631,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send a group of photos, videos, documents or audios as 
         an album. Documents and audio files can be only grouped in an album with messages 
         of the same type. On success, an array of Messages that were sent is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1617,6 +1685,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         longitude: float,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         horizontal_accuracy: float | None = None,
         heading: int | None = None,
         live_period: int | None = None,
@@ -1630,6 +1699,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
 
         Use this method to send point on the map. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1676,6 +1748,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         last_name: str | None = None,
         vcard: str | None = None,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
@@ -1686,6 +1759,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
 
         Use this method to send phone contacts. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1722,6 +1798,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         audio: InputFile | str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -1743,6 +1820,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         success, the sent Message is returned. Bots can currently send audio files 
         of up to 50 MB in size, this limit may be changed in the future. For sending 
         voice messages, use the sendVoice method instead.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1798,6 +1878,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         animation: InputFile | str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -1818,6 +1899,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send a reply to a message with animation files (GIF or H.264/MPEG-4 AVC video without 
         sound). On success, the sent Message is returned. Bots can currently send 
         animation files of up to 50 MB in size, this limit may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1876,6 +1960,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         document: InputFile | str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -1893,6 +1978,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send a reply to a message with general files. On success, the sent Message is returned. 
         Bots can currently send files of any type of up to 50 MB in size, this limit 
         may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1946,6 +2034,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         photo: InputFile | str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -1960,6 +2049,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
 
         Use this method to send a reply to a message with photos. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2006,6 +2098,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         sticker: InputFile | str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         emoji: str | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
@@ -2018,6 +2111,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         Use this method to send a reply to a message with static .WEBP, animated .TGS, or video .WEBM stickers. 
         On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2055,6 +2151,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         video: InputFile | str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -2077,6 +2174,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         (other formats may be sent as Document). On success, the sent Message is 
         returned. Bots can currently send video files of up to 50 MB in size, this 
         limit may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2139,6 +2239,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         duration: int | None = None,
         length: int | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
@@ -2152,6 +2253,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         As of v.4.0, Telegram clients support rounded square MPEG4 videos of up 
         to 1 minute long. Use this method to send a reply to a message with video messages. On success, the 
         sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2197,6 +2301,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         voice: InputFile | str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -2215,6 +2320,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). 
         On success, the sent Message is returned. Bots can currently send voice 
         messages of up to 50 MB in size, this limit may be changed in the future.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2259,6 +2367,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         question: str,
         options: list[str],
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
@@ -2279,6 +2388,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
 
         Use this method to send a reply to a message with a native poll. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2345,6 +2457,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         title: str,
         address: str,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         foursquare_id: str | None = None,
         foursquare_type: str | None = None,
@@ -2360,6 +2473,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         Use this method to send a reply to a message with information about a venue. On success, the sent Message 
         is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2404,6 +2520,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_dice(
         self,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         emoji: DiceEmoji | None = None,
         disable_notification: bool | None = None,
@@ -2416,6 +2533,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         Use this method to send a reply to a message with an animated emoji that will display a random value. 
         On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2447,6 +2567,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_game(
         self,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         game_short_name: str | None = None,
         disable_notification: bool | None = None,
@@ -2458,6 +2579,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
 
         Use this method to send a reply to a message with a game. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat.
 
@@ -2492,6 +2616,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         currency: str,
         prices: list[LabeledPrice],
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         max_tip_amount: int | None = None,
         suggested_tip_amounts: list[int] | None = None,
@@ -2517,6 +2642,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
         Use this method to send a reply to a message with invoices. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2609,6 +2737,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         self,
         media: list[InputMedia | tuple[MediaType, InputFile | str]],
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -2623,6 +2752,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send a reply to a message with a group of photos, videos, documents or audios as 
         an album. Documents and audio files can be only grouped in an album with messages 
         of the same type. On success, an array of Messages that were sent is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2661,6 +2793,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         latitude: float,
         longitude: float,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         horizontal_accuracy: float | None = None,
         heading: int | None = None,
@@ -2675,6 +2808,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
 
         Use this method to send a reply to a message with point on the map. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2721,6 +2857,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         last_name: str | None = None,
         vcard: str | None = None,
         chat_id: int | str | None = None,
+        business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
@@ -2731,6 +2868,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
 
         Use this method to send a reply to a message with phone contacts. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).

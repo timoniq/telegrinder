@@ -87,7 +87,7 @@ class Dispatch(
                     break
         return found
 
-    def load(self, external: typing.Self):
+    def load(self, external: typing.Self) -> None:
         view_external = external.get_views()
         for name, view in self.get_views().items():
             assert (

@@ -11,7 +11,7 @@ from telegrinder.types import InputFile
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine()
-kitten_bytes = pathlib.Path("assets/kitten.jpg").read_bytes()
+kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
 logger.set_level("INFO")
 
 

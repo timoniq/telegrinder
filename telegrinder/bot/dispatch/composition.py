@@ -37,7 +37,7 @@ class Composition:
                 return None
         return NodeCollection(nodes)
     
-    async def __call__(self, **kwargs) -> typing.Any:
+    async def __call__(self, **kwargs: typing.Any) -> typing.Any:
         return await self.func(**magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))  # type: ignore
 
 

@@ -33,8 +33,6 @@ if typing.TYPE_CHECKING:
 else:
 
     class BaseCute(typing.Generic[UpdateT]):
-        api: ABCAPI
-
         @classmethod
         def from_update(cls, update, bound_api):
             return cls(**update.to_dict(), api=bound_api)
@@ -115,8 +113,7 @@ def shortcut(
                 params[k] = kwargs.pop(k, p.default) if p.default is not p.empty else kwargs.pop(k)
 
             return await executor(self, method_name, get_params(params))
-
-        func.__repr__ = lambda _: f"<Shortcut {method_name!r}@{func!r}>"   
+        
         inner.__shortcut__ = Shortcut(  # type: ignore
             method_name=method_name,
             executor=executor,

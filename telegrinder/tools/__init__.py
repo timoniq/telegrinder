@@ -14,6 +14,7 @@ from .formatting import (
     StartBotLink,
     StartGroupLink,
     TgEmoji,
+    UserOpenMessage,
     block_quote,
     bold,
     channel_boost_link,
@@ -37,6 +38,8 @@ from .formatting import (
     strike,
     tg_emoji,
     underline,
+    user_open_message,
+    user_open_message_link,
 )
 from .global_context import (
     ABCGlobalContext,
@@ -109,6 +112,7 @@ __all__ = (
     "StartGroupLink",
     "TelegrinderCtx",
     "TgEmoji",
+    "UserOpenMessage",
     "block_quote",
     "bold",
     "channel_boost_link",
@@ -135,4 +139,6 @@ __all__ = (
     "strike",
     "tg_emoji",
     "underline",
+    "user_open_message",
+    "user_open_message_link",
 )

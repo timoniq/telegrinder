@@ -4,14 +4,16 @@ import typing
 from choicelib import choice_in_order
 
 
+@typing.runtime_checkable
 class JSONModule(typing.Protocol):
-    def loads(self, s: str | bytes) -> dict[str, typing.Any] | list[typing.Any]:
+    def loads(self, s: str | bytes) -> typing.Any:
         ...
 
-    def dumps(self, o: dict[str, typing.Any] | list[typing.Any]) -> str:
+    def dumps(self, o: typing.Any) -> str:
         ...
 
 
+@typing.runtime_checkable
 class LoggerModule(typing.Protocol):
     def debug(self, __msg: object, *args: object, **kwargs: object) -> None:
         ...
@@ -47,7 +49,7 @@ class LoggerModule(typing.Protocol):
 
 logger: LoggerModule
 json: JSONModule = choice_in_order(
-    ["ujson", "hyperjson", "orjson"], do_import=True, default="telegrinder.msgspec_json"
+    ["orjson", "ujson", "hyperjson"], do_import=True, default="telegrinder.msgspec_json"
 )
 logging_module = choice_in_order(["loguru"], default="logging")
 logging_level = os.getenv("LOGGER_LEVEL", default="DEBUG").upper()

@@ -13,6 +13,7 @@ from .links import (
     get_resolve_domain_link,
     get_start_bot_link,
     get_start_group_link,
+    user_open_message_link,
 )
 from .spec_html_formats import SpecialFormat, is_spec_format
 
@@ -274,6 +275,14 @@ def underline(string: str) -> TagFormat:
     return TagFormat(string, tag="u")
 
 
+def user_open_message(
+    user_id: int,
+    message: str | None = None,
+    string: str | None = None,
+) -> TagFormat:
+    return link(user_open_message_link(user_id, message), string)
+
+
 __all__ = (
     "FormatString",
     "HTMLFormatter",
@@ -301,4 +310,5 @@ __all__ = (
     "strike",
     "tg_emoji",
     "underline",
+    "user_open_message",
 )

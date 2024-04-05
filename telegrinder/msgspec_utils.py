@@ -8,7 +8,6 @@ T = typing.TypeVar("T")
 Ts = typing.TypeVarTuple("Ts")
 
 if typing.TYPE_CHECKING:
-    import types
     from datetime import datetime
 
     from fntypes.option import Option
@@ -48,10 +47,6 @@ def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, msgspec.Validation
         return Error(exc)
 
 
-def datetime_dec_hook(tp: type[datetime], obj: int | float) -> datetime:
-    return tp.fromtimestamp(obj)
-
-
 def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
     if obj is None:
         return Nothing
@@ -88,37 +83,23 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
 
     raise TypeError(
         "Object of type `{}` does not belong to types `{}`".format(
-            repr_type(type(obj)),
+            repr_type(obj.__class__),
             " | ".join(map(repr_type, union_types)),
         )
     )
 
 
-def datetime_enc_hook(obj: datetime) -> int:
-    return int(obj.timestamp())
-
-
-def option_enc_hook(obj: Option[typing.Any]) -> typing.Any | None:
-    return obj.value if isinstance(obj, fntypes.option.Some) else None
-
-
-def variative_enc_hook(obj: Variative[typing.Any]) -> typing.Any:
-    return obj.v
-
-
 class Decoder:
     def __init__(self) -> None:
-        self.dec_hooks: dict[
-            typing.Union[type[typing.Any], "types.UnionType"], DecHook[typing.Any]
-        ] = {
+        self.dec_hooks: dict[typing.Any, DecHook[typing.Any]] = {
             Option: option_dec_hook,
             Variative: variative_dec_hook,
-            datetime: datetime_dec_hook,
+            datetime: lambda t, obj: t.fromtimestamp(obj),
         }
 
-    def add_dec_hook(self, tp: type[T]):
+    def add_dec_hook(self, t: T):  # type: ignore
         def decorator(func: DecHook[T]) -> DecHook[T]:
-            return self.dec_hooks.setdefault(get_origin(tp), func)
+            return self.dec_hooks.setdefault(get_origin(t), func)  # type: ignore
         
         return decorator
     
@@ -150,12 +131,30 @@ class Decoder:
             builtin_types=builtin_types,
             str_keys=str_keys,
         )
+    
+    @typing.overload
+    def decode(self, buf: str | bytes) -> typing.Any:
+        ...
+    
+    @typing.overload
+    def decode(self, buf: str | bytes, *, strict: bool = True) -> typing.Any:
+        ...
+
+    @typing.overload
+    def decode(
+        self,
+        buf: str | bytes,
+        *,
+        type: type[T],
+        strict: bool = True,
+    ) -> T:
+        ...
 
     def decode(
         self,
         buf: str | bytes,
         *,
-        type: type[T] = dict,
+        type: type[T] = typing.Any,  # type: ignore
         strict: bool = True,
     ) -> T:
         return msgspec.json.decode(
@@ -168,11 +167,11 @@ class Decoder:
 
 class Encoder:
     def __init__(self) -> None:
-        self.enc_hooks: dict[type, EncHook] = {
-            fntypes.option.Some: option_enc_hook,
-            fntypes.option.Nothing: option_enc_hook,
-            Variative: variative_enc_hook,
-            datetime: datetime_enc_hook,
+        self.enc_hooks: dict[typing.Any, EncHook[typing.Any]] = {
+            fntypes.option.Some: lambda opt: opt.value,
+            fntypes.option.Nothing: lambda _: None,
+            Variative: lambda variative: variative.v,
+            datetime: lambda date: int(date.timestamp()),
         }
 
     def add_dec_hook(self, tp: type[T]):
@@ -182,13 +181,17 @@ class Encoder:
         return decorator
     
     def enc_hook(self, obj: object) -> object:
-        origin_type = get_origin(type(obj))
+        origin_type = get_origin(obj.__class__)
         if origin_type not in self.enc_hooks:
             raise NotImplementedError(
                 "Not implemented encode hook for "
                 f"object of type `{repr_type(origin_type)}`."
             )
         return self.enc_hooks[origin_type](obj)
+
+    @typing.overload
+    def encode(self, obj: typing.Any) -> str:
+        ...
     
     @typing.overload
     def encode(self, obj: typing.Any, *, as_str: typing.Literal[True] = True) -> str:
@@ -215,12 +218,8 @@ __all__ = (
     "get_origin",
     "repr_type",
     "msgspec_convert",
-    "datetime_dec_hook",
-    "datetime_enc_hook",
     "option_dec_hook",
-    "option_enc_hook",
     "variative_dec_hook",
-    "variative_enc_hook",
     "datetime",
     "decoder",
     "encoder",

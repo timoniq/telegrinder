@@ -43,7 +43,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         self.choices: list[Choice] = []
         self.ready = ready_text
         self.max_in_row = max_in_row
-        self.random_code = secrets.token_hex(16)
+        self.random_code = secrets.token_hex(8)
         self.waiter_machine = waiter_machine
 
     def get_markup(self) -> InlineKeyboardMarkup:
@@ -73,7 +73,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         is_picked: bool = False,
     ) -> typing.Self:
         self.choices.append(
-            Choice(name, is_picked, default_text, picked_text, secrets.token_hex(16)),
+            Choice(name, is_picked, default_text, picked_text, secrets.token_hex(8)),
         )
         return self
 
@@ -103,7 +103,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         assert len(self.choices) > 1
         message = (
             await api.send_message(
-                self.chat_id,
+                chat_id=self.chat_id,
                 text=self.msg,
                 parse_mode=self.PARSE_MODE,
                 reply_markup=self.get_markup(),
@@ -111,7 +111,6 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         ).unwrap()
         
         while True:
-            q: CallbackQueryCute
             q, _ = await self.waiter_machine.wait(view, (api, message.message_id))
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
