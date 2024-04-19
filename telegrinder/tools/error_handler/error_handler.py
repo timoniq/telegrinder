@@ -74,9 +74,9 @@ class Catcher(typing.Generic[EventT]):
     
     def match_exception(self, exception: BaseException) -> bool:
         for exc in self.exceptions:
-            if isinstance(exc, type) and type(exception) == exc:
+            if isinstance(exc, type) and type(exception) is exc:
                 return True
-            if isinstance(exc, object) and type(exception) == type(exc):
+            if isinstance(exc, object) and type(exception) is type(exc):
                 return True if not exc.args else exc.args == exception.args
         return False
 

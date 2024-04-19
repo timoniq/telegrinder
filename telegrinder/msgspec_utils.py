@@ -4,9 +4,6 @@ import fntypes.option
 import msgspec
 from fntypes.co import Error, Ok, Result, Variative
 
-T = typing.TypeVar("T")
-Ts = typing.TypeVarTuple("Ts")
-
 if typing.TYPE_CHECKING:
     from datetime import datetime
 
@@ -18,6 +15,7 @@ else:
 
     datetime = type("datetime", (dt,), {})
 
+
     class OptionMeta(type):
         def __instancecheck__(cls, __instance: typing.Any) -> bool:
             return isinstance(__instance, fntypes.option.Some | fntypes.option.Nothing)
@@ -25,6 +23,9 @@ else:
 
     class Option(typing.Generic[Value], metaclass=OptionMeta):
         pass
+
+T = typing.TypeVar("T")
+Ts = typing.TypeVarTuple("Ts")
 
 DecHook: typing.TypeAlias = typing.Callable[[type[T], typing.Any], object]
 EncHook: typing.TypeAlias = typing.Callable[[T], typing.Any]
@@ -90,6 +91,32 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
 
 
 class Decoder:
+    """Class `Decoder` for `msgspec` module with decode hook
+    for objects with the specified type.
+    
+    ```
+    import enum
+
+    from datetime import datetime as dt
+
+    class Digit(enum.IntEnum):
+        ONE = 1
+        TWO = 2
+        THREE = 3
+
+    decoder = Encoder()
+    decoder.dec_hooks[dt] = lambda t, timestamp: t.fromtimestamp(timestamp)
+
+    decoder.dec_hook(dt, 1713354732)  #> datetime.datetime(2024, 4, 17, 14, 52, 12)
+    decoder.dec_hook(int, "123")  #> TypeError: Unknown type `int`. You can implement decode hook for this type.
+
+    decoder.convert("123", type=int, strict=False)  #> 123
+    decoder.convert(1, type=Digit)  #> <Digit.ONE: 1>
+
+    decoder.decode(b'{"digit":3}', type=dict[str, Digit])  #> {'digit': <Digit.THREE: 3>}
+    ```
+    """
+
     def __init__(self) -> None:
         self.dec_hooks: dict[typing.Any, DecHook[typing.Any]] = {
             Option: option_dec_hook,
@@ -119,7 +146,7 @@ class Decoder:
         type: type[T] = dict,
         strict: bool = True,
         from_attributes: bool = False,
-        builtin_types: typing.Iterable[type] | None = None,
+        builtin_types: typing.Iterable[type[typing.Any]] | None = None,
         str_keys: bool = False,
     ) -> T:
         return msgspec.convert(
@@ -166,6 +193,21 @@ class Decoder:
 
 
 class Encoder:
+    """Class `Encoder` for `msgspec` module with encode hooks for objects.
+    
+    ```
+    from datetime import datetime as dt
+
+    encoder = Encoder()
+    encoder.enc_hooks[dt] = lambda d: int(d.timestamp())
+
+    encoder.enc_hook(dt.now())  #> 1713354732
+    encoder.enc_hook(123)  #> NotImplementedError: Not implemented encode hook for object of type `int`.
+
+    encoder.encode({'digit': Digit.ONE})  #> '{"digit":1}'
+    ```
+    """
+
     def __init__(self) -> None:
         self.enc_hooks: dict[typing.Any, EncHook[typing.Any]] = {
             fntypes.option.Some: lambda opt: opt.value,
@@ -174,9 +216,10 @@ class Encoder:
             datetime: lambda date: int(date.timestamp()),
         }
 
-    def add_dec_hook(self, tp: type[T]):
+    def add_dec_hook(self, t: type[T]):
         def decorator(func: EncHook[T]) -> EncHook[T]:
-            return self.enc_hooks.setdefault(get_origin(tp), func)
+            encode_hook = self.enc_hooks.setdefault(get_origin(t), func)
+            return func if encode_hook is not func else encode_hook
         
         return decorator
     
@@ -194,11 +237,11 @@ class Encoder:
         ...
     
     @typing.overload
-    def encode(self, obj: typing.Any, *, as_str: typing.Literal[True] = True) -> str:
+    def encode(self, obj: typing.Any, *, as_str: typing.Literal[True]) -> str:
         ...
 
     @typing.overload
-    def encode(self, obj: typing.Any, *, as_str: typing.Literal[False] = False) -> bytes:
+    def encode(self, obj: typing.Any, *, as_str: typing.Literal[False]) -> bytes:
         ...
 
     def encode(self, obj: typing.Any, *, as_str: bool = True) -> str | bytes:

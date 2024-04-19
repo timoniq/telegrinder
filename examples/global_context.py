@@ -9,7 +9,7 @@ from telegrinder.tools.formatting import HTMLFormatter, bold, code_inline
 from telegrinder.tools.formatting.html import TagFormat
 from telegrinder.tools.global_context import GlobalContext, ctx_var
 from telegrinder.types.enums import MessageEntityType
-from telegrinder.types.objects import User
+from telegrinder.types.objects import MessageEntity, User
 
 logger.set_level("INFO")
 api = API(token=Token.from_env())
@@ -20,7 +20,7 @@ class ImportantContext(GlobalContext):
     __ctx_name__ = "important_ctx"
 
     formatting: bool = False
-    users: typing.ClassVar[dict[str, User]] = ctx_var({}, const=True)
+    users: typing.ClassVar[dict[int, User]] = ctx_var({}, const=True)
 
 
 global_ctx = ImportantContext()
@@ -39,11 +39,8 @@ def formatting_text(*fmt_texts: str | TagFormat) -> dict:
 @bot.dispatch.message.register_middleware()
 class UserRegistrarMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: Context) -> bool:
-        if event.from_ and event.from_user.username:
-            # register user by username
-            global_ctx.users.setdefault(
-                event.from_user.username.unwrap(), event.from_user
-            )
+        if event.from_:
+            global_ctx.users[event.from_user.id] = event.from_user
         return True
 
 
@@ -59,11 +56,18 @@ async def formatting(message: Message):
 
 
 @bot.on.message(
-    MessageEntities([MessageEntityType.MENTION, MessageEntityType.URL])
-    & Markup(["/get_user @<username>", "/get_user t.me/<username>"])
+    MessageEntities([MessageEntityType.TEXT_MENTION, MessageEntityType.MENTION, MessageEntityType.URL])
+    & Markup(["/get_user @<username>", "/get_user t.me/<username>", "/get_user <username>"])
 )
-async def get_user_by_username(message: Message, username: str):
-    user = global_ctx.users.get(username)
+async def get_user_by_username(message: Message, username: str, message_entities: list[MessageEntity]):
+    if message_entities[0].type == MessageEntityType.TEXT_MENTION:
+        user = message_entities[0].user.unwrap()
+        global_ctx.users[user.id] = user
+    else:
+        user = None
+        for u in global_ctx.users.values():
+            if u.username.unwrap_or_none() == username:
+                user = u
     if user is None:
         await message.answer(
             **formatting_text("User with username ", bold(username), " not found!")

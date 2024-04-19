@@ -2,7 +2,6 @@ import dataclasses
 import typing
 
 from telegrinder.api import API
-from telegrinder.msgspec_utils import Nothing, Option
 from telegrinder.types import Chat, Message
 
 from .base import DataNode
@@ -13,14 +12,14 @@ from .message import MessageNode
 class Source(DataNode):
     api: API
     chat: Chat
-    thread_id: Option[int] = dataclasses.field(default_factory=lambda: Nothing)
+    thread_id: int | None = None
 
     @classmethod
     async def compose(cls, message: MessageNode) -> typing.Self:
         return cls(
             api=message.ctx_api,
             chat=message.chat,
-            thread_id=message.message_thread_id,
+            thread_id=message.message_thread_id.unwrap_or_none(),
         )
     
     async def send(self, text: str) -> Message:

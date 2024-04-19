@@ -12,18 +12,31 @@ T = typing.TypeVar("T", bound=BaseCute)
 
 
 @typing.runtime_checkable
-class HasFromProto(typing.Protocol):
+class FromUserProto(typing.Protocol):
     from_: User | Option[User]
 
 
 class HasFrom(ABCRule[T]):
     async def check(self, event: T, ctx: Context) -> bool:
-        return isinstance(event, HasFromProto) and bool(event.from_)
+        return isinstance(event, FromUserProto) and bool(event.from_)
 
 
 class HasDice(MessageRule):
     async def check(self, message: Message, ctx: Context) -> bool:
         return bool(message.dice)
+
+
+class IsForward(MessageRule):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return bool(message.forward_origin)
+
+
+class IsForwardType(MessageRule, requires=[IsForward()]):
+    def __init__(self, fwd_type: typing.Literal["user", "hidden_user", "chat", "channel"], /) -> None:
+        self.fwd_type = fwd_type
+
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return message.forward_origin.unwrap().v.type == self.fwd_type
 
 
 class IsReply(MessageRule):
@@ -58,7 +71,7 @@ class IsLanguageCode(MessageRule, requires=[HasFrom()]):
     async def check(self, message: Message, ctx: Context) -> bool:
         if not message.from_user.language_code:
             return False
-        return message.from_user.language_code.unwrap_or_none() in self.lang_codes
+        return message.from_user.language_code.unwrap() in self.lang_codes
 
 
 class IsForum(MessageRule):
@@ -141,6 +154,8 @@ __all__ = (
     "IsDartDice",
     "IsDice",
     "IsForum",
+    "IsForward",
+    "IsForwardType",
     "IsGroup",
     "IsLanguageCode",
     "IsPremium",

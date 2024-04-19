@@ -8,11 +8,13 @@ Nicifications can only implement methods/properties working only with model fiel
 """
 
 import typing
+from datetime import datetime
 
 from fntypes.option import Option, Some
 
 from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import (
+    Birthdate,
     Chat,
     ChatType,
     ContentType,
@@ -25,6 +27,25 @@ from telegrinder.types import (
     UpdateType,
     User,
 )
+
+
+class _Birthdate(Birthdate):
+    @property
+    def is_birthday(self) -> bool:
+        """True, if today is a user's birthday."""
+
+        now = datetime.now()
+        return now.month == self.month and now.day == self.day
+
+    @property
+    def age(self) -> Option[int]:
+        """Optional. Contains the user's age, if the user has a birth year specified."""
+
+        return self.year.map(
+            lambda year: (
+                (datetime.now() - datetime(year, self.month, self.day)
+            ) // 365).days
+        )
 
 
 class _Chat(Chat):

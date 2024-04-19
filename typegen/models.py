@@ -5,7 +5,7 @@ class Model(Struct, omit_defaults=True):
     pass
 
 
-class TelegramBotAPISchema(Model, rename={"objects": "types"}, omit_defaults=True):
+class TelegramBotAPISchema(Model, rename={"objects": "types"}):
     version: str
     """API version."""
 

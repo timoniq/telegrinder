@@ -1,4 +1,3 @@
-import secrets
 import ssl
 import typing
 
@@ -31,7 +30,7 @@ class AiohttpClient(ABCClient):
             self.__class__.__name__,
             self.session,
             self.timeout,
-            False if self.session is None else self.session.closed,
+            True if self.session is None else self.session.closed,
         )
     
     async def request_raw(

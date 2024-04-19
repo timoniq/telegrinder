@@ -9,7 +9,7 @@ if typing.TYPE_CHECKING:
     T = typing.TypeVar("T", bound=ABCRule)
 
 FuncType: typing.TypeAlias = types.FunctionType | typing.Callable[..., typing.Any]
-TRANSLATIONS_KEY = "_translations"
+TRANSLATIONS_KEY: typing.Final[str] = "_translations"
 
 
 def resolve_arg_names(func: FuncType, start_idx: int = 1) -> tuple[str, ...]:

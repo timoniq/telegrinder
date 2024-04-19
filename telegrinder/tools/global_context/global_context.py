@@ -23,11 +23,13 @@ else:
 
 
 def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
-    return (
-        True
-        if value_type in (typing.Any, object)
-        else bool(msgspec_convert(value, value_type))
-    )
+    if value_type in (typing.Any, object):
+        return True
+    match msgspec_convert(value, value_type):
+        case Ok(v):
+            return type(value) is type(v)
+        case Error(_):
+            return False
 
 
 def is_dunder(name: str) -> bool:

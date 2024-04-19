@@ -18,14 +18,14 @@ MessageViewT = typing.TypeVar("MessageViewT", bound=ABCView, default=MessageView
 
 @dataclasses.dataclass(kw_only=True)
 class ViewBox(typing.Generic[CallbackQueryViewT, InlineQueryViewT, MessageViewT]):
-    callback_query: CallbackQueryViewT = dataclasses.field(  # type: ignore
-        default_factory=lambda: CallbackQueryView(),
+    callback_query: CallbackQueryViewT = dataclasses.field(
+        default_factory=lambda: typing.cast(CallbackQueryViewT, CallbackQueryView()),
     )
-    inline_query: InlineQueryViewT = dataclasses.field(  # type: ignore
-        default_factory=lambda: InlineQueryView(),
+    inline_query: InlineQueryViewT = dataclasses.field(
+        default_factory=lambda: typing.cast(InlineQueryViewT, InlineQueryView()),
     )
-    message: MessageViewT = dataclasses.field(  # type: ignore
-        default_factory=lambda: MessageView(),
+    message: MessageViewT = dataclasses.field(
+        default_factory=lambda: typing.cast(MessageViewT, MessageView()),
     )
 
     def get_views(self) -> dict[str, ABCView]:

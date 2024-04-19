@@ -2864,6 +2864,23 @@ class Birthdate(Model):
     year: Option[int] = Nothing
     """Optional. Year of the user's birth."""
 
+    @property
+    def is_birthday(self) -> bool:
+        """True, if today is a user's birthday."""
+
+        now = datetime.now()
+        return now.month == self.month and now.day == self.day
+
+    @property
+    def age(self) -> Option[int]:
+        """Optional. Contains the user's age, if the user has a birth year specified."""
+
+        return self.year.map(
+            lambda year: (
+                (datetime.now() - datetime(year, self.month, self.day)) // 365
+            ).days
+        )
+
 
 class BusinessIntro(Model):
     """Object `BusinessIntro`, see the [documentation](https://core.telegram.org/bots/api#businessintro).
@@ -2902,11 +2919,11 @@ class BusinessOpeningHoursInterval(Model):
 
     opening_minute: int
     """The minute's sequence number in a week, starting on Monday, marking the 
-    start of the time interval during which the business is open; 0 - 7 24 60."""
+    start of the time interval during which the business is open; 0 - 7 * 24 * 60."""
 
     closing_minute: int
     """The minute's sequence number in a week, starting on Monday, marking the 
-    end of the time interval during which the business is open; 0 - 8 24 60."""
+    end of the time interval during which the business is open; 0 - 8 * 24 * 60."""
 
 
 class BusinessOpeningHours(Model):

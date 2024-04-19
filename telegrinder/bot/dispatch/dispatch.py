@@ -17,12 +17,11 @@ from .handler.func import ErrorHandlerT
 from .view.box import CallbackQueryViewT, InlineQueryViewT, MessageViewT, ViewBox
 
 T = typing.TypeVar("T")
-
-Event = typing.TypeVar("Event", bound=BaseCute)
 R = typing.TypeVar("R")
 P = typing.ParamSpec("P")
+Event = typing.TypeVar("Event", bound=BaseCute)
 
-DEFAULT_DATACLASS = Update
+DEFAULT_DATACLASS: typing.Final[type[Update]] = Update
 
 
 @dataclasses.dataclass(repr=False, kw_only=True)

@@ -1,6 +1,7 @@
 import typing
 
 import aiosqlite  # type: ignore
+
 from telegrinder import API, Telegrinder, Token
 from telegrinder.bot import rules
 from telegrinder.bot.dispatch import CompositionDispatch
