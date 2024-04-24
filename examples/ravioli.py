@@ -3,8 +3,8 @@ import dataclasses
 import datetime
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.rules import Text
 from telegrinder.modules import logger
+from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

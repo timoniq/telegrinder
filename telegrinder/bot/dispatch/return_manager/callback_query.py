@@ -1,3 +1,5 @@
+import typing
+
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.context import Context
 
@@ -12,7 +14,7 @@ class CallbackQueryReturnManager(BaseReturnManager[CallbackQueryCute]):
     
     @register_manager(dict)
     @staticmethod
-    async def dict_manager(value: dict, event: CallbackQueryCute, ctx: Context) -> None:
+    async def dict_manager(value: dict[str, typing.Any], event: CallbackQueryCute, ctx: Context) -> None:
         await event.answer(**value)
 
 

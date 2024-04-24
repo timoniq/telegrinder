@@ -3,16 +3,20 @@ The example uses the aiosqlite driver. It is recommended to use asynchronous dri
 to work with databases.
 """
 
-import aiosqlite  # type: ignore
-from fntypes.co import Nothing, Some, Option
+import typing
 
-from telegrinder import ABCMiddleware, API, Message, Telegrinder, Token
+import aiosqlite  # type: ignore
+from fntypes.co import Nothing, Some
+
+from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot import Context
 from telegrinder.model import decoder
 from telegrinder.modules import logger
+from telegrinder.msgspec_utils import Option
 from telegrinder.rules import Markup, MessageEntities
 from telegrinder.types import User
 from telegrinder.types.enums import MessageEntityType
+from telegrinder.types.objects import MessageEntity
 
 db_path = "examples/assets/users.db"
 bot = Telegrinder(API(Token.from_env()))
@@ -20,7 +24,7 @@ logger.set_level("INFO")
 
 
 async def create_table():
-    async with aiosqlite.connect(db_path) as conn:
+    async with aiosqlite.connect(db_path) as conn:  # noqa: SIM117
         async with conn.cursor() as cur:
             await cur.execute(
                 "create table if not exists users("
@@ -54,19 +58,13 @@ def get_result_with_names(
 
 
 class DummyDatabase:
-    def user_data(self, user: User) -> dict:
+    @staticmethod
+    def convert_user_to_dict(user: User) -> dict[str, typing.Any]:
         return {
-            k: (v.unwrap() if v else None)
-            if isinstance(v, Some | type(Nothing))
-            else v
-            for k, v in user.to_dict(
-                exclude_fields={
-                    "supports_inline_queries",
-                    "added_to_attachment_menu",
-                    "can_read_all_group_messages",
-                    "can_join_groups",
-                }
-            ).items()
+            k: v
+            if not isinstance(v, Some | Nothing)
+            else v.unwrap_or_none()
+            for k, v in user.to_dict().items()
         }
 
     async def set_user(self, user: User) -> None:
@@ -81,11 +79,12 @@ class DummyDatabase:
                         :id, :is_bot, :first_name, :last_name,
                         :username, :language_code, :is_premium
                     );
-                    """, self.user_data(user)
+                    """,
+                    self.convert_user_to_dict(user),
                 )
             await conn.commit()
     
-    async def get_user(self, username: str) -> Option[User]:
+    async def get_user_by_username(self, username: str) -> Option[User]:
         async with (
             aiosqlite.connect(db_path) as conn,
             conn.cursor() as cur,
@@ -102,6 +101,21 @@ class DummyDatabase:
                 obj=get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
                 type=Option[User],
             )
+    
+    async def get_user_by_id(self, user_id: int) -> Option[User]:
+        async with (
+            aiosqlite.connect(db_path) as conn,
+            conn.cursor() as cur,
+        ):
+            row = await (
+                await cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+            ).fetchone()
+            if row is None:
+                return Nothing()
+            return decoder.convert(
+                obj=get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
+                type=Option[User],
+            )
 
 
 db = DummyDatabase()
@@ -110,31 +124,48 @@ db = DummyDatabase()
 @bot.on.message.register_middleware()
 class UserRegistrarMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: Context) -> bool:
-        if event.from_ and event.from_user.username:
+        if event.from_:
             await db.set_user(event.from_user)
         return True
 
 
 @bot.on.message(
-    MessageEntities(MessageEntityType.MENTION)
-    & Markup("/get_user @<username>")
+    Markup("/get_user @<user_id:int>")
+    | MessageEntities(MessageEntityType.TEXT_MENTION)
 )
-async def get_user(message: Message, username: str):
-    match await db.get_user(username):
-        case Some(user):
+async def get_user(
+    message: Message,
+    message_entities: list[MessageEntity] | None = None,
+    username: str | None = None,
+    user_id: int | None = None
+):
+    if message_entities and message_entities[0].type == MessageEntityType.TEXT_MENTION:
+        mentioned_user = message_entities[0].user.unwrap()
+        user = await db.get_user_by_id(mentioned_user.id)
+        if not user:
+            await db.set_user(mentioned_user)
+        user = Some(mentioned_user)
+    elif username is not None:
+        user = await db.get_user_by_username(username)
+    else:
+        assert user_id
+        user = await db.get_user_by_id(user_id)
+
+    match user:
+        case Some(u):
             await message.reply(
                 f"""
-                id -> {user.id}
-                is bot -> {'yes' if user.is_bot else 'no'}
-                first name -> {user.first_name} 
-                last name -> {user.last_name.unwrap_or('')}
-                is premium -> {'yes' if user.is_premium.unwrap_or(False) else 'no'}
-                lang code -> {user.language_code.unwrap()}
+                id -> {u.id}
+                is bot -> {'yes' if u.is_bot else 'no'}
+                first name -> {u.first_name} 
+                last name -> {u.last_name.unwrap_or('')}
+                is premium -> {'yes' if u.is_premium.unwrap_or(False) else 'no'}
+                lang code -> {u.language_code.unwrap()!r}
                 """
                 .replace("    ", "")
             )
         case Nothing():
-            await message.reply(f"User with username {username!r} not found!")
+            await message.reply(f"User with {'username' if username else 'id'} {username or user_id!r} not found!")
 
 
 bot.loop_wrapper.on_startup.append(create_table())

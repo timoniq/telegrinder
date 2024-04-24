@@ -97,27 +97,8 @@ class ErrorHandler(ABCErrorHandler[EventT]):
             if self.catcher is not None
             else "<ErrorHandler: No catcher>"
         )
-    
-    async def __call__(
-        self,
-        handler: Handler[EventT],
-        event: EventT,
-        api: ABCAPI,
-        ctx: Context,
-    ) -> Result[typing.Any, BaseException]:
-        assert self.catcher is not None
 
-        try:
-            return await self.catcher(handler, event, api, ctx)
-        except BaseException as exc:
-            return Error(CatcherError(
-                exc,
-                "Exception {!r} was occurred during the running catcher {!r}.".format(
-                    repr(exc), self.catcher.func.__name__
-                )
-            ))
-    
-    def register_catcher(
+    def __call__(
         self,
         *exceptions: type[BaseException] | BaseException,
         logging: bool = False,
@@ -142,6 +123,25 @@ class ErrorHandler(ABCErrorHandler[EventT]):
             return func
         return decorator
     
+    async def process(
+        self,
+        handler: Handler[EventT],
+        event: EventT,
+        api: ABCAPI,
+        ctx: Context,
+    ) -> Result[typing.Any, BaseException]:
+        assert self.catcher is not None
+
+        try:
+            return await self.catcher(handler, event, api, ctx)
+        except BaseException as exc:
+            return Error(CatcherError(
+                exc,
+                "Exception {!r} was occurred during the running catcher {!r}.".format(
+                    repr(exc), self.catcher.func.__name__
+                )
+            ))
+        
     def process_catcher_error(self, error: CatcherError) -> Result[None, str]:
         assert self.catcher is not None
         
@@ -164,7 +164,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         if not self.catcher:
             return Ok(await handler(event, **magic_bundle(handler, ctx)))  # type: ignore
         
-        match await self(handler, event, api, ctx):
+        match await self.process(handler, event, api, ctx):
             case Ok(_) as ok:
                 return ok
             case Error(exc) as err:

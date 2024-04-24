@@ -13,12 +13,12 @@ Handler = typing.Callable[typing.Concatenate[EventT, ...], typing.Awaitable[typi
 
 class ABCErrorHandler(ABC, typing.Generic[EventT]):
     @abstractmethod
-    def register_catcher(
+    def __call__(
         self,
         *args: typing.Any,
         **kwargs: typing.Any,
     ) -> typing.Callable[[typing.Callable[..., typing.Any]], typing.Callable[..., typing.Any]]:
-        ...
+        """Decorator for registering callback as an error handler."""
 
     @abstractmethod
     async def run(
@@ -28,7 +28,7 @@ class ABCErrorHandler(ABC, typing.Generic[EventT]):
         api: ABCAPI,
         ctx: Context,
     ) -> Result[typing.Any, typing.Any]:
-        ...
+        """Run error handler."""
 
 
 __all__ = ("ABCErrorHandler",)

@@ -6,7 +6,7 @@ ComposeResult: typing.TypeAlias = typing.Coroutine[typing.Any, typing.Any, typin
 
 
 class ComposeError(BaseException):
-    pass
+    ...
 
 
 class Node(abc.ABC):

@@ -27,8 +27,8 @@ async def solve(
     )
 
 
-@solve.on_error(ZeroDivisionError)
-async def zero_division_catcher(exception: ZeroDivisionError) -> str:
+@solve.error_handler(ZeroDivisionError)
+async def zero_division_catcher(_: ZeroDivisionError) -> str:
     return "🧐 You can't divide by zero!!!"
 
 

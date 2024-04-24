@@ -1,9 +1,9 @@
 import pathlib
 
 from telegrinder import API, Button, Keyboard, Message, Telegrinder, Token
+from telegrinder.modules import logger
 from telegrinder.rules import Text
 from telegrinder.types import InputFile
-from telegrinder.modules import logger
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

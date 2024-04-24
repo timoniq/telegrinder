@@ -1,3 +1,5 @@
+import dataclasses
+
 import typing_extensions as typing
 
 from telegrinder.api.abc import ABCAPI
@@ -13,30 +15,32 @@ from .abc import ABCHandler
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules import ABCRule
 
-F = typing.TypeVar("F", bound=typing.Callable[typing.Concatenate[typing.Any, ...], typing.Awaitable])
+F = typing.TypeVar("F", bound=typing.Callable[typing.Concatenate[typing.Any, ...], typing.Awaitable[typing.Any]])
 EventT = typing.TypeVar("EventT", bound=BaseCute)
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
 
+@dataclasses.dataclass(repr=False)
 class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
-    def __init__(
-        self,
-        func: F,
-        rules: list["ABCRule[EventT]"],
-        is_blocking: bool = True,
-        dataclass: type[typing.Any] | None = dict,
-        error_handler: ErrorHandlerT | None = None,
-    ):
-        self.func = func
-        self.is_blocking = is_blocking
-        self.rules = rules
-        self.dataclass = dataclass
-        self.error_handler: ErrorHandlerT = error_handler or ErrorHandler()  # type: ignore
-        self.ctx = Context()
-    
-    @property
-    def on_error(self):
-        return self.error_handler.register_catcher
+    func: F
+    rules: list["ABCRule[EventT]"]
+    _: dataclasses.KW_ONLY
+    is_blocking: bool = dataclasses.field(default=True)
+    dataclass: type[typing.Any] | None = dataclasses.field(default=dict)
+    error_handler: ErrorHandlerT = dataclasses.field(
+        default_factory=lambda: typing.cast(ErrorHandlerT, ErrorHandler()),
+    )
+    ctx: Context = dataclasses.field(default_factory=lambda: Context(), init=False)
+
+    def __repr__(self) -> str:
+        return "<{}: {}={!r} with rules={!r}, dataclass={!r}, error_handler={!r}>".format(
+            self.__class__.__name__,
+            "blocking function" if self.is_blocking else "function",
+            self.func.__name__,
+            self.rules,
+            self.dataclass,
+            self.error_handler,
+        )
     
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         ctx = ctx or Context()

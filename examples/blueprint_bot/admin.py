@@ -5,7 +5,7 @@ from telegrinder.rules import MessageRule, Text
 
 class IsAdmin(MessageRule):
     async def check(self, message: Message, ctx: Context) -> bool:
-        return message.from_user.username == "timoniq"
+        return message.from_user.username.unwrap_or_none() == "timoniq"
 
 
 dp = Dispatch()

@@ -1,6 +1,6 @@
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.rules import Text
 from telegrinder.modules import logger
+from telegrinder.rules import Text
 
 SECRET_CHAT_ID = 123456789
 api = API(token=Token.from_env())

@@ -1,6 +1,6 @@
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.rules import Argument, Command
 from telegrinder.modules import logger
+from telegrinder.rules import Argument, Command
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

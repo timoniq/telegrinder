@@ -16,7 +16,6 @@ from telegrinder import (
 from telegrinder.modules import logger
 from telegrinder.rules import CallbackDataEq, CallbackDataJsonModel, Text
 
-
 api = API(token=Token.from_env())
 bot = Telegrinder(api=api)
 wm = WaiterMachine()

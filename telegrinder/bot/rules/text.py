@@ -14,7 +14,7 @@ class TextMessageRule(MessageRule, ABC, requires=[HasText()]):
 
 
 class Text(TextMessageRule):
-    def __init__(self, texts: str | list[str], ignore_case: bool = False):
+    def __init__(self, texts: str | list[str], *, ignore_case: bool = False) -> None:
         if not isinstance(texts, list):
             texts = [texts]
         self.texts = texts if not ignore_case else list(map(str.lower, texts))

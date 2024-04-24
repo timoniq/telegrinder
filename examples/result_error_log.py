@@ -1,14 +1,14 @@
-from fntypes.result import Error, RESULT_ERROR_LOGGER
+from fntypes.result import RESULT_ERROR_LOGGER, Error
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.rules import Text
 
+logger.set_level("INFO")
+RESULT_ERROR_LOGGER.set_log(logger.error)
+
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-
-RESULT_ERROR_LOGGER.set_log(logger.error)
-logger.set_level("INFO")
 
 
 @bot.on.message(Text("/error_no_control"))
@@ -55,5 +55,6 @@ async def handle_error_manually_controlled(m: Message):
 @bot.on.message(Text("/works"))
 async def handler_that_works(m: Message):
     await m.answer("This handler works 🤯🤯")
+
 
 bot.run_forever()

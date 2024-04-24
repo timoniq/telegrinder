@@ -6,16 +6,18 @@ from fntypes.co import Nothing, Some
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
-from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, FuncHandler
+from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.model import Model
 from telegrinder.msgspec_utils import Option
+from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.types.objects import Update
 
 EventType = typing.TypeVar("EventType", bound=BaseCute)
+ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler)
 MiddlewareT = typing.TypeVar("MiddlewareT", bound=ABCMiddleware)
 
 FuncType: typing.TypeAlias = typing.Callable[
@@ -74,20 +76,44 @@ class BaseView(ABCView, typing.Generic[EventType]):
                 return getattr(update, update_type.value)
             case _:
                 return Nothing()
-
+    
+    @typing.overload
     def __call__(
         self,
         *rules: ABCRule[EventType],
+    ) -> typing.Callable[[FuncType[EventType]], FuncHandler[EventType, FuncType[EventType], ErrorHandler]]:
+        ...
+    
+    @typing.overload
+    def __call__(
+        self,
+        *rules: ABCRule[EventType],
+        error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-        error_handler: ErrorHandlerT | None = None,
+    ) -> typing.Callable[[FuncType[EventType]], FuncHandler[EventType, FuncType[EventType], ErrorHandlerT]]:
+        ...
+
+    @typing.overload
+    def __call__(
+        self,
+        *rules: ABCRule[EventType],
+        error_handler: typing.Literal[None] = None,
+        is_blocking: bool = True,
+    ) -> typing.Callable[[FuncType[EventType]], FuncHandler[EventType, FuncType[EventType], ErrorHandler]]:
+        ...
+
+    def __call__(  # type: ignore
+        self,
+        *rules: ABCRule[EventType],
+        error_handler: ABCErrorHandler | None = None,
+        is_blocking: bool = True,
     ):
         def wrapper(func: FuncType[EventType]):
-            func_handler = FuncHandler[EventType, FuncType[EventType], ErrorHandlerT](
+            func_handler = FuncHandler(
                 func,
                 [*self.auto_rules, *rules],
-                is_blocking,
+                is_blocking=is_blocking,
                 dataclass=None,
-                error_handler=error_handler,
             )
             self.handlers.append(func_handler)
             return func_handler

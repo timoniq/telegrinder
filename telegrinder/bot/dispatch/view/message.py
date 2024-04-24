@@ -12,7 +12,7 @@ class MessageView(BaseStateView[MessageCute]):
         self.return_manager = MessageReturnManager()
 
     def get_state_key(self, event: MessageCute) -> int | None:
-        return event.chat.id
+        return event.chat_id
 
 
 __all__ = ("MessageView",)

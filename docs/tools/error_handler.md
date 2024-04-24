@@ -18,7 +18,7 @@ An instance of the ErrorHandler class has only one catcher. The catcher is a dat
 from telegrinder.tools.error_handler import Catcher
 ```
 
-To register a catcher in ErrorHandler, you need to use the .register_catcher() decorator. This decorator has params:
+To register a catcher in ErrorHandler, you need to use the `.__call__()` decorator. This decorator has params:
 
 * `exceptions` - The exceptions to be caught;
 * `logging` - Logging errors;
@@ -31,7 +31,7 @@ from telegrinder.tools.error_handler import ErrorHandler
 error_handler = ErrorHandler()
 
 
-@error_handler.register_catcher(NameError, ValueError("Wrong value!"), logging=True, ignore_errors=True, raise_exception=False)
+@error_handler(NameError, ValueError("Wrong value!"), logging=True, ignore_errors=True, raise_exception=False)
 async def some_catcher(exception: NameError | ValueError) -> None:
     print("Oops...")
 ```
@@ -56,7 +56,7 @@ from telegrinder.tools.error_handler import ErrorHandler
 error_handler = ErrorHandler()
 
 
-@error_handler.register_catcher(NameError, ValueError("Wrong value!"), logging=True, ignore_errors=True, raise_exception=False)
+@error_handler(NameError, ValueError("Wrong value!"), logging=True, ignore_errors=True, raise_exception=False)
 async def some_catcher(exception: NameError | ValueError) -> None:
     print("Oops...")
 

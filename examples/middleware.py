@@ -1,4 +1,4 @@
-from telegrinder import ABCMiddleware, API, Message, Telegrinder, Token
+from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot import Context
 from telegrinder.modules import logger
 from telegrinder.rules import IsChat, IsPrivate, Text
