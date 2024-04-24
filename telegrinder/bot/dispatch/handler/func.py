@@ -30,7 +30,8 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
     error_handler: ErrorHandlerT = dataclasses.field(
         default_factory=lambda: typing.cast(ErrorHandlerT, ErrorHandler()),
     )
-    ctx: Context = dataclasses.field(default_factory=lambda: Context(), init=False)
+    preset_context: Context = dataclasses.field(default_factory=lambda: Context(), init=False)
+
 
     def __repr__(self) -> str:
         return "<{}: {}={!r} with rules={!r}, dataclass={!r}, error_handler={!r}>".format(
@@ -44,19 +45,21 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
     
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         ctx = ctx or Context()
-        preset_ctx = self.ctx.copy()
-        self.ctx |= ctx
+        temp_ctx = ctx.copy()
+        temp_ctx |= self.preset_context
+
         for rule in self.rules:
-            if not await check_rule(api, rule, event, self.ctx):
+            if not await check_rule(api, rule, event, temp_ctx):
                 logger.debug("Rule {!r} failed!", rule)
-                self.ctx = preset_ctx
                 return False
+        
+        ctx.update(temp_ctx)
         return True
 
-    async def run(self, event: EventT) -> typing.Any:
+    async def run(self, event: EventT, ctx: Context) -> typing.Any:
         if self.dataclass is not None:
             event = self.dataclass(**event.to_dict())
-        return (await self.error_handler.run(self.func, event, event.api, self.ctx)).unwrap()
+        return (await self.error_handler.run(self.func, event, event.api, ctx)).unwrap()
 
 
 __all__ = ("FuncHandler",)

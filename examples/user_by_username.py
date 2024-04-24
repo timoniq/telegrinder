@@ -20,7 +20,7 @@ from telegrinder.types.objects import MessageEntity
 
 db_path = "examples/assets/users.db"
 bot = Telegrinder(API(Token.from_env()))
-logger.set_level("INFO")
+logger.set_level("DEBUG")
 
 
 async def create_table():
@@ -130,7 +130,8 @@ class UserRegistrarMiddleware(ABCMiddleware[Message]):
 
 
 @bot.on.message(
-    Markup("/get_user @<user_id:int>")
+    Markup("/get_user <user_id:int>")
+    | Markup("/get_user @<username>")
     | MessageEntities(MessageEntityType.TEXT_MENTION)
 )
 async def get_user(

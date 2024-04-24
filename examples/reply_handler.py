@@ -11,7 +11,7 @@ logger.set_level("INFO")
 bot.on.message.handlers.extend(
     [
         MessageReplyHandler("Good morning!", Text("/gm")),
-        MessageReplyHandler("What do you say?"),
+        MessageReplyHandler("What do you say?", as_reply=True),
     ]
 )
 

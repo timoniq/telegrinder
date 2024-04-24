@@ -18,7 +18,7 @@ async def action(m: Message):
         .add_option("pear", "Pear 🔴", "Pear 🟢")
         .wait(m.ctx_api, bot.dispatch.callback_query)
     )
-    await m.edit(text=f"You chose {chosen}", nessage_id=m_id)
+    await m.edit(text=f"You chose {chosen}", message_id=m_id)
 
 
 bot.run_forever()

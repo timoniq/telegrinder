@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 
 import msgspec
 import requests
-
 from models import (
     MethodParameter,
     MethodSchema,
@@ -14,6 +13,7 @@ from models import (
     ObjectSchema,
     TelegramBotAPISchema,
 )
+
 from telegrinder.modules import logger
 
 ModelT = typing.TypeVar("ModelT", bound=msgspec.structs.Struct)

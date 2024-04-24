@@ -36,15 +36,19 @@ async def process_inner(
 
     found = False
     responses = []
+
+    ctx_copy = ctx.copy()
+
     for handler in handlers:
         if await handler.check(event.api, raw_event, ctx):
             found = True
-            handler.ctx |= ctx
-            response = await handler.run(event)
+            response = await handler.run(event, ctx)
             responses.append(response)
             await return_manager.run(response, event, ctx)
             if handler.is_blocking:
                 break
+            
+            ctx = ctx_copy
 
     for middleware in middlewares:
         await middleware.post(event, responses, ctx)

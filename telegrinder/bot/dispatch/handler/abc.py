@@ -11,10 +11,9 @@ T = typing.TypeVar("T", bound=Model)
 
 class ABCHandler(ABC, typing.Generic[T]):
     is_blocking: bool
-    ctx: Context
 
     @abstractmethod
-    async def run(self, event: T) -> typing.Any:
+    async def run(self, event: T, ctx: Context) -> typing.Any:
         pass
 
     @abstractmethod
