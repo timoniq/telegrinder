@@ -19,12 +19,18 @@ if typing.TYPE_CHECKING:
 class WaiterMachine:
     def __init__(self) -> None:
         self.storage: Storage = {}
+    
+    def __repr__(self) -> str:
+        return "<{}: storage={!r}>".format(
+            self.__class__.__name__,
+            self.storage,
+        )
 
     async def drop(
         self,
         state_view: "ABCStateView[EventModel]",
         id: Identificator,
-        **context,
+        **context: typing.Any,
     ) -> None:
         view_name = state_view.__class__.__name__
         if view_name not in self.storage:
@@ -60,9 +66,9 @@ class WaiterMachine:
         *rules: ABCRule[EventModel],
         default: Behaviour = None,
         on_drop: Behaviour = None,
-        expiration: datetime.timedelta | int | None = None,
+        expiration: datetime.timedelta | int | float | None = None,
     ) -> tuple[EventModel, Context]:
-        if isinstance(expiration, int):
+        if isinstance(expiration, int | float):
             expiration = datetime.timedelta(seconds=expiration)
 
         api: ABCAPI
@@ -77,9 +83,9 @@ class WaiterMachine:
 
         short_state = ShortState(
             key,
-            ctx_api=api,
-            event=event,
-            rules=rules,
+            api,
+            event,
+            rules,
             expiration=expiration,
             default_behaviour=default,
             on_drop_behaviour=on_drop,
@@ -104,13 +110,13 @@ class WaiterMachine:
         view: "ABCStateView[EventModel]",
         behaviour: Behaviour,
         event: asyncio.Event | EventModel,
-        **context,
+        **context: typing.Any,
     ) -> None:
         if behaviour is None:
             return
         # TODO: add behaviour check
         # TODO: support view as a behaviour
-        await behaviour.run(event)
+        await behaviour.run(event, context)  # type: ignore
 
 
 __all__ = ("WaiterMachine",)

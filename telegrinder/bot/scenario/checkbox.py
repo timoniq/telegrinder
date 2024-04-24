@@ -45,6 +45,21 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         self.max_in_row = max_in_row
         self.random_code = secrets.token_hex(8)
         self.waiter_machine = waiter_machine
+    
+    def __repr__(self) -> str:
+        return (
+            "<{}@{!r}: (choices={!r}, max_in_row={}) with waiter_machine={!r}, ready_text={!r} "
+            "for chat_id={} with message={!r}>"
+        ).format(
+            self.__class__.__name__,
+            self.random_code,
+            self.choices,
+            self.max_in_row,
+            self.waiter_machine,
+            self.ready,
+            self.chat_id,
+            self.msg,
+        )
 
     def get_markup(self) -> InlineKeyboardMarkup:
         kb = InlineKeyboard()
@@ -70,6 +85,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         name: str,
         default_text: str,
         picked_text: str,
+        *,
         is_picked: bool = False,
     ) -> typing.Self:
         self.choices.append(

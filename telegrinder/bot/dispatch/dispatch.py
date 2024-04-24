@@ -6,8 +6,10 @@ from vbml.patcher import Patcher
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules import ABCRule
 from telegrinder.modules import logger
+from telegrinder.tools.error_handler.error_handler import ErrorHandler
 from telegrinder.tools.global_context import TelegrinderCtx
 from telegrinder.types import Update
 
@@ -19,6 +21,7 @@ from .view.box import CallbackQueryViewT, InlineQueryViewT, MessageViewT, ViewBo
 T = typing.TypeVar("T")
 R = typing.TypeVar("R")
 P = typing.ParamSpec("P")
+Handler = typing.Callable[typing.Concatenate[T, ...], typing.Coroutine[typing.Any, typing.Any, typing.Any]]
 Event = typing.TypeVar("Event", bound=BaseCute)
 
 DEFAULT_DATACLASS: typing.Final[type[Update]] = Update
@@ -47,17 +50,74 @@ class Dispatch(
     def patcher(self) -> Patcher:
         """Alias `patcher` to get `vbml.Patcher` from the global context"""
         return self.global_context.vbml_patcher
-
+    
+    @typing.overload
     def handle(
         self,
-        *rules: ABCRule,
+        *rules: ABCRule[Event],
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]:
+        ...
+
+    @typing.overload
+    def handle(
+        self,
+        *rules: ABCRule[Event],
         is_blocking: bool = True,
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]:
+        ...
+
+    @typing.overload
+    def handle(
+        self,
+        *rules: ABCRule[Event],
+        dataclass: type[T],
+        is_blocking: bool = True,
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]:
+        ...
+
+    @typing.overload
+    def handle(  # type: ignore
+        self,
+        *rules: ABCRule[Event],
+        error_handler: ErrorHandlerT,
+        is_blocking: bool = True,
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandlerT]]:
+        ...
+
+    @typing.overload
+    def handle(
+        self,
+        *rules: ABCRule[Event],
+        dataclass: type[T],
+        error_handler: ErrorHandlerT,
+        is_blocking: bool = True,
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandlerT]]:
+        ...
+
+    @typing.overload
+    def handle(
+        self,
+        *rules: ABCRule[Event],
+        dataclass: type[T] = DEFAULT_DATACLASS,
+        error_handler: typing.Literal[None] = None,
+        is_blocking: bool = True,
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]:
+        ...
+
+    def handle(  # type: ignore
+        self,
+        *rules: ABCRule,
         dataclass: type[typing.Any] = DEFAULT_DATACLASS,
         error_handler: ErrorHandlerT | None = None,
+        is_blocking: bool = True,
     ):
         def wrapper(func: typing.Callable):
             handler = FuncHandler(
-                func, list(rules), is_blocking, dataclass, error_handler,
+                func,
+                list(rules),
+                is_blocking=is_blocking,
+                dataclass=dataclass,
+                error_handler=error_handler or ErrorHandler(),
             )
             self.default_handlers.append(handler)
             return handler
@@ -77,11 +137,12 @@ class Dispatch(
                 return True
 
         loop = asyncio.get_running_loop()
+        ctx = Context()
         found = False
         for handler in self.default_handlers:
-            if await handler.check(api, event):
+            if await handler.check(api, event, ctx):
                 found = True
-                loop.create_task(handler.run(event))
+                loop.create_task(handler.run(event, ctx))
                 if handler.is_blocking:
                     break
         return found
@@ -94,30 +155,6 @@ class Dispatch(
             ), f"View {name!r} is undefined in external dispatch."
             view.load(view_external[name])
             setattr(external, name, view)
-    
-    @classmethod
-    def to_handler(
-        cls,
-        *rules: ABCRule[BaseCute],
-        is_blocking: bool = True,
-        error_handler: ErrorHandlerT | None = None,
-    ):
-        def wrapper(
-            func: typing.Callable[typing.Concatenate[T, P], typing.Awaitable[R]]
-        ) -> FuncHandler[
-            BaseCute,
-            typing.Callable[typing.Concatenate[T, P], typing.Awaitable[R]],
-            ErrorHandlerT,
-        ]:
-            return FuncHandler(
-                func,
-                list(rules),
-                is_blocking=is_blocking,
-                dataclass=None,
-                error_handler=error_handler,
-            )
-
-        return wrapper
 
 
 __all__ = ("Dispatch",)

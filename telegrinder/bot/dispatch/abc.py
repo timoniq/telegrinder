@@ -14,7 +14,7 @@ class ABCDispatch(ABC):
         pass
 
     @abstractmethod
-    def load(self, external: typing.Self):
+    def load(self, external: typing.Self) -> None:
         pass
 
 

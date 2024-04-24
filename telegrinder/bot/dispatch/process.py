@@ -17,7 +17,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
 
 T = typing.TypeVar("T", bound=BaseCute)
-_ = typing.Any
+_: typing.TypeAlias = typing.Any
 
 
 async def process_inner(
@@ -36,7 +36,6 @@ async def process_inner(
 
     found = False
     responses = []
-
     ctx_copy = ctx.copy()
 
     for handler in handlers:
@@ -47,7 +46,6 @@ async def process_inner(
             await return_manager.run(response, event, ctx)
             if handler.is_blocking:
                 break
-            
             ctx = ctx_copy
 
     for middleware in middlewares:

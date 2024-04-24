@@ -30,8 +30,7 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
     error_handler: ErrorHandlerT = dataclasses.field(
         default_factory=lambda: typing.cast(ErrorHandlerT, ErrorHandler()),
     )
-    preset_context: Context = dataclasses.field(default_factory=lambda: Context(), init=False)
-
+    preset_context: Context = dataclasses.field(default_factory=lambda: Context())
 
     def __repr__(self) -> str:
         return "<{}: {}={!r} with rules={!r}, dataclass={!r}, error_handler={!r}>".format(
@@ -53,7 +52,7 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
                 logger.debug("Rule {!r} failed!", rule)
                 return False
         
-        ctx.update(temp_ctx)
+        ctx |= temp_ctx
         return True
 
     async def run(self, event: EventT, ctx: Context) -> typing.Any:

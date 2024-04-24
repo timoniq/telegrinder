@@ -27,12 +27,20 @@ class Composition:
         }
         self.is_blocking = is_blocking
     
+    def __repr__(self) -> str:
+        return "<{}: for function={!r} with nodes={}>".format(
+            ("blocking " if self.is_blocking else "")
+            + self.__class__.__name__,
+            self.func.__name__,
+            self.nodes,
+        )
+    
     async def compose_nodes(self, update: UpdateCute) -> NodeCollection | None:
         nodes: dict[str, NodeSession] = {}
         for name, node_t in self.nodes.items():
             try:
                 nodes[name] = await compose_node(node_t, update)
-            except ComposeError as err:
+            except ComposeError:
                 await NodeCollection(nodes).close_all()
                 return None
         return NodeCollection(nodes)
@@ -45,6 +53,12 @@ class CompositionDispatch(ABCDispatch):
     def __init__(self) -> None:
         self.compositions: list[Composition] = []
     
+    def __repr__(self) -> str:
+        return "<{}: with compositions={!r}>".format(
+            self.__class__.__name__,
+            self.compositions,
+        )
+
     async def feed(self, event: Update, api: ABCAPI) -> bool:
         update = UpdateCute(**event.to_dict(), api=api)
         is_found = False

@@ -11,7 +11,7 @@ class ABCMiddleware(ABC, typing.Generic[T]):
     async def pre(self, event: T, ctx: Context) -> bool:
         ...
 
-    async def post(self, event: T, responses: list[typing.Any], ctx: Context):
+    async def post(self, event: T, responses: list[typing.Any], ctx: Context) -> None:
         ...
 
 
