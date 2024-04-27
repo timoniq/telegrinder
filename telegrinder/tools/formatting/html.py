@@ -200,11 +200,8 @@ def bold(string: str) -> TagFormat:
     return TagFormat(string, tag="b")
 
 
-def channel_boost_link(channel_username: str, string: str | None = None):
-    return link(
-        get_channel_boost_link(channel_username),
-        string or f"t.me/{channel_username}?boost",
-    )
+def channel_boost_link(channel_id: str | int, string: str | None = None):
+    return link(get_channel_boost_link(channel_id), string)
 
 
 def code_inline(string: str) -> TagFormat:
@@ -234,15 +231,12 @@ def spoiler(string: str) -> TagFormat:
     return TagFormat(string, tag="tg-spoiler")
 
 
-def start_bot_link(bot_username: str, data: str, string: str | None = None) -> TagFormat:
-    return link(
-        get_start_bot_link(bot_username, data),
-        string or f"t.me/{bot_username}?start={data}"
-    )
+def start_bot_link(bot_id: str | int, data: str, string: str | None = None) -> TagFormat:
+    return link(get_start_bot_link(bot_id, data), string)
 
 
-def start_group_link(bot_username: str, data: str, string: str | None = None) -> TagFormat:
-    return link(get_start_group_link(bot_username, data), string)
+def start_group_link(bot_id: str | int, data: str, string: str | None = None) -> TagFormat:
+    return link(get_start_group_link(bot_id, data), string)
 
 
 def strike(string: str) -> TagFormat:

@@ -3,14 +3,13 @@ import typing
 
 from telegrinder.types.enums import ProgrammingLanguage
 
-SpecialFormat = typing.Union[
+SpecialFormat: typing.TypeAlias = typing.Union[
     "ChannelBoostLink",
     "InviteChatLink",
     "Link",
     "Mention",
     "PreCode",
     "ResolveDomain",
-    "SpecialFormat",
     "StartBotLink",
     "StartGroupLink",
     "TgEmoji",
@@ -38,7 +37,7 @@ class BaseSpecFormat:
 class ChannelBoostLink(BaseSpecFormat):
     __formatter_name__ = "channel_boost_link"
 
-    channel_username: str
+    channel_id: str | int
     string: str | None = None
 
 
@@ -86,7 +85,7 @@ class TgEmoji(BaseSpecFormat):
 class StartBotLink(BaseSpecFormat):
     __formatter_name__ = "start_bot_link"
 
-    bot_username: str
+    bot_id: str | int
     data: str
     string: str | None
 
@@ -95,7 +94,7 @@ class StartBotLink(BaseSpecFormat):
 class StartGroupLink(BaseSpecFormat):
     __formatter_name__ = "start_group_link"
 
-    bot_username: str
+    bot_id: str | int
     data: str
     string: str | None = None
 

@@ -12,7 +12,7 @@ class InlineQueryView(BaseStateView[InlineQueryCute]):
         self.return_manager = InlineQueryReturnManager()
 
     def get_state_key(self, event: InlineQueryCute) -> int | None:
-        return event.from_.id
+        return event.from_user.id
 
 
 __all__ = ("InlineQueryView",)

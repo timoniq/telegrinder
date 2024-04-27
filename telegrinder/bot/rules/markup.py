@@ -24,7 +24,7 @@ def check_string(patterns: list[vbml.Pattern], s: str, ctx: Context) -> bool:
 
 
 class Markup(TextMessageRule):
-    def __init__(self, patterns: PatternLike | list[PatternLike]):
+    def __init__(self, patterns: PatternLike | list[PatternLike], /):
         if not isinstance(patterns, list):
             patterns = [patterns]
         self.patterns = [

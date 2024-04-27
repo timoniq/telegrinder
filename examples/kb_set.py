@@ -13,6 +13,7 @@ from telegrinder import (
     Token,
     WaiterMachine,
 )
+from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
 from telegrinder.modules import logger
 from telegrinder.rules import CallbackDataEq, CallbackDataJsonModel, Text
 
@@ -45,11 +46,6 @@ async def menu_handler(m: Message):
     )
 
 
-@bot.dispatch.to_handler()
-async def repeat_yes_or_no(m: Message):
-    await m.answer("Please make a decision: Yes or No. This is extremely important!")
-
-
 @bot.on.message(Text(["/choose", "Choose"]))
 async def choose_handler(m: Message):
     await m.answer(
@@ -59,8 +55,8 @@ async def choose_handler(m: Message):
     answer, _ = await wm.wait(
         bot.dispatch.message,
         m,
-        Text(["yes", "no"], True),
-        default=repeat_yes_or_no,
+        Text(["yes", "no"], ignore_case=True),
+        default=MessageReplyHandler("Please make a decision: Yes or No. This is extremely important!"),
     )
     if answer.text.unwrap().lower() == "yes":
         await answer.reply("Rockets have been launched.")

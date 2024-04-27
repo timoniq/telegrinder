@@ -13,7 +13,8 @@ bot = Telegrinder(api, dispatch=CompositionDispatch())
 logger.set_level("INFO")
 
 
-async def create_tables():
+@bot.loop_wrapper.lifespan.on_startup
+async def create_tables() -> None:
     async with aiosqlite.connect("test.db") as conn:
         await conn.execute(
             "create table if not exists logs("
@@ -90,5 +91,4 @@ async def handler_ruleset_dataclass_context(
         await src.send("Wrong! >:(")
 
 
-bot.loop_wrapper.on_startup.append(create_tables())
 bot.run_forever()

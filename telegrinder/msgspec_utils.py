@@ -51,8 +51,7 @@ def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, msgspec.Validation
 def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
     if obj is None:
         return Nothing
-    generic_args = typing.get_args(tp)
-    value_type: typing.Any | type[typing.Any] = typing.Any if not generic_args else generic_args[0]
+    value_type, = typing.get_args(tp) or (typing.Any,)
     return msgspec_convert({"value": obj}, fntypes.option.Some[value_type]).unwrap()
 
 
@@ -123,6 +122,12 @@ class Decoder:
             Variative: variative_dec_hook,
             datetime: lambda t, obj: t.fromtimestamp(obj),
         }
+    
+    def __repr__(self) -> str:
+        return "<{}: dec_hooks={!r}>".format(
+            self.__class__.__name__,
+            self.dec_hooks,
+        )
 
     def add_dec_hook(self, t: T):  # type: ignore
         def decorator(func: DecHook[T]) -> DecHook[T]:
@@ -215,6 +220,12 @@ class Encoder:
             Variative: lambda variative: variative.v,
             datetime: lambda date: int(date.timestamp()),
         }
+
+    def __repr__(self) -> str:
+        return "<{}: enc_hooks={!r}>".format(
+            self.__class__.__name__,
+            self.enc_hooks,
+        )
 
     def add_dec_hook(self, t: type[T]):
         def decorator(func: EncHook[T]) -> EncHook[T]:

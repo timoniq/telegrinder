@@ -33,6 +33,20 @@ class Polling(ABCPolling):
         self.max_reconnetions = 10 if max_reconnetions < 0 else max_reconnetions
         self.offset = offset
         self._stop = False
+    
+    def __repr__(self) -> str:
+        return (
+            "<{}: with api={!r}, stopped={}, offset={}, allowed_updates={!r}, "
+            "max_reconnetions={}, reconnection_timeout={}>"
+        ).format(
+            self.__class__.__name__,
+            self.api,
+            self._stop,
+            self.offset,
+            self.allowed_updates,
+            self.max_reconnetions,
+            self.reconnection_timeout,
+        )
 
     def get_allowed_updates(
         self,

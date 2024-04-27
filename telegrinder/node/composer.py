@@ -27,7 +27,7 @@ class NodeSession:
             self.generator = None
 
     def __repr__(self) -> str:
-        return f"<NodeSession: {self.value}" + ("ACTIVE>" if self.generator else ">")
+        return f"<{self.__class__.__name__}: {self.value}" + ("ACTIVE>" if self.generator else ">")
 
 
 class NodeCollection:

@@ -3,9 +3,7 @@ from telegrinder.modules import logger
 from telegrinder.rules import Text
 
 SECRET_CHAT_ID = 123456789
-api = API(token=Token.from_env())
-bot = Telegrinder(api)
-
+bot = Telegrinder(API(Token.from_env()))
 logger.set_level("INFO")
 
 
@@ -19,6 +17,7 @@ async def repeat_yum():
     print("repeat yum-yum!!!")
 
 
+@bot.loop_wrapper.lifespan.on_startup
 async def hello():
     await bot.api.send_message(
         chat_id=SECRET_CHAT_ID,
@@ -26,15 +25,14 @@ async def hello():
     )
 
 
+@bot.loop_wrapper.lifespan.on_shutdown
 async def bye():
     print("Bye!!!")
 
 
-@bot.on.message(Text("/test"))
-async def test(m: Message):
-    await m.reply("hello, world!")
+@bot.on.message(Text("/hello"))
+async def hello_handler(m: Message):
+    await m.reply("Hello, world!")
 
 
-bot.loop_wrapper.on_startup.append(hello())
-bot.loop_wrapper.on_shutdown.append(bye())
 bot.run_forever()

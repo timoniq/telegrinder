@@ -1,4 +1,11 @@
-from telegrinder import API, Message, MessageRule, Telegrinder, Token
+from telegrinder import (
+    API,
+    Message,
+    MessageReplyHandler,
+    MessageRule,
+    Telegrinder,
+    Token,
+)
 from telegrinder.bot import Context, WaiterMachine
 from telegrinder.modules import logger
 from telegrinder.rules import Text
@@ -20,15 +27,15 @@ class HasNicePhoto(MessageRule, requires=[HasPhoto()]):
         return message.photo.unwrap()[0].width > message.photo.unwrap()[0].height
 
 
-@bot.on.to_handler()
-async def not_a_photo(message: Message):
-    await message.answer("Waiting for the photo")
-
-
 @bot.on.message(Text("/chain"))
 async def start_handler(m: Message):
     await m.answer("Send me a photo please")
-    m, _ = await wm.wait(bot.dispatch.message, m, HasPhoto(), default=not_a_photo)
+    m, _ = await wm.wait(
+        bot.dispatch.message,
+        m,
+        HasPhoto(),
+        default=MessageReplyHandler("Waiting for the photo", as_reply=True),
+    )
     await m.reply("Great photo! Chain completed.")
 
 

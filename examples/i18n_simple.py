@@ -9,6 +9,8 @@ i18n = SimpleI18n(folder="examples/assets/i18n", domain="messages", default_loca
 
 logger.set_level("INFO")
 
+
+@bot.on.message.register_middleware()
 class I18nMiddleware(ABCTranslatorMiddleware[Message]):
     async def get_locale(self, event: Message) -> str:
         return event.from_user.language_code.unwrap()
@@ -23,5 +25,4 @@ async def handler(message: Message, _: SimpleTranslator):
     await message.answer(_("Hello, {name}!", name=message.from_user.first_name))
 
 
-bot.on.message.middlewares.append(I18nMiddleware(i18n))
 bot.run_forever()

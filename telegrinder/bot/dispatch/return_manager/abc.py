@@ -43,6 +43,12 @@ class ABCReturnManager(ABC, typing.Generic[EventT]):
 
 
 class BaseReturnManager(ABCReturnManager[EventT]):
+    def __repr__(self) -> str:
+        return "<{}: {}>".format(
+            self.__class__.__name__,
+            ", ".join(x.callback.__name__ + "=" + repr(x) for x in self.managers),
+        )
+
     @property
     def managers(self) -> list[Manager]:
         return [

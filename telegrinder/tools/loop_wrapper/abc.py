@@ -1,13 +1,10 @@
 import typing
 from abc import ABC, abstractmethod
 
-CoroutineTask: typing.TypeAlias = typing.Coroutine[typing.Any, typing.Any, typing.Any]
-CoroutineFunc: typing.TypeAlias = typing.Callable[..., CoroutineTask]
-
 
 class ABCLoopWrapper(ABC):
     @abstractmethod
-    def add_task(self, task: CoroutineFunc | CoroutineTask) -> None:
+    def add_task(self, task: typing.Any) -> None:
         pass
 
     @abstractmethod

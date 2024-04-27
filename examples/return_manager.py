@@ -34,7 +34,7 @@ class MappedValidator(typing.Generic[T]):
 
 
 @bot.on.message(Command("get", Argument("count", validators=[int_validator])))
-async def command_handler_get(message: Message, count: int) -> str:
+async def command_handler_get(_: Message, count: int) -> str:
     return f"You got {count} items."
 
 

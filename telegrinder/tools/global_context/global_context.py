@@ -199,8 +199,8 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             self.set_context_variables(variables)
 
     def __repr__(self) -> str:
-        return "<{!r} -> ({})>".format(
-            f"{self.__class__.__name__}@{self.ctx_name}",
+        return "<{} -> ({})>".format(
+            f"{self.__class__.__name__}@{self.ctx_name!r}",
             ", ".join(repr(var) for var in self),
         )
 

@@ -1,4 +1,4 @@
 from .abc import ABCLoopWrapper
-from .loop_wrapper import DelayedTask, LoopWrapper
+from .loop_wrapper import DelayedTask, Lifespan, LoopWrapper
 
-__all__ = ("ABCLoopWrapper", "DelayedTask", "LoopWrapper")
+__all__ = ("ABCLoopWrapper", "DelayedTask", "Lifespan", "LoopWrapper")

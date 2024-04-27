@@ -57,6 +57,10 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
 
 
 class Model(msgspec.Struct, **MODEL_CONFIG):
+    @classmethod
+    def from_bytes(cls, data: bytes) -> typing.Self:
+        return decoder.decode(data, type=cls)
+
     def to_dict(
         self,
         *,
@@ -75,6 +79,12 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
 @dataclasses.dataclass(kw_only=True)
 class DataConverter:
     files: dict[str, tuple[str, bytes]] = dataclasses.field(default_factory=lambda: {})
+
+    def __repr__(self) -> str:
+        return "<{}: {}>".format(
+            self.__class__.__name__,
+            ", ".join(f"{k}={v!r}" for k, v in self.converters),
+        )
 
     @property
     def converters(self) -> dict[type[typing.Any], typing.Callable[..., typing.Any]]:

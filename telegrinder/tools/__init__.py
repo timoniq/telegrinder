@@ -66,7 +66,7 @@ from .keyboard import (
     Keyboard,
     RowButtons,
 )
-from .loop_wrapper import ABCLoopWrapper, DelayedTask, LoopWrapper
+from .loop_wrapper import ABCLoopWrapper, DelayedTask, Lifespan, LoopWrapper
 from .magic import magic_bundle, resolve_arg_names
 from .parse_mode import ParseMode
 
@@ -99,6 +99,7 @@ __all__ = (
     "KeyboardSetBase",
     "KeyboardSetYAML",
     "Link",
+    "Lifespan",
     "LoopWrapper",
     "Mention",
     "ParseMode",
