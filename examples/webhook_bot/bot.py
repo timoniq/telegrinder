@@ -103,7 +103,7 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
         dp.message,
         (cb.ctx_api, message.chat_id),
         IntegerInRange(range(1, 11)),
-        default=MessageReplyHandler("Fine or bad"),
+        default=MessageReplyHandler("Send a number between 1 and 10!"),
     )
     random_number = random.randint(1, 10)
     if int(msg.text.unwrap()) == random_number:
