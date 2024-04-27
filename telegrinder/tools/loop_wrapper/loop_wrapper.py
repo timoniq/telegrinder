@@ -9,12 +9,16 @@ from .abc import ABCLoopWrapper
 
 T = typing.TypeVar("T")
 P = typing.ParamSpec("P")
-CoroTask = typing.TypeVar("CoroTask", bound="CoroutineTask")
 CoroFunc = typing.TypeVar("CoroFunc", bound="CoroutineFunc")
 
 CoroutineTask: typing.TypeAlias = typing.Coroutine[typing.Any, typing.Any, T]
 CoroutineFunc: typing.TypeAlias = typing.Callable[P, CoroutineTask[T]]
 Task: typing.TypeAlias = typing.Union[CoroutineFunc, CoroutineTask, "DelayedTask"]
+
+
+def run_tasks(tasks: list[CoroutineTask[typing.Any]], loop: asyncio.AbstractEventLoop) -> None:
+    while len(tasks) != 0:
+        loop.run_until_complete(tasks.pop(0))
 
 
 def to_coroutine_task(task: Task) -> CoroutineTask:
@@ -55,30 +59,6 @@ class Lifespan:
     startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
     shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
 
-    @typing.overload
-    def on_startup(self, task_or_func: CoroFunc) -> CoroFunc:
-        ...
-
-    @typing.overload
-    def on_startup(self, task_or_func: CoroTask) -> CoroTask:
-        ...
-
-    @typing.overload
-    def on_startup(self, task_or_func: DelayedTask[CoroFunc]) -> DelayedTask[CoroFunc]:
-        ...
-
-    @typing.overload
-    def on_shutdown(self, task_or_func: CoroFunc) -> CoroFunc:
-        ...
-
-    @typing.overload
-    def on_shutdown(self, task_or_func: CoroTask) -> CoroTask:
-        ...
-
-    @typing.overload
-    def on_shutdown(self, task_or_func: DelayedTask[CoroFunc]) -> DelayedTask[CoroFunc]:
-        ...
-
     def on_startup(self, task_or_func: Task) -> Task:
         task_or_func = to_coroutine_task(task_or_func)
         self.startup_tasks.append(task_or_func)
@@ -90,12 +70,10 @@ class Lifespan:
         return task_or_func
     
     def start(self, loop: asyncio.AbstractEventLoop) -> None:
-        while len(self.startup_tasks) != 0:
-            loop.run_until_complete(self.startup_tasks.pop(0))
+        run_tasks(self.startup_tasks, loop)
     
     def shutdown(self, loop: asyncio.AbstractEventLoop) -> None:
-        while len(self.shutdown_tasks) != 0:
-            loop.run_until_complete(self.shutdown_tasks.pop(0))
+        run_tasks(self.shutdown_tasks, loop)
 
 
 class LoopWrapper(ABCLoopWrapper):
@@ -105,9 +83,9 @@ class LoopWrapper(ABCLoopWrapper):
         tasks: list[CoroutineTask[typing.Any]] | None = None,
         lifespan: Lifespan | None = None,
     ) -> None:
-        self._loop = asyncio.new_event_loop()
         self.tasks: list[CoroutineTask[typing.Any]] = tasks or []
         self.lifespan = lifespan or Lifespan()
+        self._loop = asyncio.new_event_loop()
     
     def __repr__(self) -> str:
         return "<{}: loop={!r} with tasks={!r}, lifespan={!r}>".format(
@@ -122,14 +100,13 @@ class LoopWrapper(ABCLoopWrapper):
             logger.warning("You run loop with 0 tasks!")
 
         self.lifespan.start(self._loop)
-        while len(self.tasks) > 0:
-            self._loop.create_task(self.tasks.pop(0))
+        run_tasks(self.tasks, self._loop)
         tasks = asyncio.all_tasks(self._loop)
         
         try:
             while tasks:
                 tasks_results, _ = self._loop.run_until_complete(
-                    asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+                    asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION),
                 )
                 for task_result in tasks_results:
                     try:

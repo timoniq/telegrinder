@@ -80,7 +80,7 @@ async def execute_method_answer(
         params["link_preview_options"] = compose_link_preview_options(
             **link_preview_options
         )
-
+        
     result = await getattr(message.ctx_api, method_name)(**params)
     return result.map(
         lambda x: (

@@ -5,7 +5,7 @@ import typing
 from telegrinder.api.abc import Token
 
 
-def verify_webapp_request(secret_token: str, request_headers: dict[str, typing.Any]) -> bool:
+def verify_webapp_request(secret_token: str, request_headers: typing.Mapping[str, typing.Any]) -> bool:
     """Verifies update request is from telegram."""
 
     return request_headers.get("X-Telegram-Bot-Api-Secret-Token") == secret_token
@@ -13,7 +13,7 @@ def verify_webapp_request(secret_token: str, request_headers: dict[str, typing.A
 
 def webapp_validate_request(
     bot_token: Token,
-    request_query_params: dict[str, typing.Any],
+    request_query_params: typing.Mapping[str, typing.Any],
 ) -> bool:
     """Verifies authentity of webapp request by counting hash of its parameters."""
 
