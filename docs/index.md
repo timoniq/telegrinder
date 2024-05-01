@@ -1,9 +1,9 @@
 # Telegrinder
 
-Work in progress
+Welcome to telegrinder documentation.
 
-## Sheets
+You may be interested in:
 
-* [Checkbox](sheets/checkbox.md)
-* [Keyboard Set](sheets/keyboard_set.md)
-* [Formatting](sheets/formatting.md)
+* [Guide](guide/index.md)
+* [API](api.md)
+* [Tools](tools/index.md)

@@ -3,5 +3,4 @@ class ParseMode:
     HTML = "HTML"
 
 
-def get_mention_link(user_id: int) -> str:
-    return f"tg://user?id={user_id}"
+__all__ = ("ParseMode",)

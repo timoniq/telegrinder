@@ -1,28 +1,44 @@
+import typing
+
 import msgspec
+from fntypes.result import Error, Ok, Result
+
+from telegrinder.api.response import APIResponse
+from telegrinder.client import ABCClient, AiohttpClient
+from telegrinder.model import DataConverter, decoder
+from telegrinder.types.methods import APIMethods
 
 from .abc import ABCAPI, APIError, Token
-import typing
-from telegrinder.result import Result, Ok, Error
-from telegrinder.client import ABCClient, AiohttpClient
-from telegrinder.types.methods import APIMethods
-from telegrinder.model import convert
-from telegrinder.api.response import APIResponse
 
 
-def compose_data(client: ABCClient, data: dict) -> typing.Any:
-    data = {k: convert(v) for k, v in data.items()}
-    if any(isinstance(v, tuple) for v in data.values()):
-        data = client.get_form(data)
-    return data
+def compose_data(
+    client: ABCClient,
+    data: dict[str, typing.Any],
+    files: dict[str, tuple[str, bytes]],
+) -> typing.Any:
+    converter = DataConverter(files=files.copy())
+    return client.get_form(
+        data={k: converter(v) for k, v in data.items()},
+        files=converter.files,
+    )
 
 
 class API(ABCAPI, APIMethods):
+    """Bot API with available API methods."""
+
     API_URL = "https://api.telegram.org/"
 
-    def __init__(self, token: Token, http: ABCClient | None = None):
+    def __init__(self, token: Token, *, http: ABCClient | None = None) -> None:
         self.token = token
         self.http = http or AiohttpClient()
         super().__init__(self)
+    
+    def __repr__(self) -> str:
+        return "<{}: token={!r}, http={!r}>".format(
+            self.__class__.__name__,
+            self.token,
+            self.http,
+        )
 
     @property
     def id(self) -> int:
@@ -35,27 +51,32 @@ class API(ABCAPI, APIMethods):
     async def request(
         self,
         method: str,
-        data: dict | None = None,
-    ) -> Result[dict | list | bool, APIError]:
-        data = compose_data(self.http, data or {})
-        response = await self.http.request_json(self.request_url + method, data=data)
+        data: dict[str, typing.Any] | None = None,
+        files: dict[str, tuple[str, bytes]] | None = None,
+    ) -> Result[dict[str, typing.Any] | list[typing.Any] | bool, APIError]:
+        response = await self.http.request_json(
+            url=self.request_url + method,
+            data=compose_data(self.http, data or {}, files or {})
+        )
         if response.get("ok"):
             assert "result" in response
             return Ok(response["result"])
-
-        code, msg = response.get("error_code"), response.get("description")
-        return Error(APIError(code, msg))
+        return Error(APIError(
+            code=response.get("error_code", 400),
+            error=response.get("description"),
+        ))
 
     async def request_raw(
         self,
         method: str,
-        data: dict | None = None,
+        data: dict[str, typing.Any] | None = None,
+        files: dict[str, tuple[str, bytes]] | None = None,
     ) -> Result[msgspec.Raw, APIError]:
-        data = compose_data(self.http, data or {})
         response_bytes = await self.http.request_bytes(
-            self.request_url + method, data=data
+            url=self.request_url + method,
+            data=compose_data(self.http, data or {}, files or {}),
         )
-        response_skeleton: APIResponse = msgspec.json.decode(
-            response_bytes, type=APIResponse
-        )
-        return response_skeleton.to_result()
+        return decoder.decode(response_bytes, type=APIResponse).to_result()
+
+
+__all__ = ("API",)

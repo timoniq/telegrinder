@@ -1,13 +1,13 @@
-from abc import ABC, abstractmethod
+import pathlib
 import typing
+from abc import ABC, abstractmethod
 
 import msgspec
-
 from envparse import env
+from fntypes.result import Result
 
 from telegrinder.api.error import APIError
 from telegrinder.client import ABCClient
-from telegrinder.result import Result
 
 from .error import InvalidTokenError
 
@@ -15,18 +15,22 @@ from .error import InvalidTokenError
 class Token(str):
     def __new__(cls, token: str) -> typing.Self:
         if token.count(":") != 1 or not token.split(":")[0].isdigit():
-            raise InvalidTokenError("Invalid token, it should look like this '123:ABC'")
+            raise InvalidTokenError("Invalid token, it should look like this '123:ABC'.")
         return super().__new__(cls, token)
+    
+    def __repr__(self) -> str:
+        return f"<Token: {self.bot_id}:{''.join(self.split(':')[-1])[:6]}...>"
 
     @classmethod
     def from_env(
         cls,
         var_name: str = "BOT_TOKEN",
+        *,
         is_read: bool = False,
-        path_to_env: str | None = None,
+        path_to_envfile: str | pathlib.Path | None = None,
     ) -> typing.Self:
         if not is_read:
-            env.read_envfile(path_to_env)
+            env.read_envfile(path_to_envfile)
         return cls(env.str(var_name))
 
     @property
@@ -41,15 +45,17 @@ class ABCAPI(ABC):
     async def request(
         self,
         method: str,
-        data: dict | None = None,
-    ) -> Result[list | dict | bool, APIError]:
+        data: dict[str, typing.Any] | None = None,
+        files: dict[str, tuple[str, bytes]] | None = None,
+    ) -> Result[list[typing.Any] | dict[str, typing.Any] | bool, APIError]:
         pass
 
     @abstractmethod
     async def request_raw(
         self,
         method: str,
-        data: dict | None = None,
+        data: dict[str, typing.Any] | None = None,
+        files: dict[str, tuple[str, bytes]] | None = None,
     ) -> Result[msgspec.Raw, APIError]:
         pass
 
@@ -62,3 +68,6 @@ class ABCAPI(ABC):
     @abstractmethod
     def id(self) -> int:
         pass
+
+
+__all__ = ("ABCAPI", "Token")

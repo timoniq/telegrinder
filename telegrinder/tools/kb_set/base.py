@@ -10,3 +10,6 @@ class KeyboardSetBase(ABC):
     @abstractmethod
     def load(cls) -> None:
         pass
+
+
+__all__ = ("KeyboardSetBase", "KeyboardSetError")

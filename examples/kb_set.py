@@ -1,37 +1,48 @@
+import dataclasses
+import pathlib
 import random
 
 from telegrinder import (
-    Telegrinder,
-    Token,
     API,
-    KeyboardSetYAML,
+    CallbackQuery,
     InlineKeyboard,
     Keyboard,
+    KeyboardSetYAML,
     Message,
-    CallbackQuery,
+    Telegrinder,
+    Token,
+    WaiterMachine,
 )
-from telegrinder.rules import Text, CallbackDataEq
-from telegrinder.types import ReplyKeyboardRemove
-
-
-class KeyboardSet(KeyboardSetYAML):
-    __config__ = "assets/kb_set_config.yaml"
-
-    KEYBOARD_MENU: Keyboard
-    KEYBOARD_YES_NO: Keyboard
-    KEYBOARD_EDIT: InlineKeyboard
-
-
-KeyboardSet.load()
+from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
+from telegrinder.modules import logger
+from telegrinder.rules import CallbackDataEq, CallbackDataJsonModel, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api=api)
+wm = WaiterMachine()
+
+logger.set_level("INFO")
+
+
+@dataclasses.dataclass
+class Item:
+    name: str
+    cost: int
+
+
+class KeyboardSet(KeyboardSetYAML):
+    __config__ = pathlib.Path("examples") / "assets" / "kb_set_config.yaml"
+
+    KEYBOARD_MENU: Keyboard
+    KEYBOARD_YES_NO: Keyboard
+    KEYBOARD_ITEMS: InlineKeyboard
 
 
 @bot.on.message(Text("/menu"))
 async def menu_handler(m: Message):
     await m.answer(
-        text="You are in menu", reply_markup=KeyboardSet.KEYBOARD_MENU.get_markup()
+        text="You are in menu",
+        reply_markup=KeyboardSet.KEYBOARD_MENU.get_markup(),
     )
 
 
@@ -41,43 +52,46 @@ async def choose_handler(m: Message):
         text="Do you like making important decisions?",
         reply_markup=KeyboardSet.KEYBOARD_YES_NO.get_markup(),
     )
-    answer, _ = await bot.on.message.wait_for_message(
-        m.chat.id,
-        Text(["yes", "no"], True),
-        default="Please make a decision: Yes or No. This is extremely important!",
+    answer, _ = await wm.wait(
+        bot.dispatch.message,
+        m,
+        Text(["yes", "no"], ignore_case=True),
+        default=MessageReplyHandler("Please make a decision: Yes or No. This is extremely important!"),
     )
-    if answer.text.lower() == "yes":
+    if answer.text.unwrap().lower() == "yes":
         await answer.reply("Rockets have been launched.")
     else:
         await answer.reply(":(( maybe you need some psychological help")
 
 
-@bot.on.message(Text(["/edit", "Edit"]))
-async def edit_handler(m: Message):
+@bot.on.message(Text(["/choose", "choose"]))
+async def choose_item_handler(m: Message):
     await m.answer(
-        text="You can push this button and message will change!",
-        reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup(),
+        text="You can choose the inline button below:",
+        reply_markup=KeyboardSet.KEYBOARD_ITEMS.get_markup(),
     )
 
 
-@bot.on.callback_query(CallbackDataEq("edit"))
+@bot.on.callback_query(CallbackDataEq("remove_kb"))
 async def edit_callback_handler(cb: CallbackQuery):
     await cb.answer("Yay")
-    chars = list(cb.message.text)
+    chars = list(cb.message.unwrap().only().unwrap().text.unwrap())
     random.shuffle(chars)
-    await bot.api.edit_message_text(
-        cb.message.chat.id,
-        cb.message.message_id,
-        text="".join(chars),
-        reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup(),
-    )
+    await cb.edit_text("".join(chars))
+
+
+@bot.on.callback_query(CallbackDataJsonModel(Item))
+async def buy_item(cb: CallbackQuery, data: Item):
+    await cb.answer(f"Congratulations! You bought {data.name!r} for {data.cost}$")
 
 
 @bot.on.message(Text("/nokeyboard"))
 async def no_keyboard(m: Message):
     await m.answer(
-        "No more keyboard", reply_markup=ReplyKeyboardRemove(remove_keyboard=True)
+        "No more keyboard",
+        reply_markup=KeyboardSet.KEYBOARD_MENU.get_empty_markup(),
     )
 
 
+KeyboardSet.load()
 bot.run_forever()

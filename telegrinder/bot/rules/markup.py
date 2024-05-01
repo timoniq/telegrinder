@@ -1,13 +1,20 @@
-from .abc import Message, patcher
-from .text import TextMessageRule
+import typing
+
 import vbml
 
-PatternLike = str | vbml.Pattern
+from telegrinder.bot.dispatch.context import Context
+from telegrinder.tools.global_context import TelegrinderCtx
+
+from .abc import Message
+from .text import TextMessageRule
+
+PatternLike: typing.TypeAlias = str | vbml.Pattern
+global_ctx = TelegrinderCtx()
 
 
-def check_string(patterns: list[PatternLike], s: str, ctx: dict) -> bool:
+def check_string(patterns: list[vbml.Pattern], s: str, ctx: Context) -> bool:
     for pattern in patterns:
-        match patcher.check(pattern, s):
+        match global_ctx.vbml_patcher.check(pattern, s):
             case None | False:
                 continue
             case {**response}:
@@ -17,7 +24,7 @@ def check_string(patterns: list[PatternLike], s: str, ctx: dict) -> bool:
 
 
 class Markup(TextMessageRule):
-    def __init__(self, patterns: PatternLike | list[PatternLike]):
+    def __init__(self, patterns: PatternLike | list[PatternLike], /):
         if not isinstance(patterns, list):
             patterns = [patterns]
         self.patterns = [
@@ -25,5 +32,8 @@ class Markup(TextMessageRule):
             for pattern in patterns
         ]
 
-    async def check(self, message: Message, ctx: dict) -> bool:
-        return check_string(self.patterns, message.text, ctx)
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return check_string(self.patterns, message.text.unwrap(), ctx)
+
+
+__all__ = ("Markup", "check_string")

@@ -1,12 +1,18 @@
+import pathlib
 import random
 
-from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.rules import Text, Markup, FuzzyText
-import logging
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.bot import WaiterMachine
+from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
+from telegrinder.modules import logger
+from telegrinder.rules import FuzzyText, HasText, Markup, Text
+from telegrinder.types import InputFile
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+wm = WaiterMachine()
+kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
+logger.set_level("INFO")
 
 
 @bot.on.message(Text("/start"))
@@ -17,11 +23,33 @@ async def start(message: Message):
             message.from_user.first_name, me
         ),
     )
-    m, _ = await bot.on.message.wait_for_message(message.chat.id)
-    if m.text.lower() == "fine":
-        await m.reply("Cool!")
-    elif m.text.lower() == "bad":
-        await m.reply("Damn")
+    m, _ = await wm.wait(
+        bot.dispatch.message,
+        message,
+        Text(["fine", "bad"], ignore_case=True),
+        default=MessageReplyHandler("Fine or bad"),
+    )
+
+    match m.text.unwrap().lower():
+        case "fine":
+            await m.reply("Cool!")
+        case "bad":
+            await message.answer_photo(
+                InputFile("kitten.jpg", kitten_bytes),
+                caption="I'm sorry... You prob need some kitten pictures",
+            )
+
+
+@bot.on.message(Text("/react"))
+async def react(message: Message):
+    await message.reply("Send me any message...")
+    msg, _ = await wm.wait(
+        bot.dispatch.message,
+        message,
+        HasText(),
+        default=MessageReplyHandler("Your message has no text!"),
+    )
+    await msg.react("💋")
 
 
 @bot.on.message(Markup("/reverse <text>"))

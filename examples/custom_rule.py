@@ -1,27 +1,40 @@
-from telegrinder import Telegrinder, API, Token, Message, MessageRule
+from telegrinder import (
+    API,
+    Message,
+    MessageReplyHandler,
+    MessageRule,
+    Telegrinder,
+    Token,
+)
+from telegrinder.bot import Context, WaiterMachine
+from telegrinder.modules import logger
 from telegrinder.rules import Text
-import logging
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+wm = WaiterMachine()
+
+logger.set_level("INFO")
 
 
 class HasPhoto(MessageRule):
-    async def check(self, message: Message, ctx: dict) -> bool:
-        return message.photo is not None
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return bool(message.photo and message.photo.unwrap())
 
 
-class HasNicePhoto(MessageRule, require=[HasPhoto()]):
-    async def check(self, message: Message, ctx: dict) -> bool:
-        return message.photo[0].width > message.photo[0].height
+class HasNicePhoto(MessageRule, requires=[HasPhoto()]):
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return message.photo.unwrap()[0].width > message.photo.unwrap()[0].height
 
 
 @bot.on.message(Text("/chain"))
 async def start_handler(m: Message):
     await m.answer("Send me a photo please")
-    m, _ = await bot.dispatch.message.wait_for_message(
-        m.chat.id, HasPhoto(), default="Waiting for the photo"
+    m, _ = await wm.wait(
+        bot.dispatch.message,
+        m,
+        HasPhoto(),
+        default=MessageReplyHandler("Waiting for the photo", as_reply=True),
     )
     await m.reply("Great photo! Chain completed.")
 

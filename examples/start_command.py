@@ -1,10 +1,10 @@
-from telegrinder import Telegrinder, API, Token, Message
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.modules import logger
 from telegrinder.rules import StartCommand
-import logging
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+logger.set_level("INFO")
 
 
 @bot.on.message(StartCommand(lambda x: (int(x) if x.isdigit() else None)))
@@ -16,6 +16,11 @@ async def start_handler(message: Message, param: int | None) -> None:
         "Ahah you integer start query is so funny, "
         "its {0} and {0}-42={1}".format(param, param - 42)
     )
+
+
+@bot.on.message(StartCommand(param_required=True, alias="name"))
+async def start_with_name(message: Message, name: str):
+    await message.reply(f"Hello, {name!r}!")
 
 
 bot.run_forever()

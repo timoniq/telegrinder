@@ -1,13 +1,27 @@
-from telegrinder import Telegrinder, API, Token, Keyboard, Button, Message
-from telegrinder.rules import Text, EnumTextRule
+import asyncio
 import enum
 import itertools
-import asyncio
+
+from telegrinder import (
+    API,
+    Button,
+    Keyboard,
+    Message,
+    MessageReplyHandler,
+    Telegrinder,
+    Token,
+    WaiterMachine,
+)
+from telegrinder.modules import logger
+from telegrinder.rules import EnumTextRule, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
+wm = WaiterMachine()
 
 YesOrNoKeyboard = (Keyboard().add(Button("Yes")).add(Button("No"))).get_markup()
+
+logger.set_level("INFO")
 
 
 class YesOrNo(enum.Enum):
@@ -18,18 +32,21 @@ class YesOrNo(enum.Enum):
 @bot.on.message(Text("/start"))
 async def start(message: Message):
     await message.answer("Do you want some tee?")
-    wm, ctx = await bot.on.message.wait_for_message(
-        message.chat.id, EnumTextRule(YesOrNo), default="You want, dont you?"
+    _, ctx = await wm.wait(
+        bot.dispatch.message,
+        message,
+        EnumTextRule(YesOrNo),
+        default=MessageReplyHandler("You want, dont you?"),
     )
-    if ctx["enum"] == YesOrNo.NO:
+    if ctx.enum_text == YesOrNo.NO:
         await message.answer("Leee thats sad dat tee is so sweet")
         return
     await message.answer("Yay here is you tee with a nice krendeliok")
-    message_id = (await message.answer("Preparing..")).unwrap().message_id
+    m = (await message.answer("Preparing..")).unwrap()
     queue = itertools.cycle(["🫖🥨", "🥨🤗", "🤗🫖"])
     for _ in range(10):
         msg = next(queue)
-        await api.edit_message_text(message.chat.id, message_id, text=msg)
+        await m.edit(msg)
         await asyncio.sleep(0.5)
     await message.answer("Tee session is over! Goodbye!")
 

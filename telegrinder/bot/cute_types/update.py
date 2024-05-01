@@ -1,19 +1,30 @@
-from telegrinder.types import Update
-from telegrinder.api import API, ABCAPI
+import typing
+
+from fntypes.co import Nothing, Some
+
+from telegrinder.api import ABCAPI
+from telegrinder.msgspec_utils import Option
+from telegrinder.types import Model, Update
+
+from .base import BaseCute
+
+ModelT = typing.TypeVar("ModelT", bound=Model)
 
 
-class UpdateCute(Update):
+class UpdateCute(BaseCute[Update], Update, kw_only=True):
     api: ABCAPI
 
     @property
-    def ctx_api(self) -> API:
-        return self.api  # type: ignore
+    def incoming_update(self) -> Model:
+        return getattr(
+            self,
+            self.update_type.expect("Update object has no incoming update.").value,
+        )
+    
+    def get_event(self, event_model: type[ModelT]) -> Option[ModelT]:
+        if isinstance(self.incoming_update, event_model):
+            return Some(self.incoming_update)
+        return Nothing()
 
-    def to_dict(self) -> dict:
-        dct = super().to_dict()
-        dct.pop("api")
-        return dct
 
-    @classmethod
-    def from_update(cls, update: Update, bound_api: API):
-        return cls(**update.to_dict(), api=bound_api)
+__all__ = ("UpdateCute",)

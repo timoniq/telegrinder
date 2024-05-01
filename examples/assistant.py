@@ -1,26 +1,32 @@
-from telegrinder import Telegrinder, API, Token, Message
-from telegrinder.types import ChatPermissions
-from telegrinder.rules import Text, Markup, MessageRule, IsChat
 import time
-import logging
+
+from fntypes.result import Error, Ok
+
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.bot import Context
+from telegrinder.modules import logger
+from telegrinder.rules import IsChat, Markup, MessageRule, Text
+from telegrinder.types import ChatPermissions
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+logger.set_level("INFO")
 
 
 class WithReply(MessageRule):
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         if not message.reply_to_message:
             await message.reply("You need to reply to someone's message")
             return False
         return True
 
 
-class IsChatAdmin(MessageRule, require=[IsChat()]):
-    async def check(self, message: Message, ctx: dict) -> bool:
+class IsChatAdmin(MessageRule, requires=[IsChat()]):
+    async def check(self, message: Message, ctx: Context) -> bool:
         admins = (await bot.api.get_chat_administrators(message.chat.id)).unwrap()
-        if message.from_.id not in (admin.user.id for admin in admins):
+        if message.from_user.id not in (
+            admin.v.user.id for admin in admins if admin.v.user
+        ):
             await message.reply("You need to be an admin in this chat")
             return False
         return True
@@ -36,14 +42,15 @@ async def ban(msg: Message, hours: int = 1):
     perms = ChatPermissions()  # no permissions added
     result = await bot.api.restrict_chat_member(
         msg.chat.id,
-        msg.reply_to_message.from_.id,
+        msg.reply_to_message.unwrap().from_user.id,
         permissions=perms,
         until_date=int(time.time() + hours * 3600),
     )
-    if result.is_ok:
-        await msg.reply("Done")
-    else:
-        await msg.reply("Something went wrong (code {})".format(result.error.code))
+    match result:
+        case Ok(_):
+            await msg.reply("Done")
+        case Error(e):
+            await msg.reply("Something went wrong (code {})".format(e.code))
 
 
 bot.run_forever(skip_updates=True)

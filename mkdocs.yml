@@ -1,0 +1,89 @@
+site_name: telegrinder
+site_author: timoniq
+site_description: Telegram bot framework
+site_url: https://telegrinder.rtfd.io/
+repo_name: timoniq/telegrinder
+repo_url: https://github.com/timoniq/telegrinder
+edit_uri: edit/dev/docs/
+copyright: timoniq, 2024 <a href="https://github.com/timoniq/telegrinder/blob/main/LICENSE" target="_blank" rel="noopener">(View license)</a>
+
+extra:
+  generator: false
+  disqus: ""
+  social:
+    - icon: fontawesome/brands/telegram
+      link: https://t.me/botoforum
+      name: Our forum
+
+nav:
+  - Index: index.md
+  - API: api.md
+  - Guide:
+    - Code Separation: guide/code_separation.md
+  - Tools:
+    - Checkbox: tools/checkbox.md
+    - Formatting: tools/formatting.md
+    - Keyboard Set: tools/keyboard_set.md
+    - Global Context: tools/global_context.md
+    - Error Handler: tools/error_handler.md
+
+theme:
+  name: readthedocs
+  features:
+    - navigation.instant
+    - navigation.indexes
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.top
+    - search.suggest
+    - content.code.copy
+
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      accent: blue
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      accent: blue
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+
+  font:
+    text: Roboto Mono
+    code: Monaco
+
+markdown_extensions:
+  - admonition:
+  - md_in_html:
+  - toc:
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+      permalink: ""
+  - pymdownx.magiclink:
+      repo_url_shortener: true
+      repo_url_shorthand: true
+      normalize_issue_symbols: true
+      user: timoniq
+      repo: telegrinder
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      linenums: true
+      guess_lang: true
+  - pymdownx.inlinehilite:
+  - pymdownx.superfences:
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.escapeall:
+      hardbreak: True
+      nbsp: True
+  - pymdownx.details:
+  - pymdownx.tabbed:
+  - pymdownx.saneheaders:

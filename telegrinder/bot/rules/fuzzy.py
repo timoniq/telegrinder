@@ -1,6 +1,9 @@
+import difflib
+
+from telegrinder.bot.dispatch.context import Context
+
 from .abc import Message
 from .text import TextMessageRule
-import difflib
 
 
 class FuzzyText(TextMessageRule):
@@ -10,12 +13,15 @@ class FuzzyText(TextMessageRule):
         self.texts = texts
         self.min_ratio = min_ratio
 
-    async def check(self, message: Message, ctx: dict) -> bool:
+    async def check(self, message: Message, ctx: Context) -> bool:
         match = max(
-            difflib.SequenceMatcher(a=message.text, b=text).ratio()
+            difflib.SequenceMatcher(a=message.text.unwrap(), b=text).ratio()
             for text in self.texts
         )
         if match < self.min_ratio:
             return False
-        ctx["fuzzy_ratio"] = match
+        ctx.fuzzy_ratio = match
         return True
+
+
+__all__ = ("FuzzyText",)

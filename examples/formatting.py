@@ -1,17 +1,18 @@
-from telegrinder import Telegrinder, API, Token, Message
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.modules import logger
 from telegrinder.rules import Text
 from telegrinder.tools import HTMLFormatter, bold, italic, mention
-import logging
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+logger.set_level("INFO")
 
 
 @bot.on.message(Text("/formatting"))
 async def formatting(m: Message):
     await m.answer(
-        bold(italic("bold italic text!")), parse_mode=HTMLFormatter.PARSE_MODE
+        HTMLFormatter(bold(italic("bold italic text!"))),
+        parse_mode=HTMLFormatter.PARSE_MODE,
     )
     await m.answer(
         "python library 'telegrinder' - "
@@ -21,7 +22,7 @@ async def formatting(m: Message):
         parse_mode=HTMLFormatter.PARSE_MODE,
     )
     await m.answer(
-        "this is " + mention(m.from_.first_name, m.from_.id),
+        "this is " + mention(m.from_user.first_name, m.from_user.id),
         parse_mode=HTMLFormatter.PARSE_MODE,
     )
 
