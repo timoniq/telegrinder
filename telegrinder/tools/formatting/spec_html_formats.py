@@ -76,7 +76,7 @@ class PreCode(BaseSpecFormat):
 @dataclasses.dataclass(repr=False)
 class TgEmoji(BaseSpecFormat):
     __formatter_name__ = "tg_emoji"
-    
+
     string: str
     emoji_id: int
 

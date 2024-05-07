@@ -2,6 +2,7 @@ import typing
 
 from telegrinder.model import get_params
 from telegrinder.types import (
+    ChatPermissions,
     InlineKeyboardMarkup,
     InlineQueryResultArticle,
     InlineQueryResultAudio,
@@ -113,6 +114,26 @@ def compose_link_preview_options(
     **other: typing.Any,
 ) -> LinkPreviewOptions:
     return LinkPreviewOptions(**get_params(locals()))
+
+
+def compose_chat_permissions(
+    *,
+    can_send_messages: bool | None = None,
+    can_send_audios: bool | None = None,
+    can_send_documents: bool | None = None,
+    can_send_photos: bool | None = None,
+    can_send_videos: bool | None = None,
+    can_send_video_notes: bool | None = None,
+    can_send_voice_notes: bool | None = None,
+    can_send_polls: bool | None = None,
+    can_send_other_messages: bool | None = None,
+    can_add_web_page_previews: bool | None = None,
+    can_change_info: bool | None = None,
+    can_invite_users: bool | None = None,
+    can_pin_messages: bool | None = None,
+    can_manage_topics: bool | None = None,
+) -> ChatPermissions:
+    return ChatPermissions(**get_params(locals()))
 
 
 def input_media(
@@ -510,33 +531,34 @@ def inline_query_cached_photo(
 
 
 __all__ = (
+    "compose_chat_permissions",
     "compose_link_preview_options",
     "compose_reactions",
     "compose_reply_params",
     "inline_query_article",
-    "inline_query_photo",
-    "inline_query_mpeg4_gif",
-    "inline_query_gif",
-    "inline_query_video",
     "inline_query_audio",
-    "inline_query_voice",
-    "inline_query_document",
-    "inline_query_location",
-    "inline_query_venue",
-    "inline_query_contact",
-    "inline_query_game",
-    "inline_query_cached_sticker",
-    "inline_query_cached_document",
     "inline_query_cached_audio",
-    "inline_query_cached_video",
+    "inline_query_cached_document",
     "inline_query_cached_gif",
     "inline_query_cached_mpeg4_gif",
-    "inline_query_cached_voice",
     "inline_query_cached_photo",
-    "input_media",
-    "input_text_message_content",
-    "input_location_message_content",
-    "input_venue_message_content",
+    "inline_query_cached_sticker",
+    "inline_query_cached_video",
+    "inline_query_cached_voice",
+    "inline_query_contact",
+    "inline_query_document",
+    "inline_query_game",
+    "inline_query_gif",
+    "inline_query_location",
+    "inline_query_mpeg4_gif",
+    "inline_query_photo",
+    "inline_query_venue",
+    "inline_query_video",
+    "inline_query_voice",
     "input_contact_message_content",
     "input_invoice_message_content",
+    "input_location_message_content",
+    "input_media",
+    "input_text_message_content",
+    "input_venue_message_content",
 )

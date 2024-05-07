@@ -67,10 +67,12 @@ async def handle_menu_command(message: Message) -> None:
 async def handle_query_webhook(cb: CallbackQuery) -> None:
     await cb.answer()
     await cb.ctx_api.send_message(
-        text=HTMLFormatter(link(
-            "https://core.telegram.org/bots/webhooks",
-            "🛰 Marvin's Marvellous Guide to All Things Webhook."
-        )),
+        text=HTMLFormatter(
+            link(
+                "https://core.telegram.org/bots/webhooks",
+                "🛰 Marvin's Marvellous Guide to All Things Webhook.",
+            )
+        ),
         chat_id=cb.chat_id.unwrap(),
         parse_mode=HTMLFormatter.PARSE_MODE,
     )
@@ -79,26 +81,32 @@ async def handle_query_webhook(cb: CallbackQuery) -> None:
 @dp.callback_query(CallbackDataEq("action/quote"))
 async def handle_query_quote(cb: CallbackQuery) -> None:
     await cb.answer()
-    message = (await cb.ctx_api.send_message(
-        text="✍️ Send me any message and i'll quote it!",
-        chat_id=cb.chat_id.unwrap(),
-    )).unwrap()
+    message = (
+        await cb.ctx_api.send_message(
+            text="✍️ Send me any message and i'll quote it!",
+            chat_id=cb.chat_id.unwrap(),
+        )
+    ).unwrap()
     msg, _ = await wm.wait(
         dp.message,
         (cb.ctx_api, message.chat_id),
         HasText(),
         default=MessageReplyHandler("Im still waiting for your message!"),
     )
-    await msg.reply(HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE)
+    await msg.reply(
+        HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE
+    )
 
 
 @dp.callback_query(CallbackDataEq("action/guess"))
 async def handle_query_guess(cb: CallbackQuery) -> None:
     await cb.answer()
-    message = (await cb.ctx_api.send_message(
-        text="🎲 Okay, i guessed a number between 1 and 10!",
-        chat_id=cb.chat_id.unwrap(),
-    )).unwrap()
+    message = (
+        await cb.ctx_api.send_message(
+            text="🎲 Okay, i guessed a number between 1 and 10!",
+            chat_id=cb.chat_id.unwrap(),
+        )
+    ).unwrap()
     msg, _ = await wm.wait(
         dp.message,
         (cb.ctx_api, message.chat_id),

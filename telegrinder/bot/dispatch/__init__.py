@@ -20,11 +20,14 @@ from .view import (
     BaseStateView,
     BaseView,
     CallbackQueryView,
+    ChatJoinRequestView,
+    ChatMemberView,
     InlineQueryView,
     MessageView,
+    RawEventView,
     ViewBox,
 )
-from .waiter_machine import WaiterMachine
+from .waiter_machine import ShortState, ShortStateStorage, WaiterMachine
 
 __all__ = (
     "ABCDispatch",
@@ -39,6 +42,8 @@ __all__ = (
     "BaseView",
     "CallbackQueryReturnManager",
     "CallbackQueryView",
+    "ChatJoinRequestView",
+    "ChatMemberView",
     "CompositionDispatch",
     "Context",
     "Dispatch",
@@ -49,6 +54,9 @@ __all__ = (
     "MessageReplyHandler",
     "MessageReturnManager",
     "MessageView",
+    "RawEventView",
+    "ShortState",
+    "ShortStateStorage",
     "TelegrinderCtx",
     "ViewBox",
     "WaiterMachine",

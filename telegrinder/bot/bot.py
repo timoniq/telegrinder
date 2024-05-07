@@ -11,7 +11,7 @@ PollingT = typing.TypeVar("PollingT", bound=ABCPolling, default=Polling)
 LoopWrapperT = typing.TypeVar("LoopWrapperT", bound=ABCLoopWrapper, default=LoopWrapper)
 
 
-class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):    
+class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
     def __init__(
         self,
         api: API,
@@ -24,7 +24,7 @@ class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
         self.dispatch = typing.cast(DispatchT, dispatch or Dispatch())
         self.polling = typing.cast(PollingT, polling or Polling(api))
         self.loop_wrapper = typing.cast(LoopWrapperT, loop_wrapper or LoopWrapper())
-    
+
     def __repr__(self) -> str:
         return "<{}: api={!r}, dispatch={!r}, polling={!r}, loop_wrapper={!r}>".format(
             self.__class__.__name__,
@@ -57,7 +57,9 @@ class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
 
     def run_forever(self, *, offset: int = 0, skip_updates: bool = False) -> None:
         logger.debug("Running blocking polling (id={})", self.api.id)
-        self.loop_wrapper.add_task(self.run_polling(offset=offset, skip_updates=skip_updates))
+        self.loop_wrapper.add_task(
+            self.run_polling(offset=offset, skip_updates=skip_updates)
+        )
         self.loop_wrapper.run_event_loop()
 
 

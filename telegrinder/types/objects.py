@@ -152,6 +152,27 @@ class BotCommandScope(Model):
     """
 
 
+class BackgroundType(Model):
+    """Base object `BackgroundType`, see the [documentation](https://core.telegram.org/bots/api#backgroundtype).
+
+    This object describes the type of a background. Currently, it can be one of
+    - BackgroundTypeFill
+    - BackgroundTypeWallpaper
+    - BackgroundTypePattern
+    - BackgroundTypeChatTheme
+    """
+
+
+class BackgroundFill(Model):
+    """Base object `BackgroundFill`, see the [documentation](https://core.telegram.org/bots/api#backgroundfill).
+
+    This object describes the way a background is filled based on the selected colors. Currently, it can be one of
+    - BackgroundFillSolid
+    - BackgroundFillGradient
+    - BackgroundFillFreeformGradient
+    """
+
+
 class Update(Model):
     """Object `Update`, see the [documentation](https://core.telegram.org/bots/api#update).
 
@@ -385,7 +406,52 @@ class Chat(Model):
     integer or double-precision float type are safe for storing this identifier."""
 
     type: ChatType
-    """Type of chat, can be either `private`, `group`, `supergroup` or `channel`."""
+    """Type of the chat, can be either `private`, `group`, `supergroup` or `channel`."""
+
+    title: Option[str] = Nothing
+    """Optional. Title, for supergroups, channels and group chats."""
+
+    username: Option[str] = Nothing
+    """Optional. Username, for private chats, supergroups and channels if available."""
+
+    first_name: Option[str] = Nothing
+    """Optional. First name of the other party in a private chat."""
+
+    last_name: Option[str] = Nothing
+    """Optional. Last name of the other party in a private chat."""
+
+    is_forum: Option[bool] = Nothing
+    """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
+
+    @property
+    def full_name(self) -> Option[str]:
+        """Optional. Full name (`first_name` + `last_name`) of the
+        other party in a `private` chat."""
+
+        return self.first_name.map(lambda x: x + " " + self.last_name.unwrap_or(""))
+
+
+class ChatFullInfo(Model):
+    """Object `ChatFullInfo`, see the [documentation](https://core.telegram.org/bots/api#chatfullinfo).
+
+    This object contains full information about a chat.
+    """
+
+    id: int
+    """Unique identifier for this chat. This number may have more than 32 significant 
+    bits and some programming languages may have difficulty/silent defects 
+    in interpreting it. But it has at most 52 significant bits, so a signed 64-bit 
+    integer or double-precision float type are safe for storing this identifier."""
+
+    type: ChatType
+    """Type of the chat, can be either `private`, `group`, `supergroup` or `channel`."""
+
+    accent_color_id: int
+    """Identifier of the accent color for the chat name and backgrounds of the chat 
+    photo, reply header, and link preview. See accent colors for more details."""
+
+    max_reaction_count: int
+    """The maximum number of reactions that can be set on a message in the chat."""
 
     title: Option[str] = Nothing
     """Optional. Title, for supergroups, channels and group chats."""
@@ -403,140 +469,122 @@ class Chat(Model):
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
 
     photo: Option["ChatPhoto"] = Nothing
-    """Optional. Chat photo. Returned only in getChat."""
+    """Optional. Chat photo."""
 
     active_usernames: Option[list[str]] = Nothing
     """Optional. If non-empty, the list of all active chat usernames; for private 
-    chats, supergroups and channels. Returned only in getChat."""
+    chats, supergroups and channels."""
 
     birthdate: Option["Birthdate"] = Nothing
-    """Optional. For private chats, the date of birth of the user. Returned only 
-    in getChat."""
+    """Optional. For private chats, the date of birth of the user."""
 
     business_intro: Option["BusinessIntro"] = Nothing
-    """Optional. For private chats with business accounts, the intro of the business. 
-    Returned only in getChat."""
+    """Optional. For private chats with business accounts, the intro of the business."""
 
     business_location: Option["BusinessLocation"] = Nothing
     """Optional. For private chats with business accounts, the location of the 
-    business. Returned only in getChat."""
+    business."""
 
     business_opening_hours: Option["BusinessOpeningHours"] = Nothing
     """Optional. For private chats with business accounts, the opening hours 
-    of the business. Returned only in getChat."""
+    of the business."""
 
     personal_chat: Option["Chat"] = Nothing
-    """Optional. For private chats, the personal channel of the user. Returned 
-    only in getChat."""
+    """Optional. For private chats, the personal channel of the user."""
 
     available_reactions: Option[
         list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]
     ] = Nothing
     """Optional. List of available reactions allowed in the chat. If omitted, 
-    then all emoji reactions are allowed. Returned only in getChat."""
-
-    accent_color_id: Option[int] = Nothing
-    """Optional. Identifier of the accent color for the chat name and backgrounds 
-    of the chat photo, reply header, and link preview. See accent colors for 
-    more details. Returned only in getChat. Always returned in getChat."""
+    then all emoji reactions are allowed."""
 
     background_custom_emoji_id: Option[str] = Nothing
-    """Optional. Custom emoji identifier of emoji chosen by the chat for the reply 
-    header and link preview background. Returned only in getChat."""
+    """Optional. Custom emoji identifier of the emoji chosen by the chat for the 
+    reply header and link preview background."""
 
     profile_accent_color_id: Option[int] = Nothing
     """Optional. Identifier of the accent color for the chat's profile background. 
-    See profile accent colors for more details. Returned only in getChat."""
+    See profile accent colors for more details."""
 
     profile_background_custom_emoji_id: Option[str] = Nothing
     """Optional. Custom emoji identifier of the emoji chosen by the chat for its 
-    profile background. Returned only in getChat."""
+    profile background."""
 
     emoji_status_custom_emoji_id: Option[str] = Nothing
     """Optional. Custom emoji identifier of the emoji status of the chat or the 
-    other party in a private chat. Returned only in getChat."""
+    other party in a private chat."""
 
     emoji_status_expiration_date: Option[datetime] = Nothing
     """Optional. Expiration date of the emoji status of the chat or the other party 
-    in a private chat, in Unix time, if any. Returned only in getChat."""
+    in a private chat, in Unix time, if any."""
 
     bio: Option[str] = Nothing
-    """Optional. Bio of the other party in a private chat. Returned only in getChat."""
+    """Optional. Bio of the other party in a private chat."""
 
     has_private_forwards: Option[bool] = Nothing
     """Optional. True, if privacy settings of the other party in the private chat 
-    allows to use tg://user?id=<user_id> links only in chats with the user. 
-    Returned only in getChat."""
+    allows to use tg://user?id=<user_id> links only in chats with the user."""
 
     has_restricted_voice_and_video_messages: Option[bool] = Nothing
     """Optional. True, if the privacy settings of the other party restrict sending 
-    voice and video note messages in the private chat. Returned only in getChat."""
+    voice and video note messages in the private chat."""
 
     join_to_send_messages: Option[bool] = Nothing
     """Optional. True, if users need to join the supergroup before they can send 
-    messages. Returned only in getChat."""
+    messages."""
 
     join_by_request: Option[bool] = Nothing
     """Optional. True, if all users directly joining the supergroup need to be 
-    approved by supergroup administrators. Returned only in getChat."""
+    approved by supergroup administrators."""
 
     description: Option[str] = Nothing
-    """Optional. Description, for groups, supergroups and channel chats. Returned 
-    only in getChat."""
+    """Optional. Description, for groups, supergroups and channel chats."""
 
     invite_link: Option[str] = Nothing
-    """Optional. Primary invite link, for groups, supergroups and channel chats. 
-    Returned only in getChat."""
+    """Optional. Primary invite link, for groups, supergroups and channel chats."""
 
     pinned_message: Option["Message"] = Nothing
-    """Optional. The most recent pinned message (by sending date). Returned only 
-    in getChat."""
+    """Optional. The most recent pinned message (by sending date)."""
 
     permissions: Option["ChatPermissions"] = Nothing
-    """Optional. Default chat member permissions, for groups and supergroups. 
-    Returned only in getChat."""
+    """Optional. Default chat member permissions, for groups and supergroups."""
 
     slow_mode_delay: Option[int] = Nothing
     """Optional. For supergroups, the minimum allowed delay between consecutive 
-    messages sent by each unprivileged user; in seconds. Returned only in getChat."""
+    messages sent by each unprivileged user; in seconds."""
 
     unrestrict_boost_count: Option[int] = Nothing
     """Optional. For supergroups, the minimum number of boosts that a non-administrator 
-    user needs to add in order to ignore slow mode and chat permissions. Returned 
-    only in getChat."""
+    user needs to add in order to ignore slow mode and chat permissions."""
 
     message_auto_delete_time: Option[int] = Nothing
     """Optional. The time after which all messages sent to the chat will be automatically 
-    deleted; in seconds. Returned only in getChat."""
+    deleted; in seconds."""
 
     has_aggressive_anti_spam_enabled: Option[bool] = Nothing
     """Optional. True, if aggressive anti-spam checks are enabled in the supergroup. 
-    The field is only available to chat administrators. Returned only in getChat."""
+    The field is only available to chat administrators."""
 
     has_hidden_members: Option[bool] = Nothing
     """Optional. True, if non-administrators can only get the list of bots and 
-    administrators in the chat. Returned only in getChat."""
+    administrators in the chat."""
 
     has_protected_content: Option[bool] = Nothing
-    """Optional. True, if messages from the chat can't be forwarded to other chats. 
-    Returned only in getChat."""
+    """Optional. True, if messages from the chat can't be forwarded to other chats."""
 
     has_visible_history: Option[bool] = Nothing
     """Optional. True, if new chat members will have access to old messages; available 
-    only to chat administrators. Returned only in getChat."""
+    only to chat administrators."""
 
     sticker_set_name: Option[str] = Nothing
-    """Optional. For supergroups, name of group sticker set. Returned only in 
-    getChat."""
+    """Optional. For supergroups, name of the group sticker set."""
 
     can_set_sticker_set: Option[bool] = Nothing
-    """Optional. True, if the bot can change the group sticker set. Returned only 
-    in getChat."""
+    """Optional. True, if the bot can change the group sticker set."""
 
     custom_emoji_sticker_set_name: Option[str] = Nothing
     """Optional. For supergroups, the name of the group's custom emoji sticker 
-    set. Custom emoji from this set can be used by all users and bots in the group. 
-    Returned only in getChat."""
+    set. Custom emoji from this set can be used by all users and bots in the group."""
 
     linked_chat_id: Option[int] = Nothing
     """Optional. Unique identifier for the linked chat, i.e. the discussion group 
@@ -544,18 +592,10 @@ class Chat(Model):
     This identifier may be greater than 32 bits and some programming languages 
     may have difficulty/silent defects in interpreting it. But it is smaller 
     than 52 bits, so a signed 64 bit integer or double-precision float type are 
-    safe for storing this identifier. Returned only in getChat."""
+    safe for storing this identifier."""
 
     location: Option["ChatLocation"] = Nothing
-    """Optional. For supergroups, the location to which the supergroup is connected. 
-    Returned only in getChat."""
-
-    @property
-    def full_name(self) -> Option[str]:
-        """Optional. Full name (`first_name` + `last_name`) of the
-        other party in a `private` chat."""
-
-        return self.first_name.map(lambda x: x + " " + self.last_name.unwrap_or(""))
+    """Optional. For supergroups, the location to which the supergroup is connected."""
 
 
 class Message(MaybeInaccessibleMessage):
@@ -818,6 +858,9 @@ class Message(MaybeInaccessibleMessage):
 
     boost_added: Option["ChatBoostAdded"] = Nothing
     """Optional. Service message: user boosted the chat."""
+
+    chat_background_set: Option["ChatBackground"] = Nothing
+    """Optional. Service message: chat background set."""
 
     forum_topic_created: Option["ForumTopicCreated"] = Nothing
     """Optional. Service message: forum topic created."""
@@ -1480,6 +1523,28 @@ class PollOption(Model):
     voter_count: int
     """Number of users that voted for this option."""
 
+    text_entities: Option[list["MessageEntity"]] = Nothing
+    """Optional. Special entities that appear in the option text. Currently, 
+    only custom emoji entities are allowed in poll option texts."""
+
+
+class InputPollOption(Model):
+    """Object `InputPollOption`, see the [documentation](https://core.telegram.org/bots/api#inputpolloption).
+
+    This object contains information about one answer option in a poll to send.
+    """
+
+    text: str
+    """Option text, 1-100 characters."""
+
+    text_parse_mode: Option[str] = Nothing
+    """Optional. Mode for parsing entities in the text. See formatting options 
+    for more details. Currently, only custom emoji entities are allowed."""
+
+    text_entities: Option[list["MessageEntity"]] = Nothing
+    """Optional. A JSON-serialized list of special entities that appear in the 
+    poll option text. It can be specified instead of text_parse_mode."""
+
 
 class PollAnswer(Model):
     """Object `PollAnswer`, see the [documentation](https://core.telegram.org/bots/api#pollanswer).
@@ -1531,6 +1596,10 @@ class Poll(Model):
 
     allows_multiple_answers: bool
     """True, if the poll allows multiple answers."""
+
+    question_entities: Option[list["MessageEntity"]] = Nothing
+    """Optional. Special entities that appear in the question. Currently, only 
+    custom emoji entities are allowed in poll questions."""
 
     correct_option_id: Option[int] = Nothing
     """Optional. 0-based identifier of the correct answer option. Available 
@@ -1661,6 +1730,149 @@ class ChatBoostAdded(Model):
     """Number of boosts added by the user."""
 
 
+class BackgroundFillSolid(BackgroundFill):
+    """Object `BackgroundFillSolid`, see the [documentation](https://core.telegram.org/bots/api#backgroundfillsolid).
+
+    The background is filled using the selected color.
+    """
+
+    type: typing.Literal["solid"]
+    """Type of the background fill, always `solid`."""
+
+    color: int
+    """The color of the background fill in the RGB24 format."""
+
+
+class BackgroundFillGradient(BackgroundFill):
+    """Object `BackgroundFillGradient`, see the [documentation](https://core.telegram.org/bots/api#backgroundfillgradient).
+
+    The background is a gradient fill.
+    """
+
+    type: typing.Literal["gradient"]
+    """Type of the background fill, always `gradient`."""
+
+    top_color: int
+    """Top color of the gradient in the RGB24 format."""
+
+    bottom_color: int
+    """Bottom color of the gradient in the RGB24 format."""
+
+    rotation_angle: int
+    """Clockwise rotation angle of the background fill in degrees; 0-359."""
+
+
+class BackgroundFillFreeformGradient(BackgroundFill):
+    """Object `BackgroundFillFreeformGradient`, see the [documentation](https://core.telegram.org/bots/api#backgroundfillfreeformgradient).
+
+    The background is a freeform gradient that rotates after every message in the chat.
+    """
+
+    type: typing.Literal["freeform_gradient"]
+    """Type of the background fill, always `freeform_gradient`."""
+
+    colors: list[int]
+    """A list of the 3 or 4 base colors that are used to generate the freeform gradient 
+    in the RGB24 format."""
+
+
+class BackgroundTypeFill(BackgroundType):
+    """Object `BackgroundTypeFill`, see the [documentation](https://core.telegram.org/bots/api#backgroundtypefill).
+
+    The background is automatically filled based on the selected colors.
+    """
+
+    type: typing.Literal["fill"]
+    """Type of the background, always `fill`."""
+
+    fill: Variative[
+        "BackgroundFillSolid", "BackgroundFillGradient", "BackgroundFillFreeformGradient"
+    ]
+    """The background fill."""
+
+    dark_theme_dimming: int
+    """Dimming of the background in dark themes, as a percentage; 0-100."""
+
+
+class BackgroundTypeWallpaper(BackgroundType):
+    """Object `BackgroundTypeWallpaper`, see the [documentation](https://core.telegram.org/bots/api#backgroundtypewallpaper).
+
+    The background is a wallpaper in the JPEG format.
+    """
+
+    type: typing.Literal["wallpaper"]
+    """Type of the background, always `wallpaper`."""
+
+    document: "Document"
+    """Document with the wallpaper."""
+
+    dark_theme_dimming: int
+    """Dimming of the background in dark themes, as a percentage; 0-100."""
+
+    is_blurred: Option[bool] = Nothing
+    """Optional. True, if the wallpaper is downscaled to fit in a 450x450 square 
+    and then box-blurred with radius 12."""
+
+    is_moving: Option[bool] = Nothing
+    """Optional. True, if the background moves slightly when the device is tilted."""
+
+
+class BackgroundTypePattern(BackgroundType):
+    """Object `BackgroundTypePattern`, see the [documentation](https://core.telegram.org/bots/api#backgroundtypepattern).
+
+    The background is a PNG or TGV (gzipped subset of SVG with MIME type "application/x-tgwallpattern") pattern to be combined with the background fill chosen by the user.
+    """
+
+    type: typing.Literal["pattern"]
+    """Type of the background, always `pattern`."""
+
+    document: "Document"
+    """Document with the pattern."""
+
+    fill: Variative[
+        "BackgroundFillSolid", "BackgroundFillGradient", "BackgroundFillFreeformGradient"
+    ]
+    """The background fill that is combined with the pattern."""
+
+    intensity: int
+    """Intensity of the pattern when it is shown above the filled background; 0-100."""
+
+    is_inverted: Option[bool] = Nothing
+    """Optional. True, if the background fill must be applied only to the pattern 
+    itself. All other pixels are black in this case. For dark themes only."""
+
+    is_moving: Option[bool] = Nothing
+    """Optional. True, if the background moves slightly when the device is tilted."""
+
+
+class BackgroundTypeChatTheme(BackgroundType):
+    """Object `BackgroundTypeChatTheme`, see the [documentation](https://core.telegram.org/bots/api#backgroundtypechattheme).
+
+    The background is taken directly from a built-in chat theme.
+    """
+
+    type: typing.Literal["chat_theme"]
+    """Type of the background, always `chat_theme`."""
+
+    theme_name: str
+    """Name of the chat theme, which is usually an emoji."""
+
+
+class ChatBackground(Model):
+    """Object `ChatBackground`, see the [documentation](https://core.telegram.org/bots/api#chatbackground).
+
+    This object represents a chat background.
+    """
+
+    type: Variative[
+        "BackgroundTypeFill",
+        "BackgroundTypeWallpaper",
+        "BackgroundTypePattern",
+        "BackgroundTypeChatTheme",
+    ]
+    """Type of the background."""
+
+
 class ForumTopicCreated(Model):
     """Object `ForumTopicCreated`, see the [documentation](https://core.telegram.org/bots/api#forumtopiccreated).
 
@@ -1722,7 +1934,7 @@ class GeneralForumTopicUnhidden(Model):
 class SharedUser(Model):
     """Object `SharedUser`, see the [documentation](https://core.telegram.org/bots/api#shareduser).
 
-    This object contains information about a user that was shared with the bot using a KeyboardButtonRequestUser button.
+    This object contains information about a user that was shared with the bot using a KeyboardButtonRequestUsers button.
     """
 
     user_id: int
@@ -2028,7 +2240,7 @@ class WebAppInfo(Model):
 class ReplyKeyboardMarkup(Model):
     """Object `ReplyKeyboardMarkup`, see the [documentation](https://core.telegram.org/bots/api#replykeyboardmarkup).
 
-    This object represents a custom keyboard with reply options (see Introduction to bots for details and examples).
+    This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a Telegram Business account.
     """
 
     keyboard: list[list["KeyboardButton"]]
@@ -2132,19 +2344,19 @@ class KeyboardButtonRequestUsers(Model):
     1."""
 
     request_name: Option[bool] = Nothing
-    """Optional. Pass True to request the users' first and last name."""
+    """Optional. Pass True to request the users' first and last names."""
 
     request_username: Option[bool] = Nothing
-    """Optional. Pass True to request the users' username."""
+    """Optional. Pass True to request the users' usernames."""
 
     request_photo: Option[bool] = Nothing
-    """Optional. Pass True to request the users' photo."""
+    """Optional. Pass True to request the users' photos."""
 
 
 class KeyboardButtonRequestChat(Model):
     """Object `KeyboardButtonRequestChat`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestchat).
 
-    This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the сhat if appropriate More about requesting chats: https://core.telegram.org/bots/features#chat-and-user-selection
+    This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. More about requesting chats: https://core.telegram.org/bots/features#chat-and-user-selection.
     """
 
     request_id: int
@@ -2207,7 +2419,7 @@ class KeyboardButtonPollType(Model):
 class ReplyKeyboardRemove(Model):
     """Object `ReplyKeyboardRemove`, see the [documentation](https://core.telegram.org/bots/api#replykeyboardremove).
 
-    Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup).
+    Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a Telegram Business account.
     """
 
     remove_keyboard: bool
@@ -2252,13 +2464,15 @@ class InlineKeyboardButton(Model):
 
     callback_data: Option[str] = Nothing
     """Optional. Data to be sent in a callback query to the bot when button is pressed, 
-    1-64 bytes."""
+    1-64 bytes. Not supported for messages sent on behalf of a Telegram Business 
+    account."""
 
     web_app: Option["WebAppInfo"] = Nothing
     """Optional. Description of the Web App that will be launched when the user 
     presses the button. The Web App will be able to send an arbitrary message 
     on behalf of the user using the method answerWebAppQuery. Available only 
-    in private chats between a user and the bot."""
+    in private chats between a user and the bot. Not supported for messages sent 
+    on behalf of a Telegram Business account."""
 
     login_url: Option["LoginUrl"] = Nothing
     """Optional. An HTTPS URL used to automatically authorize the user. Can be 
@@ -2268,19 +2482,22 @@ class InlineKeyboardButton(Model):
     """Optional. If set, pressing the button will prompt the user to select one 
     of their chats, open that chat and insert the bot's username and the specified 
     inline query in the input field. May be empty, in which case just the bot's 
-    username will be inserted."""
+    username will be inserted. Not supported for messages sent on behalf of 
+    a Telegram Business account."""
 
     switch_inline_query_current_chat: Option[str] = Nothing
     """Optional. If set, pressing the button will insert the bot's username and 
     the specified inline query in the current chat's input field. May be empty, 
     in which case only the bot's username will be inserted. This offers a quick 
     way for the user to open your bot in inline mode in the same chat - good for selecting 
-    something from multiple options."""
+    something from multiple options. Not supported in channels and for messages 
+    sent on behalf of a Telegram Business account."""
 
     switch_inline_query_chosen_chat: Option["SwitchInlineQueryChosenChat"] = Nothing
     """Optional. If set, pressing the button will prompt the user to select one 
     of their chats of the specified type, open that chat and insert the bot's 
-    username and the specified inline query in the input field."""
+    username and the specified inline query in the input field. Not supported 
+    for messages sent on behalf of a Telegram Business account."""
 
     callback_game: Option["CallbackGame"] = Nothing
     """Optional. Description of the game that will be launched when the user presses 
@@ -2381,7 +2598,7 @@ class CallbackQuery(Model):
 class ForceReply(Model):
     """Object `ForceReply`, see the [documentation](https://core.telegram.org/bots/api#forcereply).
 
-    Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode.
+    Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a Telegram Business account.
     """
 
     force_reply: bool
@@ -2500,7 +2717,8 @@ class ChatAdministratorRights(Model):
     """True, if the administrator can post stories to the chat."""
 
     can_edit_stories: bool
-    """True, if the administrator can edit stories posted by other users."""
+    """True, if the administrator can edit stories posted by other users, post 
+    stories to the chat page, pin chat stories, and access the chat's story archive."""
 
     can_delete_stories: bool
     """True, if the administrator can delete stories posted by other users."""
@@ -2561,8 +2779,18 @@ class ChatMemberUpdated(Model):
     """Optional. Chat invite link, which was used by the user to join the chat; for 
     joining by invite link events only."""
 
+    via_join_request: Option[bool] = Nothing
+    """Optional. True, if the user joined the chat after sending a direct join request 
+    and being approved by an administrator."""
+
     via_chat_folder_invite_link: Option[bool] = Nothing
     """Optional. True, if the user joined the chat via a chat folder invite link."""
+
+    @property
+    def chat_id(self) -> int:
+        """Alias `.chat_id` instead of `.chat.id`"""
+
+        return self.chat.id
 
 
 class ChatMemberOwner(ChatMember):
@@ -2632,7 +2860,8 @@ class ChatMemberAdministrator(ChatMember):
     """True, if the administrator can post stories to the chat."""
 
     can_edit_stories: bool
-    """True, if the administrator can edit stories posted by other users."""
+    """True, if the administrator can edit stories posted by other users, post 
+    stories to the chat page, pin chat stories, and access the chat's story archive."""
 
     can_delete_stories: bool
     """True, if the administrator can delete stories posted by other users."""
@@ -2794,6 +3023,12 @@ class ChatJoinRequest(Model):
     invite_link: Option["ChatInviteLink"] = Nothing
     """Optional. Chat invite link that was used by the user to send the join request."""
 
+    @property
+    def chat_id(self) -> int:
+        """`chat_id` instead of `chat.id`."""
+
+        return self.chat.id
+
 
 class ChatPermissions(Model):
     """Object `ChatPermissions`, see the [documentation](https://core.telegram.org/bots/api#chatpermissions).
@@ -2852,7 +3087,7 @@ class ChatPermissions(Model):
 class Birthdate(Model):
     """Object `Birthdate`, see the [documentation](https://core.telegram.org/bots/api#birthdate).
 
-    No description yet.
+    Describes the birthdate of a user.
     """
 
     day: int
@@ -2885,7 +3120,7 @@ class Birthdate(Model):
 class BusinessIntro(Model):
     """Object `BusinessIntro`, see the [documentation](https://core.telegram.org/bots/api#businessintro).
 
-    No description yet.
+    Contains information about the start page settings of a Telegram Business account.
     """
 
     title: Option[str] = Nothing
@@ -2901,7 +3136,7 @@ class BusinessIntro(Model):
 class BusinessLocation(Model):
     """Object `BusinessLocation`, see the [documentation](https://core.telegram.org/bots/api#businesslocation).
 
-    No description yet.
+    Contains information about the location of a Telegram Business account.
     """
 
     address: str
@@ -2914,7 +3149,7 @@ class BusinessLocation(Model):
 class BusinessOpeningHoursInterval(Model):
     """Object `BusinessOpeningHoursInterval`, see the [documentation](https://core.telegram.org/bots/api#businessopeninghoursinterval).
 
-    No description yet.
+    Describes an interval of time during which a business is open.
     """
 
     opening_minute: int
@@ -2929,7 +3164,7 @@ class BusinessOpeningHoursInterval(Model):
 class BusinessOpeningHours(Model):
     """Object `BusinessOpeningHours`, see the [documentation](https://core.telegram.org/bots/api#businessopeninghours).
 
-    No description yet.
+    Describes the opening hours of a business.
     """
 
     time_zone_name: str
@@ -3387,8 +3622,7 @@ class BusinessMessagesDeleted(Model):
     to the chat or the corresponding user."""
 
     message_ids: list[int]
-    """A JSON-serialized list of identifiers of deleted messages in the chat of 
-    the business account."""
+    """The list of identifiers of deleted messages in the chat of the business account."""
 
 
 class ResponseParameters(Model):
@@ -4309,8 +4543,9 @@ class InlineQueryResultLocation(InlineQueryResult):
     0-1500."""
 
     live_period: Option[int] = Nothing
-    """Optional. Period in seconds for which the location can be updated, should 
-    be between 60 and 86400."""
+    """Optional. Period in seconds during which the location can be updated, should 
+    be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited 
+    indefinitely."""
 
     heading: Option[int] = Nothing
     """Optional. For live locations, a direction in which the user is moving, in 
@@ -4861,8 +5096,9 @@ class InputLocationMessageContent(InputMessageContent):
     0-1500."""
 
     live_period: Option[int] = Nothing
-    """Optional. Period in seconds for which the location can be updated, should 
-    be between 60 and 86400."""
+    """Optional. Period in seconds during which the location can be updated, should 
+    be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited 
+    indefinitely."""
 
     heading: Option[int] = Nothing
     """Optional. For live locations, a direction in which the user is moving, in 
@@ -5626,3 +5862,210 @@ class GameHighScore(Model):
 
     score: int
     """Score."""
+
+
+__all__ = (
+    "Animation",
+    "Audio",
+    "BackgroundFill",
+    "BackgroundFillFreeformGradient",
+    "BackgroundFillGradient",
+    "BackgroundFillSolid",
+    "BackgroundType",
+    "BackgroundTypeChatTheme",
+    "BackgroundTypeFill",
+    "BackgroundTypePattern",
+    "BackgroundTypeWallpaper",
+    "Birthdate",
+    "BotCommand",
+    "BotCommandScope",
+    "BotCommandScopeAllChatAdministrators",
+    "BotCommandScopeAllGroupChats",
+    "BotCommandScopeAllPrivateChats",
+    "BotCommandScopeChat",
+    "BotCommandScopeChatAdministrators",
+    "BotCommandScopeChatMember",
+    "BotCommandScopeDefault",
+    "BotDescription",
+    "BotName",
+    "BotShortDescription",
+    "BusinessConnection",
+    "BusinessIntro",
+    "BusinessLocation",
+    "BusinessMessagesDeleted",
+    "BusinessOpeningHours",
+    "BusinessOpeningHoursInterval",
+    "CallbackGame",
+    "CallbackQuery",
+    "Chat",
+    "ChatAdministratorRights",
+    "ChatBackground",
+    "ChatBoost",
+    "ChatBoostAdded",
+    "ChatBoostRemoved",
+    "ChatBoostSource",
+    "ChatBoostSourceGiftCode",
+    "ChatBoostSourceGiveaway",
+    "ChatBoostSourcePremium",
+    "ChatBoostUpdated",
+    "ChatFullInfo",
+    "ChatInviteLink",
+    "ChatJoinRequest",
+    "ChatLocation",
+    "ChatMember",
+    "ChatMemberAdministrator",
+    "ChatMemberBanned",
+    "ChatMemberLeft",
+    "ChatMemberMember",
+    "ChatMemberOwner",
+    "ChatMemberRestricted",
+    "ChatMemberUpdated",
+    "ChatPermissions",
+    "ChatPhoto",
+    "ChatShared",
+    "ChosenInlineResult",
+    "Contact",
+    "Dice",
+    "Document",
+    "EncryptedCredentials",
+    "EncryptedPassportElement",
+    "ExternalReplyInfo",
+    "File",
+    "ForceReply",
+    "ForumTopic",
+    "ForumTopicClosed",
+    "ForumTopicCreated",
+    "ForumTopicEdited",
+    "ForumTopicReopened",
+    "Game",
+    "GameHighScore",
+    "GeneralForumTopicHidden",
+    "GeneralForumTopicUnhidden",
+    "Giveaway",
+    "GiveawayCompleted",
+    "GiveawayCreated",
+    "GiveawayWinners",
+    "InaccessibleMessage",
+    "InlineKeyboardButton",
+    "InlineKeyboardMarkup",
+    "InlineQuery",
+    "InlineQueryResult",
+    "InlineQueryResultArticle",
+    "InlineQueryResultAudio",
+    "InlineQueryResultCachedAudio",
+    "InlineQueryResultCachedDocument",
+    "InlineQueryResultCachedGif",
+    "InlineQueryResultCachedMpeg4Gif",
+    "InlineQueryResultCachedPhoto",
+    "InlineQueryResultCachedSticker",
+    "InlineQueryResultCachedVideo",
+    "InlineQueryResultCachedVoice",
+    "InlineQueryResultContact",
+    "InlineQueryResultDocument",
+    "InlineQueryResultGame",
+    "InlineQueryResultGif",
+    "InlineQueryResultLocation",
+    "InlineQueryResultMpeg4Gif",
+    "InlineQueryResultPhoto",
+    "InlineQueryResultVenue",
+    "InlineQueryResultVideo",
+    "InlineQueryResultVoice",
+    "InlineQueryResultsButton",
+    "InputContactMessageContent",
+    "InputFile",
+    "InputInvoiceMessageContent",
+    "InputLocationMessageContent",
+    "InputMedia",
+    "InputMediaAnimation",
+    "InputMediaAudio",
+    "InputMediaDocument",
+    "InputMediaPhoto",
+    "InputMediaVideo",
+    "InputMessageContent",
+    "InputPollOption",
+    "InputSticker",
+    "InputTextMessageContent",
+    "InputVenueMessageContent",
+    "Invoice",
+    "KeyboardButton",
+    "KeyboardButtonPollType",
+    "KeyboardButtonRequestChat",
+    "KeyboardButtonRequestUsers",
+    "LabeledPrice",
+    "LinkPreviewOptions",
+    "Location",
+    "LoginUrl",
+    "MaskPosition",
+    "MaybeInaccessibleMessage",
+    "MenuButton",
+    "MenuButtonCommands",
+    "MenuButtonDefault",
+    "MenuButtonWebApp",
+    "Message",
+    "MessageAutoDeleteTimerChanged",
+    "MessageEntity",
+    "MessageId",
+    "MessageOrigin",
+    "MessageOriginChannel",
+    "MessageOriginChat",
+    "MessageOriginHiddenUser",
+    "MessageOriginUser",
+    "MessageReactionCountUpdated",
+    "MessageReactionUpdated",
+    "Model",
+    "OrderInfo",
+    "PassportData",
+    "PassportElementError",
+    "PassportElementErrorDataField",
+    "PassportElementErrorFile",
+    "PassportElementErrorFiles",
+    "PassportElementErrorFrontSide",
+    "PassportElementErrorReverseSide",
+    "PassportElementErrorSelfie",
+    "PassportElementErrorTranslationFile",
+    "PassportElementErrorTranslationFiles",
+    "PassportElementErrorUnspecified",
+    "PassportFile",
+    "PhotoSize",
+    "Poll",
+    "PollAnswer",
+    "PollOption",
+    "PreCheckoutQuery",
+    "ProximityAlertTriggered",
+    "ReactionCount",
+    "ReactionType",
+    "ReactionTypeCustomEmoji",
+    "ReactionTypeEmoji",
+    "ReplyKeyboardMarkup",
+    "ReplyKeyboardRemove",
+    "ReplyParameters",
+    "ResponseParameters",
+    "SentWebAppMessage",
+    "SharedUser",
+    "ShippingAddress",
+    "ShippingOption",
+    "ShippingQuery",
+    "Sticker",
+    "StickerSet",
+    "Story",
+    "SuccessfulPayment",
+    "SwitchInlineQueryChosenChat",
+    "TextQuote",
+    "Update",
+    "User",
+    "UserChatBoosts",
+    "UserProfilePhotos",
+    "UsersShared",
+    "Venue",
+    "Video",
+    "VideoChatEnded",
+    "VideoChatParticipantsInvited",
+    "VideoChatScheduled",
+    "VideoChatStarted",
+    "VideoNote",
+    "Voice",
+    "WebAppData",
+    "WebAppInfo",
+    "WebhookInfo",
+    "WriteAccessAllowed",
+)

@@ -46,11 +46,14 @@ async def command_handler_me(message: Message) -> list[str]:
         "Last name:",
         message.from_user.last_name.unwrap_or("Unknown"),
         "ID:",
-        str(message.from_user.id)
+        str(message.from_user.id),
     ]
 
 
-@bot.on.message(Command("secret", Argument("code", validators=[MappedValidator(int_validator)])), is_blocking=False)
+@bot.on.message(
+    Command("secret", Argument("code", validators=[MappedValidator(int_validator)])),
+    is_blocking=False,
+)
 async def command_handler_secret(message: Message, code: list[int]) -> Context:
     await message.answer("The secret code has been created!")
     return Context(secret_code="".join(map(str, code)))

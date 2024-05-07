@@ -14,7 +14,7 @@ T = typing.TypeVar("T")
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
-    
+
 
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "omit_defaults": True,
@@ -26,16 +26,14 @@ MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
 @typing.overload
 def full_result(
     result: Result[msgspec.Raw, "APIError"], full_t: type[T]
-) -> Result[T, "APIError"]:
-    ...
+) -> Result[T, "APIError"]: ...
 
 
 @typing.overload
 def full_result(
     result: Result[msgspec.Raw, "APIError"],
     full_t: tuple[type[T], ...],
-) -> Result[T, "APIError"]:
-    ...
+) -> Result[T, "APIError"]: ...
 
 
 def full_result(
@@ -65,7 +63,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         self,
         *,
         exclude_fields: set[str] | None = None,
-    ) -> dict[str, typing.Any]:  
+    ) -> dict[str, typing.Any]:
         exclude_fields = exclude_fields or set()
         if "model_as_dict" not in self.__dict__:
             self.__dict__["model_as_dict"] = msgspec.structs.asdict(self)
@@ -91,13 +89,13 @@ class DataConverter:
         return {
             get_origin(value.__annotations__["data"]): value
             for key, value in vars(self.__class__).items()
-            if key.startswith("convert_") and callable(value)   
+            if key.startswith("convert_") and callable(value)
         }
 
     @staticmethod
     def convert_enum(data: enum.Enum, _: bool = True) -> typing.Any:
         return data.value
-    
+
     @staticmethod
     def convert_datetime(data: datetime, _: bool = True) -> int:
         return int(data.timestamp())
@@ -109,29 +107,45 @@ class DataConverter:
                 return converter(data, serialize)
             return converter(self, data, serialize)
         return data
-    
+
     def get_converter(self, t: type[typing.Any]):
         for type, converter in self.converters.items():
             if issubclass(t, type):
                 return converter
         return None
-    
-    def convert_model(self, data: Model, serialize: bool = True) -> str | dict[str, typing.Any]:
+
+    def convert_model(
+        self,
+        data: Model,
+        serialize: bool = True,
+    ) -> str | dict[str, typing.Any]:
         converted_dct = self(data.to_dict(), serialize=False)
         return encoder.encode(converted_dct) if serialize is True else converted_dct
-    
-    def convert_dct(self, data: dict[str, typing.Any], serialize: bool = True) -> dict[str, typing.Any]:
+
+    def convert_dct(
+        self,
+        data: dict[str, typing.Any],
+        serialize: bool = True,
+    ) -> dict[str, typing.Any]:
         return {
             k: self(v, serialize=serialize)
             for k, v in data.items()
             if type(v) not in (NoneType, Nothing)
         }
-    
-    def convert_lst(self, data: list[typing.Any], serialize: bool = True) -> str | list[typing.Any]:
+
+    def convert_lst(
+        self,
+        data: list[typing.Any],
+        serialize: bool = True,
+    ) -> str | list[typing.Any]:
         converted_lst = [self(x, serialize=False) for x in data]
         return encoder.encode(converted_lst) if serialize is True else converted_lst
-    
-    def convert_tpl(self, data: tuple[typing.Any, ...], _: bool = True) -> str | tuple[typing.Any, ...]:
+
+    def convert_tpl(
+        self,
+        data: tuple[typing.Any, ...],
+        _: bool = True,
+    ) -> str | tuple[typing.Any, ...]:
         if (
             isinstance(data, tuple)
             and len(data) == 2
@@ -142,12 +156,12 @@ class DataConverter:
             self.files[attach_name] = data
             return "attach://{}".format(attach_name)
         return data
-    
+
 
 __all__ = (
     "DataConverter",
+    "MODEL_CONFIG",
     "Model",
     "full_result",
     "get_params",
-    "MODEL_CONFIG",
 )

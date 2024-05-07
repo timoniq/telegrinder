@@ -19,9 +19,7 @@ logger.set_level("INFO")
 async def start(message: Message):
     me = (await api.get_me()).unwrap().first_name
     await message.answer(
-        "Hello, {}! It's {}. How are you today?".format(
-            message.from_user.first_name, me
-        ),
+        "Hello, {}! It's {}. How are you today?".format(message.from_user.first_name, me),
     )
     m, _ = await wm.wait(
         bot.dispatch.message,

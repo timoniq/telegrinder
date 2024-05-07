@@ -44,7 +44,7 @@ async def handle_error_manually_controlled(m: Message):
     match result:
         case Error(err):
             print(err)
-    
+
     # Second case
     if isinstance(result, Error):
         print(result.error)

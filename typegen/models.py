@@ -54,7 +54,7 @@ class ObjectSchema(Model):
 
     subtypes: list[str] | None = None
     """Object is inherited by other objects."""
-    
+
     subtype_of: list[str] | None = None
     """List of objects that object inherits."""
 
@@ -88,10 +88,10 @@ class MethodParameter(Model):
 
 
 __all__ = (
+    "MethodParameter",
+    "MethodSchema",
     "Model",
     "ObjectField",
-    "MethodParameter",
-    "TelegramBotAPISchema",
-    "MethodSchema",
     "ObjectSchema",
+    "TelegramBotAPISchema",
 )

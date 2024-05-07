@@ -102,18 +102,9 @@ class NotRule(ABCRule[T]):
         return not await check_rule(event.ctx_api, self.rule, event, ctx_copy)
 
 
-class MessageRule(ABCRule[Message], ABC, requires=[]):
-    adapter = EventAdapter("message", Message)
-
-    @abstractmethod
-    async def check(self, message: Message, ctx: Context) -> bool:
-        ...
-
-
 __all__ = (
     "ABCRule",
     "AndRule",
-    "MessageRule",
     "NotRule",
     "OrRule",
     "with_caching_translations",

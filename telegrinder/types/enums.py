@@ -657,3 +657,37 @@ class StickerFormat(str, enum.Enum):
     STATIC = "static"
     ANIMATED = "animated"
     VIDEO = "video"
+
+
+__all__ = (
+    "BotCommandScopeType",
+    "ChatAction",
+    "ChatBoostSourceType",
+    "ChatMemberStatus",
+    "ChatType",
+    "ContentType",
+    "Currency",
+    "DefaultAccentColor",
+    "DiceEmoji",
+    "EncryptedPassportElementType",
+    "InlineQueryChatType",
+    "InlineQueryResultDocumentMimeType",
+    "InlineQueryResultGifThumbnailMimeType",
+    "InlineQueryResultMimeType",
+    "InlineQueryResultMpeg4GifThumbnailMimeType",
+    "InlineQueryResultThumbnailMimeType",
+    "InlineQueryResultVideoMimeType",
+    "MaskPositionPoint",
+    "MessageEntityType",
+    "MessageOriginType",
+    "PassportElementErrorType",
+    "PollType",
+    "ProgrammingLanguage",
+    "ReactionEmoji",
+    "ReactionTypeType",
+    "StickerFormat",
+    "StickerSetStickerType",
+    "StickerType",
+    "TopicIconColor",
+    "UpdateType",
+)

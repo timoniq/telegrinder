@@ -46,9 +46,7 @@ async def split_handler(
     count: int | None = None,
 ) -> None:
     await message.answer(
-        " | ".join(string.split(sep, count)
-        if count is not None
-        else string.split(sep))
+        " | ".join(string.split(sep, count) if count is not None else string.split(sep))
     )
 
 

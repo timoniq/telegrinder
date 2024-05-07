@@ -7,7 +7,7 @@ from telegrinder.tools.global_context import GlobalContext, ctx_var
 
 class TelegrinderCtx(GlobalContext):
     """Basic type-hinted telegrinder context with context name `"telegrinder"`.
-    
+
     You can use this class or GlobalContext:
     ```
     from telegrinder.tools.global_context import GlobalContext, TelegrinderCtx

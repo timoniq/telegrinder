@@ -1,7 +1,8 @@
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.tools.i18n.base import ABCTranslator
 
-from .abc import ABC, Message, MessageRule, with_caching_translations
+from .abc import ABC, Message, with_caching_translations
+from .message import MessageRule
 
 
 class HasText(MessageRule):

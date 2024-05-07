@@ -21,9 +21,11 @@ class Source(DataNode):
             chat=message.chat,
             thread_id=message.message_thread_id.unwrap_or_none(),
         )
-    
+
     async def send(self, text: str) -> Message:
-        result = await self.api.send_message(self.chat.id, message_thread_id=self.thread_id, text=text)
+        result = await self.api.send_message(
+            self.chat.id, message_thread_id=self.thread_id, text=text
+        )
         return result.unwrap()
 
 

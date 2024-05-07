@@ -23,12 +23,10 @@ if typing.TYPE_CHECKING:
         api: ABCAPI
 
         @classmethod
-        def from_update(cls, update: UpdateT, bound_api: ABCAPI) -> typing.Self:
-            ...
+        def from_update(cls, update: UpdateT, bound_api: ABCAPI) -> typing.Self: ...
 
         @property
-        def ctx_api(self) -> API:
-            ...
+        def ctx_api(self) -> API: ...
 
 else:
 
@@ -76,7 +74,9 @@ def compose_method_params(
         if param_name not in params:
             if param_name in validators and not validators[param_name](update):
                 continue
-            params[param_name] = getattr(update, param if isinstance(param, str) else param[1])
+            params[param_name] = getattr(
+                update, param if isinstance(param, str) else param[1]
+            )
 
     return params
 
@@ -91,36 +91,45 @@ def shortcut(
 ):
     def wrapper(func: F) -> F:
         @wraps(func)
-        async def inner(self: CuteT, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        async def inner(
+            self: CuteT,
+            *args: typing.Any,
+            **kwargs: typing.Any,
+        ) -> typing.Any:
             if executor is None:
                 return await func(self, *args, **kwargs)
             signature_params = {
-                k: p
-                for k, p in inspect.signature(func).parameters.items()
-                if k != "self"
+                k: p for k, p in inspect.signature(func).parameters.items() if k != "self"
             }
             params: dict[str, typing.Any] = {}
             index = 0
 
             for k, p in signature_params.items():
-                if p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY) and len(args) > index:
+                if (
+                    p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY)
+                    and len(args) > index
+                ):
                     params[k] = args[index]
                     index += 1
                     continue
                 if p.kind in (p.VAR_KEYWORD, p.VAR_POSITIONAL):
                     params[k] = kwargs.copy() if p.kind is p.VAR_KEYWORD else args[index:]
                     continue
-                params[k] = kwargs.pop(k, p.default) if p.default is not p.empty else kwargs.pop(k)
+                params[k] = (
+                    kwargs.pop(k, p.default)
+                    if p.default is not p.empty
+                    else kwargs.pop(k)
+                )
 
             return await executor(self, method_name, get_params(params))
-        
+
         inner.__shortcut__ = Shortcut(  # type: ignore
             method_name=method_name,
             executor=executor,
             custom_params=custom_params or set(),
         )
         return inner  # type: ignore
-    
+
     return wrapper
 
 

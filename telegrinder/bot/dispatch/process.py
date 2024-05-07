@@ -25,7 +25,7 @@ async def process_inner(
     raw_event: Update,
     middlewares: list[ABCMiddleware[T]],
     handlers: list["ABCHandler[T]"],
-    return_manager: ABCReturnManager[T],
+    return_manager: ABCReturnManager[T] | None = None,
 ) -> bool:
     logger.debug("Processing {!r}...", event.__class__.__name__)
     ctx = Context(raw_update=raw_event)
@@ -43,7 +43,8 @@ async def process_inner(
             found = True
             response = await handler.run(event, ctx)
             responses.append(response)
-            await return_manager.run(response, event, ctx)
+            if return_manager is not None:
+                await return_manager.run(response, event, ctx)
             if handler.is_blocking:
                 break
             ctx = ctx_copy
@@ -56,7 +57,7 @@ async def process_inner(
 
 async def check_rule(
     api: ABCAPI,
-    rule: "ABCRule",
+    rule: "ABCRule[T]",
     update: Update,
     ctx: Context,
 ) -> bool:

@@ -16,6 +16,8 @@ from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import (
     Birthdate,
     Chat,
+    ChatJoinRequest,
+    ChatMemberUpdated,
     ChatType,
     ContentType,
     DefaultAccentColor,
@@ -43,8 +45,8 @@ class _Birthdate(Birthdate):
 
         return self.year.map(
             lambda year: (
-                (datetime.now() - datetime(year, self.month, self.day)
-            ) // 365).days
+                (datetime.now() - datetime(year, self.month, self.day)) // 365
+            ).days
         )
 
 
@@ -55,6 +57,22 @@ class _Chat(Chat):
         other party in a `private` chat."""
 
         return self.first_name.map(lambda x: x + " " + self.last_name.unwrap_or(""))
+
+
+class _ChatJoinRequest(ChatJoinRequest):
+    @property
+    def chat_id(self) -> int:
+        """`chat_id` instead of `chat.id`."""
+
+        return self.chat.id
+
+
+class _ChatMemberUpdated(ChatMemberUpdated):
+    @property
+    def chat_id(self) -> int:
+        """Alias `.chat_id` instead of `.chat.id`"""
+
+        return self.chat.id
 
 
 class _Message(Message):

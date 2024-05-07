@@ -16,12 +16,22 @@ from telegrinder.types import Update
 from .abc import ABCDispatch
 from .handler import ABCHandler, FuncHandler
 from .handler.func import ErrorHandlerT
-from .view.box import CallbackQueryViewT, InlineQueryViewT, MessageViewT, ViewBox
+from .view.box import (
+    CallbackQueryViewT,
+    ChatJoinRequestViewT,
+    ChatMemberViewT,
+    InlineQueryViewT,
+    MessageViewT,
+    RawEventViewT,
+    ViewBox,
+)
 
 T = typing.TypeVar("T")
 R = typing.TypeVar("R")
 P = typing.ParamSpec("P")
-Handler = typing.Callable[typing.Concatenate[T, ...], typing.Coroutine[typing.Any, typing.Any, typing.Any]]
+Handler = typing.Callable[
+    typing.Concatenate[T, ...], typing.Coroutine[typing.Any, typing.Any, typing.Any]
+]
 Event = typing.TypeVar("Event", bound=BaseCute)
 
 DEFAULT_DATACLASS: typing.Final[type[Update]] = Update
@@ -30,7 +40,14 @@ DEFAULT_DATACLASS: typing.Final[type[Update]] = Update
 @dataclasses.dataclass(repr=False, kw_only=True)
 class Dispatch(
     ABCDispatch,
-    ViewBox[CallbackQueryViewT, InlineQueryViewT, MessageViewT],
+    ViewBox[
+        CallbackQueryViewT,
+        ChatJoinRequestViewT,
+        ChatMemberViewT,
+        InlineQueryViewT,
+        MessageViewT,
+        RawEventViewT,
+    ],
 ):
     global_context: TelegrinderCtx = dataclasses.field(
         init=False,
@@ -42,29 +59,25 @@ class Dispatch(
     )
 
     def __repr__(self) -> str:
-        return "Dispatch(%s)" % ", ".join(
-            f"{k}={v!r}" for k, v in self.__dict__.items()
-        )
+        return "Dispatch(%s)" % ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items())
 
     @property
     def patcher(self) -> Patcher:
         """Alias `patcher` to get `vbml.Patcher` from the global context"""
         return self.global_context.vbml_patcher
-    
+
     @typing.overload
     def handle(
         self,
         *rules: ABCRule[Event],
-    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]:
-        ...
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]: ...
 
     @typing.overload
     def handle(
         self,
         *rules: ABCRule[Event],
         is_blocking: bool = True,
-    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]:
-        ...
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]: ...
 
     @typing.overload
     def handle(
@@ -72,8 +85,7 @@ class Dispatch(
         *rules: ABCRule[Event],
         dataclass: type[T],
         is_blocking: bool = True,
-    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]:
-        ...
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]: ...
 
     @typing.overload
     def handle(  # type: ignore
@@ -81,8 +93,7 @@ class Dispatch(
         *rules: ABCRule[Event],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandlerT]]:
-        ...
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandlerT]]: ...
 
     @typing.overload
     def handle(
@@ -91,8 +102,7 @@ class Dispatch(
         dataclass: type[T],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandlerT]]:
-        ...
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandlerT]]: ...
 
     @typing.overload
     def handle(
@@ -101,8 +111,7 @@ class Dispatch(
         dataclass: type[T] = DEFAULT_DATACLASS,
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]:
-        ...
+    ) -> typing.Callable[[Handler[T]], FuncHandler[Event, Handler[T], ErrorHandler]]: ...
 
     def handle(  # type: ignore
         self,
@@ -126,6 +135,7 @@ class Dispatch(
 
     async def feed(self, event: Update, api: ABCAPI) -> bool:
         logger.debug("Processing update (update_id={})", event.update_id)
+        await self.raw_event.process(event, api)
         for view in self.get_views().values():
             if await view.check(event):
                 logger.debug(

@@ -47,17 +47,21 @@ class UserRegistrarMiddleware(ABCMiddleware[Message]):
 @bot.on.message(Text("/formatting"))
 async def formatting(_: Message) -> dict[str, typing.Any]:
     global_ctx.formatting = not global_ctx.formatting
-    return formatting_text("Formatting ", bold("enabled!" if global_ctx.formatting else "disabled!"))
+    return formatting_text(
+        "Formatting ", bold("enabled!" if global_ctx.formatting else "disabled!")
+    )
 
 
 @bot.on.message(
-    MessageEntities([MessageEntityType.TEXT_MENTION, MessageEntityType.MENTION, MessageEntityType.URL])
-    & Markup(["/get_user @<username>", "/get_user t.me/<username>", "/get_user <username>"])
+    MessageEntities(
+        [MessageEntityType.TEXT_MENTION, MessageEntityType.MENTION, MessageEntityType.URL]
+    )
+    & Markup(
+        ["/get_user @<username>", "/get_user t.me/<username>", "/get_user <username>"]
+    )
 )
 async def get_user_by_username(
-    _: Message,
-    username: str,
-    message_entities: list[MessageEntity]
+    _: Message, username: str, message_entities: list[MessageEntity]
 ) -> dict[str, typing.Any]:
     if message_entities[0].type == MessageEntityType.TEXT_MENTION:
         user = message_entities[0].user.unwrap()
@@ -67,7 +71,7 @@ async def get_user_by_username(
         for u in global_ctx.users.values():
             if u.username.unwrap_or_none() == username:
                 user = u
-    
+
     if user is None:
         return formatting_text("User with username ", bold(username), " not found!")
     return formatting_text("User: ", code_inline(repr(user)))

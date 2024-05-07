@@ -56,7 +56,9 @@ async def choose_handler(m: Message):
         bot.dispatch.message,
         m,
         Text(["yes", "no"], ignore_case=True),
-        default=MessageReplyHandler("Please make a decision: Yes or No. This is extremely important!"),
+        default=MessageReplyHandler(
+            "Please make a decision: Yes or No. This is extremely important!"
+        ),
     )
     if answer.text.unwrap().lower() == "yes":
         await answer.reply("Rockets have been launched.")

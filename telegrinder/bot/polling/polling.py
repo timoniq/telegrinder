@@ -29,11 +29,13 @@ class Polling(ABCPolling):
             include_updates=include_updates,
             exclude_updates=exclude_updates,
         )
-        self.reconnection_timeout = 5 if reconnection_timeout < 0 else reconnection_timeout
+        self.reconnection_timeout = (
+            5 if reconnection_timeout < 0 else reconnection_timeout
+        )
         self.max_reconnetions = 10 if max_reconnetions < 0 else max_reconnetions
         self.offset = offset
         self._stop = False
-    
+
     def __repr__(self) -> str:
         return (
             "<{}: with api={!r}, stopped={}, offset={}, allowed_updates={!r}, "

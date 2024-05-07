@@ -14,6 +14,7 @@ from telegrinder.types import (
     InlineKeyboardMarkup,
     InputFile,
     InputMedia,
+    InputPollOption,
     LabeledPrice,
     LinkPreviewOptions,
     Message,
@@ -80,7 +81,7 @@ async def execute_method_answer(
         params["link_preview_options"] = compose_link_preview_options(
             **link_preview_options
         )
-        
+
     result = await getattr(message.ctx_api, method_name)(**params)
     return result.map(
         lambda x: (
@@ -1213,10 +1214,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_poll(
         self,
         question: str,
-        options: list[str],
+        options: list[InputPollOption],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
+        question_parse_mode: str | None = None,
+        question_entities: list[MessageEntity] | None = None,
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         allows_multiple_answers: bool | None = None,
@@ -1246,10 +1249,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
         forum supergroups only.
 
+        :param question_parse_mode: Mode for parsing entities in the question. See formatting options for more \
+        details. Currently, only custom emoji entities are allowed.
+
+        :param question_entities: A JSON-serialized list of special entities that appear in the poll question. \
+        It can be specified instead of question_parse_mode.
+
         :param question: Poll question, 1-300 characters.
 
-        :param options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters \
-        each.
+        :param options: A JSON-serialized list of 2-10 answer options.
 
         :param is_anonymous: True, if the poll needs to be anonymous, defaults to True.
 
@@ -2365,10 +2373,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_poll(
         self,
         question: str,
-        options: list[str],
+        options: list[InputPollOption],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
+        question_parse_mode: str | None = None,
+        question_entities: list[MessageEntity] | None = None,
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         allows_multiple_answers: bool | None = None,
@@ -2398,10 +2408,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
         forum supergroups only.
 
+        :param question_parse_mode: Mode for parsing entities in the question. See formatting options for more \
+        details. Currently, only custom emoji entities are allowed.
+
+        :param question_entities: A JSON-serialized list of special entities that appear in the poll question. \
+        It can be specified instead of question_parse_mode.
+
         :param question: Poll question, 1-300 characters.
 
-        :param options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters \
-        each.
+        :param options: A JSON-serialized list of 2-10 answer options.
 
         :param is_anonymous: True, if the poll needs to be anonymous, defaults to True.
 
@@ -2910,6 +2925,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
+        inline_message_id: str | None = None,
+        live_period: int | None = None,
         horizontal_accuracy: float | None = None,
         heading: int | None = None,
         proximity_alert_radius: int | None = None,
@@ -2931,6 +2948,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
         forum supergroups only.
+
+        :param live_period: New period in seconds during which the location can be updated, starting \
+        from the message send date. If 0x7FFFFFFF is specified, then the location \
+        can be updated forever. Otherwise, the new value must not exceed the current \
+        live_period by more than a day, and the live location expiration date must \
+        remain within the next 90 days. If not specified, then live_period remains \
+        unchanged.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
+        inline message.
 
         :param latitude: Latitude of new location.
 
