@@ -69,11 +69,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
                 choice = choices.pop(0)
                 kb.add(
                     InlineButton(
-                        text=(
-                            choice.default_text
-                            if not choice.is_picked
-                            else choice.picked_text
-                        ),
+                        text=(choice.default_text if not choice.is_picked else choice.picked_text),
                         callback_data=self.random_code + "/" + choice.code,
                     )
                 )

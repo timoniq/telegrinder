@@ -12,16 +12,12 @@ from .inline_query import InlineQueryView
 from .message import MessageView
 from .raw import RawEventView
 
-CallbackQueryViewT = typing.TypeVar(
-    "CallbackQueryViewT", bound=ABCView, default=CallbackQueryView
-)
+CallbackQueryViewT = typing.TypeVar("CallbackQueryViewT", bound=ABCView, default=CallbackQueryView)
 ChatJoinRequestViewT = typing.TypeVar(
     "ChatJoinRequestViewT", bound=ABCView, default=ChatJoinRequestView
 )
 ChatMemberViewT = typing.TypeVar("ChatMemberViewT", bound=ABCView, default=ChatMemberView)
-InlineQueryViewT = typing.TypeVar(
-    "InlineQueryViewT", bound=ABCView, default=InlineQueryView
-)
+InlineQueryViewT = typing.TypeVar("InlineQueryViewT", bound=ABCView, default=InlineQueryView)
 MessageViewT = typing.TypeVar("MessageViewT", bound=ABCView, default=MessageView)
 RawEventViewT = typing.TypeVar("RawEventViewT", bound=ABCView, default=RawEventView)
 
@@ -100,11 +96,7 @@ class ViewBox(
     def get_views(self) -> dict[str, ABCView]:
         """Get all views."""
 
-        return {
-            name: view
-            for name, view in self.__dict__.items()
-            if isinstance(view, ABCView)
-        }
+        return {name: view for name, view in self.__dict__.items() if isinstance(view, ABCView)}
 
 
 __all__ = ("ViewBox",)

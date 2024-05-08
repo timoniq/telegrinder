@@ -3,8 +3,7 @@ import inspect
 import typing
 
 ComposeResult: typing.TypeAlias = (
-    typing.Coroutine[typing.Any, typing.Any, typing.Any]
-    | typing.AsyncGenerator[typing.Any, None]
+    typing.Coroutine[typing.Any, typing.Any, typing.Any] | typing.AsyncGenerator[typing.Any, None]
 )
 
 
@@ -16,9 +15,7 @@ class Node(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def compose(
-        cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any
-    ) -> ComposeResult:
+    def compose(cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any) -> ComposeResult:
         pass
 
     @classmethod
@@ -52,18 +49,14 @@ class DataNode(Node, abc.ABC):
     @typing.dataclass_transform()
     @classmethod
     @abc.abstractmethod
-    async def compose(
-        cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any
-    ) -> ComposeResult:
+    async def compose(cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any) -> ComposeResult:
         pass
 
 
 class ScalarNodeProto(Node, abc.ABC):
     @classmethod
     @abc.abstractmethod
-    async def compose(
-        cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any
-    ) -> ComposeResult:
+    async def compose(cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any) -> ComposeResult:
         pass
 
 

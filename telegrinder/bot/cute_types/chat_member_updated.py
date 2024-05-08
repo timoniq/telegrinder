@@ -232,7 +232,9 @@ class ChatMemberShortcuts:
         ...
 
 
-class ChatMemberUpdatedCute(BaseCute[ChatMemberUpdated], ChatMemberUpdated, ChatMemberShortcuts, kw_only=True):
+class ChatMemberUpdatedCute(
+    BaseCute[ChatMemberUpdated], ChatMemberUpdated, ChatMemberShortcuts, kw_only=True
+):
     api: ABCAPI
 
     @property

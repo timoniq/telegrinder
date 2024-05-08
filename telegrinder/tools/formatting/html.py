@@ -49,9 +49,7 @@ class StringFormatter(string.Formatter):
             )
         return fmt
 
-    def get_spec_formatter(
-        self, value: SpecialFormat
-    ) -> typing.Callable[..., "TagFormat"]:
+    def get_spec_formatter(self, value: SpecialFormat) -> typing.Callable[..., "TagFormat"]:
         return globals()[value.__formatter_name__]
 
     def check_formats(self, value: typing.Any, fmts: list[str]) -> "TagFormat":
@@ -241,9 +239,7 @@ def start_bot_link(bot_id: str | int, data: str, string: str | None = None) -> T
     return link(get_start_bot_link(bot_id, data), string)
 
 
-def start_group_link(
-    bot_id: str | int, data: str, string: str | None = None
-) -> TagFormat:
+def start_group_link(bot_id: str | int, data: str, string: str | None = None) -> TagFormat:
     return link(get_start_group_link(bot_id, data), string)
 
 

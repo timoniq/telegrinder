@@ -56,9 +56,7 @@ async def formatting(_: Message) -> dict[str, typing.Any]:
     MessageEntities(
         [MessageEntityType.TEXT_MENTION, MessageEntityType.MENTION, MessageEntityType.URL]
     )
-    & Markup(
-        ["/get_user @<username>", "/get_user t.me/<username>", "/get_user <username>"]
-    )
+    & Markup(["/get_user @<username>", "/get_user t.me/<username>", "/get_user <username>"])
 )
 async def get_user_by_username(
     _: Message, username: str, message_entities: list[MessageEntity]

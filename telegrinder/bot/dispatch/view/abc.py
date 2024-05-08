@@ -63,9 +63,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
         for base in cls.__dict__.get("__orig_bases__", ()):
             if issubclass(typing.get_origin(base) or base, ABCView):
                 for generic_type in typing.get_args(base):
-                    if issubclass(
-                        typing.get_origin(generic_type) or generic_type, BaseCute
-                    ):
+                    if issubclass(typing.get_origin(generic_type) or generic_type, BaseCute):
                         return Some(generic_type)
         return Nothing()
 

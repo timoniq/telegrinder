@@ -44,9 +44,7 @@ class _Birthdate(Birthdate):
         """Optional. Contains the user's age, if the user has a birth year specified."""
 
         return self.year.map(
-            lambda year: (
-                (datetime.now() - datetime(year, self.month, self.day)) // 365
-            ).days
+            lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days
         )
 
 

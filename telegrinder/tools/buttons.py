@@ -63,15 +63,13 @@ class InlineButton(BaseButton):
     url: str | None = None
     login_url: dict[str, typing.Any] | LoginUrl | None = None
     pay: bool | None = None
-    callback_data: (
-        str | dict[str, typing.Any] | DataclassInstance | msgspec.Struct | None
-    ) = None
+    callback_data: str | dict[str, typing.Any] | DataclassInstance | msgspec.Struct | None = None
     callback_game: dict[str, typing.Any] | CallbackGame | None = None
     switch_inline_query: str | None = None
     switch_inline_query_current_chat: str | None = None
-    switch_inline_query_chosen_chat: (
-        dict[str, typing.Any] | SwitchInlineQueryChosenChat | None
-    ) = None
+    switch_inline_query_chosen_chat: dict[str, typing.Any] | SwitchInlineQueryChosenChat | None = (
+        None
+    )
     web_app: dict[str, typing.Any] | WebAppInfo | None = None
 
 

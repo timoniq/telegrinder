@@ -41,9 +41,7 @@ class RawEventView(BaseView[UpdateCute]):
         update_type: UpdateType,
         *rules: ABCRule[UpdateCute],
         dataclass: type[T],
-    ) -> typing.Callable[
-        [FuncType[T]], FuncHandler[UpdateCute, FuncType[T], ErrorHandler[T]]
-    ]: ...
+    ) -> typing.Callable[[FuncType[T]], FuncHandler[UpdateCute, FuncType[T], ErrorHandler[T]]]: ...
 
     @typing.overload
     def __call__(
@@ -64,9 +62,7 @@ class RawEventView(BaseView[UpdateCute]):
         dataclass: type[T],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[
-        [FuncType[T]], FuncHandler[UpdateCute, FuncType[T], ErrorHandlerT]
-    ]: ...
+    ) -> typing.Callable[[FuncType[T]], FuncHandler[UpdateCute, FuncType[T], ErrorHandlerT]]: ...
 
     @typing.overload
     def __call__(

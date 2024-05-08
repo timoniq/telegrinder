@@ -16,12 +16,14 @@ from models import (
 
 from telegrinder.modules import logger
 
-__version__ = "Bot API 7.2"
+__version__ = "Bot API 7.3"
 
 ModelT = typing.TypeVar("ModelT", bound=msgspec.structs.Struct)
 
 JSON_DECODER: typing.Final[msgspec.json.Decoder[typing.Any]] = msgspec.json.Decoder(strict=True)
-URL: typing.Final[str] = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/main/api.json"
+URL: typing.Final[str] = (
+    "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/main/api.json"
+)
 TAB: typing.Final[str] = "    "
 TYPES: typing.Final[dict[str, str]] = {
     "String": "str",
@@ -30,7 +32,9 @@ TYPES: typing.Final[dict[str, str]] = {
     "Boolean": "bool",
     "Unixtime": "datetime",
 }
-INPUTFILE_DOCSTRING: typing.Final[str] = "to upload a new one using multipart/form-data under <file_attach_name> name."
+INPUTFILE_DOCSTRING: typing.Final[str] = (
+    "to upload a new one using multipart/form-data under <file_attach_name> name."
+)
 MAIN_DIR: typing.Final[str] = "typegen"
 
 
@@ -50,10 +54,9 @@ def get_schema_json() -> "SchemaJson":
     return typing.cast(SchemaJson, dct)
 
 
-def check_version(schema: typing.Optional["SchemaJson"] = None) -> None:
+def is_new_version(schema: typing.Optional["SchemaJson"] = None) -> bool:
     schema = schema or get_schema_json()
-    if schema["version"] != __version__:
-        logger.warning(f"New version {schema['version']} is available!")
+    return schema["version"] != __version__
 
 
 def find_nicifications(name: str, path: str) -> tuple[str | None, list[str]]:
@@ -234,12 +237,8 @@ class ObjectGenerator(ABCGenerator):
         code = f"{self.rename_field_names.get(field.name, field.name)}: "
         field_type = "typing.Any"
 
-        if literal_types is not None and any(
-            x in literal_types for x in ("literals", "enum")
-        ):
-            literal_type_hint = literal_types.get(
-                "enum"
-            ) or "typing.Literal[%s]" % ", ".join(
+        if literal_types is not None and any(x in literal_types for x in ("literals", "enum")):
+            literal_type_hint = literal_types.get("enum") or "typing.Literal[%s]" % ", ".join(
                 f'"{x}"' if isinstance(x, str) else str(x)
                 for x in literal_types.get("literals", [])
             )
@@ -256,10 +255,7 @@ class ObjectGenerator(ABCGenerator):
                     field.types.remove("Integer")
                     field_type = "datetime"
 
-                elif (
-                    "InputFile" not in field.types
-                    and INPUTFILE_DOCSTRING in field.description
-                ):
+                elif "InputFile" not in field.types and INPUTFILE_DOCSTRING in field.description:
                     field.types.insert(0, "InputFile")
 
             if len(field.types) > 1:
@@ -304,9 +300,7 @@ class ObjectGenerator(ABCGenerator):
             "Base object"
             if object_schema.subtypes
             else (
-                "Object"
-                if base is None or base == object_name
-                else base.split(".")[-1] + " object"
+                "Object" if base is None or base == object_name else base.split(".")[-1] + " object"
             )
         ) + f" `{object_name}`, see the [documentation]({object_schema.href})."
         code += '"""%s\n\n%s\n"""' % (
@@ -320,9 +314,7 @@ class ObjectGenerator(ABCGenerator):
 
         code += f"\n"
         if not object_schema.fields and not nicifications:
-            if (
-                not object_schema.subtypes and base is None
-            ) or not object_schema.subtypes:
+            if (not object_schema.subtypes and base is None) or not object_schema.subtypes:
                 logger.warning(
                     f"Object {object_name!r} has not fields, subtypes and nicifications."
                 )
@@ -345,9 +337,7 @@ class ObjectGenerator(ABCGenerator):
                         r'(\b\w+\b):\s*(.+)\s*"""(.*?)"""', n, flags=re.DOTALL
                     ):
                         new_code = f'\n    {f}: {t.strip()}\n    """{d}"""'
-                        code = re.sub(
-                            r"\n    " + f + r": .+((?:.|\n {4}|\n$)+)", new_code, code
-                        )
+                        code = re.sub(r"\n    " + f + r": .+((?:.|\n {4}|\n$)+)", new_code, code)
                         n = n.replace(new_code.strip(), "")
                 code += n
 
@@ -365,32 +355,29 @@ class ObjectGenerator(ABCGenerator):
             "from telegrinder.model import Model\n",
             "from telegrinder.msgspec_utils import Option, Nothing, datetime\n\n",
         ]
-        enums_all: tuple[str, ...] = tuple()
         all_ = ["Model"]
 
         if self.config_literal_types:
             lines.append("from telegrinder.types.enums import *  # noqa: F403\n")
 
-        for object_schema in sorted(
-            self.objects, key=lambda x: x.subtypes or [], reverse=True
-        ):
+        for object_schema in sorted(self.objects, key=lambda x: x.subtypes or [], reverse=True):
             lines.append(self.make_object(object_schema) + "\n\n")
             all_.append(camel_to_pascal(object_schema.name))
 
         lines.append(f"\n__all__ = {tuple(all_)!r}\n")
         with open(path + "/objects.py", mode="w", encoding="UTF-8") as f:
             f.writelines(lines)
-        
-        exec(f"from {path.replace('/', '.') + '.enums'} import __all__ as enums_all")
+
+        exec(f"from {path.replace('/', '.') + '.enums'} import __all__", globals(), locals())
         with open(path + "/__init__.py", "w", encoding="UTF-8") as f:
             f.writelines(
                 [
                     "from telegrinder.types.enums import *\n",
                     "from telegrinder.types.objects import *\n\n",
-                    f"__all__ = {enums_all + tuple(all_)}\n"
+                    f"__all__ = {locals()['__all__'] + tuple(all_)}\n",  # type: ignore
                 ]
             )
-        
+
         logger.info(
             "Generation of {} objects into {!r} has been completed.",
             len(self.objects),
@@ -466,9 +453,7 @@ class MethodGenerator(ABCGenerator):
             '"""'
             + (
                 f"Method `{method_schema.name}`, see the [documentation]({method_schema.href})\n\n{TAB * 2}"
-                + chunks_str(
-                    f"{TAB}\n".join(method_schema.description or []), sep="\n" + TAB + TAB
-                )
+                + chunks_str(f"{TAB}\n".join(method_schema.description or []), sep="\n" + TAB + TAB)
                 + f"\n\n{TAB * 2}"
                 + (f"\n\n{TAB * 2}".join(field_descriptions)).strip()
             ).strip()
@@ -527,9 +512,7 @@ class MethodGenerator(ABCGenerator):
     def make_method(self, method_schema: MethodSchema) -> str:
         code = (
             f"{TAB}async def {camel_to_snake(method_schema.name)}(self,"
-            + ",\n".join(
-                self.make_method_params(method_schema.name, method_schema.params)
-            )
+            + ",\n".join(self.make_method_params(method_schema.name, method_schema.params))
             + ("," if method_schema.params else "")
             + f"**other: typing.Any{',' if method_schema.params else ''}) -> "
             + self.make_return_type(method_schema.returns)
@@ -593,8 +576,12 @@ def generate(
         logger.warning(f"Path dir {path!r} not found. Making dir...")
         os.makedirs(path)
 
+    schema_json = get_schema_json()
+    if not is_new_version(schema_json):
+        logger.warning("Schema already updated to the latest version!")
+        return
+
     if types_generator is None or methods_generator is None:
-        schema_json = get_schema_json()
         schema_model = convert_schema_to_model(schema_json, TelegramBotAPISchema)
         cfg_literal_types = read_config_literal_types(path_cfg_literal_types)
         object_generator = types_generator or ObjectGenerator(
@@ -613,7 +600,7 @@ def generate(
             api_version=schema_json["version"],
             release_date=schema_json["release_date"],
         )
-    
+
     object_generator.generate(path)
     method_generator.generate(path)
     logger.info("Schema has been successfully generated.")
@@ -629,7 +616,7 @@ def generate(
         logger.error("Isort failed.")
     else:
         logger.info("Isort successfully sorted imports.")
-    
+
 
 __all__ = (
     "ABCGenerator",
@@ -641,7 +628,7 @@ __all__ = (
     "ObjectGenerator",
     "ParamLiteralTypes",
     "SchemaJson",
-    "check_version",
+    "is_new_version",
     "convert_schema_to_model",
     "find_nicifications",
     "generate",

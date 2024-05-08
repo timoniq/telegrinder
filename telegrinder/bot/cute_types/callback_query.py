@@ -44,9 +44,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
         by the bot with the callback button that originated the query."""
 
         return self.message.map(
-            lambda m: m.only()
-            .map(lambda m: m.is_topic_message.unwrap_or(False))
-            .unwrap_or(False)
+            lambda m: m.only().map(lambda m: m.is_topic_message.unwrap_or(False)).unwrap_or(False)
         )
 
     @property

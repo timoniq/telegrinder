@@ -147,9 +147,7 @@ elif logging_module == "logging":
     for level, settings in LEVEL_SETTINGS.items():
         fmt = FORMAT
         for name, color in settings.items():
-            fmt = fmt.replace(f"<{name}>", COLORS[color]).replace(
-                f"</{name}>", COLORS["reset"]
-            )
+            fmt = fmt.replace(f"<{name}>", COLORS[color]).replace(f"</{name}>", COLORS["reset"])
         LEVEL_FORMATS[level] = fmt
 
     class TelegrinderLoggingFormatter(logging.Formatter):

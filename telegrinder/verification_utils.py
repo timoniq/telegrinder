@@ -6,7 +6,8 @@ from telegrinder.api.abc import Token
 
 
 def verify_webapp_request(
-    secret_token: str, request_headers: typing.Mapping[str, typing.Any]
+    secret_token: str,
+    request_headers: typing.Mapping[str, typing.Any],
 ) -> bool:
     """Verifies update request is from telegram."""
 

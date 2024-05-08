@@ -210,7 +210,7 @@ class Update(Model):
     or a user edited an existing connection with the bot."""
 
     business_message: Option["Message"] = Nothing
-    """Optional. New non-service message from a connected business account."""
+    """Optional. New message from a connected business account."""
 
     edited_business_message: Option["Message"] = Nothing
     """Optional. New version of a message from a connected business account."""
@@ -534,8 +534,8 @@ class ChatFullInfo(Model):
     messages."""
 
     join_by_request: Option[bool] = Nothing
-    """Optional. True, if all users directly joining the supergroup need to be 
-    approved by supergroup administrators."""
+    """Optional. True, if all users directly joining the supergroup without using 
+    an invite link need to be approved by supergroup administrators."""
 
     description: Option[str] = Nothing
     """Optional. Description, for groups, supergroups and channel chats."""
@@ -2781,7 +2781,7 @@ class ChatMemberUpdated(Model):
 
     via_join_request: Option[bool] = Nothing
     """Optional. True, if the user joined the chat after sending a direct join request 
-    and being approved by an administrator."""
+    without using an invite link and being approved by an administrator."""
 
     via_chat_folder_invite_link: Option[bool] = Nothing
     """Optional. True, if the user joined the chat via a chat folder invite link."""

@@ -74,9 +74,7 @@ def compose_method_params(
         if param_name not in params:
             if param_name in validators and not validators[param_name](update):
                 continue
-            params[param_name] = getattr(
-                update, param if isinstance(param, str) else param[1]
-            )
+            params[param_name] = getattr(update, param if isinstance(param, str) else param[1])
 
     return params
 
@@ -105,21 +103,14 @@ def shortcut(
             index = 0
 
             for k, p in signature_params.items():
-                if (
-                    p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY)
-                    and len(args) > index
-                ):
+                if p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY) and len(args) > index:
                     params[k] = args[index]
                     index += 1
                     continue
                 if p.kind in (p.VAR_KEYWORD, p.VAR_POSITIONAL):
                     params[k] = kwargs.copy() if p.kind is p.VAR_KEYWORD else args[index:]
                     continue
-                params[k] = (
-                    kwargs.pop(k, p.default)
-                    if p.default is not p.empty
-                    else kwargs.pop(k)
-                )
+                params[k] = kwargs.pop(k, p.default) if p.default is not p.empty else kwargs.pop(k)
 
             return await executor(self, method_name, get_params(params))
 

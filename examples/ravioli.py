@@ -34,9 +34,7 @@ class FakeDB:
 
     def new(self, name: str, time: int, message: Message) -> TimerInfo:
         task = asyncio.get_running_loop().create_task(self.timer(name, time, message))
-        return TimerInfo(
-            name, datetime.datetime.now() + datetime.timedelta(seconds=time), task
-        )
+        return TimerInfo(name, datetime.datetime.now() + datetime.timedelta(seconds=time), task)
 
     async def timer(self, name: str, time: int, message: Message) -> None:
         await asyncio.sleep(time)

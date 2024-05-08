@@ -16,7 +16,9 @@ from .markup import Markup, PatternLike, check_string
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaitable[bool]]
-MapDict: typing.TypeAlias = dict[str, "typing.Any | type[typing.Any] | Validator | list[MapDict] | MapDict"]
+MapDict: typing.TypeAlias = dict[
+    str, "typing.Any | type[typing.Any] | Validator | list[MapDict] | MapDict"
+]
 CallbackMap: typing.TypeAlias = list[tuple[str, "typing.Any | type | Validator | CallbackMap"]]
 CallbackMapStrict: typing.TypeAlias = list[tuple[str, "Validator | CallbackMapStrict"]]
 

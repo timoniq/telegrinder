@@ -17,7 +17,7 @@ Task: typing.TypeAlias = typing.Union[CoroutineFunc, CoroutineTask, "DelayedTask
 
 
 def run_tasks(
-    tasks: list[CoroutineTask[typing.Any]], 
+    tasks: list[CoroutineTask[typing.Any]],
     loop: asyncio.AbstractEventLoop,
 ) -> None:
     while tasks:
@@ -59,12 +59,8 @@ class DelayedTask(typing.Generic[CoroFunc]):
 
 @dataclasses.dataclass(kw_only=True)
 class Lifespan:
-    startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(
-        default_factory=lambda: []
-    )
-    shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(
-        default_factory=lambda: []
-    )
+    startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
+    shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
 
     def on_startup(self, task_or_func: Task) -> Task:
         task_or_func = to_coroutine_task(task_or_func)

@@ -71,16 +71,12 @@ async def execute_method_answer(
     link_preview_options = params.get("link_preview_options")
 
     if reply_parameters is not None and isinstance(reply_parameters, dict):
-        reply_parameters.setdefault(
-            "message_id", params.get("message_id", message.message_id)
-        )
+        reply_parameters.setdefault("message_id", params.get("message_id", message.message_id))
         reply_parameters.setdefault("chat_id", params.get("chat_id"))
         params["reply_parameters"] = compose_reply_params(**reply_parameters)
 
     if link_preview_options is not None and isinstance(link_preview_options, dict):
-        params["link_preview_options"] = compose_link_preview_options(
-            **link_preview_options
-        )
+        params["link_preview_options"] = compose_link_preview_options(**link_preview_options)
 
     result = await getattr(message.ctx_api, method_name)(**params)
     return result.map(
@@ -124,8 +120,7 @@ async def execute_method_edit(
             "message_thread_id": lambda x: (
                 x.is_topic_message.unwrap_or(False)
                 if isinstance(x, MessageCute)
-                else bool(x.message)
-                and getattr(x.message.unwrap().v, "is_topic_message", False)
+                else bool(x.message) and getattr(x.message.unwrap().v, "is_topic_message", False)
             ),
         },
     )
@@ -330,9 +325,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         return await self.ctx_api.delete_message(**params)
 
@@ -450,9 +443,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                 ("from_chat_id", "chat_id"),
                 "message_thread_id",
             },
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         if isinstance(reply_parameters, dict):
             reply_parameters.setdefault("message_id", params.get("message_id"))
@@ -467,11 +458,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def react(
         self,
         reaction: (
-            str
-            | ReactionEmoji
-            | ReactionType
-            | list[str | ReactionEmoji | ReactionType]
-            | None
+            str | ReactionEmoji | ReactionType | list[str | ReactionEmoji | ReactionType] | None
         ) = None,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
@@ -507,9 +494,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         if reaction:
             params["reaction"] = compose_reactions(
@@ -557,9 +542,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                 "message_id",
                 "message_thread_id",
             },
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         return (await self.ctx_api.forward_message(**params)).map(
             lambda message: MessageCute.from_update(message, bound_api=self.api),
@@ -599,9 +582,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         return await self.ctx_api.pin_chat_message(**params)
 
@@ -632,9 +613,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         return await self.ctx_api.pin_chat_message(**params)
 

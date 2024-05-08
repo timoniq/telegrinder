@@ -160,9 +160,7 @@ class Dispatch(
     def load(self, external: typing.Self) -> None:
         view_external = external.get_views()
         for name, view in self.get_views().items():
-            assert (
-                name in view_external
-            ), f"View {name!r} is undefined in external dispatch."
+            assert name in view_external, f"View {name!r} is undefined in external dispatch."
             view.load(view_external[name])
             setattr(external, name, view)
 

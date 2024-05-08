@@ -42,9 +42,7 @@ class AiohttpClient(ABCClient):
     ) -> "ClientResponse":
         if not self.session:
             self.session = ClientSession(
-                connector=TCPConnector(
-                    ssl=ssl.create_default_context(cafile=certifi.where())
-                ),
+                connector=TCPConnector(ssl=ssl.create_default_context(cafile=certifi.where())),
                 json_serialize=self.json_processing_module.dumps,
                 **self.session_params,
             )

@@ -24,9 +24,7 @@ class WithReply(MessageRule):
 class IsChatAdmin(MessageRule, requires=[IsChat()]):
     async def check(self, message: Message, ctx: Context) -> bool:
         admins = (await bot.api.get_chat_administrators(message.chat.id)).unwrap()
-        if message.from_user.id not in (
-            admin.v.user.id for admin in admins if admin.v.user
-        ):
+        if message.from_user.id not in (admin.v.user.id for admin in admins if admin.v.user):
             await message.reply("You need to be an admin in this chat")
             return False
         return True

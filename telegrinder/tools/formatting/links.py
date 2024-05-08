@@ -29,9 +29,7 @@ def get_invite_chat_link(invite_link: str) -> str:
 
 
 def user_open_message_link(user_id: int, message: str | None = None) -> str:
-    return f"tg://openmessage?user_id={user_id}" + (
-        "" if not message else f"&msg?text={message}"
-    )
+    return f"tg://openmessage?user_id={user_id}" + ("" if not message else f"&msg?text={message}")
 
 
 __all__ = (

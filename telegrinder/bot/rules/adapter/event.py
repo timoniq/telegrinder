@@ -45,9 +45,7 @@ class EventAdapter(ABCAdapter[Update, CuteT]):
                     AdapterError(f"Update is not an {self.event!r}."),
                 )
             return Ok(
-                self.cute_model.from_update(
-                    update_dct[self.event].unwrap(), bound_api=api
-                ),
+                self.cute_model.from_update(update_dct[self.event].unwrap(), bound_api=api),
             )
         event = update_dct[update.update_type.unwrap()].unwrap()
         if not update.update_type or not issubclass(event.__class__, self.event):

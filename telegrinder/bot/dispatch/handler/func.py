@@ -18,14 +18,10 @@ if typing.TYPE_CHECKING:
 
 F = typing.TypeVar(
     "F",
-    bound=typing.Callable[
-        typing.Concatenate[typing.Any, ...], typing.Awaitable[typing.Any]
-    ],
+    bound=typing.Callable[typing.Concatenate[typing.Any, ...], typing.Awaitable[typing.Any]],
 )
 EventT = typing.TypeVar("EventT", bound=BaseCute)
-ErrorHandlerT = typing.TypeVar(
-    "ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler
-)
+ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
 
 @dataclasses.dataclass(repr=False)
@@ -52,10 +48,7 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
         )
 
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
-        if (
-            self.update_type is not None
-            and self.update_type != event.update_type.unwrap_or_none()
-        ):
+        if self.update_type is not None and self.update_type != event.update_type.unwrap_or_none():
             return False
         ctx = ctx or Context()
         temp_ctx = ctx.copy()

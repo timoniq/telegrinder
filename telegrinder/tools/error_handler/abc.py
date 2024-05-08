@@ -16,9 +16,7 @@ class ABCErrorHandler(ABC, typing.Generic[EventT]):
         self,
         *args: typing.Any,
         **kwargs: typing.Any,
-    ) -> typing.Callable[
-        [typing.Callable[..., typing.Any]], typing.Callable[..., typing.Any]
-    ]:
+    ) -> typing.Callable[[typing.Callable[..., typing.Any]], typing.Callable[..., typing.Any]]:
         """Decorator for registering callback as an error handler."""
 
     @abstractmethod

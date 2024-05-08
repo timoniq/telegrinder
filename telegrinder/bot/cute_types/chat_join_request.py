@@ -9,7 +9,9 @@ from .base import BaseCute, shortcut
 from .chat_member_updated import ChatMemberShortcuts, chat_member_interaction
 
 
-class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMemberShortcuts, kw_only=True):
+class ChatJoinRequestCute(
+    BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMemberShortcuts, kw_only=True
+):
     api: ABCAPI
 
     @property

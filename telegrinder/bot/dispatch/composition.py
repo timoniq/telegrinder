@@ -78,9 +78,7 @@ class CompositionDispatch(ABCDispatch):
         def wrapper(func: typing.Callable):
             composition = Composition(func, is_blocking)
             if container_nodes:
-                composition.nodes["container"] = ContainerNode.link_nodes(
-                    list(container_nodes)
-                )
+                composition.nodes["container"] = ContainerNode.link_nodes(list(container_nodes))
             self.compositions.append(composition)
             return func
 

@@ -42,7 +42,9 @@ class IsForward(MessageRule):
 
 
 class IsForwardType(MessageRule, requires=[IsForward()]):
-    def __init__(self, fwd_type: typing.Literal["user", "hidden_user", "chat", "channel"], /) -> None:
+    def __init__(
+        self, fwd_type: typing.Literal["user", "hidden_user", "chat", "channel"], /
+    ) -> None:
         self.fwd_type = fwd_type
 
     async def check(self, message: Message, ctx: Context) -> bool:
@@ -80,8 +82,8 @@ class IsLanguageCode(ABCRule[T], requires=[HasFrom()]):
 
     async def check(self, event: UpdateCute, ctx: Context) -> bool:
         return (
-            get_from_user(event.incoming_update.unwrap())
-            .language_code.unwrap_or_none() in self.lang_codes
+            get_from_user(event.incoming_update.unwrap()).language_code.unwrap_or_none()
+            in self.lang_codes
         )
 
 
@@ -131,7 +133,7 @@ class IsDiceEmoji(MessageRule, requires=[HasDice()]):
         self.dice_emoji = dice_emoji
 
     async def check(self, message: Message, ctx: Context) -> bool:
-        return message.dice.unwrap().emoji == self.dice_emoji 
+        return message.dice.unwrap().emoji == self.dice_emoji
 
 
 __all__ = (

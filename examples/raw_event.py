@@ -24,7 +24,9 @@ class ReactedMessageId(ABCRule[Update]):
         match update.get_event(MessageReactionUpdated):
             case Some(event) if event.user:
                 user = event.user.unwrap()
-                message_id = bot.dispatch.global_context.get_value(f"{user.id}:{event.chat.id}", int)
+                message_id = bot.dispatch.global_context.get_value(
+                    f"{user.id}:{event.chat.id}", int
+                )
                 return message_id.unwrap_or_none() == event.message_id
         return False
 

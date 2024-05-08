@@ -24,7 +24,7 @@ class ShortStateStorage(dict[Identificator, ShortState[EventModel]]):
         super().__init__()
         self.maxlimit = maxlimit
         self.queue: deque[Identificator] = deque(maxlen=maxlimit)
-    
+
     def __repr__(self) -> str:
         return "<{}: {}, (current={} | maxlimit={})>".format(
             self.__class__.__name__,
@@ -32,10 +32,10 @@ class ShortStateStorage(dict[Identificator, ShortState[EventModel]]):
             len(self.queue),
             self.maxlimit,
         )
-    
+
     def __setitem__(self, key: Identificator, value: ShortState[EventModel], /) -> None:
         self.add(key, value)
-    
+
     def __delitem__(self, key: Identificator, /) -> None:
         self.pop(key, None)
 
@@ -49,23 +49,25 @@ class ShortStateStorage(dict[Identificator, ShortState[EventModel]]):
     def clear(self) -> None:
         self.queue.clear()
         super().clear()
-    
-    def setdefault(self, id: Identificator, default: ShortState[EventModel]) -> ShortState[EventModel]:
+
+    def setdefault(
+        self, id: Identificator, default: ShortState[EventModel]
+    ) -> ShortState[EventModel]:
         if id in self:
             return self[id]
         self.add(id, default)
         return default
-    
+
     def pop(self, id: Identificator, default: T):  # type: ignore
         if id in self.queue:
             self.queue.remove(id)
         return super().pop(id, default)
-    
+
     def popitem(self) -> tuple[Identificator, ShortState[EventModel]]:
         item = super().popitem()
         self.queue.remove(item[0])
         return item
-    
+
     def update(
         self,
         mapping: typing.Mapping[Identificator, ShortState[EventModel]] | None = None,
@@ -132,8 +134,13 @@ class WaiterMachine:
         if isinstance(expiration, int | float):
             expiration = datetime.timedelta(seconds=expiration)
 
-        api: ABCAPI; key: Identificator
-        api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
+        api: ABCAPI
+        key: Identificator
+        api, key = (
+            linked
+            if isinstance(linked, tuple)
+            else (linked.ctx_api, state_view.get_state_key(linked))
+        )  # type: ignore
         if not key:
             raise RuntimeError("Unable to get state key.")
 

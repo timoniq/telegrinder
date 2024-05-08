@@ -26,14 +26,8 @@ class ItemModel(msgspec.Struct):
 
 kb = (
     InlineKeyboard()
-    .add(
-        InlineButton(
-            text="buy a doughnut", callback_data=ItemModel(item="doughnut", amount=100)
-        )
-    )
-    .add(
-        InlineButton(text="buy a cake", callback_data=ItemModel(item="cake", amount=1000))
-    )
+    .add(InlineButton(text="buy a doughnut", callback_data=ItemModel(item="doughnut", amount=100)))
+    .add(InlineButton(text="buy a cake", callback_data=ItemModel(item="cake", amount=1000)))
 ).get_markup()
 
 

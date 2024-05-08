@@ -10,10 +10,10 @@ from fntypes.co import Nothing, Result, Some
 
 from .msgspec_utils import decoder, encoder, get_origin
 
-T = typing.TypeVar("T")
-
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
+
+T = typing.TypeVar("T")
 
 
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
@@ -25,7 +25,8 @@ MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
 
 @typing.overload
 def full_result(
-    result: Result[msgspec.Raw, "APIError"], full_t: type[T]
+    result: Result[msgspec.Raw, "APIError"],
+    full_t: type[T],
 ) -> Result[T, "APIError"]: ...
 
 

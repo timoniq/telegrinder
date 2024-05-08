@@ -13,9 +13,7 @@ from .error import CatcherError
 
 F = typing.TypeVar("F", bound="FuncCatcher")
 ExceptionT = typing.TypeVar("ExceptionT", bound=BaseException, contravariant=True)
-FuncCatcher = typing.Callable[
-    typing.Concatenate[ExceptionT, ...], typing.Awaitable[typing.Any]
-]
+FuncCatcher = typing.Callable[typing.Concatenate[ExceptionT, ...], typing.Awaitable[typing.Any]]
 
 
 @dataclasses.dataclass(frozen=True, repr=False)
@@ -59,8 +57,7 @@ class Catcher(typing.Generic[EventT]):
     ) -> Result[typing.Any, BaseException]:
         if self.match_exception(exception):
             logger.debug(
-                "Catcher {!r} caught an exception in handler {!r}, "
-                "running catcher...".format(
+                "Catcher {!r} caught an exception in handler {!r}, " "running catcher...".format(
                     self.func.__name__,
                     handler_name,
                 )

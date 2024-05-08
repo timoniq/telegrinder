@@ -66,9 +66,7 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
         union_types = tuple(t for t in union_types if t not in struct_fields_match_sums)
         reverse = False
 
-        if len(set(struct_fields_match_sums.values())) != len(
-            struct_fields_match_sums.values()
-        ):
+        if len(set(struct_fields_match_sums.values())) != len(struct_fields_match_sums.values()):
             struct_fields_match_sums = {
                 m: len(m.__struct_fields__) for m in struct_fields_match_sums
             }
@@ -242,8 +240,7 @@ class Encoder:
         origin_type = get_origin(obj.__class__)
         if origin_type not in self.enc_hooks:
             raise NotImplementedError(
-                "Not implemented encode hook for "
-                f"object of type `{repr_type(origin_type)}`."
+                "Not implemented encode hook for " f"object of type `{repr_type(origin_type)}`."
             )
         return self.enc_hooks[origin_type](obj)
 
