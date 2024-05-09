@@ -46,7 +46,7 @@ class ABCMarkup(ABC, typing.Generic[ButtonT]):
     def add(self, row_or_button: RowButtons[ButtonT] | ButtonT) -> typing.Self:
         if not len(self.keyboard):
             self.row()
-        
+
         if isinstance(row_or_button, RowButtons):
             self.keyboard[-1].extend(row_or_button.get_data())
             if row_or_button.auto_row:

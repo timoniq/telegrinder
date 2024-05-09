@@ -27,12 +27,18 @@ FuncType: typing.TypeAlias = typing.Callable[
 
 
 class ABCView(ABC):
+    def __repr__(self) -> str:
+        return "<{!r}: {}>".format(
+            self.__class__.__name__,
+            ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items()),
+        )
+
     @abstractmethod
     async def check(self, event: Update) -> bool:
         pass
 
     @abstractmethod
-    async def process(self, event: Update, api: ABCAPI):
+    async def process(self, event: Update, api: ABCAPI) -> None:
         pass
 
     @abstractmethod
@@ -45,27 +51,19 @@ class ABCStateView(ABCView, typing.Generic[EventType]):
     def get_state_key(self, event: EventType) -> int | None:
         pass
 
-    def __repr__(self) -> str:
-        return "<{!r}: {}>".format(
-            self.__class__.__name__,
-            ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items()),
-        )
-
 
 class BaseView(ABCView, typing.Generic[EventType]):
     auto_rules: list[ABCRule[EventType]]
     handlers: list[ABCHandler[EventType]]
     middlewares: list[ABCMiddleware[EventType]]
-    return_manager: ABCReturnManager[EventType]
+    return_manager: ABCReturnManager[EventType] | None
 
     @classmethod
     def get_event_type(cls) -> Option[type[EventType]]:
         for base in cls.__dict__.get("__orig_bases__", ()):
             if issubclass(typing.get_origin(base) or base, ABCView):
                 for generic_type in typing.get_args(base):
-                    if issubclass(
-                        typing.get_origin(generic_type) or generic_type, BaseCute
-                    ):
+                    if issubclass(typing.get_origin(generic_type) or generic_type, BaseCute):
                         return Some(generic_type)
         return Nothing()
 
@@ -76,22 +74,25 @@ class BaseView(ABCView, typing.Generic[EventType]):
                 return getattr(update, update_type.value)
             case _:
                 return Nothing()
-    
+
     @typing.overload
     def __call__(
         self,
         *rules: ABCRule[EventType],
-    ) -> typing.Callable[[FuncType[EventType]], FuncHandler[EventType, FuncType[EventType], ErrorHandler]]:
-        ...
-    
+    ) -> typing.Callable[
+        [FuncType[EventType]],
+        FuncHandler[EventType, FuncType[EventType], ErrorHandler[EventType]],
+    ]: ...
+
     @typing.overload
     def __call__(
         self,
         *rules: ABCRule[EventType],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[FuncType[EventType]], FuncHandler[EventType, FuncType[EventType], ErrorHandlerT]]:
-        ...
+    ) -> typing.Callable[
+        [FuncType[EventType]], FuncHandler[EventType, FuncType[EventType], ErrorHandlerT]
+    ]: ...
 
     @typing.overload
     def __call__(
@@ -99,8 +100,10 @@ class BaseView(ABCView, typing.Generic[EventType]):
         *rules: ABCRule[EventType],
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
-    ) -> typing.Callable[[FuncType[EventType]], FuncHandler[EventType, FuncType[EventType], ErrorHandler]]:
-        ...
+    ) -> typing.Callable[
+        [FuncType[EventType]],
+        FuncHandler[EventType, FuncType[EventType], ErrorHandler[EventType]],
+    ]: ...
 
     def __call__(  # type: ignore
         self,
@@ -114,6 +117,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
                 [*self.auto_rules, *rules],
                 is_blocking=is_blocking,
                 dataclass=None,
+                error_handler=error_handler or ErrorHandler(),
             )
             self.handlers.append(func_handler)
             return func_handler
@@ -139,8 +143,8 @@ class BaseView(ABCView, typing.Generic[EventType]):
             case _:
                 return False
 
-    async def process(self, event: Update, api: ABCAPI) -> bool:
-        return await process_inner(
+    async def process(self, event: Update, api: ABCAPI) -> None:
+        await process_inner(
             self.get_event_type()
             .unwrap()
             .from_update(
@@ -166,8 +170,8 @@ class BaseStateView(ABCStateView[EventType], BaseView[EventType], ABC, typing.Ge
 
 
 __all__ = (
-    "ABCView",
     "ABCStateView",
-    "BaseView",
+    "ABCView",
     "BaseStateView",
+    "BaseView",
 )

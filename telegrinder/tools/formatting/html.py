@@ -78,11 +78,15 @@ class StringFormatter(string.Formatter):
         with suppress(ValueError):
             return HTMLFormatter(
                 format(
-                    value.formatting()
-                    if isinstance(value, TagFormat)
-                    else self.get_spec_formatter(value)(**value.__dict__).formatting()
-                    if is_spec_format(value)
-                    else value,
+                    (
+                        value.formatting()
+                        if isinstance(value, TagFormat)
+                        else (
+                            self.get_spec_formatter(value)(**value.__dict__).formatting()
+                            if is_spec_format(value)
+                            else value
+                        )
+                    ),
                     fmt,
                 )
             )

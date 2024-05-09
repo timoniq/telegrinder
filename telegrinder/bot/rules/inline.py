@@ -48,15 +48,15 @@ class InlineQueryText(InlineQueryRule):
 class InlineQueryMarkup(InlineQueryRule):
     def __init__(self, patterns: PatternLike | list[PatternLike], /) -> None:
         self.patterns = Markup(patterns).patterns
-    
+
     async def check(self, query: InlineQuery, ctx: Context) -> bool:
         return check_string(self.patterns, query.query, ctx)
 
 
 __all__ = (
     "HasLocation",
+    "InlineQueryChatType",
+    "InlineQueryMarkup",
     "InlineQueryRule",
     "InlineQueryText",
-    "InlineQueryMarkup",
-    "InlineQueryChatType",
 )

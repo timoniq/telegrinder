@@ -1,4 +1,5 @@
 import enum
+import typing
 from abc import ABC, abstractmethod
 
 
@@ -9,14 +10,14 @@ class ABCI18n(ABC):
 
 
 class ABCTranslator(ABC):
-    def __init__(self, locale: str, **kwargs):
+    def __init__(self, locale: str, **kwargs: typing.Any) -> None:
         self.locale = locale
 
     @abstractmethod
-    def get(self, __key: str, *args, **kwargs) -> str:
+    def get(self, __key: str, *args: typing.Any, **kwargs: typing.Any) -> str:
         """This translates a key to actual human-readable string"""
 
-    def __call__(self, __key: str, *args, **kwargs):
+    def __call__(self, __key: str, *args: typing.Any, **kwargs: typing.Any) -> str:
         return self.get(__key, *args, **kwargs)
 
 

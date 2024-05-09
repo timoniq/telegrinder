@@ -19,8 +19,7 @@ class Regex(TextMessageRule):
                 self.regexp.append(re.compile(regex))
             case _:
                 self.regexp.extend(
-                    re.compile(regexp) if isinstance(regexp, str) else regexp
-                    for regexp in regexp
+                    re.compile(regexp) if isinstance(regexp, str) else regexp for regexp in regexp
                 )
 
     async def check(self, message: Message, ctx: Context) -> bool:

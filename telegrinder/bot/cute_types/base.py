@@ -23,12 +23,10 @@ if typing.TYPE_CHECKING:
         api: ABCAPI
 
         @classmethod
-        def from_update(cls, update: UpdateT, bound_api: ABCAPI) -> typing.Self:
-            ...
+        def from_update(cls, update: UpdateT, bound_api: ABCAPI) -> typing.Self: ...
 
         @property
-        def ctx_api(self) -> API:
-            ...
+        def ctx_api(self) -> API: ...
 
 else:
 
@@ -91,13 +89,15 @@ def shortcut(
 ):
     def wrapper(func: F) -> F:
         @wraps(func)
-        async def inner(self: CuteT, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        async def inner(
+            self: CuteT,
+            *args: typing.Any,
+            **kwargs: typing.Any,
+        ) -> typing.Any:
             if executor is None:
                 return await func(self, *args, **kwargs)
             signature_params = {
-                k: p
-                for k, p in inspect.signature(func).parameters.items()
-                if k != "self"
+                k: p for k, p in inspect.signature(func).parameters.items() if k != "self"
             }
             params: dict[str, typing.Any] = {}
             index = 0
@@ -113,14 +113,14 @@ def shortcut(
                 params[k] = kwargs.pop(k, p.default) if p.default is not p.empty else kwargs.pop(k)
 
             return await executor(self, method_name, get_params(params))
-        
+
         inner.__shortcut__ = Shortcut(  # type: ignore
             method_name=method_name,
             executor=executor,
             custom_params=custom_params or set(),
         )
         return inner  # type: ignore
-    
+
     return wrapper
 
 

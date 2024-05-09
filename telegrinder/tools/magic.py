@@ -28,7 +28,7 @@ def to_str(s: str | enum.Enum) -> str:
 
 
 def magic_bundle(
-    handler: FuncType, 
+    handler: FuncType,
     kw: dict[str | enum.Enum, typing.Any],
     *,
     start_idx: int = 1,

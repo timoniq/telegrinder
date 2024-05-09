@@ -20,9 +20,7 @@ class SimpleI18n(ABCI18n):
             if not os.path.isdir(os.path.join(self.folder, name)):
                 continue
 
-            mo_path = os.path.join(
-                self.folder, name, "LC_MESSAGES", f"{self.domain}.mo"
-            )
+            mo_path = os.path.join(self.folder, name, "LC_MESSAGES", f"{self.domain}.mo")
             if os.path.exists(mo_path):
                 with open(mo_path, "rb") as f:
                     result[name] = gettext.GNUTranslations(f)

@@ -6,32 +6,24 @@ from choicelib import choice_in_order
 
 @typing.runtime_checkable
 class JSONModule(typing.Protocol):
-    def loads(self, s: str | bytes) -> typing.Any:
-        ...
+    def loads(self, s: str | bytes) -> typing.Any: ...
 
-    def dumps(self, o: typing.Any) -> str:
-        ...
+    def dumps(self, o: typing.Any) -> str: ...
 
 
 @typing.runtime_checkable
 class LoggerModule(typing.Protocol):
-    def debug(self, __msg: object, *args: object, **kwargs: object) -> None:
-        ...
+    def debug(self, __msg: object, *args: object, **kwargs: object) -> None: ...
 
-    def info(self, __msg: object, *args: object, **kwargs: object) -> None:
-        ...
+    def info(self, __msg: object, *args: object, **kwargs: object) -> None: ...
 
-    def warning(self, __msg: object, *args: object, **kwargs: object) -> None:
-        ...
+    def warning(self, __msg: object, *args: object, **kwargs: object) -> None: ...
 
-    def error(self, __msg: object, *args: object, **kwargs: object) -> None:
-        ...
+    def error(self, __msg: object, *args: object, **kwargs: object) -> None: ...
 
-    def critical(self, __msg: object, *args: object, **kwargs: object) -> None:
-        ...
+    def critical(self, __msg: object, *args: object, **kwargs: object) -> None: ...
 
-    def exception(self, __msg: object, *args: object, **kwargs: object) -> None:
-        ...
+    def exception(self, __msg: object, *args: object, **kwargs: object) -> None: ...
 
     def set_level(
         self,
@@ -43,8 +35,7 @@ class LoggerModule(typing.Protocol):
             "CRITICAL",
             "EXCEPTION",
         ],
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 logger: LoggerModule
@@ -147,8 +138,7 @@ elif logging_module == "logging":
         },
     }
     FORMAT = (
-        FORMAT
-        .replace("<white>", COLORS["white"])
+        FORMAT.replace("<white>", COLORS["white"])
         .replace("</white>", COLORS["reset"])
         .replace("<green>", COLORS["green"])
         .replace("</green>", COLORS["reset"])
@@ -157,24 +147,18 @@ elif logging_module == "logging":
     for level, settings in LEVEL_SETTINGS.items():
         fmt = FORMAT
         for name, color in settings.items():
-            fmt = (
-                fmt
-                .replace(f"<{name}>", COLORS[color])
-                .replace(f"</{name}>", COLORS["reset"])
-            )
+            fmt = fmt.replace(f"<{name}>", COLORS[color]).replace(f"</{name}>", COLORS["reset"])
         LEVEL_FORMATS[level] = fmt
 
-
     class TelegrinderLoggingFormatter(logging.Formatter):
-        def format(self, record: logging.LogRecord) -> str:  
+        def format(self, record: logging.LogRecord) -> str:
             if not record.funcName or record.funcName == "<module>":
                 record.funcName = "\b"
             frame = next(
                 (
                     frame
                     for frame in inspect.stack()
-                    if frame.filename == record.pathname
-                    and frame.lineno == record.lineno
+                    if frame.filename == record.pathname and frame.lineno == record.lineno
                 ),
                 None,
             )
@@ -187,7 +171,6 @@ elif logging_module == "logging":
                 style="{",
             ).format(record)
 
-
     class LogMessage:
         def __init__(self, fmt: typing.Any, args: typing.Any, kwargs: typing.Any) -> None:
             self.fmt = fmt
@@ -196,7 +179,6 @@ elif logging_module == "logging":
 
         def __str__(self) -> str:
             return self.fmt.format(*self.args, **self.kwargs)
-
 
     class TelegrinderLoggingStyleAdapter(logging.LoggerAdapter):
         def __init__(
@@ -223,7 +205,7 @@ elif logging_module == "logging":
                 for key in inspect.getfullargspec(self.logger._log).args[1:]
                 if key in kwargs
             }
-            
+
             if isinstance(msg, str):
                 msg = LogMessage(msg, args, kwargs)
                 args = tuple()
@@ -245,7 +227,7 @@ def _set_logger_level(level):
         logging.getLogger("telegrinder").setLevel(logging.getLevelName(level))
     elif logging_module == "loguru":
         import loguru  # type: ignore
-        
+
         if handler_id in loguru.logger._core.handlers:  # type: ignore
             loguru.logger._core.handlers[handler_id]._levelno = loguru.logger.level(level).no  # type: ignore
 

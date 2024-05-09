@@ -16,4 +16,4 @@ __all__ = (
     "Manager",
     "MessageReturnManager",
     "register_manager",
-) 
+)

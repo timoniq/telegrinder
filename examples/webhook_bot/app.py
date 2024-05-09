@@ -17,11 +17,13 @@ from telegrinder.types.objects import Update
 token = Token.from_env()
 api = API(token=token)
 
-HOST = typing.cast(str, env.str("HOST"))  #> host, for example: https://site.com
-PORT = typing.cast(int, env.int("PORT"))  #> port, can be either 443, 80, 88, or 8443.
-WEBHOOK_PATH = typing.cast(str, env.str("WEBHOOK_PATH") + token)  # webhook path: /bot/ + bot token: 123:ABC...
-WEBHOOK_URL = HOST + WEBHOOK_PATH  #> host: https://site.com + webhook path: /bot/123:ABC...
-SECRET_TOKEN = secrets.token_urlsafe(64)  #> random secret token
+HOST = typing.cast(str, env.str("HOST"))  # > host, for example: https://site.com
+PORT = typing.cast(int, env.int("PORT"))  # > port, can be either 443, 80, 88, or 8443.
+WEBHOOK_PATH = typing.cast(
+    str, env.str("WEBHOOK_PATH") + token
+)  # > webhook path: /bot/ + bot token: 123:ABC...
+WEBHOOK_URL = HOST + WEBHOOK_PATH  # > host: https://site.com + webhook path: /bot/123:ABC...
+SECRET_TOKEN = secrets.token_urlsafe(64)  # > random secret token
 
 
 @asynccontextmanager
@@ -36,6 +38,8 @@ app = FastAPI(lifespan=lifespan)  # type: ignore
 
 @app.post(WEBHOOK_PATH, response_class=Response)  # type: ignore
 async def webhook_bot(request: Request) -> Response:  # type: ignore
+    if request.headers.get("X-Telegram-Bot-Api-Secret-Token") != SECRET_TOKEN:  # type: ignore
+        return Response(status_code=404)
     update = Update.from_bytes(await request.body())  # type: ignore
     logger.debug("Webhook received update (update_id={})", update.update_id)
     asyncio.get_running_loop().create_task(dp.feed(update, api))

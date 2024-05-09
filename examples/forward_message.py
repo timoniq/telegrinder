@@ -31,7 +31,7 @@ async def forward_message(message: Message) -> str:
             text_response = text_response.format(
                 forward_origin.sender_user.full_name,
             )
-    
+
     return text_response
 
 

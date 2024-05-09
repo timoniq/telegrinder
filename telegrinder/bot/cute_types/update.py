@@ -15,15 +15,16 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
     api: ABCAPI
 
     @property
-    def incoming_update(self) -> Model:
+    def incoming_update(self) -> Option[Model]:
         return getattr(
             self,
             self.update_type.expect("Update object has no incoming update.").value,
         )
-    
+
     def get_event(self, event_model: type[ModelT]) -> Option[ModelT]:
-        if isinstance(self.incoming_update, event_model):
-            return Some(self.incoming_update)
+        match self.incoming_update:
+            case Some(event) if isinstance(event, event_model):
+                return Some(event)
         return Nothing()
 
 

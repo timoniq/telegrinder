@@ -4,7 +4,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity
 
-from .abc import Message, MessageRule
+from .message import Message, MessageRule
 
 Entity: typing.TypeAlias = str | MessageEntityType
 

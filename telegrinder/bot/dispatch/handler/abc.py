@@ -20,4 +20,5 @@ class ABCHandler(ABC, typing.Generic[T]):
     async def run(self, event: T, ctx: Context) -> typing.Any:
         pass
 
+
 __all__ = ("ABCHandler",)

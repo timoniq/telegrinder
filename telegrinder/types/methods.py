@@ -1,9 +1,11 @@
 import typing
+from datetime import datetime
 
 from fntypes.co import Result, Variative
 
 from telegrinder.api.error import APIError
 from telegrinder.model import full_result, get_params
+from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.objects import *  # noqa: F403
 
 if typing.TYPE_CHECKING:
@@ -11,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API 7.2 methods, released `March 31, 2024`."""
+    """Telegram Bot API 7.3 methods, released `May 6, 2024`."""
 
     def __init__(self, api: "ABCAPI") -> None:
         self.api = api
@@ -252,8 +254,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -400,7 +401,7 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
 
@@ -519,8 +520,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -606,8 +606,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -687,8 +686,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -780,8 +778,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -869,8 +866,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -905,9 +901,10 @@ class APIMethods:
 
         Use this method to send audio files, if you want Telegram clients to display 
         the file as a playable voice message. For this to work, your audio must be 
-        in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). 
-        On success, the sent Message is returned. Bots can currently send voice 
-        messages of up to 50 MB in size, this limit may be changed in the future.
+        in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other 
+        formats may be sent as Audio or Document). On success, the sent Message is 
+        returned. Bots can currently send voice messages of up to 50 MB in size, this 
+        limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
         will be sent.
@@ -941,8 +938,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -1012,8 +1008,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -1108,8 +1103,9 @@ class APIMethods:
 
         :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500. \
 
-        :param live_period: Period in seconds for which the location will be updated (see Live Locations, \
-        should be between 60 and 86400.
+        :param live_period: Period in seconds during which the location will be updated (see Live Locations, \
+        should be between 60 and 86400, or 0x7FFFFFFF for live locations that can \
+        be edited indefinitely.
 
         :param heading: For live locations, a direction in which the user is moving, in degrees. \
         Must be between 1 and 360 if specified.
@@ -1125,8 +1121,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -1199,8 +1194,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -1259,8 +1253,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -1273,9 +1266,11 @@ class APIMethods:
         self,
         chat_id: int | str,
         question: str,
-        options: list[str],
+        options: list[InputPollOption],
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
+        question_parse_mode: str | None = None,
+        question_entities: list[MessageEntity] | None = None,
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         allows_multiple_answers: bool | None = None,
@@ -1313,8 +1308,13 @@ class APIMethods:
 
         :param question: Poll question, 1-300 characters.
 
-        :param options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters \
-        each.
+        :param question_parse_mode: Mode for parsing entities in the question. See formatting options for more \
+        details. Currently, only custom emoji entities are allowed.
+
+        :param question_entities: A JSON-serialized list of special entities that appear in the poll question. \
+        It can be specified instead of question_parse_mode.
+
+        :param options: A JSON-serialized list of 2-10 answer options.
 
         :param is_anonymous: True, if the poll needs to be anonymous, defaults to True.
 
@@ -1333,8 +1333,8 @@ class APIMethods:
         :param explanation_parse_mode: Mode for parsing entities in the explanation. See formatting options for \
         more details.
 
-        :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation, \
-        which can be specified instead of parse_mode.
+        :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation. \
+        It can be specified instead of explanation_parse_mode.
 
         :param open_period: Amount of time in seconds the poll will be active after creation, 5-600. \
         Can't be used together with close_date.
@@ -1354,8 +1354,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -1408,8 +1407,7 @@ class APIMethods:
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -1707,7 +1705,8 @@ class APIMethods:
 
         :param can_post_stories: Pass True if the administrator can post stories to the chat.
 
-        :param can_edit_stories: Pass True if the administrator can edit stories posted by other users.
+        :param can_edit_stories: Pass True if the administrator can edit stories posted by other users, post \
+        stories to the chat page, pin chat stories, and access the chat's story archive. \
 
         :param can_delete_stories: Pass True if the administrator can delete stories posted by other users. \
 
@@ -2208,11 +2207,11 @@ class APIMethods:
         self,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[Chat, APIError]:
+    ) -> Result[ChatFullInfo, APIError]:
         """Method `getChat`, see the [documentation](https://core.telegram.org/bots/api#getchat)
 
-        Use this method to get up to date information about the chat. Returns a Chat 
-        object on success.
+        Use this method to get up-to-date information about the chat. Returns a 
+        ChatFullInfo object on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         or channel (in the format @channelusername).
@@ -2222,7 +2221,7 @@ class APIMethods:
             "getChat",
             get_params(locals()),
         )
-        return full_result(method_response, Chat)
+        return full_result(method_response, ChatFullInfo)
 
     async def get_chat_administrators(
         self,
@@ -3216,6 +3215,7 @@ class APIMethods:
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
+        live_period: int | None = None,
         horizontal_accuracy: float | None = None,
         heading: int | None = None,
         proximity_alert_radius: int | None = None,
@@ -3241,6 +3241,13 @@ class APIMethods:
         :param latitude: Latitude of new location.
 
         :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, starting \
+        from the message send date. If 0x7FFFFFFF is specified, then the location \
+        can be updated forever. Otherwise, the new value must not exceed the current \
+        live_period by more than a day, and the live location expiration date must \
+        remain within the next 90 days. If not specified, then live_period remains \
+        unchanged.
 
         :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500. \
 
@@ -3455,9 +3462,8 @@ class APIMethods:
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user. Not supported for messages sent on behalf \
-        of a business account.
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user.
         """
 
         method_response = await self.api.request_raw(
@@ -4246,7 +4252,6 @@ class APIMethods:
 
         :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' \
         button will be shown. If not empty, the first button must launch the game. \
-        Not supported for messages sent on behalf of a business account.
         """
 
         method_response = await self.api.request_raw(

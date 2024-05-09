@@ -87,6 +87,15 @@
             ]
         },
         {
+            "name": "ChatFullInfo",
+            "fields": [
+                {
+                    "name": "type",
+                    "enum": "ChatType"
+                }
+            ]
+        },
+        {
             "name": "ChatBoostSourceGiftCode",
             "fields": [
                 {
@@ -237,6 +246,83 @@
                     "name": "type",
                     "literals": [
                         "article"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BackgroundFillSolid",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "solid"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BackgroundFillGradient",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "gradient"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BackgroundFillFreeformGradient",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "freeform_gradient"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BackgroundTypeFill",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "fill"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BackgroundTypeWallpaper",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "wallpaper"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BackgroundTypePattern",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "pattern"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BackgroundTypeChatTheme",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "chat_theme"
                     ]
                 }
             ]

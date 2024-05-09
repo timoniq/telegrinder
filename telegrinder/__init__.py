@@ -52,6 +52,10 @@ from .bot import (
     CallbackQueryCute,
     CallbackQueryReturnManager,
     CallbackQueryView,
+    ChatJoinRequestCute,
+    ChatJoinRequestView,
+    ChatMemberUpdatedCute,
+    ChatMemberView,
     Checkbox,
     Dispatch,
     FuncHandler,
@@ -63,8 +67,12 @@ from .bot import (
     MessageRule,
     MessageView,
     Polling,
+    RawEventView,
+    ShortState,
+    ShortStateStorage,
     SingleChoice,
     Telegrinder,
+    UpdateCute,
     ViewBox,
     WaiterMachine,
     register_manager,
@@ -102,7 +110,10 @@ from .tools import (
     magic_bundle,
 )
 
+Update: typing.TypeAlias = UpdateCute
 Message: typing.TypeAlias = MessageCute
+ChatJoinRequest: typing.TypeAlias = ChatJoinRequestCute
+ChatMemberUpdated: typing.TypeAlias = ChatMemberUpdatedCute
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 InlineQuery: typing.TypeAlias = InlineQueryCute
 Bot: typing.TypeAlias = Telegrinder
@@ -140,6 +151,12 @@ __all__ = (
     "CallbackQueryCute",
     "CallbackQueryReturnManager",
     "CallbackQueryView",
+    "ChatJoinRequest",
+    "ChatJoinRequestCute",
+    "ChatJoinRequestView",
+    "ChatMemberUpdated",
+    "ChatMemberUpdatedCute",
+    "ChatMemberView",
     "Checkbox",
     "CtxVar",
     "DelayedTask",
@@ -169,12 +186,17 @@ __all__ = (
     "Model",
     "ParseMode",
     "Polling",
+    "RawEventView",
     "RowButtons",
+    "ShortState",
+    "ShortStateStorage",
     "SimpleI18n",
     "SimpleTranslator",
     "SingleChoice",
     "Telegrinder",
     "Token",
+    "Update",
+    "UpdateCute",
     "ViewBox",
     "WaiterMachine",
     "ctx_var",

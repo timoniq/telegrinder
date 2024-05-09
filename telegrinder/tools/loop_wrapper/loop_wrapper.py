@@ -16,17 +16,20 @@ CoroutineFunc: typing.TypeAlias = typing.Callable[P, CoroutineTask[T]]
 Task: typing.TypeAlias = typing.Union[CoroutineFunc, CoroutineTask, "DelayedTask"]
 
 
-def run_tasks(tasks: list[CoroutineTask[typing.Any]], loop: asyncio.AbstractEventLoop) -> None:
-    while len(tasks) != 0:
+def run_tasks(
+    tasks: list[CoroutineTask[typing.Any]],
+    loop: asyncio.AbstractEventLoop,
+) -> None:
+    while tasks:
         loop.run_until_complete(tasks.pop(0))
 
 
-def to_coroutine_task(task: Task) -> CoroutineTask:
+def to_coroutine_task(task: Task) -> CoroutineTask[typing.Any]:
     if asyncio.iscoroutinefunction(task) or isinstance(task, DelayedTask):
         task = task()
     elif not asyncio.iscoroutine(task):
-        raise TypeError("Task should be coroutine or coroutine function.")   
-    return task     
+        raise TypeError("Task should be coroutine or coroutine function.")
+    return task
 
 
 @dataclasses.dataclass
@@ -63,15 +66,15 @@ class Lifespan:
         task_or_func = to_coroutine_task(task_or_func)
         self.startup_tasks.append(task_or_func)
         return task_or_func
-    
+
     def on_shutdown(self, task_or_func: Task) -> Task:
         task_or_func = to_coroutine_task(task_or_func)
         self.shutdown_tasks.append(task_or_func)
         return task_or_func
-    
+
     def start(self, loop: asyncio.AbstractEventLoop) -> None:
         run_tasks(self.startup_tasks, loop)
-    
+
     def shutdown(self, loop: asyncio.AbstractEventLoop) -> None:
         run_tasks(self.shutdown_tasks, loop)
 
@@ -86,7 +89,7 @@ class LoopWrapper(ABCLoopWrapper):
         self.tasks: list[CoroutineTask[typing.Any]] = tasks or []
         self.lifespan = lifespan or Lifespan()
         self._loop = asyncio.new_event_loop()
-    
+
     def __repr__(self) -> str:
         return "<{}: loop={!r} with tasks={!r}, lifespan={!r}>".format(
             self.__class__.__name__,
@@ -94,15 +97,16 @@ class LoopWrapper(ABCLoopWrapper):
             self.tasks,
             self.lifespan,
         )
-        
+
     def run_event_loop(self) -> None:
         if not self.tasks:
             logger.warning("You run loop with 0 tasks!")
 
         self.lifespan.start(self._loop)
-        run_tasks(self.tasks, self._loop)
+        while self.tasks:
+            self._loop.create_task(self.tasks.pop(0))
         tasks = asyncio.all_tasks(self._loop)
-        
+
         try:
             while tasks:
                 tasks_results, _ = self._loop.run_until_complete(
@@ -122,7 +126,7 @@ class LoopWrapper(ABCLoopWrapper):
             self.lifespan.shutdown(self._loop)
             if self._loop.is_running():
                 self._loop.close()
-        
+
     def add_task(self, task: Task) -> None:
         task = to_coroutine_task(task)
 
@@ -130,7 +134,7 @@ class LoopWrapper(ABCLoopWrapper):
             self._loop.create_task(task)
         else:
             self.tasks.append(task)
-    
+
     def complete_tasks(self, tasks: set[asyncio.Task[typing.Any]]) -> None:
         tasks = tasks | asyncio.all_tasks(self._loop)
         task_to_cancel = asyncio.gather(*tasks, return_exceptions=True)

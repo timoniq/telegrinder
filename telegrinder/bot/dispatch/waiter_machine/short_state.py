@@ -12,6 +12,7 @@ if typing.TYPE_CHECKING:
     from .machine import Identificator
 
 EventModel = typing.TypeVar("EventModel", bound=BaseCute)
+
 Behaviour: typing.TypeAlias = ABCHandler | None
 
 
@@ -22,15 +23,17 @@ class ShortState(typing.Generic[EventModel]):
     event: asyncio.Event
     rules: tuple[ABCRule[EventModel], ...]
     _: dataclasses.KW_ONLY
-    expiration: dataclasses.InitVar[datetime.timedelta | None] = dataclasses.field(default=None)
+    expiration: dataclasses.InitVar[datetime.timedelta | None] = dataclasses.field(
+        default=None,
+    )
     default_behaviour: Behaviour | None = dataclasses.field(default=None)
     on_drop_behaviour: Behaviour | None = dataclasses.field(default=None)
     expiration_date: datetime.datetime | None = dataclasses.field(init=False)
 
     def __post_init__(self, expiration: datetime.timedelta | None = None) -> None:
         self.expiration_date = (
-            datetime.datetime.now() - expiration
-        ) if expiration is not None else None
+            (datetime.datetime.now() - expiration) if expiration is not None else None
+        )
 
 
 __all__ = ("ShortState",)

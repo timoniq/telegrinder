@@ -32,7 +32,7 @@ class API(ABCAPI, APIMethods):
         self.token = token
         self.http = http or AiohttpClient()
         super().__init__(self)
-    
+
     def __repr__(self) -> str:
         return "<{}: token={!r}, http={!r}>".format(
             self.__class__.__name__,
@@ -56,15 +56,17 @@ class API(ABCAPI, APIMethods):
     ) -> Result[dict[str, typing.Any] | list[typing.Any] | bool, APIError]:
         response = await self.http.request_json(
             url=self.request_url + method,
-            data=compose_data(self.http, data or {}, files or {})
+            data=compose_data(self.http, data or {}, files or {}),
         )
         if response.get("ok"):
             assert "result" in response
             return Ok(response["result"])
-        return Error(APIError(
-            code=response.get("error_code", 400),
-            error=response.get("description"),
-        ))
+        return Error(
+            APIError(
+                code=response.get("error_code", 400),
+                error=response.get("description"),
+            )
+        )
 
     async def request_raw(
         self,

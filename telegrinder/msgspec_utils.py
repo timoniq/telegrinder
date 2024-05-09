@@ -15,14 +15,13 @@ else:
 
     datetime = type("datetime", (dt,), {})
 
-
     class OptionMeta(type):
         def __instancecheck__(cls, __instance: typing.Any) -> bool:
             return isinstance(__instance, fntypes.option.Some | fntypes.option.Nothing)
 
-
     class Option(typing.Generic[Value], metaclass=OptionMeta):
         pass
+
 
 T = typing.TypeVar("T")
 Ts = typing.TypeVarTuple("Ts")
@@ -51,13 +50,13 @@ def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, msgspec.Validation
 def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
     if obj is None:
         return Nothing
-    value_type, = typing.get_args(tp) or (typing.Any,)
+    (value_type,) = typing.get_args(tp) or (typing.Any,)
     return msgspec_convert({"value": obj}, fntypes.option.Some[value_type]).unwrap()
 
 
 def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
     union_types = typing.get_args(tp)
-    
+
     if isinstance(obj, dict):
         struct_fields_match_sums: dict[type[msgspec.Struct], int] = {
             m: sum(1 for k in obj if k in m.__struct_fields__)
@@ -68,14 +67,20 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
         reverse = False
 
         if len(set(struct_fields_match_sums.values())) != len(struct_fields_match_sums.values()):
-            struct_fields_match_sums = {m: len(m.__struct_fields__) for m in struct_fields_match_sums}
+            struct_fields_match_sums = {
+                m: len(m.__struct_fields__) for m in struct_fields_match_sums
+            }
             reverse = True
 
         union_types = (
-            *sorted(struct_fields_match_sums, key=lambda k: struct_fields_match_sums[k], reverse=reverse),
+            *sorted(
+                struct_fields_match_sums,
+                key=lambda k: struct_fields_match_sums[k],
+                reverse=reverse,
+            ),
             *union_types,
         )
-    
+
     for t in union_types:
         match msgspec_convert(obj, t):
             case Ok(value):
@@ -92,7 +97,7 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
 class Decoder:
     """Class `Decoder` for `msgspec` module with decode hook
     for objects with the specified type.
-    
+
     ```
     import enum
 
@@ -122,7 +127,7 @@ class Decoder:
             Variative: variative_dec_hook,
             datetime: lambda t, obj: t.fromtimestamp(obj),
         }
-    
+
     def __repr__(self) -> str:
         return "<{}: dec_hooks={!r}>".format(
             self.__class__.__name__,
@@ -132,9 +137,9 @@ class Decoder:
     def add_dec_hook(self, t: T):  # type: ignore
         def decorator(func: DecHook[T]) -> DecHook[T]:
             return self.dec_hooks.setdefault(get_origin(t), func)  # type: ignore
-        
+
         return decorator
-    
+
     def dec_hook(self, tp: type[typing.Any], obj: object) -> object:
         origin_type = t if isinstance((t := get_origin(tp)), type) else type(t)
         if origin_type not in self.dec_hooks:
@@ -143,7 +148,7 @@ class Decoder:
                 "You can implement decode hook for this type."
             )
         return self.dec_hooks[origin_type](tp, obj)
-    
+
     def convert(
         self,
         obj: object,
@@ -163,14 +168,12 @@ class Decoder:
             builtin_types=builtin_types,
             str_keys=str_keys,
         )
-    
+
     @typing.overload
-    def decode(self, buf: str | bytes) -> typing.Any:
-        ...
-    
+    def decode(self, buf: str | bytes) -> typing.Any: ...
+
     @typing.overload
-    def decode(self, buf: str | bytes, *, strict: bool = True) -> typing.Any:
-        ...
+    def decode(self, buf: str | bytes, *, strict: bool = True) -> typing.Any: ...
 
     @typing.overload
     def decode(
@@ -179,8 +182,7 @@ class Decoder:
         *,
         type: type[T],
         strict: bool = True,
-    ) -> T:
-        ...
+    ) -> T: ...
 
     def decode(
         self,
@@ -199,7 +201,7 @@ class Decoder:
 
 class Encoder:
     """Class `Encoder` for `msgspec` module with encode hooks for objects.
-    
+
     ```
     from datetime import datetime as dt
 
@@ -231,29 +233,25 @@ class Encoder:
         def decorator(func: EncHook[T]) -> EncHook[T]:
             encode_hook = self.enc_hooks.setdefault(get_origin(t), func)
             return func if encode_hook is not func else encode_hook
-        
+
         return decorator
-    
+
     def enc_hook(self, obj: object) -> object:
         origin_type = get_origin(obj.__class__)
         if origin_type not in self.enc_hooks:
             raise NotImplementedError(
-                "Not implemented encode hook for "
-                f"object of type `{repr_type(origin_type)}`."
+                "Not implemented encode hook for " f"object of type `{repr_type(origin_type)}`."
             )
         return self.enc_hooks[origin_type](obj)
 
     @typing.overload
-    def encode(self, obj: typing.Any) -> str:
-        ...
-    
-    @typing.overload
-    def encode(self, obj: typing.Any, *, as_str: typing.Literal[True]) -> str:
-        ...
+    def encode(self, obj: typing.Any) -> str: ...
 
     @typing.overload
-    def encode(self, obj: typing.Any, *, as_str: typing.Literal[False]) -> bytes:
-        ...
+    def encode(self, obj: typing.Any, *, as_str: typing.Literal[True]) -> str: ...
+
+    @typing.overload
+    def encode(self, obj: typing.Any, *, as_str: typing.Literal[False]) -> bytes: ...
 
     def encode(self, obj: typing.Any, *, as_str: bool = True) -> str | bytes:
         buf = msgspec.json.encode(obj, enc_hook=self.enc_hook)
@@ -267,14 +265,14 @@ encoder: typing.Final[Encoder] = Encoder()
 __all__ = (
     "Decoder",
     "Encoder",
-    "Option",
     "Nothing",
-    "get_origin",
-    "repr_type",
-    "msgspec_convert",
-    "option_dec_hook",
-    "variative_dec_hook",
+    "Option",
     "datetime",
     "decoder",
     "encoder",
+    "get_origin",
+    "msgspec_convert",
+    "option_dec_hook",
+    "repr_type",
+    "variative_dec_hook",
 )

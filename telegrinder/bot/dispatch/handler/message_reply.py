@@ -25,11 +25,10 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         self.as_reply = as_reply
         self.is_blocking = is_blocking
         self.preset_context = Context()
-    
+
     def __repr__(self) -> str:
         return "<{}: with rules={!r}, {}: {!r}>".format(
-            ("blocking " if self.is_blocking else "")
-            + self.__class__.__name__,
+            ("blocking " if self.is_blocking else "") + self.__class__.__name__,
             self.rules,
             "answer text as reply" if self.as_reply else "answer text",
             self.text,

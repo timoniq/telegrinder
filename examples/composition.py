@@ -53,16 +53,14 @@ async def hi_handler(source: Source):
 
 @bot.on(generate((Text,), lambda text: int(text) if text.isdigit() else None))
 async def integer_handler(source: Source, container: tuple[int]):
-    integer, = container
+    (integer,) = container
     await source.send("{} + 3 = {}".format(integer, integer + 3))
 
 
 # Rule node examples
 @bot.on()
 async def handler_ruleset_as_context(
-    ctx: RuleContext[
-        rules.Markup("/name <name>"),
-    ],
+    ctx: RuleContext[rules.Markup("/name <name>"),],
     src: Source,
 ) -> None:
     name = ctx["name"]

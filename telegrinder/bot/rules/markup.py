@@ -28,8 +28,7 @@ class Markup(TextMessageRule):
         if not isinstance(patterns, list):
             patterns = [patterns]
         self.patterns = [
-            vbml.Pattern(pattern) if isinstance(pattern, str) else pattern
-            for pattern in patterns
+            vbml.Pattern(pattern) if isinstance(pattern, str) else pattern for pattern in patterns
         ]
 
     async def check(self, message: Message, ctx: Context) -> bool:

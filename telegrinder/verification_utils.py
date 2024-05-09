@@ -5,7 +5,10 @@ import typing
 from telegrinder.api.abc import Token
 
 
-def verify_webapp_request(secret_token: str, request_headers: typing.Mapping[str, typing.Any]) -> bool:
+def verify_webapp_request(
+    secret_token: str,
+    request_headers: typing.Mapping[str, typing.Any],
+) -> bool:
     """Verifies update request is from telegram."""
 
     return request_headers.get("X-Telegram-Bot-Api-Secret-Token") == secret_token

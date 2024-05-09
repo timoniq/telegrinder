@@ -15,8 +15,7 @@ class FuzzyText(TextMessageRule):
 
     async def check(self, message: Message, ctx: Context) -> bool:
         match = max(
-            difflib.SequenceMatcher(a=message.text.unwrap(), b=text).ratio()
-            for text in self.texts
+            difflib.SequenceMatcher(a=message.text.unwrap(), b=text).ratio() for text in self.texts
         )
         if match < self.min_ratio:
             return False

@@ -10,7 +10,7 @@ from fntypes.co import Nothing, Some
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot import Context
-from telegrinder.bot.rules.abc import MessageRule
+from telegrinder.bot.rules.message import MessageRule
 from telegrinder.model import decoder
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import Option
@@ -50,10 +50,7 @@ def get_result_with_names(
     for index, column_name in enumerate(column_names):
         value = row[index]
         resulting_row[column_name] = (
-            bool(value)
-            if column_name in (as_bool or ())
-            and value in (0, 1)
-            else value
+            bool(value) if column_name in (as_bool or ()) and value in (0, 1) else value
         )
     return resulting_row
 
@@ -62,9 +59,7 @@ class DummyDatabase:
     @staticmethod
     def convert_user_to_dict(user: User) -> dict[str, typing.Any]:
         return {
-            k: v
-            if not isinstance(v, Some | Nothing)
-            else v.unwrap_or_none()
+            k: v if not isinstance(v, Some | Nothing) else v.unwrap_or_none()
             for k, v in user.to_dict().items()
         }
 
@@ -84,17 +79,14 @@ class DummyDatabase:
                     self.convert_user_to_dict(user),
                 )
             await conn.commit()
-    
+
     async def get_user_by_username(self, username: str) -> Option[User]:
         async with (
             aiosqlite.connect(db_path) as conn,
             conn.cursor() as cur,
         ):
             row = await (
-                await cur.execute(
-                    "SELECT * FROM users WHERE username = ?",
-                    (username,)
-                )
+                await cur.execute("SELECT * FROM users WHERE username = ?", (username,))
             ).fetchone()
             if row is None:
                 return Nothing()
@@ -102,7 +94,7 @@ class DummyDatabase:
                 obj=get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
                 type=Option[User],
             )
-    
+
     async def get_user_by_id(self, user_id: int) -> Option[User]:
         async with (
             aiosqlite.connect(db_path) as conn,
@@ -143,7 +135,10 @@ class MentionRule(
 ):
     async def check(self, message: Message, ctx: Context) -> bool:
         user = None
-        if ctx.get("message_entities") and ctx.message_entities[0].type == MessageEntityType.TEXT_MENTION:
+        if (
+            ctx.get("message_entities")
+            and ctx.message_entities[0].type == MessageEntityType.TEXT_MENTION
+        ):
             user = ctx.message_entities[0].user.unwrap()
             if (await db.get_user_by_id(user.id)).unwrap_or_none() is None:
                 await db.set_user(user)

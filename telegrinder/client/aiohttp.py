@@ -24,7 +24,7 @@ class AiohttpClient(ABCClient):
         self.json_processing_module = json_processing_module or json
         self.session_params = session_params
         self.timeout = timeout or aiohttp.ClientTimeout(total=0)
-    
+
     def __repr__(self) -> str:
         return "<{}: session={!r}, timeout={}, closed={}>".format(
             self.__class__.__name__,
@@ -32,7 +32,7 @@ class AiohttpClient(ABCClient):
             self.timeout,
             True if self.session is None else self.session.closed,
         )
-    
+
     async def request_raw(
         self,
         url: str,
@@ -42,9 +42,7 @@ class AiohttpClient(ABCClient):
     ) -> "ClientResponse":
         if not self.session:
             self.session = ClientSession(
-                connector=TCPConnector(
-                    ssl=ssl.create_default_context(cafile=certifi.where())
-                ),
+                connector=TCPConnector(ssl=ssl.create_default_context(cafile=certifi.where())),
                 json_serialize=self.json_processing_module.dumps,
                 **self.session_params,
             )
@@ -118,10 +116,10 @@ class AiohttpClient(ABCClient):
         form = aiohttp.formdata.FormData(quote_fields=False)
         for k, v in data.items():
             form.add_field(k, str(v))
-        
+
         for n, f in files.items():
             form.add_field(n, f[1], filename=f[0])
-        
+
         return form
 
     def __del__(self) -> None:

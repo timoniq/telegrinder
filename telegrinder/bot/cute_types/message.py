@@ -14,6 +14,7 @@ from telegrinder.types import (
     InlineKeyboardMarkup,
     InputFile,
     InputMedia,
+    InputPollOption,
     LabeledPrice,
     LinkPreviewOptions,
     Message,
@@ -70,17 +71,13 @@ async def execute_method_answer(
     link_preview_options = params.get("link_preview_options")
 
     if reply_parameters is not None and isinstance(reply_parameters, dict):
-        reply_parameters.setdefault(
-            "message_id", params.get("message_id", message.message_id)
-        )
+        reply_parameters.setdefault("message_id", params.get("message_id", message.message_id))
         reply_parameters.setdefault("chat_id", params.get("chat_id"))
         params["reply_parameters"] = compose_reply_params(**reply_parameters)
 
     if link_preview_options is not None and isinstance(link_preview_options, dict):
-        params["link_preview_options"] = compose_link_preview_options(
-            **link_preview_options
-        )
-        
+        params["link_preview_options"] = compose_link_preview_options(**link_preview_options)
+
     result = await getattr(message.ctx_api, method_name)(**params)
     return result.map(
         lambda x: (
@@ -123,8 +120,7 @@ async def execute_method_edit(
             "message_thread_id": lambda x: (
                 x.is_topic_message.unwrap_or(False)
                 if isinstance(x, MessageCute)
-                else bool(x.message)
-                and getattr(x.message.unwrap().v, "is_topic_message", False)
+                else bool(x.message) and getattr(x.message.unwrap().v, "is_topic_message", False)
             ),
         },
     )
@@ -329,9 +325,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         return await self.ctx_api.delete_message(**params)
 
@@ -449,9 +443,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                 ("from_chat_id", "chat_id"),
                 "message_thread_id",
             },
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         if isinstance(reply_parameters, dict):
             reply_parameters.setdefault("message_id", params.get("message_id"))
@@ -466,11 +458,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def react(
         self,
         reaction: (
-            str
-            | ReactionEmoji
-            | ReactionType
-            | list[str | ReactionEmoji | ReactionType]
-            | None
+            str | ReactionEmoji | ReactionType | list[str | ReactionEmoji | ReactionType] | None
         ) = None,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
@@ -506,9 +494,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         if reaction:
             params["reaction"] = compose_reactions(
@@ -556,9 +542,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                 "message_id",
                 "message_thread_id",
             },
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         return (await self.ctx_api.forward_message(**params)).map(
             lambda message: MessageCute.from_update(message, bound_api=self.api),
@@ -598,9 +582,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         return await self.ctx_api.pin_chat_message(**params)
 
@@ -631,9 +613,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={
-                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)
-            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         return await self.ctx_api.pin_chat_message(**params)
 
@@ -1213,10 +1193,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_poll(
         self,
         question: str,
-        options: list[str],
+        options: list[InputPollOption],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
+        question_parse_mode: str | None = None,
+        question_entities: list[MessageEntity] | None = None,
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         allows_multiple_answers: bool | None = None,
@@ -1246,10 +1228,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
         forum supergroups only.
 
+        :param question_parse_mode: Mode for parsing entities in the question. See formatting options for more \
+        details. Currently, only custom emoji entities are allowed.
+
+        :param question_entities: A JSON-serialized list of special entities that appear in the poll question. \
+        It can be specified instead of question_parse_mode.
+
         :param question: Poll question, 1-300 characters.
 
-        :param options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters \
-        each.
+        :param options: A JSON-serialized list of 2-10 answer options.
 
         :param is_anonymous: True, if the poll needs to be anonymous, defaults to True.
 
@@ -2365,10 +2352,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_poll(
         self,
         question: str,
-        options: list[str],
+        options: list[InputPollOption],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
+        question_parse_mode: str | None = None,
+        question_entities: list[MessageEntity] | None = None,
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         allows_multiple_answers: bool | None = None,
@@ -2398,10 +2387,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
         forum supergroups only.
 
+        :param question_parse_mode: Mode for parsing entities in the question. See formatting options for more \
+        details. Currently, only custom emoji entities are allowed.
+
+        :param question_entities: A JSON-serialized list of special entities that appear in the poll question. \
+        It can be specified instead of question_parse_mode.
+
         :param question: Poll question, 1-300 characters.
 
-        :param options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters \
-        each.
+        :param options: A JSON-serialized list of 2-10 answer options.
 
         :param is_anonymous: True, if the poll needs to be anonymous, defaults to True.
 
@@ -2910,6 +2904,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
+        inline_message_id: str | None = None,
+        live_period: int | None = None,
         horizontal_accuracy: float | None = None,
         heading: int | None = None,
         proximity_alert_radius: int | None = None,
@@ -2931,6 +2927,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
         forum supergroups only.
+
+        :param live_period: New period in seconds during which the location can be updated, starting \
+        from the message send date. If 0x7FFFFFFF is specified, then the location \
+        can be updated forever. Otherwise, the new value must not exceed the current \
+        live_period by more than a day, and the live location expiration date must \
+        remain within the next 90 days. If not specified, then live_period remains \
+        unchanged.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
+        inline message.
 
         :param latitude: Latitude of new location.
 
