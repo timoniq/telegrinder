@@ -41,19 +41,20 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         short_state: "ShortState[EventType] | None" = self.machine.storage[view_name].get(key)
         if not short_state:
             return True
-
+        
+        preset_context = Context(short_state=short_state)
         if (
             short_state.expiration_date is not None
             and datetime.datetime.now() >= short_state.expiration_date
         ):
-            await self.machine.drop(self.view, short_state.key)
+            await self.machine.drop(self.view, short_state.key, ctx.raw_update, **preset_context.copy())
             return True
 
         handler = FuncHandler(
             self.pass_runtime,
             list(short_state.rules),
             dataclass=None,
-            preset_context=Context(short_state=short_state),
+            preset_context=preset_context,
         )
         result = await handler.check(event.ctx_api, ctx.raw_update, ctx)
 
@@ -63,15 +64,19 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         elif short_state.default_behaviour is not None:
             await self.machine.call_behaviour(
                 self.view,
-                short_state.default_behaviour,
                 event,
+                ctx.raw_update,
+                behaviour=short_state.default_behaviour,
                 **handler.preset_context,
             )
 
         return False
 
     async def pass_runtime(
-        self, event: EventType, short_state: "ShortState[EventType]", ctx: Context
+        self,
+        event: EventType,
+        short_state: "ShortState[EventType]",
+        ctx: Context,
     ) -> None:
         setattr(short_state.event, "context", (event, ctx))
         short_state.event.set()

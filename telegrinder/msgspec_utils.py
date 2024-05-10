@@ -240,7 +240,8 @@ class Encoder:
         origin_type = get_origin(obj.__class__)
         if origin_type not in self.enc_hooks:
             raise NotImplementedError(
-                "Not implemented encode hook for " f"object of type `{repr_type(origin_type)}`."
+                "Not implemented encode hook for "
+                f"object of type `{repr_type(origin_type)}`."
             )
         return self.enc_hooks[origin_type](obj)
 

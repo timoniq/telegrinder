@@ -66,6 +66,7 @@ from .keyboard import (
     Keyboard,
     RowButtons,
 )
+from .limited_dict import LimitedDict
 from .loop_wrapper import ABCLoopWrapper, DelayedTask, Lifespan, LoopWrapper
 from .magic import magic_bundle, resolve_arg_names
 from .parse_mode import ParseMode
@@ -100,6 +101,7 @@ __all__ = (
     "KeyboardSetYAML",
     "Lifespan",
     "Link",
+    "LimitedDict",
     "LoopWrapper",
     "Mention",
     "ParseMode",

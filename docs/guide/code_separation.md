@@ -1,13 +1,15 @@
 # Code Separation
 
-Telegrinder obtains a `Dispatch` class. It allows to separate code. You need to import `Dispatch` and later load it into the `Telegrinder` main dispatch.
+There is a `Dispatch` class to separate the code:
+
 ```python
 from telegrinder import Dispatch
 
-dp = Dispatch()
+dp = Dispatch()  # blueprint
 ```
 
-Let's imagine a tree for our project:
+Let's imagine a project tree:
+
 ```
 telegram_bot
 ├── .env
@@ -24,9 +26,10 @@ telegram_bot
     └── users.py
 ```
 
-The `.env` file contains environment variables. Examples for `middlewares` and `handlers` folders' contents: [*Custom rule*](https://github.com/timoniq/telegrinder/blob/main/examples/custom_rule.py) and [*Middleware*](https://github.com/timoniq/telegrinder/blob/main/examples/middleware.py).
+The `.env` file contains environment variables. Examples for `middlewares` and `handlers` folders contents: [*Custom rule*](https://github.com/timoniq/telegrinder/blob/main/examples/custom_rule.py) and [*Middleware*](https://github.com/timoniq/telegrinder/blob/main/examples/middleware.py).
 
-For example, let's write code in `start.py`:
+Let's write code in `start.py`:
+
 ```python
 from telegrinder import Dispatch, Message
 from telegrinder.rules import Text
@@ -38,12 +41,13 @@ dp = Dispatch()
 @dp.message(Text("/start"))
 async def start(message: Message):
     await message.reply(
-        HTMLFormatter("Hello, {:italic}!").format(message.from_.first_name),
+        HTMLFormatter("Hello, {:italic}!").format(message.from_user.first_name),
         parse_mode=HTMLFormatter.PARSE_MODE,
     )
 ```
 
-The other files are similar. Now let's gather them in the `handlers/__init__.py` file:
+The other files are similar. Now let's import them into the `handlers/__init__.py` file:
+
 ```python
 from . import admin, ravioli, start
 
@@ -54,16 +58,16 @@ dps = (
 )
 ```
 
-Let's upload `dps` from `handlers/__init__.py` to the Telegrinder's main dispatch in `__main__.py` file:
-```python
-import logging
+Let's upload `dps` from `handlers/__init__.py` to the Telegrinder.dispatch in the `__main__.py` file:
 
+```python
 from telegrinder import API, Telegrinder, Token
+from telegrinder import logger
 from handlers import dps
 
 api = API(Token.from_env())
 bot = Telegrinder(api)
-logging.basicConfig(level=logging.INFO)
+logger.set_level("INFO")
 
 if __name__ == "__main__":
     for dp in dps:

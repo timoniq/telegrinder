@@ -10,7 +10,7 @@ An instance of the ErrorHandler class has only one catcher. The catcher is a dat
 
 * `func` - Catcher function;
 * `exceptions` - The exceptions to be caught;
-* `logging` - Logging errors;
+* `logging` - Logging the result of the catcher at the level `DEBUG`;
 * `ignore_errors` - Ignoring errors that may occur;
 * `raise_exception` - Raising an exception if it occurs during the catcher's execution.
 
@@ -21,7 +21,7 @@ from telegrinder.tools.error_handler import Catcher
 To register a catcher in ErrorHandler, you need to use the `.__call__()` decorator. This decorator has params:
 
 * `exceptions` - The exceptions to be caught;
-* `logging` - Logging errors;
+* `logging` - Logging the result of the catcher at the level `DEBUG`;
 * `ignore_errors` - Ignoring errors that may occur;
 * `raise_exception` - Raising an exception if it occurs during the catcher's execution.
 
@@ -41,9 +41,9 @@ The catcher function *_always accepts the error object as its first parameter_*,
 * `api` - An instance of the API class;
 * `event` - The event that came to the handler.
 
-Additionally, some parameters from the context and the catcher function can return a value for `ReturnManager's`.
+Additionally some parameters from the context and the catcher function can return a value for `ReturnManager`.
 
-To run `ErrorHandler`, call the `.run()` method and pass the following 4 parameters:
+`.run()` method:
 
 * `handler` - The handler that needs to be processed;
 * `event` - The event that came to the handler;
@@ -58,7 +58,7 @@ error_handler = ErrorHandler()
 
 @error_handler(NameError, ValueError("Wrong value!"), logging=True, ignore_errors=True, raise_exception=False)
 async def some_catcher(exception: NameError | ValueError) -> None:
-    print("Oops...")
+    print(exception)
 
 
 asyncio.run(error_handler.run(some_handler, Message(...), API(...), Context(value=123))))
