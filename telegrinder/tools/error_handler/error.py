@@ -1,10 +1,7 @@
-import typing
-
-
-class CatcherError(TypeError):
-    def __init__(self, exc: typing.Any, error: str) -> None:
+class CatcherError(BaseException):
+    def __init__(self, exc: BaseException, message: str) -> None:
         self.exc = exc
-        self.error = error
+        self.message = message
 
 
 __all__ = ("CatcherError",)

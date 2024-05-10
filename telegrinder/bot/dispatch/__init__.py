@@ -27,7 +27,7 @@ from .view import (
     RawEventView,
     ViewBox,
 )
-from .waiter_machine import ShortState, ShortStateStorage, WaiterMachine
+from .waiter_machine import ShortState, WaiterMachine
 
 __all__ = (
     "ABCDispatch",
@@ -56,7 +56,6 @@ __all__ = (
     "MessageView",
     "RawEventView",
     "ShortState",
-    "ShortStateStorage",
     "TelegrinderCtx",
     "ViewBox",
     "WaiterMachine",

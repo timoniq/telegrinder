@@ -19,7 +19,7 @@ wm = WaiterMachine()
 logger.set_level("INFO")
 
 
-class ReactedMessageId(ABCRule[Update]):
+class ReactionRule(ABCRule[Update]):
     async def check(self, update: Update, ctx: Context) -> bool:
         match update.get_event(MessageReactionUpdated):
             case Some(event) if event.user:
@@ -50,7 +50,7 @@ async def chat_boost(update: Update):
     logger.info(f"User boosted chat (title={boosted_chat.title.unwrap()}, id={boosted_chat.id})")
 
 
-@bot.on.raw_event(UpdateType.MESSAGE_REACTION, ReactedMessageId(), dataclass=MessageReactionUpdated)
+@bot.on.raw_event(UpdateType.MESSAGE_REACTION, ReactionRule(), dataclass=MessageReactionUpdated)
 async def message_reaction(message_reaction: MessageReactionUpdated):
     new_reactions = [
         x.v.emoji.value if x.v.type == "emoji" else "*custom reaction*"

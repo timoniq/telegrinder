@@ -106,7 +106,8 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         ignore_errors: bool = False,
     ):
         """Register the catcher.
-        :param logging: Error logging in stderr.
+
+        :param logging: Logging the result of the catcher at the level 'DEBUG'.
         :param raise_exception: Raise an exception if the catcher hasn't started.
         :param ignore_errors: Ignore errors that may occur.
         """
@@ -139,21 +140,21 @@ class ErrorHandler(ABCErrorHandler[EventT]):
             return Error(
                 CatcherError(
                     exc,
-                    "Exception {!r} was occurred during the running catcher {!r}.".format(
+                    "Exception {} was occurred during the running catcher {!r}.".format(
                         repr(exc), self.catcher.func.__name__
                     ),
                 )
             )
 
-    def process_catcher_error(self, error: CatcherError) -> Result[None, str]:
+    def process_catcher_error(self, error: CatcherError) -> Result[None, BaseException]:
         assert self.catcher is not None
 
         if self.catcher.raise_exception:
             raise error.exc from None
-        if not self.catcher.ignore_errors:
-            return Error(error.error)
         if self.catcher.logging:
-            logger.error(error.error)
+            logger.error(error.message)
+        if not self.catcher.ignore_errors:
+            return Error(error.exc)
 
         return Ok(None)
 
@@ -163,12 +164,18 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         event: EventT,
         api: ABCAPI,
         ctx: Context,
-    ) -> Result[typing.Any, typing.Any]:
+    ) -> Result[typing.Any, BaseException]:
         if not self.catcher:
             return Ok(await handler(event, **magic_bundle(handler, ctx)))  # type: ignore
 
         match await self.process(handler, event, api, ctx):
-            case Ok(_) as ok:
+            case Ok(value) as ok:
+                if self.catcher.logging:
+                    logger.debug(
+                        "Catcher {!r} returned a value: {!r}",
+                        self.catcher.func.__name__,
+                        value,
+                    )
                 return ok
             case Error(exc) as err:
                 if isinstance(exc, CatcherError):
