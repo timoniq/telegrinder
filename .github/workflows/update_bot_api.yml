@@ -1,0 +1,39 @@
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 12 * * *'
+name: Generate Telegram Bot API types
+jobs:
+  build:
+    name: Generate
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+        
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.11'
+        
+        - name: Install depends
+          run: >
+            pip install --upgrade pip setuptools wheel
+            pip install -r types/requirements.txt
+        
+        - name: Run typegen
+          run: python typegen
+
+        - name: Open PR
+          uses: peter-evans/create-pull-request@v6
+          with:
+            commit-message: >
+              Regen Telegram Bot API types
+            title: >
+              Update Telegram Bot API types
+            body: >
+              This is an automated PR. Please check the diff, and the action logs, to check for any funky behaviour.
+            branch: automated/types
+            reviewers: timoniq
+            assignees: luwqz1
+            labels: types
+            delete-branch: true

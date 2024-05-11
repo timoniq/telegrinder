@@ -16,10 +16,8 @@ from .markup import Markup, PatternLike, check_string
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaitable[bool]]
-MapDict: typing.TypeAlias = dict[
-    str, "typing.Any | type[typing.Any] | Validator | list[MapDict] | MapDict"
-]
-CallbackMap: typing.TypeAlias = list[tuple[str, "typing.Any | type | Validator | CallbackMap"]]
+MapDict: typing.TypeAlias = dict[str, "typing.Any | type[typing.Any] | Validator | list[MapDict] | MapDict"]
+CallbackMap: typing.TypeAlias = list[tuple[str, "typing.Any | type[typing.Any] | Validator | CallbackMap"]]
 CallbackMapStrict: typing.TypeAlias = list[tuple[str, "Validator | CallbackMapStrict"]]
 
 
@@ -41,7 +39,7 @@ class CallbackQueryDataRule(CallbackQueryRule, abc.ABC, requires=[HasData()]):
 
 
 class CallbackDataMap(CallbackQueryDataRule):
-    def __init__(self, mapping: MapDict) -> None:
+    def __init__(self, mapping: MapDict, /) -> None:
         self.mapping = self.transform_to_callbacks(
             self.transform_to_map(mapping),
         )
@@ -86,12 +84,12 @@ class CallbackDataMap(CallbackQueryDataRule):
             result = validator(value)
             if inspect.isawaitable(result):
                 result = await result
-            return result  # type: ignore
+            return result
 
         return False
 
     @classmethod
-    async def match(cls, callback_data: dict, callback_map: CallbackMapStrict) -> bool:
+    async def match(cls, callback_data: dict[str, typing.Any], callback_map: CallbackMapStrict) -> bool:
         """Matches callback_data with callback_map recursively."""
 
         for key, validator in callback_map:
@@ -121,7 +119,7 @@ class CallbackDataMap(CallbackQueryDataRule):
 
 
 class CallbackDataEq(CallbackQueryDataRule):
-    def __init__(self, value: str):
+    def __init__(self, value: str, /) -> None:
         self.value = value
 
     async def check(self, event: CallbackQuery, ctx: Context) -> bool:
@@ -129,7 +127,7 @@ class CallbackDataEq(CallbackQueryDataRule):
 
 
 class CallbackDataJsonEq(CallbackQueryDataRule):
-    def __init__(self, d: dict[str, typing.Any]):
+    def __init__(self, d: dict[str, typing.Any], /) -> None:
         self.d = d
 
     async def check(self, event: CallbackQuery, ctx: Context) -> bool:
@@ -137,7 +135,7 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
 
 
 class CallbackDataJsonModel(CallbackQueryDataRule):
-    def __init__(self, model: type[msgspec.Struct] | type[DataclassInstance]):
+    def __init__(self, model: type[msgspec.Struct] | type[DataclassInstance], /) -> None:
         self.model = model
 
     async def check(self, event: CallbackQuery, ctx: Context) -> bool:
@@ -148,7 +146,7 @@ class CallbackDataJsonModel(CallbackQueryDataRule):
 
 
 class CallbackDataMarkup(CallbackQueryDataRule):
-    def __init__(self, patterns: PatternLike | list[PatternLike]):
+    def __init__(self, patterns: PatternLike | list[PatternLike], /) -> None:
         self.patterns = Markup(patterns).patterns
 
     async def check(self, event: CallbackQuery, ctx: Context) -> bool:

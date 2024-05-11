@@ -1,4 +1,4 @@
-from .generator import (
+from typegen.generator import (
     ABCGenerator,
     ConfigLiteralTypes,
     ConfigMethodLiteralTypes,
@@ -6,14 +6,13 @@ from .generator import (
     MethodGenerator,
     ObjectGenerator,
     SchemaJson,
-    check_version,
     convert_schema_to_model,
     find_nicifications,
     generate,
     get_schema_json,
     read_config_literal_types,
 )
-from .models import (
+from typegen.models import (
     MethodParameter,
     MethodSchema,
     Model,
@@ -36,7 +35,6 @@ __all__ = (
     "ObjectSchema",
     "SchemaJson",
     "TelegramBotAPISchema",
-    "check_version",
     "convert_schema_to_model",
     "find_nicifications",
     "generate",
