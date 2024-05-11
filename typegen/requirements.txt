@@ -1,4 +1,4 @@
 msgspec==0.18.6
-requests==2.29.0
+requests==2.31.0
 isort==5.13.2
 black==24.4.2
