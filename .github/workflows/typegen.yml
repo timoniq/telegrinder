@@ -18,7 +18,7 @@ jobs:
         - name: Install depends
           run: >
             pip install --upgrade pip setuptools wheel
-            pip install -r types/requirements.txt
+            pip install -r typegen/requirements.txt
         
         - name: Run typegen
           run: python typegen
@@ -33,7 +33,7 @@ jobs:
             body: >
               This is an automated PR. Please check the diff, and the action logs, to check for any funky behaviour.
             branch: automated/types
-            reviewers: timoniq
+            reviewers: timoniq, luwqz1
             assignees: luwqz1
-            labels: types
+            labels: automated, types
             delete-branch: true
