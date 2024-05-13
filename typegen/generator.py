@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 import msgspec
 import requests
 
-from .models import (
+from typegen.models import (
     MethodParameter,
     MethodSchema,
     ObjectField,

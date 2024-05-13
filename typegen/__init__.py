@@ -1,4 +1,4 @@
-from .generator import (
+from typegen.generator import (
     ABCGenerator,
     ConfigLiteralTypes,
     ConfigMethodLiteralTypes,
@@ -12,7 +12,7 @@ from .generator import (
     get_schema_json,
     read_config_literals,
 )
-from .models import (
+from typegen.models import (
     MethodParameter,
     MethodSchema,
     Model,

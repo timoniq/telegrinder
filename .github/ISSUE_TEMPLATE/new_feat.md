@@ -2,7 +2,7 @@
 name: "\U0001F680 New feature \U0001F680"
 about: "I've a proposal and may want to implement it."
 title: ""
-labels: "i: new_feature, i: proposal"
+labels: ["new_feature", "proposal"]
 assignees: "luwqz1"
 ---
 
