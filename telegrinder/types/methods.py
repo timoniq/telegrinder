@@ -139,9 +139,7 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
-    async def get_webhook_info(
-        self, **other: typing.Any
-    ) -> Result[WebhookInfo, APIError]:
+    async def get_webhook_info(self, **other: typing.Any) -> Result[WebhookInfo, APIError]:
         """Method `getWebhookInfo`, see the [documentation](https://core.telegram.org/bots/api#getwebhookinfo)
 
         Use this method to get current webhook status. Requires no parameters.
@@ -215,11 +213,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -357,11 +351,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
@@ -473,11 +463,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -546,11 +532,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -630,11 +612,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -714,11 +692,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -805,11 +779,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -889,11 +859,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -960,11 +926,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -1020,9 +982,7 @@ class APIMethods:
     async def send_media_group(
         self,
         chat_id: int | str,
-        media: list[
-            InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
-        ],
+        media: list[InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo],
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
@@ -1076,11 +1036,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -1147,11 +1103,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -1216,11 +1168,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -1285,11 +1233,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -1373,11 +1317,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -2379,9 +2319,7 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
-    async def get_forum_topic_icon_stickers(
-        self, **other: typing.Any
-    ) -> Result[list[Sticker], APIError]:
+    async def get_forum_topic_icon_stickers(self, **other: typing.Any) -> Result[list[Sticker], APIError]:
         """Method `getForumTopicIconStickers`, see the [documentation](https://core.telegram.org/bots/api#getforumtopiciconstickers)
 
         Use this method to get custom emoji stickers, which can be used as a forum
@@ -3011,9 +2949,7 @@ class APIMethods:
         self,
         chat_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[
-        Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], APIError
-    ]:
+    ) -> Result[Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], APIError]:
         """Method `getChatMenuButton`, see the [documentation](https://core.telegram.org/bots/api#getchatmenubutton)
 
         Use this method to get the current value of the bot's menu button in a private 
@@ -3028,8 +2964,7 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(
-            method_response,
-            Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault],
+            method_response, Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault]
         )
 
     async def set_my_default_administrator_rights(
@@ -3424,11 +3359,7 @@ class APIMethods:
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
-            InlineKeyboardMarkup
-            | ReplyKeyboardMarkup
-            | ReplyKeyboardRemove
-            | ForceReply
-            | None
+            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
         ) = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:

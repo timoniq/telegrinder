@@ -492,9 +492,7 @@ class ChatFullInfo(Model):
     personal_chat: Option["Chat"] = Nothing
     """Optional. For private chats, the personal channel of the user."""
 
-    available_reactions: Option[
-        list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]
-    ] = Nothing
+    available_reactions: Option[list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]] = Nothing
     """Optional. List of available reactions allowed in the chat. If omitted, 
     then all emoji reactions are allowed."""
 
@@ -647,12 +645,7 @@ class Message(MaybeInaccessibleMessage):
     bot chat which might share the same identifier."""
 
     forward_origin: Option[
-        Variative[
-            "MessageOriginUser",
-            "MessageOriginHiddenUser",
-            "MessageOriginChat",
-            "MessageOriginChannel",
-        ]
+        Variative["MessageOriginUser", "MessageOriginHiddenUser", "MessageOriginChat", "MessageOriginChannel"]
     ] = Nothing
     """Optional. Information about the original message for forwarded messages."""
 
@@ -941,9 +934,7 @@ class Message(MaybeInaccessibleMessage):
         Full name, for `private` chat."""
 
         return (
-            self.chat.full_name.unwrap()
-            if self.chat.type == ChatType.PRIVATE
-            else self.chat.title.unwrap()
+            self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
         )
 
     def __eq__(self, other: typing.Any) -> bool:
@@ -1049,10 +1040,7 @@ class ExternalReplyInfo(Model):
     """
 
     origin: Variative[
-        "MessageOriginUser",
-        "MessageOriginHiddenUser",
-        "MessageOriginChat",
-        "MessageOriginChannel",
+        "MessageOriginUser", "MessageOriginHiddenUser", "MessageOriginChat", "MessageOriginChannel"
     ]
     """Origin of the message replied to by the given message."""
 
@@ -1785,9 +1773,7 @@ class BackgroundTypeFill(BackgroundType):
     type: typing.Literal["fill"]
     """Type of the background, always `fill`."""
 
-    fill: Variative[
-        "BackgroundFillSolid", "BackgroundFillGradient", "BackgroundFillFreeformGradient"
-    ]
+    fill: Variative["BackgroundFillSolid", "BackgroundFillGradient", "BackgroundFillFreeformGradient"]
     """The background fill."""
 
     dark_theme_dimming: int
@@ -1829,9 +1815,7 @@ class BackgroundTypePattern(BackgroundType):
     document: "Document"
     """Document with the pattern."""
 
-    fill: Variative[
-        "BackgroundFillSolid", "BackgroundFillGradient", "BackgroundFillFreeformGradient"
-    ]
+    fill: Variative["BackgroundFillSolid", "BackgroundFillGradient", "BackgroundFillFreeformGradient"]
     """The background fill that is combined with the pattern."""
 
     intensity: int
@@ -3111,9 +3095,7 @@ class Birthdate(Model):
         """Optional. Contains the user's age, if the user has a birth year specified."""
 
         return self.year.map(
-            lambda year: (
-                (datetime.now() - datetime(year, self.month, self.day)) // 365
-            ).days
+            lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days
         )
 
 
@@ -3528,9 +3510,7 @@ class ChatBoost(Model):
     """Point in time (Unix timestamp) when the boost will automatically expire, 
     unless the booster's Telegram Premium subscription is prolonged."""
 
-    source: Variative[
-        "ChatBoostSourcePremium", "ChatBoostSourceGiftCode", "ChatBoostSourceGiveaway"
-    ]
+    source: Variative["ChatBoostSourcePremium", "ChatBoostSourceGiftCode", "ChatBoostSourceGiveaway"]
     """Source of the added boost."""
 
 
@@ -3562,9 +3542,7 @@ class ChatBoostRemoved(Model):
     remove_date: datetime
     """Point in time (Unix timestamp) when the boost was removed."""
 
-    source: Variative[
-        "ChatBoostSourcePremium", "ChatBoostSourceGiftCode", "ChatBoostSourceGiveaway"
-    ]
+    source: Variative["ChatBoostSourcePremium", "ChatBoostSourceGiftCode", "ChatBoostSourceGiveaway"]
     """Source of the removed boost."""
 
 
@@ -4196,9 +4174,7 @@ class InlineQueryResultGif(InlineQueryResult):
     gif_duration: Option[int] = Nothing
     """Optional. Duration of the GIF in seconds."""
 
-    thumbnail_mime_type: Option[
-        typing.Literal["image/jpeg", "image/gif", "video/mp4"]
-    ] = Nothing
+    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = Nothing
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, 
     or `video/mp4`. Defaults to `image/jpeg`."""
 
@@ -4259,9 +4235,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     mpeg4_duration: Option[int] = Nothing
     """Optional. Video duration in seconds."""
 
-    thumbnail_mime_type: Option[
-        typing.Literal["image/jpeg", "image/gif", "video/mp4"]
-    ] = Nothing
+    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = Nothing
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, 
     or `video/mp4`. Defaults to `image/jpeg`."""
 

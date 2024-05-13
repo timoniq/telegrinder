@@ -1,4 +1,4 @@
-from typegen.generator import (
+from .generator import (
     ABCGenerator,
     ConfigLiteralTypes,
     ConfigMethodLiteralTypes,
@@ -10,9 +10,9 @@ from typegen.generator import (
     find_nicifications,
     generate,
     get_schema_json,
-    read_config_literal_types,
+    read_config_literals,
 )
-from typegen.models import (
+from .models import (
     MethodParameter,
     MethodSchema,
     Model,
@@ -39,5 +39,5 @@ __all__ = (
     "find_nicifications",
     "generate",
     "get_schema_json",
-    "read_config_literal_types",
+    "read_config_literals",
 )

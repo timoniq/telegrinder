@@ -7,19 +7,19 @@ from abc import ABC, abstractmethod
 import msgspec
 import requests
 
-try:
-    from telegrinder.modules import logger
-except ImportError:
-    import logging
-    logger = logging.getLogger("typegen")
-
-from typegen.models import (
+from .models import (
     MethodParameter,
     MethodSchema,
     ObjectField,
     ObjectSchema,
     TelegramBotAPISchema,
 )
+
+try:
+    from telegrinder.modules import logger
+except ImportError:
+    import logging
+    logger = logging.getLogger("typegen")
 
 ModelT = typing.TypeVar("ModelT", bound=msgspec.structs.Struct)
 
@@ -33,14 +33,16 @@ TYPES: typing.Final[dict[str, str]] = {
     "Boolean": "bool",
     "Unixtime": "datetime",
 }
-INPUTFILE_DOCSTRING: typing.Final[str] = "to upload a new one using multipart/form-data under <file_attach_name> name."
+INPUTFILE_DOCSTRING: typing.Final[str] = (
+    "to upload a new one using multipart/form-data"
+    " under <file_attach_name> name."
+)
 MAIN_DIR: typing.Final[str] = "typegen"
 
 
 def get_schema_json() -> "SchemaJson":
-    logger.debug(f"Requesting {URL!r} to retrieve the schema...")
+    logger.debug(f"Sending a get request {URL!r}")
     raw = requests.get(URL).text
-    logger.debug("Schema successfully received! Decoding...")
     dct: dict[str, typing.Any] = JSON_DECODER.decode(raw)
     dct["methods"] = [d for d in dct["methods"].values()]
     dct["types"] = [d for d in dct["types"].values()]
