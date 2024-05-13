@@ -29,11 +29,7 @@ jobs:
         - name: Lint code by ruff
           run: >
             poetry run ruff check --fix
-        
-        - name: Format code by ruff formatter
-          run: >
-            poetry run ruff format
-        
+                
         - name: Check types by basedpyright
           run: >
             poetry run basedpyright --level ERROR
