@@ -19,11 +19,13 @@ jobs:
         
         - name: Install depends
           run: >
-            pip install --upgrade pip setuptools wheel
-            pip install -r typegen/requirements.txt
+            pip install --upgrade pip setuptools wheel pipx
+            pipx install poetry
+            poetry check
+            poetry install 
         
         - name: Run typegen
-          run: python typegen
+          run: poetry run python typegen
 
         - name: Open PR
           uses: peter-evans/create-pull-request@v6

@@ -1,4 +1,4 @@
-from typegen.generator import (
+from .generator import (
     ABCGenerator,
     ConfigLiteralTypes,
     ConfigMethodLiteralTypes,
@@ -11,8 +11,9 @@ from typegen.generator import (
     generate,
     get_schema_json,
     read_config_literals,
+    sort_all,
 )
-from typegen.models import (
+from .models import (
     MethodParameter,
     MethodSchema,
     Model,
@@ -40,4 +41,5 @@ __all__ = (
     "generate",
     "get_schema_json",
     "read_config_literals",
+    "sort_all",
 )

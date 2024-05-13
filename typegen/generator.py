@@ -1,5 +1,6 @@
 import datetime
 import os
+import pathlib
 import re
 import typing
 from abc import ABC, abstractmethod
@@ -7,7 +8,7 @@ from abc import ABC, abstractmethod
 import msgspec
 import requests
 
-from typegen.models import (
+from .models import (
     MethodParameter,
     MethodSchema,
     ObjectField,
@@ -76,6 +77,15 @@ def chunks_str(s: str, sep: str = "\n"):
             s += sep
             line = 0
     return s.rstrip()
+
+
+def sort_all(path: pathlib.Path) -> None:
+    files = tuple(
+        str(p)
+        for p in path.iterdir()
+        if p.is_file() and p.suffix == ".py"
+    )
+    os.system(f"sort-all {' '.join(files)}")
 
 
 def convert_to_python_type(
@@ -420,7 +430,9 @@ class MethodGenerator(ABCGenerator):
         )
 
     def get_param_literal_types(
-        self, method_name: str, param_name: str
+        self,
+        method_name: str,
+        param_name: str,
     ) -> ParamLiteralTypes | None:
         for cfg in self.config_literal_types:
             if cfg["name"] == method_name:
@@ -610,6 +622,9 @@ def generate(
         logger.error("Isort failed.")
     else:
         logger.info("Isort successfully sorted imports.")
+    
+    logger.debug("Run sort-all...")
+    sort_all(pathlib.Path(path_dir))
 
 
 __all__ = (
@@ -625,6 +640,7 @@ __all__ = (
     "convert_schema_to_model",
     "find_nicifications",
     "generate",
+    "sort_all",
     "get_schema_json",
     "read_config_literals",
 )
