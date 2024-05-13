@@ -1,0 +1,41 @@
+name: Lint and test
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+        - uses: actions/checkout@v4
+        - name: Set up CPython 3.11
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
+        
+        - name: Install poetry
+          run: >
+            pip install pipx
+            pipx install poetry
+        
+        - name: Poetry check structure
+          run: >
+            poetry check
+        
+        - name: Install depends
+          run: >
+            poetry install
+        
+        - name: Lint code by ruff
+          run: >
+            ruff check --fix
+        
+        - name: Format code by ruff formatter
+          run: >
+            ruff format
+        
+        - name: Check types by basedpyright
+          run: >
+            basedpyright --level ERROR
+        
+        # NOTE: add run tests

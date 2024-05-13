@@ -46,6 +46,9 @@ typing-extensions = "^4.10.0"
 fntypes = "^0.1.2.post1"
 
 [tool.poetry.group.dev.dependencies]
+ruff = "^0.4.4"
+basedpyright = "^1.12.1"
+black = "^24.4.2"
 pytest = "^8.0.0"
 pytest-asyncio = "^0.23.5"
 pytest-cov = "^4.0.0"
