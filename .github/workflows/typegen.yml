@@ -21,8 +21,10 @@ jobs:
           run: >
             pip install --upgrade pip setuptools wheel pipx
             pipx install poetry
-            poetry install 
-        
+      
+        - name: Install depends with poetry
+          run: poetry install
+      
         - name: Run typegen
           run: poetry run python typegen
 
