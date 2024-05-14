@@ -1849,10 +1849,7 @@ class ChatBackground(Model):
     """
 
     type: Variative[
-        "BackgroundTypeFill",
-        "BackgroundTypeWallpaper",
-        "BackgroundTypePattern",
-        "BackgroundTypeChatTheme",
+        "BackgroundTypeFill", "BackgroundTypeWallpaper", "BackgroundTypePattern", "BackgroundTypeChatTheme"
     ]
     """Type of the background."""
 
