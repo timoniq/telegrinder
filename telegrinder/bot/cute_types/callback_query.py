@@ -217,7 +217,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
     )
     async def edit_text(
         self,
-        text: str | None,
+        text: str,
         inline_message_id: int | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,

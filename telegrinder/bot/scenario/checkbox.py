@@ -33,13 +33,13 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         self,
         waiter_machine: WaiterMachine,
         chat_id: int,
-        msg: str,
+        message: str,
         *,
         ready_text: str = "Ready",
         max_in_row: int = 3,
     ) -> None:
         self.chat_id = chat_id
-        self.msg = msg
+        self.message = message
         self.choices: list[Choice] = []
         self.ready = ready_text
         self.max_in_row = max_in_row
@@ -58,7 +58,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
             self.waiter_machine,
             self.ready,
             self.chat_id,
-            self.msg,
+            self.message,
         )
 
     def get_markup(self) -> InlineKeyboardMarkup:
@@ -101,7 +101,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
                 # Toggle choice
                 self.choices[i].is_picked = not self.choices[i].is_picked
                 await cb.edit_text(
-                    text=self.msg,
+                    text=self.message,
                     parse_mode=self.PARSE_MODE,
                     reply_markup=self.get_markup(),
                 )
@@ -118,7 +118,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         message = (
             await api.send_message(
                 chat_id=self.chat_id,
-                text=self.msg,
+                text=self.message,
                 parse_mode=self.PARSE_MODE,
                 reply_markup=self.get_markup(),
             )

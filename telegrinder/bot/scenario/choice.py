@@ -1,6 +1,7 @@
 import typing
 
 from telegrinder.bot.cute_types import CallbackQueryCute
+from telegrinder.bot.dispatch.waiter_machine import WaiterMachine
 
 from .checkbox import Checkbox
 
@@ -22,9 +23,9 @@ class SingleChoice(Checkbox):
             if choice.code == code:
                 self.choices[i].is_picked = True
                 await cb.ctx_api.edit_message_text(
+                    text=self.message,
                     chat_id=cb.message.unwrap().v.chat.id,
                     message_id=cb.message.unwrap().v.message_id,
-                    text=self.msg,
                     parse_mode=self.PARSE_MODE,
                     reply_markup=self.get_markup(),
                 )
@@ -36,10 +37,10 @@ class SingleChoice(Checkbox):
         api: "API",
         view: "BaseStateView[CallbackQueryCute]",
     ) -> tuple[str, int]:
-        if len([choice for choice in self.choices if choice.is_picked]) != 1:
+        if len(tuple(choice for choice in self.choices if choice.is_picked)) != 1:
             raise ValueError("Exactly one choice must be picked")
         choices, m_id = await super().wait(api, view)
-        return list(choices.keys())[list(choices.values()).index(True)], m_id
+        return tuple(choices.keys())[tuple(choices.values()).index(True)], m_id
 
 
 __all__ = ("SingleChoice",)
