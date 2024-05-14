@@ -1,8 +1,8 @@
 ---
 name: "\U0001F680 New feature \U0001F680"
-about: "I've a proposal and may want to implement it."
+about: "I have a suggest and may want to implement it."
 title: ""
-labels: ["new_feature", "proposal"]
+labels: ["new_feature"]
 assignees: "luwqz1"
 ---
 
@@ -15,7 +15,7 @@ I have an issue when...
 ```
 
 **🪄 Provide a minimal reproducible example 🪄**
-A small code sample that will expose your feature.
+A small code sample that will demonstrate your feature.
 ```python
 ```
 

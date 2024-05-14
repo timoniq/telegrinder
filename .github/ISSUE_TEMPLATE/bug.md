@@ -24,7 +24,7 @@ from telegrinder import API, Telegrinder, Token
 ```
 
 ### 📝 Logs 📝
-<!-- Provide logs if available -->
+<!-- Provide logs/errors to review the issue -->
 ```
 Traceback (most recent call last):
 File "main.py", line 1, in <module>
