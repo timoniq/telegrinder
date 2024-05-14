@@ -67,13 +67,64 @@ class BaseView(ABCView, typing.Generic[EventType]):
                         return Some(generic_type)
         return Nothing()
 
-    @classmethod
-    def get_raw_event(cls, update: Update) -> Option[Model]:
+    @staticmethod
+    def get_raw_event(update: Update) -> Option[Model]:
         match update.update_type:
             case Some(update_type):
                 return getattr(update, update_type.value)
             case _:
                 return Nothing()
+    
+    @typing.overload
+    @classmethod
+    def to_handler(
+        cls,
+        *rules: ABCRule[EventType],
+    ) -> typing.Callable[
+        [FuncType[EventType]],
+        FuncHandler[EventType, FuncType[EventType], ErrorHandler[EventType]],
+    ]: ...
+
+    @typing.overload
+    @classmethod
+    def to_handler(
+        cls,
+        *rules: ABCRule[EventType],
+        error_handler: ErrorHandlerT,
+        is_blocking: bool = True,
+    ) -> typing.Callable[
+        [FuncType[EventType]], FuncHandler[EventType, FuncType[EventType], ErrorHandlerT]
+    ]: ...
+
+    @typing.overload
+    @classmethod
+    def to_handler(
+        cls,
+        *rules: ABCRule[EventType],
+        error_handler: typing.Literal[None] = None,
+        is_blocking: bool = True,
+    ) -> typing.Callable[
+        [FuncType[EventType]],
+        FuncHandler[EventType, FuncType[EventType], ErrorHandler[EventType]],
+    ]: ...
+
+    @classmethod
+    def to_handler(  # type: ignore
+        cls,
+        *rules: ABCRule[EventType],
+        error_handler: ABCErrorHandler | None = None,
+        is_blocking: bool = True,
+    ):
+        def wrapper(func: FuncType[EventType]):
+            return FuncHandler(
+                func,
+                list(rules),
+                is_blocking=is_blocking,
+                dataclass=None,
+                error_handler=error_handler or ErrorHandler(),
+            )
+
+        return wrapper
 
     @typing.overload
     def __call__(

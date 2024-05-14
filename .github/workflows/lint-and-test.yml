@@ -26,11 +26,11 @@ jobs:
           run: >
             poetry install
         
-        - name: Lint code by ruff
+        - name: Lint code with ruff
           run: >
             poetry run ruff check --fix
                 
-        - name: Check types by basedpyright
+        - name: Check types with basedpyright
           run: >
             poetry run basedpyright --level ERROR
         

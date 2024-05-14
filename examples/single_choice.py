@@ -12,7 +12,7 @@ logger.set_level("INFO")
 @bot.on.message(Text("/choice"))
 async def action(m: Message):
     chosen, m_id = await (
-        SingleChoice(wm, m.chat.id, "Choose something", max_in_row=2)
+        SingleChoice(wm, m.chat.id, "Choose something", max_in_row=1)
         .add_option("apple", "Apple 🔴", "Apple 🟢")
         .add_option("banana", "Banana 🔴", "Banana 🟢", is_picked=True)
         .add_option("pear", "Pear 🔴", "Pear 🟢")

@@ -46,7 +46,7 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
             self.dataclass,
             self.error_handler,
         )
-
+    
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         if self.update_type is not None and self.update_type != event.update_type.unwrap_or_none():
             return False
