@@ -1,12 +1,14 @@
 import datetime
 import os
+import pathlib
 import re
 import typing
 from abc import ABC, abstractmethod
 
 import msgspec
 import requests
-from models import (
+
+from .models import (
     MethodParameter,
     MethodSchema,
     ObjectField,
@@ -14,16 +16,16 @@ from models import (
     TelegramBotAPISchema,
 )
 
-from telegrinder.modules import logger
-
-__version__ = "Bot API 7.3"
+try:
+    from telegrinder.modules import logger
+except ImportError:
+    import logging
+    logger = logging.getLogger("typegen")
 
 ModelT = typing.TypeVar("ModelT", bound=msgspec.structs.Struct)
 
 JSON_DECODER: typing.Final[msgspec.json.Decoder[typing.Any]] = msgspec.json.Decoder(strict=True)
-URL: typing.Final[str] = (
-    "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/main/api.json"
-)
+URL: typing.Final[str] = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/main/api.json"
 TAB: typing.Final[str] = "    "
 TYPES: typing.Final[dict[str, str]] = {
     "String": "str",
@@ -33,15 +35,15 @@ TYPES: typing.Final[dict[str, str]] = {
     "Unixtime": "datetime",
 }
 INPUTFILE_DOCSTRING: typing.Final[str] = (
-    "to upload a new one using multipart/form-data under <file_attach_name> name."
+    "to upload a new one using multipart/form-data"
+    " under <file_attach_name> name."
 )
 MAIN_DIR: typing.Final[str] = "typegen"
 
 
 def get_schema_json() -> "SchemaJson":
-    logger.debug(f"Requesting {URL!r} to retrieve the schema...")
+    logger.debug(f"Sending a get request {URL!r}")
     raw = requests.get(URL).text
-    logger.debug("Schema successfully received! Decoding...")
     dct: dict[str, typing.Any] = JSON_DECODER.decode(raw)
     dct["methods"] = [d for d in dct["methods"].values()]
     dct["types"] = [d for d in dct["types"].values()]
@@ -52,11 +54,6 @@ def get_schema_json() -> "SchemaJson":
         )
     )
     return typing.cast(SchemaJson, dct)
-
-
-def is_new_version(schema: typing.Optional["SchemaJson"] = None) -> bool:
-    schema = schema or get_schema_json()
-    return schema["version"] != __version__
 
 
 def find_nicifications(name: str, path: str) -> tuple[str | None, list[str]]:
@@ -80,6 +77,15 @@ def chunks_str(s: str, sep: str = "\n"):
             s += sep
             line = 0
     return s.rstrip()
+
+
+def sort_all(path: pathlib.Path) -> None:
+    files = tuple(
+        str(p)
+        for p in path.iterdir()
+        if p.is_file() and p.suffix == ".py"
+    )
+    os.system(f"sort-all {' '.join(files)}")
 
 
 def convert_to_python_type(
@@ -123,7 +129,7 @@ def convert_schema_to_model(schema_json: "SchemaJson", model: type[ModelT]) -> M
     return schema
 
 
-def read_config_literal_types(path: str | None = None) -> "ConfigLiteralTypes":
+def read_config_literals(path: str | None = None) -> "ConfigLiteralTypes":
     path = path or MAIN_DIR + "/config_literal_types.json"
     with open(path, mode="r", encoding="UTF-8") as f:
         return JSON_DECODER.decode(f.read())
@@ -424,7 +430,9 @@ class MethodGenerator(ABCGenerator):
         )
 
     def get_param_literal_types(
-        self, method_name: str, param_name: str
+        self,
+        method_name: str,
+        param_name: str,
     ) -> ParamLiteralTypes | None:
         for cfg in self.config_literal_types:
             if cfg["name"] == method_name:
@@ -566,27 +574,25 @@ class MethodGenerator(ABCGenerator):
 
 
 def generate(
-    path: str | None = None,
-    path_cfg_literal_types: str | None = None,
+    *,
+    path_dir: str | None = None,
+    path_config_literals: str | None = None,
+    path_nicifications: str | None = None,
     types_generator: ABCGenerator | None = None,
     methods_generator: ABCGenerator | None = None,
 ) -> None:
-    path = path or "telegrinder/types"
-    if not os.path.exists(path):
-        logger.warning(f"Path dir {path!r} not found. Making dir...")
-        os.makedirs(path)
-
-    schema_json = get_schema_json()
-    if not is_new_version(schema_json):
-        logger.warning("Schema already updated to the latest version!")
-        return
+    path_dir = path_dir or "telegrinder/types"
+    if not os.path.exists(path_dir):
+        logger.warning(f"Path dir {path_dir!r} not found. Making dir...")
+        os.makedirs(path_dir)
 
     if types_generator is None or methods_generator is None:
+        schema_json = get_schema_json()
         schema_model = convert_schema_to_model(schema_json, TelegramBotAPISchema)
-        cfg_literal_types = read_config_literal_types(path_cfg_literal_types)
+        cfg_literal_types = read_config_literals(path_config_literals)
         object_generator = types_generator or ObjectGenerator(
             objects=schema_model.objects,
-            nicification_path=MAIN_DIR + "/nicifications.py",
+            nicification_path=MAIN_DIR + (path_nicifications or "/nicifications.py"),
             config_literal_types=cfg_literal_types.get("objects"),
         )
         method_generator = methods_generator or MethodGenerator(
@@ -601,21 +607,24 @@ def generate(
             release_date=schema_json["release_date"],
         )
 
-    object_generator.generate(path)
-    method_generator.generate(path)
+    object_generator.generate(path_dir)
+    method_generator.generate(path_dir)
     logger.info("Schema has been successfully generated.")
 
     logger.debug("Run black formatter...")
-    if os.system(f"black {path} --config pyproject.toml") != 0:
+    if os.system(f"black {path_dir} --config pyproject.toml") != 0:
         logger.error("Black formatter failed.")
     else:
         logger.info("Black formatter successfully formatted files.")
 
     logger.debug("Run isort...")
-    if os.system(f"isort {path}") != 0:
+    if os.system(f"isort {path_dir}") != 0:
         logger.error("Isort failed.")
     else:
         logger.info("Isort successfully sorted imports.")
+    
+    logger.debug("Run sort-all...")
+    sort_all(pathlib.Path(path_dir))
 
 
 __all__ = (
@@ -628,10 +637,10 @@ __all__ = (
     "ObjectGenerator",
     "ParamLiteralTypes",
     "SchemaJson",
-    "is_new_version",
     "convert_schema_to_model",
     "find_nicifications",
     "generate",
+    "sort_all",
     "get_schema_json",
-    "read_config_literal_types",
+    "read_config_literals",
 )

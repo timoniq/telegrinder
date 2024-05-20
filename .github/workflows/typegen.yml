@@ -1,0 +1,44 @@
+name: Generate Telegram Bot API types
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 13 * * *"
+
+jobs:
+  build:
+    name: Generate API types
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+        
+        - name: Set up CPython 3.11
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
+        
+        - name: Install poetry
+          run: >
+            pip install --upgrade pip setuptools wheel pipx
+            pipx install poetry
+      
+        - name: Install depends
+          run: poetry install
+      
+        - name: Run typegen
+          run: poetry run python typegen
+
+        - name: Open PR
+          uses: peter-evans/create-pull-request@v6
+          with:
+            commit-message: >
+              Update Bot API types based on the latest schema changes
+            title: >
+              Update Bot API types based on the latest schema changes
+            body: >
+              This is an automated PR. Please check the diff, and the action logs, to check for any funky behaviour.
+            branch: automated/types
+            reviewers: luwqz1
+            assignees: luwqz1
+            labels: automated, types
+            delete-branch: true

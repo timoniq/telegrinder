@@ -6,12 +6,12 @@ from .generator import (
     MethodGenerator,
     ObjectGenerator,
     SchemaJson,
-    check_version,
     convert_schema_to_model,
     find_nicifications,
     generate,
     get_schema_json,
-    read_config_literal_types,
+    read_config_literals,
+    sort_all,
 )
 from .models import (
     MethodParameter,
@@ -36,10 +36,10 @@ __all__ = (
     "ObjectSchema",
     "SchemaJson",
     "TelegramBotAPISchema",
-    "check_version",
     "convert_schema_to_model",
     "find_nicifications",
     "generate",
     "get_schema_json",
-    "read_config_literal_types",
+    "read_config_literals",
+    "sort_all",
 )
