@@ -14,23 +14,23 @@ Still in development.
 
 Install using pip:
 
-```
+```console
 pip install telegrinder
 ```
 
 Using poetry:
 
-```
+```console
 poetry add telegrinder
 ```
 
 Install from github:
 
-```
+```console
 pip install -U https://github.com/timoniq/telegrinder/archive/dev.zip
 ```
 
-```
+```console
 poetry add git+https://github.com/timoniq/telegrinder.git#dev
 ```
 

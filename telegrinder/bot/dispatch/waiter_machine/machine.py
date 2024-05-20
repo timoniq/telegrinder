@@ -39,7 +39,7 @@ class WaiterMachine:
     ) -> None:
         view_name = state_view.__class__.__name__
         if view_name not in self.storage:
-            raise LookupError("No record of view {!r} found".format(view_name))
+            raise LookupError("No record of view {!r} found.".format(view_name))
 
         short_state = self.storage[view_name].pop(id, None)
         if short_state is None:
@@ -49,13 +49,7 @@ class WaiterMachine:
                 )
             )
 
-        waiters = typing.cast(
-            typing.Iterable[asyncio.Future[typing.Any]],
-            short_state.event._waiters,  # type: ignore
-        )
-        for future in waiters:
-            future.cancel()
-
+        short_state.cancel()
         await self.call_behaviour(
             state_view,
             short_state.event,
@@ -69,9 +63,9 @@ class WaiterMachine:
         state_view: "BaseStateView[EventModel]",
         linked: EventModel | tuple[ABCAPI, Identificator],
         *rules: ABCRule[EventModel],
-        default: Behaviour = None,
-        on_drop: Behaviour = None,
-        expiration: datetime.timedelta | int | None = None,
+        default: Behaviour[EventModel] | None = None,
+        on_drop: Behaviour[EventModel] | None = None,
+        expiration: datetime.timedelta | float | None = None,
     ) -> tuple[EventModel, Context]:
         if isinstance(expiration, int | float):
             expiration = datetime.timedelta(seconds=expiration)
@@ -86,6 +80,7 @@ class WaiterMachine:
         if not key:
             raise RuntimeError("Unable to get state key.")
 
+        view_name = state_view.__class__.__name__
         event = asyncio.Event()
         short_state = ShortState(
             key,
@@ -96,17 +91,17 @@ class WaiterMachine:
             default_behaviour=default,
             on_drop_behaviour=on_drop,
         )
-        view_name = state_view.__class__.__name__
+        
         if view_name not in self.storage:
             state_view.middlewares.insert(0, WaiterMiddleware(self, state_view))
             self.storage[view_name] = LimitedDict()
 
-        self.storage[view_name][key] = short_state
+        if (deleted_short_state := self.storage[view_name].set(key, short_state)) is not None:
+            deleted_short_state.cancel()
+        
         await event.wait()
-
-        e, ctx = getattr(event, "context")
         self.storage[view_name].pop(key, None)
-        return e, ctx
+        return getattr(event, "context")
 
     async def call_behaviour(
         self,
@@ -118,17 +113,16 @@ class WaiterMachine:
     ) -> None:
         # TODO: support param view as a behaviour
 
-        ctx = Context(**context)
+        if behaviour is None:
+            return
 
+        ctx = Context(**context)
         if isinstance(event, asyncio.Event):
             event, preset_ctx = typing.cast(
                 tuple[EventModel, Context],
                 getattr(event, "context"),
             )
             ctx.update(preset_ctx)
-
-        if behaviour is None:
-            return
 
         if await behaviour.check(event.api, update, ctx):
             await behaviour.run(event, ctx)

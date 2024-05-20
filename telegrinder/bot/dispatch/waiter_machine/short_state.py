@@ -34,6 +34,16 @@ class ShortState(typing.Generic[EventModel]):
 
     def __post_init__(self, expiration: datetime.timedelta | None = None) -> None:
         self.expiration_date = (datetime.datetime.now() - expiration) if expiration is not None else None
+    
+    def cancel(self) -> None:
+        """Cancel schedule waiters."""
+
+        waiters = typing.cast(
+            typing.Iterable[asyncio.Future[typing.Any]],
+            self.event._waiters,  # type: ignore
+        )
+        for future in waiters:
+            future.cancel()
 
 
 __all__ = ("ShortState",)
