@@ -42,6 +42,7 @@ async def process_inner(
         if await handler.check(event.api, raw_event, ctx):
             found = True
             response = await handler.run(event, ctx)
+            logger.debug("Handler {!r} returned: {!r}", handler, response)
             responses.append(response)
             if return_manager is not None:
                 await return_manager.run(response, event, ctx)

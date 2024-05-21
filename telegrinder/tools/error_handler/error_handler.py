@@ -57,9 +57,8 @@ class Catcher(typing.Generic[EventT]):
     ) -> Result[typing.Any, BaseException]:
         if self.match_exception(exception):
             logger.debug(
-                "Catcher {!r} caught an exception in handler {!r}, " "running catcher...".format(
-                    self.func.__name__,
-                    handler_name,
+                "Error handler caught an exception {!r} in handler {!r}, running catcher {!r}...".format(
+                    exception, handler_name, self.func.__name__
                 )
             )
             return Ok(
@@ -68,7 +67,7 @@ class Catcher(typing.Generic[EventT]):
                     **magic_bundle(self.func, {"event": event, "api": api} | ctx),  # type: ignore
                 )
             )
-        logger.debug("Failed to match exception {!r}!", exception.__class__.__name__)
+        logger.debug("Failed to match exception {!r}.", exception.__class__.__name__)
         return Error(exception)
 
     def match_exception(self, exception: BaseException) -> bool:
@@ -95,7 +94,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
                 self.catcher,
             )
             if self.catcher is not None
-            else "<{}: No catcher>".format(self.__class__.__name__)
+            else "<{}()>".format(self.__class__.__name__)
         )
 
     def __call__(
@@ -133,6 +132,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         ctx: Context,
     ) -> Result[typing.Any, BaseException]:
         assert self.catcher is not None
+        logger.debug("Processing the error handler for handler {!r}...", handler.__name__)
 
         try:
             return await self.catcher(handler, event, api, ctx)
@@ -172,7 +172,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
             case Ok(value) as ok:
                 if self.catcher.logging:
                     logger.debug(
-                        "Catcher {!r} returned a value: {!r}",
+                        "Catcher {!r} returned: {!r}",
                         self.catcher.func.__name__,
                         value,
                     )

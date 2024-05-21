@@ -21,13 +21,15 @@ Storage: typing.TypeAlias = dict[str, LimitedDict[Identificator, ShortState[Even
 
 
 class WaiterMachine:
-    def __init__(self) -> None:
+    def __init__(self, *, max_short_states: int = 1000) -> None:
+        self.max_short_states = max_short_states
         self.storage: Storage = {}
 
     def __repr__(self) -> str:
-        return "<{}: storage={!r}>".format(
+        return "<{}: storage={!r}, max_short_states={}>".format(
             self.__class__.__name__,
             self.storage,
+            self.max_short_states,
         )
 
     async def drop(
@@ -94,7 +96,7 @@ class WaiterMachine:
         
         if view_name not in self.storage:
             state_view.middlewares.insert(0, WaiterMiddleware(self, state_view))
-            self.storage[view_name] = LimitedDict()
+            self.storage[view_name] = LimitedDict(maxlimit=self.max_short_states)
 
         if (deleted_short_state := self.storage[view_name].set(key, short_state)) is not None:
             deleted_short_state.cancel()

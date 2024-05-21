@@ -65,8 +65,10 @@ class BaseReturnManager(ABCReturnManager[EventT]):
         ctx.update(value)
 
     async def run(self, response: typing.Any, event: EventT, ctx: Context) -> None:
+        logger.debug("Run return manager for response: {!r}", response)
         for manager in self.managers:
             if typing.Any in manager.types or any(type(response) is x for x in manager.types):
+                logger.debug("Run manager {!r}...", manager.callback.__name__)
                 await manager(response, event, ctx)
 
     @typing.overload

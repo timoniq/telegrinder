@@ -135,20 +135,20 @@ class Dispatch(
 
     async def feed(self, event: Update, api: ABCAPI) -> bool:
         logger.debug("Processing update (update_id={})", event.update_id)
-        loop = asyncio.get_running_loop()
-        loop.create_task(self.raw_event.process(event, api))
+        await self.raw_event.process(event, api)
         
         for view in self.get_views().values():
             if await view.check(event):
                 logger.debug(
-                    "Update (update_id={}) matched view {!r}",
+                    "Update (update_id={}) matched view {!r}.",
                     event.update_id,
                     view.__class__.__name__,
                 )
-                loop.create_task(view.process(event, api))
+                await view.process(event, api)
                 return True
 
         ctx = Context()
+        loop = asyncio.get_running_loop()
         found = False
         for handler in self.default_handlers:
             if await handler.check(api, event, ctx):
