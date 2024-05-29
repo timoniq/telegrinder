@@ -279,6 +279,11 @@ class Update(Model):
     """Optional. A boost was removed from a chat. The bot must be an administrator 
     in the chat to receive these updates."""
 
+    def __eq__(self, other: typing.Any) -> bool:
+        return isinstance(other, self.__class__) and self.update_type.map(
+            lambda x: x == other.update_type.unwrap_or_none(),
+        ).unwrap_or(False)
+
     @property
     def update_type(self) -> Option[UpdateType]:
         """Incoming update type."""
@@ -380,6 +385,9 @@ class User(Model):
     """Optional. True, if the bot can be connected to a Telegram Business account 
     to receive its messages. Returned only in getMe."""
 
+    def __eq__(self, other: typing.Any) -> bool:
+        return isinstance(other, self.__class__) and self.id == other.id
+
     @property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
@@ -422,6 +430,9 @@ class Chat(Model):
 
     is_forum: Option[bool] = Nothing
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
+
+    def __eq__(self, other: typing.Any) -> bool:
+        return isinstance(other, self.__class__) and self.id == other.id
 
     @property
     def full_name(self) -> Option[str]:
@@ -910,6 +921,13 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Inline keyboard attached to the message. login_url buttons 
     are represented as ordinary url buttons."""
 
+    def __eq__(self, other: typing.Any) -> bool:
+        return (
+            isinstance(other, self.__class__)
+            and self.message_id == other.message_id
+            and self.chat_id == other.chat_id
+        )
+
     @property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
@@ -941,13 +959,6 @@ class Message(MaybeInaccessibleMessage):
 
         return (
             self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
-        )
-
-    def __eq__(self, other: typing.Any) -> bool:
-        return (
-            isinstance(other, self.__class__)
-            and self.message_id == other.message_id
-            and self.chat_id == other.chat_id
         )
 
 
@@ -5190,7 +5201,7 @@ class InputInvoiceMessageContent(InputMessageContent):
     """Bot-defined invoice payload, 1-128 bytes. This will not be displayed to 
     the user, use for your internal processes."""
 
-    currency: str
+    currency: Currency
     """Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` 
     for payments in Telegram Stars."""
 
@@ -5331,7 +5342,7 @@ class Invoice(Model):
     start_parameter: str
     """Unique bot deep-linking parameter that can be used to generate this invoice."""
 
-    currency: str
+    currency: Currency
     """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
     Stars."""
 
@@ -5408,7 +5419,7 @@ class SuccessfulPayment(Model):
     This object contains basic information about a successful payment.
     """
 
-    currency: str
+    currency: Currency
     """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
     Stars."""
 
@@ -5465,7 +5476,7 @@ class PreCheckoutQuery(Model):
     from_: "User"
     """User who sent the query."""
 
-    currency: str
+    currency: Currency
     """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
     Stars."""
 
@@ -5607,6 +5618,7 @@ class PassportElementErrorDataField(PassportElementError):
     """Error source, must be data."""
 
     type: typing.Literal[
+        "personal_details",
         "passport",
         "driver_license",
         "identity_card",

@@ -351,6 +351,7 @@ class Currency(str, enum.Enum):
     VND = "VND"
     YER = "YER"
     ZAR = "ZAR"
+    XTR = "XTR"
 
 
 class InlineQueryResultType(str, enum.Enum):
@@ -496,6 +497,7 @@ class MessageEntityType(str, enum.Enum):
     TEXT_LINK = "text_link"
     TEXT_MENTION = "text_mention"
     CUSTOM_EMOJI = "custom_emoji"
+    EXPANDABLE_BLOCKQUOTE = "expandable_blockquote"
 
 
 class PollType(str, enum.Enum):

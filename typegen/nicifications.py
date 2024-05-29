@@ -49,6 +49,12 @@ class _Birthdate(Birthdate):
 
 
 class _Chat(Chat):
+    def __eq__(self, other: typing.Any) -> bool:
+        return (
+            isinstance(other, self.__class__)
+            and self.id == other.id
+        )
+
     @property
     def full_name(self) -> Option[str]:
         """Optional. Full name (`first_name` + `last_name`) of the
@@ -74,6 +80,13 @@ class _ChatMemberUpdated(ChatMemberUpdated):
 
 
 class _Message(Message):
+    def __eq__(self, other: typing.Any) -> bool:
+        return (
+            isinstance(other, self.__class__)
+            and self.message_id == other.message_id
+            and self.chat_id == other.chat_id
+        )
+
     @property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
@@ -109,15 +122,14 @@ class _Message(Message):
             else self.chat.title.unwrap()
         )
 
+
+class _User(User):
     def __eq__(self, other: typing.Any) -> bool:
         return (
             isinstance(other, self.__class__)
-            and self.message_id == other.message_id
-            and self.chat_id == other.chat_id
+            and self.id == other.id
         )
 
-
-class _User(User):
     @property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
@@ -132,6 +144,14 @@ class _User(User):
 
 
 class _Update(Update):
+    def __eq__(self, other: typing.Any) -> bool:
+        return (
+            isinstance(other, self.__class__)
+            and self.update_type.map(
+                lambda x: x == other.update_type.unwrap_or_none(),
+            ).unwrap_or(False)
+        )
+
     @property
     def update_type(self) -> Option[UpdateType]:
         """Incoming update type."""

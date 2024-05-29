@@ -204,6 +204,42 @@
             ]
         },
         {
+            "name": "InputInvoiceMessageContent",
+            "fields": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
+            "name": "Invoice",
+            "fields": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
+            "name": "SuccessfulPayment",
+            "fields": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
+            "name": "PreCheckoutQuery",
+            "fields": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
             "name": "EncryptedPassportElement",
             "fields": [
                 {
@@ -724,6 +760,7 @@
                 {
                     "name": "type",
                     "literals": [
+                        "personal_details",
                         "passport",
                         "driver_license",
                         "identity_card",

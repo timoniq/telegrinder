@@ -315,7 +315,11 @@ class GlobalContext(
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
-    def pop(self, var_name: str, var_value_type: type[T] = object) -> Option[GlobalCtxVar[T]]:
+    def pop(
+        self,
+        var_name: str,
+        var_value_type: type[T] = typing.Any  # type: ignore
+    ) -> Option[GlobalCtxVar[T]]:
         """Pop context variable by name."""
 
         val = self.get(var_name, var_value_type)
@@ -337,7 +341,7 @@ class GlobalContext(
     def get(
         self,
         var_name: str,
-        var_value_type: type[T] = object,
+        var_value_type: type[T] = typing.Any,  # type: ignore
     ) -> Option[GlobalCtxVar[T]]:
         """Get context variable by name."""
 
@@ -372,7 +376,7 @@ class GlobalContext(
     def get_value(
         self,
         var_name: str,
-        var_value_type: type[T] = object,
+        var_value_type: type[T] = typing.Any,  # type: ignore
     ) -> Option[T]:
         """Get context variable value by name."""
 
