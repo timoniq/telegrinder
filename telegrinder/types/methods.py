@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API 7.3 methods, released `May 6, 2024`."""
+    """Telegram Bot API 7.4 methods, released `May 28, 2024`."""
 
     def __init__(self, api: "ABCAPI") -> None:
         self.api = api
@@ -211,6 +211,7 @@ class APIMethods:
         link_preview_options: LinkPreviewOptions | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -243,6 +244,8 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -458,9 +461,11 @@ class APIMethods:
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -496,11 +501,15 @@ class APIMethods:
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
 
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
         :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -530,6 +539,7 @@ class APIMethods:
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -584,6 +594,8 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -610,6 +622,7 @@ class APIMethods:
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -660,6 +673,8 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -686,10 +701,12 @@ class APIMethods:
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
         supports_streaming: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -740,6 +757,8 @@ class APIMethods:
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
 
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
         :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
 
         :param supports_streaming: Pass True if the uploaded video is suitable for streaming.
@@ -747,6 +766,8 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -774,9 +795,11 @@ class APIMethods:
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -826,11 +849,15 @@ class APIMethods:
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
 
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
         :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation. \
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -857,6 +884,7 @@ class APIMethods:
         duration: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -900,6 +928,8 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -924,6 +954,7 @@ class APIMethods:
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -966,6 +997,8 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -987,6 +1020,7 @@ class APIMethods:
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
     ) -> Result[list[Message], APIError]:
@@ -1012,6 +1046,8 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent messages from forwarding and saving. \
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
         :param reply_parameters: Description of the message to reply to.
         """
 
@@ -1034,6 +1070,7 @@ class APIMethods:
         proximity_alert_radius: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -1073,6 +1110,8 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -1101,6 +1140,7 @@ class APIMethods:
         google_place_type: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -1142,6 +1182,8 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -1166,6 +1208,7 @@ class APIMethods:
         vcard: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -1196,6 +1239,8 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -1231,6 +1276,7 @@ class APIMethods:
         is_closed: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -1294,6 +1340,8 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -1315,6 +1363,7 @@ class APIMethods:
         emoji: DiceEmoji | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -1342,6 +1391,8 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -3069,6 +3120,7 @@ class APIMethods:
         caption: str | None = None,
         parse_mode: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[Message, bool], APIError]:
@@ -3094,6 +3146,9 @@ class APIMethods:
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supported \
+        only for animation, photo and video messages.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
@@ -3357,6 +3412,7 @@ class APIMethods:
         emoji: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: (
             InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
@@ -3389,6 +3445,8 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -3854,10 +3912,10 @@ class APIMethods:
         title: str,
         description: str,
         payload: str,
-        provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
         message_thread_id: int | None = None,
+        provider_token: str | None = None,
         max_tip_amount: int | None = None,
         suggested_tip_amounts: list[int] | None = None,
         start_parameter: str | None = None,
@@ -3875,6 +3933,7 @@ class APIMethods:
         is_flexible: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
@@ -3896,18 +3955,22 @@ class APIMethods:
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
         the user, use for your internal processes.
 
-        :param provider_token: Payment provider token, obtained via @BotFather.
+        :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty string \
+        for payments in Telegram Stars.
 
-        :param currency: Three-letter ISO 4217 currency code, see more on currencies.
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` \
+        for payments in Telegram Stars.
 
         :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price, \
-        tax, discount, delivery cost, delivery tax, bonus, etc.).
+        tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain \
+        exactly one item for payments in Telegram Stars.
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
         (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
         pass max_tip_amount = 145. See the exp parameter in currencies.json, it \
         shows the number of digits past the decimal point for each currency (2 for \
-        the majority of currencies). Defaults to 0.
+        the majority of currencies). Defaults to 0. Not supported for payments \
+        in Telegram Stars.
 
         :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units \
         of the currency (integer, not float/double). At most 4 suggested tip amounts \
@@ -3934,23 +3997,32 @@ class APIMethods:
 
         :param photo_height: Photo height.
 
-        :param need_name: Pass True if you require the user's full name to complete the order.
+        :param need_name: Pass True if you require the user's full name to complete the order. Ignored \
+        for payments in Telegram Stars.
 
-        :param need_phone_number: Pass True if you require the user's phone number to complete the order.
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order. Ignored \
+        for payments in Telegram Stars.
 
         :param need_email: Pass True if you require the user's email address to complete the order. \
+        Ignored for payments in Telegram Stars.
 
         :param need_shipping_address: Pass True if you require the user's shipping address to complete the order. \
+        Ignored for payments in Telegram Stars.
 
-        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to provider.
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider. Ignored \
+        for payments in Telegram Stars.
 
-        :param send_email_to_provider: Pass True if the user's email address should be sent to provider.
+        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider. Ignored \
+        for payments in Telegram Stars.
 
-        :param is_flexible: Pass True if the final price depends on the shipping method.
+        :param is_flexible: Pass True if the final price depends on the shipping method. Ignored for \
+        payments in Telegram Stars.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -3969,9 +4041,9 @@ class APIMethods:
         title: str,
         description: str,
         payload: str,
-        provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
+        provider_token: str | None = None,
         max_tip_amount: int | None = None,
         suggested_tip_amounts: list[int] | None = None,
         provider_data: str | None = None,
@@ -4000,18 +4072,22 @@ class APIMethods:
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
         the user, use for your internal processes.
 
-        :param provider_token: Payment provider token, obtained via BotFather.
+        :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty string \
+        for payments in Telegram Stars.
 
-        :param currency: Three-letter ISO 4217 currency code, see more on currencies.
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` \
+        for payments in Telegram Stars.
 
         :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price, \
-        tax, discount, delivery cost, delivery tax, bonus, etc.).
+        tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain \
+        exactly one item for payments in Telegram Stars.
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
         (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
         pass max_tip_amount = 145. See the exp parameter in currencies.json, it \
         shows the number of digits past the decimal point for each currency (2 for \
-        the majority of currencies). Defaults to 0.
+        the majority of currencies). Defaults to 0. Not supported for payments \
+        in Telegram Stars.
 
         :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units \
         of the currency (integer, not float/double). At most 4 suggested tip amounts \
@@ -4031,19 +4107,26 @@ class APIMethods:
 
         :param photo_height: Photo height.
 
-        :param need_name: Pass True if you require the user's full name to complete the order.
+        :param need_name: Pass True if you require the user's full name to complete the order. Ignored \
+        for payments in Telegram Stars.
 
-        :param need_phone_number: Pass True if you require the user's phone number to complete the order.
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order. Ignored \
+        for payments in Telegram Stars.
 
         :param need_email: Pass True if you require the user's email address to complete the order. \
+        Ignored for payments in Telegram Stars.
 
         :param need_shipping_address: Pass True if you require the user's shipping address to complete the order. \
+        Ignored for payments in Telegram Stars.
 
-        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider.
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider. Ignored \
+        for payments in Telegram Stars.
 
-        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider.
+        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider. Ignored \
+        for payments in Telegram Stars.
 
-        :param is_flexible: Pass True if the final price depends on the shipping method.
+        :param is_flexible: Pass True if the final price depends on the shipping method. Ignored for \
+        payments in Telegram Stars.
         """
 
         method_response = await self.api.request_raw(
@@ -4120,6 +4203,27 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
+    async def refund_star_payment(
+        self,
+        user_id: int,
+        telegram_payment_charge_id: str,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `refundStarPayment`, see the [documentation](https://core.telegram.org/bots/api#refundstarpayment)
+
+        Refunds a successful payment in Telegram Stars. Returns True on success.
+
+        :param user_id: Identifier of the user whose payment will be refunded.
+
+        :param telegram_payment_charge_id: Telegram payment identifier.
+        """
+
+        method_response = await self.api.request_raw(
+            "refundStarPayment",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
     async def set_passport_data_errors(
         self,
         user_id: int,
@@ -4156,6 +4260,7 @@ class APIMethods:
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
@@ -4178,6 +4283,8 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: Description of the message to reply to.
 
