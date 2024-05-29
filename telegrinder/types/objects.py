@@ -704,6 +704,9 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Options used for link preview generation for the message, if 
     it is a text message and link preview options were changed."""
 
+    effect_id: Option[str] = Nothing
+    """Optional. Unique identifier of the message effect added to the message."""
+
     animation: Option["Animation"] = Nothing
     """Optional. Message is an animation, information about the animation. For 
     backward compatibility, when this field is set, the document field will 
@@ -740,6 +743,9 @@ class Message(MaybeInaccessibleMessage):
     caption_entities: Option[list["MessageEntity"]] = Nothing
     """Optional. For messages with a caption, special entities like usernames, 
     URLs, bot commands, etc. that appear in the caption."""
+
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. True, if the caption must be shown above the message media."""
 
     has_media_spoiler: Option[bool] = Nothing
     """Optional. True, if the message media is covered by a spoiler animation."""
@@ -984,10 +990,11 @@ class MessageEntity(Model):
     (https://telegram.org), `email` (do-not-reply@telegram.org), `phone_number` 
     (+1-212-555-0123), `bold` (bold text), `italic` (italic text), `underline` 
     (underlined text), `strikethrough` (strikethrough text), `spoiler` 
-    (spoiler message), `blockquote` (block quotation), `code` (monowidth 
-    string), `pre` (monowidth block), `text_link` (for clickable text URLs), 
-    `text_mention` (for users without usernames), `custom_emoji` (for inline 
-    custom emoji stickers)."""
+    (spoiler message), `blockquote` (block quotation), `expandable_blockquote` 
+    (collapsed-by-default block quotation), `code` (monowidth string), 
+    `pre` (monowidth block), `text_link` (for clickable text URLs), `text_mention` 
+    (for users without usernames), `custom_emoji` (for inline custom emoji 
+    stickers)."""
 
     offset: int
     """Offset in UTF-16 code units to the start of the entity."""
@@ -2266,7 +2273,7 @@ class ReplyKeyboardMarkup(Model):
 class KeyboardButton(Model):
     """Object `KeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#keyboardbutton).
 
-    This object represents one button of the reply keyboard. For simple text buttons, String can be used instead of this object to specify the button text. The optional fields web_app, request_users, request_chat, request_contact, request_location, and request_poll are mutually exclusive.
+    This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
     Note: request_users and request_chat options will only work in Telegram versions released after 3 February, 2023. Older clients will display unsupported message.
     """
 
@@ -2432,7 +2439,7 @@ class InlineKeyboardMarkup(Model):
 class InlineKeyboardButton(Model):
     """Object `InlineKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardbutton).
 
-    This object represents one button of an inline keyboard. You must use exactly one of the optional fields.
+    This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.
     """
 
     text: str
@@ -2486,9 +2493,10 @@ class InlineKeyboardButton(Model):
     first row."""
 
     pay: Option[bool] = Nothing
-    """Optional. Specify True, to send a Pay button. NOTE: This type of button must 
-    always be the first button in the first row and can only be used in invoice 
-    messages."""
+    """Optional. Specify True, to send a Pay button. Substrings `⭐` and `XTR` in 
+    the buttons's text will be replaced with a Telegram Star icon. NOTE: This 
+    type of button must always be the first button in the first row and can only 
+    be used in invoice messages."""
 
 
 class LoginUrl(Model):
@@ -3645,6 +3653,9 @@ class InputMediaPhoto(InputMedia):
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
+
     has_spoiler: Option[bool] = Nothing
     """Optional. Pass True if the photo needs to be covered with a spoiler animation."""
 
@@ -3684,6 +3695,9 @@ class InputMediaVideo(InputMedia):
     caption_entities: Option[list["MessageEntity"]] = Nothing
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
 
     width: Option[int] = Nothing
     """Optional. Video width."""
@@ -3736,6 +3750,9 @@ class InputMediaAnimation(InputMedia):
     caption_entities: Option[list["MessageEntity"]] = Nothing
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
 
     width: Option[int] = Nothing
     """Optional. Animation width."""
@@ -4129,6 +4146,9 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
+
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
     """Optional. Inline keyboard attached to the message."""
 
@@ -4189,6 +4209,9 @@ class InlineQueryResultGif(InlineQueryResult):
     caption_entities: Option[list["MessageEntity"]] = Nothing
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
     """Optional. Inline keyboard attached to the message."""
@@ -4251,6 +4274,9 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
+
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
     """Optional. Inline keyboard attached to the message."""
 
@@ -4301,6 +4327,9 @@ class InlineQueryResultVideo(InlineQueryResult):
     caption_entities: Option[list["MessageEntity"]] = Nothing
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
 
     video_width: Option[int] = Nothing
     """Optional. Video width."""
@@ -4713,6 +4742,9 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
+
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
     """Optional. Inline keyboard attached to the message."""
 
@@ -4758,6 +4790,9 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
+
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
     """Optional. Inline keyboard attached to the message."""
 
@@ -4802,6 +4837,9 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     caption_entities: Option[list["MessageEntity"]] = Nothing
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
     """Optional. Inline keyboard attached to the message."""
@@ -4928,6 +4966,9 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     caption_entities: Option[list["MessageEntity"]] = Nothing
     """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = Nothing
+    """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
     """Optional. Inline keyboard attached to the message."""
@@ -5149,22 +5190,26 @@ class InputInvoiceMessageContent(InputMessageContent):
     """Bot-defined invoice payload, 1-128 bytes. This will not be displayed to 
     the user, use for your internal processes."""
 
-    provider_token: str
-    """Payment provider token, obtained via @BotFather."""
-
     currency: str
-    """Three-letter ISO 4217 currency code, see more on currencies."""
+    """Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` 
+    for payments in Telegram Stars."""
 
     prices: list["LabeledPrice"]
     """Price breakdown, a JSON-serialized list of components (e.g. product price, 
-    tax, discount, delivery cost, delivery tax, bonus, etc.)."""
+    tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain 
+    exactly one item for payments in Telegram Stars."""
+
+    provider_token: Option[str] = Nothing
+    """Optional. Payment provider token, obtained via @BotFather. Pass an empty 
+    string for payments in Telegram Stars."""
 
     max_tip_amount: Option[int] = Nothing
     """Optional. The maximum accepted amount for tips in the smallest units of 
     the currency (integer, not float/double). For example, for a maximum tip 
     of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, 
     it shows the number of digits past the decimal point for each currency (2 
-    for the majority of currencies). Defaults to 0."""
+    for the majority of currencies). Defaults to 0. Not supported for payments 
+    in Telegram Stars."""
 
     suggested_tip_amounts: Option[list[int]] = Nothing
     """Optional. A JSON-serialized array of suggested amounts of tip in the smallest 
@@ -5191,28 +5236,32 @@ class InputInvoiceMessageContent(InputMessageContent):
     """Optional. Photo height."""
 
     need_name: Option[bool] = Nothing
-    """Optional. Pass True if you require the user's full name to complete the order."""
+    """Optional. Pass True if you require the user's full name to complete the order. 
+    Ignored for payments in Telegram Stars."""
 
     need_phone_number: Option[bool] = Nothing
     """Optional. Pass True if you require the user's phone number to complete the 
-    order."""
+    order. Ignored for payments in Telegram Stars."""
 
     need_email: Option[bool] = Nothing
     """Optional. Pass True if you require the user's email address to complete 
-    the order."""
+    the order. Ignored for payments in Telegram Stars."""
 
     need_shipping_address: Option[bool] = Nothing
     """Optional. Pass True if you require the user's shipping address to complete 
-    the order."""
+    the order. Ignored for payments in Telegram Stars."""
 
     send_phone_number_to_provider: Option[bool] = Nothing
-    """Optional. Pass True if the user's phone number should be sent to provider."""
+    """Optional. Pass True if the user's phone number should be sent to the provider. 
+    Ignored for payments in Telegram Stars."""
 
     send_email_to_provider: Option[bool] = Nothing
-    """Optional. Pass True if the user's email address should be sent to provider."""
+    """Optional. Pass True if the user's email address should be sent to the provider. 
+    Ignored for payments in Telegram Stars."""
 
     is_flexible: Option[bool] = Nothing
-    """Optional. Pass True if the final price depends on the shipping method."""
+    """Optional. Pass True if the final price depends on the shipping method. Ignored 
+    for payments in Telegram Stars."""
 
 
 class ChosenInlineResult(Model):
@@ -5283,7 +5332,8 @@ class Invoice(Model):
     """Unique bot deep-linking parameter that can be used to generate this invoice."""
 
     currency: str
-    """Three-letter ISO 4217 currency code."""
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
+    Stars."""
 
     total_amount: int
     """Total price in the smallest units of the currency (integer, not float/double). 
@@ -5359,7 +5409,8 @@ class SuccessfulPayment(Model):
     """
 
     currency: str
-    """Three-letter ISO 4217 currency code."""
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
+    Stars."""
 
     total_amount: int
     """Total price in the smallest units of the currency (integer, not float/double). 
@@ -5415,7 +5466,8 @@ class PreCheckoutQuery(Model):
     """User who sent the query."""
 
     currency: str
-    """Three-letter ISO 4217 currency code."""
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
+    Stars."""
 
     total_amount: int
     """Total price in the smallest units of the currency (integer, not float/double). 
