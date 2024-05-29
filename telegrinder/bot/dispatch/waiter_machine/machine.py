@@ -9,7 +9,7 @@ from telegrinder.tools.limited_dict import LimitedDict
 from telegrinder.types import Update
 
 from .middleware import WaiterMiddleware
-from .short_state import Behaviour, EventModel, ShortState
+from .short_state import Behaviour, EventModel, ShortState, ShortStateContext
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.abc import ABCStateView, BaseStateView
@@ -21,15 +21,15 @@ Storage: typing.TypeAlias = dict[str, LimitedDict[Identificator, ShortState[Even
 
 
 class WaiterMachine:
-    def __init__(self, *, max_short_states: int = 1000) -> None:
-        self.max_short_states = max_short_states
+    def __init__(self, *, max_limit_storage: int = 1000) -> None:
+        self.max_limit_storage = max_limit_storage
         self.storage: Storage = {}
 
     def __repr__(self) -> str:
-        return "<{}: storage={!r}, max_short_states={}>".format(
+        return "<{}: max_limit_storage={}, storage={!r}>".format(
             self.__class__.__name__,
+            self.max_limit_storage,
             self.storage,
-            self.max_short_states,
         )
 
     async def drop(
@@ -68,7 +68,7 @@ class WaiterMachine:
         default: Behaviour[EventModel] | None = None,
         on_drop: Behaviour[EventModel] | None = None,
         expiration: datetime.timedelta | float | None = None,
-    ) -> tuple[EventModel, Context]:
+    ) -> ShortStateContext[EventModel]:
         if isinstance(expiration, int | float):
             expiration = datetime.timedelta(seconds=expiration)
 
@@ -84,7 +84,7 @@ class WaiterMachine:
 
         view_name = state_view.__class__.__name__
         event = asyncio.Event()
-        short_state = ShortState(
+        short_state = ShortState[EventModel](
             key,
             api,
             event,
@@ -96,14 +96,15 @@ class WaiterMachine:
         
         if view_name not in self.storage:
             state_view.middlewares.insert(0, WaiterMiddleware(self, state_view))
-            self.storage[view_name] = LimitedDict(maxlimit=self.max_short_states)
+            self.storage[view_name] = LimitedDict(maxlimit=self.max_limit_storage)
 
         if (deleted_short_state := self.storage[view_name].set(key, short_state)) is not None:
             deleted_short_state.cancel()
         
         await event.wait()
         self.storage[view_name].pop(key, None)
-        return getattr(event, "context")
+        assert short_state.context is not None
+        return short_state.context
 
     async def call_behaviour(
         self,

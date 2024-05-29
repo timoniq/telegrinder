@@ -6,6 +6,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.view.abc import ABCStateView
+from telegrinder.bot.dispatch.waiter_machine.short_state import ShortStateContext
 
 if typing.TYPE_CHECKING:
     from .machine import WaiterMachine
@@ -78,7 +79,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         short_state: "ShortState[EventType]",
         ctx: Context,
     ) -> None:
-        setattr(short_state.event, "context", (event, ctx))
+        short_state.context = ShortStateContext(event, ctx)
         short_state.event.set()
 
 

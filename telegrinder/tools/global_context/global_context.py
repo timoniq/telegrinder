@@ -319,7 +319,7 @@ class GlobalContext(
         self,
         var_name: str,
         var_value_type: type[T] = typing.Any  # type: ignore
-    ) -> Option[GlobalCtxVar[T]]:
+    ) -> Option[GlobalCtxVar[typing.Any]]:
         """Pop context variable by name."""
 
         val = self.get(var_name, var_value_type)
@@ -342,7 +342,7 @@ class GlobalContext(
         self,
         var_name: str,
         var_value_type: type[T] = typing.Any,  # type: ignore
-    ) -> Option[GlobalCtxVar[T]]:
+    ) -> Option[GlobalCtxVar[typing.Any]]:
         """Get context variable by name."""
 
         generic_types = typing.get_args(get_orig_class(self))
@@ -377,7 +377,7 @@ class GlobalContext(
         self,
         var_name: str,
         var_value_type: type[T] = typing.Any,  # type: ignore
-    ) -> Option[T]:
+    ) -> Option[typing.Any]:
         """Get context variable value by name."""
 
         return self.get(var_name, var_value_type).map(lambda var: var.value)
