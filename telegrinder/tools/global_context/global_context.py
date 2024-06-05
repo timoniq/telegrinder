@@ -315,14 +315,10 @@ class GlobalContext(
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
-    def pop(
-        self,
-        var_name: str,
-        var_value_type: type[T] = typing.Any  # type: ignore
-    ) -> Option[GlobalCtxVar[typing.Any]]:
+    def pop(self, var_name, var_value_type=typing.Any):
         """Pop context variable by name."""
 
-        val = self.get(var_name, var_value_type)
+        val = self.get(var_name, var_value_type)  # type: ignore
         if val:
             del self[var_name]
             return val
@@ -338,11 +334,7 @@ class GlobalContext(
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
-    def get(
-        self,
-        var_name: str,
-        var_value_type: type[T] = typing.Any,  # type: ignore
-    ) -> Option[GlobalCtxVar[typing.Any]]:
+    def get(self, var_name, var_value_type=typing.Any):
         """Get context variable by name."""
 
         generic_types = typing.get_args(get_orig_class(self))
@@ -373,14 +365,10 @@ class GlobalContext(
         var_value_type: type[T],
     ) -> Option[T]: ...
 
-    def get_value(
-        self,
-        var_name: str,
-        var_value_type: type[T] = typing.Any,  # type: ignore
-    ) -> Option[typing.Any]:
+    def get_value(self, var_name, var_value_type=typing.Any):
         """Get context variable value by name."""
 
-        return self.get(var_name, var_value_type).map(lambda var: var.value)
+        return self.get(var_name, var_value_type).map(lambda var: var.value)  # type: ignore
 
     def rename(self, old_var_name: str, new_var_name: str) -> Result[_, str]:
         """Rename context variable."""

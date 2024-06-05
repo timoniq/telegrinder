@@ -28,10 +28,12 @@ class Context(dict[str, AnyValue]):
     def __init__(self, **kwargs: AnyValue) -> None:
         cls_vars = vars(self.__class__)
         defaults = {}
+        
         for k in self.__class__.__annotations__:
             if k in cls_vars:
                 defaults[k] = cls_vars[k]
                 delattr(self.__class__, k)
+        
         dict.__init__(self, **defaults | kwargs)
 
     @recursive_repr()

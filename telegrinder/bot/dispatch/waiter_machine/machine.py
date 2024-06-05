@@ -21,14 +21,14 @@ Storage: typing.TypeAlias = dict[str, LimitedDict[Identificator, ShortState[Even
 
 
 class WaiterMachine:
-    def __init__(self, *, max_limit_storage: int = 1000) -> None:
-        self.max_limit_storage = max_limit_storage
+    def __init__(self, *, max_storage_size: int = 1000) -> None:
+        self.max_storage_size = max_storage_size
         self.storage: Storage = {}
 
     def __repr__(self) -> str:
-        return "<{}: max_limit_storage={}, storage={!r}>".format(
+        return "<{}: max_storage_size={}, storage={!r}>".format(
             self.__class__.__name__,
-            self.max_limit_storage,
+            self.max_storage_size,
             self.storage,
         )
 
@@ -96,7 +96,7 @@ class WaiterMachine:
         
         if view_name not in self.storage:
             state_view.middlewares.insert(0, WaiterMiddleware(self, state_view))
-            self.storage[view_name] = LimitedDict(maxlimit=self.max_limit_storage)
+            self.storage[view_name] = LimitedDict(maxlimit=self.max_storage_size)
 
         if (deleted_short_state := self.storage[view_name].set(key, short_state)) is not None:
             deleted_short_state.cancel()
@@ -114,7 +114,7 @@ class WaiterMachine:
         behaviour: Behaviour[EventModel] | None = None,
         **context: typing.Any,
     ) -> None:
-        # TODO: support param view as a behaviour
+        # TODO: support view as a behaviour
 
         if behaviour is None:
             return
