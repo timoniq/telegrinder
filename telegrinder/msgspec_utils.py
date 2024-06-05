@@ -184,13 +184,7 @@ class Decoder:
         strict: bool = True,
     ) -> T: ...
 
-    def decode(
-        self,
-        buf: str | bytes,
-        *,
-        type: type[T] = typing.Any,  # type: ignore
-        strict: bool = True,
-    ) -> T:
+    def decode(self, buf, *, type=typing.Any, strict=True):
         return msgspec.json.decode(
             buf,
             type=type,
