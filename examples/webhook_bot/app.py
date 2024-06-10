@@ -6,7 +6,7 @@ import typing
 from contextlib import asynccontextmanager, suppress
 
 import uvicorn  # type: ignore
-from bot import dp
+from bot import dp  # type: ignore
 from envparse import env
 from fastapi import FastAPI, Request, Response  # type: ignore
 

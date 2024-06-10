@@ -26,7 +26,7 @@ else:
 T = typing.TypeVar("T")
 Ts = typing.TypeVarTuple("Ts")
 
-DecHook: typing.TypeAlias = typing.Callable[[type[T], typing.Any], object]
+DecHook: typing.TypeAlias = typing.Callable[[type[T], typing.Any], typing.Any]
 EncHook: typing.TypeAlias = typing.Callable[[T], typing.Any]
 
 Nothing: typing.Final[fntypes.option.Nothing] = fntypes.option.Nothing()

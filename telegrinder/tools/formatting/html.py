@@ -1,3 +1,5 @@
+# NOTE: NEED REFACTORING
+
 import html
 import string
 import typing
@@ -13,12 +15,17 @@ from .links import (
     get_resolve_domain_link,
     get_start_bot_link,
     get_start_group_link,
-    user_open_message_link,
 )
 from .spec_html_formats import SpecialFormat, is_spec_format
 
 TAG_FORMAT = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK = '"'
+
+
+class StringFormatterProto(typing.Protocol):
+    def format_field(self, value: typing.Any, fmt: str) -> "HTMLFormatter": ...
+
+    def format(self, __string: str, *args: object, **kwargs: object) -> "HTMLFormatter": ...
 
 
 class StringFormatter(string.Formatter):
@@ -107,7 +114,7 @@ class StringFormatter(string.Formatter):
 
 
 class FormatString(str):
-    string_formatter = StringFormatter()
+    STRING_FORMATTER: StringFormatterProto = StringFormatter()
 
     def __new__(cls, string: str) -> typing.Self:
         if isinstance(string, TagFormat):
@@ -118,7 +125,9 @@ class FormatString(str):
         return HTMLFormatter(
             str.__add__(
                 escape(self),
-                value.formatting() if isinstance(value, TagFormat) else escape(value),
+                value.formatting()
+                if isinstance(value, TagFormat)
+                else escape(value),
             )
         )
 
@@ -131,7 +140,7 @@ class FormatString(str):
         return self.__str__()
 
     def format(self, *args: object, **kwargs: object) -> "HTMLFormatter":
-        return self.string_formatter.format(self, *args, **kwargs)
+        return self.STRING_FORMATTER.format(self, *args, **kwargs)
 
 
 class EscapedString(FormatString):
@@ -273,14 +282,6 @@ def underline(string: str) -> TagFormat:
     return TagFormat(string, tag="u")
 
 
-def user_open_message(
-    user_id: int,
-    message: str | None = None,
-    string: str | None = None,
-) -> TagFormat:
-    return link(user_open_message_link(user_id, message), string)
-
-
 __all__ = (
     "FormatString",
     "HTMLFormatter",
@@ -308,5 +309,4 @@ __all__ = (
     "strike",
     "tg_emoji",
     "underline",
-    "user_open_message",
 )

@@ -25,7 +25,6 @@ Formatter is derived from `FormatString` to work string formatting with the foll
 * `strike(string: str) -> TagFormat` -> ~~strikethrough text~~
 * `tg_emoji(string: str, emoji_id: int) -> TagFormat` | telegram emoji by emoji id
 * `underline(string: str) -> TagFormat` -> <u>underline text</u>
-* `user_open_message(user_id: int, message: str | None = None, string: str | None = None) -> TagFormat` | tg://openmessage?user_id=123456789&msg?text=AnyMessage
 
 ```python
 from telegrinder.tools.formatting import HTMLFormatter, bold, spoiler
@@ -62,7 +61,6 @@ To use special formats, you have to use special dataclasses:
 * `StartBotLink(bot_id: str | int, data: str, string: str | None = None)` -> `start_bot_link`
 * `StartGroupLink(bot_id: str | int, data: str, string: str | None = None)` -> `start_group_link`
 * `TgEmoji(string: str, emoji_id: int)` -> `tg_emoji`
-* `UserOpenMessage(user_id: int, message: str | None = None, string: str | None = None)` -> `user_open_message`
 
 ```python
 from telegrinder.tools.formatting import HTMLFormatter, Mention, Link, CodeBlock
@@ -103,8 +101,6 @@ HTMLFormatter("start game in the {:spoiler}").format(StartBotLink("telegrinder_b
 HTMLFormatter("Get a bonus from the {:italic} in the chosen group").format(StartGroupLink("nice123_bot", "get_bonus", "nice cool bot"))
 
 HTMLFormatter("Join our {:bold+underline}").format(InviteChatLink("+kMj2234KklsSka2-", "chat"))
-
-HTMLFormatter("Please, write about your problem to our {:underline}").format(UserOpenMessage(123456789, string="manager"))
 ```
 
 HTMLFormatter also has a property of parse mode string.

@@ -97,7 +97,7 @@ class Polling(ABCPolling):
             except InvalidTokenError as e:
                 logger.error(e)
                 self.stop()
-                exit(6)
+                exit(3)
             except asyncio.CancelledError:
                 logger.info("Caught cancel, polling stopping...")
                 self.stop()
@@ -108,14 +108,14 @@ class Polling(ABCPolling):
                         self.max_reconnetions,
                     )
                     self.stop()
-                    exit(9)
+                    exit(6)
                 else:
                     logger.warning(
                         "Server disconnected, waiting 5 seconds to reconnetion...",
                     )
                     reconn_counter += 1
                     await asyncio.sleep(self.reconnection_timeout)
-            except aiohttp.ClientConnectorError:
+            except (aiohttp.ClientConnectorError, aiohttp.ClientOSError):
                 logger.error("Client connection failed, attempted to reconnect...")
                 await asyncio.sleep(self.reconnection_timeout)
             except BaseException as e:

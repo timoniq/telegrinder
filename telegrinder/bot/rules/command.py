@@ -19,6 +19,7 @@ class Argument:
     name: str
     validators: list[Validator] = dataclasses.field(default_factory=lambda: [])
     optional: bool = dataclasses.field(default=False, kw_only=True)
+    # NOTE: add optional param `description`
 
     def check(self, data: str) -> typing.Any | None:
         for validator in self.validators:

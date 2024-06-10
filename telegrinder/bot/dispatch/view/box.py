@@ -13,9 +13,7 @@ from .message import MessageView
 from .raw import RawEventView
 
 CallbackQueryViewT = typing.TypeVar("CallbackQueryViewT", bound=ABCView, default=CallbackQueryView)
-ChatJoinRequestViewT = typing.TypeVar(
-    "ChatJoinRequestViewT", bound=ABCView, default=ChatJoinRequestView
-)
+ChatJoinRequestViewT = typing.TypeVar("ChatJoinRequestViewT", bound=ABCView, default=ChatJoinRequestView)
 ChatMemberViewT = typing.TypeVar("ChatMemberViewT", bound=ABCView, default=ChatMemberView)
 InlineQueryViewT = typing.TypeVar("InlineQueryViewT", bound=ABCView, default=InlineQueryView)
 MessageViewT = typing.TypeVar("MessageViewT", bound=ABCView, default=MessageView)

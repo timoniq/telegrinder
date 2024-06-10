@@ -1,4 +1,5 @@
 from .abc import ABCDispatch
+from .command import CommandDispatch
 from .composition import CompositionDispatch
 from .context import Context
 from .dispatch import ABCRule, Dispatch, TelegrinderCtx
@@ -40,6 +41,7 @@ __all__ = (
     "BaseReturnManager",
     "BaseStateView",
     "BaseView",
+    "CommandDispatch",
     "CallbackQueryReturnManager",
     "CallbackQueryView",
     "ChatJoinRequestView",

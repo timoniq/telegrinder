@@ -1,6 +1,6 @@
 """Telegrinder
 
-Framework for effective and reliable telegram bot building.
+Modern visionary telegram bot framework.
 
 * Type hinted
 * Customizable and extensible
@@ -57,6 +57,8 @@ from .bot import (
     ChatMemberUpdatedCute,
     ChatMemberView,
     Checkbox,
+    CommandDispatch,
+    CompositionDispatch,
     Dispatch,
     FuncHandler,
     InlineQueryCute,
@@ -158,6 +160,8 @@ __all__ = (
     "ChatMemberView",
     "Checkbox",
     "CtxVar",
+    "CommandDispatch",
+    "CompositionDispatch",
     "DelayedTask",
     "Dispatch",
     "ErrorHandler",
