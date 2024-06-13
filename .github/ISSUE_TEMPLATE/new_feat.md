@@ -9,9 +9,8 @@ assignees: "luwqz1"
 ## 🚀 Feature Request 🚀
 
 **✏️ New feature description ✏️**
-<!-- A clear and concise description of what the problem is. Ex. -->
+<!-- A clear and concise description. Ex. -->
 ```
-I have an issue when...
 ```
 
 **🪄 Provide a minimal example 🪄**

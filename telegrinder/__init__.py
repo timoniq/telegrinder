@@ -57,7 +57,6 @@ from .bot import (
     ChatMemberUpdatedCute,
     ChatMemberView,
     Checkbox,
-    CommandDispatch,
     CompositionDispatch,
     Dispatch,
     FuncHandler,
