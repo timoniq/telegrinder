@@ -11,6 +11,12 @@ if typing.TYPE_CHECKING:
 FuncType: typing.TypeAlias = types.FunctionType | typing.Callable[..., typing.Any]
 TRANSLATIONS_KEY: typing.Final[str] = "_translations"
 
+Cls = typing.TypeVar("Cls")
+P = typing.ParamSpec("P")
+R = typing.TypeVar("R", covariant=True)
+
+
+IMPL_MARK = "_is_impl"
 
 def resolve_arg_names(func: FuncType, start_idx: int = 1) -> tuple[str, ...]:
     return func.__code__.co_varnames[start_idx : func.__code__.co_argcount]
@@ -53,6 +59,19 @@ def cache_translation(base_rule: "T", locale: str, translated_rule: "T") -> None
     translations = getattr(base_rule, TRANSLATIONS_KEY, {})
     setattr(base_rule, TRANSLATIONS_KEY, {locale: translated_rule, **translations})
 
+
+def get_impls(cls: type) -> list[typing.Callable]:
+    functions = [func.__func__ for func in cls.__dict__.values() if hasattr(func, "__func__")]
+    return [impl for impl in functions if getattr(impl, IMPL_MARK, False) is True]
+
+
+if typing.TYPE_CHECKING:
+    impl = classmethod  # type: ignore
+else:
+    def impl(method: typing.Callable[typing.Concatenate[type[Cls], P], R]) -> typing.Callable[P, R]:
+        bound_method = classmethod(method)
+        setattr(method, IMPL_MARK, True)
+        return bound_method  # type: ignore
 
 __all__ = (
     "TRANSLATIONS_KEY",

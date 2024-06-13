@@ -1,7 +1,7 @@
 """
 Code in this file is automatically parsed.
 ---
-Nicifications are basically nice features for models which are included in auto-generated models
+Nicifications are basically nice features for models which are included in auto-generate_noded models
 The difference between nicifications and cure types is: cute types can borrow view runtime properties and have context api
 (so they can implement model-specific methods).
 Nicifications can only implement methods/properties working only with model fields.

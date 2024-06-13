@@ -6,11 +6,11 @@ from telegrinder import API, Telegrinder, Token
 from telegrinder.bot import rules
 from telegrinder.bot.dispatch import CompositionDispatch
 from telegrinder.modules import logger
-from telegrinder.node import Photo, RuleContext, ScalarNode, Source, Text, generate
+from telegrinder.node import Photo, RuleChain, ScalarNode, Source, Text, generate_node
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api, dispatch=CompositionDispatch())
-logger.set_level("INFO")
+logger.set_level("DEBUG")
 
 
 @bot.loop_wrapper.lifespan.on_startup
@@ -42,16 +42,16 @@ async def photo_handler(photo: Photo, source: Source, db: DB):
     logger.info("Finished handling")
 
 
-# Container generated node examples
+# Container generate_noded node examples
 @bot.on(
-    generate((Text,), lambda text: text == "hello"),
-    generate((Source,), lambda src: src.chat.username.unwrap_or_none() == "weirdlashes"),
+    generate_node((Text,), lambda text: text == "hello"),
+    generate_node((Source,), lambda src: src.chat.username.unwrap_or_none() == "weirdlashes"),
 )
 async def hi_handler(source: Source):
     await source.send("Hi !!")
 
 
-@bot.on(generate((Text,), lambda text: int(text) if text.isdigit() else None))
+@bot.on(generate_node((Text,), lambda text: int(text) if text.isdigit() else None))
 async def integer_handler(source: Source, container: tuple[int]):
     (integer,) = container
     await source.send("{} + 3 = {}".format(integer, integer + 3))
@@ -60,7 +60,7 @@ async def integer_handler(source: Source, container: tuple[int]):
 # Rule node examples
 @bot.on()
 async def handler_ruleset_as_context(
-    ctx: RuleContext[rules.Markup("/name <name>"),],
+    ctx: RuleChain[rules.Markup("/name <name>"),],
     src: Source,
 ) -> None:
     name = ctx["name"]
@@ -68,7 +68,7 @@ async def handler_ruleset_as_context(
 
 
 class Context(
-    RuleContext[
+    RuleChain[
         rules.Markup("<a:int> / <b:int> = <c:float>"),
         rules.IsUser(),
     ]
@@ -87,6 +87,11 @@ async def handler_ruleset_dataclass_context(
         await src.send("Right! ^___^")
     else:
         await src.send("Wrong! >:(")
+
+
+@bot.on()
+async def polymorphic_handler(source: Source):
+    await source.send("New event from you, my Only Sugar Source")
 
 
 bot.run_forever()

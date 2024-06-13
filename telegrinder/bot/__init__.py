@@ -39,7 +39,7 @@ from .dispatch import (
 )
 from .polling import ABCPolling, Polling
 from .rules import ABCRule, CallbackQueryRule, MessageRule
-from .scenario import ABCScenario, Checkbox, SingleChoice
+from .scenario import ABCScenario, Checkbox, Choice
 
 __all__ = (
     "ABCDispatch",
@@ -79,7 +79,7 @@ __all__ = (
     "Polling",
     "RawEventView",
     "ShortState",
-    "SingleChoice",
+    "Choice",
     "Telegrinder",
     "UpdateCute",
     "ViewBox",

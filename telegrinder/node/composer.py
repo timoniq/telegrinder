@@ -1,7 +1,9 @@
+import inspect
 import typing
 
 from telegrinder.bot.cute_types import UpdateCute
-from telegrinder.node import Node
+from telegrinder.node import ComposeError, Node
+from telegrinder.tools.magic import magic_bundle
 
 
 class NodeSession:
@@ -42,15 +44,12 @@ class NodeCollection:
             await session.close(with_value)
 
 
-async def compose_node(
-    node: type[Node],
-    update: UpdateCute,
-    ready_context: dict[str, NodeSession] | None = None,
-) -> NodeSession:
-    _node = node.as_node()
+async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dict[str, NodeSession] | None = None) -> NodeSession:
+    node = _node.as_node()
+
     context = NodeCollection(ready_context.copy() if ready_context else {})
 
-    for name, subnode in _node.get_sub_nodes().items():
+    for name, subnode in node.get_sub_nodes().items():
         if subnode is UpdateCute:
             context.sessions[name] = NodeSession(update, {})
         else:
@@ -58,14 +57,47 @@ async def compose_node(
 
     generator: typing.AsyncGenerator | None
 
-    if _node.is_generator():
-        generator = typing.cast(typing.AsyncGenerator, _node.compose(**context.values()))
+    if node.is_generator():
+        generator = typing.cast(typing.AsyncGenerator, node.compose(**context.values()))
         value = await generator.asend(None)
     else:
         generator = None
-        value = await _node.compose(**context.values())  # type: ignore
-
+        value = await node.compose(**context.values())  # type: ignore
+    
     return NodeSession(value, context.sessions, generator)
 
 
-__all__ = ("NodeCollection", "NodeSession", "compose_node")
+class Composition:
+    nodes: dict[str, type[Node]]
+
+    def __init__(self, func: typing.Callable, is_blocking: bool) -> None:
+        self.func = func
+        self.nodes = {
+            name: parameter.annotation
+            for name, parameter in inspect.signature(func).parameters.items()
+            if parameter.annotation is not inspect._empty
+        }
+        self.is_blocking = is_blocking
+
+    def __repr__(self) -> str:
+        return "<{}: for function={!r} with nodes={}>".format(
+            ("blocking " if self.is_blocking else "") + self.__class__.__name__,
+            self.func.__name__,
+            self.nodes,
+        )
+
+    async def compose_nodes(self, update: UpdateCute) -> NodeCollection | None:
+        nodes: dict[str, NodeSession] = {}
+        for name, node_t in self.nodes.items():
+            try:
+                nodes[name] = await compose_node(node_t, update)
+            except ComposeError:
+                await NodeCollection(nodes).close_all()
+                return None
+        return NodeCollection(nodes)
+
+    async def __call__(self, **kwargs: typing.Any) -> typing.Any:
+        return await self.func(**magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))  # type: ignore
+
+
+__all__ = ("NodeCollection", "NodeSession", "compose_node", "Composition")

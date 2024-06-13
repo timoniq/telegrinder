@@ -4,48 +4,9 @@ import typing
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
-from telegrinder.node import (
-    ComposeError,
-    ContainerNode,
-    Node,
-    NodeCollection,
-    NodeSession,
-    compose_node,
-)
+from telegrinder.node import Composition, ContainerNode, Node
 from telegrinder.tools import magic_bundle
 from telegrinder.types import Update
-
-
-class Composition:
-    nodes: dict[str, type[Node]]
-
-    def __init__(self, func: typing.Callable, is_blocking: bool) -> None:
-        self.func = func
-        self.nodes = {
-            name: parameter.annotation
-            for name, parameter in inspect.signature(func).parameters.items()
-        }
-        self.is_blocking = is_blocking
-
-    def __repr__(self) -> str:
-        return "<{}: for function={!r} with nodes={}>".format(
-            ("blocking " if self.is_blocking else "") + self.__class__.__name__,
-            self.func.__name__,
-            self.nodes,
-        )
-
-    async def compose_nodes(self, update: UpdateCute) -> NodeCollection | None:
-        nodes: dict[str, NodeSession] = {}
-        for name, node_t in self.nodes.items():
-            try:
-                nodes[name] = await compose_node(node_t, update)
-            except ComposeError:
-                await NodeCollection(nodes).close_all()
-                return None
-        return NodeCollection(nodes)
-
-    async def __call__(self, **kwargs: typing.Any) -> typing.Any:
-        return await self.func(**magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))  # type: ignore
 
 
 class CompositionDispatch(ABCDispatch):

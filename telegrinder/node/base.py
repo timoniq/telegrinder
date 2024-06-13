@@ -15,7 +15,7 @@ class Node(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def compose(cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any) -> ComposeResult:
+    def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
     @classmethod
@@ -49,14 +49,14 @@ class DataNode(Node, abc.ABC):
     @typing.dataclass_transform()
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any) -> ComposeResult:
+    async def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
 
 class ScalarNodeProto(Node, abc.ABC):
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args: tuple[typing.Any, ...], **kwargs: typing.Any) -> ComposeResult:
+    async def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
 

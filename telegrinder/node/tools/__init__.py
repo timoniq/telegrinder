@@ -1,3 +1,3 @@
-from .generator import generate
+from .generator import generate_node
 
-__all__ = ("generate",)
+__all__ = ("generate_node",)

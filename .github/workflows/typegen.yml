@@ -1,4 +1,4 @@
-name: Generate Telegram Bot API types
+name: generate_node Telegram Bot API types
 
 on:
   workflow_dispatch: {}
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Generate API types
+    name: generate_node API types
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4

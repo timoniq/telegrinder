@@ -5,7 +5,7 @@ Scenarios are designed to be easy-to-use and as customizable as possible.
 
 One of them is checkbox scenario, which is used to create an inline checkbox with particular options.
 
-Callback data is generated and processed automatically. Checkbox performs event collection via `asyncio.Event`, so it is extremely easy to integrate such scenario in your funnel bot.
+Callback data is generate_noded and processed automatically. Checkbox performs event collection via `asyncio.Event`, so it is extremely easy to integrate such scenario in your funnel bot.
 
 There is an obvious disadvantage of such way of collecting events: states are supposed to be short.
 

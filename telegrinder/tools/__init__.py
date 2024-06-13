@@ -65,7 +65,7 @@ from .keyboard import (
 )
 from .limited_dict import LimitedDict
 from .loop_wrapper import ABCLoopWrapper, DelayedTask, Lifespan, LoopWrapper
-from .magic import magic_bundle, resolve_arg_names
+from .magic import impl, magic_bundle, resolve_arg_names
 from .parse_mode import ParseMode
 
 __all__ = (
@@ -129,6 +129,7 @@ __all__ = (
     "link",
     "magic_bundle",
     "mention",
+    "impl",
     "pre_code",
     "resolve_arg_names",
     "resolve_domain",

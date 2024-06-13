@@ -1,10 +1,10 @@
 import dataclasses
 import typing
 
+from fntypes import Option, Some
 from fntypes.option import Nothing
 
 import telegrinder.types
-from telegrinder.msgspec_utils import Option
 
 from .base import ComposeError, DataNode, ScalarNode
 from .message import MessageNode
@@ -27,8 +27,9 @@ class Attachment(DataNode):
     @classmethod
     async def compose(cls, message: MessageNode) -> "Attachment":
         for attachment_type in ("audio", "document", "photo", "poll", "video"):
-            if (attachment := getattr(message, attachment_type, None)) is not None:
-                return cls(attachment_type, **{attachment_type: attachment})
+            match getattr(message, attachment_type, Nothing()):
+                case Some(attachment):
+                    return cls(attachment_type, **{attachment_type: Some(attachment)})
         return cls.compose_error("No attachment found in message")
 
 

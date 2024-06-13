@@ -10,7 +10,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.abc import BaseStateView
 
 
-class SingleChoice(Checkbox):
+class Choice(Checkbox):
     async def handle(self, cb: CallbackQueryCute) -> bool:
         code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
         if code == "ready":
@@ -43,4 +43,4 @@ class SingleChoice(Checkbox):
         return tuple(choices.keys())[tuple(choices.values()).index(True)], m_id
 
 
-__all__ = ("SingleChoice",)
+__all__ = ("Choice",)

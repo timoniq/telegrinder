@@ -19,7 +19,7 @@ def error_on_none(value: T | None) -> T:
     return value
 
 
-def generate(
+def generate_node(
     subnodes: tuple[type[Node], ...],
     func: typing.Callable[..., typing.Any],
     casts: tuple[typing.Callable, ...] = (cast_false_to_none, error_on_none),
@@ -37,4 +37,4 @@ def generate(
     return type("_ContainerNode", (container,), {"compose": compose})
 
 
-__all__ = ("generate",)
+__all__ = ("generate_node",)
