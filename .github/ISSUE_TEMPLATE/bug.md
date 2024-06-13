@@ -1,6 +1,6 @@
 ---
 name: "\U0001F41B Bug report \U0001F41B"
-about: "Reporting a bug."
+about: "\U0001F41B Reporting a bug. \U0001F41B"
 title: ""
 labels: ["bug", "fix"]
 assignees: "luwqz1"
@@ -16,7 +16,7 @@ assignees: "luwqz1"
 `When I..., it...`
 
 ### 🪄 Code example 🪄
-<!--  Provide a minimal reproducible example -->
+<!--  Provide a minimal example -->
 ```python
 from telegrinder import API, Telegrinder, Token
 
