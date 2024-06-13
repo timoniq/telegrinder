@@ -53,7 +53,7 @@ sort-all = "1.2.0"
 black = "^24.4.2"
 pytest = "^8.0.0"
 pytest-asyncio = "^0.23.5"
-pytest-cov = "^4.0.0"
+pytest-cov = "^5.0.0"
 pytest-mock = "^3.10.0"
 
 [tool.poetry.dev-dependencies]
