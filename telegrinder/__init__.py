@@ -159,7 +159,6 @@ __all__ = (
     "ChatMemberView",
     "Checkbox",
     "CtxVar",
-    "CommandDispatch",
     "CompositionDispatch",
     "DelayedTask",
     "Dispatch",

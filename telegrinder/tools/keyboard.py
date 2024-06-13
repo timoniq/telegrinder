@@ -20,10 +20,10 @@ AnyMarkup: typing.TypeAlias = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
 @dataclasses.dataclass
 class KeyboardModel:
-    resize_keyboard: bool | Option[bool]
-    one_time_keyboard: bool | Option[bool]
-    selective: bool | Option[bool]
-    is_persistent: bool | Option[bool]
+    resize_keyboard: bool
+    one_time_keyboard: bool
+    selective: bool
+    is_persistent: bool
     keyboard: list[list[DictStrAny]]
 
 
