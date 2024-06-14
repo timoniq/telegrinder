@@ -6,6 +6,29 @@ from telegrinder.node import ComposeError, Node
 from telegrinder.tools.magic import magic_bundle
 
 
+async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dict[str, "NodeSession"] | None = None) -> "NodeSession":
+    node = _node.as_node()
+
+    context = NodeCollection(ready_context.copy() if ready_context else {})
+
+    for name, subnode in node.get_sub_nodes().items():
+        if subnode is UpdateCute:
+            context.sessions[name] = NodeSession(update, {})
+        else:
+            context.sessions[name] = await compose_node(subnode, update)
+
+    generator: typing.AsyncGenerator | None
+
+    if node.is_generator():
+        generator = typing.cast(typing.AsyncGenerator, node.compose(**context.values()))
+        value = await generator.asend(None)
+    else:
+        generator = None
+        value = await node.compose(**context.values())  # type: ignore
+    
+    return NodeSession(value, context.sessions, generator)
+
+
 class NodeSession:
     def __init__(
         self,
@@ -44,33 +67,10 @@ class NodeCollection:
             await session.close(with_value)
 
 
-async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dict[str, NodeSession] | None = None) -> NodeSession:
-    node = _node.as_node()
-
-    context = NodeCollection(ready_context.copy() if ready_context else {})
-
-    for name, subnode in node.get_sub_nodes().items():
-        if subnode is UpdateCute:
-            context.sessions[name] = NodeSession(update, {})
-        else:
-            context.sessions[name] = await compose_node(subnode, update)
-
-    generator: typing.AsyncGenerator | None
-
-    if node.is_generator():
-        generator = typing.cast(typing.AsyncGenerator, node.compose(**context.values()))
-        value = await generator.asend(None)
-    else:
-        generator = None
-        value = await node.compose(**context.values())  # type: ignore
-    
-    return NodeSession(value, context.sessions, generator)
-
-
 class Composition:
     nodes: dict[str, type[Node]]
 
-    def __init__(self, func: typing.Callable, is_blocking: bool) -> None:
+    def __init__(self, func: typing.Callable[..., typing.Any], is_blocking: bool) -> None:
         self.func = func
         self.nodes = {
             name: parameter.annotation
@@ -100,4 +100,4 @@ class Composition:
         return await self.func(**magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))  # type: ignore
 
 
-__all__ = ("NodeCollection", "NodeSession", "compose_node", "Composition")
+__all__ = ("NodeCollection", "NodeSession", "Composition", "compose_node")

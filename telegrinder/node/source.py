@@ -16,7 +16,7 @@ from .polymorphic import Polymorphic, impl
 class Source(Polymorphic, DataNode):
     api: API
     chat: Chat
-    thread_id: Option[int] = dataclasses.field(default_factory=Nothing)
+    thread_id: Option[int] = dataclasses.field(default_factory=lambda: Nothing())
 
     @impl
     async def compose_message(cls, message: MessageNode) -> typing.Self:
@@ -30,7 +30,7 @@ class Source(Polymorphic, DataNode):
     async def compose_callback_query(cls, callback_query: CallbackQueryNode) -> typing.Self:
         return cls(
             api=callback_query.ctx_api,
-            chat=callback_query.message.expect(ComposeError).only(Message).expect(ComposeError).chat,
+            chat=callback_query.chat.expect(ComposeError),
             thread_id=callback_query.message_thread_id,
         )
 

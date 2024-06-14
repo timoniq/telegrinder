@@ -7,10 +7,11 @@ from telegrinder.bot import rules
 from telegrinder.bot.dispatch import CompositionDispatch
 from telegrinder.modules import logger
 from telegrinder.node import Photo, RuleChain, ScalarNode, Source, Text, generate_node
+from telegrinder.types.enums import ChatType
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api, dispatch=CompositionDispatch())
-logger.set_level("DEBUG")
+logger.set_level("INFO")
 
 
 @bot.loop_wrapper.lifespan.on_startup
@@ -45,7 +46,7 @@ async def photo_handler(photo: Photo, source: Source, db: DB):
 # Container generate_noded node examples
 @bot.on(
     generate_node((Text,), lambda text: text == "hello"),
-    generate_node((Source,), lambda src: src.chat.username.unwrap_or_none() == "weirdlashes"),
+    generate_node((Source,), lambda src: src.chat.type == ChatType.PRIVATE),
 )
 async def hi_handler(source: Source):
     await source.send("Hi !!")

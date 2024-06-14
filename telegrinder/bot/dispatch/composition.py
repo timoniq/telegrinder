@@ -36,7 +36,7 @@ class CompositionDispatch(ABCDispatch):
         self.compositions.extend(external.compositions)
 
     def __call__(self, *container_nodes: type[Node], is_blocking: bool = True):
-        def wrapper(func: typing.Callable):
+        def wrapper(func: typing.Callable[..., typing.Any]):
             composition = Composition(func, is_blocking)
             if container_nodes:
                 composition.nodes["container"] = ContainerNode.link_nodes(list(container_nodes))

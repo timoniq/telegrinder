@@ -9,14 +9,9 @@ if typing.TYPE_CHECKING:
     T = typing.TypeVar("T", bound=ABCRule)
 
 FuncType: typing.TypeAlias = types.FunctionType | typing.Callable[..., typing.Any]
+
 TRANSLATIONS_KEY: typing.Final[str] = "_translations"
-
-Cls = typing.TypeVar("Cls")
-P = typing.ParamSpec("P")
-R = typing.TypeVar("R", covariant=True)
-
-
-IMPL_MARK = "_is_impl"
+IMPL_MARK: typing.Final[str] = "_is_impl"
 
 def resolve_arg_names(func: FuncType, start_idx: int = 1) -> tuple[str, ...]:
     return func.__code__.co_varnames[start_idx : func.__code__.co_argcount]
@@ -48,11 +43,8 @@ def magic_bundle(
     return args
 
 
-def get_cached_translation(rule: "T", locale: str) -> typing.Optional["T"]:
-    translations = getattr(rule, TRANSLATIONS_KEY, {})
-    if not translations or locale not in translations:
-        return None
-    return translations[locale]
+def get_cached_translation(rule: "T", locale: str) -> "T | None":
+    return getattr(rule, TRANSLATIONS_KEY, {}).get(locale)
 
 
 def cache_translation(base_rule: "T", locale: str, translated_rule: "T") -> None:
@@ -60,18 +52,17 @@ def cache_translation(base_rule: "T", locale: str, translated_rule: "T") -> None
     setattr(base_rule, TRANSLATIONS_KEY, {locale: translated_rule, **translations})
 
 
-def get_impls(cls: type) -> list[typing.Callable]:
+def get_impls(cls: type[typing.Any]) -> list[typing.Callable[..., typing.Any]]:
     functions = [func.__func__ for func in cls.__dict__.values() if hasattr(func, "__func__")]
     return [impl for impl in functions if getattr(impl, IMPL_MARK, False) is True]
 
 
-if typing.TYPE_CHECKING:
-    impl = classmethod  # type: ignore
-else:
-    def impl(method: typing.Callable[typing.Concatenate[type[Cls], P], R]) -> typing.Callable[P, R]:
-        bound_method = classmethod(method)
-        setattr(method, IMPL_MARK, True)
-        return bound_method  # type: ignore
+@typing.cast(typing.Callable[..., type[classmethod]], lambda f: f)
+def impl(method):  # noqa
+    bound_method = classmethod(method)
+    setattr(method, IMPL_MARK, True)
+    return bound_method
+
 
 __all__ = (
     "TRANSLATIONS_KEY",
@@ -80,6 +71,7 @@ __all__ = (
     "get_default_args",
     "get_default_args",
     "magic_bundle",
+    "impl",
     "resolve_arg_names",
     "to_str",
 )
