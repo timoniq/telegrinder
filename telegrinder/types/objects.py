@@ -1778,7 +1778,7 @@ class BackgroundFillFreeformGradient(BackgroundFill):
     """Type of the background fill, always `freeform_gradient`."""
 
     colors: list[int]
-    """A list of the 3 or 4 base colors that are used to generate_node the freeform gradient 
+    """A list of the 3 or 4 base colors that are used to generate the freeform gradient 
     in the RGB24 format."""
 
 
@@ -5340,7 +5340,7 @@ class Invoice(Model):
     """Product description."""
 
     start_parameter: str
-    """Unique bot deep-linking parameter that can be used to generate_node this invoice."""
+    """Unique bot deep-linking parameter that can be used to generate this invoice."""
 
     currency: Currency
     """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 

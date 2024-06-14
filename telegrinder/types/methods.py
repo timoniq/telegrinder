@@ -1853,8 +1853,8 @@ class APIMethods:
     ) -> Result[str, APIError]:
         """Method `exportChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#exportchatinvitelink)
 
-        Use this method to generate_node a new primary invite link for a chat; any previously 
-        generate_noded primary link is revoked. The bot must be an administrator in the 
+        Use this method to generate a new primary invite link for a chat; any previously 
+        generated primary link is revoked. The bot must be an administrator in the 
         chat for this to work and must have the appropriate administrator rights. 
         Returns the new invite link as String on success.
 
@@ -1952,7 +1952,7 @@ class APIMethods:
         """Method `revokeChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#revokechatinvitelink)
 
         Use this method to revoke an invite link created by the bot. If the primary 
-        link is revoked, a new link is automatically generate_noded. The bot must be an 
+        link is revoked, a new link is automatically generated. The bot must be an 
         administrator in the chat for this to work and must have the appropriate 
         administrator rights. Returns the revoked invite link as ChatInviteLink 
         object.
