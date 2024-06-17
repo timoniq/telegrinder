@@ -116,11 +116,11 @@ class WaiterMachine:
         update: Update,
         behaviour: Behaviour[EventModel] | None = None,
         **context: typing.Any,
-    ) -> None:
+    ) -> bool:
         # TODO: support view as a behaviour
 
         if behaviour is None:
-            return
+            return False
 
         ctx = Context(**context)
         if isinstance(event, asyncio.Event):
@@ -132,6 +132,6 @@ class WaiterMachine:
 
         if await behaviour.check(event.api, update, ctx):
             await behaviour.run(event, ctx)
-        
+            return True
 
 __all__ = ("WaiterMachine",)
