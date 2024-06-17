@@ -75,15 +75,12 @@ class WaiterMachine:
 
         api: ABCAPI
         key: Identificator
-<<<<<<< HEAD
         api, key = (
             linked
             if isinstance(linked, tuple)
             else (linked.ctx_api, state_view.get_state_key(linked))
         )  # type: ignore
-=======
         api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
->>>>>>> 9ae36b1 (exit_behaviour for waiter machine)
         if not key:
             raise RuntimeError("Unable to get state key.")
 
