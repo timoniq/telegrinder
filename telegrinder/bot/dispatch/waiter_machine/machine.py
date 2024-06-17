@@ -67,6 +67,7 @@ class WaiterMachine:
         *rules: ABCRule[EventModel],
         default: Behaviour[EventModel] | None = None,
         on_drop: Behaviour[EventModel] | None = None,
+        exit: Behaviour[EventModel] | None = None,
         expiration: datetime.timedelta | float | None = None,
     ) -> ShortStateContext[EventModel]:
         if isinstance(expiration, int | float):
@@ -79,6 +80,7 @@ class WaiterMachine:
             if isinstance(linked, tuple)
             else (linked.ctx_api, state_view.get_state_key(linked))
         )  # type: ignore
+        api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
         if not key:
             raise RuntimeError("Unable to get state key.")
 
@@ -92,6 +94,7 @@ class WaiterMachine:
             expiration=expiration,
             default_behaviour=default,
             on_drop_behaviour=on_drop,
+            exit_behaviour=exit,
         )
         
         if view_name not in self.storage:
@@ -113,11 +116,11 @@ class WaiterMachine:
         update: Update,
         behaviour: Behaviour[EventModel] | None = None,
         **context: typing.Any,
-    ) -> None:
+    ) -> bool:
         # TODO: support view as a behaviour
 
         if behaviour is None:
-            return
+            return False
 
         ctx = Context(**context)
         if isinstance(event, asyncio.Event):
@@ -129,6 +132,6 @@ class WaiterMachine:
 
         if await behaviour.check(event.api, update, ctx):
             await behaviour.run(event, ctx)
-        
+            return True
 
 __all__ = ("WaiterMachine",)

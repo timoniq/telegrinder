@@ -15,6 +15,7 @@ kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
 logger.set_level("INFO")
 
 
+
 @bot.on.message(Text("/start"))
 async def start(message: Message):
     me = (await api.get_me()).unwrap().first_name
@@ -25,6 +26,7 @@ async def start(message: Message):
         bot.dispatch.message,
         message,
         Text(["fine", "bad"], ignore_case=True),
+        exit=MessageReplyHandler("Oh, ok, exiting state...", Text("/exit")),
         default=MessageReplyHandler("Fine or bad"),
     )
 
