@@ -1,4 +1,4 @@
-from typegen.generator import generate_node
+from typegen.generator import generate
 
 if __name__ == "__main__":
-    generate_node()
+    generate()

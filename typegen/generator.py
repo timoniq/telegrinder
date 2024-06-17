@@ -337,7 +337,7 @@ class ObjectGenerator(ABCGenerator):
             logger.error("Objects is empty.")
             exit(-1)
 
-        logger.debug("generate objects...")
+        logger.debug("Generate objects...")
         lines = [
             "import typing\n\n",
             "from fntypes.co import Some, Variative\n",
@@ -512,7 +512,7 @@ class MethodGenerator(ABCGenerator):
             logger.error("Methods is empty.")
             exit(-1)
 
-        logger.debug("generate methods...")
+        logger.debug("Generate methods...")
         docstring = (
             ""
             if not self.api_version or not self.release_date
