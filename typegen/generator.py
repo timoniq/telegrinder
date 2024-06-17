@@ -200,7 +200,7 @@ class ConfigMethodLiteralTypes(typing.TypedDict):
 
 class ABCGenerator(ABC):
     @abstractmethod
-    def generate_node(self, path: str) -> None:
+    def generate(self, path: str) -> None:
         pass
 
 
@@ -332,12 +332,12 @@ class ObjectGenerator(ABCGenerator):
 
         return code
 
-    def generate_node(self, path: str) -> None:
+    def generate(self, path: str) -> None:
         if not self.objects:
             logger.error("Objects is empty.")
             exit(-1)
 
-        logger.debug("generate_node objects...")
+        logger.debug("generate objects...")
         lines = [
             "import typing\n\n",
             "from fntypes.co import Some, Variative\n",
@@ -507,12 +507,12 @@ class MethodGenerator(ABCGenerator):
         )
         return code
 
-    def generate_node(self, path: str) -> None:
+    def generate(self, path: str) -> None:
         if not self.methods:
             logger.error("Methods is empty.")
             exit(-1)
 
-        logger.debug("generate_node methods...")
+        logger.debug("generate methods...")
         docstring = (
             ""
             if not self.api_version or not self.release_date
@@ -551,7 +551,7 @@ class MethodGenerator(ABCGenerator):
         )
 
 
-def generate_node(
+def generate(
     *,
     path_dir: str | None = None,
     path_config_literals: str | None = None,
@@ -583,9 +583,9 @@ def generate_node(
             release_date=schema_json["release_date"],
         )
 
-    object_generator.generate_node(path_dir)
-    method_generator.generate_node(path_dir)
-    logger.info("Schema has been successfully generate_noded.")
+    object_generator.generate(path_dir)
+    method_generator.generate(path_dir)
+    logger.info("Schema has been successfully generated.")
 
     logger.debug("Run ruff formatter...")
     if os.system(f"ruff format {path_dir} --config pyproject.toml") != 0:
@@ -616,7 +616,7 @@ __all__ = (
     "SchemaJson",
     "convert_schema_to_model",
     "find_nicifications",
-    "generate_node",
+    "generate",
     "sort_all",
     "get_schema_json",
     "read_config_literals",
