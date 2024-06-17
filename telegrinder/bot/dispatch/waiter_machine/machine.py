@@ -67,6 +67,7 @@ class WaiterMachine:
         *rules: ABCRule[EventModel],
         default: Behaviour[EventModel] | None = None,
         on_drop: Behaviour[EventModel] | None = None,
+        exit: Behaviour[EventModel] | None = None,
         expiration: datetime.timedelta | float | None = None,
     ) -> ShortStateContext[EventModel]:
         if isinstance(expiration, int | float):
@@ -74,11 +75,15 @@ class WaiterMachine:
 
         api: ABCAPI
         key: Identificator
+<<<<<<< HEAD
         api, key = (
             linked
             if isinstance(linked, tuple)
             else (linked.ctx_api, state_view.get_state_key(linked))
         )  # type: ignore
+=======
+        api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
+>>>>>>> 9ae36b1 (exit_behaviour for waiter machine)
         if not key:
             raise RuntimeError("Unable to get state key.")
 
@@ -92,6 +97,7 @@ class WaiterMachine:
             expiration=expiration,
             default_behaviour=default,
             on_drop_behaviour=on_drop,
+            exit_behaviour=exit,
         )
         
         if view_name not in self.storage:

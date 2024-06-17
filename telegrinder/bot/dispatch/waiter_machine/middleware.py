@@ -51,6 +51,18 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
             await self.machine.drop(self.view, short_state.key, ctx.raw_update, **preset_context.copy())
             return True
 
+        # before running the handler we check if the user wants to exit waiting
+        if short_state.exit_behaviour is not None:
+            await self.machine.call_behaviour(
+                self.view,
+                event,
+                ctx.raw_update,
+                behaviour=short_state.exit_behaviour,
+                **preset_context,
+            )
+            await self.machine.drop(self.view, short_state.key, ctx.raw_update, **preset_context.copy())
+            return True
+
         handler = FuncHandler(
             self.pass_runtime,
             list(short_state.rules),

@@ -36,6 +36,7 @@ class ShortState(typing.Generic[EventModel]):
     )
     default_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None)
     on_drop_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None)
+    exit_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None)
     expiration_date: datetime.datetime | None = dataclasses.field(init=False)
     context: ShortStateContext[EventModel] | None = dataclasses.field(default=None, init=False)
 
