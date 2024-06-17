@@ -556,24 +556,24 @@ def generate_node(
     path_dir: str | None = None,
     path_config_literals: str | None = None,
     path_nicifications: str | None = None,
-    types_generator: ABCGenerator | None = None,
-    methods_generator: ABCGenerator | None = None,
+    object_generator: ABCGenerator | None = None,
+    method_generator: ABCGenerator | None = None,
 ) -> None:
     path_dir = path_dir or "telegrinder/types"
     if not os.path.exists(path_dir):
         logger.warning(f"Path dir {path_dir!r} not found. Making dir...")
         os.makedirs(path_dir)
 
-    if types_generator is None or methods_generator is None:
+    if object_generator is None or method_generator is None:
         schema_json = get_schema_json()
         schema_model = convert_schema_to_model(schema_json, TelegramBotAPISchema)
         cfg_literal_types = read_config_literals(path_config_literals)
-        object_generator = types_generator or ObjectGenerator(
+        object_generator = object_generator or ObjectGenerator(
             objects=schema_model.objects,
             nicification_path=MAIN_DIR + (path_nicifications or "/nicifications.py"),
             config_literal_types=cfg_literal_types.get("objects"),
         )
-        method_generator = methods_generator or MethodGenerator(
+        method_generator = method_generator or MethodGenerator(
             methods=schema_model.methods,
             parent_types=(
                 object_generator.parent_types if isinstance(object_generator, ObjectGenerator) else {}
@@ -593,11 +593,11 @@ def generate_node(
     else:
         logger.info("Ruff formatter successfully formatted files.")
 
-    logger.debug("Run isort...")
-    if os.system(f"isort {path_dir}") != 0:
-        logger.error("Isort failed.")
+    logger.debug("Run ruff-isort...")
+    if os.system(f"ruff check {path_dir} --select I --select F401 --fix") != 0:
+        logger.error("ruff-isort failed.")
     else:
-        logger.info("Isort successfully sorted imports.")
+        logger.info("Ruff-isort successfully sorted imports.")
 
     logger.debug("Run sort-all...")
     sort_all(pathlib.Path(path_dir))

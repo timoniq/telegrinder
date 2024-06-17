@@ -54,7 +54,6 @@ fntypes = "^0.1.2.post1"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.4"
 basedpyright = "^1.12.1"
-isort = "5.13.2"
 sort-all = "1.2.0"
 pytest = "^8.0.0"
 pytest-asyncio = "^0.23.5"
