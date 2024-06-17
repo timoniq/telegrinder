@@ -52,14 +52,13 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
             return True
 
         # before running the handler we check if the user wants to exit waiting
-        if short_state.exit_behaviour is not None:
-            if await self.machine.call_behaviour(
-                self.view,
-                event,
-                ctx.raw_update,
-                behaviour=short_state.exit_behaviour,
-                **preset_context,
-            ):
+        if short_state.exit_behaviour is not None and await self.machine.call_behaviour(
+            self.view,
+            event,
+            ctx.raw_update,
+            behaviour=short_state.exit_behaviour,
+            **preset_context,
+        ):
                 await self.machine.drop(self.view, short_state.key, ctx.raw_update, **preset_context.copy())
                 return True
 
