@@ -36,6 +36,7 @@ class WaiterMachine:
         self,
         state_view: "ABCStateView[EventModel]",
         id: Identificator,
+        event: EventModel,
         update: Update,
         **context: typing.Any,
     ) -> None:
@@ -45,16 +46,12 @@ class WaiterMachine:
 
         short_state = self.storage[view_name].pop(id, None)
         if short_state is None:
-            raise LookupError(
-                "Waiter with identificator {} is not found for view {!r}".format(
-                    id, view_name
-                )
-            )
+            raise LookupError("Waiter with identificator {} is not found for view {!r}".format(id, view_name))
 
         short_state.cancel()
         await self.call_behaviour(
             state_view,
-            short_state.event,
+            event,
             update,
             behaviour=short_state.on_drop_behaviour,
             **context,
@@ -75,11 +72,7 @@ class WaiterMachine:
 
         api: ABCAPI
         key: Identificator
-        api, key = (
-            linked
-            if isinstance(linked, tuple)
-            else (linked.ctx_api, state_view.get_state_key(linked))
-        )  # type: ignore
+        api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
         api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
         if not key:
             raise RuntimeError("Unable to get state key.")
@@ -96,14 +89,14 @@ class WaiterMachine:
             on_drop_behaviour=on_drop,
             exit_behaviour=exit,
         )
-        
+
         if view_name not in self.storage:
             state_view.middlewares.insert(0, WaiterMiddleware(self, state_view))
             self.storage[view_name] = LimitedDict(maxlimit=self.max_storage_size)
 
         if (deleted_short_state := self.storage[view_name].set(key, short_state)) is not None:
             deleted_short_state.cancel()
-        
+
         await event.wait()
         self.storage[view_name].pop(key, None)
         assert short_state.context is not None
@@ -112,7 +105,7 @@ class WaiterMachine:
     async def call_behaviour(
         self,
         view: "ABCStateView[EventModel]",
-        event: asyncio.Event | EventModel,
+        event: EventModel,
         update: Update,
         behaviour: Behaviour[EventModel] | None = None,
         **context: typing.Any,
@@ -123,15 +116,11 @@ class WaiterMachine:
             return False
 
         ctx = Context(**context)
-        if isinstance(event, asyncio.Event):
-            event, preset_ctx = typing.cast(
-                tuple[EventModel, Context],
-                getattr(event, "context"),
-            )
-            ctx.update(preset_ctx)
-
         if await behaviour.check(event.api, update, ctx):
             await behaviour.run(event, ctx)
             return True
+
+        return False
+
 
 __all__ = ("WaiterMachine",)

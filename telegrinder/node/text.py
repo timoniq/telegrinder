@@ -1,5 +1,3 @@
-import typing
-
 from .base import ComposeError, ScalarNode
 from .message import MessageNode
 

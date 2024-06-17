@@ -1,5 +1,3 @@
-import typing
-
 from telegrinder.bot.cute_types import CallbackQueryCute
 
 from .base import ComposeError, ScalarNode

@@ -8,10 +8,12 @@ if typing.TYPE_CHECKING:
 
     T = typing.TypeVar("T", bound=ABCRule)
 
+Impl: typing.TypeAlias = type[classmethod]
 FuncType: typing.TypeAlias = types.FunctionType | typing.Callable[..., typing.Any]
 
 TRANSLATIONS_KEY: typing.Final[str] = "_translations"
 IMPL_MARK: typing.Final[str] = "_is_impl"
+
 
 def resolve_arg_names(func: FuncType, start_idx: int = 1) -> tuple[str, ...]:
     return func.__code__.co_varnames[start_idx : func.__code__.co_argcount]
@@ -53,12 +55,12 @@ def cache_translation(base_rule: "T", locale: str, translated_rule: "T") -> None
 
 
 def get_impls(cls: type[typing.Any]) -> list[typing.Callable[..., typing.Any]]:
-    functions = [func.__func__ for func in cls.__dict__.values() if hasattr(func, "__func__")]
+    functions = [func.__func__ for func in vars(cls).values() if isinstance(func, classmethod)]
     return [impl for impl in functions if getattr(impl, IMPL_MARK, False) is True]
 
 
-@typing.cast(typing.Callable[..., type[classmethod]], lambda f: f)
-def impl(method):  # noqa
+@typing.cast(typing.Callable[..., Impl], lambda f: f)
+def impl(method: typing.Callable[..., typing.Any]):
     bound_method = classmethod(method)
     setattr(method, IMPL_MARK, True)
     return bound_method

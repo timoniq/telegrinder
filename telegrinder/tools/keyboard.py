@@ -5,7 +5,6 @@ from types import NoneType
 
 from fntypes.option import Nothing, Some
 
-from telegrinder.msgspec_utils import Option
 from telegrinder.types.objects import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,

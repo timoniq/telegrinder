@@ -20,6 +20,7 @@ try:
     from telegrinder.modules import logger
 except ImportError:
     import logging
+
     logger = logging.getLogger("typegen")
 
 ModelT = typing.TypeVar("ModelT", bound=msgspec.structs.Struct)
@@ -35,8 +36,7 @@ TYPES: typing.Final[dict[str, str]] = {
     "Unixtime": "datetime",
 }
 INPUTFILE_DOCSTRING: typing.Final[str] = (
-    "to upload a new one using multipart/form-data"
-    " under <file_attach_name> name."
+    "to upload a new one using multipart/form-data" " under <file_attach_name> name."
 )
 MAIN_DIR: typing.Final[str] = "typegen"
 
@@ -80,11 +80,7 @@ def chunks_str(s: str, sep: str = "\n"):
 
 
 def sort_all(path: pathlib.Path) -> None:
-    files = tuple(
-        str(p)
-        for p in path.iterdir()
-        if p.is_file() and p.suffix == ".py"
-    )
+    files = tuple(str(p) for p in path.iterdir() if p.is_file() and p.suffix == ".py")
     os.system(f"sort-all {' '.join(files)}")
 
 
@@ -223,13 +219,9 @@ class ObjectGenerator(ABCGenerator):
         }
         self.nicification_path = nicification_path
         self.config_literal_types = config_literal_types or []
-        self.parent_types: dict[str, list[str]] = {
-            obj.name: obj.subtypes for obj in objects if obj.subtypes
-        }
+        self.parent_types: dict[str, list[str]] = {obj.name: obj.subtypes for obj in objects if obj.subtypes}
 
-    def get_field_literal_types(
-        self, object_name: str, field_name: str
-    ) -> FieldLiteralTypes | None:
+    def get_field_literal_types(self, object_name: str, field_name: str) -> FieldLiteralTypes | None:
         for cfg in self.config_literal_types:
             if cfg["name"] == object_name:
                 for ref_field in cfg["fields"]:
@@ -237,16 +229,13 @@ class ObjectGenerator(ABCGenerator):
                         return ref_field
         return None
 
-    def make_object_field(
-        self, field: ObjectField, literal_types: FieldLiteralTypes | None = None
-    ) -> str:
+    def make_object_field(self, field: ObjectField, literal_types: FieldLiteralTypes | None = None) -> str:
         code = f"{self.rename_field_names.get(field.name, field.name)}: "
         field_type = "typing.Any"
 
         if literal_types is not None and any(x in literal_types for x in ("literals", "enum")):
             literal_type_hint = literal_types.get("enum") or "typing.Literal[%s]" % ", ".join(
-                f'"{x}"' if isinstance(x, str) else str(x)
-                for x in literal_types.get("literals", [])
+                f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.get("literals", [])
             )
             if len(literal_types.get("literals", [])) > 3:
                 literal_type_hint = literal_type_hint.replace("]", ",]")
@@ -305,9 +294,7 @@ class ObjectGenerator(ABCGenerator):
         description = (
             "Base object"
             if object_schema.subtypes
-            else (
-                "Object" if base is None or base == object_name else base.split(".")[-1] + " object"
-            )
+            else ("Object" if base is None or base == object_name else base.split(".")[-1] + " object")
         ) + f" `{object_name}`, see the [documentation]({object_schema.href})."
         code += '"""%s\n\n%s\n"""' % (
             description,
@@ -321,9 +308,7 @@ class ObjectGenerator(ABCGenerator):
         code += f"\n"
         if not object_schema.fields and not nicifications:
             if (not object_schema.subtypes and base is None) or not object_schema.subtypes:
-                logger.warning(
-                    f"Object {object_name!r} has not fields, subtypes and nicifications."
-                )
+                logger.warning(f"Object {object_name!r} has not fields, subtypes and nicification.")
             code += f"{TAB}pass" if not object_schema.description else ""
             return code
 
@@ -339,9 +324,7 @@ class ObjectGenerator(ABCGenerator):
         if nicifications:
             for n in nicifications:
                 if object_schema.fields:
-                    for f, t, d in re.findall(
-                        r'(\b\w+\b):\s*(.+)\s*"""(.*?)"""', n, flags=re.DOTALL
-                    ):
+                    for f, t, d in re.findall(r'(\b\w+\b):\s*(.+)\s*"""(.*?)"""', n, flags=re.DOTALL):
                         new_code = f'\n    {f}: {t.strip()}\n    """{d}"""'
                         code = re.sub(r"\n    " + f + r": .+((?:.|\n {4}|\n$)+)", new_code, code)
                         n = n.replace(new_code.strip(), "")
@@ -419,9 +402,7 @@ class MethodGenerator(ABCGenerator):
             return convert_to_python_type(types[0], parent_types, as_forward_ref=False)
         if len([x for x in types if x.startswith("Array of")]) > 1:
             array_of_types = [
-                types.remove(v) or v.removeprefix("Array of")
-                for v in types[:]
-                if v.startswith("Array of")
+                types.remove(v) or v.removeprefix("Array of") for v in types[:] if v.startswith("Array of")
             ]
             types.append("Array of " + ", ".join(array_of_types))
         sep = ", " if is_return_type else " | "
@@ -474,9 +455,7 @@ class MethodGenerator(ABCGenerator):
             + f"{self.make_type_hint(method_schema.returns or [], self.parent_types, is_return_type=True)})"
         )
 
-    def make_method_params(
-        self, method_name: str, params: list[MethodParameter] | None = None
-    ) -> list[str]:
+    def make_method_params(self, method_name: str, params: list[MethodParameter] | None = None) -> list[str]:
         result = []
         if not params:
             return result
@@ -493,8 +472,7 @@ class MethodGenerator(ABCGenerator):
                     if "enum" in literal_types
                     else "typing.Literal[%s]"
                     % ", ".join(
-                        f'"{x}"' if isinstance(x, str) else str(x)
-                        for x in literal_types.get("literals", [])
+                        f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.get("literals", [])
                     )
                 )
                 p.types = [tp]
@@ -598,9 +576,7 @@ def generate_node(
         method_generator = methods_generator or MethodGenerator(
             methods=schema_model.methods,
             parent_types=(
-                object_generator.parent_types
-                if isinstance(object_generator, ObjectGenerator)
-                else {}
+                object_generator.parent_types if isinstance(object_generator, ObjectGenerator) else {}
             ),
             config_literal_types=cfg_literal_types.get("methods"),
             api_version=schema_json["version"],
@@ -611,20 +587,21 @@ def generate_node(
     method_generator.generate_node(path_dir)
     logger.info("Schema has been successfully generate_noded.")
 
-    logger.debug("Run black formatter...")
-    if os.system(f"black {path_dir} --config pyproject.toml") != 0:
-        logger.error("Black formatter failed.")
+    logger.debug("Run ruff formatter...")
+    if os.system(f"ruff format {path_dir} --config pyproject.toml") != 0:
+        logger.error("Ruff formatter failed.")
     else:
-        logger.info("Black formatter successfully formatted files.")
+        logger.info("Ruff formatter successfully formatted files.")
 
     logger.debug("Run isort...")
     if os.system(f"isort {path_dir}") != 0:
         logger.error("Isort failed.")
     else:
         logger.info("Isort successfully sorted imports.")
-    
+
     logger.debug("Run sort-all...")
     sort_all(pathlib.Path(path_dir))
+    logger.info("Sort-all successfully sorted __all__ in files.")
 
 
 __all__ = (

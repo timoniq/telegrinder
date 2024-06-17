@@ -15,7 +15,6 @@ if typing.TYPE_CHECKING:
 
 T = typing.TypeVar("T")
 
-
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "omit_defaults": True,
     "dict": True,
@@ -69,9 +68,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         if "model_as_dict" not in self.__dict__:
             self.__dict__["model_as_dict"] = msgspec.structs.asdict(self)
         return {
-            key: value
-            for key, value in self.__dict__["model_as_dict"].items()
-            if key not in exclude_fields
+            key: value for key, value in self.__dict__["model_as_dict"].items() if key not in exclude_fields
         }
 
 
@@ -129,9 +126,7 @@ class DataConverter:
         serialize: bool = True,
     ) -> dict[str, typing.Any]:
         return {
-            k: self(v, serialize=serialize)
-            for k, v in data.items()
-            if type(v) not in (NoneType, Nothing)
+            k: self(v, serialize=serialize) for k, v in data.items() if type(v) not in (NoneType, Nothing)
         }
 
     def convert_lst(

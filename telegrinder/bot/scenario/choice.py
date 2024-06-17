@@ -1,7 +1,6 @@
 import typing
 
 from telegrinder.bot.cute_types import CallbackQueryCute
-from telegrinder.bot.dispatch.waiter_machine import WaiterMachine
 
 from .checkbox import Checkbox
 

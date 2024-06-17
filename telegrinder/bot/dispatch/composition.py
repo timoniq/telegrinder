@@ -1,11 +1,9 @@
-import inspect
 import typing
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.node import Composition, ContainerNode, Node
-from telegrinder.tools import magic_bundle
 from telegrinder.types import Update
 
 

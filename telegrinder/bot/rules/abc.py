@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from telegrinder.bot.cute_types import BaseCute, MessageCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.bot.rules.adapter import ABCAdapter, EventAdapter, RawUpdateAdapter
+from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
 from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
