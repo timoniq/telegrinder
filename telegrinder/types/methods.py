@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API 7.4 methods, released `May 28, 2024`."""
+    """Telegram Bot API 7.5 methods, released `June 18, 2024`."""
 
     def __init__(self, api: "ABCAPI") -> None:
         self.api = api
@@ -3115,6 +3115,7 @@ class APIMethods:
     async def edit_message_text(
         self,
         text: str,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3128,7 +3129,12 @@ class APIMethods:
 
         Use this method to edit text and game messages. On success, if the edited 
         message is not an inline message, the edited Message is returned, otherwise 
-        True is returned.
+        True is returned. Note that business messages that were not sent by the bot 
+        and do not contain an inline keyboard can only be edited within 48 hours from 
+        the time they were sent.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3160,6 +3166,7 @@ class APIMethods:
 
     async def edit_message_caption(
         self,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3174,7 +3181,12 @@ class APIMethods:
 
         Use this method to edit captions of messages. On success, if the edited message 
         is not an inline message, the edited Message is returned, otherwise True 
-        is returned.
+        is returned. Note that business messages that were not sent by the bot and 
+        do not contain an inline keyboard can only be edited within 48 hours from 
+        the time they were sent.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3208,6 +3220,7 @@ class APIMethods:
     async def edit_message_media(
         self,
         media: InputMedia,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3222,7 +3235,12 @@ class APIMethods:
         a video otherwise. When an inline message is edited, a new file can't be uploaded; 
         use a previously uploaded file via its file_id or specify a URL. On success, 
         if the edited message is not an inline message, the edited Message is returned, 
-        otherwise True is returned.
+        otherwise True is returned. Note that business messages that were not sent 
+        by the bot and do not contain an inline keyboard can only be edited within 
+        48 hours from the time they were sent.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3248,6 +3266,7 @@ class APIMethods:
         self,
         latitude: float,
         longitude: float,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3264,6 +3283,9 @@ class APIMethods:
         until its live_period expires or editing is explicitly disabled by a call 
         to stopMessageLiveLocation. On success, if the edited message is not an 
         inline message, the edited Message is returned, otherwise True is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3304,6 +3326,7 @@ class APIMethods:
 
     async def stop_message_live_location(
         self,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3315,6 +3338,9 @@ class APIMethods:
         Use this method to stop updating a live location message before live_period 
         expires. On success, if the message is not an inline message, the edited 
         Message is returned, otherwise True is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3336,6 +3362,7 @@ class APIMethods:
 
     async def edit_message_reply_markup(
         self,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3346,7 +3373,12 @@ class APIMethods:
 
         Use this method to edit only the reply markup of messages. On success, if 
         the edited message is not an inline message, the edited Message is returned, 
-        otherwise True is returned.
+        otherwise True is returned. Note that business messages that were not sent 
+        by the bot and do not contain an inline keyboard can only be edited within 
+        48 hours from the time they were sent.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3370,6 +3402,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         message_id: int,
+        business_connection_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Poll, APIError]:
@@ -3377,6 +3410,9 @@ class APIMethods:
 
         Use this method to stop a poll which was sent by the bot. On success, the stopped 
         Poll is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -4252,6 +4288,29 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(method_response, bool)
+
+    async def get_star_transactions(
+        self,
+        offset: int | None = None,
+        limit: int | None = None,
+        **other: typing.Any,
+    ) -> Result[StarTransactions, APIError]:
+        """Method `getStarTransactions`, see the [documentation](https://core.telegram.org/bots/api#getstartransactions)
+
+        Returns the bot's Telegram Star transactions in chronological order. 
+        On success, returns a StarTransactions object.
+
+        :param offset: Number of transactions to skip in the response.
+
+        :param limit: The maximum number of transactions to be retrieved. Values between 1-100 \
+        are accepted. Defaults to 100.
+        """
+
+        method_response = await self.api.request_raw(
+            "getStarTransactions",
+            get_params(locals()),
+        )
+        return full_result(method_response, StarTransactions)
 
     async def refund_star_payment(
         self,
