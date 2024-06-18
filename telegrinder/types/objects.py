@@ -7,6 +7,26 @@ from telegrinder.msgspec_utils import Nothing, Option, datetime
 from telegrinder.types.enums import *  # noqa: F403
 
 
+class TransactionPartner(Model):
+    """Base object `TransactionPartner`, see the [documentation](https://core.telegram.org/bots/api#transactionpartner).
+
+    This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
+    - TransactionPartnerFragment
+    - TransactionPartnerUser
+    - TransactionPartnerOther
+    """
+
+
+class RevenueWithdrawalState(Model):
+    """Base object `RevenueWithdrawalState`, see the [documentation](https://core.telegram.org/bots/api#revenuewithdrawalstate).
+
+    This object describes the state of a revenue withdrawal operation. Currently, it can be one of
+    - RevenueWithdrawalStatePending
+    - RevenueWithdrawalStateSucceeded
+    - RevenueWithdrawalStateFailed
+    """
+
+
 class ReactionType(Model):
     """Base object `ReactionType`, see the [documentation](https://core.telegram.org/bots/api#reactiontype).
 
@@ -2462,9 +2482,8 @@ class InlineKeyboardButton(Model):
     without using a username, if this is allowed by their privacy settings."""
 
     callback_data: Option[str] = Nothing
-    """Optional. Data to be sent in a callback query to the bot when button is pressed, 
-    1-64 bytes. Not supported for messages sent on behalf of a Telegram Business 
-    account."""
+    """Optional. Data to be sent in a callback query to the bot when the button is 
+    pressed, 1-64 bytes."""
 
     web_app: Option["WebAppInfo"] = Nothing
     """Optional. Description of the Web App that will be launched when the user 
@@ -5496,6 +5515,123 @@ class PreCheckoutQuery(Model):
     """Optional. Order information provided by the user."""
 
 
+class RevenueWithdrawalStatePending(RevenueWithdrawalState):
+    """Object `RevenueWithdrawalStatePending`, see the [documentation](https://core.telegram.org/bots/api#revenuewithdrawalstatepending).
+
+    The withdrawal is in progress.
+    """
+
+    type: str
+    """Type of the state, always `pending`."""
+
+
+class RevenueWithdrawalStateSucceeded(RevenueWithdrawalState):
+    """Object `RevenueWithdrawalStateSucceeded`, see the [documentation](https://core.telegram.org/bots/api#revenuewithdrawalstatesucceeded).
+
+    The withdrawal succeeded.
+    """
+
+    type: str
+    """Type of the state, always `succeeded`."""
+
+    date: datetime
+    """Date the withdrawal was completed in Unix time."""
+
+    url: str
+    """An HTTPS URL that can be used to see transaction details."""
+
+
+class RevenueWithdrawalStateFailed(RevenueWithdrawalState):
+    """Object `RevenueWithdrawalStateFailed`, see the [documentation](https://core.telegram.org/bots/api#revenuewithdrawalstatefailed).
+
+    The withdrawal failed and the transaction was refunded.
+    """
+
+    type: str
+    """Type of the state, always `failed`."""
+
+
+class TransactionPartnerFragment(TransactionPartner):
+    """Object `TransactionPartnerFragment`, see the [documentation](https://core.telegram.org/bots/api#transactionpartnerfragment).
+
+    Describes a withdrawal transaction with Fragment.
+    """
+
+    type: str
+    """Type of the transaction partner, always `fragment`."""
+
+    withdrawal_state: Option[
+        Variative[
+            "RevenueWithdrawalStatePending", "RevenueWithdrawalStateSucceeded", "RevenueWithdrawalStateFailed"
+        ]
+    ] = Nothing
+    """Optional. State of the transaction if the transaction is outgoing."""
+
+
+class TransactionPartnerUser(TransactionPartner):
+    """Object `TransactionPartnerUser`, see the [documentation](https://core.telegram.org/bots/api#transactionpartneruser).
+
+    Describes a transaction with a user.
+    """
+
+    type: str
+    """Type of the transaction partner, always `user`."""
+
+    user: "User"
+    """Information about the user."""
+
+
+class TransactionPartnerOther(TransactionPartner):
+    """Object `TransactionPartnerOther`, see the [documentation](https://core.telegram.org/bots/api#transactionpartnerother).
+
+    Describes a transaction with an unknown source or recipient.
+    """
+
+    type: str
+    """Type of the transaction partner, always `other`."""
+
+
+class StarTransaction(Model):
+    """Object `StarTransaction`, see the [documentation](https://core.telegram.org/bots/api#startransaction).
+
+    Describes a Telegram Star transaction.
+    """
+
+    id: str
+    """Unique identifier of the transaction. Coincides with the identifer of 
+    the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id 
+    for successful incoming payments from users."""
+
+    amount: int
+    """Number of Telegram Stars transferred by the transaction."""
+
+    date: datetime
+    """Date the transaction was created in Unix time."""
+
+    source: Option[
+        Variative["TransactionPartnerFragment", "TransactionPartnerUser", "TransactionPartnerOther"]
+    ] = Nothing
+    """Optional. Source of an incoming transaction (e.g., a user purchasing goods 
+    or services, Fragment refunding a failed withdrawal). Only for incoming 
+    transactions."""
+
+    receiver: Option[
+        Variative["TransactionPartnerFragment", "TransactionPartnerUser", "TransactionPartnerOther"]
+    ] = Nothing
+    """Optional. Receiver of an outgoing transaction (e.g., a user for a purchase 
+    refund, Fragment for a withdrawal). Only for outgoing transactions."""
+
+
+class StarTransactions(Model):
+    """Object `StarTransactions`, see the [documentation](https://core.telegram.org/bots/api#startransactions).
+
+    Contains a list of Telegram Star transactions.
+    """
+
+    transactions: list["StarTransaction"]
+    """The list of transactions."""
+
+
 class PassportData(Model):
     """Object `PassportData`, see the [documentation](https://core.telegram.org/bots/api#passportdata).
 
@@ -6075,17 +6211,27 @@ __all__ = (
     "ReplyKeyboardRemove",
     "ReplyParameters",
     "ResponseParameters",
+    "RevenueWithdrawalState",
+    "RevenueWithdrawalStateFailed",
+    "RevenueWithdrawalStatePending",
+    "RevenueWithdrawalStateSucceeded",
     "SentWebAppMessage",
     "SharedUser",
     "ShippingAddress",
     "ShippingOption",
     "ShippingQuery",
+    "StarTransaction",
+    "StarTransactions",
     "Sticker",
     "StickerSet",
     "Story",
     "SuccessfulPayment",
     "SwitchInlineQueryChosenChat",
     "TextQuote",
+    "TransactionPartner",
+    "TransactionPartnerFragment",
+    "TransactionPartnerOther",
+    "TransactionPartnerUser",
     "Update",
     "User",
     "UserChatBoosts",
