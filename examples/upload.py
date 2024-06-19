@@ -1,19 +1,19 @@
 import pathlib
 
-from telegrinder import API, Button, Keyboard, Message, Telegrinder, Token
+from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.bot.rules.is_from import IsPrivate
 from telegrinder.modules import logger
-from telegrinder.rules import Text
+from telegrinder.rules import IsUser, Text
 from telegrinder.types import InputFile
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-kb = (Keyboard().add(Button("Button 1")).add(Button("Button 2"))).get_markup()
-cool_bytes = pathlib.Path("assets/satie.jpeg").read_bytes()
+cool_bytes = pathlib.Path("examples/assets/satie.jpeg").read_bytes()
 
 logger.set_level("INFO")
 
 
-@bot.on.message(Text("/photo"))
+@bot.on.message(Text("/photo"), IsPrivate() & IsUser())
 async def start(message: Message):
     await message.answer_photo(
         InputFile("satie.jpeg", cool_bytes),

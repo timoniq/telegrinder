@@ -33,7 +33,7 @@ class MessageView(BaseStateView[MessageCute]):
         return (
             True
             if self.update_type is None
-            else self.update_type == event.update_type.unwrap_or_none()
+            else self.update_type == event.update_type
         )
 
 

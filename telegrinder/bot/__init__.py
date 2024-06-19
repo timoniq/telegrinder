@@ -38,7 +38,7 @@ from .dispatch import (
     register_manager,
 )
 from .polling import ABCPolling, Polling
-from .rules import ABCRule, CallbackQueryRule, MessageRule
+from .rules import ABCRule, CallbackQueryRule, ChatJoinRequestRule, InlineQueryRule, MessageRule
 from .scenario import ABCScenario, Checkbox, Choice
 
 __all__ = (
@@ -59,6 +59,8 @@ __all__ = (
     "CallbackQueryReturnManager",
     "CallbackQueryRule",
     "CallbackQueryView",
+    "ChatJoinRequestRule",
+    "InlineQueryRule",
     "ChatJoinRequestCute",
     "ChatJoinRequestView",
     "ChatMemberUpdatedCute",

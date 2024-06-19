@@ -4,14 +4,15 @@ import typing
 from telegrinder.bot.cute_types import ChatJoinRequestCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter import EventAdapter
+from telegrinder.types.enums import UpdateType
 
 from .abc import ABCRule
 
 ChatJoinRequest: typing.TypeAlias = ChatJoinRequestCute
 
 
-class ChatJoinRequestRule(ABCRule[ChatJoinRequestCute], requires=[]):
-    adapter = EventAdapter("chat_join_request", ChatJoinRequest)
+class ChatJoinRequestRule(ABCRule[ChatJoinRequest], requires=[]):
+    adapter: EventAdapter[ChatJoinRequest] = EventAdapter(UpdateType.CHAT_JOIN_REQUEST, ChatJoinRequest)
 
     @abc.abstractmethod
     async def check(self, event: ChatJoinRequest, ctx: Context) -> bool:

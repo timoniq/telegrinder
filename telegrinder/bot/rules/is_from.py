@@ -1,39 +1,108 @@
+import abc
 import typing
 
-from fntypes.co import Nothing, Some
-
 from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.msgspec_utils import Option
+from telegrinder.bot.rules.adapter.chat import ChatAdapter
+from telegrinder.bot.rules.adapter.user import UserAdapter
 from telegrinder.types.enums import ChatType, DiceEmoji
-from telegrinder.types.objects import User
+from telegrinder.types.objects import Chat, User
 
 from .abc import ABCRule, Message
 from .message import MessageRule
 
-T = typing.TypeVar("T", bound=BaseCute)
+EventCute = typing.TypeVar("EventCute", bound=BaseCute)
 
 
-def get_from_user(obj: typing.Any) -> User:
-    assert isinstance(obj, FromUserProto)
-    return obj.from_.unwrap() if isinstance(obj.from_, Some | Nothing) else obj.from_
+class UserRule(ABCRule[EventCute]):
+    adapter: UserAdapter = UserAdapter()
+
+    @abc.abstractmethod
+    async def check(self, user: User, ctx: Context) -> bool: ...
 
 
-@typing.runtime_checkable
-class FromUserProto(typing.Protocol):
-    from_: User | Option[User]
+class ChatRule(ABCRule[EventCute]):
+    adapter: ChatAdapter = ChatAdapter()
 
-
-class HasFrom(ABCRule[T]):
-    async def check(self, event: UpdateCute, ctx: Context) -> bool:
-        event_model = event.incoming_update.unwrap()
-        return isinstance(event_model, FromUserProto) and bool(event_model.from_)
+    @abc.abstractmethod
+    async def check(self, chat: Chat, ctx: Context) -> bool: ...
 
 
 class HasDice(MessageRule):
     async def check(self, message: Message, ctx: Context) -> bool:
         return bool(message.dice)
+
+
+class IsBot(UserRule[EventCute]):
+    async def check(self, user: User, ctx: Context) -> bool:
+        return user.is_bot
+
+
+class IsUser(UserRule[EventCute]):
+    async def check(self, user: User, ctx: Context) -> bool:
+        return not user.is_bot
+
+
+class IsPremium(UserRule[EventCute]):
+    async def check(self, user: User, ctx: Context) -> bool:
+        return not user.is_premium.unwrap_or(False)
+
+
+class IsLanguageCode(UserRule[EventCute]):
+    def __init__(self, lang_codes: str | list[str], /) -> None:
+        self.lang_codes = [lang_codes] if isinstance(lang_codes, str) else lang_codes
+
+    async def check(self, user: User, ctx: Context) -> bool:
+        return user.language_code.unwrap_or_none() in self.lang_codes
+
+
+class IsUserId(UserRule[EventCute]):
+    def __init__(self, user_ids: int | list[int], /) -> None:
+        self.user_ids = [user_ids] if isinstance(user_ids, int) else user_ids
+
+    async def check(self, user: User, ctx: Context) -> bool:
+        return user.id in self.user_ids
+
+
+class IsForum(ChatRule[EventCute]):
+    async def check(self, chat: Chat, ctx: Context) -> bool:
+        return chat.is_forum.unwrap_or(False)
+
+
+class IsChatId(ChatRule[EventCute]):
+    def __init__(self, chat_ids: int | list[int], /) -> None:
+        self.chat_ids = [chat_ids] if isinstance(chat_ids, int) else chat_ids
+
+    async def check(self, chat: Chat, ctx: Context) -> bool:
+        return chat.id in self.chat_ids
+
+
+class IsPrivate(ChatRule[EventCute]):
+    async def check(self, chat: Chat, ctx: Context) -> bool:
+        return chat.type == ChatType.PRIVATE
+
+
+class IsGroup(ChatRule[EventCute]):
+    async def check(self, chat: Chat, ctx: Context) -> bool:
+        return chat.type == ChatType.GROUP
+
+
+class IsSuperGroup(ChatRule[EventCute]):
+    async def check(self, chat: Chat, ctx: Context) -> bool:
+        return chat.type == ChatType.SUPERGROUP
+
+
+class IsChat(ChatRule[EventCute]):
+    async def check(self, chat: Chat, ctx: Context) -> bool:
+        return chat.type in (ChatType.GROUP, ChatType.SUPERGROUP)
+
+
+class IsDiceEmoji(MessageRule, requires=[HasDice()]):
+    def __init__(self, dice_emoji: DiceEmoji, /) -> None:
+        self.dice_emoji = dice_emoji
+
+    async def check(self, message: Message, ctx: Context) -> bool:
+        return message.dice.unwrap().emoji == self.dice_emoji
 
 
 class IsForward(MessageRule):
@@ -59,81 +128,6 @@ class IsReply(MessageRule):
 class IsSticker(MessageRule):
     async def check(self, message: Message, ctx: Context) -> bool:
         return bool(message.sticker)
-
-
-class IsBot(ABCRule[T], requires=[HasFrom()]):
-    async def check(self, event: UpdateCute, ctx: Context) -> bool:
-        return get_from_user(event.incoming_update.unwrap()).is_bot
-
-
-class IsUser(ABCRule[T], requires=[HasFrom()]):
-    async def check(self, event: UpdateCute, ctx: Context) -> bool:
-        return not get_from_user(event.incoming_update.unwrap()).is_bot
-
-
-class IsPremium(ABCRule[T], requires=[HasFrom()]):
-    async def check(self, event: UpdateCute, ctx: Context) -> bool:
-        return get_from_user(event.incoming_update.unwrap()).is_premium.unwrap_or(False)
-
-
-class IsLanguageCode(ABCRule[T], requires=[HasFrom()]):
-    def __init__(self, lang_codes: str | list[str], /) -> None:
-        self.lang_codes = [lang_codes] if isinstance(lang_codes, str) else lang_codes
-
-    async def check(self, event: UpdateCute, ctx: Context) -> bool:
-        return (
-            get_from_user(event.incoming_update.unwrap()).language_code.unwrap_or_none()
-            in self.lang_codes
-        )
-
-
-class IsForum(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
-        return message.chat.is_forum.unwrap_or(False)
-
-
-class IsUserId(ABCRule[T], requires=[HasFrom()]):
-    def __init__(self, user_ids: int | list[int], /) -> None:
-        self.user_ids = [user_ids] if isinstance(user_ids, int) else user_ids
-
-    async def check(self, event: UpdateCute, ctx: Context) -> bool:
-        return get_from_user(event.incoming_update.unwrap()).id in self.user_ids
-
-
-class IsChatId(MessageRule):
-    def __init__(self, chat_ids: int | list[int], /) -> None:
-        self.chat_ids = [chat_ids] if isinstance(chat_ids, int) else chat_ids
-
-    async def check(self, message: Message, ctx: Context) -> bool:
-        return message.chat.id in self.chat_ids
-
-
-class IsPrivate(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
-        return message.chat.type == ChatType.PRIVATE
-
-
-class IsGroup(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
-        return message.chat.type == ChatType.GROUP
-
-
-class IsSuperGroup(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
-        return message.chat.type == ChatType.SUPERGROUP
-
-
-class IsChat(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
-        return message.chat.type in (ChatType.GROUP, ChatType.SUPERGROUP)
-
-
-class IsDiceEmoji(MessageRule, requires=[HasDice()]):
-    def __init__(self, dice_emoji: DiceEmoji, /) -> None:
-        self.dice_emoji = dice_emoji
-
-    async def check(self, message: Message, ctx: Context) -> bool:
-        return message.dice.unwrap().emoji == self.dice_emoji
 
 
 __all__ = (

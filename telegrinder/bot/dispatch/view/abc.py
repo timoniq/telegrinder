@@ -69,11 +69,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
 
     @staticmethod
     def get_raw_event(update: Update) -> Option[Model]:
-        match update.update_type:
-            case Some(update_type):
-                return getattr(update, update_type.value)
-            case _:
-                return Nothing()
+        return getattr(update, update.update_type.value)
     
     @typing.overload
     @classmethod

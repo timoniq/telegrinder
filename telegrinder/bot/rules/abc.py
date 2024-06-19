@@ -1,6 +1,7 @@
 import inspect
-import typing
 from abc import ABC, abstractmethod
+
+import typing_extensions as typing
 
 from telegrinder.bot.cute_types import BaseCute, MessageCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
@@ -10,13 +11,14 @@ from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
 
-T = typing.TypeVar("T", bound=BaseCute)
+AdaptTo = typing.TypeVar("AdaptTo", default=UpdateCute)
+EventCute = typing.TypeVar("EventCute", bound=BaseCute, default=UpdateCute)
 
 Message: typing.TypeAlias = MessageCute
 Update: typing.TypeAlias = UpdateCute
 
 
-def with_caching_translations(func):
+def with_caching_translations(func: typing.Callable[..., typing.Any]):
     """Should be used as decorator for .translate method. Caches rule translations."""
 
     async def wrapper(self: "ABCRule[typing.Any]", translator: ABCTranslator):
@@ -29,15 +31,15 @@ def with_caching_translations(func):
     return wrapper
 
 
-class ABCRule(ABC, typing.Generic[T]):
-    adapter: ABCAdapter[UpdateObject, T] = RawUpdateAdapter()  # type: ignore
-    requires: list["ABCRule[T]"] = []
+class ABCRule(ABC, typing.Generic[EventCute, AdaptTo]):
+    adapter: ABCAdapter[UpdateObject, AdaptTo] = RawUpdateAdapter()  # type: ignore
+    requires: list["ABCRule[EventCute]"] = []
 
     @abstractmethod
-    async def check(self, event: T, ctx: Context) -> bool:
+    async def check(self, event: AdaptTo, ctx: Context) -> bool:
         pass
 
-    def __init_subclass__(cls, requires: list["ABCRule[T]"] | None = None):
+    def __init_subclass__(cls, requires: list["ABCRule[EventCute, AdaptTo]"] | None = None) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
 
         requirements = []
@@ -48,17 +50,41 @@ class ABCRule(ABC, typing.Generic[T]):
         requirements.extend(requires or ())
         cls.requires = list(dict.fromkeys(requirements))
 
-    def __and__(self, other: "ABCRule[T]"):
+    def __and__(self, other: "ABCRule[EventCute, AdaptTo]") -> "AndRule[EventCute, AdaptTo]":
+        """And Rule.
+        
+        ```python
+        rule = HasText() & HasCaption()
+        rule #> AndRule(HasText(), HasCaption()) -> True if all rules in an AndRule are True, otherwise False.
+        ```
+        """
+
         return AndRule(self, other)
 
-    def __or__(self, other: "ABCRule[T]"):
+    def __or__(self, other: "ABCRule[EventCute, AdaptTo]") -> "OrRule[EventCute, AdaptTo]":
+        """Or Rule.
+        
+        ```python
+        rule = HasText() | HasCaption()
+        rule #> OrRule(HasText(), HasCaption()) -> True if any rule in an OrRule are True, otherwise False.
+        ```
+        """
+
         return OrRule(self, other)
 
-    def __neg__(self) -> "ABCRule[T]":
+    def __invert__(self) -> "NotRule[EventCute, AdaptTo]":
+        """Not Rule.
+
+        ```python
+        rule = ~HasText() 
+        rule # NotRule(HasText()) -> True if rule returned False, otherwise False.
+        ```
+        """
+
         return NotRule(self)
 
     def __repr__(self) -> str:
-        return "<rule: {!r}, adapter: {!r}>".format(
+        return "<{}: adapter={!r}>".format(
             self.__class__.__name__,
             self.adapter,
         )
@@ -67,8 +93,8 @@ class ABCRule(ABC, typing.Generic[T]):
         return self
 
 
-class AndRule(ABCRule[T]):
-    def __init__(self, *rules: ABCRule[T]):
+class AndRule(ABCRule[EventCute, AdaptTo]):
+    def __init__(self, *rules: ABCRule[EventCute, AdaptTo]) -> None:
         self.rules = rules
 
     async def check(self, event: Update, ctx: Context) -> bool:
@@ -80,8 +106,8 @@ class AndRule(ABCRule[T]):
         return True
 
 
-class OrRule(ABCRule[T]):
-    def __init__(self, *rules: ABCRule[T]):
+class OrRule(ABCRule[EventCute, AdaptTo]):
+    def __init__(self, *rules: ABCRule[EventCute, AdaptTo]) -> None:
         self.rules = rules
 
     async def check(self, event: Update, ctx: Context) -> bool:
@@ -93,8 +119,8 @@ class OrRule(ABCRule[T]):
         return False
 
 
-class NotRule(ABCRule[T]):
-    def __init__(self, rule: ABCRule[T]):
+class NotRule(ABCRule[EventCute, AdaptTo]):
+    def __init__(self, rule: ABCRule[EventCute, AdaptTo]) -> None:
         self.rule = rule
 
     async def check(self, event: Update, ctx: Context) -> bool:

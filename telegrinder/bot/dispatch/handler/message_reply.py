@@ -19,11 +19,13 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         is_blocking: bool = True,
         as_reply: bool = False,
         preset_context: Context | None = None,
+        **default_params: typing.Any,
     ) -> None:
         self.text = text
         self.rules = list(rules)
         self.as_reply = as_reply
         self.is_blocking = is_blocking
+        self.default_params = default_params
         self.preset_context = preset_context or Context()
 
     def __repr__(self) -> str:
@@ -51,6 +53,7 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         await event.answer(
             text=self.text,
             reply_parameters=ReplyParameters(event.message_id) if self.as_reply else None,
+            **self.default_params,
         )
 
 

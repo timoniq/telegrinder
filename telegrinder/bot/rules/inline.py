@@ -5,7 +5,7 @@ from telegrinder.bot.cute_types import InlineQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.adapter import EventAdapter
-from telegrinder.types.enums import ChatType
+from telegrinder.types.enums import ChatType, UpdateType
 
 from .markup import Markup, PatternLike, check_string
 
@@ -13,7 +13,7 @@ InlineQuery: typing.TypeAlias = InlineQueryCute
 
 
 class InlineQueryRule(ABCRule[InlineQuery], abc.ABC):
-    adapter = EventAdapter("inline_query", InlineQuery)
+    adapter: EventAdapter[InlineQuery] = EventAdapter(UpdateType.INLINE_QUERY, InlineQuery)
 
     @abc.abstractmethod
     async def check(self, query: InlineQuery, ctx: Context) -> bool:

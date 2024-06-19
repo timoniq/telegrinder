@@ -16,16 +16,17 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.handler.abc import ABCHandler
     from telegrinder.bot.rules.abc import ABCRule
 
-T = typing.TypeVar("T", bound=BaseCute)
+AdaptTo = typing.TypeVar("AdaptTo")
+Event = typing.TypeVar("Event", bound=BaseCute)
 _: typing.TypeAlias = typing.Any
 
 
 async def process_inner(
-    event: T,
+    event: Event,
     raw_event: Update,
-    middlewares: list[ABCMiddleware[T]],
-    handlers: list["ABCHandler[T]"],
-    return_manager: ABCReturnManager[T] | None = None,
+    middlewares: list[ABCMiddleware[Event]],
+    handlers: list["ABCHandler[Event]"],
+    return_manager: ABCReturnManager[Event] | None = None,
 ) -> bool:
     logger.debug("Processing {!r}...", event.__class__.__name__)
     ctx = Context(raw_update=raw_event)
@@ -58,7 +59,7 @@ async def process_inner(
 
 async def check_rule(
     api: ABCAPI,
-    rule: "ABCRule[T]",
+    rule: "ABCRule[Event, AdaptTo]",
     update: Update,
     ctx: Context,
 ) -> bool:

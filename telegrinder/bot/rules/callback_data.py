@@ -10,6 +10,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter import EventAdapter
 from telegrinder.model import decoder
 from telegrinder.tools.buttons import DataclassInstance
+from telegrinder.types.enums import UpdateType
 
 from .abc import ABCRule
 from .markup import Markup, PatternLike, check_string
@@ -22,7 +23,7 @@ CallbackMapStrict: typing.TypeAlias = list[tuple[str, "Validator | CallbackMapSt
 
 
 class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
-    adapter = EventAdapter("callback_query", CallbackQuery)
+    adapter: EventAdapter[CallbackQuery] = EventAdapter(UpdateType.CALLBACK_QUERY, CallbackQuery)
 
     @abc.abstractmethod
     async def check(self, event: CallbackQuery, ctx: Context) -> bool:

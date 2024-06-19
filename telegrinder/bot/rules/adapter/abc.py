@@ -8,13 +8,13 @@ from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.model import Model
 
-UpdateT = typing.TypeVar("UpdateT", bound=Model)
-CuteT = typing.TypeVar("CuteT", bound=BaseCute)
+From = typing.TypeVar("From", bound=Model)
+To = typing.TypeVar("To")
 
 
-class ABCAdapter(abc.ABC, typing.Generic[UpdateT, CuteT]):
+class ABCAdapter(abc.ABC, typing.Generic[From, To]):
     @abc.abstractmethod
-    async def adapt(self, api: ABCAPI, update: UpdateT) -> Result[CuteT, AdapterError]:
+    async def adapt(self, api: ABCAPI, update: From) -> Result[To, AdapterError]:
         pass
 
 
