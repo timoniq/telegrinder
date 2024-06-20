@@ -240,6 +240,72 @@
             ]
         },
         {
+            "name": "RevenueWithdrawalStatePending",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "pending"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "RevenueWithdrawalStateSucceeded",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "succeeded"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "RevenueWithdrawalStateFailed",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "failed"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "TransactionPartnerFragment",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "fragment"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "TransactionPartnerUser",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "user"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "TransactionPartnerOther",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "other"
+                    ]
+                }
+            ]
+        },
+        {
             "name": "EncryptedPassportElement",
             "fields": [
                 {

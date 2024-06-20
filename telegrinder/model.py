@@ -79,7 +79,7 @@ class DataConverter:
     def __repr__(self) -> str:
         return "<{}: {}>".format(
             self.__class__.__name__,
-            ", ".join(f"{k}={v!r}" for k, v in self.converters),
+            ", ".join(f"{k}={v.__name__!r}" for k, v in self.converters.items()),
         )
 
     @property

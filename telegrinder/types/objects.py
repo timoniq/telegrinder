@@ -1,6 +1,6 @@
 import typing
 
-from fntypes.co import Some, Variative
+from fntypes.co import Variative
 
 from telegrinder.model import Model
 from telegrinder.msgspec_utils import Nothing, Option, datetime
@@ -5518,7 +5518,7 @@ class RevenueWithdrawalStatePending(RevenueWithdrawalState):
     The withdrawal is in progress.
     """
 
-    type: str
+    type: typing.Literal["pending"]
     """Type of the state, always `pending`."""
 
 
@@ -5528,7 +5528,7 @@ class RevenueWithdrawalStateSucceeded(RevenueWithdrawalState):
     The withdrawal succeeded.
     """
 
-    type: str
+    type: typing.Literal["succeeded"]
     """Type of the state, always `succeeded`."""
 
     date: datetime
@@ -5544,7 +5544,7 @@ class RevenueWithdrawalStateFailed(RevenueWithdrawalState):
     The withdrawal failed and the transaction was refunded.
     """
 
-    type: str
+    type: typing.Literal["failed"]
     """Type of the state, always `failed`."""
 
 
@@ -5554,7 +5554,7 @@ class TransactionPartnerFragment(TransactionPartner):
     Describes a withdrawal transaction with Fragment.
     """
 
-    type: str
+    type: typing.Literal["fragment"]
     """Type of the transaction partner, always `fragment`."""
 
     withdrawal_state: Option[
@@ -5571,7 +5571,7 @@ class TransactionPartnerUser(TransactionPartner):
     Describes a transaction with a user.
     """
 
-    type: str
+    type: typing.Literal["user"]
     """Type of the transaction partner, always `user`."""
 
     user: "User"
@@ -5584,7 +5584,7 @@ class TransactionPartnerOther(TransactionPartner):
     Describes a transaction with an unknown source or recipient.
     """
 
-    type: str
+    type: typing.Literal["other"]
     """Type of the transaction partner, always `other`."""
 
 
