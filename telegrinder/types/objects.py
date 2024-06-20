@@ -300,20 +300,23 @@ class Update(Model):
     in the chat to receive these updates."""
 
     def __eq__(self, other: typing.Any) -> bool:
-        return isinstance(other, self.__class__) and self.update_type == other.update_type
+        return isinstance(other, self.__class__) and self.update_type.map(
+            lambda x: x == other.update_type.unwrap_or_none(),
+        ).unwrap_or(False)
 
     @property
-    def update_type(self) -> UpdateType:
+    def update_type(self) -> Option[UpdateType]:
         """Incoming update type."""
 
-        return UpdateType(
-            next(
-                filter(
-                    lambda x: bool(x[1]),
-                    self.to_dict(exclude_fields={"update_id"}).items(),
-                ),
-            )[0],
-        )
+        if update := next(
+            filter(
+                lambda x: bool(x[1]),
+                self.to_dict(exclude_fields={"update_id"}).items(),
+            ),
+            None,
+        ):
+            return Some(UpdateType(update[0]))
+        return Nothing
 
 
 class WebhookInfo(Model):
