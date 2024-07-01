@@ -17,7 +17,7 @@ def unwrap_value(value: typing.Any) -> typing.Any | None:
     if value in (Nothing, None):
         return None
     if isinstance(value, Some):
-        return value.unwrap()
+        return unwrap_value(value.unwrap())
     if isinstance(value, Variative):
         return unwrap_value(value.v)
     return value
@@ -56,17 +56,27 @@ def get_by_sources(model: Model, sources: type[T] | list[type[T]]) -> typing.Any
 
     sources = [sources] if not isinstance(sources, list) else sources
     for source in sources:
-        if not isinstance(model, source):
-            continue
+        if isinstance(model, source):
+            return next(
+                (
+                    unwrap_value(getattr(model, field))
+                    for field in model.__struct_fields__
+                    if field in typing.get_type_hints(source)
+                ),
+                None,
+            )
 
         values = filter(None, [
             getattr(model, field, None)
-            for field in typing.get_type_hints(source)
+            for field in model.__struct_fields__
         ])
         for value in values:
             value = unwrap_value(value)
-            if value is not None:
-                return value
+            if isinstance(value, Model) and (result := get_by_sources(value, sources)) is not None:
+                return result
+            for t in typing.get_type_hints(source).values():
+                if isinstance(value, t):
+                    return value
     
     return None
 
