@@ -11,8 +11,9 @@ class TransactionPartner(Model):
     """Base object `TransactionPartner`, see the [documentation](https://core.telegram.org/bots/api#transactionpartner).
 
     This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
-    - TransactionPartnerFragment
     - TransactionPartnerUser
+    - TransactionPartnerFragment
+    - TransactionPartnerTelegramAds
     - TransactionPartnerOther
     """
 
@@ -49,6 +50,16 @@ class PassportElementError(Model):
     - PassportElementErrorTranslationFile
     - PassportElementErrorTranslationFiles
     - PassportElementErrorUnspecified
+    """
+
+
+class PaidMedia(Model):
+    """Base object `PaidMedia`, see the [documentation](https://core.telegram.org/bots/api#paidmedia).
+
+    This object describes paid media. Currently, it can be one of
+    - PaidMediaPreview
+    - PaidMediaPhoto
+    - PaidMediaVideo
     """
 
 
@@ -92,6 +103,15 @@ class InputMessageContent(Model):
     - InputVenueMessageContent
     - InputContactMessageContent
     - InputInvoiceMessageContent
+    """
+
+
+class InputPaidMedia(Model):
+    """Base object `InputPaidMedia`, see the [documentation](https://core.telegram.org/bots/api#inputpaidmedia).
+
+    This object describes the paid media to be sent. Currently, it can be one of
+    - InputPaidMediaPhoto
+    - InputPaidMediaVideo
     """
 
 
@@ -575,6 +595,10 @@ class ChatFullInfo(Model):
     permissions: Option["ChatPermissions"] = Nothing
     """Optional. Default chat member permissions, for groups and supergroups."""
 
+    can_send_paid_media: Option[bool] = Nothing
+    """Optional. True, if paid media messages can be sent or forwarded to the channel 
+    chat. The field is available only for channel chats."""
+
     slow_mode_delay: Option[int] = Nothing
     """Optional. For supergroups, the minimum allowed delay between consecutive 
     messages sent by each unprivileged user; in seconds."""
@@ -746,6 +770,9 @@ class Message(MaybeInaccessibleMessage):
     document: Option["Document"] = Nothing
     """Optional. Message is a general file, information about the file."""
 
+    paid_media: Option["PaidMediaInfo"] = Nothing
+    """Optional. Message contains paid media; information about the paid media."""
+
     photo: Option[list["PhotoSize"]] = Nothing
     """Optional. Message is a photo, available sizes of the photo."""
 
@@ -765,8 +792,8 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Message is a voice message, information about the file."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption for the animation, audio, document, photo, video or 
-    voice."""
+    """Optional. Caption for the animation, audio, document, paid media, photo, 
+    video or voice."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
     """Optional. For messages with a caption, special entities like usernames, 
@@ -1100,6 +1127,9 @@ class ExternalReplyInfo(Model):
     document: Option["Document"] = Nothing
     """Optional. Message is a general file, information about the file."""
 
+    paid_media: Option["PaidMediaInfo"] = Nothing
+    """Optional. Message contains paid media; information about the paid media."""
+
     photo: Option[list["PhotoSize"]] = Nothing
     """Optional. Message is a photo, available sizes of the photo."""
 
@@ -1301,22 +1331,22 @@ class Animation(Model):
     and for different bots. Can't be used to download or reuse the file."""
 
     width: int
-    """Video width as defined by sender."""
+    """Video width as defined by the sender."""
 
     height: int
-    """Video height as defined by sender."""
+    """Video height as defined by the sender."""
 
     duration: int
-    """Duration of the video in seconds as defined by sender."""
+    """Duration of the video in seconds as defined by the sender."""
 
     thumbnail: Option["PhotoSize"] = Nothing
-    """Optional. Animation thumbnail as defined by sender."""
+    """Optional. Animation thumbnail as defined by the sender."""
 
     file_name: Option[str] = Nothing
-    """Optional. Original animation filename as defined by sender."""
+    """Optional. Original animation filename as defined by the sender."""
 
     mime_type: Option[str] = Nothing
-    """Optional. MIME type of the file as defined by sender."""
+    """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
@@ -1339,19 +1369,19 @@ class Audio(Model):
     and for different bots. Can't be used to download or reuse the file."""
 
     duration: int
-    """Duration of the audio in seconds as defined by sender."""
+    """Duration of the audio in seconds as defined by the sender."""
 
     performer: Option[str] = Nothing
-    """Optional. Performer of the audio as defined by sender or by audio tags."""
+    """Optional. Performer of the audio as defined by the sender or by audio tags."""
 
     title: Option[str] = Nothing
-    """Optional. Title of the audio as defined by sender or by audio tags."""
+    """Optional. Title of the audio as defined by the sender or by audio tags."""
 
     file_name: Option[str] = Nothing
-    """Optional. Original filename as defined by sender."""
+    """Optional. Original filename as defined by the sender."""
 
     mime_type: Option[str] = Nothing
-    """Optional. MIME type of the file as defined by sender."""
+    """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
@@ -1377,13 +1407,13 @@ class Document(Model):
     and for different bots. Can't be used to download or reuse the file."""
 
     thumbnail: Option["PhotoSize"] = Nothing
-    """Optional. Document thumbnail as defined by sender."""
+    """Optional. Document thumbnail as defined by the sender."""
 
     file_name: Option[str] = Nothing
-    """Optional. Original filename as defined by sender."""
+    """Optional. Original filename as defined by the sender."""
 
     mime_type: Option[str] = Nothing
-    """Optional. MIME type of the file as defined by sender."""
+    """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
@@ -1419,22 +1449,22 @@ class Video(Model):
     and for different bots. Can't be used to download or reuse the file."""
 
     width: int
-    """Video width as defined by sender."""
+    """Video width as defined by the sender."""
 
     height: int
-    """Video height as defined by sender."""
+    """Video height as defined by the sender."""
 
     duration: int
-    """Duration of the video in seconds as defined by sender."""
+    """Duration of the video in seconds as defined by the sender."""
 
     thumbnail: Option["PhotoSize"] = Nothing
     """Optional. Video thumbnail."""
 
     file_name: Option[str] = Nothing
-    """Optional. Original filename as defined by sender."""
+    """Optional. Original filename as defined by the sender."""
 
     mime_type: Option[str] = Nothing
-    """Optional. MIME type of the file as defined by sender."""
+    """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
@@ -1457,10 +1487,11 @@ class VideoNote(Model):
     and for different bots. Can't be used to download or reuse the file."""
 
     length: int
-    """Video width and height (diameter of the video message) as defined by sender."""
+    """Video width and height (diameter of the video message) as defined by the 
+    sender."""
 
     duration: int
-    """Duration of the video in seconds as defined by sender."""
+    """Duration of the video in seconds as defined by the sender."""
 
     thumbnail: Option["PhotoSize"] = Nothing
     """Optional. Video thumbnail."""
@@ -1483,16 +1514,74 @@ class Voice(Model):
     and for different bots. Can't be used to download or reuse the file."""
 
     duration: int
-    """Duration of the audio in seconds as defined by sender."""
+    """Duration of the audio in seconds as defined by the sender."""
 
     mime_type: Option[str] = Nothing
-    """Optional. MIME type of the file as defined by sender."""
+    """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
     languages may have difficulty/silent defects in interpreting it. But 
     it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this value."""
+
+
+class PaidMediaInfo(Model):
+    """Object `PaidMediaInfo`, see the [documentation](https://core.telegram.org/bots/api#paidmediainfo).
+
+    Describes the paid media added to a message.
+    """
+
+    star_count: int
+    """The number of Telegram Stars that must be paid to buy access to the media."""
+
+    paid_media: list[Variative["PaidMediaPreview", "PaidMediaPhoto", "PaidMediaVideo"]]
+    """Information about the paid media."""
+
+
+class PaidMediaPreview(PaidMedia):
+    """Object `PaidMediaPreview`, see the [documentation](https://core.telegram.org/bots/api#paidmediapreview).
+
+    The paid media isn't available before the payment.
+    """
+
+    type: str
+    """Type of the paid media, always `preview`."""
+
+    width: Option[int] = Nothing
+    """Optional. Media width as defined by the sender."""
+
+    height: Option[int] = Nothing
+    """Optional. Media height as defined by the sender."""
+
+    duration: Option[int] = Nothing
+    """Optional. Duration of the media in seconds as defined by the sender."""
+
+
+class PaidMediaPhoto(PaidMedia):
+    """Object `PaidMediaPhoto`, see the [documentation](https://core.telegram.org/bots/api#paidmediaphoto).
+
+    The paid media is a photo.
+    """
+
+    type: str
+    """Type of the paid media, always `photo`."""
+
+    photo: list["PhotoSize"]
+    """The photo."""
+
+
+class PaidMediaVideo(PaidMedia):
+    """Object `PaidMediaVideo`, see the [documentation](https://core.telegram.org/bots/api#paidmediavideo).
+
+    The paid media is a video.
+    """
+
+    type: str
+    """Type of the paid media, always `video`."""
+
+    video: "Video"
+    """The video."""
 
 
 class Contact(Model):
@@ -1554,7 +1643,7 @@ class PollOption(Model):
 class InputPollOption(Model):
     """Object `InputPollOption`, see the [documentation](https://core.telegram.org/bots/api#inputpolloption).
 
-    This object contains information about one answer option in a poll to send.
+    This object contains information about one answer option in a poll to be sent.
     """
 
     text: str
@@ -1652,10 +1741,10 @@ class Location(Model):
     """
 
     latitude: float
-    """Latitude as defined by sender."""
+    """Latitude as defined by the sender."""
 
     longitude: float
-    """Longitude as defined by sender."""
+    """Longitude as defined by the sender."""
 
     horizontal_accuracy: Option[float] = Nothing
     """Optional. The radius of uncertainty for the location, measured in meters; 
@@ -3466,7 +3555,9 @@ class MenuButtonWebApp(MenuButton):
     web_app: "WebAppInfo"
     """Description of the Web App that will be launched when the user presses the 
     button. The Web App will be able to send an arbitrary message on behalf of 
-    the user using the method answerWebAppQuery."""
+    the user using the method answerWebAppQuery. Alternatively, a t.me link 
+    to a Web App of the bot can be specified in the object instead of the Web App's 
+    URL, in which case the Web App will be opened as if the user pressed the link."""
 
 
 class MenuButtonDefault(MenuButton):
@@ -3893,6 +3984,59 @@ class InputFile(typing.NamedTuple):
 
     data: bytes
     """Bytes of file."""
+
+
+class InputPaidMediaPhoto(InputPaidMedia):
+    """Object `InputPaidMediaPhoto`, see the [documentation](https://core.telegram.org/bots/api#inputpaidmediaphoto).
+
+    The paid media to send is a photo.
+    """
+
+    type: str
+    """Type of the media, must be photo."""
+
+    media: Variative["InputFile", str]
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers 
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+
+class InputPaidMediaVideo(InputPaidMedia):
+    """Object `InputPaidMediaVideo`, see the [documentation](https://core.telegram.org/bots/api#inputpaidmediavideo).
+
+    The paid media to send is a video.
+    """
+
+    type: str
+    """Type of the media, must be video."""
+
+    media: Variative["InputFile", str]
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers 
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    thumbnail: Option[Variative["InputFile", str]] = Nothing
+    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
+    for the file is supported server-side. The thumbnail should be in JPEG format 
+    and less than 200 kB in size. A thumbnail's width and height should not exceed 
+    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails 
+    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` 
+    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. 
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    width: Option[int] = Nothing
+    """Optional. Video width."""
+
+    height: Option[int] = Nothing
+    """Optional. Video height."""
+
+    duration: Option[int] = Nothing
+    """Optional. Video duration in seconds."""
+
+    supports_streaming: Option[bool] = Nothing
+    """Optional. Pass True if the uploaded video is suitable for streaming."""
 
 
 class Sticker(Model):
@@ -5446,7 +5590,7 @@ class SuccessfulPayment(Model):
     for each currency (2 for the majority of currencies)."""
 
     invoice_payload: str
-    """Bot specified invoice payload."""
+    """Bot-specified invoice payload."""
 
     telegram_payment_charge_id: str
     """Telegram payment identifier."""
@@ -5474,7 +5618,7 @@ class ShippingQuery(Model):
     """User who sent the query."""
 
     invoice_payload: str
-    """Bot specified invoice payload."""
+    """Bot-specified invoice payload."""
 
     shipping_address: "ShippingAddress"
     """User specified shipping address."""
@@ -5503,7 +5647,7 @@ class PreCheckoutQuery(Model):
     for each currency (2 for the majority of currencies)."""
 
     invoice_payload: str
-    """Bot specified invoice payload."""
+    """Bot-specified invoice payload."""
 
     shipping_option_id: Option[str] = Nothing
     """Optional. Identifier of the shipping option chosen by the user."""
@@ -5548,6 +5692,22 @@ class RevenueWithdrawalStateFailed(RevenueWithdrawalState):
     """Type of the state, always `failed`."""
 
 
+class TransactionPartnerUser(TransactionPartner):
+    """Object `TransactionPartnerUser`, see the [documentation](https://core.telegram.org/bots/api#transactionpartneruser).
+
+    Describes a transaction with a user.
+    """
+
+    type: typing.Literal["user"]
+    """Type of the transaction partner, always `user`."""
+
+    user: "User"
+    """Information about the user."""
+
+    invoice_payload: Option[str] = Nothing
+    """Optional. Bot-specified invoice payload."""
+
+
 class TransactionPartnerFragment(TransactionPartner):
     """Object `TransactionPartnerFragment`, see the [documentation](https://core.telegram.org/bots/api#transactionpartnerfragment).
 
@@ -5565,17 +5725,14 @@ class TransactionPartnerFragment(TransactionPartner):
     """Optional. State of the transaction if the transaction is outgoing."""
 
 
-class TransactionPartnerUser(TransactionPartner):
-    """Object `TransactionPartnerUser`, see the [documentation](https://core.telegram.org/bots/api#transactionpartneruser).
+class TransactionPartnerTelegramAds(TransactionPartner):
+    """Object `TransactionPartnerTelegramAds`, see the [documentation](https://core.telegram.org/bots/api#transactionpartnertelegramads).
 
-    Describes a transaction with a user.
+    Describes a withdrawal transaction to the Telegram Ads platform.
     """
 
-    type: typing.Literal["user"]
-    """Type of the transaction partner, always `user`."""
-
-    user: "User"
-    """Information about the user."""
+    type: str
+    """Type of the transaction partner, always `telegram_ads`."""
 
 
 class TransactionPartnerOther(TransactionPartner):
@@ -5606,14 +5763,24 @@ class StarTransaction(Model):
     """Date the transaction was created in Unix time."""
 
     source: Option[
-        Variative["TransactionPartnerFragment", "TransactionPartnerUser", "TransactionPartnerOther"]
+        Variative[
+            "TransactionPartnerUser",
+            "TransactionPartnerFragment",
+            "TransactionPartnerTelegramAds",
+            "TransactionPartnerOther",
+        ]
     ] = Nothing
     """Optional. Source of an incoming transaction (e.g., a user purchasing goods 
     or services, Fragment refunding a failed withdrawal). Only for incoming 
     transactions."""
 
     receiver: Option[
-        Variative["TransactionPartnerFragment", "TransactionPartnerUser", "TransactionPartnerOther"]
+        Variative[
+            "TransactionPartnerUser",
+            "TransactionPartnerFragment",
+            "TransactionPartnerTelegramAds",
+            "TransactionPartnerOther",
+        ]
     ] = Nothing
     """Optional. Receiver of an outgoing transaction (e.g., a user for a purchase 
     refund, Fragment for a withdrawal). Only for outgoing transactions."""
@@ -6150,6 +6317,9 @@ __all__ = (
     "InputMediaPhoto",
     "InputMediaVideo",
     "InputMessageContent",
+    "InputPaidMedia",
+    "InputPaidMediaPhoto",
+    "InputPaidMediaVideo",
     "InputPollOption",
     "InputSticker",
     "InputTextMessageContent",
@@ -6182,6 +6352,11 @@ __all__ = (
     "MessageReactionUpdated",
     "Model",
     "OrderInfo",
+    "PaidMedia",
+    "PaidMediaInfo",
+    "PaidMediaPhoto",
+    "PaidMediaPreview",
+    "PaidMediaVideo",
     "PassportData",
     "PassportElementError",
     "PassportElementErrorDataField",
@@ -6228,6 +6403,7 @@ __all__ = (
     "TransactionPartner",
     "TransactionPartnerFragment",
     "TransactionPartnerOther",
+    "TransactionPartnerTelegramAds",
     "TransactionPartnerUser",
     "Update",
     "User",

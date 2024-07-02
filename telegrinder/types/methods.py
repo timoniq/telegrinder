@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API 7.5 methods, released `June 18, 2024`."""
+    """Telegram Bot API 7.6 methods, released `July 1, 2024`."""
 
     def __init__(self, api: "ABCAPI") -> None:
         self.api = api
@@ -366,12 +366,12 @@ class APIMethods:
     ) -> Result[MessageId, APIError]:
         """Method `copyMessage`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
-        Use this method to copy messages of any kind. Service messages, giveaway 
-        messages, giveaway winners messages, and invoice messages can't be copied. 
-        A quiz poll can be copied only if the value of the field correct_option_id 
-        is known to the bot. The method is analogous to the method forwardMessage, 
-        but the copied message doesn't have a link to the original message. Returns 
-        the MessageId of the sent message on success.
+        Use this method to copy messages of any kind. Service messages, paid media 
+        messages, giveaway messages, giveaway winners messages, and invoice 
+        messages can't be copied. A quiz poll can be copied only if the value of the 
+        field correct_option_id is known to the bot. The method is analogous to 
+        the method forwardMessage, but the copied message doesn't have a link to 
+        the original message. Returns the MessageId of the sent message on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -427,13 +427,13 @@ class APIMethods:
         """Method `copyMessages`, see the [documentation](https://core.telegram.org/bots/api#copymessages)
 
         Use this method to copy messages of any kind. If some of the specified messages 
-        can't be found or copied, they are skipped. Service messages, giveaway 
-        messages, giveaway winners messages, and invoice messages can't be copied. 
-        A quiz poll can be copied only if the value of the field correct_option_id 
-        is known to the bot. The method is analogous to the method forwardMessages, 
-        but the copied messages don't have a link to the original message. Album 
-        grouping is kept for copied messages. On success, an array of MessageId 
-        of the sent messages is returned.
+        can't be found or copied, they are skipped. Service messages, paid media 
+        messages, giveaway messages, giveaway winners messages, and invoice 
+        messages can't be copied. A quiz poll can be copied only if the value of the 
+        field correct_option_id is known to the bot. The method is analogous to 
+        the method forwardMessages, but the copied messages don't have a link to 
+        the original message. Album grouping is kept for copied messages. On success, 
+        an array of MessageId of the sent messages is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1038,6 +1038,64 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "sendVideoNote",
+            get_params(locals()),
+        )
+        return full_result(method_response, Message)
+
+    async def send_paid_media(
+        self,
+        chat_id: int | str,
+        star_count: int,
+        media: list[InputPaidMedia],
+        caption: str | None = None,
+        parse_mode: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
+        **other: typing.Any,
+    ) -> Result[Message, APIError]:
+        """Method `sendPaidMedia`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
+
+        Use this method to send paid media to channel chats. On success, the sent 
+        Message is returned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+
+        :param star_count: The number of Telegram Stars that must be paid to buy access to the media. \
+
+        :param media: A JSON-serialized array describing the media to be sent; up to 10 items. \
+
+        :param caption: Media caption, 0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the media caption. See formatting options \
+        for more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
+        which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
+
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user.
+        """
+
+        method_response = await self.api.request_raw(
+            "sendPaidMedia",
             get_params(locals()),
         )
         return full_result(method_response, Message)
