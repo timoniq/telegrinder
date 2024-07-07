@@ -888,6 +888,10 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Message is a service message about a successful payment, information 
     about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
 
+    refunded_payment: Option["RefundedPayment"] = Nothing
+    """Optional. Message is a service message about a refunded payment, information 
+    about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
+
     users_shared: Option["UsersShared"] = Nothing
     """Optional. Service message: users were shared with the bot."""
 
@@ -5605,6 +5609,32 @@ class SuccessfulPayment(Model):
     """Optional. Order information provided by the user."""
 
 
+class RefundedPayment(Model):
+    """Object `RefundedPayment`, see the [documentation](https://core.telegram.org/bots/api#refundedpayment).
+
+    This object contains basic information about a refunded payment.
+    """
+
+    currency: str
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
+    Stars. Currently, always `XTR`."""
+
+    total_amount: int
+    """Total refunded price in the smallest units of the currency (integer, not 
+    float/double). For example, for a price of US$ 1.45, total_amount = 145. 
+    See the exp parameter in currencies.json, it shows the number of digits 
+    past the decimal point for each currency (2 for the majority of currencies)."""
+
+    invoice_payload: str
+    """Bot-specified invoice payload."""
+
+    telegram_payment_charge_id: str
+    """Telegram payment identifier."""
+
+    provider_payment_charge_id: Option[str] = Nothing
+    """Optional. Provider payment identifier."""
+
+
 class ShippingQuery(Model):
     """Object `ShippingQuery`, see the [documentation](https://core.telegram.org/bots/api#shippingquery).
 
@@ -6379,6 +6409,7 @@ __all__ = (
     "ReactionType",
     "ReactionTypeCustomEmoji",
     "ReactionTypeEmoji",
+    "RefundedPayment",
     "ReplyKeyboardMarkup",
     "ReplyKeyboardRemove",
     "ReplyParameters",
