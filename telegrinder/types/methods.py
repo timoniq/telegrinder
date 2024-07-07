@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API 7.6 methods, released `July 1, 2024`."""
+    """Telegram Bot API 7.7 methods, released `July 7, 2024`."""
 
     def __init__(self, api: "ABCAPI") -> None:
         self.api = api
