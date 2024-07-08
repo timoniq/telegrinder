@@ -1,6 +1,6 @@
 import typing
 
-from fntypes.result import Error
+from fntypes.result import Error, Ok
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute
@@ -81,8 +81,10 @@ async def check_rule(
 
     if I18nEnum.I18N in ctx:
         rule = await rule.translate(ctx.get(I18nEnum.I18N))
-
-    return await rule.check(cute_model.unwrap(), ctx)
+    
+    value = cute_model.unwrap()
+    args = value if isinstance(value, tuple) else (value,)
+    return await rule.check(*args, ctx=ctx)  # type: ignore
 
 
 __all__ = ("check_rule", "process_inner")

@@ -41,7 +41,8 @@ class ShortState(typing.Generic[EventModel]):
     context: ShortStateContext[EventModel] | None = dataclasses.field(default=None, init=False)
 
     def __post_init__(self, expiration: datetime.timedelta | None = None) -> None:
-        self.expiration_date = (datetime.datetime.now() + expiration) if expiration is not None else None
+        self.creation_date = datetime.datetime.now()
+        self.expiration_date = (self.creation_date + expiration) if expiration is not None else None
         
     def cancel(self) -> None:
         """Cancel schedule waiters."""

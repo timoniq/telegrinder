@@ -27,7 +27,7 @@ from .view import (
     RawEventView,
     ViewBox,
 )
-from .waiter_machine import ShortState, WaiterMachine
+from .waiter_machine import ShortState, WaiterMachine, clear_wm_storage_worker
 
 __all__ = (
     "ABCDispatch",
@@ -62,4 +62,5 @@ __all__ = (
     "check_rule",
     "process_inner",
     "register_manager",
+    "clear_wm_storage_worker",
 )

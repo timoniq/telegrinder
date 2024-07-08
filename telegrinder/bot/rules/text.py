@@ -9,7 +9,6 @@ class HasText(MessageRule):
     async def check(self, message: Message, ctx: Context) -> bool:
         return bool(message.text)
 
-
 class TextMessageRule(MessageRule, ABC, requires=[HasText()]):
     pass
 

@@ -2,7 +2,7 @@ import pathlib
 import random
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.bot import WaiterMachine
+from telegrinder.bot import WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
 from telegrinder.modules import logger
 from telegrinder.rules import FuzzyText, HasText, Markup, Text
@@ -79,4 +79,5 @@ async def hello(message: Message):
     await message.reply("Hi!")
 
 
+bot.loop_wrapper.add_task(clear_wm_storage_worker(wm, bot.dispatch))
 bot.run_forever(skip_updates=True)

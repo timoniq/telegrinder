@@ -4,6 +4,7 @@ import typing
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.dispatch.view.abc import ABCStateView, BaseStateView
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.tools.limited_dict import LimitedDict
 from telegrinder.types import Update
@@ -12,13 +13,13 @@ from .middleware import WaiterMiddleware
 from .short_state import Behaviour, EventModel, ShortState, ShortStateContext
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.dispatch.view.abc import ABCStateView, BaseStateView
+    from telegrinder.bot.dispatch import Dispatch
 
 T = typing.TypeVar("T")
 
 Identificator: typing.TypeAlias = str | int
 Storage: typing.TypeAlias = dict[str, LimitedDict[Identificator, ShortState[EventModel]]]
-
+WEEK = datetime.timedelta(days=7)
 
 class WaiterMachine:
     def __init__(self, *, max_storage_size: int = 1000) -> None:
@@ -121,6 +122,45 @@ class WaiterMachine:
             return True
 
         return False
+    
+    async def clear_storage(
+        self, 
+        views: typing.Iterable[ABCStateView[EventModel]],
+        absolutely_dead_time: datetime.timedelta = WEEK,
+    ):
+        """Clears storage
+        :param absolutely_dead_time: timedelta when state can be forgotten"""
+        for view in views:
+            view_name = view.__class__.__name__
+            now = datetime.datetime.now()
+            for ident, short_state in self.storage.get(view_name, {}).copy().items():
+                if short_state.expiration_date is not None and now > short_state.expiration_date:
+                    assert short_state.context
+                    await self.drop(
+                        view, 
+                        ident, 
+                        event=short_state.context.event, 
+                        update=short_state.context.context.raw_update,
+                        force=True,
+                    )
+                elif short_state.creation_date + absolutely_dead_time < now:
+                    short_state.cancel()
+                    del self.storage[view_name][short_state.key]
+
+
+async def clear_wm_storage_worker(
+    wm: WaiterMachine, 
+    dp: "Dispatch",
+    interval_seconds: int = 60,
+    absolutely_dead_time: datetime.timedelta = WEEK,
+) -> typing.NoReturn:
+    while True:
+        all_views = tuple(dp.get_views().values())
+        await wm.clear_storage(
+            views=[view for view in all_views if isinstance(view, ABCStateView)], 
+            absolutely_dead_time=absolutely_dead_time,
+        )
+        await asyncio.sleep(interval_seconds)
 
 
 __all__ = ("WaiterMachine",)

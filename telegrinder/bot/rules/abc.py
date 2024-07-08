@@ -7,6 +7,7 @@ from telegrinder.bot.cute_types import BaseCute, MessageCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
+from telegrinder.bot.rules.adapter.node import NodeAdapter
 from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
@@ -36,7 +37,7 @@ class ABCRule(ABC, typing.Generic[EventCute, AdaptTo]):
     requires: list["ABCRule[EventCute]"] = []
 
     @abstractmethod
-    async def check(self, event: AdaptTo, ctx: Context) -> bool:
+    async def check(self, event: AdaptTo, *, ctx: Context) -> bool:
         pass
 
     def __init_subclass__(cls, requires: list["ABCRule[EventCute, AdaptTo]"] | None = None) -> None:
@@ -126,6 +127,24 @@ class NotRule(ABCRule[EventCute, AdaptTo]):
     async def check(self, event: Update, ctx: Context) -> bool:
         ctx_copy = ctx.copy()
         return not await check_rule(event.ctx_api, self.rule, event, ctx_copy)
+
+
+Ts = typing.TypeVarTuple("Ts")
+
+
+class NodeRule(ABCRule[Update, tuple[*Ts]], ABC, typing.Generic[*Ts]):
+    @property
+    def adapter(self) -> NodeAdapter[*Ts]:
+        nodes = {
+            name: parameter.annotation
+            for name, parameter in inspect.signature(self.check).parameters.items()
+            if parameter.annotation is not inspect._empty
+        }
+        return NodeAdapter(*list(nodes.values()))  # type: ignore
+
+    @abstractmethod
+    async def check(self, *nodes: *Ts, ctx: Context) -> bool:
+        ...
 
 
 __all__ = (

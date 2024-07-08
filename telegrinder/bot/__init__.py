@@ -35,6 +35,7 @@ from .dispatch import (
     ShortState,
     ViewBox,
     WaiterMachine,
+    clear_wm_storage_worker,
     register_manager,
 )
 from .polling import ABCPolling, Polling
@@ -87,4 +88,5 @@ __all__ = (
     "ViewBox",
     "WaiterMachine",
     "register_manager",
+    "clear_wm_storage_worker",
 )
