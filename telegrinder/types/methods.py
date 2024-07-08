@@ -1,10 +1,11 @@
+import dataclasses
 import typing
 from datetime import datetime
 
 from fntypes.co import Result, Variative
 
 from telegrinder.api.error import APIError
-from telegrinder.model import full_result, get_params
+from telegrinder.model import ProxiedDict, full_result, get_params
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.objects import *  # noqa: F403
 
@@ -14,6 +15,10 @@ if typing.TYPE_CHECKING:
 
 class APIMethods:
     """Telegram Bot API 7.7 methods, released `July 7, 2024`."""
+
+    default_params = ProxiedDict(
+        typing.TypedDict("DefaultParams", {"parse_mode": str})
+    )
 
     def __init__(self, api: "ABCAPI") -> None:
         self.api = api
@@ -206,7 +211,7 @@ class APIMethods:
         text: str,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         entities: list[MessageEntity] | None = None,
         link_preview_options: LinkPreviewOptions | None = None,
         disable_notification: bool | None = None,
@@ -351,7 +356,7 @@ class APIMethods:
         message_id: int,
         message_thread_id: int | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
         disable_notification: bool | None = None,
@@ -468,7 +473,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
@@ -543,7 +548,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         duration: int | None = None,
         performer: str | None = None,
@@ -632,7 +637,7 @@ class APIMethods:
         message_thread_id: int | None = None,
         thumbnail: InputFile | str | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = None,
@@ -717,7 +722,7 @@ class APIMethods:
         height: int | None = None,
         thumbnail: InputFile | str | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
@@ -814,7 +819,7 @@ class APIMethods:
         height: int | None = None,
         thumbnail: InputFile | str | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
@@ -903,7 +908,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         duration: int | None = None,
         disable_notification: bool | None = None,
@@ -1048,7 +1053,7 @@ class APIMethods:
         star_count: int,
         media: list[InputPaidMedia],
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
         disable_notification: bool | None = None,
@@ -3177,7 +3182,7 @@ class APIMethods:
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         entities: list[MessageEntity] | None = None,
         link_preview_options: LinkPreviewOptions | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
@@ -3229,7 +3234,7 @@ class APIMethods:
         message_id: int | None = None,
         inline_message_id: str | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,

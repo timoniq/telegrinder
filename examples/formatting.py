@@ -4,6 +4,8 @@ from telegrinder.rules import Text
 from telegrinder.tools import HTMLFormatter, bold, italic, mention
 
 api = API(token=Token.from_env())
+api.default_params["parse_mode"] = HTMLFormatter.PARSE_MODE
+
 bot = Telegrinder(api)
 logger.set_level("INFO")
 
@@ -12,18 +14,15 @@ logger.set_level("INFO")
 async def formatting(m: Message):
     await m.answer(
         HTMLFormatter(bold(italic("bold italic text!"))),
-        parse_mode=HTMLFormatter.PARSE_MODE,
     )
     await m.answer(
         "python library 'telegrinder' - "
         + HTMLFormatter(
             "{:bold} for effective and reliable telegram {:bold+italic} {:underline}!"
         ).format("Framework", "bot", "building"),
-        parse_mode=HTMLFormatter.PARSE_MODE,
     )
     await m.answer(
         "this is " + mention(m.from_user.first_name, m.from_user.id),
-        parse_mode=HTMLFormatter.PARSE_MODE,
     )
 
 
