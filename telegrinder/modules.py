@@ -40,10 +40,13 @@ class LoggerModule(typing.Protocol):
 
 logger: LoggerModule
 json: JSONModule = choice_in_order(
-    ["orjson", "ujson", "hyperjson"], do_import=True, default="telegrinder.msgspec_json"
+    ["orjson", "ujson", "hyperjson"],
+    default="telegrinder.msgspec_json",
+    do_import=True,
 )
-logging_module = choice_in_order(["loguru"], default="logging")
 logging_level = os.getenv("LOGGER_LEVEL", default="DEBUG").upper()
+logging_module = choice_in_order(["loguru"], default="logging")
+asyncio_module = choice_in_order(["uvloop"], default="asyncio")
 
 if logging_module == "loguru":
     import os
@@ -218,6 +221,12 @@ elif logging_module == "logging":
     logger.addHandler(handler)  # type: ignore
     logger = TelegrinderLoggingStyleAdapter(logger)  # type: ignore
 
+if asyncio_module == "uvloop":
+    import asyncio
+
+    import uvloop  # type: ignore
+
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())  # type: ignore
 
 def _set_logger_level(level):
     level = level.upper()

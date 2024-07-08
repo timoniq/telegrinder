@@ -240,6 +240,72 @@
             ]
         },
         {
+            "name": "PaidMediaPreview",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "preview"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PaidMediaPhoto",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "photo"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PaidMediaVideo",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "video"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InputPaidMediaPhoto",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "photo"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InputPaidMediaVideo",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "video"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "TransactionPartnerTelegramAds",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "telegram_ads"
+                    ]
+                }
+            ]
+        },
+        {
             "name": "RevenueWithdrawalStatePending",
             "fields": [
                 {
@@ -268,6 +334,17 @@
                     "name": "type",
                     "literals": [
                         "failed"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "RefundedPayment",
+            "fields": [
+                {
+                    "name": "currency",
+                    "literals": [
+                        "XTR"
                     ]
                 }
             ]

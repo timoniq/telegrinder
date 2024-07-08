@@ -1549,7 +1549,7 @@ class PaidMediaPreview(PaidMedia):
     The paid media isn't available before the payment.
     """
 
-    type: str
+    type: typing.Literal["preview"]
     """Type of the paid media, always `preview`."""
 
     width: Option[int] = Nothing
@@ -1568,7 +1568,7 @@ class PaidMediaPhoto(PaidMedia):
     The paid media is a photo.
     """
 
-    type: str
+    type: typing.Literal["photo"]
     """Type of the paid media, always `photo`."""
 
     photo: list["PhotoSize"]
@@ -1581,7 +1581,7 @@ class PaidMediaVideo(PaidMedia):
     The paid media is a video.
     """
 
-    type: str
+    type: typing.Literal["video"]
     """Type of the paid media, always `video`."""
 
     video: "Video"
@@ -1625,6 +1625,7 @@ class Dice(Model):
     value: int
     """Value of the dice, 1-6 for `🎲`, `🎯` and `🎳` base emoji, 1-5 for `🏀` and `⚽` base 
     emoji, 1-64 for `🎰` base emoji."""
+
 
 
 class PollOption(Model):
@@ -3996,7 +3997,7 @@ class InputPaidMediaPhoto(InputPaidMedia):
     The paid media to send is a photo.
     """
 
-    type: str
+    type: typing.Literal["photo"]
     """Type of the media, must be photo."""
 
     media: Variative["InputFile", str]
@@ -4012,7 +4013,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     The paid media to send is a video.
     """
 
-    type: str
+    type: typing.Literal["video"]
     """Type of the media, must be video."""
 
     media: Variative["InputFile", str]
@@ -5615,7 +5616,7 @@ class RefundedPayment(Model):
     This object contains basic information about a refunded payment.
     """
 
-    currency: str
+    currency: typing.Literal["XTR"]
     """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
     Stars. Currently, always `XTR`."""
 
@@ -5761,7 +5762,7 @@ class TransactionPartnerTelegramAds(TransactionPartner):
     Describes a withdrawal transaction to the Telegram Ads platform.
     """
 
-    type: str
+    type: typing.Literal["telegram_ads"]
     """Type of the transaction partner, always `telegram_ads`."""
 
 

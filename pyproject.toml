@@ -84,4 +84,3 @@ docstring-quotes = "double"
 
 [tool.basedpyright]
 typeCheckingMode = "basic"
-venvPath = "."
