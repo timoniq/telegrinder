@@ -1627,7 +1627,6 @@ class Dice(Model):
     emoji, 1-64 for `🎰` base emoji."""
 
 
-
 class PollOption(Model):
     """Object `PollOption`, see the [documentation](https://core.telegram.org/bots/api#polloption).
 
