@@ -127,8 +127,12 @@ def convert_schema_to_model(schema_json: "SchemaJson", model: type[ModelT]) -> M
 
 def read_config_literals(path: str | None = None) -> "ConfigLiteralTypes":
     path = path or MAIN_DIR + "/config_literal_types.json"
-    with open(path, mode="r", encoding="UTF-8") as f:
-        return JSON_DECODER.decode(f.read())
+    return JSON_DECODER.decode(pathlib.Path(path).read_text(encoding="UTF-8"))
+
+
+def read_config_default_api_params(path: str | None = None) -> "ConfigDefaultAPIParams":
+    path = path or MAIN_DIR + "/config_default_api_params.json"
+    return JSON_DECODER.decode(pathlib.Path(path).read_text(encoding="UTF-8"))
 
 
 def is_unixtime_type(name: str, types: list[str], description: str) -> bool:
@@ -196,6 +200,15 @@ class ConfigMethodLiteralTypes(typing.TypedDict):
 
     params: list[ParamLiteralTypes]
     """Method params."""
+
+
+class DefaultAPIParam(typing.TypedDict):
+    name: str
+    type: str
+
+
+class ConfigDefaultAPIParams(typing.TypedDict):
+    default_params: list[DefaultAPIParam]
 
 
 class ABCGenerator(ABC):
@@ -380,6 +393,7 @@ class MethodGenerator(ABCGenerator):
         methods: list[MethodSchema],
         parent_types: dict[str, list[str]],
         config_literal_types: list[ConfigMethodLiteralTypes] | None = None,
+        config_default_api_params: list[DefaultAPIParam] | None = None,
         *,
         api_version: str | None = None,
         release_date: str | None = None,
@@ -387,6 +401,7 @@ class MethodGenerator(ABCGenerator):
         self.methods = methods
         self.parent_types = parent_types
         self.config_literal_types = config_literal_types or []
+        self.config_default_api_params = config_default_api_params or []
         self.api_version = api_version
         self.release_date = release_date
 
@@ -420,6 +435,12 @@ class MethodGenerator(ABCGenerator):
                 for param in cfg["params"]:
                     if param["name"] == param_name:
                         return param
+        return None
+
+    def get_default_param(self, name: str) -> DefaultAPIParam | None:
+        for param in self.config_default_api_params:
+            if param["name"] == name:
+                return param
         return None
 
     def make_method_body(self, method_schema: MethodSchema) -> str:
@@ -461,8 +482,8 @@ class MethodGenerator(ABCGenerator):
             return result
 
         for p in (
-            *filter(lambda x: x.required, params),
-            *filter(lambda x: not x.required, params),
+            *filter(lambda x: x.required and not self.get_default_param(x.name), params),
+            *filter(lambda x: not x.required or self.get_default_param(x.name), params),
         ):
             literal_types = self.get_param_literal_types(method_name, p.name)
 
@@ -480,12 +501,16 @@ class MethodGenerator(ABCGenerator):
             if p.description and is_unixtime_type(p.name, p.types, p.description):
                 p.types.insert(p.types.index("Integer"), "Unixtime")
 
+            default_param_value = (
+                None if self.get_default_param(p.name) is None else f'default_params["{p.name}"]'
+            )
             code = f"{TAB * 2}{p.name}: "
-            if not p.required:
-                type_hint = self.make_type_hint(p.types)
-                code += f"{type_hint} | None = None"
+
+            if not p.required or default_param_value:
+                code += f"{self.make_type_hint(p.types)} {'| None ' if not p.required else ''}= {default_param_value}"
             else:
                 code += self.make_type_hint(p.types)
+
             result.append(code)
 
         return result
@@ -523,17 +548,25 @@ class MethodGenerator(ABCGenerator):
                 )
             )
         )
+        default_params_typeddict = 'typing.TypedDict("DefaultParams", {})'.format(
+            "{%s}"
+            % ", ".join(
+                f'"{x['name']}": {convert_to_python_type(x['type'], parent_types=self.parent_types)}'
+                for x in self.config_default_api_params
+            )
+        )
         lines = [
             "import typing\n",
             "from datetime import datetime\n\n"
             "from fntypes.co import Result, Variative\n"
             "from telegrinder.api.error import APIError\n",
-            "from telegrinder.model import full_result, get_params\n",
+            "from telegrinder.model import ProxiedDict, full_result, get_params\n",
             "from telegrinder.types.enums import *  # noqa: F403\n"
             "from telegrinder.types.objects import *  # noqa: F403\n\n"
             "if typing.TYPE_CHECKING:\n",
             "    from telegrinder.api.abc import ABCAPI\n\n\n",
             "class APIMethods:\n" + docstring,
+            f"\n\n    default_params = ProxiedDict({default_params_typeddict})\n\n",
             '    def __init__(self, api: "ABCAPI") -> None:\n',
             "        self.api = api\n\n",
         ]
@@ -555,6 +588,7 @@ def generate(
     *,
     path_dir: str | None = None,
     path_config_literals: str | None = None,
+    path_config_default_api_params: str | None = None,
     path_nicifications: str | None = None,
     object_generator: ABCGenerator | None = None,
     method_generator: ABCGenerator | None = None,
@@ -579,6 +613,9 @@ def generate(
                 object_generator.parent_types if isinstance(object_generator, ObjectGenerator) else {}
             ),
             config_literal_types=cfg_literal_types.get("methods"),
+            config_default_api_params=read_config_default_api_params(path_config_default_api_params)[
+                "default_params"
+            ],
             api_version=schema_json["version"],
             release_date=schema_json["release_date"],
         )

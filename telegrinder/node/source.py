@@ -25,7 +25,7 @@ class Source(Polymorphic, DataNode):
             chat=message.chat,
             thread_id=message.message_thread_id,
         )
-    
+
     @impl
     async def compose_callback_query(cls, callback_query: CallbackQueryNode) -> typing.Self:
         return cls(

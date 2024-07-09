@@ -16,14 +16,14 @@ class Polymorphic:
             node_collection = await composition.compose_nodes(update)
             if node_collection is None:
                 continue
-            
+
             result = composition.func(cls, **node_collection.values())
             if inspect.isawaitable(result):
                 result = await result
-            
+
             await node_collection.close_all(with_value=result)
             return result
-        
+
         raise ComposeError("No implementation found.")
 
 

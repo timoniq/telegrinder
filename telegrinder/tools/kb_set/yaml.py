@@ -44,8 +44,7 @@ class KeyboardSetYAML(KeyboardSetBase):
                 or not isinstance(kb_config["buttons"], list)
             ):
                 raise KeyboardSetError(
-                    "Keyboard should be dict with field buttons which must be a list, "
-                    "check documentation."
+                    "Keyboard should be dict with field buttons which must be a list, " "check documentation."
                 )
 
             buttons = kb_config.pop("buttons")

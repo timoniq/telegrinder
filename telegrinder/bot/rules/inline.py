@@ -36,8 +36,7 @@ class InlineQueryChatType(InlineQueryRule):
 class InlineQueryText(InlineQueryRule):
     def __init__(self, texts: str | list[str], *, lower_case: bool = False) -> None:
         self.texts = [
-            text.lower() if lower_case else text
-            for text in ([texts] if isinstance(texts, str) else texts)
+            text.lower() if lower_case else text for text in ([texts] if isinstance(texts, str) else texts)
         ]
         self.lower_case = lower_case
 

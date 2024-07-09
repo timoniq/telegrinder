@@ -2,7 +2,9 @@ import abc
 import inspect
 import typing
 
-ComposeResult: typing.TypeAlias = typing.Coroutine[typing.Any, typing.Any, typing.Any] | typing.AsyncGenerator[typing.Any, None]
+ComposeResult: typing.TypeAlias = (
+    typing.Coroutine[typing.Any, typing.Any, typing.Any] | typing.AsyncGenerator[typing.Any, None]
+)
 
 
 class ComposeError(BaseException): ...

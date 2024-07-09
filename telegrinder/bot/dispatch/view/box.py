@@ -51,9 +51,7 @@ class ViewBox(
         default_factory=lambda: typing.cast(InlineQueryViewT, InlineQueryView()),
     )
     message: MessageViewT = dataclasses.field(
-        default_factory=lambda: typing.cast(
-            MessageViewT, MessageView(update_type=UpdateType.MESSAGE)
-        ),
+        default_factory=lambda: typing.cast(MessageViewT, MessageView(update_type=UpdateType.MESSAGE)),
     )
     business_message: MessageViewT = dataclasses.field(
         default_factory=lambda: typing.cast(
@@ -61,14 +59,10 @@ class ViewBox(
         ),
     )
     channel_post: MessageViewT = dataclasses.field(
-        default_factory=lambda: typing.cast(
-            MessageViewT, MessageView(update_type=UpdateType.CHANNEL_POST)
-        ),
+        default_factory=lambda: typing.cast(MessageViewT, MessageView(update_type=UpdateType.CHANNEL_POST)),
     )
     edited_message: MessageViewT = dataclasses.field(
-        default_factory=lambda: typing.cast(
-            MessageViewT, MessageView(update_type=UpdateType.EDITED_MESSAGE)
-        ),
+        default_factory=lambda: typing.cast(MessageViewT, MessageView(update_type=UpdateType.EDITED_MESSAGE)),
     )
     edited_business_message: MessageViewT = dataclasses.field(
         default_factory=lambda: typing.cast(

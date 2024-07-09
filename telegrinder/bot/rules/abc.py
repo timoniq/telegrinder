@@ -53,7 +53,7 @@ class ABCRule(ABC, typing.Generic[EventCute, AdaptTo]):
 
     def __and__(self, other: "ABCRule[EventCute, AdaptTo]") -> "AndRule[EventCute, AdaptTo]":
         """And Rule.
-        
+
         ```python
         rule = HasText() & HasCaption()
         rule #> AndRule(HasText(), HasCaption()) -> True if all rules in an AndRule are True, otherwise False.
@@ -64,7 +64,7 @@ class ABCRule(ABC, typing.Generic[EventCute, AdaptTo]):
 
     def __or__(self, other: "ABCRule[EventCute, AdaptTo]") -> "OrRule[EventCute, AdaptTo]":
         """Or Rule.
-        
+
         ```python
         rule = HasText() | HasCaption()
         rule #> OrRule(HasText(), HasCaption()) -> True if any rule in an OrRule are True, otherwise False.
@@ -77,7 +77,7 @@ class ABCRule(ABC, typing.Generic[EventCute, AdaptTo]):
         """Not Rule.
 
         ```python
-        rule = ~HasText() 
+        rule = ~HasText()
         rule # NotRule(HasText()) -> True if rule returned False, otherwise False.
         ```
         """
@@ -143,8 +143,7 @@ class NodeRule(ABCRule[Update, tuple[*Ts]], ABC, typing.Generic[*Ts]):
         return NodeAdapter(*list(nodes.values()))  # type: ignore
 
     @abstractmethod
-    async def check(self, *nodes: *Ts, ctx: Context) -> bool:
-        ...
+    async def check(self, *nodes: *Ts, ctx: Context) -> bool: ...
 
 
 __all__ = (

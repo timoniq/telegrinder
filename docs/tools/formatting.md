@@ -16,7 +16,7 @@ Formatter is derived from `FormatString` to work string formatting with the foll
 * `escape(string: str) -> EscapedString` | escaping string
 * `italic(string: str) -> TagFormat` | __italic text__
 * `link(href: str, string: str | None = None) -> TagFormat` | https://link
-* `mention(string: str, user_id: int) -> TagFormat` | mention entity 
+* `mention(string: str, user_id: int) -> TagFormat` | mention entity
 * `pre_code(string: str, lang: str | ProgrammingLanguage | None = None) -> TagFormat` | ```pre code```
 * `resolve_domain(username: str, string: str | None = None) -> TagFormat` | tg://resolve?domain=username
 * `spoiler(string: str) -> TagFormat` -> ||spoiler text||
@@ -32,7 +32,7 @@ from telegrinder.tools.formatting import HTMLFormatter, bold, spoiler
 HTMLFormatter(spoiler("I want tea."))  # if you want use only formatting functions
 "Just string | " + bold("bold string")  # if you want concat str with formatting functions or HTMLFormatter instance (there's no difference between right or left)
 ```
-  
+
 Also formatter has a `.format(self, *args, **kwargs)` method for formatting a string with `{}`, it can support specifiers whose names are the same as the format names (other than special):
 
 ```python

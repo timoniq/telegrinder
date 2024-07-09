@@ -266,8 +266,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send a reply to a message with text messages. On success, the sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.    
-    
+        will be sent.
+
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
@@ -309,16 +309,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[bool, APIError]:
         """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
 
-        Use this method to delete a message, including service messages, with the 
-        following limitations: - A message can only be deleted if it was sent less 
-        than 48 hours ago. - Service messages about a supergroup, channel, or forum 
-        topic creation can't be deleted. - A dice message in a private chat can only 
-        be deleted if it was sent more than 24 hours ago. - Bots can delete outgoing 
-        messages in private chats, groups, and supergroups. - Bots can delete incoming 
-        messages in private chats. - Bots granted can_post_messages permissions 
-        can delete outgoing messages in channels. - If the bot is an administrator 
-        of a group, it can delete any message there. - If the bot has can_delete_messages 
-        permission in a supergroup or a channel, it can delete any message there. 
+        Use this method to delete a message, including service messages, with the
+        following limitations: - A message can only be deleted if it was sent less
+        than 48 hours ago. - Service messages about a supergroup, channel, or forum
+        topic creation can't be deleted. - A dice message in a private chat can only
+        be deleted if it was sent more than 24 hours ago. - Bots can delete outgoing
+        messages in private chats, groups, and supergroups. - Bots can delete incoming
+        messages in private chats. - Bots granted can_post_messages permissions
+        can delete outgoing messages in channels. - If the bot is an administrator
+        of a group, it can delete any message there. - If the bot has can_delete_messages
+        permission in a supergroup or a channel, it can delete any message there.
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -356,8 +356,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
-        Use this method to edit text and game messages. On success, if the edited 
-        message is not an inline message, the edited Message is returned, otherwise 
+        Use this method to edit text and game messages. On success, if the edited
+        message is not an inline message, the edited Message is returned, otherwise
         True is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
@@ -404,11 +404,11 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
-        Use this method to copy messages of any kind. Service messages, giveaway 
-        messages, giveaway winners messages, and invoice messages can't be copied. 
-        A quiz poll can be copied only if the value of the field correct_option_id 
-        is known to the bot. The method is analogous to the method forwardMessage, 
-        but the copied message doesn't have a link to the original message. Returns 
+        Use this method to copy messages of any kind. Service messages, giveaway
+        messages, giveaway winners messages, and invoice messages can't be copied.
+        A quiz poll can be copied only if the value of the field correct_option_id
+        is known to the bot. The method is analogous to the method forwardMessage,
+        but the copied message doesn't have a link to the original message. Returns
         the MessageId of the sent message on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -476,9 +476,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[bool, APIError]:
         """Shortcut `API.set_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
 
-        Use this method to change the chosen reactions on a message. Service messages 
-        can't be reacted to. Automatically forwarded messages from a channel to 
-        its discussion group have the same available reactions as messages in the 
+        Use this method to change the chosen reactions on a message. Service messages
+        can't be reacted to. Automatically forwarded messages from a channel to
+        its discussion group have the same available reactions as messages in the
         channel. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -523,8 +523,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.forward_message()`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
 
-        Use this method to forward messages of any kind. Service messages and messages 
-        with protected content can't be forwarded. On success, the sent Message 
+        Use this method to forward messages of any kind. Service messages and messages
+        with protected content can't be forwarded. On success, the sent Message
         is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -567,10 +567,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.pin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
 
-        Use this method to add a message to the list of pinned messages in a chat. If 
-        the chat is not a private chat, the bot must be an administrator in the chat 
-        for this to work and must have the 'can_pin_messages' administrator right 
-        in a supergroup or 'can_edit_messages' administrator right in a channel. 
+        Use this method to add a message to the list of pinned messages in a chat. If
+        the chat is not a private chat, the bot must be an administrator in the chat
+        for this to work and must have the 'can_pin_messages' administrator right
+        in a supergroup or 'can_edit_messages' administrator right in a channel.
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -604,10 +604,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.unpin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
 
-        Use this method to remove a message from the list of pinned messages in a chat. 
-        If the chat is not a private chat, the bot must be an administrator in the chat 
-        for this to work and must have the 'can_pin_messages' administrator right 
-        in a supergroup or 'can_edit_messages' administrator right in a channel. 
+        Use this method to remove a message from the list of pinned messages in a chat.
+        If the chat is not a private chat, the bot must be an administrator in the chat
+        for this to work and must have the 'can_pin_messages' administrator right
+        in a supergroup or 'can_edit_messages' administrator right in a channel.
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -652,10 +652,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
 
-        Use this method to send audio files, if you want Telegram clients to display 
-        them in the music player. Your audio must be in the .MP3 or .M4A format. On 
-        success, the sent Message is returned. Bots can currently send audio files 
-        of up to 50 MB in size, this limit may be changed in the future. For sending 
+        Use this method to send audio files, if you want Telegram clients to display
+        them in the music player. Your audio must be in the .MP3 or .M4A format. On
+        success, the sent Message is returned. Bots can currently send audio files
+        of up to 50 MB in size, this limit may be changed in the future. For sending
         voice messages, use the sendVoice method instead.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -738,8 +738,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
 
-        Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without 
-        sound). On success, the sent Message is returned. Bots can currently send 
+        Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without
+        sound). On success, the sent Message is returned. Bots can currently send
         animation files of up to 50 MB in size, this limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -824,8 +824,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
 
-        Use this method to send general files. On success, the sent Message is returned. 
-        Bots can currently send files of any type of up to 50 MB in size, this limit 
+        Use this method to send general files. On success, the sent Message is returned.
+        Bots can currently send files of any type of up to 50 MB in size, this limit
         may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -971,7 +971,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
 
-        Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. 
+        Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
         On success, the sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1028,9 +1028,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
 
-        Use this method to send video files, Telegram clients support MPEG4 videos 
-        (other formats may be sent as Document). On success, the sent Message is 
-        returned. Bots can currently send video files of up to 50 MB in size, this 
+        Use this method to send video files, Telegram clients support MPEG4 videos
+        (other formats may be sent as Document). On success, the sent Message is
+        returned. Bots can currently send video files of up to 50 MB in size, this
         limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1114,8 +1114,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
-        As of v.4.0, Telegram clients support rounded square MPEG4 videos of up 
-        to 1 minute long. Use this method to send video messages. On success, the 
+        As of v.4.0, Telegram clients support rounded square MPEG4 videos of up
+        to 1 minute long. Use this method to send video messages. On success, the
         sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1183,10 +1183,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
 
-        Use this method to send audio files, if you want Telegram clients to display 
-        the file as a playable voice message. For this to work, your audio must be 
-        in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). 
-        On success, the sent Message is returned. Bots can currently send voice 
+        Use this method to send audio files, if you want Telegram clients to display
+        the file as a playable voice message. For this to work, your audio must be
+        in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document).
+        On success, the sent Message is returned. Bots can currently send voice
         messages of up to 50 MB in size, this limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1357,7 +1357,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
 
-        Use this method to send information about a venue. On success, the sent Message 
+        Use this method to send information about a venue. On success, the sent Message
         is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1421,7 +1421,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
 
-        Use this method to send an animated emoji that will display a random value. 
+        Use this method to send an animated emoji that will display a random value.
         On success, the sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1638,10 +1638,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[bool, APIError]:
         """Shortcut `API.send_chat_action()`, see the [documentation](https://core.telegram.org/bots/api#sendchataction)
 
-        Use this method when you need to tell the user that something is happening 
-        on the bot's side. The status is set for 5 seconds or less (when a message arrives 
-        from your bot, Telegram clients clear its typing status). Returns True 
-        on success. We only recommend using this method when a response from the 
+        Use this method when you need to tell the user that something is happening
+        on the bot's side. The status is set for 5 seconds or less (when a message arrives
+        from your bot, Telegram clients clear its typing status). Returns True
+        on success. We only recommend using this method when a response from the
         bot will take a noticeable amount of time to arrive.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1682,8 +1682,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[list[MessageCute], APIError]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
 
-        Use this method to send a group of photos, videos, documents or audios as 
-        an album. Documents and audio files can be only grouped in an album with messages 
+        Use this method to send a group of photos, videos, documents or audios as
+        an album. Documents and audio files can be only grouped in an album with messages
         of the same type. On success, an array of Messages that were sent is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1881,10 +1881,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
 
-        Use this method to send a reply to a message with audio files, if you want Telegram clients to display 
-        them in the music player. Your audio must be in the .MP3 or .M4A format. On 
-        success, the sent Message is returned. Bots can currently send audio files 
-        of up to 50 MB in size, this limit may be changed in the future. For sending 
+        Use this method to send a reply to a message with audio files, if you want Telegram clients to display
+        them in the music player. Your audio must be in the .MP3 or .M4A format. On
+        success, the sent Message is returned. Bots can currently send audio files
+        of up to 50 MB in size, this limit may be changed in the future. For sending
         voice messages, use the sendVoice method instead.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1967,8 +1967,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
 
-        Use this method to send a reply to a message with animation files (GIF or H.264/MPEG-4 AVC video without 
-        sound). On success, the sent Message is returned. Bots can currently send 
+        Use this method to send a reply to a message with animation files (GIF or H.264/MPEG-4 AVC video without
+        sound). On success, the sent Message is returned. Bots can currently send
         animation files of up to 50 MB in size, this limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -2016,7 +2016,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
-        
+
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
         :param reply_parameters: Description of the message to reply to.
@@ -2053,8 +2053,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
 
-        Use this method to send a reply to a message with general files. On success, the sent Message is returned. 
-        Bots can currently send files of any type of up to 50 MB in size, this limit 
+        Use this method to send a reply to a message with general files. On success, the sent Message is returned.
+        Bots can currently send files of any type of up to 50 MB in size, this limit
         may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -2200,7 +2200,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
 
-        Use this method to send a reply to a message with static .WEBP, animated .TGS, or video .WEBM stickers. 
+        Use this method to send a reply to a message with static .WEBP, animated .TGS, or video .WEBM stickers.
         On success, the sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -2257,9 +2257,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
 
-        Use this method to send a reply to a message with video files, Telegram clients support MPEG4 videos 
-        (other formats may be sent as Document). On success, the sent Message is 
-        returned. Bots can currently send video files of up to 50 MB in size, this 
+        Use this method to send a reply to a message with video files, Telegram clients support MPEG4 videos
+        (other formats may be sent as Document). On success, the sent Message is
+        returned. Bots can currently send video files of up to 50 MB in size, this
         limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -2341,8 +2341,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
-        As of v.4.0, Telegram clients support rounded square MPEG4 videos of up 
-        to 1 minute long. Use this method to send a reply to a message with video messages. On success, the 
+        As of v.4.0, Telegram clients support rounded square MPEG4 videos of up
+        to 1 minute long. Use this method to send a reply to a message with video messages. On success, the
         sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -2410,10 +2410,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
 
-        Use this method to send a reply to a message with audio files, if you want Telegram clients to display 
-        the file as a playable voice message. For this to work, your audio must be 
-        in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). 
-        On success, the sent Message is returned. Bots can currently send voice 
+        Use this method to send a reply to a message with audio files, if you want Telegram clients to display
+        the file as a playable voice message. For this to work, your audio must be
+        in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document).
+        On success, the sent Message is returned. Bots can currently send voice
         messages of up to 50 MB in size, this limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -2544,7 +2544,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         poll preview.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-        
+
         :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
@@ -2584,7 +2584,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
 
-        Use this method to send a reply to a message with information about a venue. On success, the sent Message 
+        Use this method to send a reply to a message with information about a venue. On success, the sent Message
         is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -2648,7 +2648,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
 
-        Use this method to send a reply to a message with an animated emoji that will display a random value. 
+        Use this method to send a reply to a message with an animated emoji that will display a random value.
         On success, the sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -2878,8 +2878,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[list[MessageCute], APIError]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
 
-        Use this method to send a reply to a message with a group of photos, videos, documents or audios as 
-        an album. Documents and audio files can be only grouped in an album with messages 
+        Use this method to send a reply to a message with a group of photos, videos, documents or audios as
+        an album. Documents and audio files can be only grouped in an album with messages
         of the same type. On success, an array of Messages that were sent is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -3060,9 +3060,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_live_location()`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
 
-        Use this method to edit live location messages. A location can be edited 
-        until its live_period expires or editing is explicitly disabled by a call 
-        to stopMessageLiveLocation. On success, if the edited message is not an 
+        Use this method to edit live location messages. A location can be edited
+        until its live_period expires or editing is explicitly disabled by a call
+        to stopMessageLiveLocation. On success, if the edited message is not an
         inline message, the edited Message is returned, otherwise True is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
@@ -3119,8 +3119,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
 
-        Use this method to edit captions of messages. On success, if the edited message 
-        is not an inline message, the edited Message is returned, otherwise True 
+        Use this method to edit captions of messages. On success, if the edited message
+        is not an inline message, the edited Message is returned, otherwise True
         is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
@@ -3172,12 +3172,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
-        Use this method to edit animation, audio, document, photo, or video messages. 
-        If a message is part of a message album, then it can be edited only to an audio 
-        for audio albums, only to a document for document albums and to a photo or 
-        a video otherwise. When an inline message is edited, a new file can't be uploaded; 
-        use a previously uploaded file via its file_id or specify a URL. On success, 
-        if the edited message is not an inline message, the edited Message is returned, 
+        Use this method to edit animation, audio, document, photo, or video messages.
+        If a message is part of a message album, then it can be edited only to an audio
+        for audio albums, only to a document for document albums and to a photo or
+        a video otherwise. When an inline message is edited, a new file can't be uploaded;
+        use a previously uploaded file via its file_id or specify a URL. On success,
+        if the edited message is not an inline message, the edited Message is returned,
         otherwise True is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
@@ -3198,7 +3198,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
-        
+
         :param type: Required if media is not an `str | InputMedia` object. Type of the media, \
         must be one of `photo`, `video`, `animation`, `audio`, `document`.
 
@@ -3207,9 +3207,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         params = get_params(locals())
 
         if not isinstance(media, InputMedia):
-            assert (
-                type
-            ), "parameter 'type' is required, because 'media' is not an 'InputMedia' object."
+            assert type, "parameter 'type' is required, because 'media' is not an 'InputMedia' object."
             params["media"] = input_media(
                 params.pop("type"),
                 media,
@@ -3235,8 +3233,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)
 
-        Use this method to edit only the reply markup of messages. On success, if 
-        the edited message is not an inline message, the edited Message is returned, 
+        Use this method to edit only the reply markup of messages. On success, if
+        the edited message is not an inline message, the edited Message is returned,
         otherwise True is returned.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \

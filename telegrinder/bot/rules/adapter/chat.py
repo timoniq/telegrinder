@@ -21,14 +21,14 @@ class HasChat(Source, typing.Protocol):
 class ChatAdapter(ABCAdapter[Update, Chat]):
     def __init__(self) -> None:
         self.raw_adapter = RawUpdateAdapter()
-    
+
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: Update -> UpdateCute -> Chat>"
 
     async def adapt(self, api: ABCAPI, update: Update) -> Result[Chat, AdapterError]:
         match await self.raw_adapter.adapt(api, update):
             case Ok(event):
-                if (source := get_by_sources(event.incoming_update, HasChat)):
+                if source := get_by_sources(event.incoming_update, HasChat):
                     return Ok(source)
                 return Error(AdapterError(f"{event.incoming_update.__class__.__name__!r} has no chat."))
             case Error(_) as error:

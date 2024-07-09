@@ -124,9 +124,7 @@ class Storage:
     order_default=True,
     field_specifiers=(ctx_var,),
 )
-class GlobalContext(
-    ABCGlobalContext, typing.Generic[CtxValueT], dict[str, GlobalCtxVar[CtxValueT]]
-):
+class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, GlobalCtxVar[CtxValueT]]):
     """GlobalContext.
 
     ```
@@ -315,6 +313,13 @@ class GlobalContext(
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
+    @typing.overload
+    def pop(
+        self,
+        var_name: str,
+        var_value_type: typing.Any = typing.Any,
+    ) -> Option[GlobalCtxVar[typing.Any]]: ...
+
     def pop(self, var_name, var_value_type=typing.Any):
         """Pop context variable by name."""
 
@@ -333,6 +338,13 @@ class GlobalContext(
         var_name: str,
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
+
+    @typing.overload
+    def get(
+        self,
+        var_name: str,
+        var_value_type: typing.Any = typing.Any,
+    ) -> Option[GlobalCtxVar[typing.Any]]: ...
 
     def get(self, var_name, var_value_type=typing.Any):
         """Get context variable by name."""
@@ -364,6 +376,13 @@ class GlobalContext(
         var_name: str,
         var_value_type: type[T],
     ) -> Option[T]: ...
+
+    @typing.overload
+    def get_value(
+        self,
+        var_name: str,
+        var_value_type: typing.Any = typing.Any,
+    ) -> Option[typing.Any]: ...
 
     def get_value(self, var_name, var_value_type=typing.Any):
         """Get context variable value by name."""

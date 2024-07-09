@@ -1,0 +1,16 @@
+{
+    "default_params": [
+        {
+            "name": "parse_mode",
+            "type": "String"
+        },
+        {
+            "name": "question_parse_mode",
+            "type": "String"
+        },
+        {
+            "name": "explanation_parse_mode",
+            "type": "String"
+        }
+    ]
+}

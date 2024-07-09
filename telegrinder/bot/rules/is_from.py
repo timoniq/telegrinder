@@ -111,9 +111,7 @@ class IsForward(MessageRule):
 
 
 class IsForwardType(MessageRule, requires=[IsForward()]):
-    def __init__(
-        self, fwd_type: typing.Literal["user", "hidden_user", "chat", "channel"], /
-    ) -> None:
+    def __init__(self, fwd_type: typing.Literal["user", "hidden_user", "chat", "channel"], /) -> None:
         self.fwd_type = fwd_type
 
     async def check(self, message: Message, ctx: Context) -> bool:

@@ -53,7 +53,7 @@ def compose_method_params(
     validators: dict[str, typing.Callable[[CuteT], bool]] | None = None,
 ) -> dict[str, typing.Any]:
     """Compose method `params` from `update` by `default_params` and `validators`.
-    
+
     :param params: Method params.
     :param update: Update object.
     :param default_params: Default params. \
@@ -96,9 +96,7 @@ def shortcut(
         ) -> typing.Any:
             if executor is None:
                 return await func(self, *args, **kwargs)
-            signature_params = {
-                k: p for k, p in inspect.signature(func).parameters.items() if k != "self"
-            }
+            signature_params = {k: p for k, p in inspect.signature(func).parameters.items() if k != "self"}
             params: dict[str, typing.Any] = {}
             index = 0
 

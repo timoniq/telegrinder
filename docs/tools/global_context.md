@@ -131,7 +131,7 @@ class MyGlobalContext(GlobalContext):
     COOKIES: typing.Final[set[str]] = CtxVar({"chocolate", "chip", "cracker"}, const=True)
     # NOTE: type hints typing.Final, typing.ClassVar mark the fields as a constant, so such fields will not be present in the __init__ signature.
 
-ctx = MyGlobalContext(supplier="Brooklyn Born Chocolate")  # <'MyGlobalContext@my_ctx' -> (<GlobalCtxVar(supplier=<CtxVar(value='Brooklyn Born Chocolate')>)>, <GlobalCtxVar(COOKIES=<ConstCtxVar(value={'chocolate', 'chip', 'cracker'})>)>)> 
+ctx = MyGlobalContext(supplier="Brooklyn Born Chocolate")  # <'MyGlobalContext@my_ctx' -> (<GlobalCtxVar(supplier=<CtxVar(value='Brooklyn Born Chocolate')>)>, <GlobalCtxVar(COOKIES=<ConstCtxVar(value={'chocolate', 'chip', 'cracker'})>)>)>
 ```
 
 Function `ctx_var(value: T, *, const: bool = False) -> T` is the same as dataclass `CtxVar` but it returns this dataclass as type T.

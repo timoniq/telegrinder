@@ -18,10 +18,7 @@ logger.set_level("INFO")
 async def create_tables() -> None:
     async with aiosqlite.connect("test.db") as conn:
         await conn.execute(
-            "create table if not exists logs("
-            "id integer primary key autoincrement, "
-            "msg text"
-            ")"
+            "create table if not exists logs(" "id integer primary key autoincrement, " "msg text" ")"
         )
 
 

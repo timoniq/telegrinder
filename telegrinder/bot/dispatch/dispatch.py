@@ -29,9 +29,7 @@ from .view.box import (
 T = typing.TypeVar("T")
 R = typing.TypeVar("R")
 P = typing.ParamSpec("P")
-Handler = typing.Callable[
-    typing.Concatenate[T, ...], typing.Coroutine[typing.Any, typing.Any, typing.Any]
-]
+Handler = typing.Callable[typing.Concatenate[T, ...], typing.Coroutine[typing.Any, typing.Any, typing.Any]]
 Event = typing.TypeVar("Event", bound=BaseCute)
 
 DEFAULT_DATACLASS: typing.Final[type[Update]] = Update
@@ -136,7 +134,7 @@ class Dispatch(
     async def feed(self, event: Update, api: ABCAPI) -> bool:
         logger.debug("Processing update (update_id={})", event.update_id)
         await self.raw_event.process(event, api)
-        
+
         for view in self.get_views().values():
             if await view.check(event):
                 logger.debug(

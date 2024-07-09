@@ -10,7 +10,7 @@ Nicifications can only implement methods/properties working only with model fiel
 import typing
 from datetime import datetime
 
-from fntypes.option import Option, Some
+from fntypes.option import Option
 
 from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import (
@@ -50,10 +50,7 @@ class _Birthdate(Birthdate):
 
 class _Chat(Chat):
     def __eq__(self, other: typing.Any) -> bool:
-        return (
-            isinstance(other, self.__class__)
-            and self.id == other.id
-        )
+        return isinstance(other, self.__class__) and self.id == other.id
 
     @property
     def full_name(self) -> Option[str]:
@@ -117,18 +114,13 @@ class _Message(Message):
         Full name, for `private` chat."""
 
         return (
-            self.chat.full_name.unwrap()
-            if self.chat.type == ChatType.PRIVATE
-            else self.chat.title.unwrap()
+            self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
         )
 
 
 class _User(User):
     def __eq__(self, other: typing.Any) -> bool:
-        return (
-            isinstance(other, self.__class__)
-            and self.id == other.id
-        )
+        return isinstance(other, self.__class__) and self.id == other.id
 
     @property
     def default_accent_color(self) -> DefaultAccentColor:
@@ -171,7 +163,7 @@ class _InputFile(typing.NamedTuple):
 
 class _InaccessibleMessage(InaccessibleMessage):
     date: typing.Literal[0]
-    """Always 0. The field can be used to differentiate regular and inaccessible 
+    """Always 0. The field can be used to differentiate regular and inaccessible
     messages."""
 
 

@@ -125,9 +125,7 @@ class FormatString(str):
         return HTMLFormatter(
             str.__add__(
                 escape(self),
-                value.formatting()
-                if isinstance(value, TagFormat)
-                else escape(value),
+                value.formatting() if isinstance(value, TagFormat) else escape(value),
             )
         )
 

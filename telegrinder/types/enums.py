@@ -539,7 +539,6 @@ class MaskPositionPoint(str, enum.Enum):
     """The part of the face relative to which the mask should be placed. One of “forehead”,
     “eyes”, “mouth”, or “chin”."""
 
-
     FOREHEAD = "forehead"
     EYES = "eyes"
     MOUTH = "mouth"
@@ -570,7 +569,6 @@ class InlineQueryResultMimeType(str, enum.Enum):
 class InlineQueryResultThumbnailMimeType(str, enum.Enum):
     """MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”,
     or “video/mp4”. Defaults to “image/jpeg”"""
-
 
     IMAGE_JPEG = "image/jpeg"
     IMAGE_GIF = "image/gif"
@@ -606,7 +604,6 @@ class InlineQueryResultGifThumbnailMimeType(str, enum.Enum):
     """MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”,
     or “video/mp4”. Defaults to “image/jpeg”"""
 
-
     IMAGE_JPEG = "image/jpeg"
     IMAGE_GIF = "image/gif"
     VIDEO_MP4 = "video/mp4"
@@ -615,7 +612,6 @@ class InlineQueryResultGifThumbnailMimeType(str, enum.Enum):
 class InlineQueryResultMpeg4GifThumbnailMimeType(str, enum.Enum):
     """MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”,
     or “video/mp4”. Defaults to “image/jpeg”"""
-
 
     IMAGE_JPEG = "image/jpeg"
     IMAGE_GIF = "image/gif"
@@ -641,7 +637,6 @@ class EncryptedPassportElementType(str, enum.Enum):
     “identity_card”, “internal_passport”, “address”, “utility_bill”,
     “bank_statement”, “rental_agreement”, “passport_registration”,
     “temporary_registration”, “phone_number”, “email”."""
-
 
     PERSONAL_DETAILS = "personal_details"
     PASSPORT = "passport"

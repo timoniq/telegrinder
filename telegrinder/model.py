@@ -163,27 +163,28 @@ class Proxy:
         self.key = key
         self.cfg = cfg
 
-    def get(self):
+    def get(self) -> typing.Any | None:
         return self.cfg._defaults.get(self.key)
 
 
 class _ProxiedDict(typing.Generic[T]):
-        def __init__(self, tp: type[T]) -> None:
-            self._type = tp
-            self._defaults = {}
+    def __init__(self, tp: type[T]) -> None:
+        self.type = tp
+        self._defaults = {}
 
-        def __getitem__(self, key: str) -> None:
-            return Proxy(self, key)  # type: ignore
-        
-        def __setattribute__(self, name: str, value) -> None:
-            self._defaults[name] = value
-        
-        def __setitem__(self, key: str, value: typing.Any) -> None:
-            self._defaults[key] = value
+    def __setattribute__(self, name: str, value: typing.Any, /) -> None:
+        self._defaults[name] = value
+
+    def __getitem__(self, key: str, /) -> None:
+        return Proxy(self, key)  # type: ignore
+
+    def __setitem__(self, key: str, value: typing.Any, /) -> None:
+        self._defaults[key] = value
 
 
 if typing.TYPE_CHECKING:
-    def ProxiedDict(typed_dct: type[T]) -> T | _ProxiedDict:  # noqa: N802
+
+    def ProxiedDict(typed_dct: type[T]) -> T | _ProxiedDict[T]:  # noqa: N802
         ...
 
 else:
@@ -191,7 +192,9 @@ else:
 
 
 __all__ = (
+    "Proxy",
     "DataConverter",
+    "ProxiedDict",
     "MODEL_CONFIG",
     "Model",
     "full_result",

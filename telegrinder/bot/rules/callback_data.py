@@ -99,8 +99,7 @@ class CallbackDataMap(CallbackQueryDataRule):
 
             if isinstance(validator, list):
                 if not (
-                    isinstance(callback_data[key], dict)
-                    and await cls.match(callback_data[key], validator)
+                    isinstance(callback_data[key], dict) and await cls.match(callback_data[key], validator)
                 ):
                     return False
 

@@ -87,10 +87,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         return (
             "<{}: exceptions_handled=[{}], catcher={!r}>".format(
                 self.__class__.__name__,
-                ", ".join(
-                    e.__name__ if isinstance(e, type) else repr(e)
-                    for e in self.catcher.exceptions
-                ),
+                ", ".join(e.__name__ if isinstance(e, type) else repr(e) for e in self.catcher.exceptions),
                 self.catcher,
             )
             if self.catcher is not None

@@ -67,9 +67,7 @@ class InlineButton(BaseButton):
     callback_game: dict[str, typing.Any] | CallbackGame | None = None
     switch_inline_query: str | None = None
     switch_inline_query_current_chat: str | None = None
-    switch_inline_query_chosen_chat: dict[str, typing.Any] | SwitchInlineQueryChosenChat | None = (
-        None
-    )
+    switch_inline_query_chosen_chat: dict[str, typing.Any] | SwitchInlineQueryChosenChat | None = None
     web_app: dict[str, typing.Any] | WebAppInfo | None = None
 
 

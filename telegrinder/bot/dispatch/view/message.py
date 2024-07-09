@@ -30,11 +30,7 @@ class MessageView(BaseStateView[MessageCute]):
     async def check(self, event: Update) -> bool:
         if not await super().check(event):
             return False
-        return (
-            True
-            if self.update_type is None
-            else self.update_type == event.update_type
-        )
+        return True if self.update_type is None else self.update_type == event.update_type
 
 
 __all__ = ("MessageView",)

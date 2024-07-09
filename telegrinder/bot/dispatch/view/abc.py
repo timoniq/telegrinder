@@ -70,7 +70,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
     @staticmethod
     def get_raw_event(update: Update) -> Option[Model]:
         return getattr(update, update.update_type.value)
-    
+
     @typing.overload
     @classmethod
     def to_handler(

@@ -43,7 +43,7 @@ class ShortState(typing.Generic[EventModel]):
     def __post_init__(self, expiration: datetime.timedelta | None = None) -> None:
         self.creation_date = datetime.datetime.now()
         self.expiration_date = (self.creation_date + expiration) if expiration is not None else None
-        
+
     def cancel(self) -> None:
         """Cancel schedule waiters."""
 

@@ -1164,7 +1164,7 @@
                 {
                     "name": "type",
                     "literals": [
-                        "quiz", 
+                        "quiz",
                         "regular"
                     ]
                 }
@@ -1194,7 +1194,7 @@
                 {
                     "name": "sticker_format",
                     "literals": [
-                        "static", 
+                        "static",
                         "animated",
                         "video"
                     ]
@@ -1207,7 +1207,7 @@
                 {
                     "name": "sticker_format",
                     "literals": [
-                        "static", 
+                        "static",
                         "animated",
                         "video"
                     ]
@@ -1215,7 +1215,7 @@
                 {
                     "name": "sticker_type",
                     "literals": [
-                        "regular", 
+                        "regular",
                         "mask",
                         "custom_emoji"
                     ]

@@ -15,7 +15,6 @@ kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
 logger.set_level("INFO")
 
 
-
 @bot.on.message(Text("/start"))
 async def start(message: Message):
     me = (await api.get_me()).unwrap().first_name
@@ -69,9 +68,7 @@ async def reverse(message: Message, text: str):
 @bot.on.message(Markup(["/predict", "/predict <thing>"]))
 async def predict(message: Message, thing: str | None = None):
     probability_percent = random.randint(0, 100)
-    await message.answer(
-        f"I predict the probability {thing or 'it'} will happen is {probability_percent}%"
-    )
+    await message.answer(f"I predict the probability {thing or 'it'} will happen is {probability_percent}%")
 
 
 @bot.on.message(FuzzyText("hello"))

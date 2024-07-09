@@ -26,14 +26,14 @@ class HasUser(Source, typing.Protocol):
 class UserAdapter(ABCAdapter[Update, User]):
     def __init__(self) -> None:
         self.raw_adapter = RawUpdateAdapter()
-    
+
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: Update -> UpdateCute -> User>"
 
     async def adapt(self, api: ABCAPI, update: Update) -> Result[User, AdapterError]:
         match await self.raw_adapter.adapt(api, update):
             case Ok(event):
-                if (source := get_by_sources(event.incoming_update, [HasFrom, HasUser])):
+                if source := get_by_sources(event.incoming_update, [HasFrom, HasUser]):
                     return Ok(source)
                 return Error(AdapterError(f"{event.incoming_update.__class__.__name__!r} has no user."))
             case Error(_) as error:

@@ -74,9 +74,7 @@ class BaseReturnManager(ABCReturnManager[EventT]):
     @typing.overload
     def register_manager(
         self, return_type: type[T]
-    ) -> typing.Callable[
-        [typing.Callable[[T, EventT, Context], typing.Awaitable[typing.Any]]], Manager
-    ]: ...
+    ) -> typing.Callable[[typing.Callable[[T, EventT, Context], typing.Awaitable[typing.Any]]], Manager]: ...
 
     @typing.overload
     def register_manager(

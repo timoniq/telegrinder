@@ -34,7 +34,7 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
     ) -> Result[bool, APIError]:
         """Shortcut `API.answer_inline_query()`, see the [documentation](https://core.telegram.org/bots/api#answerinlinequery)
 
-        Use this method to send answers to an inline query. On success, True is returned. 
+        Use this method to send answers to an inline query. On success, True is returned.
         No more than 50 results per query are allowed.
 
         :param inline_query_id: Unique identifier for the answered query.

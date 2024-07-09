@@ -21,6 +21,7 @@ Identificator: typing.TypeAlias = str | int
 Storage: typing.TypeAlias = dict[str, LimitedDict[Identificator, ShortState[EventModel]]]
 WEEK = datetime.timedelta(days=7)
 
+
 class WaiterMachine:
     def __init__(self, *, max_storage_size: int = 1000) -> None:
         self.max_storage_size = max_storage_size
@@ -122,9 +123,9 @@ class WaiterMachine:
             return True
 
         return False
-    
+
     async def clear_storage(
-        self, 
+        self,
         views: typing.Iterable[ABCStateView[EventModel]],
         absolutely_dead_time: datetime.timedelta = WEEK,
     ):
@@ -137,9 +138,9 @@ class WaiterMachine:
                 if short_state.expiration_date is not None and now > short_state.expiration_date:
                     assert short_state.context
                     await self.drop(
-                        view, 
-                        ident, 
-                        event=short_state.context.event, 
+                        view,
+                        ident,
+                        event=short_state.context.event,
                         update=short_state.context.context.raw_update,
                         force=True,
                     )
@@ -149,7 +150,7 @@ class WaiterMachine:
 
 
 async def clear_wm_storage_worker(
-    wm: WaiterMachine, 
+    wm: WaiterMachine,
     dp: "Dispatch",
     interval_seconds: int = 60,
     absolutely_dead_time: datetime.timedelta = WEEK,
@@ -157,7 +158,7 @@ async def clear_wm_storage_worker(
     while True:
         all_views = tuple(dp.get_views().values())
         await wm.clear_storage(
-            views=[view for view in all_views if isinstance(view, ABCStateView)], 
+            views=[view for view in all_views if isinstance(view, ABCStateView)],
             absolutely_dead_time=absolutely_dead_time,
         )
         await asyncio.sleep(interval_seconds)

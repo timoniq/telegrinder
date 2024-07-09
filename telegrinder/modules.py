@@ -204,9 +204,7 @@ elif logging_module == "logging":
             kwargs: dict[str, object],
         ) -> tuple[LogMessage | object, tuple[object, ...], dict[str, object]]:
             log_kwargs = {
-                key: kwargs[key]
-                for key in inspect.getfullargspec(self.logger._log).args[1:]
-                if key in kwargs
+                key: kwargs[key] for key in inspect.getfullargspec(self.logger._log).args[1:] if key in kwargs
             }
 
             if isinstance(msg, str):
@@ -227,6 +225,7 @@ if asyncio_module == "uvloop":
     import uvloop  # type: ignore
 
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())  # type: ignore
+
 
 def _set_logger_level(level):
     level = level.upper()

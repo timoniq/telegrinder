@@ -47,15 +47,11 @@ class UserRegistrarMiddleware(ABCMiddleware[Message]):
 @bot.on.message(Text("/formatting"))
 async def formatting(_: Message) -> dict[str, typing.Any]:
     global_ctx.formatting = not global_ctx.formatting
-    return formatting_text(
-        "Formatting ", bold("enabled!" if global_ctx.formatting else "disabled!")
-    )
+    return formatting_text("Formatting ", bold("enabled!" if global_ctx.formatting else "disabled!"))
 
 
 @bot.on.message(
-    MessageEntities(
-        [MessageEntityType.TEXT_MENTION, MessageEntityType.MENTION, MessageEntityType.URL]
-    )
+    MessageEntities([MessageEntityType.TEXT_MENTION, MessageEntityType.MENTION, MessageEntityType.URL])
     & Markup(["/get_user @<username>", "/get_user t.me/<username>", "/get_user <username>"])
 )
 async def get_user_by_username(

@@ -38,9 +38,7 @@ kb = (
 @dp.message(Text("/start") | FuzzyText("hello"))
 async def start(message: Message) -> None:
     me = (await message.ctx_api.get_me()).unwrap().full_name
-    await message.answer(
-        f"Hello, {message.from_user.full_name}, im {me} and i work on a webhook server!"
-    )
+    await message.answer(f"Hello, {message.from_user.full_name}, im {me} and i work on a webhook server!")
 
 
 @dp.message(Text("/cars"))
@@ -93,9 +91,7 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         HasText(),
         default=MessageReplyHandler("Im still waiting for your message!"),
     )
-    await msg.reply(
-        HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE
-    )
+    await msg.reply(HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE)
 
 
 @dp.callback_query(CallbackDataEq("action/guess"))

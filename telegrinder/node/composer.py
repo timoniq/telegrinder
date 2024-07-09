@@ -6,7 +6,9 @@ from telegrinder.node import ComposeError, Node
 from telegrinder.tools.magic import magic_bundle
 
 
-async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dict[str, "NodeSession"] | None = None) -> "NodeSession":
+async def compose_node(
+    _node: type[Node], update: UpdateCute, ready_context: dict[str, "NodeSession"] | None = None
+) -> "NodeSession":
     node = _node.as_node()
 
     context = NodeCollection(ready_context.copy() if ready_context else {})
@@ -25,7 +27,7 @@ async def compose_node(_node: type[Node], update: UpdateCute, ready_context: dic
     else:
         generator = None
         value = await node.compose(**context.values())  # type: ignore
-    
+
     return NodeSession(value, context.sessions, generator)
 
 

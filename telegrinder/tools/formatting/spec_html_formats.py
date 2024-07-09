@@ -12,7 +12,7 @@ SpecialFormat: typing.TypeAlias = typing.Union[
     "ResolveDomain",
     "StartBotLink",
     "StartGroupLink",
-    "TgEmoji"
+    "TgEmoji",
 ]
 
 

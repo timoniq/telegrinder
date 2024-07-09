@@ -24,6 +24,7 @@ else:
 
 
 T = typing.TypeVar("T")
+Type = typing.TypeVar("Type", bound=type | typing.Any)
 Ts = typing.TypeVarTuple("Ts")
 
 DecHook: typing.TypeAlias = typing.Callable[[type[T], typing.Any], typing.Any]
@@ -67,9 +68,7 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
         reverse = False
 
         if len(set(struct_fields_match_sums.values())) != len(struct_fields_match_sums.values()):
-            struct_fields_match_sums = {
-                m: len(m.__struct_fields__) for m in struct_fields_match_sums
-            }
+            struct_fields_match_sums = {m: len(m.__struct_fields__) for m in struct_fields_match_sums}
             reverse = True
 
         union_types = (
@@ -144,8 +143,7 @@ class Decoder:
         origin_type = t if isinstance((t := get_origin(tp)), type) else type(t)
         if origin_type not in self.dec_hooks:
             raise TypeError(
-                f"Unknown type `{repr_type(origin_type)}`. "
-                "You can implement decode hook for this type."
+                f"Unknown type `{repr_type(origin_type)}`. " "You can implement decode hook for this type."
             )
         return self.dec_hooks[origin_type](tp, obj)
 
@@ -176,6 +174,9 @@ class Decoder:
     def decode(self, buf: str | bytes, *, type: type[T]) -> T: ...
 
     @typing.overload
+    def decode(self, buf: str | bytes, *, type: typing.Any = typing.Any) -> typing.Any: ...
+
+    @typing.overload
     def decode(
         self,
         buf: str | bytes,
@@ -183,6 +184,15 @@ class Decoder:
         type: type[T],
         strict: bool = True,
     ) -> T: ...
+
+    @typing.overload
+    def decode(
+        self,
+        buf: str | bytes,
+        *,
+        type: typing.Any = typing.Any,
+        strict: bool = True,
+    ) -> typing.Any: ...
 
     def decode(self, buf, *, type=typing.Any, strict=True):
         return msgspec.json.decode(
@@ -234,8 +244,7 @@ class Encoder:
         origin_type = get_origin(obj.__class__)
         if origin_type not in self.enc_hooks:
             raise NotImplementedError(
-                "Not implemented encode hook for "
-                f"object of type `{repr_type(origin_type)}`."
+                "Not implemented encode hook for " f"object of type `{repr_type(origin_type)}`."
             )
         return self.enc_hooks[origin_type](obj)
 

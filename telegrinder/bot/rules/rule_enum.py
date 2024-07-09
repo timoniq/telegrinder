@@ -30,7 +30,7 @@ class RuleEnum(ABCRule[EventCute, AdaptTo]):
         for attribute_name in new_attributes:
             rules = getattr(cls, attribute_name)
             attribute = RuleEnumState(attribute_name, rules, cls)
-            
+
             setattr(
                 self,
                 attribute.name,

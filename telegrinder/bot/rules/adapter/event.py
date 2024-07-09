@@ -28,7 +28,7 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
             )
         else:
             raw_update_type = self.event.__name__
-        
+
         return "<{}: adapt {} -> {}>".format(
             self.__class__.__name__,
             raw_update_type,
@@ -42,16 +42,16 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
                 return Error(
                     AdapterError(f"Update is not of event type {self.event!r}."),
                 )
-            
+
             if update_dct[self.event.value] is Nothing:
                 return Error(
                     AdapterError(f"Update is not an {self.event!r}."),
                 )
-            
+
             return Ok(
                 self.cute_model.from_update(update_dct[self.event.value].unwrap(), bound_api=api),
             )
-        
+
         event = update_dct[update.update_type.value].unwrap()
         if not update.update_type or not issubclass(event.__class__, self.event):
             return Error(AdapterError(f"Update is not an {self.event.__name__!r}."))
