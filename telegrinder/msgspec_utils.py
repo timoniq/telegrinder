@@ -174,9 +174,6 @@ class Decoder:
     def decode(self, buf: str | bytes, *, type: type[T]) -> T: ...
 
     @typing.overload
-    def decode(self, buf: str | bytes, *, type: typing.Any = typing.Any) -> typing.Any: ...
-
-    @typing.overload
     def decode(
         self,
         buf: str | bytes,
@@ -185,19 +182,10 @@ class Decoder:
         strict: bool = True,
     ) -> T: ...
 
-    @typing.overload
-    def decode(
-        self,
-        buf: str | bytes,
-        *,
-        type: typing.Any = typing.Any,
-        strict: bool = True,
-    ) -> typing.Any: ...
-
-    def decode(self, buf, *, type=typing.Any, strict=True):
+    def decode(self, buf, *, type=object, strict=True):
         return msgspec.json.decode(
             buf,
-            type=type,
+            type=typing.Any if type is object else type,
             strict=strict,
             dec_hook=self.dec_hook,
         )

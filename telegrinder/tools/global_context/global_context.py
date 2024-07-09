@@ -313,14 +313,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
-    @typing.overload
-    def pop(
-        self,
-        var_name: str,
-        var_value_type: typing.Any = typing.Any,
-    ) -> Option[GlobalCtxVar[typing.Any]]: ...
-
-    def pop(self, var_name, var_value_type=typing.Any):
+    def pop(self, var_name: str, var_value_type=object):  # type: ignore
         """Pop context variable by name."""
 
         val = self.get(var_name, var_value_type)  # type: ignore
@@ -339,16 +332,10 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
-    @typing.overload
-    def get(
-        self,
-        var_name: str,
-        var_value_type: typing.Any = typing.Any,
-    ) -> Option[GlobalCtxVar[typing.Any]]: ...
-
-    def get(self, var_name, var_value_type=typing.Any):
+    def get(self, var_name, var_value_type=object):  # type: ignore
         """Get context variable by name."""
 
+        var_value_type = typing.Any if var_value_type is object else type
         generic_types = typing.get_args(get_orig_class(self))
         if generic_types and var_value_type is object:
             var_value_type = generic_types[0]
@@ -377,17 +364,10 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         var_value_type: type[T],
     ) -> Option[T]: ...
 
-    @typing.overload
-    def get_value(
-        self,
-        var_name: str,
-        var_value_type: typing.Any = typing.Any,
-    ) -> Option[typing.Any]: ...
-
-    def get_value(self, var_name, var_value_type=typing.Any):
+    def get_value(self, var_name, var_value_type=object):  # type: ignore
         """Get context variable value by name."""
 
-        return self.get(var_name, var_value_type).map(lambda var: var.value)  # type: ignore
+        return self.get(var_name, var_value_type).map(lambda var: var.value)
 
     def rename(self, old_var_name: str, new_var_name: str) -> Result[_, str]:
         """Rename context variable."""

@@ -551,7 +551,7 @@ class MethodGenerator(ABCGenerator):
         default_params_typeddict = 'typing.TypedDict("DefaultParams", {})'.format(
             "{%s}"
             % ", ".join(
-                f'"{x['name']}": {convert_to_python_type(x['type'], parent_types=self.parent_types)}'
+                f""""{x['name']}": {convert_to_python_type(x['type'], parent_types=self.parent_types)}"""
                 for x in self.config_default_api_params
             )
         )
