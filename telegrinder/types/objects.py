@@ -221,32 +221,32 @@ class Update(Model):
     """
 
     update_id: int
-    """The update's unique identifier. Update identifiers start from a certain
-    positive number and increase sequentially. This identifier becomes especially
-    handy if you're using webhooks, since it allows you to ignore repeated updates
-    or to restore the correct update sequence, should they get out of order.
-    If there are no new updates for at least a week, then identifier of the next
+    """The update's unique identifier. Update identifiers start from a certain 
+    positive number and increase sequentially. This identifier becomes especially 
+    handy if you're using webhooks, since it allows you to ignore repeated updates 
+    or to restore the correct update sequence, should they get out of order. 
+    If there are no new updates for at least a week, then identifier of the next 
     update will be chosen randomly instead of sequentially."""
 
     message: Option["Message"] = Nothing
     """Optional. New incoming message of any kind - text, photo, sticker, etc."""
 
     edited_message: Option["Message"] = Nothing
-    """Optional. New version of a message that is known to the bot and was edited.
-    This update may at times be triggered by changes to message fields that are
+    """Optional. New version of a message that is known to the bot and was edited. 
+    This update may at times be triggered by changes to message fields that are 
     either unavailable or not actively used by your bot."""
 
     channel_post: Option["Message"] = Nothing
-    """Optional. New incoming channel post of any kind - text, photo, sticker,
+    """Optional. New incoming channel post of any kind - text, photo, sticker, 
     etc."""
 
     edited_channel_post: Option["Message"] = Nothing
-    """Optional. New version of a channel post that is known to the bot and was edited.
-    This update may at times be triggered by changes to message fields that are
+    """Optional. New version of a channel post that is known to the bot and was edited. 
+    This update may at times be triggered by changes to message fields that are 
     either unavailable or not actively used by your bot."""
 
     business_connection: Option["BusinessConnection"] = Nothing
-    """Optional. The bot was connected to or disconnected from a business account,
+    """Optional. The bot was connected to or disconnected from a business account, 
     or a user edited an existing connection with the bot."""
 
     business_message: Option["Message"] = Nothing
@@ -259,64 +259,64 @@ class Update(Model):
     """Optional. Messages were deleted from a connected business account."""
 
     message_reaction: Option["MessageReactionUpdated"] = Nothing
-    """Optional. A reaction to a message was changed by a user. The bot must be an
-    administrator in the chat and must explicitly specify `message_reaction`
-    in the list of allowed_updates to receive these updates. The update isn't
+    """Optional. A reaction to a message was changed by a user. The bot must be an 
+    administrator in the chat and must explicitly specify `message_reaction` 
+    in the list of allowed_updates to receive these updates. The update isn't 
     received for reactions set by bots."""
 
     message_reaction_count: Option["MessageReactionCountUpdated"] = Nothing
-    """Optional. Reactions to a message with anonymous reactions were changed.
-    The bot must be an administrator in the chat and must explicitly specify
-    `message_reaction_count` in the list of allowed_updates to receive these
+    """Optional. Reactions to a message with anonymous reactions were changed. 
+    The bot must be an administrator in the chat and must explicitly specify 
+    `message_reaction_count` in the list of allowed_updates to receive these 
     updates. The updates are grouped and can be sent with delay up to a few minutes."""
 
     inline_query: Option["InlineQuery"] = Nothing
     """Optional. New incoming inline query."""
 
     chosen_inline_result: Option["ChosenInlineResult"] = Nothing
-    """Optional. The result of an inline query that was chosen by a user and sent
-    to their chat partner. Please see our documentation on the feedback collecting
+    """Optional. The result of an inline query that was chosen by a user and sent 
+    to their chat partner. Please see our documentation on the feedback collecting 
     for details on how to enable these updates for your bot."""
 
     callback_query: Option["CallbackQuery"] = Nothing
     """Optional. New incoming callback query."""
 
     shipping_query: Option["ShippingQuery"] = Nothing
-    """Optional. New incoming shipping query. Only for invoices with flexible
+    """Optional. New incoming shipping query. Only for invoices with flexible 
     price."""
 
     pre_checkout_query: Option["PreCheckoutQuery"] = Nothing
-    """Optional. New incoming pre-checkout query. Contains full information
+    """Optional. New incoming pre-checkout query. Contains full information 
     about checkout."""
 
     poll: Option["Poll"] = Nothing
-    """Optional. New poll state. Bots receive only updates about manually stopped
+    """Optional. New poll state. Bots receive only updates about manually stopped 
     polls and polls, which are sent by the bot."""
 
     poll_answer: Option["PollAnswer"] = Nothing
-    """Optional. A user changed their answer in a non-anonymous poll. Bots receive
+    """Optional. A user changed their answer in a non-anonymous poll. Bots receive 
     new votes only in polls that were sent by the bot itself."""
 
     my_chat_member: Option["ChatMemberUpdated"] = Nothing
-    """Optional. The bot's chat member status was updated in a chat. For private
-    chats, this update is received only when the bot is blocked or unblocked
+    """Optional. The bot's chat member status was updated in a chat. For private 
+    chats, this update is received only when the bot is blocked or unblocked 
     by the user."""
 
     chat_member: Option["ChatMemberUpdated"] = Nothing
-    """Optional. A chat member's status was updated in a chat. The bot must be an
-    administrator in the chat and must explicitly specify `chat_member` in
+    """Optional. A chat member's status was updated in a chat. The bot must be an 
+    administrator in the chat and must explicitly specify `chat_member` in 
     the list of allowed_updates to receive these updates."""
 
     chat_join_request: Option["ChatJoinRequest"] = Nothing
-    """Optional. A request to join the chat has been sent. The bot must have the can_invite_users
+    """Optional. A request to join the chat has been sent. The bot must have the can_invite_users 
     administrator right in the chat to receive these updates."""
 
     chat_boost: Option["ChatBoostUpdated"] = Nothing
-    """Optional. A chat boost was added or changed. The bot must be an administrator
+    """Optional. A chat boost was added or changed. The bot must be an administrator 
     in the chat to receive these updates."""
 
     removed_chat_boost: Option["ChatBoostRemoved"] = Nothing
-    """Optional. A boost was removed from a chat. The bot must be an administrator
+    """Optional. A boost was removed from a chat. The bot must be an administrator 
     in the chat to receive these updates."""
 
     def __eq__(self, other: typing.Any) -> bool:
@@ -355,23 +355,23 @@ class WebhookInfo(Model):
     """Optional. Currently used webhook IP address."""
 
     last_error_date: Option[datetime] = Nothing
-    """Optional. Unix time for the most recent error that happened when trying
+    """Optional. Unix time for the most recent error that happened when trying 
     to deliver an update via webhook."""
 
     last_error_message: Option[str] = Nothing
-    """Optional. Error message in human-readable format for the most recent error
+    """Optional. Error message in human-readable format for the most recent error 
     that happened when trying to deliver an update via webhook."""
 
     last_synchronization_error_date: Option[datetime] = Nothing
-    """Optional. Unix time of the most recent error that happened when trying to
+    """Optional. Unix time of the most recent error that happened when trying to 
     synchronize available updates with Telegram datacenters."""
 
     max_connections: Option[int] = Nothing
-    """Optional. The maximum allowed number of simultaneous HTTPS connections
+    """Optional. The maximum allowed number of simultaneous HTTPS connections 
     to the webhook for update delivery."""
 
     allowed_updates: Option[list[str]] = Nothing
-    """Optional. A list of update types the bot is subscribed to. Defaults to all
+    """Optional. A list of update types the bot is subscribed to. Defaults to all 
     update types except chat_member."""
 
 
@@ -382,9 +382,9 @@ class User(Model):
     """
 
     id: int
-    """Unique identifier for this user or bot. This number may have more than 32
-    significant bits and some programming languages may have difficulty/silent
-    defects in interpreting it. But it has at most 52 significant bits, so a 64-bit
+    """Unique identifier for this user or bot. This number may have more than 32 
+    significant bits and some programming languages may have difficulty/silent 
+    defects in interpreting it. But it has at most 52 significant bits, so a 64-bit 
     integer or double-precision float type are safe for storing this identifier."""
 
     is_bot: bool
@@ -412,14 +412,14 @@ class User(Model):
     """Optional. True, if the bot can be invited to groups. Returned only in getMe."""
 
     can_read_all_group_messages: Option[bool] = Nothing
-    """Optional. True, if privacy mode is disabled for the bot. Returned only in
+    """Optional. True, if privacy mode is disabled for the bot. Returned only in 
     getMe."""
 
     supports_inline_queries: Option[bool] = Nothing
     """Optional. True, if the bot supports inline queries. Returned only in getMe."""
 
     can_connect_to_business: Option[bool] = Nothing
-    """Optional. True, if the bot can be connected to a Telegram Business account
+    """Optional. True, if the bot can be connected to a Telegram Business account 
     to receive its messages. Returned only in getMe."""
 
     def __eq__(self, other: typing.Any) -> bool:
@@ -445,9 +445,9 @@ class Chat(Model):
     """
 
     id: int
-    """Unique identifier for this chat. This number may have more than 32 significant
-    bits and some programming languages may have difficulty/silent defects
-    in interpreting it. But it has at most 52 significant bits, so a signed 64-bit
+    """Unique identifier for this chat. This number may have more than 32 significant 
+    bits and some programming languages may have difficulty/silent defects 
+    in interpreting it. But it has at most 52 significant bits, so a signed 64-bit 
     integer or double-precision float type are safe for storing this identifier."""
 
     type: ChatType
@@ -486,16 +486,16 @@ class ChatFullInfo(Model):
     """
 
     id: int
-    """Unique identifier for this chat. This number may have more than 32 significant
-    bits and some programming languages may have difficulty/silent defects
-    in interpreting it. But it has at most 52 significant bits, so a signed 64-bit
+    """Unique identifier for this chat. This number may have more than 32 significant 
+    bits and some programming languages may have difficulty/silent defects 
+    in interpreting it. But it has at most 52 significant bits, so a signed 64-bit 
     integer or double-precision float type are safe for storing this identifier."""
 
     type: ChatType
     """Type of the chat, can be either `private`, `group`, `supergroup` or `channel`."""
 
     accent_color_id: int
-    """Identifier of the accent color for the chat name and backgrounds of the chat
+    """Identifier of the accent color for the chat name and backgrounds of the chat 
     photo, reply header, and link preview. See accent colors for more details."""
 
     max_reaction_count: int
@@ -520,7 +520,7 @@ class ChatFullInfo(Model):
     """Optional. Chat photo."""
 
     active_usernames: Option[list[str]] = Nothing
-    """Optional. If non-empty, the list of all active chat usernames; for private
+    """Optional. If non-empty, the list of all active chat usernames; for private 
     chats, supergroups and channels."""
 
     birthdate: Option["Birthdate"] = Nothing
@@ -530,57 +530,57 @@ class ChatFullInfo(Model):
     """Optional. For private chats with business accounts, the intro of the business."""
 
     business_location: Option["BusinessLocation"] = Nothing
-    """Optional. For private chats with business accounts, the location of the
+    """Optional. For private chats with business accounts, the location of the 
     business."""
 
     business_opening_hours: Option["BusinessOpeningHours"] = Nothing
-    """Optional. For private chats with business accounts, the opening hours
+    """Optional. For private chats with business accounts, the opening hours 
     of the business."""
 
     personal_chat: Option["Chat"] = Nothing
     """Optional. For private chats, the personal channel of the user."""
 
     available_reactions: Option[list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]] = Nothing
-    """Optional. List of available reactions allowed in the chat. If omitted,
+    """Optional. List of available reactions allowed in the chat. If omitted, 
     then all emoji reactions are allowed."""
 
     background_custom_emoji_id: Option[str] = Nothing
-    """Optional. Custom emoji identifier of the emoji chosen by the chat for the
+    """Optional. Custom emoji identifier of the emoji chosen by the chat for the 
     reply header and link preview background."""
 
     profile_accent_color_id: Option[int] = Nothing
-    """Optional. Identifier of the accent color for the chat's profile background.
+    """Optional. Identifier of the accent color for the chat's profile background. 
     See profile accent colors for more details."""
 
     profile_background_custom_emoji_id: Option[str] = Nothing
-    """Optional. Custom emoji identifier of the emoji chosen by the chat for its
+    """Optional. Custom emoji identifier of the emoji chosen by the chat for its 
     profile background."""
 
     emoji_status_custom_emoji_id: Option[str] = Nothing
-    """Optional. Custom emoji identifier of the emoji status of the chat or the
+    """Optional. Custom emoji identifier of the emoji status of the chat or the 
     other party in a private chat."""
 
     emoji_status_expiration_date: Option[datetime] = Nothing
-    """Optional. Expiration date of the emoji status of the chat or the other party
+    """Optional. Expiration date of the emoji status of the chat or the other party 
     in a private chat, in Unix time, if any."""
 
     bio: Option[str] = Nothing
     """Optional. Bio of the other party in a private chat."""
 
     has_private_forwards: Option[bool] = Nothing
-    """Optional. True, if privacy settings of the other party in the private chat
+    """Optional. True, if privacy settings of the other party in the private chat 
     allows to use tg://user?id=<user_id> links only in chats with the user."""
 
     has_restricted_voice_and_video_messages: Option[bool] = Nothing
-    """Optional. True, if the privacy settings of the other party restrict sending
+    """Optional. True, if the privacy settings of the other party restrict sending 
     voice and video note messages in the private chat."""
 
     join_to_send_messages: Option[bool] = Nothing
-    """Optional. True, if users need to join the supergroup before they can send
+    """Optional. True, if users need to join the supergroup before they can send 
     messages."""
 
     join_by_request: Option[bool] = Nothing
-    """Optional. True, if all users directly joining the supergroup without using
+    """Optional. True, if all users directly joining the supergroup without using 
     an invite link need to be approved by supergroup administrators."""
 
     description: Option[str] = Nothing
@@ -596,34 +596,34 @@ class ChatFullInfo(Model):
     """Optional. Default chat member permissions, for groups and supergroups."""
 
     can_send_paid_media: Option[bool] = Nothing
-    """Optional. True, if paid media messages can be sent or forwarded to the channel
+    """Optional. True, if paid media messages can be sent or forwarded to the channel 
     chat. The field is available only for channel chats."""
 
     slow_mode_delay: Option[int] = Nothing
-    """Optional. For supergroups, the minimum allowed delay between consecutive
+    """Optional. For supergroups, the minimum allowed delay between consecutive 
     messages sent by each unprivileged user; in seconds."""
 
     unrestrict_boost_count: Option[int] = Nothing
-    """Optional. For supergroups, the minimum number of boosts that a non-administrator
+    """Optional. For supergroups, the minimum number of boosts that a non-administrator 
     user needs to add in order to ignore slow mode and chat permissions."""
 
     message_auto_delete_time: Option[int] = Nothing
-    """Optional. The time after which all messages sent to the chat will be automatically
+    """Optional. The time after which all messages sent to the chat will be automatically 
     deleted; in seconds."""
 
     has_aggressive_anti_spam_enabled: Option[bool] = Nothing
-    """Optional. True, if aggressive anti-spam checks are enabled in the supergroup.
+    """Optional. True, if aggressive anti-spam checks are enabled in the supergroup. 
     The field is only available to chat administrators."""
 
     has_hidden_members: Option[bool] = Nothing
-    """Optional. True, if non-administrators can only get the list of bots and
+    """Optional. True, if non-administrators can only get the list of bots and 
     administrators in the chat."""
 
     has_protected_content: Option[bool] = Nothing
     """Optional. True, if messages from the chat can't be forwarded to other chats."""
 
     has_visible_history: Option[bool] = Nothing
-    """Optional. True, if new chat members will have access to old messages; available
+    """Optional. True, if new chat members will have access to old messages; available 
     only to chat administrators."""
 
     sticker_set_name: Option[str] = Nothing
@@ -633,15 +633,15 @@ class ChatFullInfo(Model):
     """Optional. True, if the bot can change the group sticker set."""
 
     custom_emoji_sticker_set_name: Option[str] = Nothing
-    """Optional. For supergroups, the name of the group's custom emoji sticker
+    """Optional. For supergroups, the name of the group's custom emoji sticker 
     set. Custom emoji from this set can be used by all users and bots in the group."""
 
     linked_chat_id: Option[int] = Nothing
-    """Optional. Unique identifier for the linked chat, i.e. the discussion group
-    identifier for a channel and vice versa; for supergroups and channel chats.
-    This identifier may be greater than 32 bits and some programming languages
-    may have difficulty/silent defects in interpreting it. But it is smaller
-    than 52 bits, so a signed 64 bit integer or double-precision float type are
+    """Optional. Unique identifier for the linked chat, i.e. the discussion group 
+    identifier for a channel and vice versa; for supergroups and channel chats. 
+    This identifier may be greater than 32 bits and some programming languages 
+    may have difficulty/silent defects in interpreting it. But it is smaller 
+    than 52 bits, so a signed 64 bit integer or double-precision float type are 
     safe for storing this identifier."""
 
     location: Option["ChatLocation"] = Nothing
@@ -658,42 +658,42 @@ class Message(MaybeInaccessibleMessage):
     """Unique message identifier inside this chat."""
 
     date: datetime
-    """Date the message was sent in Unix time. It is always a positive number, representing
+    """Date the message was sent in Unix time. It is always a positive number, representing 
     a valid date."""
 
     chat: "Chat"
     """Chat the message belongs to."""
 
     message_thread_id: Option[int] = Nothing
-    """Optional. Unique identifier of a message thread to which the message belongs;
+    """Optional. Unique identifier of a message thread to which the message belongs; 
     for supergroups only."""
 
     from_: Option["User"] = Nothing
-    """Optional. Sender of the message; empty for messages sent to channels. For
-    backward compatibility, the field contains a fake sender user in non-channel
+    """Optional. Sender of the message; empty for messages sent to channels. For 
+    backward compatibility, the field contains a fake sender user in non-channel 
     chats, if the message was sent on behalf of a chat."""
 
     sender_chat: Option["Chat"] = Nothing
-    """Optional. Sender of the message, sent on behalf of a chat. For example, the
-    channel itself for channel posts, the supergroup itself for messages from
-    anonymous group administrators, the linked channel for messages automatically
-    forwarded to the discussion group. For backward compatibility, the field
-    from contains a fake sender user in non-channel chats, if the message was
+    """Optional. Sender of the message, sent on behalf of a chat. For example, the 
+    channel itself for channel posts, the supergroup itself for messages from 
+    anonymous group administrators, the linked channel for messages automatically 
+    forwarded to the discussion group. For backward compatibility, the field 
+    from contains a fake sender user in non-channel chats, if the message was 
     sent on behalf of a chat."""
 
     sender_boost_count: Option[int] = Nothing
-    """Optional. If the sender of the message boosted the chat, the number of boosts
+    """Optional. If the sender of the message boosted the chat, the number of boosts 
     added by the user."""
 
     sender_business_bot: Option["User"] = Nothing
-    """Optional. The bot that actually sent the message on behalf of the business
-    account. Available only for outgoing messages sent on behalf of the connected
+    """Optional. The bot that actually sent the message on behalf of the business 
+    account. Available only for outgoing messages sent on behalf of the connected 
     business account."""
 
     business_connection_id: Option[str] = Nothing
-    """Optional. Unique identifier of the business connection from which the
-    message was received. If non-empty, the message belongs to a chat of the
-    corresponding business account that is independent from any potential
+    """Optional. Unique identifier of the business connection from which the 
+    message was received. If non-empty, the message belongs to a chat of the 
+    corresponding business account that is independent from any potential 
     bot chat which might share the same identifier."""
 
     forward_origin: Option[
@@ -705,20 +705,20 @@ class Message(MaybeInaccessibleMessage):
     """Optional. True, if the message is sent to a forum topic."""
 
     is_automatic_forward: Option[bool] = Nothing
-    """Optional. True, if the message is a channel post that was automatically
+    """Optional. True, if the message is a channel post that was automatically 
     forwarded to the connected discussion group."""
 
     reply_to_message: Option["Message"] = Nothing
-    """Optional. For replies in the same chat and message thread, the original
-    message. Note that the Message object in this field will not contain further
+    """Optional. For replies in the same chat and message thread, the original 
+    message. Note that the Message object in this field will not contain further 
     reply_to_message fields even if it itself is a reply."""
 
     external_reply: Option["ExternalReplyInfo"] = Nothing
-    """Optional. Information about the message that is being replied to, which
+    """Optional. Information about the message that is being replied to, which 
     may come from another chat or forum topic."""
 
     quote: Option["TextQuote"] = Nothing
-    """Optional. For replies that quote part of the original message, the quoted
+    """Optional. For replies that quote part of the original message, the quoted 
     part of the message."""
 
     reply_to_story: Option["Story"] = Nothing
@@ -734,34 +734,34 @@ class Message(MaybeInaccessibleMessage):
     """Optional. True, if the message can't be forwarded."""
 
     is_from_offline: Option[bool] = Nothing
-    """Optional. True, if the message was sent by an implicit action, for example,
+    """Optional. True, if the message was sent by an implicit action, for example, 
     as an away or a greeting business message, or as a scheduled message."""
 
     media_group_id: Option[str] = Nothing
-    """Optional. The unique identifier of a media message group this message belongs
+    """Optional. The unique identifier of a media message group this message belongs 
     to."""
 
     author_signature: Option[str] = Nothing
-    """Optional. Signature of the post author for messages in channels, or the
+    """Optional. Signature of the post author for messages in channels, or the 
     custom title of an anonymous group administrator."""
 
     text: Option[str] = Nothing
     """Optional. For text messages, the actual UTF-8 text of the message."""
 
     entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. For text messages, special entities like usernames, URLs, bot
+    """Optional. For text messages, special entities like usernames, URLs, bot 
     commands, etc. that appear in the text."""
 
     link_preview_options: Option["LinkPreviewOptions"] = Nothing
-    """Optional. Options used for link preview generation for the message, if
+    """Optional. Options used for link preview generation for the message, if 
     it is a text message and link preview options were changed."""
 
     effect_id: Option[str] = Nothing
     """Optional. Unique identifier of the message effect added to the message."""
 
     animation: Option["Animation"] = Nothing
-    """Optional. Message is an animation, information about the animation. For
-    backward compatibility, when this field is set, the document field will
+    """Optional. Message is an animation, information about the animation. For 
+    backward compatibility, when this field is set, the document field will 
     also be set."""
 
     audio: Option["Audio"] = Nothing
@@ -792,11 +792,11 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Message is a voice message, information about the file."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption for the animation, audio, document, paid media, photo,
+    """Optional. Caption for the animation, audio, document, paid media, photo, 
     video or voice."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. For messages with a caption, special entities like usernames,
+    """Optional. For messages with a caption, special entities like usernames, 
     URLs, bot commands, etc. that appear in the caption."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -812,25 +812,25 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Message is a dice with random value."""
 
     game: Option["Game"] = Nothing
-    """Optional. Message is a game, information about the game. More about games:
+    """Optional. Message is a game, information about the game. More about games: 
     https://core.telegram.org/bots/api#games."""
 
     poll: Option["Poll"] = Nothing
     """Optional. Message is a native poll, information about the poll."""
 
     venue: Option["Venue"] = Nothing
-    """Optional. Message is a venue, information about the venue. For backward
+    """Optional. Message is a venue, information about the venue. For backward 
     compatibility, when this field is set, the location field will also be set."""
 
     location: Option["Location"] = Nothing
     """Optional. Message is a shared location, information about the location."""
 
     new_chat_members: Option[list["User"]] = Nothing
-    """Optional. New members that were added to the group or supergroup and information
+    """Optional. New members that were added to the group or supergroup and information 
     about them (the bot itself may be one of these members)."""
 
     left_chat_member: Option["User"] = Nothing
-    """Optional. A member was removed from the group, information about them (this
+    """Optional. A member was removed from the group, information about them (this 
     member may be the bot itself)."""
 
     new_chat_title: Option[str] = Nothing
@@ -846,50 +846,50 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Service message: the group has been created."""
 
     supergroup_chat_created: Option[bool] = Nothing
-    """Optional. Service message: the supergroup has been created. This field
-    can't be received in a message coming through updates, because bot can't
-    be a member of a supergroup when it is created. It can only be found in reply_to_message
+    """Optional. Service message: the supergroup has been created. This field 
+    can't be received in a message coming through updates, because bot can't 
+    be a member of a supergroup when it is created. It can only be found in reply_to_message 
     if someone replies to a very first message in a directly created supergroup."""
 
     channel_chat_created: Option[bool] = Nothing
-    """Optional. Service message: the channel has been created. This field can't
-    be received in a message coming through updates, because bot can't be a member
-    of a channel when it is created. It can only be found in reply_to_message
+    """Optional. Service message: the channel has been created. This field can't 
+    be received in a message coming through updates, because bot can't be a member 
+    of a channel when it is created. It can only be found in reply_to_message 
     if someone replies to a very first message in a channel."""
 
     message_auto_delete_timer_changed: Option["MessageAutoDeleteTimerChanged"] = Nothing
-    """Optional. Service message: auto-delete timer settings changed in the
+    """Optional. Service message: auto-delete timer settings changed in the 
     chat."""
 
     migrate_to_chat_id: Option[int] = Nothing
-    """Optional. The group has been migrated to a supergroup with the specified
-    identifier. This number may have more than 32 significant bits and some
-    programming languages may have difficulty/silent defects in interpreting
-    it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    """Optional. The group has been migrated to a supergroup with the specified 
+    identifier. This number may have more than 32 significant bits and some 
+    programming languages may have difficulty/silent defects in interpreting 
+    it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this identifier."""
 
     migrate_from_chat_id: Option[int] = Nothing
-    """Optional. The supergroup has been migrated from a group with the specified
-    identifier. This number may have more than 32 significant bits and some
-    programming languages may have difficulty/silent defects in interpreting
-    it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    """Optional. The supergroup has been migrated from a group with the specified 
+    identifier. This number may have more than 32 significant bits and some 
+    programming languages may have difficulty/silent defects in interpreting 
+    it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this identifier."""
 
     pinned_message: Option[Variative["Message", "InaccessibleMessage"]] = Nothing
-    """Optional. Specified message was pinned. Note that the Message object in
-    this field will not contain further reply_to_message fields even if it
+    """Optional. Specified message was pinned. Note that the Message object in 
+    this field will not contain further reply_to_message fields even if it 
     itself is a reply."""
 
     invoice: Option["Invoice"] = Nothing
-    """Optional. Message is an invoice for a payment, information about the invoice.
+    """Optional. Message is an invoice for a payment, information about the invoice. 
     More about payments: https://core.telegram.org/bots/api#payments."""
 
     successful_payment: Option["SuccessfulPayment"] = Nothing
-    """Optional. Message is a service message about a successful payment, information
+    """Optional. Message is a service message about a successful payment, information 
     about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
 
     refunded_payment: Option["RefundedPayment"] = Nothing
-    """Optional. Message is a service message about a refunded payment, information
+    """Optional. Message is a service message about a refunded payment, information 
     about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
 
     users_shared: Option["UsersShared"] = Nothing
@@ -899,19 +899,19 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Service message: a chat was shared with the bot."""
 
     connected_website: Option[str] = Nothing
-    """Optional. The domain name of the website on which the user has logged in.
+    """Optional. The domain name of the website on which the user has logged in. 
     More about Telegram Login: https://core.telegram.org/widgets/login."""
 
     write_access_allowed: Option["WriteAccessAllowed"] = Nothing
-    """Optional. Service message: the user allowed the bot to write messages after
-    adding it to the attachment or side menu, launching a Web App from a link,
+    """Optional. Service message: the user allowed the bot to write messages after 
+    adding it to the attachment or side menu, launching a Web App from a link, 
     or accepting an explicit request from a Web App sent by the method requestWriteAccess."""
 
     passport_data: Option["PassportData"] = Nothing
     """Optional. Telegram Passport data."""
 
     proximity_alert_triggered: Option["ProximityAlertTriggered"] = Nothing
-    """Optional. Service message. A user in the chat triggered another user's
+    """Optional. Service message. A user in the chat triggered another user's 
     proximity alert while sharing Live Location."""
 
     boost_added: Option["ChatBoostAdded"] = Nothing
@@ -966,7 +966,7 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Service message: data sent by a Web App."""
 
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
-    """Optional. Inline keyboard attached to the message. login_url buttons
+    """Optional. Inline keyboard attached to the message. login_url buttons 
     are represented as ordinary url buttons."""
 
     def __eq__(self, other: typing.Any) -> bool:
@@ -1044,15 +1044,15 @@ class MessageEntity(Model):
     """
 
     type: MessageEntityType
-    """Type of the entity. Currently, can be `mention` (@username), `hashtag`
-    (#hashtag), `cashtag` ($USD), `bot_command` (/start@jobs_bot), `url`
-    (https://telegram.org), `email` (do-not-reply@telegram.org), `phone_number`
-    (+1-212-555-0123), `bold` (bold text), `italic` (italic text), `underline`
-    (underlined text), `strikethrough` (strikethrough text), `spoiler`
-    (spoiler message), `blockquote` (block quotation), `expandable_blockquote`
-    (collapsed-by-default block quotation), `code` (monowidth string),
-    `pre` (monowidth block), `text_link` (for clickable text URLs), `text_mention`
-    (for users without usernames), `custom_emoji` (for inline custom emoji
+    """Type of the entity. Currently, can be `mention` (@username), `hashtag` 
+    (#hashtag), `cashtag` ($USD), `bot_command` (/start@jobs_bot), `url` 
+    (https://telegram.org), `email` (do-not-reply@telegram.org), `phone_number` 
+    (+1-212-555-0123), `bold` (bold text), `italic` (italic text), `underline` 
+    (underlined text), `strikethrough` (strikethrough text), `spoiler` 
+    (spoiler message), `blockquote` (block quotation), `expandable_blockquote` 
+    (collapsed-by-default block quotation), `code` (monowidth string), 
+    `pre` (monowidth block), `text_link` (for clickable text URLs), `text_mention` 
+    (for users without usernames), `custom_emoji` (for inline custom emoji 
     stickers)."""
 
     offset: int
@@ -1062,7 +1062,7 @@ class MessageEntity(Model):
     """Length of the entity in UTF-16 code units."""
 
     url: Option[str] = Nothing
-    """Optional. For `text_link` only, URL that will be opened after user taps
+    """Optional. For `text_link` only, URL that will be opened after user taps 
     on the text."""
 
     user: Option["User"] = Nothing
@@ -1072,7 +1072,7 @@ class MessageEntity(Model):
     """Optional. For `pre` only, the programming language of the entity text."""
 
     custom_emoji_id: Option[str] = Nothing
-    """Optional. For `custom_emoji` only, unique identifier of the custom emoji.
+    """Optional. For `custom_emoji` only, unique identifier of the custom emoji. 
     Use getCustomEmojiStickers to get full information about the sticker."""
 
 
@@ -1086,16 +1086,16 @@ class TextQuote(Model):
     """Text of the quoted part of a message that is replied to by the given message."""
 
     position: int
-    """Approximate quote position in the original message in UTF-16 code units
+    """Approximate quote position in the original message in UTF-16 code units 
     as specified by the sender."""
 
     entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. Special entities that appear in the quote. Currently, only bold,
-    italic, underline, strikethrough, spoiler, and custom_emoji entities
+    """Optional. Special entities that appear in the quote. Currently, only bold, 
+    italic, underline, strikethrough, spoiler, and custom_emoji entities 
     are kept in quotes."""
 
     is_manual: Option[bool] = Nothing
-    """Optional. True, if the quote was chosen manually by the message sender.
+    """Optional. True, if the quote was chosen manually by the message sender. 
     Otherwise, the quote was added automatically by the server."""
 
 
@@ -1111,15 +1111,15 @@ class ExternalReplyInfo(Model):
     """Origin of the message replied to by the given message."""
 
     chat: Option["Chat"] = Nothing
-    """Optional. Chat the original message belongs to. Available only if the chat
+    """Optional. Chat the original message belongs to. Available only if the chat 
     is a supergroup or a channel."""
 
     message_id: Option[int] = Nothing
-    """Optional. Unique message identifier inside the original chat. Available
+    """Optional. Unique message identifier inside the original chat. Available 
     only if the original chat is a supergroup or a channel."""
 
     link_preview_options: Option["LinkPreviewOptions"] = Nothing
-    """Optional. Options used for link preview generation for the original message,
+    """Optional. Options used for link preview generation for the original message, 
     if it is a text message."""
 
     animation: Option["Animation"] = Nothing
@@ -1162,7 +1162,7 @@ class ExternalReplyInfo(Model):
     """Optional. Message is a dice with random value."""
 
     game: Option["Game"] = Nothing
-    """Optional. Message is a game, information about the game. More about games:
+    """Optional. Message is a game, information about the game. More about games: 
     https://core.telegram.org/bots/api#games."""
 
     giveaway: Option["Giveaway"] = Nothing
@@ -1172,7 +1172,7 @@ class ExternalReplyInfo(Model):
     """Optional. A giveaway with public winners was completed."""
 
     invoice: Option["Invoice"] = Nothing
-    """Optional. Message is an invoice for a payment, information about the invoice.
+    """Optional. Message is an invoice for a payment, information about the invoice. 
     More about payments: https://core.telegram.org/bots/api#payments."""
 
     location: Option["Location"] = Nothing
@@ -1192,32 +1192,32 @@ class ReplyParameters(Model):
     """
 
     message_id: int
-    """Identifier of the message that will be replied to in the current chat, or
+    """Identifier of the message that will be replied to in the current chat, or 
     in the chat chat_id if it is specified."""
 
     chat_id: Option[Variative[int, str]] = Nothing
-    """Optional. If the message to be replied to is from a different chat, unique
-    identifier for the chat or username of the channel (in the format @channelusername).
+    """Optional. If the message to be replied to is from a different chat, unique 
+    identifier for the chat or username of the channel (in the format @channelusername). 
     Not supported for messages sent on behalf of a business account."""
 
     allow_sending_without_reply: Option[bool] = Nothing
-    """Optional. Pass True if the message should be sent even if the specified message
-    to be replied to is not found. Always False for replies in another chat or
+    """Optional. Pass True if the message should be sent even if the specified message 
+    to be replied to is not found. Always False for replies in another chat or 
     forum topic. Always True for messages sent on behalf of a business account."""
 
     quote: Option[str] = Nothing
-    """Optional. Quoted part of the message to be replied to; 0-1024 characters
-    after entities parsing. The quote must be an exact substring of the message
-    to be replied to, including bold, italic, underline, strikethrough, spoiler,
-    and custom_emoji entities. The message will fail to send if the quote isn't
+    """Optional. Quoted part of the message to be replied to; 0-1024 characters 
+    after entities parsing. The quote must be an exact substring of the message 
+    to be replied to, including bold, italic, underline, strikethrough, spoiler, 
+    and custom_emoji entities. The message will fail to send if the quote isn't 
     found in the original message."""
 
     quote_parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the quote. See formatting options
+    """Optional. Mode for parsing entities in the quote. See formatting options 
     for more details."""
 
     quote_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. A JSON-serialized list of special entities that appear in the
+    """Optional. A JSON-serialized list of special entities that appear in the 
     quote. It can be specified instead of quote_parse_mode."""
 
     quote_position: Option[int] = Nothing
@@ -1272,7 +1272,7 @@ class MessageOriginChat(MessageOrigin):
     """Chat that sent the message originally."""
 
     author_signature: Option[str] = Nothing
-    """Optional. For messages originally sent by an anonymous chat administrator,
+    """Optional. For messages originally sent by an anonymous chat administrator, 
     original message author signature."""
 
 
@@ -1308,7 +1308,7 @@ class PhotoSize(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     width: int
@@ -1331,7 +1331,7 @@ class Animation(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     width: int
@@ -1353,9 +1353,9 @@ class Animation(Model):
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
-    """Optional. File size in bytes. It can be bigger than 2^31 and some programming
-    languages may have difficulty/silent defects in interpreting it. But
-    it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
+    languages may have difficulty/silent defects in interpreting it. But 
+    it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this value."""
 
 
@@ -1369,7 +1369,7 @@ class Audio(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     duration: int
@@ -1388,9 +1388,9 @@ class Audio(Model):
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
-    """Optional. File size in bytes. It can be bigger than 2^31 and some programming
-    languages may have difficulty/silent defects in interpreting it. But
-    it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
+    languages may have difficulty/silent defects in interpreting it. But 
+    it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this value."""
 
     thumbnail: Option["PhotoSize"] = Nothing
@@ -1407,7 +1407,7 @@ class Document(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     thumbnail: Option["PhotoSize"] = Nothing
@@ -1420,9 +1420,9 @@ class Document(Model):
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
-    """Optional. File size in bytes. It can be bigger than 2^31 and some programming
-    languages may have difficulty/silent defects in interpreting it. But
-    it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
+    languages may have difficulty/silent defects in interpreting it. But 
+    it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this value."""
 
 
@@ -1449,7 +1449,7 @@ class Video(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     width: int
@@ -1471,9 +1471,9 @@ class Video(Model):
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
-    """Optional. File size in bytes. It can be bigger than 2^31 and some programming
-    languages may have difficulty/silent defects in interpreting it. But
-    it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
+    languages may have difficulty/silent defects in interpreting it. But 
+    it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this value."""
 
 
@@ -1487,11 +1487,11 @@ class VideoNote(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     length: int
-    """Video width and height (diameter of the video message) as defined by the
+    """Video width and height (diameter of the video message) as defined by the 
     sender."""
 
     duration: int
@@ -1514,7 +1514,7 @@ class Voice(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     duration: int
@@ -1524,9 +1524,9 @@ class Voice(Model):
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = Nothing
-    """Optional. File size in bytes. It can be bigger than 2^31 and some programming
-    languages may have difficulty/silent defects in interpreting it. But
-    it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
+    languages may have difficulty/silent defects in interpreting it. But 
+    it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this value."""
 
 
@@ -1604,9 +1604,9 @@ class Contact(Model):
     """Optional. Contact's last name."""
 
     user_id: Option[int] = Nothing
-    """Optional. Contact's user identifier in Telegram. This number may have
-    more than 32 significant bits and some programming languages may have difficulty/silent
-    defects in interpreting it. But it has at most 52 significant bits, so a 64-bit
+    """Optional. Contact's user identifier in Telegram. This number may have 
+    more than 32 significant bits and some programming languages may have difficulty/silent 
+    defects in interpreting it. But it has at most 52 significant bits, so a 64-bit 
     integer or double-precision float type are safe for storing this identifier."""
 
     vcard: Option[str] = Nothing
@@ -1623,7 +1623,7 @@ class Dice(Model):
     """Emoji on which the dice throw animation is based."""
 
     value: int
-    """Value of the dice, 1-6 for `🎲`, `🎯` and `🎳` base emoji, 1-5 for `🏀` and `⚽` base
+    """Value of the dice, 1-6 for `🎲`, `🎯` and `🎳` base emoji, 1-5 for `🏀` and `⚽` base 
     emoji, 1-64 for `🎰` base emoji."""
 
 
@@ -1640,7 +1640,7 @@ class PollOption(Model):
     """Number of users that voted for this option."""
 
     text_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. Special entities that appear in the option text. Currently,
+    """Optional. Special entities that appear in the option text. Currently, 
     only custom emoji entities are allowed in poll option texts."""
 
 
@@ -1654,11 +1654,11 @@ class InputPollOption(Model):
     """Option text, 1-100 characters."""
 
     text_parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the text. See formatting options
+    """Optional. Mode for parsing entities in the text. See formatting options 
     for more details. Currently, only custom emoji entities are allowed."""
 
     text_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. A JSON-serialized list of special entities that appear in the
+    """Optional. A JSON-serialized list of special entities that appear in the 
     poll option text. It can be specified instead of text_parse_mode."""
 
 
@@ -1672,14 +1672,14 @@ class PollAnswer(Model):
     """Unique poll identifier."""
 
     option_ids: list[int]
-    """0-based identifiers of chosen answer options. May be empty if the vote was
+    """0-based identifiers of chosen answer options. May be empty if the vote was 
     retracted."""
 
     voter_chat: Option["Chat"] = Nothing
     """Optional. The chat that changed the answer to the poll, if the voter is anonymous."""
 
     user: Option["User"] = Nothing
-    """Optional. The user that changed the answer to the poll, if the voter isn't
+    """Optional. The user that changed the answer to the poll, if the voter isn't 
     anonymous."""
 
 
@@ -1714,27 +1714,27 @@ class Poll(Model):
     """True, if the poll allows multiple answers."""
 
     question_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. Special entities that appear in the question. Currently, only
+    """Optional. Special entities that appear in the question. Currently, only 
     custom emoji entities are allowed in poll questions."""
 
     correct_option_id: Option[int] = Nothing
-    """Optional. 0-based identifier of the correct answer option. Available
-    only for polls in the quiz mode, which are closed, or was sent (not forwarded)
+    """Optional. 0-based identifier of the correct answer option. Available 
+    only for polls in the quiz mode, which are closed, or was sent (not forwarded) 
     by the bot or to the private chat with the bot."""
 
     explanation: Option[str] = Nothing
-    """Optional. Text that is shown when a user chooses an incorrect answer or taps
+    """Optional. Text that is shown when a user chooses an incorrect answer or taps 
     on the lamp icon in a quiz-style poll, 0-200 characters."""
 
     explanation_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. Special entities like usernames, URLs, bot commands, etc. that
+    """Optional. Special entities like usernames, URLs, bot commands, etc. that 
     appear in the explanation."""
 
     open_period: Option[int] = Nothing
     """Optional. Amount of time in seconds the poll will be active after creation."""
 
     close_date: Option[datetime] = Nothing
-    """Optional. Point in time (Unix timestamp) when the poll will be automatically
+    """Optional. Point in time (Unix timestamp) when the poll will be automatically 
     closed."""
 
 
@@ -1751,19 +1751,19 @@ class Location(Model):
     """Longitude as defined by the sender."""
 
     horizontal_accuracy: Option[float] = Nothing
-    """Optional. The radius of uncertainty for the location, measured in meters;
+    """Optional. The radius of uncertainty for the location, measured in meters; 
     0-1500."""
 
     live_period: Option[int] = Nothing
-    """Optional. Time relative to the message sending date, during which the location
+    """Optional. Time relative to the message sending date, during which the location 
     can be updated; in seconds. For active live locations only."""
 
     heading: Option[int] = Nothing
-    """Optional. The direction in which user is moving, in degrees; 1-360. For
+    """Optional. The direction in which user is moving, in degrees; 1-360. For 
     active live locations only."""
 
     proximity_alert_radius: Option[int] = Nothing
-    """Optional. The maximum distance for proximity alerts about approaching
+    """Optional. The maximum distance for proximity alerts about approaching 
     another chat member, in meters. For sent live locations only."""
 
 
@@ -1786,7 +1786,7 @@ class Venue(Model):
     """Optional. Foursquare identifier of the venue."""
 
     foursquare_type: Option[str] = Nothing
-    """Optional. Foursquare type of the venue. (For example, `arts_entertainment/default`,
+    """Optional. Foursquare type of the venue. (For example, `arts_entertainment/default`, 
     `arts_entertainment/aquarium` or `food/icecream`.)."""
 
     google_place_id: Option[str] = Nothing
@@ -1806,7 +1806,7 @@ class WebAppData(Model):
     """The data. Be aware that a bad client can send arbitrary data in this field."""
 
     button_text: str
-    """Text of the web_app keyboard button from which the Web App was opened. Be
+    """Text of the web_app keyboard button from which the Web App was opened. Be 
     aware that a bad client can send arbitrary data in this field."""
 
 
@@ -1888,7 +1888,7 @@ class BackgroundFillFreeformGradient(BackgroundFill):
     """Type of the background fill, always `freeform_gradient`."""
 
     colors: list[int]
-    """A list of the 3 or 4 base colors that are used to generate the freeform gradient
+    """A list of the 3 or 4 base colors that are used to generate the freeform gradient 
     in the RGB24 format."""
 
 
@@ -1924,7 +1924,7 @@ class BackgroundTypeWallpaper(BackgroundType):
     """Dimming of the background in dark themes, as a percentage; 0-100."""
 
     is_blurred: Option[bool] = Nothing
-    """Optional. True, if the wallpaper is downscaled to fit in a 450x450 square
+    """Optional. True, if the wallpaper is downscaled to fit in a 450x450 square 
     and then box-blurred with radius 12."""
 
     is_moving: Option[bool] = Nothing
@@ -1950,7 +1950,7 @@ class BackgroundTypePattern(BackgroundType):
     """Intensity of the pattern when it is shown above the filled background; 0-100."""
 
     is_inverted: Option[bool] = Nothing
-    """Optional. True, if the background fill must be applied only to the pattern
+    """Optional. True, if the background fill must be applied only to the pattern 
     itself. All other pixels are black in this case. For dark themes only."""
 
     is_moving: Option[bool] = Nothing
@@ -2015,7 +2015,7 @@ class ForumTopicEdited(Model):
     """Optional. New name of the topic, if it was edited."""
 
     icon_custom_emoji_id: Option[str] = Nothing
-    """Optional. New identifier of the custom emoji shown as the topic icon, if
+    """Optional. New identifier of the custom emoji shown as the topic icon, if 
     it was edited; an empty string if the icon was removed."""
 
 
@@ -2047,11 +2047,11 @@ class SharedUser(Model):
     """
 
     user_id: int
-    """Identifier of the shared user. This number may have more than 32 significant
-    bits and some programming languages may have difficulty/silent defects
-    in interpreting it. But it has at most 52 significant bits, so 64-bit integers
-    or double-precision float types are safe for storing these identifiers.
-    The bot may not have access to the user and could be unable to use this identifier,
+    """Identifier of the shared user. This number may have more than 32 significant 
+    bits and some programming languages may have difficulty/silent defects 
+    in interpreting it. But it has at most 52 significant bits, so 64-bit integers 
+    or double-precision float types are safe for storing these identifiers. 
+    The bot may not have access to the user and could be unable to use this identifier, 
     unless the user is already known to the bot by some other means."""
 
     first_name: Option[str] = Nothing
@@ -2064,7 +2064,7 @@ class SharedUser(Model):
     """Optional. Username of the user, if the username was requested by the bot."""
 
     photo: Option[list["PhotoSize"]] = Nothing
-    """Optional. Available sizes of the chat photo, if the photo was requested
+    """Optional. Available sizes of the chat photo, if the photo was requested 
     by the bot."""
 
 
@@ -2091,22 +2091,22 @@ class ChatShared(Model):
     """Identifier of the request."""
 
     chat_id: int
-    """Identifier of the shared chat. This number may have more than 32 significant
-    bits and some programming languages may have difficulty/silent defects
-    in interpreting it. But it has at most 52 significant bits, so a 64-bit integer
-    or double-precision float type are safe for storing this identifier. The
-    bot may not have access to the chat and could be unable to use this identifier,
+    """Identifier of the shared chat. This number may have more than 32 significant 
+    bits and some programming languages may have difficulty/silent defects 
+    in interpreting it. But it has at most 52 significant bits, so a 64-bit integer 
+    or double-precision float type are safe for storing this identifier. The 
+    bot may not have access to the chat and could be unable to use this identifier, 
     unless the chat is already known to the bot by some other means."""
 
     title: Option[str] = Nothing
     """Optional. Title of the chat, if the title was requested by the bot."""
 
     username: Option[str] = Nothing
-    """Optional. Username of the chat, if the username was requested by the bot
+    """Optional. Username of the chat, if the username was requested by the bot 
     and available."""
 
     photo: Option[list["PhotoSize"]] = Nothing
-    """Optional. Available sizes of the chat photo, if the photo was requested
+    """Optional. Available sizes of the chat photo, if the photo was requested 
     by the bot."""
 
 
@@ -2117,15 +2117,15 @@ class WriteAccessAllowed(Model):
     """
 
     from_request: Option[bool] = Nothing
-    """Optional. True, if the access was granted after the user accepted an explicit
+    """Optional. True, if the access was granted after the user accepted an explicit 
     request from a Web App sent by the method requestWriteAccess."""
 
     web_app_name: Option[str] = Nothing
-    """Optional. Name of the Web App, if the access was granted when the Web App was
+    """Optional. Name of the Web App, if the access was granted when the Web App was 
     launched from a link."""
 
     from_attachment_menu: Option[bool] = Nothing
-    """Optional. True, if the access was granted when the bot was added to the attachment
+    """Optional. True, if the access was granted when the bot was added to the attachment 
     or side menu."""
 
 
@@ -2136,7 +2136,7 @@ class VideoChatScheduled(Model):
     """
 
     start_date: datetime
-    """Point in time (Unix timestamp) when the video chat is supposed to be started
+    """Point in time (Unix timestamp) when the video chat is supposed to be started 
     by a chat administrator."""
 
 
@@ -2190,7 +2190,7 @@ class Giveaway(Model):
     """The number of users which are supposed to be selected as winners of the giveaway."""
 
     only_new_members: Option[bool] = Nothing
-    """Optional. True, if only users who join the chats after the giveaway started
+    """Optional. True, if only users who join the chats after the giveaway started 
     should be eligible to win."""
 
     has_public_winners: Option[bool] = Nothing
@@ -2200,13 +2200,13 @@ class Giveaway(Model):
     """Optional. Description of additional giveaway prize."""
 
     country_codes: Option[list[str]] = Nothing
-    """Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating
-    the countries from which eligible users for the giveaway must come. If empty,
-    then all users can participate in the giveaway. Users with a phone number
+    """Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating 
+    the countries from which eligible users for the giveaway must come. If empty, 
+    then all users can participate in the giveaway. Users with a phone number 
     that was bought on Fragment can always participate in giveaways."""
 
     premium_subscription_month_count: Option[int] = Nothing
-    """Optional. The number of months the Telegram Premium subscription won from
+    """Optional. The number of months the Telegram Premium subscription won from 
     the giveaway will be active for."""
 
 
@@ -2232,22 +2232,22 @@ class GiveawayWinners(Model):
     """List of up to 100 winners of the giveaway."""
 
     additional_chat_count: Option[int] = Nothing
-    """Optional. The number of other chats the user had to join in order to be eligible
+    """Optional. The number of other chats the user had to join in order to be eligible 
     for the giveaway."""
 
     premium_subscription_month_count: Option[int] = Nothing
-    """Optional. The number of months the Telegram Premium subscription won from
+    """Optional. The number of months the Telegram Premium subscription won from 
     the giveaway will be active for."""
 
     unclaimed_prize_count: Option[int] = Nothing
     """Optional. Number of undistributed prizes."""
 
     only_new_members: Option[bool] = Nothing
-    """Optional. True, if only users who had joined the chats after the giveaway
+    """Optional. True, if only users who had joined the chats after the giveaway 
     started were eligible to win."""
 
     was_refunded: Option[bool] = Nothing
-    """Optional. True, if the giveaway was canceled because the payment for it
+    """Optional. True, if the giveaway was canceled because the payment for it 
     was refunded."""
 
     prize_description: Option[str] = Nothing
@@ -2280,21 +2280,21 @@ class LinkPreviewOptions(Model):
     """Optional. True, if the link preview is disabled."""
 
     url: Option[str] = Nothing
-    """Optional. URL to use for the link preview. If empty, then the first URL found
+    """Optional. URL to use for the link preview. If empty, then the first URL found 
     in the message text will be used."""
 
     prefer_small_media: Option[bool] = Nothing
-    """Optional. True, if the media in the link preview is supposed to be shrunk;
-    ignored if the URL isn't explicitly specified or media size change isn't
+    """Optional. True, if the media in the link preview is supposed to be shrunk; 
+    ignored if the URL isn't explicitly specified or media size change isn't 
     supported for the preview."""
 
     prefer_large_media: Option[bool] = Nothing
-    """Optional. True, if the media in the link preview is supposed to be enlarged;
-    ignored if the URL isn't explicitly specified or media size change isn't
+    """Optional. True, if the media in the link preview is supposed to be enlarged; 
+    ignored if the URL isn't explicitly specified or media size change isn't 
     supported for the preview."""
 
     show_above_text: Option[bool] = Nothing
-    """Optional. True, if the link preview must be shown above the message text;
+    """Optional. True, if the link preview must be shown above the message text; 
     otherwise, the link preview will be shown below the message text."""
 
 
@@ -2321,17 +2321,17 @@ class File(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     file_size: Option[int] = Nothing
-    """Optional. File size in bytes. It can be bigger than 2^31 and some programming
-    languages may have difficulty/silent defects in interpreting it. But
-    it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    """Optional. File size in bytes. It can be bigger than 2^31 and some programming 
+    languages may have difficulty/silent defects in interpreting it. But 
+    it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this value."""
 
     file_path: Option[str] = Nothing
-    """Optional. File path. Use https://api.telegram.org/file/bot<token>/<file_path>
+    """Optional. File path. Use https://api.telegram.org/file/bot<token>/<file_path> 
     to get the file."""
 
 
@@ -2342,7 +2342,7 @@ class WebAppInfo(Model):
     """
 
     url: str
-    """An HTTPS URL of a Web App to be opened with additional data as specified in
+    """An HTTPS URL of a Web App to be opened with additional data as specified in 
     Initializing Web Apps."""
 
 
@@ -2356,32 +2356,32 @@ class ReplyKeyboardMarkup(Model):
     """Array of button rows, each represented by an Array of KeyboardButton objects."""
 
     is_persistent: Option[bool] = Nothing
-    """Optional. Requests clients to always show the keyboard when the regular
-    keyboard is hidden. Defaults to false, in which case the custom keyboard
+    """Optional. Requests clients to always show the keyboard when the regular 
+    keyboard is hidden. Defaults to false, in which case the custom keyboard 
     can be hidden and opened with a keyboard icon."""
 
     resize_keyboard: Option[bool] = Nothing
-    """Optional. Requests clients to resize the keyboard vertically for optimal
-    fit (e.g., make the keyboard smaller if there are just two rows of buttons).
-    Defaults to false, in which case the custom keyboard is always of the same
+    """Optional. Requests clients to resize the keyboard vertically for optimal 
+    fit (e.g., make the keyboard smaller if there are just two rows of buttons). 
+    Defaults to false, in which case the custom keyboard is always of the same 
     height as the app's standard keyboard."""
 
     one_time_keyboard: Option[bool] = Nothing
-    """Optional. Requests clients to hide the keyboard as soon as it's been used.
-    The keyboard will still be available, but clients will automatically display
-    the usual letter-keyboard in the chat - the user can press a special button
+    """Optional. Requests clients to hide the keyboard as soon as it's been used. 
+    The keyboard will still be available, but clients will automatically display 
+    the usual letter-keyboard in the chat - the user can press a special button 
     in the input field to see the custom keyboard again. Defaults to false."""
 
     input_field_placeholder: Option[str] = Nothing
-    """Optional. The placeholder to be shown in the input field when the keyboard
+    """Optional. The placeholder to be shown in the input field when the keyboard 
     is active; 1-64 characters."""
 
     selective: Option[bool] = Nothing
-    """Optional. Use this parameter if you want to show the keyboard to specific
-    users only. Targets: 1) users that are @mentioned in the text of the Message
-    object; 2) if the bot's message is a reply to a message in the same chat and
-    forum topic, sender of the original message. Example: A user requests to
-    change the bot's language, bot replies to the request with a keyboard to
+    """Optional. Use this parameter if you want to show the keyboard to specific 
+    users only. Targets: 1) users that are @mentioned in the text of the Message 
+    object; 2) if the bot's message is a reply to a message in the same chat and 
+    forum topic, sender of the original message. Example: A user requests to 
+    change the bot's language, bot replies to the request with a keyboard to 
     select the new language. Other users in the group don't see the keyboard."""
 
     @property
@@ -2399,34 +2399,34 @@ class KeyboardButton(Model):
     """
 
     text: str
-    """Text of the button. If none of the optional fields are used, it will be sent
+    """Text of the button. If none of the optional fields are used, it will be sent 
     as a message when the button is pressed."""
 
     request_users: Option["KeyboardButtonRequestUsers"] = Nothing
-    """Optional. If specified, pressing the button will open a list of suitable
-    users. Identifiers of selected users will be sent to the bot in a `users_shared`
+    """Optional. If specified, pressing the button will open a list of suitable 
+    users. Identifiers of selected users will be sent to the bot in a `users_shared` 
     service message. Available in private chats only."""
 
     request_chat: Option["KeyboardButtonRequestChat"] = Nothing
-    """Optional. If specified, pressing the button will open a list of suitable
-    chats. Tapping on a chat will send its identifier to the bot in a `chat_shared`
+    """Optional. If specified, pressing the button will open a list of suitable 
+    chats. Tapping on a chat will send its identifier to the bot in a `chat_shared` 
     service message. Available in private chats only."""
 
     request_contact: Option[bool] = Nothing
-    """Optional. If True, the user's phone number will be sent as a contact when
+    """Optional. If True, the user's phone number will be sent as a contact when 
     the button is pressed. Available in private chats only."""
 
     request_location: Option[bool] = Nothing
-    """Optional. If True, the user's current location will be sent when the button
+    """Optional. If True, the user's current location will be sent when the button 
     is pressed. Available in private chats only."""
 
     request_poll: Option["KeyboardButtonPollType"] = Nothing
-    """Optional. If specified, the user will be asked to create a poll and send it
+    """Optional. If specified, the user will be asked to create a poll and send it 
     to the bot when the button is pressed. Available in private chats only."""
 
     web_app: Option["WebAppInfo"] = Nothing
-    """Optional. If specified, the described Web App will be launched when the
-    button is pressed. The Web App will be able to send a `web_app_data` service
+    """Optional. If specified, the described Web App will be launched when the 
+    button is pressed. The Web App will be able to send a `web_app_data` service 
     message. Available in private chats only."""
 
 
@@ -2437,19 +2437,19 @@ class KeyboardButtonRequestUsers(Model):
     """
 
     request_id: int
-    """Signed 32-bit identifier of the request that will be received back in the
+    """Signed 32-bit identifier of the request that will be received back in the 
     UsersShared object. Must be unique within the message."""
 
     user_is_bot: Option[bool] = Nothing
-    """Optional. Pass True to request bots, pass False to request regular users.
+    """Optional. Pass True to request bots, pass False to request regular users. 
     If not specified, no additional restrictions are applied."""
 
     user_is_premium: Option[bool] = Nothing
-    """Optional. Pass True to request premium users, pass False to request non-premium
+    """Optional. Pass True to request premium users, pass False to request non-premium 
     users. If not specified, no additional restrictions are applied."""
 
     max_quantity: Option[int] = Nothing
-    """Optional. The maximum number of users to be selected; 1-10. Defaults to
+    """Optional. The maximum number of users to be selected; 1-10. Defaults to 
     1."""
 
     request_name: Option[bool] = Nothing
@@ -2469,38 +2469,38 @@ class KeyboardButtonRequestChat(Model):
     """
 
     request_id: int
-    """Signed 32-bit identifier of the request, which will be received back in
+    """Signed 32-bit identifier of the request, which will be received back in 
     the ChatShared object. Must be unique within the message."""
 
     chat_is_channel: bool
-    """Pass True to request a channel chat, pass False to request a group or a supergroup
+    """Pass True to request a channel chat, pass False to request a group or a supergroup 
     chat."""
 
     chat_is_forum: Option[bool] = Nothing
-    """Optional. Pass True to request a forum supergroup, pass False to request
+    """Optional. Pass True to request a forum supergroup, pass False to request 
     a non-forum chat. If not specified, no additional restrictions are applied."""
 
     chat_has_username: Option[bool] = Nothing
-    """Optional. Pass True to request a supergroup or a channel with a username,
-    pass False to request a chat without a username. If not specified, no additional
+    """Optional. Pass True to request a supergroup or a channel with a username, 
+    pass False to request a chat without a username. If not specified, no additional 
     restrictions are applied."""
 
     chat_is_created: Option[bool] = Nothing
-    """Optional. Pass True to request a chat owned by the user. Otherwise, no additional
+    """Optional. Pass True to request a chat owned by the user. Otherwise, no additional 
     restrictions are applied."""
 
     user_administrator_rights: Option["ChatAdministratorRights"] = Nothing
-    """Optional. A JSON-serialized object listing the required administrator
-    rights of the user in the chat. The rights must be a superset of bot_administrator_rights.
+    """Optional. A JSON-serialized object listing the required administrator 
+    rights of the user in the chat. The rights must be a superset of bot_administrator_rights. 
     If not specified, no additional restrictions are applied."""
 
     bot_administrator_rights: Option["ChatAdministratorRights"] = Nothing
-    """Optional. A JSON-serialized object listing the required administrator
-    rights of the bot in the chat. The rights must be a subset of user_administrator_rights.
+    """Optional. A JSON-serialized object listing the required administrator 
+    rights of the bot in the chat. The rights must be a subset of user_administrator_rights. 
     If not specified, no additional restrictions are applied."""
 
     bot_is_member: Option[bool] = Nothing
-    """Optional. Pass True to request a chat with the bot as a member. Otherwise,
+    """Optional. Pass True to request a chat with the bot as a member. Otherwise, 
     no additional restrictions are applied."""
 
     request_title: Option[bool] = Nothing
@@ -2520,8 +2520,8 @@ class KeyboardButtonPollType(Model):
     """
 
     type: Option[typing.Literal["quiz", "regular"]] = Nothing
-    """Optional. If quiz is passed, the user will be allowed to create only polls
-    in the quiz mode. If regular is passed, only regular polls will be allowed.
+    """Optional. If quiz is passed, the user will be allowed to create only polls 
+    in the quiz mode. If regular is passed, only regular polls will be allowed. 
     Otherwise, the user will be allowed to create a poll of any type."""
 
 
@@ -2532,17 +2532,17 @@ class ReplyKeyboardRemove(Model):
     """
 
     remove_keyboard: bool
-    """Requests clients to remove the custom keyboard (user will not be able to
-    summon this keyboard; if you want to hide the keyboard from sight but keep
+    """Requests clients to remove the custom keyboard (user will not be able to 
+    summon this keyboard; if you want to hide the keyboard from sight but keep 
     it accessible, use one_time_keyboard in ReplyKeyboardMarkup)."""
 
     selective: Option[bool] = Nothing
-    """Optional. Use this parameter if you want to remove the keyboard for specific
-    users only. Targets: 1) users that are @mentioned in the text of the Message
-    object; 2) if the bot's message is a reply to a message in the same chat and
-    forum topic, sender of the original message. Example: A user votes in a poll,
-    bot returns confirmation message in reply to the vote and removes the keyboard
-    for that user, while still showing the keyboard with poll options to users
+    """Optional. Use this parameter if you want to remove the keyboard for specific 
+    users only. Targets: 1) users that are @mentioned in the text of the Message 
+    object; 2) if the bot's message is a reply to a message in the same chat and 
+    forum topic, sender of the original message. Example: A user votes in a poll, 
+    bot returns confirmation message in reply to the vote and removes the keyboard 
+    for that user, while still showing the keyboard with poll options to users 
     who haven't voted yet."""
 
 
@@ -2553,7 +2553,7 @@ class InlineKeyboardMarkup(Model):
     """
 
     inline_keyboard: list[list["InlineKeyboardButton"]]
-    """Array of button rows, each represented by an Array of InlineKeyboardButton
+    """Array of button rows, each represented by an Array of InlineKeyboardButton 
     objects."""
 
 
@@ -2567,55 +2567,55 @@ class InlineKeyboardButton(Model):
     """Label text on the button."""
 
     url: Option[str] = Nothing
-    """Optional. HTTP or tg:// URL to be opened when the button is pressed. Links
-    tg://user?id=<user_id> can be used to mention a user by their identifier
+    """Optional. HTTP or tg:// URL to be opened when the button is pressed. Links 
+    tg://user?id=<user_id> can be used to mention a user by their identifier 
     without using a username, if this is allowed by their privacy settings."""
 
     callback_data: Option[str] = Nothing
-    """Optional. Data to be sent in a callback query to the bot when the button is
+    """Optional. Data to be sent in a callback query to the bot when the button is 
     pressed, 1-64 bytes."""
 
     web_app: Option["WebAppInfo"] = Nothing
-    """Optional. Description of the Web App that will be launched when the user
-    presses the button. The Web App will be able to send an arbitrary message
-    on behalf of the user using the method answerWebAppQuery. Available only
-    in private chats between a user and the bot. Not supported for messages sent
+    """Optional. Description of the Web App that will be launched when the user 
+    presses the button. The Web App will be able to send an arbitrary message 
+    on behalf of the user using the method answerWebAppQuery. Available only 
+    in private chats between a user and the bot. Not supported for messages sent 
     on behalf of a Telegram Business account."""
 
     login_url: Option["LoginUrl"] = Nothing
-    """Optional. An HTTPS URL used to automatically authorize the user. Can be
+    """Optional. An HTTPS URL used to automatically authorize the user. Can be 
     used as a replacement for the Telegram Login Widget."""
 
     switch_inline_query: Option[str] = Nothing
-    """Optional. If set, pressing the button will prompt the user to select one
-    of their chats, open that chat and insert the bot's username and the specified
-    inline query in the input field. May be empty, in which case just the bot's
-    username will be inserted. Not supported for messages sent on behalf of
+    """Optional. If set, pressing the button will prompt the user to select one 
+    of their chats, open that chat and insert the bot's username and the specified 
+    inline query in the input field. May be empty, in which case just the bot's 
+    username will be inserted. Not supported for messages sent on behalf of 
     a Telegram Business account."""
 
     switch_inline_query_current_chat: Option[str] = Nothing
-    """Optional. If set, pressing the button will insert the bot's username and
-    the specified inline query in the current chat's input field. May be empty,
-    in which case only the bot's username will be inserted. This offers a quick
-    way for the user to open your bot in inline mode in the same chat - good for selecting
-    something from multiple options. Not supported in channels and for messages
+    """Optional. If set, pressing the button will insert the bot's username and 
+    the specified inline query in the current chat's input field. May be empty, 
+    in which case only the bot's username will be inserted. This offers a quick 
+    way for the user to open your bot in inline mode in the same chat - good for selecting 
+    something from multiple options. Not supported in channels and for messages 
     sent on behalf of a Telegram Business account."""
 
     switch_inline_query_chosen_chat: Option["SwitchInlineQueryChosenChat"] = Nothing
-    """Optional. If set, pressing the button will prompt the user to select one
-    of their chats of the specified type, open that chat and insert the bot's
-    username and the specified inline query in the input field. Not supported
+    """Optional. If set, pressing the button will prompt the user to select one 
+    of their chats of the specified type, open that chat and insert the bot's 
+    username and the specified inline query in the input field. Not supported 
     for messages sent on behalf of a Telegram Business account."""
 
     callback_game: Option["CallbackGame"] = Nothing
-    """Optional. Description of the game that will be launched when the user presses
-    the button. NOTE: This type of button must always be the first button in the
+    """Optional. Description of the game that will be launched when the user presses 
+    the button. NOTE: This type of button must always be the first button in the 
     first row."""
 
     pay: Option[bool] = Nothing
-    """Optional. Specify True, to send a Pay button. Substrings `⭐` and `XTR` in
-    the buttons's text will be replaced with a Telegram Star icon. NOTE: This
-    type of button must always be the first button in the first row and can only
+    """Optional. Specify True, to send a Pay button. Substrings `⭐` and `XTR` in 
+    the buttons's text will be replaced with a Telegram Star icon. NOTE: This 
+    type of button must always be the first button in the first row and can only 
     be used in invoice messages."""
 
 
@@ -2627,24 +2627,24 @@ class LoginUrl(Model):
     """
 
     url: str
-    """An HTTPS URL to be opened with user authorization data added to the query
-    string when the button is pressed. If the user refuses to provide authorization
-    data, the original URL without information about the user will be opened.
-    The data added is the same as described in Receiving authorization data.
-    NOTE: You must always check the hash of the received data to verify the authentication
+    """An HTTPS URL to be opened with user authorization data added to the query 
+    string when the button is pressed. If the user refuses to provide authorization 
+    data, the original URL without information about the user will be opened. 
+    The data added is the same as described in Receiving authorization data. 
+    NOTE: You must always check the hash of the received data to verify the authentication 
     and the integrity of the data as described in Checking authorization."""
 
     forward_text: Option[str] = Nothing
     """Optional. New text of the button in forwarded messages."""
 
     bot_username: Option[str] = Nothing
-    """Optional. Username of a bot, which will be used for user authorization.
-    See Setting up a bot for more details. If not specified, the current bot's
-    username will be assumed. The url's domain must be the same as the domain
+    """Optional. Username of a bot, which will be used for user authorization. 
+    See Setting up a bot for more details. If not specified, the current bot's 
+    username will be assumed. The url's domain must be the same as the domain 
     linked with the bot. See Linking your domain to the bot for more details."""
 
     request_write_access: Option[bool] = Nothing
-    """Optional. Pass True to request the permission for your bot to send messages
+    """Optional. Pass True to request the permission for your bot to send messages 
     to the user."""
 
 
@@ -2655,7 +2655,7 @@ class SwitchInlineQueryChosenChat(Model):
     """
 
     query: Option[str] = Nothing
-    """Optional. The default inline query to be inserted in the input field. If
+    """Optional. The default inline query to be inserted in the input field. If 
     left empty, only the bot's username will be inserted."""
 
     allow_user_chats: Option[bool] = Nothing
@@ -2684,23 +2684,23 @@ class CallbackQuery(Model):
     """Sender."""
 
     chat_instance: str
-    """Global identifier, uniquely corresponding to the chat to which the message
+    """Global identifier, uniquely corresponding to the chat to which the message 
     with the callback button was sent. Useful for high scores in games."""
 
     message: Option[Variative["Message", "InaccessibleMessage"]] = Nothing
-    """Optional. Message sent by the bot with the callback button that originated
+    """Optional. Message sent by the bot with the callback button that originated 
     the query."""
 
     inline_message_id: Option[str] = Nothing
-    """Optional. Identifier of the message sent via the bot in inline mode, that
+    """Optional. Identifier of the message sent via the bot in inline mode, that 
     originated the query."""
 
     data: Option[str] = Nothing
-    """Optional. Data associated with the callback button. Be aware that the message
+    """Optional. Data associated with the callback button. Be aware that the message 
     originated the query can contain no callback buttons with this data."""
 
     game_short_name: Option[str] = Nothing
-    """Optional. Short name of a Game to be returned, serves as the unique identifier
+    """Optional. Short name of a Game to be returned, serves as the unique identifier 
     for the game."""
 
 
@@ -2711,17 +2711,17 @@ class ForceReply(Model):
     """
 
     force_reply: bool
-    """Shows reply interface to the user, as if they manually selected the bot's
+    """Shows reply interface to the user, as if they manually selected the bot's 
     message and tapped 'Reply'."""
 
     input_field_placeholder: Option[str] = Nothing
-    """Optional. The placeholder to be shown in the input field when the reply is
+    """Optional. The placeholder to be shown in the input field when the reply is 
     active; 1-64 characters."""
 
     selective: Option[bool] = Nothing
-    """Optional. Use this parameter if you want to force reply from specific users
-    only. Targets: 1) users that are @mentioned in the text of the Message object;
-    2) if the bot's message is a reply to a message in the same chat and forum topic,
+    """Optional. Use this parameter if you want to force reply from specific users 
+    only. Targets: 1) users that are @mentioned in the text of the Message object; 
+    2) if the bot's message is a reply to a message in the same chat and forum topic, 
     sender of the original message."""
 
 
@@ -2732,21 +2732,21 @@ class ChatPhoto(Model):
     """
 
     small_file_id: str
-    """File identifier of small (160x160) chat photo. This file_id can be used
+    """File identifier of small (160x160) chat photo. This file_id can be used 
     only for photo download and only for as long as the photo is not changed."""
 
     small_file_unique_id: str
-    """Unique file identifier of small (160x160) chat photo, which is supposed
-    to be the same over time and for different bots. Can't be used to download
+    """Unique file identifier of small (160x160) chat photo, which is supposed 
+    to be the same over time and for different bots. Can't be used to download 
     or reuse the file."""
 
     big_file_id: str
-    """File identifier of big (640x640) chat photo. This file_id can be used only
+    """File identifier of big (640x640) chat photo. This file_id can be used only 
     for photo download and only for as long as the photo is not changed."""
 
     big_file_unique_id: str
-    """Unique file identifier of big (640x640) chat photo, which is supposed to
-    be the same over time and for different bots. Can't be used to download or
+    """Unique file identifier of big (640x640) chat photo, which is supposed to 
+    be the same over time and for different bots. Can't be used to download or 
     reuse the file."""
 
 
@@ -2757,7 +2757,7 @@ class ChatInviteLink(Model):
     """
 
     invite_link: str
-    """The invite link. If the link was created by another chat administrator,
+    """The invite link. If the link was created by another chat administrator, 
     then the second part of the link will be replaced with `...`."""
 
     creator: "User"
@@ -2776,11 +2776,11 @@ class ChatInviteLink(Model):
     """Optional. Invite link name."""
 
     expire_date: Option[datetime] = Nothing
-    """Optional. Point in time (Unix timestamp) when the link will expire or has
+    """Optional. Point in time (Unix timestamp) when the link will expire or has 
     been expired."""
 
     member_limit: Option[int] = Nothing
-    """Optional. The maximum number of users that can be members of the chat simultaneously
+    """Optional. The maximum number of users that can be members of the chat simultaneously 
     after joining the chat via this invite link; 1-99999."""
 
     pending_join_request_count: Option[int] = Nothing
@@ -2797,8 +2797,8 @@ class ChatAdministratorRights(Model):
     """True, if the user's presence in the chat is hidden."""
 
     can_manage_chat: bool
-    """True, if the administrator can access the chat event log, get boost list,
-    see hidden supergroup and channel members, report spam messages and ignore
+    """True, if the administrator can access the chat event log, get boost list, 
+    see hidden supergroup and channel members, report spam messages and ignore 
     slow mode. Implied by any other administrator privilege."""
 
     can_delete_messages: bool
@@ -2808,12 +2808,12 @@ class ChatAdministratorRights(Model):
     """True, if the administrator can manage video chats."""
 
     can_restrict_members: bool
-    """True, if the administrator can restrict, ban or unban chat members, or access
+    """True, if the administrator can restrict, ban or unban chat members, or access 
     supergroup statistics."""
 
     can_promote_members: bool
-    """True, if the administrator can add new administrators with a subset of their
-    own privileges or demote administrators that they have promoted, directly
+    """True, if the administrator can add new administrators with a subset of their 
+    own privileges or demote administrators that they have promoted, directly 
     or indirectly (promoted by administrators that were appointed by the user)."""
 
     can_change_info: bool
@@ -2826,26 +2826,26 @@ class ChatAdministratorRights(Model):
     """True, if the administrator can post stories to the chat."""
 
     can_edit_stories: bool
-    """True, if the administrator can edit stories posted by other users, post
+    """True, if the administrator can edit stories posted by other users, post 
     stories to the chat page, pin chat stories, and access the chat's story archive."""
 
     can_delete_stories: bool
     """True, if the administrator can delete stories posted by other users."""
 
     can_post_messages: Option[bool] = Nothing
-    """Optional. True, if the administrator can post messages in the channel,
+    """Optional. True, if the administrator can post messages in the channel, 
     or access channel statistics; for channels only."""
 
     can_edit_messages: Option[bool] = Nothing
-    """Optional. True, if the administrator can edit messages of other users and
+    """Optional. True, if the administrator can edit messages of other users and 
     can pin messages; for channels only."""
 
     can_pin_messages: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to pin messages; for groups and supergroups
+    """Optional. True, if the user is allowed to pin messages; for groups and supergroups 
     only."""
 
     can_manage_topics: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to create, rename, close, and reopen
+    """Optional. True, if the user is allowed to create, rename, close, and reopen 
     forum topics; for supergroups only."""
 
 
@@ -2885,11 +2885,11 @@ class ChatMemberUpdated(Model):
     """New information about the chat member."""
 
     invite_link: Option["ChatInviteLink"] = Nothing
-    """Optional. Chat invite link, which was used by the user to join the chat; for
+    """Optional. Chat invite link, which was used by the user to join the chat; for 
     joining by invite link events only."""
 
     via_join_request: Option[bool] = Nothing
-    """Optional. True, if the user joined the chat after sending a direct join request
+    """Optional. True, if the user joined the chat after sending a direct join request 
     without using an invite link and being approved by an administrator."""
 
     via_chat_folder_invite_link: Option[bool] = Nothing
@@ -2940,8 +2940,8 @@ class ChatMemberAdministrator(ChatMember):
     """True, if the user's presence in the chat is hidden."""
 
     can_manage_chat: bool
-    """True, if the administrator can access the chat event log, get boost list,
-    see hidden supergroup and channel members, report spam messages and ignore
+    """True, if the administrator can access the chat event log, get boost list, 
+    see hidden supergroup and channel members, report spam messages and ignore 
     slow mode. Implied by any other administrator privilege."""
 
     can_delete_messages: bool
@@ -2951,12 +2951,12 @@ class ChatMemberAdministrator(ChatMember):
     """True, if the administrator can manage video chats."""
 
     can_restrict_members: bool
-    """True, if the administrator can restrict, ban or unban chat members, or access
+    """True, if the administrator can restrict, ban or unban chat members, or access 
     supergroup statistics."""
 
     can_promote_members: bool
-    """True, if the administrator can add new administrators with a subset of their
-    own privileges or demote administrators that they have promoted, directly
+    """True, if the administrator can add new administrators with a subset of their 
+    own privileges or demote administrators that they have promoted, directly 
     or indirectly (promoted by administrators that were appointed by the user)."""
 
     can_change_info: bool
@@ -2969,26 +2969,26 @@ class ChatMemberAdministrator(ChatMember):
     """True, if the administrator can post stories to the chat."""
 
     can_edit_stories: bool
-    """True, if the administrator can edit stories posted by other users, post
+    """True, if the administrator can edit stories posted by other users, post 
     stories to the chat page, pin chat stories, and access the chat's story archive."""
 
     can_delete_stories: bool
     """True, if the administrator can delete stories posted by other users."""
 
     can_post_messages: Option[bool] = Nothing
-    """Optional. True, if the administrator can post messages in the channel,
+    """Optional. True, if the administrator can post messages in the channel, 
     or access channel statistics; for channels only."""
 
     can_edit_messages: Option[bool] = Nothing
-    """Optional. True, if the administrator can edit messages of other users and
+    """Optional. True, if the administrator can edit messages of other users and 
     can pin messages; for channels only."""
 
     can_pin_messages: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to pin messages; for groups and supergroups
+    """Optional. True, if the user is allowed to pin messages; for groups and supergroups 
     only."""
 
     can_manage_topics: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to create, rename, close, and reopen
+    """Optional. True, if the user is allowed to create, rename, close, and reopen 
     forum topics; for supergroups only."""
 
     custom_title: Option[str] = Nothing
@@ -3024,7 +3024,7 @@ class ChatMemberRestricted(ChatMember):
     """True, if the user is a member of the chat at the moment of the request."""
 
     can_send_messages: bool
-    """True, if the user is allowed to send text messages, contacts, giveaways,
+    """True, if the user is allowed to send text messages, contacts, giveaways, 
     giveaway winners, invoices, locations and venues."""
 
     can_send_audios: bool
@@ -3049,7 +3049,7 @@ class ChatMemberRestricted(ChatMember):
     """True, if the user is allowed to send polls."""
 
     can_send_other_messages: bool
-    """True, if the user is allowed to send animations, games, stickers and use
+    """True, if the user is allowed to send animations, games, stickers and use 
     inline bots."""
 
     can_add_web_page_previews: bool
@@ -3068,7 +3068,7 @@ class ChatMemberRestricted(ChatMember):
     """True, if the user is allowed to create forum topics."""
 
     until_date: datetime
-    """Date when restrictions will be lifted for this user; Unix time. If 0, then
+    """Date when restrictions will be lifted for this user; Unix time. If 0, then 
     the user is restricted forever."""
 
 
@@ -3098,7 +3098,7 @@ class ChatMemberBanned(ChatMember):
     """Information about the user."""
 
     until_date: datetime
-    """Date when restrictions will be lifted for this user; Unix time. If 0, then
+    """Date when restrictions will be lifted for this user; Unix time. If 0, then 
     the user is banned forever."""
 
 
@@ -3115,12 +3115,12 @@ class ChatJoinRequest(Model):
     """User that sent the join request."""
 
     user_chat_id: int
-    """Identifier of a private chat with the user who sent the join request. This
-    number may have more than 32 significant bits and some programming languages
-    may have difficulty/silent defects in interpreting it. But it has at most
-    52 significant bits, so a 64-bit integer or double-precision float type
-    are safe for storing this identifier. The bot can use this identifier for
-    5 minutes to send messages until the join request is processed, assuming
+    """Identifier of a private chat with the user who sent the join request. This 
+    number may have more than 32 significant bits and some programming languages 
+    may have difficulty/silent defects in interpreting it. But it has at most 
+    52 significant bits, so a 64-bit integer or double-precision float type 
+    are safe for storing this identifier. The bot can use this identifier for 
+    5 minutes to send messages until the join request is processed, assuming 
     no other administrator contacted the user."""
 
     date: datetime
@@ -3146,7 +3146,7 @@ class ChatPermissions(Model):
     """
 
     can_send_messages: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to send text messages, contacts,
+    """Optional. True, if the user is allowed to send text messages, contacts, 
     giveaways, giveaway winners, invoices, locations and venues."""
 
     can_send_audios: Option[bool] = Nothing
@@ -3171,25 +3171,25 @@ class ChatPermissions(Model):
     """Optional. True, if the user is allowed to send polls."""
 
     can_send_other_messages: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to send animations, games, stickers
+    """Optional. True, if the user is allowed to send animations, games, stickers 
     and use inline bots."""
 
     can_add_web_page_previews: Option[bool] = Nothing
     """Optional. True, if the user is allowed to add web page previews to their messages."""
 
     can_change_info: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to change the chat title, photo and
+    """Optional. True, if the user is allowed to change the chat title, photo and 
     other settings. Ignored in public supergroups."""
 
     can_invite_users: Option[bool] = Nothing
     """Optional. True, if the user is allowed to invite new users to the chat."""
 
     can_pin_messages: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to pin messages. Ignored in public
+    """Optional. True, if the user is allowed to pin messages. Ignored in public 
     supergroups."""
 
     can_manage_topics: Option[bool] = Nothing
-    """Optional. True, if the user is allowed to create forum topics. If omitted
+    """Optional. True, if the user is allowed to create forum topics. If omitted 
     defaults to the value of can_pin_messages."""
 
 
@@ -3260,11 +3260,11 @@ class BusinessOpeningHoursInterval(Model):
     """
 
     opening_minute: int
-    """The minute's sequence number in a week, starting on Monday, marking the
+    """The minute's sequence number in a week, starting on Monday, marking the 
     start of the time interval during which the business is open; 0 - 7 * 24 * 60."""
 
     closing_minute: int
-    """The minute's sequence number in a week, starting on Monday, marking the
+    """The minute's sequence number in a week, starting on Monday, marking the 
     end of the time interval during which the business is open; 0 - 8 * 24 * 60."""
 
 
@@ -3304,11 +3304,11 @@ class ReactionTypeEmoji(ReactionType):
     """Type of the reaction, always `emoji`."""
 
     emoji: ReactionEmoji
-    """Reaction emoji. Currently, it can be one of `👍`, `👎`, `❤`, `🔥`, `🥰`, `👏`,
-    `😁`, `🤔`, `🤯`, `😱`, `🤬`, `😢`, `🎉`, `🤩`, `🤮`, `💩`, `🙏`, `👌`, `🕊`, `🤡`, `🥱`,
-    `🥴`, `😍`, `🐳`, `❤‍🔥`, `🌚`, `🌭`, `💯`, `🤣`, `⚡`, `🍌`, `🏆`, `💔`, `🤨`, `😐`, `🍓`,
-    `🍾`, `💋`, `🖕`, `😈`, `😴`, `😭`, `🤓`, `👻`, `👨‍💻`, `👀`, `🎃`, `🙈`, `😇`, `😨`, `🤝`,
-    `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`,
+    """Reaction emoji. Currently, it can be one of `👍`, `👎`, `❤`, `🔥`, `🥰`, `👏`, 
+    `😁`, `🤔`, `🤯`, `😱`, `🤬`, `😢`, `🎉`, `🤩`, `🤮`, `💩`, `🙏`, `👌`, `🕊`, `🤡`, `🥱`, 
+    `🥴`, `😍`, `🐳`, `❤‍🔥`, `🌚`, `🌭`, `💯`, `🤣`, `⚡`, `🍌`, `🏆`, `💔`, `🤨`, `😐`, `🍓`, 
+    `🍾`, `💋`, `🖕`, `😈`, `😴`, `😭`, `🤓`, `👻`, `👨‍💻`, `👀`, `🎃`, `🙈`, `😇`, `😨`, `🤝`, 
+    `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`, 
     `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`."""
 
 
@@ -3363,7 +3363,7 @@ class MessageReactionUpdated(Model):
     """Optional. The user that changed the reaction, if the user isn't anonymous."""
 
     actor_chat: Option["Chat"] = Nothing
-    """Optional. The chat on behalf of which the reaction was changed, if the user
+    """Optional. The chat on behalf of which the reaction was changed, if the user 
     is anonymous."""
 
 
@@ -3412,7 +3412,7 @@ class BotCommand(Model):
     """
 
     command: str
-    """Text of the command; 1-32 characters. Can contain only lowercase English
+    """Text of the command; 1-32 characters. Can contain only lowercase English 
     letters, digits and underscores."""
 
     description: str
@@ -3469,7 +3469,7 @@ class BotCommandScopeChat(BotCommandScope):
     """Scope type, must be chat."""
 
     chat_id: Variative[int, str]
-    """Unique identifier for the target chat or username of the target supergroup
+    """Unique identifier for the target chat or username of the target supergroup 
     (in the format @supergroupusername)."""
 
 
@@ -3483,7 +3483,7 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
     """Scope type, must be chat_administrators."""
 
     chat_id: Variative[int, str]
-    """Unique identifier for the target chat or username of the target supergroup
+    """Unique identifier for the target chat or username of the target supergroup 
     (in the format @supergroupusername)."""
 
 
@@ -3497,7 +3497,7 @@ class BotCommandScopeChatMember(BotCommandScope):
     """Scope type, must be chat_member."""
 
     chat_id: Variative[int, str]
-    """Unique identifier for the target chat or username of the target supergroup
+    """Unique identifier for the target chat or username of the target supergroup 
     (in the format @supergroupusername)."""
 
     user_id: int
@@ -3557,10 +3557,10 @@ class MenuButtonWebApp(MenuButton):
     """Text on the button."""
 
     web_app: "WebAppInfo"
-    """Description of the Web App that will be launched when the user presses the
-    button. The Web App will be able to send an arbitrary message on behalf of
-    the user using the method answerWebAppQuery. Alternatively, a t.me link
-    to a Web App of the bot can be specified in the object instead of the Web App's
+    """Description of the Web App that will be launched when the user presses the 
+    button. The Web App will be able to send an arbitrary message on behalf of 
+    the user using the method answerWebAppQuery. Alternatively, a t.me link 
+    to a Web App of the bot can be specified in the object instead of the Web App's 
     URL, in which case the Web App will be opened as if the user pressed the link."""
 
 
@@ -3610,14 +3610,14 @@ class ChatBoostSourceGiveaway(ChatBoostSource):
     """Source of the boost, always `giveaway`."""
 
     giveaway_message_id: int
-    """Identifier of a message in the chat with the giveaway; the message could
+    """Identifier of a message in the chat with the giveaway; the message could 
     have been deleted already. May be 0 if the message isn't sent yet."""
 
     user: Option["User"] = Nothing
     """Optional. User that won the prize in the giveaway if any."""
 
     is_unclaimed: Option[bool] = Nothing
-    """Optional. True, if the giveaway was completed, but there was no user to win
+    """Optional. True, if the giveaway was completed, but there was no user to win 
     the prize."""
 
 
@@ -3634,7 +3634,7 @@ class ChatBoost(Model):
     """Point in time (Unix timestamp) when the chat was boosted."""
 
     expiration_date: datetime
-    """Point in time (Unix timestamp) when the boost will automatically expire,
+    """Point in time (Unix timestamp) when the boost will automatically expire, 
     unless the booster's Telegram Premium subscription is prolonged."""
 
     source: Variative["ChatBoostSourcePremium", "ChatBoostSourceGiftCode", "ChatBoostSourceGiveaway"]
@@ -3696,17 +3696,17 @@ class BusinessConnection(Model):
     """Business account user that created the business connection."""
 
     user_chat_id: int
-    """Identifier of a private chat with the user who created the business connection.
-    This number may have more than 32 significant bits and some programming
-    languages may have difficulty/silent defects in interpreting it. But
-    it has at most 52 significant bits, so a 64-bit integer or double-precision
+    """Identifier of a private chat with the user who created the business connection. 
+    This number may have more than 32 significant bits and some programming 
+    languages may have difficulty/silent defects in interpreting it. But 
+    it has at most 52 significant bits, so a 64-bit integer or double-precision 
     float type are safe for storing this identifier."""
 
     date: datetime
     """Date the connection was established in Unix time."""
 
     can_reply: bool
-    """True, if the bot can act on behalf of the business account in chats that were
+    """True, if the bot can act on behalf of the business account in chats that were 
     active in the last 24 hours."""
 
     is_enabled: bool
@@ -3723,7 +3723,7 @@ class BusinessMessagesDeleted(Model):
     """Unique identifier of the business connection."""
 
     chat: "Chat"
-    """Information about a chat in the business account. The bot may not have access
+    """Information about a chat in the business account. The bot may not have access 
     to the chat or the corresponding user."""
 
     message_ids: list[int]
@@ -3737,14 +3737,14 @@ class ResponseParameters(Model):
     """
 
     migrate_to_chat_id: Option[int] = Nothing
-    """Optional. The group has been migrated to a supergroup with the specified
-    identifier. This number may have more than 32 significant bits and some
-    programming languages may have difficulty/silent defects in interpreting
-    it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    """Optional. The group has been migrated to a supergroup with the specified 
+    identifier. This number may have more than 32 significant bits and some 
+    programming languages may have difficulty/silent defects in interpreting 
+    it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision 
     float type are safe for storing this identifier."""
 
     retry_after: Option[int] = Nothing
-    """Optional. In case of exceeding flood control, the number of seconds left
+    """Optional. In case of exceeding flood control, the number of seconds left 
     to wait before the request can be repeated."""
 
 
@@ -3758,21 +3758,21 @@ class InputMediaPhoto(InputMedia):
     """Type of the result, must be photo."""
 
     media: Variative["InputFile", str]
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers 
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the photo to be sent, 0-1024 characters after entities
+    """Optional. Caption of the photo to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the photo caption. See formatting
+    """Optional. Mode for parsing entities in the photo caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -3792,30 +3792,30 @@ class InputMediaVideo(InputMedia):
     """Type of the result, must be video."""
 
     media: Variative["InputFile", str]
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers 
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     thumbnail: Option[Variative["InputFile", str]] = Nothing
-    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
-    for the file is supported server-side. The thumbnail should be in JPEG format
-    and less than 200 kB in size. A thumbnail's width and height should not exceed
-    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
-    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
-    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
+    for the file is supported server-side. The thumbnail should be in JPEG format 
+    and less than 200 kB in size. A thumbnail's width and height should not exceed 
+    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails 
+    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` 
+    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. 
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the video to be sent, 0-1024 characters after entities
+    """Optional. Caption of the video to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the video caption. See formatting
+    """Optional. Mode for parsing entities in the video caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -3847,30 +3847,30 @@ class InputMediaAnimation(InputMedia):
     """Type of the result, must be animation."""
 
     media: Variative["InputFile", str]
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers 
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     thumbnail: Option[Variative["InputFile", str]] = Nothing
-    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
-    for the file is supported server-side. The thumbnail should be in JPEG format
-    and less than 200 kB in size. A thumbnail's width and height should not exceed
-    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
-    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
-    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
+    for the file is supported server-side. The thumbnail should be in JPEG format 
+    and less than 200 kB in size. A thumbnail's width and height should not exceed 
+    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails 
+    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` 
+    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. 
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the animation to be sent, 0-1024 characters after
+    """Optional. Caption of the animation to be sent, 0-1024 characters after 
     entities parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the animation caption. See formatting
+    """Optional. Mode for parsing entities in the animation caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -3899,30 +3899,30 @@ class InputMediaAudio(InputMedia):
     """Type of the result, must be audio."""
 
     media: Variative["InputFile", str]
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers 
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     thumbnail: Option[Variative["InputFile", str]] = Nothing
-    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
-    for the file is supported server-side. The thumbnail should be in JPEG format
-    and less than 200 kB in size. A thumbnail's width and height should not exceed
-    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
-    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
-    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
+    for the file is supported server-side. The thumbnail should be in JPEG format 
+    and less than 200 kB in size. A thumbnail's width and height should not exceed 
+    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails 
+    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` 
+    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. 
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the audio to be sent, 0-1024 characters after entities
+    """Optional. Caption of the audio to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the audio caption. See formatting
+    """Optional. Mode for parsing entities in the audio caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     duration: Option[int] = Nothing
@@ -3945,35 +3945,35 @@ class InputMediaDocument(InputMedia):
     """Type of the result, must be document."""
 
     media: Variative["InputFile", str]
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers 
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     thumbnail: Option[Variative["InputFile", str]] = Nothing
-    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
-    for the file is supported server-side. The thumbnail should be in JPEG format
-    and less than 200 kB in size. A thumbnail's width and height should not exceed
-    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
-    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
-    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
+    for the file is supported server-side. The thumbnail should be in JPEG format 
+    and less than 200 kB in size. A thumbnail's width and height should not exceed 
+    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails 
+    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` 
+    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. 
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the document to be sent, 0-1024 characters after entities
+    """Optional. Caption of the document to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the document caption. See formatting
+    """Optional. Mode for parsing entities in the document caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     disable_content_type_detection: Option[bool] = Nothing
-    """Optional. Disables automatic server-side content type detection for
-    files uploaded using multipart/form-data. Always True, if the document
+    """Optional. Disables automatic server-side content type detection for 
+    files uploaded using multipart/form-data. Always True, if the document 
     is sent as part of an album."""
 
 
@@ -4000,9 +4000,9 @@ class InputPaidMediaPhoto(InputPaidMedia):
     """Type of the media, must be photo."""
 
     media: Variative["InputFile", str]
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers 
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
 
@@ -4016,18 +4016,18 @@ class InputPaidMediaVideo(InputPaidMedia):
     """Type of the media, must be video."""
 
     media: Variative["InputFile", str]
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers 
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet, 
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     thumbnail: Option[Variative["InputFile", str]] = Nothing
-    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
-    for the file is supported server-side. The thumbnail should be in JPEG format
-    and less than 200 kB in size. A thumbnail's width and height should not exceed
-    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
-    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
-    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation 
+    for the file is supported server-side. The thumbnail should be in JPEG format 
+    and less than 200 kB in size. A thumbnail's width and height should not exceed 
+    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails 
+    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` 
+    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. 
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     width: Option[int] = Nothing
@@ -4053,12 +4053,12 @@ class Sticker(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     type: typing.Literal["regular", "mask", "custom_emoji"]
-    """Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`.
-    The type of the sticker is independent from its format, which is determined
+    """Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`. 
+    The type of the sticker is independent from its format, which is determined 
     by the fields is_animated and is_video."""
 
     width: int
@@ -4092,8 +4092,8 @@ class Sticker(Model):
     """Optional. For custom emoji stickers, unique identifier of the custom emoji."""
 
     needs_repainting: Option[bool] = Nothing
-    """Optional. True, if the sticker must be repainted to a text color in messages,
-    the color of the Telegram Premium badge in emoji status, white color on chat
+    """Optional. True, if the sticker must be repainted to a text color in messages, 
+    the color of the Telegram Premium badge in emoji status, white color on chat 
     photos, or another appropriate color in other places."""
 
     file_size: Option[int] = Nothing
@@ -4129,17 +4129,17 @@ class MaskPosition(Model):
     """
 
     point: str
-    """The part of the face relative to which the mask should be placed. One of `forehead`,
+    """The part of the face relative to which the mask should be placed. One of `forehead`, 
     `eyes`, `mouth`, or `chin`."""
 
     x_shift: float
-    """Shift by X-axis measured in widths of the mask scaled to the face size, from
-    left to right. For example, choosing -1.0 will place mask just to the left
+    """Shift by X-axis measured in widths of the mask scaled to the face size, from 
+    left to right. For example, choosing -1.0 will place mask just to the left 
     of the default mask position."""
 
     y_shift: float
-    """Shift by Y-axis measured in heights of the mask scaled to the face size, from
-    top to bottom. For example, 1.0 will place the mask just below the default
+    """Shift by Y-axis measured in heights of the mask scaled to the face size, from 
+    top to bottom. For example, 1.0 will place the mask just below the default 
     mask position."""
 
     scale: float
@@ -4153,26 +4153,26 @@ class InputSticker(Model):
     """
 
     sticker: Variative["InputFile", str]
-    """The added sticker. Pass a file_id as a String to send a file that already exists
-    on the Telegram servers, pass an HTTP URL as a String for Telegram to get a
-    file from the Internet, upload a new one using multipart/form-data, or
-    pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. Animated and video stickers can't be uploaded
+    """The added sticker. Pass a file_id as a String to send a file that already exists 
+    on the Telegram servers, pass an HTTP URL as a String for Telegram to get a 
+    file from the Internet, upload a new one using multipart/form-data, or 
+    pass `attach://<file_attach_name>` to upload a new one using multipart/form-data 
+    under <file_attach_name> name. Animated and video stickers can't be uploaded 
     via HTTP URL. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     format: str
-    """Format of the added sticker, must be one of `static` for a .WEBP or .PNG image,
+    """Format of the added sticker, must be one of `static` for a .WEBP or .PNG image, 
     `animated` for a .TGS animation, `video` for a WEBM video."""
 
     emoji_list: list[str]
     """List of 1-20 emoji associated with the sticker."""
 
     mask_position: Option["MaskPosition"] = Nothing
-    """Optional. Position where the mask should be placed on faces. For `mask`
+    """Optional. Position where the mask should be placed on faces. For `mask` 
     stickers only."""
 
     keywords: Option[list[str]] = Nothing
-    """Optional. List of 0-20 search keywords for the sticker with total length
+    """Optional. List of 0-20 search keywords for the sticker with total length 
     of up to 64 characters. For `regular` and `custom_emoji` stickers only."""
 
 
@@ -4195,10 +4195,10 @@ class InlineQuery(Model):
     """Offset of the results to be returned, can be controlled by the bot."""
 
     chat_type: Option[ChatType] = Nothing
-    """Optional. Type of the chat from which the inline query was sent. Can be either
-    `sender` for a private chat with the inline query sender, `private`, `group`,
-    `supergroup`, or `channel`. The chat type should be always known for requests
-    sent from official clients and most third-party clients, unless the request
+    """Optional. Type of the chat from which the inline query was sent. Can be either 
+    `sender` for a private chat with the inline query sender, `private`, `group`, 
+    `supergroup`, or `channel`. The chat type should be always known for requests 
+    sent from official clients and most third-party clients, unless the request 
     was sent from a secret chat."""
 
     location: Option["Location"] = Nothing
@@ -4215,20 +4215,20 @@ class InlineQueryResultsButton(Model):
     """Label text on the button."""
 
     web_app: Option["WebAppInfo"] = Nothing
-    """Optional. Description of the Web App that will be launched when the user
-    presses the button. The Web App will be able to switch back to the inline mode
+    """Optional. Description of the Web App that will be launched when the user 
+    presses the button. The Web App will be able to switch back to the inline mode 
     using the method switchInlineQuery inside the Web App."""
 
     start_parameter: Option[str] = Nothing
-    """Optional. Deep-linking parameter for the /start message sent to the bot
-    when a user presses the button. 1-64 characters, only A-Z, a-z, 0-9, _ and
-    - are allowed. Example: An inline bot that sends YouTube videos can ask the
-    user to connect the bot to their YouTube account to adapt search results
-    accordingly. To do this, it displays a 'Connect your YouTube account' button
-    above the results, or even before showing any. The user presses the button,
-    switches to a private chat with the bot and, in doing so, passes a start parameter
-    that instructs the bot to return an OAuth link. Once done, the bot can offer
-    a switch_inline button so that the user can easily return to the chat where
+    """Optional. Deep-linking parameter for the /start message sent to the bot 
+    when a user presses the button. 1-64 characters, only A-Z, a-z, 0-9, _ and 
+    - are allowed. Example: An inline bot that sends YouTube videos can ask the 
+    user to connect the bot to their YouTube account to adapt search results 
+    accordingly. To do this, it displays a 'Connect your YouTube account' button 
+    above the results, or even before showing any. The user presses the button, 
+    switches to a private chat with the bot and, in doing so, passes a start parameter 
+    that instructs the bot to return an OAuth link. Once done, the bot can offer 
+    a switch_inline button so that the user can easily return to the chat where 
     they wanted to use the bot's inline capabilities."""
 
 
@@ -4291,7 +4291,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Unique identifier for this result, 1-64 bytes."""
 
     photo_url: str
-    """A valid URL of the photo. Photo must be in JPEG format. Photo size must not
+    """A valid URL of the photo. Photo must be in JPEG format. Photo size must not 
     exceed 5MB."""
 
     thumbnail_url: str
@@ -4310,15 +4310,15 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Optional. Short description of the result."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the photo to be sent, 0-1024 characters after entities
+    """Optional. Caption of the photo to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the photo caption. See formatting
+    """Optional. Mode for parsing entities in the photo caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -4367,22 +4367,22 @@ class InlineQueryResultGif(InlineQueryResult):
     """Optional. Duration of the GIF in seconds."""
 
     thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = Nothing
-    """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
+    """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, 
     or `video/mp4`. Defaults to `image/jpeg`."""
 
     title: Option[str] = Nothing
     """Optional. Title for the result."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities
+    """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the caption. See formatting options
+    """Optional. Mode for parsing entities in the caption. See formatting options 
     for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -4431,22 +4431,22 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """Optional. Video duration in seconds."""
 
     thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = Nothing
-    """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
+    """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, 
     or `video/mp4`. Defaults to `image/jpeg`."""
 
     title: Option[str] = Nothing
     """Optional. Title for the result."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after
+    """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after 
     entities parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the caption. See formatting options
+    """Optional. Mode for parsing entities in the caption. See formatting options 
     for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -4492,15 +4492,15 @@ class InlineQueryResultVideo(InlineQueryResult):
     """Title for the result."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the video to be sent, 0-1024 characters after entities
+    """Optional. Caption of the video to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the video caption. See formatting
+    """Optional. Mode for parsing entities in the video caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -4530,8 +4530,8 @@ class InlineQueryResultVideo(InlineQueryResult):
             "InputInvoiceMessageContent",
         ]
     ] = Nothing
-    """Optional. Content of the message to be sent instead of the video. This field
-    is required if InlineQueryResultVideo is used to send an HTML-page as a
+    """Optional. Content of the message to be sent instead of the video. This field 
+    is required if InlineQueryResultVideo is used to send an HTML-page as a 
     result (e.g., a YouTube video)."""
 
 
@@ -4557,11 +4557,11 @@ class InlineQueryResultAudio(InlineQueryResult):
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the audio caption. See formatting
+    """Optional. Mode for parsing entities in the audio caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     performer: Option[str] = Nothing
@@ -4607,11 +4607,11 @@ class InlineQueryResultVoice(InlineQueryResult):
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the voice message caption. See formatting
+    """Optional. Mode for parsing entities in the voice message caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     voice_duration: Option[int] = Nothing
@@ -4654,15 +4654,15 @@ class InlineQueryResultDocument(InlineQueryResult):
     """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the document to be sent, 0-1024 characters after entities
+    """Optional. Caption of the document to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the document caption. See formatting
+    """Optional. Mode for parsing entities in the document caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     description: Option[str] = Nothing
@@ -4714,21 +4714,21 @@ class InlineQueryResultLocation(InlineQueryResult):
     """Location title."""
 
     horizontal_accuracy: Option[float] = Nothing
-    """Optional. The radius of uncertainty for the location, measured in meters;
+    """Optional. The radius of uncertainty for the location, measured in meters; 
     0-1500."""
 
     live_period: Option[int] = Nothing
-    """Optional. Period in seconds during which the location can be updated, should
-    be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited
+    """Optional. Period in seconds during which the location can be updated, should 
+    be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited 
     indefinitely."""
 
     heading: Option[int] = Nothing
-    """Optional. For live locations, a direction in which the user is moving, in
+    """Optional. For live locations, a direction in which the user is moving, in 
     degrees. Must be between 1 and 360 if specified."""
 
     proximity_alert_radius: Option[int] = Nothing
-    """Optional. For live locations, a maximum distance for proximity alerts
-    about approaching another chat member, in meters. Must be between 1 and
+    """Optional. For live locations, a maximum distance for proximity alerts 
+    about approaching another chat member, in meters. Must be between 1 and 
     100000 if specified."""
 
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
@@ -4783,7 +4783,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     """Optional. Foursquare identifier of the venue if known."""
 
     foursquare_type: Option[str] = Nothing
-    """Optional. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,
+    """Optional. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, 
     `arts_entertainment/aquarium` or `food/icecream`.)."""
 
     google_place_id: Option[str] = Nothing
@@ -4838,7 +4838,7 @@ class InlineQueryResultContact(InlineQueryResult):
     """Optional. Contact's last name."""
 
     vcard: Option[str] = Nothing
-    """Optional. Additional data about the contact in the form of a vCard, 0-2048
+    """Optional. Additional data about the contact in the form of a vCard, 0-2048 
     bytes."""
 
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
@@ -4906,15 +4906,15 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     """Optional. Short description of the result."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the photo to be sent, 0-1024 characters after entities
+    """Optional. Caption of the photo to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the photo caption. See formatting
+    """Optional. Mode for parsing entities in the photo caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -4954,15 +4954,15 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     """Optional. Title for the result."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities
+    """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the caption. See formatting options
+    """Optional. Mode for parsing entities in the caption. See formatting options 
     for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -5002,15 +5002,15 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     """Optional. Title for the result."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after
+    """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after 
     entities parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the caption. See formatting options
+    """Optional. Mode for parsing entities in the caption. See formatting options 
     for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -5083,15 +5083,15 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     """Optional. Short description of the result."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the document to be sent, 0-1024 characters after entities
+    """Optional. Caption of the document to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the document caption. See formatting
+    """Optional. Mode for parsing entities in the document caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
@@ -5131,15 +5131,15 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     """Optional. Short description of the result."""
 
     caption: Option[str] = Nothing
-    """Optional. Caption of the video to be sent, 0-1024 characters after entities
+    """Optional. Caption of the video to be sent, 0-1024 characters after entities 
     parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the video caption. See formatting
+    """Optional. Mode for parsing entities in the video caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = Nothing
@@ -5182,11 +5182,11 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the voice message caption. See formatting
+    """Optional. Mode for parsing entities in the voice message caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
@@ -5223,11 +5223,11 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the audio caption. See formatting
+    """Optional. Mode for parsing entities in the audio caption. See formatting 
     options for more details."""
 
     caption_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in the caption, which can
+    """Optional. List of special entities that appear in the caption, which can 
     be specified instead of parse_mode."""
 
     reply_markup: Option["InlineKeyboardMarkup"] = Nothing
@@ -5255,11 +5255,11 @@ class InputTextMessageContent(InputMessageContent):
     """Text of the message to be sent, 1-4096 characters."""
 
     parse_mode: Option[str] = Nothing
-    """Optional. Mode for parsing entities in the message text. See formatting
+    """Optional. Mode for parsing entities in the message text. See formatting 
     options for more details."""
 
     entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. List of special entities that appear in message text, which can
+    """Optional. List of special entities that appear in message text, which can 
     be specified instead of parse_mode."""
 
     link_preview_options: Option["LinkPreviewOptions"] = Nothing
@@ -5279,21 +5279,21 @@ class InputLocationMessageContent(InputMessageContent):
     """Longitude of the location in degrees."""
 
     horizontal_accuracy: Option[float] = Nothing
-    """Optional. The radius of uncertainty for the location, measured in meters;
+    """Optional. The radius of uncertainty for the location, measured in meters; 
     0-1500."""
 
     live_period: Option[int] = Nothing
-    """Optional. Period in seconds during which the location can be updated, should
-    be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited
+    """Optional. Period in seconds during which the location can be updated, should 
+    be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited 
     indefinitely."""
 
     heading: Option[int] = Nothing
-    """Optional. For live locations, a direction in which the user is moving, in
+    """Optional. For live locations, a direction in which the user is moving, in 
     degrees. Must be between 1 and 360 if specified."""
 
     proximity_alert_radius: Option[int] = Nothing
-    """Optional. For live locations, a maximum distance for proximity alerts
-    about approaching another chat member, in meters. Must be between 1 and
+    """Optional. For live locations, a maximum distance for proximity alerts 
+    about approaching another chat member, in meters. Must be between 1 and 
     100000 if specified."""
 
 
@@ -5319,7 +5319,7 @@ class InputVenueMessageContent(InputMessageContent):
     """Optional. Foursquare identifier of the venue, if known."""
 
     foursquare_type: Option[str] = Nothing
-    """Optional. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,
+    """Optional. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, 
     `arts_entertainment/aquarium` or `food/icecream`.)."""
 
     google_place_id: Option[str] = Nothing
@@ -5345,7 +5345,7 @@ class InputContactMessageContent(InputMessageContent):
     """Optional. Contact's last name."""
 
     vcard: Option[str] = Nothing
-    """Optional. Additional data about the contact in the form of a vCard, 0-2048
+    """Optional. Additional data about the contact in the form of a vCard, 0-2048 
     bytes."""
 
 
@@ -5362,43 +5362,43 @@ class InputInvoiceMessageContent(InputMessageContent):
     """Product description, 1-255 characters."""
 
     payload: str
-    """Bot-defined invoice payload, 1-128 bytes. This will not be displayed to
+    """Bot-defined invoice payload, 1-128 bytes. This will not be displayed to 
     the user, use for your internal processes."""
 
     currency: Currency
-    """Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR`
+    """Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` 
     for payments in Telegram Stars."""
 
     prices: list["LabeledPrice"]
-    """Price breakdown, a JSON-serialized list of components (e.g. product price,
-    tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain
+    """Price breakdown, a JSON-serialized list of components (e.g. product price, 
+    tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain 
     exactly one item for payments in Telegram Stars."""
 
     provider_token: Option[str] = Nothing
-    """Optional. Payment provider token, obtained via @BotFather. Pass an empty
+    """Optional. Payment provider token, obtained via @BotFather. Pass an empty 
     string for payments in Telegram Stars."""
 
     max_tip_amount: Option[int] = Nothing
-    """Optional. The maximum accepted amount for tips in the smallest units of
-    the currency (integer, not float/double). For example, for a maximum tip
-    of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json,
-    it shows the number of digits past the decimal point for each currency (2
-    for the majority of currencies). Defaults to 0. Not supported for payments
+    """Optional. The maximum accepted amount for tips in the smallest units of 
+    the currency (integer, not float/double). For example, for a maximum tip 
+    of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, 
+    it shows the number of digits past the decimal point for each currency (2 
+    for the majority of currencies). Defaults to 0. Not supported for payments 
     in Telegram Stars."""
 
     suggested_tip_amounts: Option[list[int]] = Nothing
-    """Optional. A JSON-serialized array of suggested amounts of tip in the smallest
-    units of the currency (integer, not float/double). At most 4 suggested
-    tip amounts can be specified. The suggested tip amounts must be positive,
+    """Optional. A JSON-serialized array of suggested amounts of tip in the smallest 
+    units of the currency (integer, not float/double). At most 4 suggested 
+    tip amounts can be specified. The suggested tip amounts must be positive, 
     passed in a strictly increased order and must not exceed max_tip_amount."""
 
     provider_data: Option[str] = Nothing
-    """Optional. A JSON-serialized object for data about the invoice, which will
-    be shared with the payment provider. A detailed description of the required
+    """Optional. A JSON-serialized object for data about the invoice, which will 
+    be shared with the payment provider. A detailed description of the required 
     fields should be provided by the payment provider."""
 
     photo_url: Option[str] = Nothing
-    """Optional. URL of the product photo for the invoice. Can be a photo of the goods
+    """Optional. URL of the product photo for the invoice. Can be a photo of the goods 
     or a marketing image for a service."""
 
     photo_size: Option[int] = Nothing
@@ -5411,31 +5411,31 @@ class InputInvoiceMessageContent(InputMessageContent):
     """Optional. Photo height."""
 
     need_name: Option[bool] = Nothing
-    """Optional. Pass True if you require the user's full name to complete the order.
+    """Optional. Pass True if you require the user's full name to complete the order. 
     Ignored for payments in Telegram Stars."""
 
     need_phone_number: Option[bool] = Nothing
-    """Optional. Pass True if you require the user's phone number to complete the
+    """Optional. Pass True if you require the user's phone number to complete the 
     order. Ignored for payments in Telegram Stars."""
 
     need_email: Option[bool] = Nothing
-    """Optional. Pass True if you require the user's email address to complete
+    """Optional. Pass True if you require the user's email address to complete 
     the order. Ignored for payments in Telegram Stars."""
 
     need_shipping_address: Option[bool] = Nothing
-    """Optional. Pass True if you require the user's shipping address to complete
+    """Optional. Pass True if you require the user's shipping address to complete 
     the order. Ignored for payments in Telegram Stars."""
 
     send_phone_number_to_provider: Option[bool] = Nothing
-    """Optional. Pass True if the user's phone number should be sent to the provider.
+    """Optional. Pass True if the user's phone number should be sent to the provider. 
     Ignored for payments in Telegram Stars."""
 
     send_email_to_provider: Option[bool] = Nothing
-    """Optional. Pass True if the user's email address should be sent to the provider.
+    """Optional. Pass True if the user's email address should be sent to the provider. 
     Ignored for payments in Telegram Stars."""
 
     is_flexible: Option[bool] = Nothing
-    """Optional. Pass True if the final price depends on the shipping method. Ignored
+    """Optional. Pass True if the final price depends on the shipping method. Ignored 
     for payments in Telegram Stars."""
 
 
@@ -5459,8 +5459,8 @@ class ChosenInlineResult(Model):
     """Optional. Sender location, only for bots that require user location."""
 
     inline_message_id: Option[str] = Nothing
-    """Optional. Identifier of the sent inline message. Available only if there
-    is an inline keyboard attached to the message. Will be also received in callback
+    """Optional. Identifier of the sent inline message. Available only if there 
+    is an inline keyboard attached to the message. Will be also received in callback 
     queries and can be used to edit the message."""
 
 
@@ -5471,7 +5471,7 @@ class SentWebAppMessage(Model):
     """
 
     inline_message_id: Option[str] = Nothing
-    """Optional. Identifier of the sent inline message. Available only if there
+    """Optional. Identifier of the sent inline message. Available only if there 
     is an inline keyboard attached to the message."""
 
 
@@ -5485,9 +5485,9 @@ class LabeledPrice(Model):
     """Portion label."""
 
     amount: int
-    """Price of the product in the smallest units of the currency (integer, not
-    float/double). For example, for a price of US$ 1.45 pass amount = 145. See
-    the exp parameter in currencies.json, it shows the number of digits past
+    """Price of the product in the smallest units of the currency (integer, not 
+    float/double). For example, for a price of US$ 1.45 pass amount = 145. See 
+    the exp parameter in currencies.json, it shows the number of digits past 
     the decimal point for each currency (2 for the majority of currencies)."""
 
 
@@ -5507,13 +5507,13 @@ class Invoice(Model):
     """Unique bot deep-linking parameter that can be used to generate this invoice."""
 
     currency: Currency
-    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
     Stars."""
 
     total_amount: int
-    """Total price in the smallest units of the currency (integer, not float/double).
-    For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter
-    in currencies.json, it shows the number of digits past the decimal point
+    """Total price in the smallest units of the currency (integer, not float/double). 
+    For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter 
+    in currencies.json, it shows the number of digits past the decimal point 
     for each currency (2 for the majority of currencies)."""
 
 
@@ -5584,13 +5584,13 @@ class SuccessfulPayment(Model):
     """
 
     currency: Currency
-    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
     Stars."""
 
     total_amount: int
-    """Total price in the smallest units of the currency (integer, not float/double).
-    For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter
-    in currencies.json, it shows the number of digits past the decimal point
+    """Total price in the smallest units of the currency (integer, not float/double). 
+    For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter 
+    in currencies.json, it shows the number of digits past the decimal point 
     for each currency (2 for the majority of currencies)."""
 
     invoice_payload: str
@@ -5616,13 +5616,13 @@ class RefundedPayment(Model):
     """
 
     currency: typing.Literal["XTR"]
-    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
     Stars. Currently, always `XTR`."""
 
     total_amount: int
-    """Total refunded price in the smallest units of the currency (integer, not
-    float/double). For example, for a price of US$ 1.45, total_amount = 145.
-    See the exp parameter in currencies.json, it shows the number of digits
+    """Total refunded price in the smallest units of the currency (integer, not 
+    float/double). For example, for a price of US$ 1.45, total_amount = 145. 
+    See the exp parameter in currencies.json, it shows the number of digits 
     past the decimal point for each currency (2 for the majority of currencies)."""
 
     invoice_payload: str
@@ -5667,13 +5667,13 @@ class PreCheckoutQuery(Model):
     """User who sent the query."""
 
     currency: Currency
-    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram 
     Stars."""
 
     total_amount: int
-    """Total price in the smallest units of the currency (integer, not float/double).
-    For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter
-    in currencies.json, it shows the number of digits past the decimal point
+    """Total price in the smallest units of the currency (integer, not float/double). 
+    For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter 
+    in currencies.json, it shows the number of digits past the decimal point 
     for each currency (2 for the majority of currencies)."""
 
     invoice_payload: str
@@ -5782,8 +5782,8 @@ class StarTransaction(Model):
     """
 
     id: str
-    """Unique identifier of the transaction. Coincides with the identifer of
-    the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id
+    """Unique identifier of the transaction. Coincides with the identifer of 
+    the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id 
     for successful incoming payments from users."""
 
     amount: int
@@ -5800,8 +5800,8 @@ class StarTransaction(Model):
             "TransactionPartnerOther",
         ]
     ] = Nothing
-    """Optional. Source of an incoming transaction (e.g., a user purchasing goods
-    or services, Fragment refunding a failed withdrawal). Only for incoming
+    """Optional. Source of an incoming transaction (e.g., a user purchasing goods 
+    or services, Fragment refunding a failed withdrawal). Only for incoming 
     transactions."""
 
     receiver: Option[
@@ -5812,7 +5812,7 @@ class StarTransaction(Model):
             "TransactionPartnerOther",
         ]
     ] = Nothing
-    """Optional. Receiver of an outgoing transaction (e.g., a user for a purchase
+    """Optional. Receiver of an outgoing transaction (e.g., a user for a purchase 
     refund, Fragment for a withdrawal). Only for outgoing transactions."""
 
 
@@ -5833,7 +5833,7 @@ class PassportData(Model):
     """
 
     data: list["EncryptedPassportElement"]
-    """Array with information about documents and other Telegram Passport elements
+    """Array with information about documents and other Telegram Passport elements 
     that was shared with the bot."""
 
     credentials: "EncryptedCredentials"
@@ -5850,7 +5850,7 @@ class PassportFile(Model):
     """Identifier for this file, which can be used to download or reuse the file."""
 
     file_unique_id: str
-    """Unique identifier for this file, which is supposed to be the same over time
+    """Unique identifier for this file, which is supposed to be the same over time 
     and for different bots. Can't be used to download or reuse the file."""
 
     file_size: int
@@ -5867,55 +5867,55 @@ class EncryptedPassportElement(Model):
     """
 
     type: EncryptedPassportElementType
-    """Element type. One of `personal_details`, `passport`, `driver_license`,
-    `identity_card`, `internal_passport`, `address`, `utility_bill`,
-    `bank_statement`, `rental_agreement`, `passport_registration`,
+    """Element type. One of `personal_details`, `passport`, `driver_license`, 
+    `identity_card`, `internal_passport`, `address`, `utility_bill`, 
+    `bank_statement`, `rental_agreement`, `passport_registration`, 
     `temporary_registration`, `phone_number`, `email`."""
 
     hash: str
     """Base64-encoded element hash for using in PassportElementErrorUnspecified."""
 
     data: Option[str] = Nothing
-    """Optional. Base64-encoded encrypted Telegram Passport element data provided
-    by the user; available only for `personal_details`, `passport`, `driver_license`,
-    `identity_card`, `internal_passport` and `address` types. Can be decrypted
+    """Optional. Base64-encoded encrypted Telegram Passport element data provided 
+    by the user; available only for `personal_details`, `passport`, `driver_license`, 
+    `identity_card`, `internal_passport` and `address` types. Can be decrypted 
     and verified using the accompanying EncryptedCredentials."""
 
     phone_number: Option[str] = Nothing
-    """Optional. User's verified phone number; available only for `phone_number`
+    """Optional. User's verified phone number; available only for `phone_number` 
     type."""
 
     email: Option[str] = Nothing
     """Optional. User's verified email address; available only for `email` type."""
 
     files: Option[list["PassportFile"]] = Nothing
-    """Optional. Array of encrypted files with documents provided by the user;
-    available only for `utility_bill`, `bank_statement`, `rental_agreement`,
-    `passport_registration` and `temporary_registration` types. Files
+    """Optional. Array of encrypted files with documents provided by the user; 
+    available only for `utility_bill`, `bank_statement`, `rental_agreement`, 
+    `passport_registration` and `temporary_registration` types. Files 
     can be decrypted and verified using the accompanying EncryptedCredentials."""
 
     front_side: Option["PassportFile"] = Nothing
-    """Optional. Encrypted file with the front side of the document, provided
-    by the user; available only for `passport`, `driver_license`, `identity_card`
-    and `internal_passport`. The file can be decrypted and verified using
+    """Optional. Encrypted file with the front side of the document, provided 
+    by the user; available only for `passport`, `driver_license`, `identity_card` 
+    and `internal_passport`. The file can be decrypted and verified using 
     the accompanying EncryptedCredentials."""
 
     reverse_side: Option["PassportFile"] = Nothing
-    """Optional. Encrypted file with the reverse side of the document, provided
-    by the user; available only for `driver_license` and `identity_card`.
+    """Optional. Encrypted file with the reverse side of the document, provided 
+    by the user; available only for `driver_license` and `identity_card`. 
     The file can be decrypted and verified using the accompanying EncryptedCredentials."""
 
     selfie: Option["PassportFile"] = Nothing
-    """Optional. Encrypted file with the selfie of the user holding a document,
-    provided by the user; available if requested for `passport`, `driver_license`,
-    `identity_card` and `internal_passport`. The file can be decrypted and
+    """Optional. Encrypted file with the selfie of the user holding a document, 
+    provided by the user; available if requested for `passport`, `driver_license`, 
+    `identity_card` and `internal_passport`. The file can be decrypted and 
     verified using the accompanying EncryptedCredentials."""
 
     translation: Option[list["PassportFile"]] = Nothing
-    """Optional. Array of encrypted files with translated versions of documents
-    provided by the user; available if requested for `passport`, `driver_license`,
-    `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`,
-    `rental_agreement`, `passport_registration` and `temporary_registration`
+    """Optional. Array of encrypted files with translated versions of documents 
+    provided by the user; available if requested for `passport`, `driver_license`, 
+    `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, 
+    `rental_agreement`, `passport_registration` and `temporary_registration` 
     types. Files can be decrypted and verified using the accompanying EncryptedCredentials."""
 
 
@@ -5926,15 +5926,15 @@ class EncryptedCredentials(Model):
     """
 
     data: str
-    """Base64-encoded encrypted JSON-serialized data with unique user's payload,
-    data hashes and secrets required for EncryptedPassportElement decryption
+    """Base64-encoded encrypted JSON-serialized data with unique user's payload, 
+    data hashes and secrets required for EncryptedPassportElement decryption 
     and authentication."""
 
     hash: str
     """Base64-encoded data hash for data authentication."""
 
     secret: str
-    """Base64-encoded secret, encrypted with the bot's public RSA key, required
+    """Base64-encoded secret, encrypted with the bot's public RSA key, required 
     for data decryption."""
 
 
@@ -5955,8 +5955,8 @@ class PassportElementErrorDataField(PassportElementError):
         "internal_passport",
         "address",
     ]
-    """The section of the user's Telegram Passport which has the error, one of `personal_details`,
-    `passport`, `driver_license`, `identity_card`, `internal_passport`,
+    """The section of the user's Telegram Passport which has the error, one of `personal_details`, 
+    `passport`, `driver_license`, `identity_card`, `internal_passport`, 
     `address`."""
 
     field_name: str
@@ -5984,7 +5984,7 @@ class PassportElementErrorFrontSide(PassportElementError):
         "identity_card",
         "internal_passport",
     ]
-    """The section of the user's Telegram Passport which has the issue, one of `passport`,
+    """The section of the user's Telegram Passport which has the issue, one of `passport`, 
     `driver_license`, `identity_card`, `internal_passport`."""
 
     file_hash: str
@@ -6004,7 +6004,7 @@ class PassportElementErrorReverseSide(PassportElementError):
     """Error source, must be reverse_side."""
 
     type: typing.Literal["driver_license", "identity_card"]
-    """The section of the user's Telegram Passport which has the issue, one of `driver_license`,
+    """The section of the user's Telegram Passport which has the issue, one of `driver_license`, 
     `identity_card`."""
 
     file_hash: str
@@ -6029,7 +6029,7 @@ class PassportElementErrorSelfie(PassportElementError):
         "identity_card",
         "internal_passport",
     ]
-    """The section of the user's Telegram Passport which has the issue, one of `passport`,
+    """The section of the user's Telegram Passport which has the issue, one of `passport`, 
     `driver_license`, `identity_card`, `internal_passport`."""
 
     file_hash: str
@@ -6055,8 +6055,8 @@ class PassportElementErrorFile(PassportElementError):
         "passport_registration",
         "temporary_registration",
     ]
-    """The section of the user's Telegram Passport which has the issue, one of `utility_bill`,
-    `bank_statement`, `rental_agreement`, `passport_registration`,
+    """The section of the user's Telegram Passport which has the issue, one of `utility_bill`, 
+    `bank_statement`, `rental_agreement`, `passport_registration`, 
     `temporary_registration`."""
 
     file_hash: str
@@ -6082,8 +6082,8 @@ class PassportElementErrorFiles(PassportElementError):
         "passport_registration",
         "temporary_registration",
     ]
-    """The section of the user's Telegram Passport which has the issue, one of `utility_bill`,
-    `bank_statement`, `rental_agreement`, `passport_registration`,
+    """The section of the user's Telegram Passport which has the issue, one of `utility_bill`, 
+    `bank_statement`, `rental_agreement`, `passport_registration`, 
     `temporary_registration`."""
 
     file_hashes: list[str]
@@ -6113,9 +6113,9 @@ class PassportElementErrorTranslationFile(PassportElementError):
         "passport_registration",
         "temporary_registration",
     ]
-    """Type of element of the user's Telegram Passport which has the issue, one
-    of `passport`, `driver_license`, `identity_card`, `internal_passport`,
-    `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`,
+    """Type of element of the user's Telegram Passport which has the issue, one 
+    of `passport`, `driver_license`, `identity_card`, `internal_passport`, 
+    `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, 
     `temporary_registration`."""
 
     file_hash: str
@@ -6145,9 +6145,9 @@ class PassportElementErrorTranslationFiles(PassportElementError):
         "passport_registration",
         "temporary_registration",
     ]
-    """Type of element of the user's Telegram Passport which has the issue, one
-    of `passport`, `driver_license`, `identity_card`, `internal_passport`,
-    `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`,
+    """Type of element of the user's Telegram Passport which has the issue, one 
+    of `passport`, `driver_license`, `identity_card`, `internal_passport`, 
+    `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, 
     `temporary_registration`."""
 
     file_hashes: list[str]
@@ -6192,17 +6192,17 @@ class Game(Model):
     """Photo that will be displayed in the game message in chats."""
 
     text: Option[str] = Nothing
-    """Optional. Brief description of the game or high scores included in the game
-    message. Can be automatically edited to include current high scores for
-    the game when the bot calls setGameScore, or manually edited using editMessageText.
+    """Optional. Brief description of the game or high scores included in the game 
+    message. Can be automatically edited to include current high scores for 
+    the game when the bot calls setGameScore, or manually edited using editMessageText. 
     0-4096 characters."""
 
     text_entities: Option[list["MessageEntity"]] = Nothing
-    """Optional. Special entities that appear in text, such as usernames, URLs,
+    """Optional. Special entities that appear in text, such as usernames, URLs, 
     bot commands, etc."""
 
     animation: Option["Animation"] = Nothing
-    """Optional. Animation that will be displayed in the game message in chats.
+    """Optional. Animation that will be displayed in the game message in chats. 
     Upload via BotFather."""
 
 
