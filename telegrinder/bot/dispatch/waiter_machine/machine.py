@@ -28,10 +28,14 @@ class WaiterMachine:
         self.storage: Storage = {}
 
     def __repr__(self) -> str:
-        return "<{}: max_storage_size={}, storage={!r}>".format(
+        return "<{}: max_storage_size={}, {}>".format(
             self.__class__.__name__,
             self.max_storage_size,
-            self.storage,
+            ", ".join(
+                f"{view_name}: {len(self.storage[view_name].values())} shortstates"
+                for view_name in self.storage
+            )
+            or "empty",
         )
 
     async def drop(
@@ -129,8 +133,11 @@ class WaiterMachine:
         views: typing.Iterable[ABCStateView[EventModel]],
         absolutely_dead_time: datetime.timedelta = WEEK,
     ):
-        """Clears storage
-        :param absolutely_dead_time: timedelta when state can be forgotten"""
+        """Clears storage.
+
+        :param absolutely_dead_time: timedelta when state can be forgotten.
+        """
+
         for view in views:
             view_name = view.__class__.__name__
             now = datetime.datetime.now()
@@ -156,9 +163,8 @@ async def clear_wm_storage_worker(
     absolutely_dead_time: datetime.timedelta = WEEK,
 ) -> typing.NoReturn:
     while True:
-        all_views = tuple(dp.get_views().values())
         await wm.clear_storage(
-            views=[view for view in all_views if isinstance(view, ABCStateView)],
+            views=[view for view in dp.get_views().values() if isinstance(view, ABCStateView)],
             absolutely_dead_time=absolutely_dead_time,
         )
         await asyncio.sleep(interval_seconds)

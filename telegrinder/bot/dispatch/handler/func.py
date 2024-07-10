@@ -7,7 +7,7 @@ from telegrinder.bot.cute_types import BaseCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import logger
-from telegrinder.node import Node, NodeCollection, compose_nodes, is_node
+from telegrinder.node import Node, compose_nodes, is_node
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.tools.magic import get_annotations
 from telegrinder.types import Update
@@ -22,14 +22,15 @@ F = typing.TypeVar(
     "F",
     bound=typing.Callable[typing.Concatenate[typing.Any, ...], typing.Awaitable[typing.Any]],
 )
-EventT = typing.TypeVar("EventT", bound=BaseCute)
+AdaptTo = typing.TypeVar("AdaptTo", default=UpdateCute)
+EventType = typing.TypeVar("EventType", bound=BaseCute)
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
 
 @dataclasses.dataclass(repr=False)
-class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
+class FuncHandler(ABCHandler[EventType], typing.Generic[EventType, F, ErrorHandlerT]):
     func: F
-    rules: list["ABCRule"]
+    rules: list["ABCRule[EventType]"]
     _: dataclasses.KW_ONLY
     is_blocking: bool = dataclasses.field(default=True)
     dataclass: type[typing.Any] | None = dataclasses.field(default=dict)
@@ -48,14 +49,14 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
             self.dataclass,
             self.error_handler,
         )
-    
+
     def get_required_nodes(self) -> dict[str, type[Node]]:
         return {k: v for k, v in get_annotations(self.func).items() if is_node(v)}
 
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         if self.update_type is not None and self.update_type != event.update_type:
             return False
-        
+
         ctx = ctx or Context()
         temp_ctx = ctx.copy()
         temp_ctx |= self.preset_context
@@ -73,12 +74,12 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
             if not await check_rule(api, rule, event, temp_ctx):
                 logger.debug("Rule {!r} failed!", rule)
                 return False
-        
+
         temp_ctx["node_col"] = node_col
         ctx |= temp_ctx
         return True
 
-    async def run(self, event: EventT, ctx: Context) -> typing.Any:
+    async def run(self, event: EventType, ctx: Context) -> typing.Any:
         api = event.api
 
         if self.dataclass is not None:
@@ -91,7 +92,7 @@ class FuncHandler(ABCHandler[EventT], typing.Generic[EventT, F, ErrorHandlerT]):
                 )
             else:
                 event = self.dataclass(**event.to_dict())
-        
+
         result = (await self.error_handler.run(self.func, event, api, ctx)).unwrap()
         if node_col := ctx["node_col"]:
             await node_col.close_all()

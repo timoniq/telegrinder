@@ -4,7 +4,7 @@ import typing
 from fntypes import Nothing, Option
 
 from telegrinder.api import API
-from telegrinder.types import Chat, Message
+from telegrinder.types import Chat, Message, User
 
 from .base import ComposeError, DataNode
 from .callback_query import CallbackQueryNode
@@ -16,6 +16,7 @@ from .polymorphic import Polymorphic, impl
 class Source(Polymorphic, DataNode):
     api: API
     chat: Chat
+    from_user: User
     thread_id: Option[int] = dataclasses.field(default_factory=lambda: Nothing())
 
     @impl
@@ -23,6 +24,7 @@ class Source(Polymorphic, DataNode):
         return cls(
             api=message.ctx_api,
             chat=message.chat,
+            from_user=message.from_user,
             thread_id=message.message_thread_id,
         )
 
@@ -31,6 +33,7 @@ class Source(Polymorphic, DataNode):
         return cls(
             api=callback_query.ctx_api,
             chat=callback_query.chat.expect(ComposeError),
+            from_user=callback_query.from_user,
             thread_id=callback_query.message_thread_id,
         )
 

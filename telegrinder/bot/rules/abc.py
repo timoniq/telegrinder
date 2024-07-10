@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 import typing_extensions as typing
 
-from telegrinder.bot.cute_types import BaseCute, MessageCute, UpdateCute
+from telegrinder.bot.cute_types import MessageCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
@@ -13,7 +13,8 @@ from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_annotations, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
 
-AdaptTo = typing.TypeVar("AdaptTo")
+Ts = typing.TypeVarTuple("Ts")
+AdaptTo = typing.TypeVar("AdaptTo", default=typing.Any)
 
 Message: typing.TypeAlias = MessageCute
 Update: typing.TypeAlias = UpdateCute
@@ -34,16 +35,18 @@ def with_caching_translations(func: typing.Callable[..., typing.Any]):
 
 class ABCRule(ABC, typing.Generic[AdaptTo]):
     adapter: ABCAdapter[UpdateObject, AdaptTo] = RawUpdateAdapter()  # type: ignore
-    requires: list["ABCRule"] = []
+    requires: list["ABCRule[AdaptTo]"] = []
 
     @abstractmethod
-    async def check(self, event: AdaptTo, *, ctx: Context) -> bool:  # type: ignore
+    async def check(self, event: AdaptTo, *, ctx: Context) -> bool:
         pass
 
     def get_required_nodes(self) -> dict[str, type[Node]]:
         return {k: v for k, v in get_annotations(self.check).items() if is_node(v)}
-    
-    async def bounding_check(self, event: AdaptTo, ctx: Context, node_col: NodeCollection | None = None) -> bool:
+
+    async def bounding_check(
+        self, event: AdaptTo, ctx: Context, node_col: NodeCollection | None = None
+    ) -> bool:
         kw = {}
         node_col_values = node_col.values() if node_col is not None else {}
 
@@ -51,18 +54,18 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
             if isinstance(event, v):
                 kw[k] = event
             elif is_node(v):
-                assert k in node_col_values, "Node is undefined, error while bounding"
+                assert k in node_col_values, "Node is undefined, error while bounding."
                 kw[k] = node_col_values[k]
             elif k in ctx:
                 kw[k] = ctx[k]
             elif v is Context:
                 kw[k] = ctx
             else:
-                raise LookupError(f"Cannot bound '{k}' to {self.check} because it cannot be resolved")
-        
+                raise LookupError(f"Cannot bound {k!r} to {self.check!r}, because it cannot be resolved.")
+
         return await self.check(**kw)
 
-    def __init_subclass__(cls, requires: list["ABCRule"] | None = None) -> None:
+    def __init_subclass__(cls, requires: list["ABCRule[AdaptTo]"] | None = None) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
 
         requirements = []
@@ -73,7 +76,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         requirements.extend(requires or ())
         cls.requires = list(dict.fromkeys(requirements))
 
-    def __and__(self, other: "ABCRule") -> "AndRule":
+    def __and__(self, other: "ABCRule[AdaptTo]") -> "AndRule[AdaptTo]":
         """And Rule.
 
         ```python
@@ -84,7 +87,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
 
         return AndRule(self, other)
 
-    def __or__(self, other: "ABCRule") -> "OrRule":
+    def __or__(self, other: "ABCRule[AdaptTo]") -> "OrRule[AdaptTo]":
         """Or Rule.
 
         ```python
@@ -95,7 +98,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
 
         return OrRule(self, other)
 
-    def __invert__(self) -> "NotRule":
+    def __invert__(self) -> "NotRule[AdaptTo]":
         """Not Rule.
 
         ```python
@@ -116,8 +119,8 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         return self
 
 
-class AndRule(ABCRule):
-    def __init__(self, *rules: ABCRule) -> None:
+class AndRule(ABCRule[AdaptTo]):
+    def __init__(self, *rules: ABCRule[AdaptTo]) -> None:
         self.rules = rules
 
     async def check(self, event: Update, ctx: Context) -> bool:
@@ -130,7 +133,7 @@ class AndRule(ABCRule):
 
 
 class OrRule(ABCRule[AdaptTo]):
-    def __init__(self, *rules: ABCRule) -> None:
+    def __init__(self, *rules: ABCRule[AdaptTo]) -> None:
         self.rules = rules
 
     async def check(self, event: Update, ctx: Context) -> bool:
@@ -142,16 +145,13 @@ class OrRule(ABCRule[AdaptTo]):
         return False
 
 
-class NotRule(ABCRule):
-    def __init__(self, rule: ABCRule) -> None:
+class NotRule(ABCRule[AdaptTo]):
+    def __init__(self, rule: ABCRule[AdaptTo]) -> None:
         self.rule = rule
 
     async def check(self, event: Update, ctx: Context) -> bool:
         ctx_copy = ctx.copy()
         return not await check_rule(event.ctx_api, self.rule, event, ctx_copy)
-
-
-Ts = typing.TypeVarTuple("Ts")
 
 
 class NodeRule(ABCRule[tuple[*Ts]], ABC, typing.Generic[*Ts]):
@@ -165,13 +165,15 @@ class NodeRule(ABCRule[tuple[*Ts]], ABC, typing.Generic[*Ts]):
         return NodeAdapter(*list(nodes.values()))  # type: ignore
 
     @abstractmethod
-    async def check(self, *nodes: *Ts, ctx: Context) -> bool: ...
+    async def check(self, *nodes: *Ts, ctx: Context) -> bool:
+        pass
 
 
 __all__ = (
     "ABCRule",
     "AndRule",
     "NotRule",
+    "NodeRule",
     "OrRule",
     "with_caching_translations",
 )
