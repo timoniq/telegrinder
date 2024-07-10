@@ -3,7 +3,7 @@ import typing
 
 from telegrinder.bot.cute_types import UpdateCute
 from telegrinder.node import ComposeError, Node
-from telegrinder.tools.magic import magic_bundle
+from telegrinder.tools.magic import get_annotations, magic_bundle
 
 
 async def compose_node(
@@ -29,6 +29,17 @@ async def compose_node(
         value = await node.compose(**context.values())  # type: ignore
 
     return NodeSession(value, context.sessions, generator)
+
+
+async def compose_nodes(node_types: dict[str, type[Node]], update: UpdateCute) -> typing.Optional["NodeCollection"]:
+    nodes: dict[str, NodeSession] = {}
+    for name, node_t in node_types.items():
+        try:
+            nodes[name] = await compose_node(node_t, update)
+        except ComposeError:
+            await NodeCollection(nodes).close_all()
+            return None
+    return NodeCollection(nodes)
 
 
 class NodeSession:
@@ -74,11 +85,7 @@ class Composition:
 
     def __init__(self, func: typing.Callable[..., typing.Any], is_blocking: bool) -> None:
         self.func = func
-        self.nodes = {
-            name: parameter.annotation
-            for name, parameter in inspect.signature(func).parameters.items()
-            if parameter.annotation is not inspect._empty
-        }
+        self.nodes = get_annotations(func)
         self.is_blocking = is_blocking
 
     def __repr__(self) -> str:
@@ -87,19 +94,12 @@ class Composition:
             self.func.__name__,
             self.nodes,
         )
-
+    
     async def compose_nodes(self, update: UpdateCute) -> NodeCollection | None:
-        nodes: dict[str, NodeSession] = {}
-        for name, node_t in self.nodes.items():
-            try:
-                nodes[name] = await compose_node(node_t, update)
-            except ComposeError:
-                await NodeCollection(nodes).close_all()
-                return None
-        return NodeCollection(nodes)
+        return await compose_nodes(self.nodes, update)
 
     async def __call__(self, **kwargs: typing.Any) -> typing.Any:
         return await self.func(**magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))  # type: ignore
 
 
-__all__ = ("NodeCollection", "NodeSession", "Composition", "compose_node")
+__all__ = ("NodeCollection", "NodeSession", "Composition", "compose_node", "compose_nodes")

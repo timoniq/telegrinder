@@ -2,6 +2,8 @@ import abc
 import inspect
 import typing
 
+from telegrinder.tools.magic import get_annotations
+
 ComposeResult: typing.TypeAlias = (
     typing.Coroutine[typing.Any, typing.Any, typing.Any] | typing.AsyncGenerator[typing.Any, None]
 )
@@ -24,15 +26,7 @@ class Node(abc.ABC):
 
     @classmethod
     def get_sub_nodes(cls) -> dict[str, type[typing.Self]]:
-        parameters = inspect.signature(cls.compose).parameters
-
-        sub_nodes = {}
-        for name, param in parameters.items():
-            if param.annotation is inspect._empty:
-                continue
-            node = param.annotation
-            sub_nodes[name] = node
-        return sub_nodes
+        return get_annotations(cls.compose)
 
     @classmethod
     def as_node(cls) -> type[typing.Self]:
@@ -85,10 +79,18 @@ else:
         pass
 
 
+def is_node(maybe_node: type) -> bool:
+    return (
+        issubclass(maybe_node, Node)
+        or isinstance(maybe_node, Node)
+        or hasattr(maybe_node, "as_node")
+    )
+
 __all__ = (
     "ComposeError",
     "DataNode",
     "Node",
     "SCALAR_NODE",
     "ScalarNode",
+    "is_node",
 )

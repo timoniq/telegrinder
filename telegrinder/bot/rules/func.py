@@ -4,10 +4,10 @@ import typing
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.types import Update
 
-from .abc import ABCAdapter, ABCRule, AdaptTo, EventCute, RawUpdateAdapter
+from .abc import ABCAdapter, ABCRule, AdaptTo, RawUpdateAdapter
 
 
-class FuncRule(ABCRule[EventCute, AdaptTo], typing.Generic[AdaptTo, EventCute]):
+class FuncRule(ABCRule[AdaptTo], typing.Generic[AdaptTo]):
     def __init__(
         self,
         func: typing.Callable[[AdaptTo, Context], typing.Awaitable[bool] | bool],

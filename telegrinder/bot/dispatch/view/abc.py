@@ -53,7 +53,7 @@ class ABCStateView(ABCView, typing.Generic[EventType]):
 
 
 class BaseView(ABCView, typing.Generic[EventType]):
-    auto_rules: list[ABCRule[EventType]]
+    auto_rules: list[ABCRule]
     handlers: list[ABCHandler[EventType]]
     middlewares: list[ABCMiddleware[EventType]]
     return_manager: ABCReturnManager[EventType] | None
@@ -75,7 +75,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
     @classmethod
     def to_handler(
         cls,
-        *rules: ABCRule[EventType],
+        *rules: ABCRule,
     ) -> typing.Callable[
         [FuncType[EventType]],
         FuncHandler[EventType, FuncType[EventType], ErrorHandler[EventType]],
@@ -85,7 +85,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
     @classmethod
     def to_handler(
         cls,
-        *rules: ABCRule[EventType],
+        *rules: ABCRule,
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
     ) -> typing.Callable[
@@ -96,7 +96,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
     @classmethod
     def to_handler(
         cls,
-        *rules: ABCRule[EventType],
+        *rules: ABCRule,
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
     ) -> typing.Callable[
@@ -107,7 +107,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
     @classmethod
     def to_handler(  # type: ignore
         cls,
-        *rules: ABCRule[EventType],
+        *rules: ABCRule,
         error_handler: ABCErrorHandler | None = None,
         is_blocking: bool = True,
     ):
@@ -125,7 +125,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
     @typing.overload
     def __call__(
         self,
-        *rules: ABCRule[EventType],
+        *rules: ABCRule,
     ) -> typing.Callable[
         [FuncType[EventType]],
         FuncHandler[EventType, FuncType[EventType], ErrorHandler[EventType]],
@@ -134,7 +134,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
     @typing.overload
     def __call__(
         self,
-        *rules: ABCRule[EventType],
+        *rules: ABCRule,
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
     ) -> typing.Callable[
@@ -144,7 +144,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
     @typing.overload
     def __call__(
         self,
-        *rules: ABCRule[EventType],
+        *rules: ABCRule,
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
     ) -> typing.Callable[
@@ -154,7 +154,7 @@ class BaseView(ABCView, typing.Generic[EventType]):
 
     def __call__(  # type: ignore
         self,
-        *rules: ABCRule[EventType],
+        *rules: ABCRule,
         error_handler: ABCErrorHandler | None = None,
         is_blocking: bool = True,
     ):

@@ -24,6 +24,14 @@ def get_default_args(func: FuncType) -> dict[str, typing.Any]:
     return dict(zip(fspec.args[::-1], (fspec.defaults or ())[::-1]))
 
 
+def get_annotations(func: FuncType) -> dict[str, typing.Any]:
+    return {
+        name: parameter.annotation
+        for name, parameter in inspect.signature(func).parameters.items()
+        if parameter.annotation is not inspect._empty
+    }
+
+
 def to_str(s: str | enum.Enum) -> str:
     if isinstance(s, enum.Enum):
         return str(s.value)
@@ -76,4 +84,5 @@ __all__ = (
     "impl",
     "resolve_arg_names",
     "to_str",
+    "get_annotations",
 )

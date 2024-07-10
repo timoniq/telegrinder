@@ -15,7 +15,7 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
     def __init__(
         self,
         text: str,
-        *rules: ABCRule[MessageCute],
+        *rules: ABCRule,
         is_blocking: bool = True,
         as_reply: bool = False,
         preset_context: Context | None = None,

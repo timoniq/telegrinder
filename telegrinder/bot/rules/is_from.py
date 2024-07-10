@@ -14,14 +14,14 @@ from .message import MessageRule
 EventCute = typing.TypeVar("EventCute", bound=BaseCute)
 
 
-class UserRule(ABCRule[EventCute]):
+class UserRule(ABCRule[User]):
     adapter: UserAdapter = UserAdapter()
 
     @abc.abstractmethod
     async def check(self, user: User, ctx: Context) -> bool: ...
 
 
-class ChatRule(ABCRule[EventCute]):
+class ChatRule(ABCRule[Chat]):
     adapter: ChatAdapter = ChatAdapter()
 
     @abc.abstractmethod
@@ -33,22 +33,22 @@ class HasDice(MessageRule):
         return bool(message.dice)
 
 
-class IsBot(UserRule[EventCute]):
+class IsBot(UserRule):
     async def check(self, user: User, ctx: Context) -> bool:
         return user.is_bot
 
 
-class IsUser(UserRule[EventCute]):
+class IsUser(UserRule):
     async def check(self, user: User, ctx: Context) -> bool:
         return not user.is_bot
 
 
-class IsPremium(UserRule[EventCute]):
+class IsPremium(UserRule):
     async def check(self, user: User, ctx: Context) -> bool:
         return not user.is_premium.unwrap_or(False)
 
 
-class IsLanguageCode(UserRule[EventCute]):
+class IsLanguageCode(UserRule):
     def __init__(self, lang_codes: str | list[str], /) -> None:
         self.lang_codes = [lang_codes] if isinstance(lang_codes, str) else lang_codes
 
@@ -56,7 +56,7 @@ class IsLanguageCode(UserRule[EventCute]):
         return user.language_code.unwrap_or_none() in self.lang_codes
 
 
-class IsUserId(UserRule[EventCute]):
+class IsUserId(UserRule):
     def __init__(self, user_ids: int | list[int], /) -> None:
         self.user_ids = [user_ids] if isinstance(user_ids, int) else user_ids
 
@@ -64,12 +64,12 @@ class IsUserId(UserRule[EventCute]):
         return user.id in self.user_ids
 
 
-class IsForum(ChatRule[EventCute]):
+class IsForum(ChatRule):
     async def check(self, chat: Chat, ctx: Context) -> bool:
         return chat.is_forum.unwrap_or(False)
 
 
-class IsChatId(ChatRule[EventCute]):
+class IsChatId(ChatRule):
     def __init__(self, chat_ids: int | list[int], /) -> None:
         self.chat_ids = [chat_ids] if isinstance(chat_ids, int) else chat_ids
 
@@ -77,22 +77,22 @@ class IsChatId(ChatRule[EventCute]):
         return chat.id in self.chat_ids
 
 
-class IsPrivate(ChatRule[EventCute]):
+class IsPrivate(ChatRule):
     async def check(self, chat: Chat, ctx: Context) -> bool:
         return chat.type == ChatType.PRIVATE
 
 
-class IsGroup(ChatRule[EventCute]):
+class IsGroup(ChatRule):
     async def check(self, chat: Chat, ctx: Context) -> bool:
         return chat.type == ChatType.GROUP
 
 
-class IsSuperGroup(ChatRule[EventCute]):
+class IsSuperGroup(ChatRule):
     async def check(self, chat: Chat, ctx: Context) -> bool:
         return chat.type == ChatType.SUPERGROUP
 
 
-class IsChat(ChatRule[EventCute]):
+class IsChat(ChatRule):
     async def check(self, chat: Chat, ctx: Context) -> bool:
         return chat.type in (ChatType.GROUP, ChatType.SUPERGROUP)
 

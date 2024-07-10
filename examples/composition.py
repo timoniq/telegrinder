@@ -92,4 +92,5 @@ async def polymorphic_handler(source: Source):
     await source.send("New event from you, my Only Sugar Source")
 
 
-bot.run_forever()
+if __name__ == "__main__":
+    bot.run_forever()

@@ -29,7 +29,7 @@ class ShortState(typing.Generic[EventModel]):
     key: "Identificator"
     ctx_api: ABCAPI
     event: asyncio.Event
-    rules: tuple[ABCRule[EventModel], ...]
+    rules: tuple[ABCRule, ...]
     _: dataclasses.KW_ONLY
     expiration: dataclasses.InitVar[datetime.timedelta | None] = dataclasses.field(
         default=None,

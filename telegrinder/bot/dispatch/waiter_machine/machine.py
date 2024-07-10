@@ -63,7 +63,7 @@ class WaiterMachine:
         self,
         state_view: "BaseStateView[EventModel]",
         linked: EventModel | tuple[ABCAPI, Identificator],
-        *rules: ABCRule[EventModel],
+        *rules: ABCRule,
         default: Behaviour[EventModel] | None = None,
         on_drop: Behaviour[EventModel] | None = None,
         exit: Behaviour[EventModel] | None = None,

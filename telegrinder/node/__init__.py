@@ -1,6 +1,6 @@
 from .attachment import Attachment, Audio, Photo, Video
-from .base import ComposeError, DataNode, Node, ScalarNode
-from .composer import Composition, NodeCollection, NodeSession, compose_node
+from .base import ComposeError, DataNode, Node, ScalarNode, is_node
+from .composer import Composition, NodeCollection, NodeSession, compose_node, compose_nodes
 from .container import ContainerNode
 from .message import MessageNode
 from .rule import RuleChain
@@ -29,4 +29,6 @@ __all__ = (
     "compose_node",
     "generate_node",
     "Composition",
+    "is_node",
+    "compose_nodes",
 )
