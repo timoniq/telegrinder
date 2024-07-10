@@ -28,10 +28,10 @@ jobs:
 
         - name: Lint code with ruff
           run: >
-            poetry run ruff check --fix
+            poetry run ruff check .
 
         - name: Check types with basedpyright
           run: >
-            poetry run basedpyright --level ERROR
+            poetry run basedpyright . --level ERROR
 
         # NOTE: add run tests
