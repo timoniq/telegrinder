@@ -10,6 +10,5 @@ __all__ = (
     "EventAdapter",
     "NodeAdapter",
     "RawUpdateAdapter",
-    "UserAdapter",
     "Event",
 )
