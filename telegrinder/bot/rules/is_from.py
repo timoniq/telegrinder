@@ -9,7 +9,7 @@ from .message import MessageRule
 
 
 class HasDice(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
+    async def check(self, message: Message) -> bool:
         return bool(message.dice)
 
 
@@ -81,12 +81,12 @@ class IsDiceEmoji(MessageRule, requires=[HasDice()]):
     def __init__(self, dice_emoji: DiceEmoji, /) -> None:
         self.dice_emoji = dice_emoji
 
-    async def check(self, message: Message, ctx: Context) -> bool:
+    async def check(self, message: Message) -> bool:
         return message.dice.unwrap().emoji == self.dice_emoji
 
 
 class IsForward(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
+    async def check(self, message: Message) -> bool:
         return bool(message.forward_origin)
 
 
@@ -94,17 +94,17 @@ class IsForwardType(MessageRule, requires=[IsForward()]):
     def __init__(self, fwd_type: typing.Literal["user", "hidden_user", "chat", "channel"], /) -> None:
         self.fwd_type = fwd_type
 
-    async def check(self, message: Message, ctx: Context) -> bool:
+    async def check(self, message: Message) -> bool:
         return message.forward_origin.unwrap().v.type == self.fwd_type
 
 
 class IsReply(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
+    async def check(self, message: Message) -> bool:
         return bool(message.reply_to_message)
 
 
 class IsSticker(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
+    async def check(self, message: Message) -> bool:
         return bool(message.sticker)
 
 

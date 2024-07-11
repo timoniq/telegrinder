@@ -1,4 +1,4 @@
-from .abc import ABCAdapter
+from .abc import ABCAdapter, Event
 from .errors import AdapterError
 from .event import EventAdapter
 from .node import NodeAdapter
@@ -10,4 +10,6 @@ __all__ = (
     "EventAdapter",
     "NodeAdapter",
     "RawUpdateAdapter",
+    "UserAdapter",
+    "Event",
 )

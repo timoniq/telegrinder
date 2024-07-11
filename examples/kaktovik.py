@@ -2,7 +2,7 @@ import pathlib
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
-from telegrinder.rules import Integer, IsPrivate
+from telegrinder.rules import IsInteger, IsPrivate
 from telegrinder.tools.formatting import HTMLFormatter, Link
 
 api = API(Token.from_env())
@@ -12,7 +12,7 @@ glossary = pathlib.Path("examples/assets/kaktovik.txt").read_text(encoding="UTF-
 logger.set_level("INFO")
 
 
-@bot.on.message(Integer())
+@bot.on.message(IsInteger())
 async def integer_handler(message: Message) -> None:
     integer = int(message.text.unwrap())
     lst = []

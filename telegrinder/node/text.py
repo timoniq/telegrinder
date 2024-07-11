@@ -1,5 +1,6 @@
 from .base import ComposeError, ScalarNode
 from .message import MessageNode
+from .tools import generate_node
 
 
 class Text(ScalarNode, str):
@@ -10,4 +11,12 @@ class Text(ScalarNode, str):
         return Text(message.text.unwrap())
 
 
-__all__ = ("Text",)
+class TextInteger(ScalarNode, int):
+    @classmethod
+    async def compose(cls, text: Text) -> int:
+        if not text.isdigit():
+            raise ComposeError("Text is not digit")
+        return int(text)
+
+__all__ = ("Text", "TextInteger")
+

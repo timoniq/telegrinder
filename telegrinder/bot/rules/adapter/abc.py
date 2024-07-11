@@ -17,4 +17,8 @@ class ABCAdapter(abc.ABC, typing.Generic[From, To]):
         pass
 
 
-__all__ = ("ABCAdapter",)
+class Event(typing.Generic[To]):
+    def __init__(self, obj: To) -> None:
+        self.obj = obj
+
+__all__ = ("ABCAdapter", "Event")
