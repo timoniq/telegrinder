@@ -151,12 +151,12 @@ class SchemaJson(typing.TypedDict):
     types: list[dict[str, typing.Any]]
 
 
-class ConfigLiteralTypes(typing.TypedDict, total=True):
+class ConfigLiteralTypes(typing.TypedDict):
     objects: typing.NotRequired[list["ConfigObjectLiteralTypes"]]
     methods: typing.NotRequired[list["ConfigMethodLiteralTypes"]]
 
 
-class FieldLiteralTypes(typing.TypedDict, total=True):
+class FieldLiteralTypes(typing.TypedDict):
     """Mapping containing field name, reference to enumeration and specific enumeration literals."""
 
     name: str
@@ -165,11 +165,11 @@ class FieldLiteralTypes(typing.TypedDict, total=True):
     enum: typing.NotRequired[str]
     """Optional. Reference to enumeration."""
 
-    literals: typing.NotRequired[list[str | int]]
+    literals: typing.NotRequired[list[str] | list[int]]
     """Optional. List with enumeration literals."""
 
 
-class ParamLiteralTypes(typing.TypedDict, total=True):
+class ParamLiteralTypes(typing.TypedDict):
     """Mapping containing param name, reference to enumeration and specific enumeration literals."""
 
     name: str
@@ -178,7 +178,7 @@ class ParamLiteralTypes(typing.TypedDict, total=True):
     enum: typing.NotRequired[str]
     """Optional. Reference to enumeration."""
 
-    literals: typing.NotRequired[list[str | int]]
+    literals: typing.NotRequired[list[str] | list[int]]
     """Optional. List with enumeration literals."""
 
 

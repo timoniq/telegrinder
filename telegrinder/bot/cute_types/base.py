@@ -9,28 +9,28 @@ from telegrinder.api import ABCAPI, API
 from telegrinder.model import Model, get_params
 
 F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
-CuteT = typing.TypeVar("CuteT", bound="BaseCute")
-UpdateT = typing.TypeVar("UpdateT", bound=Model)
+Cute = typing.TypeVar("Cute", bound="BaseCute")
+Update = typing.TypeVar("Update", bound=Model)
 
 Executor: typing.TypeAlias = typing.Callable[
-    [CuteT, str, dict[str, typing.Any]],
+    [Cute, str, dict[str, typing.Any]],
     typing.Awaitable[Result[typing.Any, typing.Any]],
 ]
 
 if typing.TYPE_CHECKING:
 
-    class BaseCute(Model, typing.Generic[UpdateT]):
+    class BaseCute(Model, typing.Generic[Update]):
         api: ABCAPI
 
         @classmethod
-        def from_update(cls, update: UpdateT, bound_api: ABCAPI) -> typing.Self: ...
+        def from_update(cls, update: Update, bound_api: ABCAPI) -> typing.Self: ...
 
         @property
         def ctx_api(self) -> API: ...
 
 else:
 
-    class BaseCute(typing.Generic[UpdateT]):
+    class BaseCute(typing.Generic[Update]):
         @classmethod
         def from_update(cls, update, bound_api):
             return cls(**update.to_dict(), api=bound_api)
@@ -47,10 +47,10 @@ else:
 
 def compose_method_params(
     params: dict[str, typing.Any],
-    update: CuteT,
+    update: Cute,
     *,
     default_params: set[str | tuple[str, str]] | None = None,
-    validators: dict[str, typing.Callable[[CuteT], bool]] | None = None,
+    validators: dict[str, typing.Callable[[Cute], bool]] | None = None,
 ) -> dict[str, typing.Any]:
     """Compose method `params` from `update` by `default_params` and `validators`.
 
@@ -84,13 +84,13 @@ def compose_method_params(
 def shortcut(
     method_name: str,
     *,
-    executor: Executor[CuteT] | None = None,
+    executor: Executor[Cute] | None = None,
     custom_params: set[str] | None = None,
 ):
     def wrapper(func: F) -> F:
         @wraps(func)
         async def inner(
-            self: CuteT,
+            self: Cute,
             *args: typing.Any,
             **kwargs: typing.Any,
         ) -> typing.Any:

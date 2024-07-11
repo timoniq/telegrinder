@@ -79,12 +79,15 @@ else:
         pass
 
 
-def is_node(maybe_node: type) -> bool:
+def is_node(maybe_node: type[typing.Any]) -> typing.TypeGuard[type[Node]]:
+    maybe_node = typing.get_origin(maybe_node) or maybe_node
     return (
-        issubclass(maybe_node, Node)
+        isinstance(maybe_node, type)
+        and issubclass(maybe_node, Node)
         or isinstance(maybe_node, Node)
         or hasattr(maybe_node, "as_node")
     )
+
 
 __all__ = (
     "ComposeError",

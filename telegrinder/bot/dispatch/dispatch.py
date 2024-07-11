@@ -18,12 +18,12 @@ from .abc import ABCDispatch
 from .handler import ABCHandler, FuncHandler
 from .handler.func import ErrorHandlerT
 from .view.box import (
-    CallbackQueryViewT,
-    ChatJoinRequestViewT,
-    ChatMemberViewT,
-    InlineQueryViewT,
-    MessageViewT,
-    RawEventViewT,
+    CallbackQueryView,
+    ChatJoinRequestView,
+    ChatMemberView,
+    InlineQueryView,
+    MessageView,
+    RawEventView,
     ViewBox,
 )
 
@@ -40,12 +40,12 @@ DEFAULT_DATACLASS: typing.Final[type[Update]] = Update
 class Dispatch(
     ABCDispatch,
     ViewBox[
-        CallbackQueryViewT,
-        ChatJoinRequestViewT,
-        ChatMemberViewT,
-        InlineQueryViewT,
-        MessageViewT,
-        RawEventViewT,
+        CallbackQueryView,
+        ChatJoinRequestView,
+        ChatMemberView,
+        InlineQueryView,
+        MessageView,
+        RawEventView,
     ],
 ):
     global_context: TelegrinderCtx = dataclasses.field(
@@ -62,7 +62,8 @@ class Dispatch(
 
     @property
     def patcher(self) -> Patcher:
-        """Alias `patcher` to get `vbml.Patcher` from the global context"""
+        """Alias `patcher` to get `vbml.Patcher` from the global context."""
+
         return self.global_context.vbml_patcher
 
     @typing.overload

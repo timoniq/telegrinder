@@ -1,4 +1,3 @@
-import inspect
 import typing
 
 from telegrinder.bot.cute_types import UpdateCute
@@ -31,7 +30,9 @@ async def compose_node(
     return NodeSession(value, context.sessions, generator)
 
 
-async def compose_nodes(node_types: dict[str, type[Node]], update: UpdateCute) -> typing.Optional["NodeCollection"]:
+async def compose_nodes(
+    node_types: dict[str, type[Node]], update: UpdateCute
+) -> typing.Optional["NodeCollection"]:
     nodes: dict[str, NodeSession] = {}
     for name, node_t in node_types.items():
         try:
@@ -72,6 +73,9 @@ class NodeCollection:
     def __init__(self, sessions: dict[str, NodeSession]) -> None:
         self.sessions = sessions
 
+    def __repr__(self) -> str:
+        return "<{}: sessions={}>".format(self.__class__.__name__, self.sessions)
+
     def values(self) -> dict[str, typing.Any]:
         return {name: session.value for name, session in self.sessions.items()}
 
@@ -94,7 +98,7 @@ class Composition:
             self.func.__name__,
             self.nodes,
         )
-    
+
     async def compose_nodes(self, update: UpdateCute) -> NodeCollection | None:
         return await compose_nodes(self.nodes, update)
 

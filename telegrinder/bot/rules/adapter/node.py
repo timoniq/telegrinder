@@ -6,11 +6,10 @@ from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.rules.adapter.abc import ABCAdapter, Event
 from telegrinder.bot.rules.adapter.errors import AdapterError
-from telegrinder.node.base import ComposeError, Node
+from telegrinder.node.base import ComposeError
 from telegrinder.node.composer import NodeSession, compose_node
 from telegrinder.types.objects import Update
 
-NodeT = typing.TypeVar("NodeT", bound=Node)
 Ts = typing.TypeVarTuple("Ts")
 
 
@@ -29,3 +28,5 @@ class NodeAdapter(typing.Generic[*Ts], ABCAdapter[Update, Event[tuple[*Ts]]]):
                     await session.close(with_value=None)
                 return Error(AdapterError(f"Couldn't compose nodes, error on {node_t}"))
         return Ok(Event(tuple(node_sessions)))  # type: ignore
+
+__all__ = ("NodeAdapter",)
