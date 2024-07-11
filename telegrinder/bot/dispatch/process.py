@@ -7,7 +7,7 @@ from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
-from telegrinder.node import compose_nodes
+from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope, compose_nodes
 from telegrinder.tools.i18n.base import I18nEnum
 from telegrinder.types import Update
 
@@ -31,6 +31,7 @@ async def process_inner(
 ) -> bool:
     logger.debug("Processing {!r}...", event.__class__.__name__)
     ctx = Context(raw_update=raw_event)
+    ctx[CONTEXT_STORE_NODES_KEY] = {}  # for per-event shared nodes
 
     for middleware in middlewares:
         if await middleware.pre(event, ctx) is False:
@@ -50,10 +51,14 @@ async def process_inner(
                 await return_manager.run(response, event, ctx)
             if handler.is_blocking:
                 break
-            ctx = ctx_copy
+
+        ctx = ctx_copy
 
     for middleware in middlewares:
         await middleware.post(event, responses, ctx)
+
+    for session in ctx.get(CONTEXT_STORE_NODES_KEY, {}).values():
+        await session.close(scopes=(NodeScope.PER_EVENT,))
 
     return found
 
@@ -91,7 +96,7 @@ async def check_rule(
     nodes = rule.get_required_nodes()
     node_col = None
     if nodes:
-        node_col = await compose_nodes(nodes, UpdateCute.from_update(update, api))
+        node_col = await compose_nodes(nodes, UpdateCute.from_update(update, api), ctx)
         if node_col is None:
             return False
 

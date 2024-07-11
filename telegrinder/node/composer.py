@@ -1,22 +1,35 @@
 import typing
 
 from telegrinder.bot.cute_types import UpdateCute
-from telegrinder.node import ComposeError, Node
+from telegrinder.bot.dispatch.context import Context
+from telegrinder.node.base import ComposeError, Node
+from telegrinder.node.scope import NodeScope
 from telegrinder.tools.magic import get_annotations, magic_bundle
+
+CONTEXT_STORE_NODES_KEY = "node_ctx"
 
 
 async def compose_node(
-    _node: type[Node], update: UpdateCute, ready_context: dict[str, "NodeSession"] | None = None
+    _node: type[Node],
+    update: UpdateCute,
+    ctx: Context,
 ) -> "NodeSession":
     node = _node.as_node()
-
-    context = NodeCollection(ready_context.copy() if ready_context else {})
+    context = NodeCollection({})
+    node_ctx: dict[type[Node], "NodeSession"] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
 
     for name, subnode in node.get_sub_nodes().items():
-        if subnode is UpdateCute:
-            context.sessions[name] = NodeSession(update, {})
+        if subnode in node_ctx:
+            context.sessions[name] = node_ctx[subnode]
+        elif subnode is UpdateCute:
+            context.sessions[name] = NodeSession(None, update, {})
+        elif subnode is Context:
+            context.sessions[name] = NodeSession(None, ctx, {})
         else:
-            context.sessions[name] = await compose_node(subnode, update)
+            context.sessions[name] = await compose_node(subnode, update, ctx)
+
+            if getattr(_node, "scope", None) is NodeScope.PER_EVENT:
+                node_ctx[_node] = context.sessions[name]
 
     generator: typing.AsyncGenerator | None
 
@@ -27,16 +40,31 @@ async def compose_node(
         generator = None
         value = await node.compose(**context.values())  # type: ignore
 
-    return NodeSession(value, context.sessions, generator)
+    return NodeSession(_node, value, context.sessions, generator)
 
 
 async def compose_nodes(
-    node_types: dict[str, type[Node]], update: UpdateCute
+    node_types: dict[str, type[Node]],
+    update: UpdateCute,
+    ctx: Context,
 ) -> typing.Optional["NodeCollection"]:
     nodes: dict[str, NodeSession] = {}
+    node_ctx: dict[type[Node], "NodeSession"] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
+
     for name, node_t in node_types.items():
+        scope = getattr(node_t, "scope", None)
         try:
-            nodes[name] = await compose_node(node_t, update)
+            if scope is NodeScope.PER_EVENT and node_t in node_ctx:
+                nodes[name] = node_ctx[node_t]
+                continue
+
+            nodes[name] = await compose_node(
+                node_t,
+                update,
+                ctx,
+            )
+            if scope is NodeScope.PER_EVENT:
+                node_ctx[node_t] = nodes[name]
         except ComposeError:
             await NodeCollection(nodes).close_all()
             return None
@@ -46,17 +74,26 @@ async def compose_nodes(
 class NodeSession:
     def __init__(
         self,
+        node_type: type[Node] | None,
         value: typing.Any,
         subnodes: dict[str, typing.Self],
         generator: typing.AsyncGenerator[typing.Any, None] | None = None,
     ):
+        self.node_type = node_type
         self.value = value
         self.subnodes = subnodes
         self.generator = generator
 
-    async def close(self, with_value: typing.Any | None = None) -> None:
+    async def close(
+        self,
+        with_value: typing.Any | None = None,
+        scopes: tuple[NodeScope, ...] = (NodeScope.PER_CALL,),
+    ) -> None:
+        if self.node_type and getattr(self.node_type, "scope", None) not in scopes:
+            return
+
         for subnode in self.subnodes.values():
-            await subnode.close()
+            await subnode.close(scopes=scopes)
 
         if self.generator is None:
             return
@@ -79,9 +116,13 @@ class NodeCollection:
     def values(self) -> dict[str, typing.Any]:
         return {name: session.value for name, session in self.sessions.items()}
 
-    async def close_all(self, with_value: typing.Any | None = None) -> None:
+    async def close_all(
+        self,
+        with_value: typing.Any | None = None,
+        scopes: tuple[NodeScope, ...] = (NodeScope.PER_CALL,),
+    ) -> None:
         for session in self.sessions.values():
-            await session.close(with_value)
+            await session.close(with_value, scopes=scopes)
 
 
 class Composition:
@@ -99,8 +140,8 @@ class Composition:
             self.nodes,
         )
 
-    async def compose_nodes(self, update: UpdateCute) -> NodeCollection | None:
-        return await compose_nodes(self.nodes, update)
+    async def compose_nodes(self, update: UpdateCute, context: Context) -> NodeCollection | None:
+        return await compose_nodes(self.nodes, update, context)
 
     async def __call__(self, **kwargs: typing.Any) -> typing.Any:
         return await self.func(**magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))  # type: ignore

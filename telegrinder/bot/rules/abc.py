@@ -8,7 +8,8 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
 from telegrinder.bot.rules.adapter.node import Event
-from telegrinder.node import Node, NodeCollection, is_node
+from telegrinder.node.base import Node, is_node
+from telegrinder.node.composer import NodeCollection
 from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_annotations, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
@@ -52,10 +53,11 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         kw = {}
         node_col_values = node_col.values() if node_col is not None else {}
 
-        for k, v in get_annotations(self.check).items():
-            v = typing.get_origin(v) or v  # Function typing.get_origin may return the origin type or None
-            if isinstance(v, Event) or (isinstance(v, type) and isinstance(adapted_value, v)):
-                kw[k] = adapted_value
+        for i, (k, v) in enumerate(get_annotations(self.check).items()):
+            if (isinstance(adapted_value, Event) and not i) or (
+                isinstance(v, type) and isinstance(adapted_value, v)
+            ):
+                kw[k] = adapted_value if not isinstance(adapted_value, Event) else adapted_value.obj
             elif is_node(v):
                 assert k in node_col_values, "Node is undefined, error while bounding."
                 kw[k] = node_col_values[k]

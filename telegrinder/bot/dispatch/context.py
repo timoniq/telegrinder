@@ -71,6 +71,11 @@ class Context(dict[str, AnyValue]):
     def get(self, key: Key, default: T | None = None) -> T | AnyValue:
         return dict.get(self, key, default)
 
+    def get_or_set(self, key: Key, default: T) -> T:
+        if key not in self:
+            self.set(key, default)
+        return self.get(key)
+
     def delete(self, key: Key) -> None:
         del self[key]
 

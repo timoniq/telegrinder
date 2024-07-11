@@ -1,5 +1,4 @@
 from .abc import ABCDispatch
-from .composition import CompositionDispatch
 from .context import Context
 from .dispatch import ABCRule, Dispatch, TelegrinderCtx
 from .handler import ABCHandler, FuncHandler, MessageReplyHandler
@@ -44,7 +43,6 @@ __all__ = (
     "CallbackQueryView",
     "ChatJoinRequestView",
     "ChatMemberView",
-    "CompositionDispatch",
     "Context",
     "Dispatch",
     "FuncHandler",

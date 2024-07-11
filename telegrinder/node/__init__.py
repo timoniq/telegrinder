@@ -4,6 +4,7 @@ from .composer import Composition, NodeCollection, NodeSession, compose_node, co
 from .container import ContainerNode
 from .message import MessageNode
 from .rule import RuleChain
+from .scope import PER_CALL, PER_EVENT, NodeScope
 from .source import Source
 from .text import Text, TextInteger
 from .tools import generate_node
@@ -32,4 +33,7 @@ __all__ = (
     "Composition",
     "is_node",
     "compose_nodes",
+    "NodeScope",
+    "PER_CALL",
+    "PER_EVENT",
 )

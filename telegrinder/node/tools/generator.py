@@ -1,7 +1,6 @@
 import inspect
 import typing
 
-from telegrinder.node import Node
 from telegrinder.node.base import ComposeError, Node
 from telegrinder.node.container import ContainerNode
 
@@ -21,10 +20,10 @@ def error_on_none(value: T | None) -> T:
 
 
 def generate_node(
-    subnodes: tuple[type[Node], ...],
+    subnodes: tuple[type["Node"], ...],
     func: typing.Callable[..., T],
     casts: tuple[typing.Callable[[typing.Any], typing.Any], ...] = (cast_false_to_none, error_on_none),
-) -> type[Node]:
+) -> type["Node"]:
     async def compose(**kw: typing.Any) -> typing.Any:
         args = await ContainerNode.compose(**kw)
         result = func(*args)

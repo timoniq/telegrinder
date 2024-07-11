@@ -4,8 +4,12 @@ import typing
 
 from telegrinder.tools.magic import get_annotations
 
+from .scope import NodeScope
+
 ComposeResult: typing.TypeAlias = (
-    typing.Coroutine[typing.Any, typing.Any, typing.Any] | typing.AsyncGenerator[typing.Any, None]
+    typing.Coroutine[typing.Any, typing.Any, typing.Any]
+    | typing.AsyncGenerator[typing.Any, None]
+    | typing.Any
 )
 
 
@@ -14,6 +18,7 @@ class ComposeError(BaseException): ...
 
 class Node(abc.ABC):
     node: str = "node"
+    scope: NodeScope = NodeScope.PER_CALL
 
     @classmethod
     @abc.abstractmethod

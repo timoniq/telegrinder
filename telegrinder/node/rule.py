@@ -2,18 +2,21 @@ import dataclasses
 import typing
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node.base import ComposeError, Node
 from telegrinder.node.update import UpdateNode
+
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.rules.abc import ABCRule
 
 
 class RuleChain(dict[str, typing.Any]):
     dataclass = dict
-    rules: tuple[ABCRule, ...] = ()
+    rules: tuple["ABCRule", ...] = ()
 
     @classmethod
     async def compose(cls, update: UpdateNode):
+        from telegrinder.bot.dispatch.process import check_rule
+
         ctx = Context()
         for rule in cls.rules:
             if not await check_rule(update.api, rule, update, ctx):
@@ -35,13 +38,13 @@ class RuleChain(dict[str, typing.Any]):
     def is_generator(cls) -> typing.Literal[False]:
         return False
 
-    def __new__(cls, *rules: ABCRule) -> type[Node]:
+    def __new__(cls, *rules: "ABCRule") -> type[Node]:
         return type("_RuleNode", (cls,), {"dataclass": dict, "rules": rules})  # type: ignore
 
-    def __class_getitem__(cls, items: ABCRule | tuple[ABCRule, ...]) -> typing.Self:
+    def __class_getitem__(cls, items: typing.Union[tuple["ABCRule", ...], "ABCRule"]) -> typing.Self:
         if not isinstance(items, tuple):
             items = (items,)
-        assert all(isinstance(rule, ABCRule) for rule in items), "All items must be instances of 'ABCRule'."
+        assert all(isinstance(rule, "ABCRule") for rule in items), "All items must be instances of 'ABCRule'."
         return cls(*items)
 
     @staticmethod

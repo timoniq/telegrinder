@@ -64,7 +64,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         node_col = None
 
         if nodes:
-            node_col = await compose_nodes(nodes, UpdateCute.from_update(event, api))
+            node_col = await compose_nodes(nodes, UpdateCute.from_update(event, api), ctx)
             if node_col is None:
                 return False
             temp_ctx |= node_col.values()

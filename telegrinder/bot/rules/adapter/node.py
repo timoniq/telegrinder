@@ -4,6 +4,7 @@ from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter.abc import ABCAdapter, Event
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.node.base import ComposeError
@@ -22,11 +23,13 @@ class NodeAdapter(typing.Generic[*Ts], ABCAdapter[Update, Event[tuple[*Ts]]]):
         node_sessions: list[NodeSession] = []
         for node_t in self.nodes:
             try:
-                node_sessions.append(await compose_node(node_t, update_cute))  # type: ignore
+                # FIXME: adapters should have context
+                node_sessions.append(await compose_node(node_t, update_cute, Context()))  # type: ignore
             except ComposeError:
                 for session in node_sessions:
                     await session.close(with_value=None)
                 return Error(AdapterError(f"Couldn't compose nodes, error on {node_t}"))
         return Ok(Event(tuple(node_sessions)))  # type: ignore
+
 
 __all__ = ("NodeAdapter",)
