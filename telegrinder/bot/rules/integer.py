@@ -14,7 +14,7 @@ class IntegerInRange(ABCRule):
     def __init__(self, rng: range):
         self.rng = rng
 
-    async def check(self, integer: TextInteger, ctx: Context) -> bool:
+    async def check(self, integer: TextInteger) -> bool:
         return integer in self.rng
 
 

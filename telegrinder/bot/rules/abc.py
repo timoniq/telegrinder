@@ -54,7 +54,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         node_col_values = node_col.values() if node_col is not None else {}
 
         for k, v in get_annotations(self.check).items():
-            if isinstance(v, Event) or isinstance(adapted_value, v):
+            if isinstance(v, Event) or isinstance(adapted_value, typing.get_origin(v)):
                 kw[k] = adapted_value
             elif is_node(v):
                 assert k in node_col_values, "Node is undefined, error while bounding."
