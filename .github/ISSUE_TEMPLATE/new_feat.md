@@ -9,14 +9,19 @@ assignees: "luwqz1"
 ## 🚀 Feature Request 🚀
 
 **✏️ New feature description ✏️**
-<!-- A clear and concise description. Ex. -->
+<!-- A clear and concise description. -->
 ```
+No response
 ```
 
 **🪄 Provide a minimal example 🪄**
 <!-- A small code sample that will demonstrate your feature. -->
 ```python
+from telegrinder import ...
 ```
 
 **✨ Teachability, Documentation, Adoption ✨**
 <!-- If you can, explain how users will be able to use this and possibly write out a version the docs. -->
+```
+No response
+```

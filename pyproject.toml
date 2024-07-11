@@ -82,5 +82,5 @@ asyncio_mode = "auto"
 [tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 
-[tool.basedpyright]
+[tool.pyright]
 typeCheckingMode = "basic"

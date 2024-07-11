@@ -73,7 +73,7 @@ def chunks_str(s: str, sep: str = "\n"):
         s += word + " "
         line += len(word)
         if line >= 60:
-            s += sep
+            s = s.strip() + sep
             line = 0
     return s.rstrip()
 
@@ -437,7 +437,7 @@ class MethodGenerator(ABCGenerator):
                     f":param {x.name}: "
                     + chunks_str(
                         x.description + ("." if not x.description.endswith(".") else ""),
-                        sep="\\\n" + TAB + TAB,
+                        sep=" \\\n" + TAB + TAB,
                     ).replace('"', "`")
                     if x.description
                     else ""
@@ -605,7 +605,7 @@ def generate(
     logger.info("Schema has been successfully generated.")
 
     logger.debug("Run ruff formatter...")
-    if os.system(f"ruff format {path_dir} --config pyproject.toml") != 0:
+    if os.system(f"ruff format {path_dir}") != 0:
         logger.error("Ruff formatter failed.")
     else:
         logger.info("Ruff formatter successfully formatted files.")

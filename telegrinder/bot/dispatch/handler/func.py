@@ -22,23 +22,22 @@ F = typing.TypeVar(
     "F",
     bound=typing.Callable[typing.Concatenate[typing.Any, ...], typing.Awaitable[typing.Any]],
 )
-AdaptTo = typing.TypeVar("AdaptTo", default=UpdateCute)
-EventType = typing.TypeVar("EventType", bound=BaseCute)
+Event = typing.TypeVar("Event", bound=BaseCute)
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
 
 @dataclasses.dataclass(repr=False)
-class FuncHandler(ABCHandler[EventType], typing.Generic[EventType, F, ErrorHandlerT]):
+class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
     func: F
-    rules: list["ABCRule[EventType] | ABCRule[tuple[Node, ...]]"]
-    _: dataclasses.KW_ONLY
-    is_blocking: bool = dataclasses.field(default=True)
-    dataclass: type[typing.Any] | None = dataclasses.field(default=dict)
+    rules: list["ABCRule"]
+    is_blocking: bool = dataclasses.field(default=True, kw_only=True)
+    dataclass: type[typing.Any] | None = dataclasses.field(default=dict, kw_only=True)
     error_handler: ErrorHandlerT = dataclasses.field(
         default_factory=lambda: typing.cast(ErrorHandlerT, ErrorHandler()),
+        kw_only=True,
     )
-    preset_context: Context = dataclasses.field(default_factory=lambda: Context())
-    update_type: UpdateType | None = dataclasses.field(default=None)
+    preset_context: Context = dataclasses.field(default_factory=lambda: Context(), kw_only=True)
+    update_type: UpdateType | None = dataclasses.field(default=None, kw_only=True)
 
     def __repr__(self) -> str:
         return "<{}: {}={!r} with rules={!r}, dataclass={!r}, error_handler={!r}>".format(
@@ -79,7 +78,7 @@ class FuncHandler(ABCHandler[EventType], typing.Generic[EventType, F, ErrorHandl
         ctx |= temp_ctx
         return True
 
-    async def run(self, event: EventType, ctx: Context) -> typing.Any:
+    async def run(self, event: Event, ctx: Context) -> typing.Any:
         api = event.api
 
         if self.dataclass is not None:
@@ -94,7 +93,7 @@ class FuncHandler(ABCHandler[EventType], typing.Generic[EventType, F, ErrorHandl
                 event = self.dataclass(**event.to_dict())
 
         result = (await self.error_handler.run(self.func, event, api, ctx)).unwrap()
-        if node_col := ctx["node_col"]:
+        if node_col := ctx.node_col:
             await node_col.close_all()
         return result
 

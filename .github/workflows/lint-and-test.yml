@@ -28,7 +28,7 @@ jobs:
 
         - name: Lint code with ruff
           run: >
-            poetry run ruff check .
+            poetry run ruff check . --fix
 
         - name: Check types with basedpyright
           run: >

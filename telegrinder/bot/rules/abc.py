@@ -13,7 +13,6 @@ from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_annotations, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
 
-Ts = typing.TypeVarTuple("Ts")
 AdaptTo = typing.TypeVar("AdaptTo", default=typing.Any)
 
 Message: typing.TypeAlias = MessageCute
@@ -35,7 +34,7 @@ def with_caching_translations(func: typing.Callable[..., typing.Any]):
 
 class ABCRule(ABC, typing.Generic[AdaptTo]):
     adapter: ABCAdapter[UpdateObject, AdaptTo] = RawUpdateAdapter()  # type: ignore
-    requires: list["ABCRule[AdaptTo]"] = []
+    requires: list["ABCRule"] = []
 
     @abstractmethod
     async def check(self, event: AdaptTo, *, ctx: Context) -> bool:
@@ -54,7 +53,8 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         node_col_values = node_col.values() if node_col is not None else {}
 
         for k, v in get_annotations(self.check).items():
-            if isinstance(v, Event) or isinstance(adapted_value, typing.get_origin(v)):
+            v = typing.get_origin(v) or v  # Function typing.get_origin may return the origin type or None
+            if isinstance(v, Event) or (isinstance(v, type) and isinstance(adapted_value, v)):
                 kw[k] = adapted_value
             elif is_node(v):
                 assert k in node_col_values, "Node is undefined, error while bounding."
@@ -70,7 +70,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
 
         return await self.check(**kw)
 
-    def __init_subclass__(cls, requires: list["ABCRule[AdaptTo]"] | None = None) -> None:
+    def __init_subclass__(cls, requires: list["ABCRule"] | None = None) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
 
         requirements = []
@@ -81,7 +81,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         requirements.extend(requires or ())
         cls.requires = list(dict.fromkeys(requirements))
 
-    def __and__(self, other: "ABCRule[AdaptTo]") -> "AndRule[AdaptTo]":
+    def __and__(self, other: "ABCRule") -> "AndRule":
         """And Rule.
 
         ```python
@@ -92,7 +92,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
 
         return AndRule(self, other)
 
-    def __or__(self, other: "ABCRule[AdaptTo]") -> "OrRule[AdaptTo]":
+    def __or__(self, other: "ABCRule") -> "OrRule":
         """Or Rule.
 
         ```python
@@ -103,7 +103,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
 
         return OrRule(self, other)
 
-    def __invert__(self) -> "NotRule[AdaptTo]":
+    def __invert__(self) -> "NotRule":
         """Not Rule.
 
         ```python
@@ -124,7 +124,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         return self
 
 
-class AndRule(ABCRule[AdaptTo]):
+class AndRule(ABCRule):
     def __init__(self, *rules: ABCRule[AdaptTo]) -> None:
         self.rules = rules
 
@@ -137,8 +137,8 @@ class AndRule(ABCRule[AdaptTo]):
         return True
 
 
-class OrRule(ABCRule[AdaptTo]):
-    def __init__(self, *rules: ABCRule[AdaptTo]) -> None:
+class OrRule(ABCRule):
+    def __init__(self, *rules: ABCRule) -> None:
         self.rules = rules
 
     async def check(self, event: Update, ctx: Context) -> bool:
@@ -150,8 +150,8 @@ class OrRule(ABCRule[AdaptTo]):
         return False
 
 
-class NotRule(ABCRule[AdaptTo]):
-    def __init__(self, rule: ABCRule[AdaptTo]) -> None:
+class NotRule(ABCRule):
+    def __init__(self, rule: ABCRule) -> None:
         self.rule = rule
 
     async def check(self, event: Update, ctx: Context) -> bool:
