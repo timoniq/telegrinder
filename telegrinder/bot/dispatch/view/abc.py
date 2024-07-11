@@ -13,6 +13,7 @@ from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.model import Model
 from telegrinder.msgspec_utils import Option
+from telegrinder.node.base import Node
 from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.types.objects import Update
 
@@ -53,7 +54,7 @@ class ABCStateView(ABCView, typing.Generic[Event]):
 
 
 class BaseView(ABCView, typing.Generic[Event]):
-    auto_rules: list[ABCRule[Event]]
+    auto_rules: list[ABCRule[Event] | ABCRule[tuple[Node, ...]]]
     handlers: list[ABCHandler[Event]]
     middlewares: list[ABCMiddleware[Event]]
     return_manager: ABCReturnManager[Event] | None = None
@@ -75,7 +76,7 @@ class BaseView(ABCView, typing.Generic[Event]):
     @classmethod
     def to_handler(
         cls,
-        *rules: ABCRule[Event],
+        *rules: ABCRule[Event] | ABCRule[tuple[Node, ...]],
     ) -> typing.Callable[
         [FuncType[Event]],
         FuncHandler[Event, FuncType[Event], ErrorHandler[Event]],
@@ -85,7 +86,7 @@ class BaseView(ABCView, typing.Generic[Event]):
     @classmethod
     def to_handler(
         cls,
-        *rules: ABCRule[Event],
+        *rules: ABCRule[Event] | ABCRule[tuple[Node, ...]],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
     ) -> typing.Callable[[FuncType[Event]], FuncHandler[Event, FuncType[Event], ErrorHandlerT]]: ...
@@ -94,7 +95,7 @@ class BaseView(ABCView, typing.Generic[Event]):
     @classmethod
     def to_handler(
         cls,
-        *rules: ABCRule[Event],
+        *rules: ABCRule[Event] | ABCRule[tuple[Node, ...]],
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
     ) -> typing.Callable[
@@ -105,7 +106,7 @@ class BaseView(ABCView, typing.Generic[Event]):
     @classmethod
     def to_handler(  # type: ignore
         cls,
-        *rules: ABCRule[Event],
+        *rules: ABCRule[Event] | ABCRule[tuple[Node, ...]],
         error_handler: ABCErrorHandler | None = None,
         is_blocking: bool = True,
     ):
@@ -123,7 +124,7 @@ class BaseView(ABCView, typing.Generic[Event]):
     @typing.overload
     def __call__(
         self,
-        *rules: ABCRule[Event],
+        *rules: ABCRule[Event] | ABCRule[tuple[Node, ...]],
     ) -> typing.Callable[
         [FuncType[Event]],
         FuncHandler[Event, FuncType[Event], ErrorHandler[Event]],
@@ -132,7 +133,7 @@ class BaseView(ABCView, typing.Generic[Event]):
     @typing.overload
     def __call__(  # type: ignore
         self,
-        *rules: ABCRule[Event],
+        *rules: ABCRule[Event] | ABCRule[tuple[Node, ...]],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
     ) -> typing.Callable[[FuncType[Event]], FuncHandler[Event, FuncType[Event], ErrorHandlerT]]: ...
@@ -140,7 +141,7 @@ class BaseView(ABCView, typing.Generic[Event]):
     @typing.overload
     def __call__(
         self,
-        *rules: ABCRule[Event],
+        *rules: ABCRule[Event] | ABCRule[tuple[Node, ...]],
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
     ) -> typing.Callable[
@@ -150,7 +151,7 @@ class BaseView(ABCView, typing.Generic[Event]):
 
     def __call__(  # type: ignore
         self,
-        *rules: ABCRule[Event],
+        *rules: ABCRule[Event] | ABCRule[tuple[Node, ...]],
         error_handler: ABCErrorHandler | None = None,
         is_blocking: bool = True,
     ):

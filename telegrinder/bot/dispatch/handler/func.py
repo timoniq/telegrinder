@@ -30,7 +30,7 @@ ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=E
 @dataclasses.dataclass(repr=False)
 class FuncHandler(ABCHandler[EventType], typing.Generic[EventType, F, ErrorHandlerT]):
     func: F
-    rules: list["ABCRule[EventType]"]
+    rules: list["ABCRule[EventType] | ABCRule[tuple[Node, ...]]"]
     _: dataclasses.KW_ONLY
     is_blocking: bool = dataclasses.field(default=True)
     dataclass: type[typing.Any] | None = dataclasses.field(default=dict)

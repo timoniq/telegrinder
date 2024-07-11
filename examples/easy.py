@@ -4,6 +4,7 @@ import random
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
+from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
 from telegrinder.rules import FuzzyText, HasText, Markup, Text
 from telegrinder.types import InputFile
@@ -13,6 +14,8 @@ bot = Telegrinder(api)
 wm = WaiterMachine()
 kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
 logger.set_level("INFO")
+
+bot.dispatch.message.auto_rules.append(IsUser())
 
 
 @bot.on.message(Text("/start"))

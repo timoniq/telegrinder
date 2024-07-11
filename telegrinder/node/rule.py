@@ -8,7 +8,7 @@ from telegrinder.node.base import ComposeError, Node
 from telegrinder.node.update import UpdateNode
 
 
-class RuleChain(dict):
+class RuleChain(dict[str, typing.Any]):
     dataclass = dict
     rules: tuple[ABCRule, ...] = ()
 

@@ -2,7 +2,7 @@ import dataclasses
 import typing
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node import Text
+from telegrinder.node.text import Text
 
 from .abc import ABCRule
 
@@ -95,7 +95,7 @@ class Command(ABCRule):
         return None
 
     async def check(self, text: Text, ctx: Context) -> bool:
-        text = self.remove_prefix(text)
+        text = self.remove_prefix(text)  # type: ignore
         if text is None:
             return False
 

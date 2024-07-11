@@ -1,5 +1,5 @@
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node import TextInteger
+from telegrinder.node.text import TextInteger
 
 from .abc import ABCRule
 from .node import NodeRule

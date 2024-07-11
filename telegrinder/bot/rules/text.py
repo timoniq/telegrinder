@@ -8,7 +8,7 @@ from .node import NodeRule
 
 class HasText(NodeRule):
     def __init__(self) -> None:
-        super().__init__(node.Text)
+        super().__init__(node.text.Text)
 
 
 class Text(ABCRule):
@@ -18,7 +18,7 @@ class Text(ABCRule):
         self.texts = texts if not ignore_case else list(map(str.lower, texts))
         self.ignore_case = ignore_case
 
-    async def check(self, text: node.Text, ctx: Context) -> bool:
+    async def check(self, text: node.text.Text, ctx: Context) -> bool:
         return (text if not self.ignore_case else text.lower()) in self.texts
 
     @with_caching_translations

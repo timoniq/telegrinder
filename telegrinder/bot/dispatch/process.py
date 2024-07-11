@@ -67,7 +67,7 @@ async def check_rule(
     """Checks requirements, adapts update.
     Returns check result."""
 
-    # Running adapter to resolve event model
+    # Running adapter
     match await rule.adapter.adapt(api, update):
         case Ok(value):
             adapted_value = value
@@ -96,7 +96,7 @@ async def check_rule(
             return False
 
     # Running check
-    result = await rule.bounding_check(adapted_value, node_col=node_col, ctx=ctx)
+    result = await rule.bounding_check(adapted_value, ctx, node_col)
 
     # Closing node sessions if there are any
     if node_col is not None:

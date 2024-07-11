@@ -45,14 +45,17 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         return {k: v for k, v in get_annotations(self.check).items() if is_node(v)}
 
     async def bounding_check(
-        self, event: AdaptTo, ctx: Context, node_col: NodeCollection | None = None
+        self,
+        adapted_value: AdaptTo,
+        ctx: Context,
+        node_col: NodeCollection | None = None,
     ) -> bool:
         kw = {}
         node_col_values = node_col.values() if node_col is not None else {}
 
         for k, v in get_annotations(self.check).items():
-            if isinstance(v, Event) or isinstance(event, v):
-                kw[k] = event
+            if isinstance(v, Event) or isinstance(adapted_value, v):
+                kw[k] = adapted_value
             elif is_node(v):
                 assert k in node_col_values, "Node is undefined, error while bounding."
                 kw[k] = node_col_values[k]
@@ -61,7 +64,9 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
             elif v is Context:
                 kw[k] = ctx
             else:
-                raise LookupError(f"Cannot bound {k!r} to {self.check!r}, because it cannot be resolved.")
+                raise LookupError(
+                    f"Cannot bound {k!r} to '{self.__class__.__name__}.check()', because it cannot be resolved."
+                )
 
         return await self.check(**kw)
 
@@ -158,7 +163,6 @@ __all__ = (
     "ABCRule",
     "AndRule",
     "NotRule",
-    "NodeRule",
     "OrRule",
     "with_caching_translations",
 )

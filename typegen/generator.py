@@ -1,3 +1,4 @@
+import dataclasses
 import datetime
 import os
 import pathlib
@@ -25,7 +26,6 @@ except ImportError:
 
 ModelT = typing.TypeVar("ModelT", bound=msgspec.structs.Struct)
 
-JSON_DECODER: typing.Final[msgspec.json.Decoder[typing.Any]] = msgspec.json.Decoder(strict=True)
 URL: typing.Final[str] = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/main/api.json"
 TAB: typing.Final[str] = "    "
 TYPES: typing.Final[dict[str, str]] = {
@@ -36,15 +36,14 @@ TYPES: typing.Final[dict[str, str]] = {
     "Unixtime": "datetime",
 }
 INPUTFILE_DOCSTRING: typing.Final[str] = (
-    "to upload a new one using multipart/form-data" " under <file_attach_name> name."
+    "to upload a new one using multipart/form-data under <file_attach_name> name."
 )
 MAIN_DIR: typing.Final[str] = "typegen"
 
 
-def get_schema_json() -> "SchemaJson":
-    logger.debug(f"Sending a get request {URL!r}")
-    raw = requests.get(URL).text
-    dct: dict[str, typing.Any] = JSON_DECODER.decode(raw)
+def get_bot_api_schema() -> "TelegramBotAPISchema":
+    logger.debug(f"Getting schema from {URL!r}")
+    dct: dict[str, typing.Any] = msgspec.json.decode(requests.get(URL).text)
     dct["methods"] = [d for d in dct["methods"].values()]
     dct["types"] = [d for d in dct["types"].values()]
     logger.debug(
@@ -53,7 +52,7 @@ def get_schema_json() -> "SchemaJson":
             dct["release_date"],
         )
     )
-    return typing.cast(SchemaJson, dct)
+    return msgspec.convert(dct, TelegramBotAPISchema)
 
 
 def find_nicifications(name: str, path: str) -> tuple[str | None, list[str]]:
@@ -118,21 +117,14 @@ def camel_to_pascal(s: str) -> str:
     return (s[0].upper() if s[0].islower() else s[0]) + s[1:]
 
 
-def convert_schema_to_model(schema_json: "SchemaJson", model: type[ModelT]) -> ModelT:
-    logger.debug(f"Converting to model {model.__name__!r}...")
-    schema = msgspec.convert(schema_json, type=model)
-    logger.debug(f"Schema successfully converted to model {model.__name__!r}!")
-    return schema
-
-
 def read_config_literals(path: str | None = None) -> "ConfigLiteralTypes":
     path = path or MAIN_DIR + "/config_literal_types.json"
-    return JSON_DECODER.decode(pathlib.Path(path).read_text(encoding="UTF-8"))
+    return msgspec.json.decode(pathlib.Path(path).read_text(encoding="UTF-8"), type=ConfigLiteralTypes)
 
 
 def read_config_default_api_params(path: str | None = None) -> "ConfigDefaultAPIParams":
     path = path or MAIN_DIR + "/config_default_api_params.json"
-    return JSON_DECODER.decode(pathlib.Path(path).read_text(encoding="UTF-8"))
+    return msgspec.json.decode(pathlib.Path(path).read_text(encoding="UTF-8"), type=ConfigDefaultAPIParams)
 
 
 def is_unixtime_type(name: str, types: list[str], description: str) -> bool:
@@ -143,62 +135,55 @@ def is_unixtime_type(name: str, types: list[str], description: str) -> bool:
     )
 
 
-class SchemaJson(typing.TypedDict):
-    version: str
-    release_date: str
-    changelog: str
-    methods: list[dict[str, typing.Any]]
-    types: list[dict[str, typing.Any]]
+@dataclasses.dataclass(kw_only=True)
+class ConfigLiteralTypes:
+    objects: list["ConfigObjectLiteralTypes"] = dataclasses.field(default_factory=lambda: [])
+    methods: list["ConfigMethodLiteralTypes"] = dataclasses.field(default_factory=lambda: [])
 
 
-class ConfigLiteralTypes(typing.TypedDict):
-    objects: typing.NotRequired[list["ConfigObjectLiteralTypes"]]
-    methods: typing.NotRequired[list["ConfigMethodLiteralTypes"]]
-
-
-class FieldLiteralTypes(typing.TypedDict):
-    """Mapping containing field name, reference to enumeration and specific enumeration literals."""
-
+@dataclasses.dataclass(kw_only=True)
+class FieldLiteralTypes:
     name: str
     """Field name."""
 
-    enum: typing.NotRequired[str]
+    enum: str | None = None
     """Optional. Reference to enumeration."""
 
-    literals: typing.NotRequired[list[str] | list[int]]
+    literals: list[str | int] = dataclasses.field(default_factory=lambda: [])
     """Optional. List with enumeration literals."""
 
 
-class ParamLiteralTypes(typing.TypedDict):
-    """Mapping containing param name, reference to enumeration and specific enumeration literals."""
-
+@dataclasses.dataclass(kw_only=True)
+class ParamLiteralTypes:
     name: str
     """Param name."""
 
-    enum: typing.NotRequired[str]
+    enum: str | None = None
     """Optional. Reference to enumeration."""
 
-    literals: typing.NotRequired[list[str] | list[int]]
+    literals: list[str | int] = dataclasses.field(default_factory=lambda: [])
     """Optional. List with enumeration literals."""
 
 
-class ConfigObjectLiteralTypes(typing.TypedDict):
+@dataclasses.dataclass(kw_only=True)
+class ConfigObjectLiteralTypes:
     """Configuration object fields literal types."""
 
     name: str
     """Object name."""
 
-    fields: list[FieldLiteralTypes]
+    fields: list[FieldLiteralTypes] = dataclasses.field(default_factory=lambda: [])
     """Object fields."""
 
 
-class ConfigMethodLiteralTypes(typing.TypedDict):
+@dataclasses.dataclass(kw_only=True)
+class ConfigMethodLiteralTypes:
     """Configuration method params literal types."""
 
     name: str
     """Method name."""
 
-    params: list[ParamLiteralTypes]
+    params: list[ParamLiteralTypes] = dataclasses.field(default_factory=lambda: [])
     """Method params."""
 
 
@@ -236,9 +221,9 @@ class ObjectGenerator(ABCGenerator):
 
     def get_field_literal_types(self, object_name: str, field_name: str) -> FieldLiteralTypes | None:
         for cfg in self.config_literal_types:
-            if cfg["name"] == object_name:
-                for ref_field in cfg["fields"]:
-                    if ref_field["name"] == field_name:
+            if cfg.name == object_name:
+                for ref_field in cfg.fields:
+                    if ref_field.name == field_name:
                         return ref_field
         return None
 
@@ -246,11 +231,11 @@ class ObjectGenerator(ABCGenerator):
         code = f"{self.rename_field_names.get(field.name, field.name)}: "
         field_type = "typing.Any"
 
-        if literal_types is not None and any(x in literal_types for x in ("literals", "enum")):
-            literal_type_hint = literal_types.get("enum") or "typing.Literal[%s]" % ", ".join(
-                f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.get("literals", [])
+        if literal_types is not None and any((literal_types.enum, literal_types.literals)):
+            literal_type_hint = literal_types.enum or "typing.Literal[%s]" % ", ".join(
+                f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
             )
-            if len(literal_types.get("literals", [])) > 3:
+            if len(literal_types.literals) > 3:
                 literal_type_hint = literal_type_hint.replace("]", ",]")
             field_type = (
                 f"list[{literal_type_hint}]"
@@ -352,6 +337,7 @@ class ObjectGenerator(ABCGenerator):
 
         logger.debug("Generate objects...")
         lines = [
+            "import pathlib\n",
             "import typing\n\n",
             "from fntypes.co import Some, Variative\n",
             "from telegrinder.model import Model\n",
@@ -431,9 +417,9 @@ class MethodGenerator(ABCGenerator):
         param_name: str,
     ) -> ParamLiteralTypes | None:
         for cfg in self.config_literal_types:
-            if cfg["name"] == method_name:
-                for param in cfg["params"]:
-                    if param["name"] == param_name:
+            if cfg.name == method_name:
+                for param in cfg.params:
+                    if param.name == param_name:
                         return param
         return None
 
@@ -488,13 +474,8 @@ class MethodGenerator(ABCGenerator):
             literal_types = self.get_param_literal_types(method_name, p.name)
 
             if literal_types is not None:
-                tp = (
-                    literal_types["enum"]
-                    if "enum" in literal_types
-                    else "typing.Literal[%s]"
-                    % ", ".join(
-                        f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.get("literals", [])
-                    )
+                tp = literal_types.enum or "typing.Literal[%s]" % ", ".join(
+                    f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
                 )
                 p.types = [tp]
 
@@ -599,25 +580,24 @@ def generate(
         os.makedirs(path_dir)
 
     if object_generator is None or method_generator is None:
-        schema_json = get_schema_json()
-        schema_model = convert_schema_to_model(schema_json, TelegramBotAPISchema)
+        schema = get_bot_api_schema()
         cfg_literal_types = read_config_literals(path_config_literals)
         object_generator = object_generator or ObjectGenerator(
-            objects=schema_model.objects,
+            objects=schema.objects,
             nicification_path=MAIN_DIR + (path_nicifications or "/nicifications.py"),
-            config_literal_types=cfg_literal_types.get("objects"),
+            config_literal_types=cfg_literal_types.objects,
         )
         method_generator = method_generator or MethodGenerator(
-            methods=schema_model.methods,
+            methods=schema.methods,
             parent_types=(
                 object_generator.parent_types if isinstance(object_generator, ObjectGenerator) else {}
             ),
-            config_literal_types=cfg_literal_types.get("methods"),
+            config_literal_types=cfg_literal_types.methods,
             config_default_api_params=read_config_default_api_params(path_config_default_api_params)[
                 "default_params"
             ],
-            api_version=schema_json["version"],
-            release_date=schema_json["release_date"],
+            api_version=schema.version,
+            release_date=schema.release_date,
         )
 
     object_generator.generate(path_dir)
@@ -650,11 +630,9 @@ __all__ = (
     "MethodGenerator",
     "ObjectGenerator",
     "ParamLiteralTypes",
-    "SchemaJson",
-    "convert_schema_to_model",
     "find_nicifications",
     "generate",
     "sort_all",
-    "get_schema_json",
+    "get_bot_api_schema",
     "read_config_literals",
 )

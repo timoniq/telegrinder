@@ -3,7 +3,7 @@ import typing
 import vbml
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node import Text
+from telegrinder.node.text import Text
 from telegrinder.tools.global_context import TelegrinderCtx
 
 from .abc import ABCRule

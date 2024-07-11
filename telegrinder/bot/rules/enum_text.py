@@ -26,7 +26,7 @@ class EnumTextRule(ABCRule, typing.Generic[T]):
         raise KeyError("Enumeration is undefined.")
 
     async def check(self, text: Text, ctx: Context) -> bool:
-        text = text.lower()
+        text = text.lower()  # type: ignore
         if text not in self.texts:
             return False
         ctx.enum_text = self.find(text)

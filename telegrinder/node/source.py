@@ -6,7 +6,7 @@ from fntypes import Nothing, Option
 from telegrinder.api import API
 from telegrinder.types import Chat, Message, User
 
-from .base import ComposeError, DataNode
+from .base import ComposeError, DataNode, ScalarNode
 from .callback_query import CallbackQueryNode
 from .message import MessageNode
 from .polymorphic import Polymorphic, impl
@@ -46,4 +46,16 @@ class Source(Polymorphic, DataNode):
         return result.unwrap()
 
 
-__all__ = ("Source",)
+class ChatSource(ScalarNode, Chat):
+    @classmethod
+    async def compose(cls, source: Source) -> Chat:
+        return source.chat
+
+
+class UserSource(ScalarNode, User):
+    @classmethod
+    async def compose(cls, source: Source) -> User:
+        return source.from_user
+
+
+__all__ = ("Source", "ChatSource", "UserSource")

@@ -7,6 +7,7 @@ The difference between nicifications and cure types is: cute types can borrow vi
 Nicifications can only implement methods/properties working only with model fields.
 """
 
+import pathlib
 import typing
 from datetime import datetime
 
@@ -159,6 +160,14 @@ class _InputFile(typing.NamedTuple):
 
     data: bytes
     """Bytes of file."""
+
+    @classmethod
+    def from_file(cls, path: str | pathlib.Path) -> typing.Self:
+        path = pathlib.Path(path)
+        return cls(
+            filename=path.name,
+            data=path.read_bytes(),
+        )
 
 
 class _InaccessibleMessage(InaccessibleMessage):

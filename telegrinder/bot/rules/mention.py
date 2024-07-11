@@ -1,4 +1,3 @@
-from telegrinder.bot.dispatch.context import Context
 from telegrinder.types.enums import MessageEntityType
 
 from .abc import ABCRule, Message
