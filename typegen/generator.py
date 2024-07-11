@@ -604,6 +604,10 @@ def generate(
     method_generator.generate(path_dir)
     logger.info("Schema has been successfully generated.")
 
+    logger.debug("Run sort-all...")
+    sort_all(pathlib.Path(path_dir))
+    logger.info("Sort-all successfully sorted __all__ in files.")
+
     logger.debug("Run ruff formatter...")
     if os.system(f"ruff format {path_dir}") != 0:
         logger.error("Ruff formatter failed.")
@@ -615,10 +619,6 @@ def generate(
         logger.error("ruff-isort failed.")
     else:
         logger.info("Ruff-isort successfully sorted imports.")
-
-    logger.debug("Run sort-all...")
-    sort_all(pathlib.Path(path_dir))
-    logger.info("Sort-all successfully sorted __all__ in files.")
 
 
 __all__ = (
