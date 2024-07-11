@@ -5,7 +5,7 @@ from .container import ContainerNode
 from .message import MessageNode
 from .rule import RuleChain
 from .source import Source
-from .text import Text
+from .text import Text, TextInteger
 from .tools import generate_node
 from .update import UpdateNode
 
@@ -24,6 +24,7 @@ __all__ = (
     "ScalarNode",
     "Source",
     "Text",
+    "TextInteger",
     "UpdateNode",
     "Video",
     "compose_node",

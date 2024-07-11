@@ -4,7 +4,7 @@ from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.update import UpdateCute
-from telegrinder.bot.rules.adapter.abc import ABCAdapter
+from telegrinder.bot.rules.adapter.abc import ABCAdapter, Event
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.node.base import ComposeError, Node
 from telegrinder.node.composer import NodeSession, compose_node
@@ -14,11 +14,11 @@ NodeT = typing.TypeVar("NodeT", bound=Node)
 Ts = typing.TypeVarTuple("Ts")
 
 
-class NodeAdapter(typing.Generic[*Ts], ABCAdapter[Update, tuple[*Ts]]):
+class NodeAdapter(typing.Generic[*Ts], ABCAdapter[Update, Event[tuple[*Ts]]]):
     def __init__(self, *nodes: *Ts) -> None:
         self.nodes = nodes
 
-    async def adapt(self, api: ABCAPI, update: Update) -> Result[tuple[*Ts], AdapterError]:
+    async def adapt(self, api: ABCAPI, update: Update) -> Result[Event[tuple[*Ts]], AdapterError]:
         update_cute = UpdateCute.from_update(update, api)
         node_sessions: list[NodeSession] = []
         for node_t in self.nodes:
@@ -28,4 +28,4 @@ class NodeAdapter(typing.Generic[*Ts], ABCAdapter[Update, tuple[*Ts]]):
                 for session in node_sessions:
                     await session.close(with_value=None)
                 return Error(AdapterError(f"Couldn't compose nodes, error on {node_t}"))
-        return Ok(tuple(node_sessions))  # type: ignore
+        return Ok(Event(tuple(node_sessions)))  # type: ignore

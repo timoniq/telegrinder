@@ -17,7 +17,7 @@ class InlineQueryRule(ABCRule[InlineQuery], abc.ABC):
 
     @abc.abstractmethod
     async def check(self, query: InlineQuery, ctx: Context) -> bool:
-        pass
+        ...
 
 
 class HasLocation(InlineQueryRule):

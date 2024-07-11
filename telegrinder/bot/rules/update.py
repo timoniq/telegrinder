@@ -5,7 +5,7 @@ from telegrinder.types.enums import UpdateType
 from .abc import ABCRule
 
 
-class IsUpdate(ABCRule):
+class IsUpdateType(ABCRule):
     def __init__(self, update_type: UpdateType, /) -> None:
         self.update_type = update_type
 
@@ -13,4 +13,4 @@ class IsUpdate(ABCRule):
         return event.update_type == self.update_type
 
 
-__all__ = ("IsUpdate",)
+__all__ = ("IsUpdateType",)

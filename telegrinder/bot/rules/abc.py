@@ -7,7 +7,7 @@ from telegrinder.bot.cute_types import BaseCute, MessageCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
-from telegrinder.bot.rules.adapter.node import NodeAdapter
+from telegrinder.bot.rules.adapter.node import Event
 from telegrinder.node import Node, NodeCollection, is_node
 from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_annotations, get_cached_translation
@@ -48,7 +48,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         node_col_values = node_col.values() if node_col is not None else {}
 
         for k, v in get_annotations(self.check).items():
-            if isinstance(event, v):
+            if isinstance(v, Event) or isinstance(event, v):
                 kw[k] = event
             elif is_node(v):
                 assert k in node_col_values, "Node is undefined, error while bounding"
@@ -149,23 +149,6 @@ class NotRule(ABCRule):
     async def check(self, event: Update, ctx: Context) -> bool:
         ctx_copy = ctx.copy()
         return not await check_rule(event.ctx_api, self.rule, event, ctx_copy)
-
-
-Ts = typing.TypeVarTuple("Ts")
-
-
-class NodeRule(ABCRule[tuple[*Ts]], ABC, typing.Generic[*Ts]):
-    @property
-    def adapter(self) -> NodeAdapter[*Ts]:
-        nodes = {
-            name: parameter.annotation
-            for name, parameter in inspect.signature(self.check).parameters.items()
-            if parameter.annotation is not inspect._empty
-        }
-        return NodeAdapter(*list(nodes.values()))  # type: ignore
-
-    @abstractmethod
-    async def check(self, *nodes: *Ts, ctx: Context) -> bool: ...
 
 
 __all__ = (

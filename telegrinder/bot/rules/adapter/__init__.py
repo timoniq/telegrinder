@@ -1,4 +1,4 @@
-from .abc import ABCAdapter
+from .abc import ABCAdapter, Event
 from .errors import AdapterError
 from .event import EventAdapter
 from .raw_update import RawUpdateAdapter
@@ -10,4 +10,5 @@ __all__ = (
     "EventAdapter",
     "RawUpdateAdapter",
     "UserAdapter",
+    "Event",
 )

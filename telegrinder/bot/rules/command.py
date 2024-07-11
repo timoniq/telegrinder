@@ -2,9 +2,9 @@ import dataclasses
 import typing
 
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.node import Text
 
-from .abc import Message
-from .text import TextMessageRule
+from .abc import ABCRule
 
 Validator = typing.Callable[[str], typing.Any | None]
 
@@ -29,7 +29,7 @@ class Argument:
         return data
 
 
-class Command(TextMessageRule):
+class Command(ABCRule):
     def __init__(
         self,
         names: str | typing.Iterable[str],
@@ -94,8 +94,8 @@ class Command(TextMessageRule):
 
         return None
 
-    async def check(self, message: Message, ctx: Context) -> bool:
-        text = self.remove_prefix(message.text.unwrap())
+    async def check(self, text: Text, ctx: Context) -> bool:
+        text = self.remove_prefix(text)
         if text is None:
             return False
 
