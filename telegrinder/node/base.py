@@ -18,7 +18,7 @@ class ComposeError(BaseException): ...
 
 class Node(abc.ABC):
     node: str = "node"
-    scope: NodeScope = NodeScope.PER_CALL
+    scope: NodeScope = NodeScope.PER_EVENT
 
     @classmethod
     @abc.abstractmethod
@@ -77,7 +77,10 @@ else:
         return type(
             "Scalar",
             (SCALAR_NODE,),
-            {"as_node": classmethod(lambda cls: create_node(cls, bases, dct))},
+            {
+                "as_node": classmethod(lambda cls: create_node(cls, bases, dct)),
+                "scope": Node.scope,
+            },
         )
 
     class ScalarNode(ScalarNodeProto, abc.ABC, metaclass=create_class):

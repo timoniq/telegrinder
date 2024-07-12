@@ -28,8 +28,8 @@ async def compose_node(
         else:
             context.sessions[name] = await compose_node(subnode, update, ctx)
 
-            if getattr(_node, "scope", None) is NodeScope.PER_EVENT:
-                node_ctx[_node] = context.sessions[name]
+            if getattr(subnode, "scope", None) is NodeScope.PER_EVENT:
+                node_ctx[subnode] = context.sessions[name]
 
     generator: typing.AsyncGenerator | None
 

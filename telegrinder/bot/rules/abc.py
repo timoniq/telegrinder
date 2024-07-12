@@ -67,10 +67,16 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
                 kw[k] = ctx
             else:
                 raise LookupError(
-                    f"Cannot bound {k!r} to '{self.__class__.__name__}.check()', because it cannot be resolved."
+                    f"Cannot bound {k!r} of type {v!r} to '{self.__class__.__name__}.check()', because it cannot be resolved."
                 )
 
         return await self.check(**kw)
+
+    def optional(self) -> "ABCRule":
+        return self | Always()
+
+    def should_fail(self) -> "ABCRule":
+        return self & Never()
 
     def __init_subclass__(cls, requires: list["ABCRule"] | None = None) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
@@ -161,10 +167,22 @@ class NotRule(ABCRule):
         return not await check_rule(event.ctx_api, self.rule, event, ctx_copy)
 
 
+class Never(ABCRule):
+    async def check(self) -> typing.Literal[False]:
+        return False
+
+
+class Always(ABCRule):
+    async def check(self) -> typing.Literal[True]:
+        return True
+
+
 __all__ = (
     "ABCRule",
     "AndRule",
     "NotRule",
     "OrRule",
     "with_caching_translations",
+    "Never",
+    "Always",
 )
