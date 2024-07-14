@@ -8,7 +8,7 @@ from .client import wm
 dp = Dispatch()
 
 
-class Commands(RuleEnum[Message]):
+class Commands(RuleEnum):
     PLAY = Text(["/play", "/game"])
     GET_PRESENTS = Text("/get_presents")
     COMMIT_SUICIDE = Markup(["/suicide", "/suicide <reason>"])
