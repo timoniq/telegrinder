@@ -1,4 +1,5 @@
 import abc
+import dataclasses
 import typing
 
 from fntypes.result import Result
@@ -17,8 +18,9 @@ class ABCAdapter(abc.ABC, typing.Generic[From, To]):
         pass
 
 
+@dataclasses.dataclass
 class Event(typing.Generic[To]):
-    def __init__(self, obj: To) -> None:
-        self.obj = obj
+    obj: To
+
 
 __all__ = ("ABCAdapter", "Event")

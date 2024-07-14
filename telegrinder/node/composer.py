@@ -84,6 +84,9 @@ class NodeSession:
         self.subnodes = subnodes
         self.generator = generator
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}: {self.value}" + ("ACTIVE>" if self.generator else ">")
+
     async def close(
         self,
         with_value: typing.Any | None = None,
@@ -101,9 +104,6 @@ class NodeSession:
             await self.generator.asend(with_value)
         except StopAsyncIteration:
             self.generator = None
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}: {self.value}" + ("ACTIVE>" if self.generator else ">")
 
 
 class NodeCollection:

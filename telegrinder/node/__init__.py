@@ -5,7 +5,7 @@ from .container import ContainerNode
 from .message import MessageNode
 from .rule import RuleChain
 from .scope import PER_CALL, PER_EVENT, NodeScope, per_call, per_event
-from .source import Source
+from .source import ChatSource, Source, UserSource
 from .text import Text, TextInteger
 from .tools import generate_node
 from .update import UpdateNode
@@ -13,6 +13,7 @@ from .update import UpdateNode
 __all__ = (
     "Attachment",
     "Audio",
+    "ChatSource",
     "ComposeError",
     "ContainerNode",
     "DataNode",
@@ -26,6 +27,7 @@ __all__ = (
     "Source",
     "Text",
     "TextInteger",
+    "UserSource",
     "UpdateNode",
     "Video",
     "compose_node",

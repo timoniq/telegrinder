@@ -39,7 +39,8 @@ from .utils import (
 if typing.TYPE_CHECKING:
     from datetime import datetime
 
-    from .callback_query import CallbackQueryCute
+    from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
+
 
 MediaType: typing.TypeAlias = typing.Literal[
     "animation",
@@ -48,12 +49,7 @@ MediaType: typing.TypeAlias = typing.Literal[
     "photo",
     "video",
 ]
-ReplyMarkup: typing.TypeAlias = typing.Union[
-    InlineKeyboardMarkup,
-    ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
-    ForceReply,
-]
+ReplyMarkup: typing.TypeAlias = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 
 
 async def execute_method_answer(
@@ -84,9 +80,9 @@ async def execute_method_answer(
             x
             if isinstance(x, bool)
             else (
-                MessageCute.from_update(x, bound_api=message.api)
+                message.from_update(x, bound_api=message.api)
                 if not isinstance(x, list)
-                else [MessageCute.from_update(m, bound_api=message.api) for m in x]
+                else [message.from_update(m, bound_api=message.api) for m in x]
             )
         )
     )
@@ -124,12 +120,14 @@ async def execute_method_edit(
             ),
         },
     )
+
     if "inline_message_id" in params:
         params.pop("message_id", None)
         params.pop("chat_id", None)
+
     result = await getattr(update.ctx_api, method_name)(**params)
     return result.map(
-        lambda v: Variative[MessageCute, bool](
+        lambda v: Variative["MessageCute", bool](
             v.only()
             .map(
                 lambda x: MessageCute.from_update(x, bound_api=update.api),
@@ -183,7 +181,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_message",
         executor=execute_method_answer,
-        custom_params={"link_preview_options", "reply_parameters", "message_thread_id"},
+        custom_params={"link_preview_options", "reply_parameters", "message_thread_id", "chat_id", "text"},
     )
     async def answer(
         self,
@@ -242,7 +240,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_message",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id", "message_id"},
     )
     async def reply(
         self,
@@ -299,7 +297,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         ...
 
-    @shortcut("delete_message", custom_params={"message_thread_id"})
+    @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def delete(
         self,
         chat_id: int | None = None,
@@ -340,7 +338,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "edit_message_text",
         executor=execute_method_edit,
-        custom_params={"link_preview_options", "message_thread_id"},
+        custom_params={"link_preview_options", "message_thread_id", "message_id"},
     )
     async def edit(
         self,
@@ -385,7 +383,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     @shortcut(
         "copy_message",
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id", "message_id", "from_chat_id"},
     )
     async def copy(
         self,
@@ -461,7 +459,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     @shortcut(
         "set_message_reaction",
-        custom_params={"message_thread_id"},
+        custom_params={"message_thread_id", "reaction", "chat_id", "message_id"},
     )
     async def react(
         self,
@@ -510,7 +508,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             )
         return await self.ctx_api.set_message_reaction(**params)
 
-    @shortcut("forward_message", custom_params={"message_thread_id"})
+    @shortcut("forward_message", custom_params={"message_thread_id", "from_chat_id", "message_id"})
     async def forward(
         self,
         chat_id: int | str,
@@ -556,7 +554,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             lambda message: MessageCute.from_update(message, bound_api=self.api),
         )
 
-    @shortcut("pin_chat_message", custom_params={"message_thread_id"})
+    @shortcut("pin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def pin(
         self,
         chat_id: int | str | None = None,
@@ -594,7 +592,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         )
         return await self.ctx_api.pin_chat_message(**params)
 
-    @shortcut("unpin_chat_message", custom_params={"message_thread_id"})
+    @shortcut("unpin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def unpin(
         self,
         chat_id: int | str | None = None,
@@ -628,7 +626,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_audio",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_audio(
         self,
@@ -712,7 +710,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_animation",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_animation(
         self,
@@ -801,7 +799,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_document",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_document(
         self,
@@ -882,7 +880,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_photo",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_photo(
         self,
@@ -953,7 +951,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_sticker",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_sticker(
         self,
@@ -1010,11 +1008,11 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_video",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_video(
         self,
-        sticker: InputFile | str,
+        video: InputFile | str,
         chat_id: int | str | None = None,
         emoji: str | None = None,
         message_thread_id: int | None = None,
@@ -1094,7 +1092,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_video_note",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_video_note(
         self,
@@ -1162,7 +1160,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_voice",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_voice(
         self,
@@ -1231,7 +1229,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_poll",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_poll(
         self,
@@ -1333,7 +1331,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_venue",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_venue(
         self,
@@ -1404,7 +1402,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_dice",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_dice(
         self,
@@ -1455,15 +1453,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_game",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_game(
         self,
+        game_short_name: str,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         message_effect_id: str | None = None,
-        game_short_name: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
@@ -1502,18 +1500,18 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_invoice",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_invoice(
         self,
         title: str,
         description: str,
         payload: str,
-        provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
+        provider_token: str | None = None,
         message_thread_id: int | None = None,
         message_effect_id: str | None = None,
         max_tip_amount: int | None = None,
@@ -1626,7 +1624,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_chat_action",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_chat_action(
         self,
@@ -1734,7 +1732,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_location",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_location(
         self,
@@ -1800,7 +1798,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_contact",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def answer_contact(
         self,
@@ -1857,7 +1855,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_audio",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_audio(
         self,
@@ -1941,7 +1939,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_animation",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_animation(
         self,
@@ -2030,7 +2028,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_document",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_document(
         self,
@@ -2111,7 +2109,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_photo",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_photo(
         self,
@@ -2182,7 +2180,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_sticker",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_sticker(
         self,
@@ -2239,7 +2237,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_video",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_video(
         self,
@@ -2321,7 +2319,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_video_note",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_video_note(
         self,
@@ -2389,7 +2387,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_voice",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_voice(
         self,
@@ -2458,7 +2456,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_poll",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_poll(
         self,
@@ -2560,7 +2558,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_venue",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_venue(
         self,
@@ -2631,7 +2629,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_dice",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_dice(
         self,
@@ -2682,15 +2680,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_game",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_game(
         self,
+        game_short_name: str,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         message_effect_id: str | None = None,
-        game_short_name: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
@@ -2729,19 +2727,19 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_invoice",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_invoice(
         self,
         title: str,
         description: str,
         payload: str,
-        provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
+        provider_token: str | None = None,
         message_effect_id: str | None = None,
         max_tip_amount: int | None = None,
         suggested_tip_amounts: list[int] | None = None,
@@ -2855,6 +2853,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={
             "media",
             "reply_parameters",
+            "chat_id",
             "message_thread_id",
             "caption",
             "caption_entities",
@@ -2918,7 +2917,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_location",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_location(
         self,
@@ -2984,7 +2983,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_contact",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
     )
     async def reply_contact(
         self,
@@ -3041,7 +3040,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "edit_message_live_location",
         executor=execute_method_edit,
-        custom_params={"message_thread_id"},
+        custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_live_location(
         self,
@@ -3103,7 +3102,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "edit_message_caption",
         executor=execute_method_edit,
-        custom_params={"message_thread_id"},
+        custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_caption(
         self,
@@ -3153,6 +3152,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             "type",
             "message_thread_id",
             "caption",
+            "chat_id",
+            "message_id",
             "parse_mode",
             "caption_entities",
         },
@@ -3221,7 +3222,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "edit_message_reply_markup",
         executor=execute_method_edit,
-        custom_params={"message_thread_id"},
+        custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_reply_markup(
         self,

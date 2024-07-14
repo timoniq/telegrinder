@@ -84,7 +84,6 @@ def ctx_var(value: T, *, const: bool = False) -> T:
 @dataclasses.dataclass(frozen=True, eq=False)
 class RootAttr:
     name: str
-    _: dataclasses.KW_ONLY
     can_be_read: bool = dataclasses.field(default=True, kw_only=True)
     can_be_rewritten: bool = dataclasses.field(default=False, kw_only=True)
 

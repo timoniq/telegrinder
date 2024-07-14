@@ -19,13 +19,13 @@ FuncCatcher = typing.Callable[typing.Concatenate[ExceptionT, ...], typing.Awaita
 @dataclasses.dataclass(frozen=True, repr=False)
 class Catcher(typing.Generic[EventT]):
     func: FuncCatcher[BaseException]
-    _: dataclasses.KW_ONLY
     exceptions: list[type[BaseException] | BaseException] = dataclasses.field(
         default_factory=lambda: [],
+        kw_only=True,
     )
-    logging: bool = dataclasses.field(default=False)
-    raise_exception: bool = dataclasses.field(default=False)
-    ignore_errors: bool = dataclasses.field(default=False)
+    logging: bool = dataclasses.field(default=False, kw_only=True)
+    raise_exception: bool = dataclasses.field(default=False, kw_only=True)
+    ignore_errors: bool = dataclasses.field(default=False, kw_only=True)
 
     def __repr__(self) -> str:
         return "<Catcher: function={!r}, logging={}, raise_exception={}, ignore_errors={}>".format(

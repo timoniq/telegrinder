@@ -12,7 +12,7 @@ from .message import MessageNode
 from .polymorphic import Polymorphic, impl
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class Source(Polymorphic, DataNode):
     api: API
     chat: Chat

@@ -13,12 +13,19 @@ from .message import MessageNode
 @dataclasses.dataclass
 class Attachment(DataNode):
     attachment_type: typing.Literal["audio", "document", "photo", "poll", "video"]
-    _: dataclasses.KW_ONLY
-    audio: Option[telegrinder.types.Audio] = dataclasses.field(default_factory=lambda: Nothing())
-    document: Option[telegrinder.types.Document] = dataclasses.field(default_factory=lambda: Nothing())
-    photo: Option[list[telegrinder.types.PhotoSize]] = dataclasses.field(default_factory=lambda: Nothing())
-    poll: Option[telegrinder.types.Poll] = dataclasses.field(default_factory=lambda: Nothing())
-    video: Option[telegrinder.types.Video] = dataclasses.field(default_factory=lambda: Nothing())
+    audio: Option[telegrinder.types.Audio] = dataclasses.field(
+        default_factory=lambda: Nothing(), kw_only=True
+    )
+    document: Option[telegrinder.types.Document] = dataclasses.field(
+        default_factory=lambda: Nothing(), kw_only=True
+    )
+    photo: Option[list[telegrinder.types.PhotoSize]] = dataclasses.field(
+        default_factory=lambda: Nothing(), kw_only=True
+    )
+    poll: Option[telegrinder.types.Poll] = dataclasses.field(default_factory=lambda: Nothing(), kw_only=True)
+    video: Option[telegrinder.types.Video] = dataclasses.field(
+        default_factory=lambda: Nothing(), kw_only=True
+    )
 
     @classmethod
     async def compose(cls, message: MessageNode) -> "Attachment":

@@ -18,6 +18,13 @@ class NodeAdapter(typing.Generic[*Ts], ABCAdapter[Update, Event[tuple[*Ts]]]):
     def __init__(self, *nodes: *Ts) -> None:
         self.nodes = nodes
 
+    def __repr__(self) -> str:
+        return "<{}: adapt Update -> {}>".format(
+            self.__class__.__name__,
+            Update.__name__,
+            ", ".join(node.__name__ for node in self.nodes),  # type: ignore
+        )
+
     async def adapt(self, api: ABCAPI, update: Update) -> Result[Event[tuple[*Ts]], AdapterError]:
         update_cute = UpdateCute.from_update(update, api)
         node_sessions: list[NodeSession] = []

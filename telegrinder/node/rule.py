@@ -13,6 +13,24 @@ class RuleChain(dict[str, typing.Any]):
     dataclass = dict
     rules: tuple["ABCRule", ...] = ()
 
+    def __init_subclass__(cls) -> None:
+        if cls.__name__ == "_RuleNode":
+            return
+        cls.dataclass = cls.generate_node_dataclass(cls)
+
+    def __new__(cls, *rules: "ABCRule") -> type[Node]:
+        return type("_RuleNode", (cls,), {"dataclass": dict, "rules": rules})  # type: ignore
+
+    def __class_getitem__(cls, items: typing.Union[tuple["ABCRule", ...], "ABCRule"]) -> typing.Self:
+        if not isinstance(items, tuple):
+            items = (items,)
+        assert all(isinstance(rule, "ABCRule") for rule in items), "All items must be instances of 'ABCRule'."
+        return cls(*items)
+
+    @staticmethod
+    def generate_node_dataclass(cls_: type["RuleChain"]):  # noqa: ANN205
+        return dataclasses.dataclass(type(cls_.__name__, (object,), dict(cls_.__dict__)))
+
     @classmethod
     async def compose(cls, update: UpdateNode):
         from telegrinder.bot.dispatch.process import check_rule
@@ -37,24 +55,6 @@ class RuleChain(dict[str, typing.Any]):
     @classmethod
     def is_generator(cls) -> typing.Literal[False]:
         return False
-
-    def __new__(cls, *rules: "ABCRule") -> type[Node]:
-        return type("_RuleNode", (cls,), {"dataclass": dict, "rules": rules})  # type: ignore
-
-    def __class_getitem__(cls, items: typing.Union[tuple["ABCRule", ...], "ABCRule"]) -> typing.Self:
-        if not isinstance(items, tuple):
-            items = (items,)
-        assert all(isinstance(rule, "ABCRule") for rule in items), "All items must be instances of 'ABCRule'."
-        return cls(*items)
-
-    @staticmethod
-    def generate_node_dataclass(cls_: type["RuleChain"]):  # noqa: ANN205
-        return dataclasses.dataclass(type(cls_.__name__, (object,), dict(cls_.__dict__)))
-
-    def __init_subclass__(cls) -> None:
-        if cls.__name__ == "_RuleNode":
-            return
-        cls.dataclass = cls.generate_node_dataclass(cls)
 
 
 __all__ = ("RuleChain",)

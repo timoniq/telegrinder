@@ -61,3 +61,6 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
         """
 
         ...
+
+
+__all__ = ("ChatJoinRequestCute",)

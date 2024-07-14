@@ -82,7 +82,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
         self.__dict__["cached_callback_data"] = data
         return data
 
-    @shortcut("answer_callback_query")
+    @shortcut("answer_callback_query", custom_params={"callback_query_id"})
     async def answer(
         self,
         text: str | None = None,
@@ -123,7 +123,14 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
 
     @shortcut(
         "copy_message",
-        custom_params={"reply_parameters", "message_thread_id"},
+        custom_params={
+            "reply_parameters",
+            "message_thread_id",
+            "chat_id",
+            "message_id",
+            "from_chat_id",
+            "reply_markup",
+        },
     )
     async def copy(
         self,
@@ -182,7 +189,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, di
 
         return await MessageCute.copy(self, **get_params(locals()))  # type: ignore
 
-    @shortcut("delete_message", custom_params={"message_thread_id"})
+    @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def delete(
         self,
         chat_id: int | None = None,

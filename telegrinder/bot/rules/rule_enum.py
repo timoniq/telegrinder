@@ -3,26 +3,26 @@ import typing
 
 from telegrinder.bot.dispatch.context import Context
 
-from .abc import ABCRule, AdaptTo, Update, check_rule
+from .abc import ABCRule, Update, check_rule
 from .func import FuncRule
 
 
 @dataclasses.dataclass
-class RuleEnumState(typing.Generic[AdaptTo]):
+class RuleEnumState:
     name: str
     rule: ABCRule
-    cls: type["RuleEnum[AdaptTo]"]
+    cls: type["RuleEnum"]
 
     def __eq__(self, other: typing.Self) -> bool:
         return self.cls == other.cls and self.name == other.name
 
 
-class RuleEnum(ABCRule[AdaptTo]):
-    __enum__: list[RuleEnumState[AdaptTo]]
+class RuleEnum(ABCRule):
+    __enum__: list[RuleEnumState]
 
     def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
         new_attributes = set(cls.__dict__) - set(RuleEnum.__dict__) - {"__enum__", "__init__"}
-        enum_lst: list[RuleEnumState[AdaptTo]] = []
+        enum_lst: list[RuleEnumState] = []
 
         self = cls.__new__(cls)
         self.__init__()
@@ -41,15 +41,15 @@ class RuleEnum(ABCRule[AdaptTo]):
         setattr(cls, "__enum__", enum_lst)
 
     @classmethod
-    def save_state(cls, ctx: Context, enum: RuleEnumState[AdaptTo]) -> None:
+    def save_state(cls, ctx: Context, enum: RuleEnumState) -> None:
         ctx.update({cls.__class__.__name__ + "_state": enum})
 
     @classmethod
-    def check_state(cls, ctx: Context) -> RuleEnumState[AdaptTo] | None:
+    def check_state(cls, ctx: Context) -> RuleEnumState | None:
         return ctx.get(cls.__class__.__name__ + "_state")
 
     @classmethod
-    def must_be_state(cls, ctx: Context, state: RuleEnumState[AdaptTo]) -> bool:
+    def must_be_state(cls, ctx: Context, state: RuleEnumState) -> bool:
         real_state = cls.check_state(ctx)
         if not real_state:
             return False

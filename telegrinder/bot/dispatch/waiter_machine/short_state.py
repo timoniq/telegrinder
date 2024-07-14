@@ -30,15 +30,15 @@ class ShortState(typing.Generic[EventModel]):
     ctx_api: ABCAPI
     event: asyncio.Event
     rules: tuple[ABCRule, ...]
-    _: dataclasses.KW_ONLY
     expiration: dataclasses.InitVar[datetime.timedelta | None] = dataclasses.field(
         default=None,
+        kw_only=True,
     )
-    default_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None)
-    on_drop_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None)
-    exit_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None)
-    expiration_date: datetime.datetime | None = dataclasses.field(init=False)
-    context: ShortStateContext[EventModel] | None = dataclasses.field(default=None, init=False)
+    default_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None, kw_only=True)
+    on_drop_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None, kw_only=True)
+    exit_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None, kw_only=True)
+    expiration_date: datetime.datetime | None = dataclasses.field(init=False, kw_only=True)
+    context: ShortStateContext[EventModel] | None = dataclasses.field(default=None, init=False, kw_only=True)
 
     def __post_init__(self, expiration: datetime.timedelta | None = None) -> None:
         self.creation_date = datetime.datetime.now()

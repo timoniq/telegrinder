@@ -244,3 +244,9 @@ class ChatMemberUpdatedCute(
     @property
     def user_id(self) -> int:
         return self.from_user.id
+
+
+__all__ = (
+    "ChatMemberUpdatedCute",
+    "ChatMemberShortcuts",
+)

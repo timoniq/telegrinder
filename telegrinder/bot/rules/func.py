@@ -7,7 +7,7 @@ from telegrinder.types import Update
 from .abc import ABCAdapter, ABCRule, AdaptTo, RawUpdateAdapter
 
 
-class FuncRule(ABCRule[AdaptTo], typing.Generic[AdaptTo]):
+class FuncRule(ABCRule, typing.Generic[AdaptTo]):
     def __init__(
         self,
         func: typing.Callable[[AdaptTo, Context], typing.Awaitable[bool] | bool],

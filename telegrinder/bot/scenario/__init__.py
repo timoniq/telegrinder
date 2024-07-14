@@ -1,5 +1,5 @@
 from .abc import ABCScenario
-from .checkbox import Checkbox, Choice
+from .checkbox import Checkbox
 from .choice import Choice
 
-__all__ = ("ABCScenario", "Checkbox", "Choice", "Choice")
+__all__ = ("ABCScenario", "Checkbox", "Choice")

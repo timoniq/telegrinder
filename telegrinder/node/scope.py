@@ -4,7 +4,6 @@ import typing
 if typing.TYPE_CHECKING:
     from .base import Node
 
-
 T = typing.TypeVar("T", bound=type["Node"])
 
 
@@ -25,3 +24,6 @@ def per_call(node: T) -> T:
 def per_event(node: T) -> T:
     setattr(node, "scope", PER_EVENT)
     return node
+
+
+__all__ = ("NodeScope", "PER_EVENT", "PER_CALL", "per_call", "per_event")

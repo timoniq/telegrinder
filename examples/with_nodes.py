@@ -27,7 +27,7 @@ async def promote(user_id: int, *, db: DB) -> None:
 
 
 @bot.on.message(IsChat())
-async def photo_in_chat_handler(message: Message, p: node.Photo):
+async def photo_in_chat_handler(message: Message, p: node.Photo) -> None:
     photo_size = p.sizes[-1]
     await message.answer("Photo ratio H/W: {}".format(photo_size.height / photo_size.width))
 
@@ -67,7 +67,6 @@ async def add_admin_handler(message: Message, db: DB) -> str | None:
 
 @bot.on.message(Markup("/getadmin <token>"))
 async def getadmin_handler(message: Message, token: str, db: DB) -> str:
-    print(token)
     if token != api.token:
         return "Wrong token"
     await promote(message.from_user.id, db=db)

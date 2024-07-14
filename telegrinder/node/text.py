@@ -4,10 +4,10 @@ from .message import MessageNode
 
 class Text(ScalarNode, str):
     @classmethod
-    async def compose(cls, message: MessageNode) -> "Text":
+    async def compose(cls, message: MessageNode) -> str:
         if not message.text:
             raise ComposeError("Message has no text")
-        return Text(message.text.unwrap())
+        return message.text.unwrap()
 
 
 class TextInteger(ScalarNode, int):
