@@ -1,7 +1,6 @@
 import asyncio
 import contextlib
 import dataclasses
-import traceback
 import typing
 
 from telegrinder.modules import logger
@@ -52,8 +51,7 @@ class DelayedTask(typing.Generic[CoroFunc]):
             try:
                 await self.handler(*args, **kwargs)
             except Exception as e:
-                logger.error("Error in task %s", str(e))
-                traceback.print_exc()
+                logger.exception("Error in delayed task: {}", str(e))
             if not self.repeat:
                 break
 

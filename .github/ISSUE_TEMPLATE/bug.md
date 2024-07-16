@@ -13,9 +13,8 @@ assignees: "luwqz1"
 
 ### ✏️ Description ✏️
 <!-- Describe the bug. -->
-```
-When I..., it...
-```
+_No response_
+
 
 ### 🪄 Code example 🪄
 <!--  Provide a minimal example. -->
@@ -25,8 +24,7 @@ from telegrinder import ...
 
 ### 📝 Logs 📝
 <!-- Provide logs/errors to review the issue. -->
-```
+```console
 Traceback (most recent call last):
 File "main.py", line 1, in <module>
-...
 ```

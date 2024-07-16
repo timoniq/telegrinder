@@ -19,7 +19,8 @@ T = typing.TypeVar("T")
 
 Identificator: typing.TypeAlias = str | int
 Storage: typing.TypeAlias = dict[str, LimitedDict[Identificator, ShortState[EventModel]]]
-WEEK = datetime.timedelta(days=7)
+
+WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
 
 
 class WaiterMachine:
@@ -78,7 +79,6 @@ class WaiterMachine:
 
         api: ABCAPI
         key: Identificator
-        api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
         api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
         if not key:
             raise RuntimeError("Unable to get state key.")

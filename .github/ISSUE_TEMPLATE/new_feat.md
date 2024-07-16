@@ -10,9 +10,8 @@ assignees: "luwqz1"
 
 **✏️ New feature description ✏️**
 <!-- A clear and concise description. -->
-```
-No response
-```
+_No response_
+
 
 **🪄 Provide a minimal example 🪄**
 <!-- A small code sample that will demonstrate your feature. -->
@@ -22,6 +21,4 @@ from telegrinder import ...
 
 **✨ Teachability, Documentation, Adoption ✨**
 <!-- If you can, explain how users will be able to use this and possibly write out a version the docs. -->
-```
-No response
-```
+_No response_
