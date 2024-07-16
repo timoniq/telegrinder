@@ -1,6 +1,7 @@
 import asyncio
 import contextlib
 import dataclasses
+import traceback
 import typing
 
 from telegrinder.modules import logger
@@ -48,7 +49,11 @@ class DelayedTask(typing.Generic[CoroFunc]):
             await asyncio.sleep(self.seconds)
             if self.is_cancelled:
                 break
-            await self.handler(*args, **kwargs)
+            try:
+                await self.handler(*args, **kwargs)
+            except Exception as e:
+                logger.error("Error in task %s", str(e))
+                traceback.print_exc()
             if not self.repeat:
                 break
 
