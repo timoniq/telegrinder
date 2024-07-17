@@ -3,12 +3,12 @@ import typing
 
 import fntypes
 
-from telegrinder.bot.dispatch.context import Context
-from telegrinder.node.text import Text
 from telegrinder import logger
+from telegrinder.bot.dispatch.context import Context
+from telegrinder.node import Source
+from telegrinder.node.text import Text
 
 from .abc import ABCRule
-from telegrinder.node import Source
 
 Validator = typing.Callable[[str], typing.Any | None]
 
@@ -20,7 +20,7 @@ def single_split(s: str, separator: str) -> tuple[str, str]:
 
 def cut_mention(text: str) -> tuple[str, str | None]:
     spl = text.split("@")
-    if len(spl) > 1:
+    if len(spl) == 2:  # i think it's okay cause smth like "/cmd@@my_bot" musn't be correct
         return spl[0], spl[1]
     return spl[0], None
 
