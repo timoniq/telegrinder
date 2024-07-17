@@ -94,12 +94,18 @@ class Command(ABCRule):
 
         return None
 
+    def ignore_mention(self, text: str) -> str:
+        # "cmd@name_bot" always results in "cmd"
+        spl = text.split("@")
+        return spl[0]
+
     async def check(self, text: Text, ctx: Context) -> bool:
         text = self.remove_prefix(text)  # type: ignore
         if text is None:
             return False
 
         name, arguments = single_split(text, self.separator)
+        name = self.ignore_mention(name)
         if name not in self.names:
             return False
 
