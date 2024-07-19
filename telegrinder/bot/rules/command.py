@@ -3,26 +3,15 @@ import typing
 
 import fntypes
 
-from telegrinder import logger
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.modules import logger
 from telegrinder.node import Source
-from telegrinder.node.text import Text
+from telegrinder.node.command import CommandNode, single_split
 
+from ...types import ChatType
 from .abc import ABCRule
 
 Validator = typing.Callable[[str], typing.Any | None]
-
-
-def single_split(s: str, separator: str) -> tuple[str, str]:
-    left, *right = s.split(separator, 1)
-    return left, (right[0] if right else "")
-
-
-def cut_mention(text: str) -> tuple[str, str | None]:
-    spl = text.split("@")
-    if len(spl) == 2:  # i think it's okay cause smth like "/cmd@@my_bot" musn't be correct
-        return spl[0], spl[1]
-    return spl[0], None
 
 
 @dataclasses.dataclass(frozen=True)
@@ -48,8 +37,9 @@ class Command(ABCRule):
             *arguments: Argument,
             prefixes: tuple[str, ...] = ("/",),
             separator: str = " ",
-            validate_mention: bool = True,
             lazy: bool = False,
+            validate_mention: bool = True,
+            mention_needed_in_chat: bool = True,
     ) -> None:
         self.names = [names] if isinstance(names, str) else names
         self.arguments = arguments
@@ -57,6 +47,10 @@ class Command(ABCRule):
         self.separator = separator
         self.lazy = lazy
         self.validate_mention = validate_mention
+
+        # if true then we'll check a mention's existence when message is from a group
+        # by default it's true cause this is telegram's convention
+        self.mention_needed_in_chat = mention_needed_in_chat
 
     def remove_prefix(self, text: str) -> str | None:
         for prefix in self.prefixes:
@@ -108,31 +102,32 @@ class Command(ABCRule):
 
         return None
 
-    async def check(self, text: Text, src: Source, ctx: Context) -> bool:
-        text = self.remove_prefix(text)  # type: ignore
-        if text is None:
-            return False
 
-        name, arguments = single_split(text, self.separator)
-        name, mention = cut_mention(name)
+    async def check(self, command: CommandNode, src: Source, ctx: Context) -> bool:
+        name = self.remove_prefix(command.name)
+        if name is None:
+            return False
 
         if name not in self.names:
             return False
 
-        if mention is not None and self.validate_mention:
+        if not command.mention and self.mention_needed_in_chat and src.chat.type is not ChatType.PRIVATE:
+            return False
+
+        if command.mention and self.validate_mention:
             me = await src.api.get_me()
             match me:
                 case fntypes.Ok(res):
-                    if res.username and mention.lower() != res.username.lower():
+                    if res.username.unwrap() and command.mention.unwrap().lower() != res.username.unwrap().lower():  # noqa
                         return False
                 case fntypes.Error(err):
                     logger.error(err)
                     return False
 
         if not self.arguments:
-            return not arguments
+            return not command.arguments
 
-        result = self.parse_arguments(list(self.arguments), arguments)
+        result = self.parse_arguments(list(self.arguments), command.arguments)
         if result is None:
             return False
 
