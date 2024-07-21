@@ -19,8 +19,9 @@ jobs:
 
         - name: Install poetry
           run: >
-            pip install --upgrade pip setuptools wheel pipx
-            pipx install poetry
+            python3 -m pip install --upgrade pip setuptools wheel
+            python3 -m pip install --user pipx
+            python3 -m pipx install poetry
 
         - name: Install depends
           run: poetry install
