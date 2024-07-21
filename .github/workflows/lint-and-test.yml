@@ -15,7 +15,7 @@ jobs:
 
         - name: Install poetry
           run: >
-            pip install pipx
+            pip install --user pipx
             pipx install poetry
 
         - name: Poetry check structure
