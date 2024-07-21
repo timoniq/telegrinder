@@ -1,5 +1,6 @@
 import typing
 
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import ComposeError, Node
@@ -23,6 +24,8 @@ async def compose_node(
             context.sessions[name] = node_ctx[subnode]
         elif subnode is UpdateCute:
             context.sessions[name] = NodeSession(None, update, {})
+        elif subnode is API:
+            context.sessions[name] = NodeSession(None, update.ctx_api, {})
         elif subnode is Context:
             context.sessions[name] = NodeSession(None, ctx, {})
         else:
@@ -57,14 +60,21 @@ async def compose_nodes(
             if scope is NodeScope.PER_EVENT and node_t in node_ctx:
                 nodes[name] = node_ctx[node_t]
                 continue
+            elif scope is NodeScope.GLOBAL and hasattr(node_t, "_value"):
+                nodes[name] = getattr(node_t, "_value")
+                continue
 
             nodes[name] = await compose_node(
                 node_t,
                 update,
                 ctx,
             )
+
             if scope is NodeScope.PER_EVENT:
                 node_ctx[node_t] = nodes[name]
+            elif scope is NodeScope.GLOBAL:
+                setattr(node_t, "_value", nodes[name])
+
         except ComposeError:
             await NodeCollection(nodes).close_all()
             return None

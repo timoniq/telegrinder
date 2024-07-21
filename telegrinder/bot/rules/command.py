@@ -1,12 +1,10 @@
 import dataclasses
 import typing
 
-import fntypes
-
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.modules import logger
 from telegrinder.node import Source
-from telegrinder.node.command import CommandNode, single_split
+from telegrinder.node.command import CommandInfo, single_split
+from telegrinder.node.me import Me
 
 from ...types import ChatType
 from .abc import ABCRule
@@ -32,14 +30,14 @@ class Argument:
 
 class Command(ABCRule):
     def __init__(
-            self,
-            names: str | typing.Iterable[str],
-            *arguments: Argument,
-            prefixes: tuple[str, ...] = ("/",),
-            separator: str = " ",
-            lazy: bool = False,
-            validate_mention: bool = True,
-            mention_needed_in_chat: bool = True,
+        self,
+        names: str | typing.Iterable[str],
+        *arguments: Argument,
+        prefixes: tuple[str, ...] = ("/",),
+        separator: str = " ",
+        lazy: bool = False,
+        validate_mention: bool = True,
+        mention_needed_in_chat: bool = False,
     ) -> None:
         self.names = [names] if isinstance(names, str) else names
         self.arguments = arguments
@@ -48,8 +46,7 @@ class Command(ABCRule):
         self.lazy = lazy
         self.validate_mention = validate_mention
 
-        # if true then we'll check a mention's existence when message is from a group
-        # by default it's true cause this is telegram's convention
+        # if true then we'll check for mention when message is from a group
         self.mention_needed_in_chat = mention_needed_in_chat
 
     def remove_prefix(self, text: str) -> str | None:
@@ -59,11 +56,11 @@ class Command(ABCRule):
         return None
 
     def parse_argument(
-            self,
-            arguments: list[Argument],
-            data_s: str,
-            new_s: str,
-            s: str,
+        self,
+        arguments: list[Argument],
+        data_s: str,
+        new_s: str,
+        s: str,
     ) -> dict | None:
         argument = arguments[0]
         data = argument.check(data_s)
@@ -102,8 +99,7 @@ class Command(ABCRule):
 
         return None
 
-
-    async def check(self, command: CommandNode, src: Source, ctx: Context) -> bool:
+    async def check(self, command: CommandInfo, me: Me, src: Source, ctx: Context) -> bool:
         name = self.remove_prefix(command.name)
         if name is None:
             return False
@@ -114,15 +110,9 @@ class Command(ABCRule):
         if not command.mention and self.mention_needed_in_chat and src.chat.type is not ChatType.PRIVATE:
             return False
 
-        if command.mention and self.validate_mention:
-            me = await src.api.get_me()
-            match me:
-                case fntypes.Ok(res):
-                    if res.username.unwrap() and command.mention.unwrap().lower() != res.username.unwrap().lower():  # noqa
-                        return False
-                case fntypes.Error(err):
-                    logger.error(err)
-                    return False
+        if command.mention and self.validate_mention:  # noqa
+            if command.mention.unwrap().lower() != me.username.unwrap().lower():
+                return False
 
         if not self.arguments:
             return not command.arguments

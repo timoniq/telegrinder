@@ -8,12 +8,14 @@ T = typing.TypeVar("T", bound=type["Node"])
 
 
 class NodeScope(enum.Enum):
+    GLOBAL = enum.auto()
     PER_EVENT = enum.auto()
     PER_CALL = enum.auto()
 
 
 PER_EVENT = NodeScope.PER_EVENT
 PER_CALL = NodeScope.PER_CALL
+GLOBAL = NodeScope.GLOBAL
 
 
 def per_call(node: T) -> T:
@@ -26,4 +28,9 @@ def per_event(node: T) -> T:
     return node
 
 
-__all__ = ("NodeScope", "PER_EVENT", "PER_CALL", "per_call", "per_event")
+def global_node(node: T) -> T:
+    setattr(node, "scope", GLOBAL)
+    return node
+
+
+__all__ = ("NodeScope", "PER_EVENT", "PER_CALL", "per_call", "per_event", "global_node", "GLOBAL")
