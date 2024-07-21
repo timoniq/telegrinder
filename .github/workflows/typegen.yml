@@ -18,10 +18,7 @@ jobs:
             python-version: "3.11"
 
         - name: Install poetry
-          run:
-            - pip install --upgrade pip setuptools wheel
-            - pip install --user pipx
-            - pipx install poetry
+          run: pip install --upgrade pip setuptools wheel && pip install --user pipx && pipx install poetry
 
         - name: Install depends
           run: poetry install
