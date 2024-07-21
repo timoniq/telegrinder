@@ -14,10 +14,10 @@ jobs:
             python-version: "3.11"
 
         - name: Install poetry
-          run: >
-            python3 -m pip install --upgrade pip setuptools wheel
-            python3 -m pip install --user pipx
-            python3 -m pipx install poetry
+          run:
+            - pip install --upgrade pip setuptools wheel
+            - pip install --user pipx
+            - pipx install poetry
 
         - name: Poetry check structure
           run: >
