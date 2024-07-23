@@ -111,7 +111,7 @@ class Polling(ABCPolling):
                     exit(6)
                 else:
                     logger.warning(
-                        "Server disconnected, waiting 5 seconds to reconnet...",
+                        "Server disconnected, waiting 5 seconds to reconnect...",
                     )
                     reconn_counter += 1
                     await asyncio.sleep(self.reconnection_timeout)
