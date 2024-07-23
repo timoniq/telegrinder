@@ -1,5 +1,6 @@
 import dataclasses
 import enum
+import keyword
 import secrets
 import typing
 from datetime import datetime
@@ -19,7 +20,7 @@ T = typing.TypeVar("T")
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "omit_defaults": True,
     "dict": True,
-    "rename": {"from_": "from"},
+    "rename": {kw + "_": kw for kw in keyword.kwlist},
 }
 
 

@@ -1,5 +1,6 @@
 import dataclasses
 import datetime
+import keyword
 import os
 import pathlib
 import re
@@ -76,6 +77,10 @@ def chunks_str(s: str, sep: str = "\n"):
             s = s.strip() + sep
             line = 0
     return s.rstrip()
+
+
+def makesafe(s: str) -> str:
+    return s + "_" if keyword.iskeyword(s) else s
 
 
 def sort_all(path: pathlib.Path) -> None:
@@ -210,11 +215,6 @@ class ObjectGenerator(ABCGenerator):
         config_literal_types: list[ConfigObjectLiteralTypes] | None = None,
     ) -> None:
         self.objects = objects
-        self.rename_field_names = {
-            "from": "from_",
-            "for": "for_",
-            "in": "in_",
-        }
         self.nicification_path = nicification_path
         self.config_literal_types = config_literal_types or []
         self.parent_types: dict[str, list[str]] = {obj.name: obj.subtypes for obj in objects if obj.subtypes}
@@ -228,7 +228,7 @@ class ObjectGenerator(ABCGenerator):
         return None
 
     def make_object_field(self, field: ObjectField, literal_types: FieldLiteralTypes | None = None) -> str:
-        code = f"{self.rename_field_names.get(field.name, field.name)}: "
+        code = makesafe(field.name) + ": "
         field_type = "typing.Any"
 
         if literal_types is not None and any((literal_types.enum, literal_types.literals)):
@@ -424,6 +424,7 @@ class MethodGenerator(ABCGenerator):
         return None
 
     def get_default_param(self, name: str) -> DefaultAPIParam | None:
+        name = makesafe(name)
         for param in self.config_default_api_params:
             if param["name"] == name:
                 return param
@@ -434,7 +435,7 @@ class MethodGenerator(ABCGenerator):
             None,
             [
                 (
-                    f":param {x.name}: "
+                    f":param {makesafe(x.name)}: "
                     + chunks_str(
                         x.description + ("." if not x.description.endswith(".") else ""),
                         sep=" \\\n" + TAB + TAB,
@@ -472,6 +473,7 @@ class MethodGenerator(ABCGenerator):
             *filter(lambda x: not x.required or self.get_default_param(x.name), params),
         ):
             literal_types = self.get_param_literal_types(method_name, p.name)
+            param_name = makesafe(p.name)
 
             if literal_types is not None:
                 tp = literal_types.enum or "typing.Literal[%s]" % ", ".join(
@@ -479,13 +481,13 @@ class MethodGenerator(ABCGenerator):
                 )
                 p.types = [tp]
 
-            if p.description and is_unixtime_type(p.name, p.types, p.description):
+            if p.description and is_unixtime_type(param_name, p.types, p.description):
                 p.types.insert(p.types.index("Integer"), "Unixtime")
 
             default_param_value = (
-                None if self.get_default_param(p.name) is None else f'default_params["{p.name}"]'
+                None if self.get_default_param(param_name) is None else f'default_params["{param_name}"]'
             )
-            code = f"{TAB * 2}{p.name}: "
+            code = f"{TAB * 2}{param_name}: "
 
             if not p.required or default_param_value:
                 code += f"{self.make_type_hint(p.types)} {'| None ' if not p.required else ''}= {default_param_value}"

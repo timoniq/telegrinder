@@ -1,6 +1,7 @@
 import typing
 
 import fntypes.option
+import fntypes.result
 import msgspec
 from fntypes.co import Error, Ok, Result, Variative
 
@@ -8,10 +9,12 @@ if typing.TYPE_CHECKING:
     from datetime import datetime
 
     from fntypes.option import Option
+    from fntypes.result import Result
 else:
     from datetime import datetime as dt
 
     Value = typing.TypeVar("Value")
+    Err = typing.TypeVar("Err")
 
     datetime = type("datetime", (dt,), {})
 
@@ -19,7 +22,14 @@ else:
         def __instancecheck__(cls, __instance: typing.Any) -> bool:
             return isinstance(__instance, fntypes.option.Some | fntypes.option.Nothing)
 
+    class ResultMeta(type):
+        def __instancecheck__(cls, __instance: typing.Any) -> bool:
+            return isinstance(__instance, fntypes.result.Ok | fntypes.result.Error)
+
     class Option(typing.Generic[Value], metaclass=OptionMeta):
+        pass
+
+    class Result(typing.Generic[Value, Err], metaclass=ResultMeta):
         pass
 
 
@@ -41,18 +51,52 @@ def repr_type(t: type) -> str:
     return getattr(t, "__name__", repr(get_origin(t)))
 
 
-def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, msgspec.ValidationError]:
+def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, str]:
     try:
         return Ok(decoder.convert(obj, type=t, strict=True))
-    except msgspec.ValidationError as exc:
-        return Error(exc)
+    except msgspec.ValidationError:
+        return Error(
+            "Expected object of type `{}`, got `{}`.".format(
+                repr_type(t),
+                repr_type(type(obj)),
+            )
+        )
 
 
 def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
-    if obj is None:
-        return Nothing
+    orig_type = get_origin(tp)
     (value_type,) = typing.get_args(tp) or (typing.Any,)
-    return msgspec_convert({"value": obj}, fntypes.option.Some[value_type]).unwrap()
+
+    if obj is None and orig_type in (fntypes.option.Nothing, Option):
+        return fntypes.option.Nothing()
+    return fntypes.option.Some(msgspec_convert(obj, value_type).unwrap())
+
+
+def result_dec_hook(
+    tp: type[Result[typing.Any, typing.Any]], obj: typing.Any
+) -> Result[typing.Any, typing.Any]:
+    if not isinstance(obj, dict):
+        raise TypeError(f"Cannot parse to Result object of type `{repr_type(type(obj))}`.")
+
+    orig_type = get_origin(tp)
+    (first_type, second_type) = (
+        typing.get_args(tp) + (typing.Any,) if len(typing.get_args(tp)) == 1 else typing.get_args(tp)
+    ) or (typing.Any, typing.Any)
+
+    if orig_type is Ok and "ok" in obj:
+        return Ok(msgspec_convert(obj["ok"], first_type).unwrap())
+
+    if orig_type is Error and "error" in obj:
+        return Error(msgspec_convert(obj["error"], first_type).unwrap())
+
+    if orig_type is Result:
+        match obj:
+            case {"ok": ok}:
+                return Ok(msgspec_convert(ok, first_type).unwrap())
+            case {"error": error}:
+                return Error(msgspec_convert(error, second_type).unwrap())
+
+    raise msgspec.ValidationError(f"Cannot parse object `{obj!r}` to Result.")
 
 
 def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
@@ -122,9 +166,14 @@ class Decoder:
 
     def __init__(self) -> None:
         self.dec_hooks: dict[typing.Any, DecHook[typing.Any]] = {
+            Result: result_dec_hook,
             Option: option_dec_hook,
             Variative: variative_dec_hook,
             datetime: lambda t, obj: t.fromtimestamp(obj),
+            fntypes.result.Error: result_dec_hook,
+            fntypes.result.Ok: result_dec_hook,
+            fntypes.option.Some: option_dec_hook,
+            fntypes.option.Nothing: option_dec_hook,
         }
 
     def __repr__(self) -> str:
@@ -143,7 +192,7 @@ class Decoder:
         origin_type = t if isinstance((t := get_origin(tp)), type) else type(t)
         if origin_type not in self.dec_hooks:
             raise TypeError(
-                f"Unknown type `{repr_type(origin_type)}`. " "You can implement decode hook for this type."
+                f"Unknown type `{repr_type(origin_type)}`. You can implement decode hook for this type."
             )
         return self.dec_hooks[origin_type](tp, obj)
 
@@ -211,6 +260,10 @@ class Encoder:
         self.enc_hooks: dict[typing.Any, EncHook[typing.Any]] = {
             fntypes.option.Some: lambda opt: opt.value,
             fntypes.option.Nothing: lambda _: None,
+            fntypes.result.Ok: lambda ok: {"ok": ok.value},
+            fntypes.result.Error: lambda err: {
+                "error": (str(err.error) if isinstance(err.error, BaseException) else err.error)
+            },
             Variative: lambda variative: variative.v,
             datetime: lambda date: int(date.timestamp()),
         }
@@ -232,7 +285,7 @@ class Encoder:
         origin_type = get_origin(obj.__class__)
         if origin_type not in self.enc_hooks:
             raise NotImplementedError(
-                "Not implemented encode hook for " f"object of type `{repr_type(origin_type)}`."
+                f"Not implemented encode hook for object of type `{repr_type(origin_type)}`."
             )
         return self.enc_hooks[origin_type](obj)
 
