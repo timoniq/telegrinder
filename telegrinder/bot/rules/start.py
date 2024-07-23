@@ -4,7 +4,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.types.enums import MessageEntityType
 
 from .is_from import IsPrivate
-from .markup import Markup, Message
+from .markup import Markup
 from .message import MessageRule
 from .message_entities import MessageEntities
 
@@ -12,9 +12,9 @@ from .message_entities import MessageEntities
 class StartCommand(
     MessageRule,
     requires=[
-        IsPrivate()
-        & MessageEntities(MessageEntityType.BOT_COMMAND)
-        & Markup(["/start <param>", "/start"]),
+        IsPrivate(), 
+        MessageEntities(MessageEntityType.BOT_COMMAND),
+        Markup(["/start <param>", "/start"]),
     ],
 ):
     def __init__(
@@ -28,7 +28,7 @@ class StartCommand(
         self.validator = validator
         self.alias = alias
 
-    async def check(self, _: Message, ctx: Context) -> bool:
+    async def check(self, ctx: Context) -> bool:
         param: str | None = ctx.pop("param", None)
         validated_param = self.validator(param) if self.validator and param is not None else param
 

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "telegrinder"
-version = "0.1.dev168"
-description = "Framework for effective and reliable async telegram bot building."
+version = "0.1.dev170"
+description = "Modern visionary telegram bot framework."
 authors = ["timoniq <tesseradecades@mail.ru>"]
 maintainers = ["luwqz1 <howluwqz1@gmail.com>"]
 license = "MIT"
@@ -17,9 +17,12 @@ keywords = [
   "custom rules",
   "telegram",
   "telegram bot api framework",
-  "telegrinder",
+  "telegrinder framework",
   "middleware",
   "composition",
+  "framework",
+  "telegrinder",
+  "waiter machine"
 ]
 classifiers = [
   "Environment :: Console",
@@ -30,6 +33,9 @@ classifiers = [
   "Topic :: Software Development :: Quality Assurance",
   "Typing :: Typed",
 ]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/timoniq/telegrinder/issues"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -43,20 +49,16 @@ certifi = "^2024.2.2"
 msgspec = "^0.18.6"
 requests = "^2.28.1"
 typing-extensions = "^4.10.0"
-fntypes = "^0.1.2.post1"
+fntypes = "^0.1.2.post2"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.4.4"
+ruff = "^0.5.0"
 basedpyright = "^1.12.1"
-isort = "5.13.2"
 sort-all = "1.2.0"
-black = "^24.4.2"
 pytest = "^8.0.0"
 pytest-asyncio = "^0.23.5"
-pytest-cov = "^4.0.0"
+pytest-cov = "^5.0.0"
 pytest-mock = "^3.10.0"
-
-[tool.poetry.dev-dependencies]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -68,12 +70,9 @@ target-version = "py311"
 lint.select = ["I", "N", "ANN", "COM", "YTT", "TCH", "SIM"]
 lint.ignore = [
   "ANN001", "ANN002", "ANN003", "ANN101", "ANN102", "ANN201", "ANN202",
-  "ANN204", "ANN206", "ANN401", "COM812", "N818", "TCH001", "TCH004"
+  "ANN204", "ANN206", "ANN401", "COM812", "N805", "N818", "TCH001", "TCH002",
+  "TCH004"
 ]
-
-[tool.black]
-line-length = 110
-target-version = ["py311", "py312"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -84,5 +83,16 @@ asyncio_mode = "auto"
 [tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 
-[tool.basedpyright]
+[tool.pyright]
+exclude = [
+    "**/__pycache__",
+    "examples/blueprint_bot",
+    "examples/webhook_bot",
+    "docs",
+    "local",
+]
 typeCheckingMode = "basic"
+pythonPlatform = "All"
+pythonVersion = "3.11"
+reportMissingImports = true
+reportMissingTypeStubs = false

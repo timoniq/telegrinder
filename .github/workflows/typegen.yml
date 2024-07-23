@@ -1,4 +1,4 @@
-name: Generate Telegram Bot API types
+name: Generating Telegram Bot API types
 
 on:
   workflow_dispatch: {}
@@ -7,24 +7,22 @@ on:
 
 jobs:
   build:
-    name: Generate API types
+    name: Generating Telegram Bot API types
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4
-        
+
         - name: Set up CPython 3.11
           uses: actions/setup-python@v5
           with:
             python-version: "3.11"
-        
+
         - name: Install poetry
-          run: >
-            pip install --upgrade pip setuptools wheel pipx
-            pipx install poetry
-      
+          run: pip install --upgrade pip setuptools wheel && pip install --user pipx && pipx install poetry
+
         - name: Install depends
           run: poetry install
-      
+
         - name: Run typegen
           run: poetry run python typegen
 

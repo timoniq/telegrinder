@@ -1,6 +1,6 @@
 name: Lint and test
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -12,26 +12,24 @@ jobs:
           uses: actions/setup-python@v5
           with:
             python-version: "3.11"
-        
+
         - name: Install poetry
-          run: >
-            pip install pipx
-            pipx install poetry
-        
+          run: pip install --upgrade pip setuptools wheel && pip install --user pipx && pipx install poetry
+
         - name: Poetry check structure
           run: >
             poetry check
-        
+
         - name: Install depends
           run: >
             poetry install
-        
+
         - name: Lint code with ruff
           run: >
-            poetry run ruff check --fix
-                
+            poetry run ruff check . --fix
+
         - name: Check types with basedpyright
           run: >
-            poetry run basedpyright --level ERROR
-        
+            poetry run basedpyright . --level ERROR
+
         # NOTE: add run tests

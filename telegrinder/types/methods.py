@@ -4,7 +4,7 @@ from datetime import datetime
 from fntypes.co import Result, Variative
 
 from telegrinder.api.error import APIError
-from telegrinder.model import full_result, get_params
+from telegrinder.model import ProxiedDict, full_result, get_params
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.objects import *  # noqa: F403
 
@@ -13,7 +13,13 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API 7.3 methods, released `May 6, 2024`."""
+    """Telegram Bot API 7.7 methods, released `July 7, 2024`."""
+
+    default_params = ProxiedDict(
+        typing.TypedDict(
+            "DefaultParams", {"parse_mode": str, "question_parse_mode": str, "explanation_parse_mode": str}
+        )
+    )
 
     def __init__(self, api: "ABCAPI") -> None:
         self.api = api
@@ -28,7 +34,7 @@ class APIMethods:
     ) -> Result[list[Update], APIError]:
         """Method `getUpdates`, see the [documentation](https://core.telegram.org/bots/api#getupdates)
 
-        Use this method to receive incoming updates using long polling (wiki). 
+        Use this method to receive incoming updates using long polling (wiki).
         Returns an Array of Update objects.
 
         :param offset: Identifier of the first update to be returned. Must be greater by one than \
@@ -75,13 +81,13 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setWebhook`, see the [documentation](https://core.telegram.org/bots/api#setwebhook)
 
-        Use this method to specify a URL and receive incoming updates via an outgoing 
-        webhook. Whenever there is an update for the bot, we will send an HTTPS POST 
-        request to the specified URL, containing a JSON-serialized Update. In 
-        case of an unsuccessful request, we will give up after a reasonable amount 
-        of attempts. Returns True on success. If you'd like to make sure that the 
-        webhook was set by you, you can specify secret data in the parameter secret_token. 
-        If specified, the request will contain a header "X-Telegram-Bot-Api-Secret-Token" 
+        Use this method to specify a URL and receive incoming updates via an outgoing
+        webhook. Whenever there is an update for the bot, we will send an HTTPS POST
+        request to the specified URL, containing a JSON-serialized Update. In
+        case of an unsuccessful request, we will give up after a reasonable amount
+        of attempts. Returns True on success. If you'd like to make sure that the
+        webhook was set by you, you can specify secret data in the parameter secret_token.
+        If specified, the request will contain a header "X-Telegram-Bot-Api-Secret-Token"
         with the secret token as content.
 
         :param url: HTTPS URL to send updates to. Use an empty string to remove webhook integration. \
@@ -206,15 +212,18 @@ class APIMethods:
         text: str,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         entities: list[MessageEntity] | None = None,
         link_preview_options: LinkPreviewOptions | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendMessage`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
@@ -244,6 +253,9 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -269,8 +281,8 @@ class APIMethods:
     ) -> Result[Message, APIError]:
         """Method `forwardMessage`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
 
-        Use this method to forward messages of any kind. Service messages and messages 
-        with protected content can't be forwarded. On success, the sent Message 
+        Use this method to forward messages of any kind. Service messages and messages
+        with protected content can't be forwarded. On success, the sent Message
         is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -307,10 +319,10 @@ class APIMethods:
     ) -> Result[list[MessageId], APIError]:
         """Method `forwardMessages`, see the [documentation](https://core.telegram.org/bots/api#forwardmessages)
 
-        Use this method to forward multiple messages of any kind. If some of the specified 
-        messages can't be found or forwarded, they are skipped. Service messages 
-        and messages with protected content can't be forwarded. Album grouping 
-        is kept for forwarded messages. On success, an array of MessageId of the 
+        Use this method to forward multiple messages of any kind. If some of the specified
+        messages can't be found or forwarded, they are skipped. Service messages
+        and messages with protected content can't be forwarded. Album grouping
+        is kept for forwarded messages. On success, an array of MessageId of the
         sent messages is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -345,24 +357,27 @@ class APIMethods:
         message_id: int,
         message_thread_id: int | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Method `copyMessage`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
-        Use this method to copy messages of any kind. Service messages, giveaway 
-        messages, giveaway winners messages, and invoice messages can't be copied. 
-        A quiz poll can be copied only if the value of the field correct_option_id 
-        is known to the bot. The method is analogous to the method forwardMessage, 
-        but the copied message doesn't have a link to the original message. Returns 
-        the MessageId of the sent message on success.
+        Use this method to copy messages of any kind. Service messages, paid media
+        messages, giveaway messages, giveaway winners messages, and invoice
+        messages can't be copied. A quiz poll can be copied only if the value of the
+        field correct_option_id is known to the bot. The method is analogous to
+        the method forwardMessage, but the copied message doesn't have a link to
+        the original message. Returns the MessageId of the sent message on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -383,6 +398,9 @@ class APIMethods:
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the new caption, \
         which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Ignored \
+        if a new caption isn't specified.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -414,14 +432,14 @@ class APIMethods:
     ) -> Result[list[MessageId], APIError]:
         """Method `copyMessages`, see the [documentation](https://core.telegram.org/bots/api#copymessages)
 
-        Use this method to copy messages of any kind. If some of the specified messages 
-        can't be found or copied, they are skipped. Service messages, giveaway 
-        messages, giveaway winners messages, and invoice messages can't be copied. 
-        A quiz poll can be copied only if the value of the field correct_option_id 
-        is known to the bot. The method is analogous to the method forwardMessages, 
-        but the copied messages don't have a link to the original message. Album 
-        grouping is kept for copied messages. On success, an array of MessageId 
-        of the sent messages is returned.
+        Use this method to copy messages of any kind. If some of the specified messages
+        can't be found or copied, they are skipped. Service messages, paid media
+        messages, giveaway messages, giveaway winners messages, and invoice
+        messages can't be copied. A quiz poll can be copied only if the value of the
+        field correct_option_id is known to the bot. The method is analogous to
+        the method forwardMessages, but the copied messages don't have a link to
+        the original message. Album grouping is kept for copied messages. On success,
+        an array of MessageId of the sent messages is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -456,15 +474,19 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendPhoto`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
@@ -496,11 +518,16 @@ class APIMethods:
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
 
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
         :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -522,7 +549,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         duration: int | None = None,
         performer: str | None = None,
@@ -530,18 +557,21 @@ class APIMethods:
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendAudio`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
 
-        Use this method to send audio files, if you want Telegram clients to display 
-        them in the music player. Your audio must be in the .MP3 or .M4A format. On 
-        success, the sent Message is returned. Bots can currently send audio files 
-        of up to 50 MB in size, this limit may be changed in the future. For sending 
+        Use this method to send audio files, if you want Telegram clients to display
+        them in the music player. Your audio must be in the .MP3 or .M4A format. On
+        success, the sent Message is returned. Bots can currently send audio files
+        of up to 50 MB in size, this limit may be changed in the future. For sending
         voice messages, use the sendVoice method instead.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -584,6 +614,9 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -605,21 +638,24 @@ class APIMethods:
         message_thread_id: int | None = None,
         thumbnail: InputFile | str | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendDocument`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
 
-        Use this method to send general files. On success, the sent Message is returned. 
-        Bots can currently send files of any type of up to 50 MB in size, this limit 
+        Use this method to send general files. On success, the sent Message is returned.
+        Bots can currently send files of any type of up to 50 MB in size, this limit
         may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -660,6 +696,9 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -684,23 +723,27 @@ class APIMethods:
         height: int | None = None,
         thumbnail: InputFile | str | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
         supports_streaming: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendVideo`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
 
-        Use this method to send video files, Telegram clients support MPEG4 videos 
-        (other formats may be sent as Document). On success, the sent Message is 
-        returned. Bots can currently send video files of up to 50 MB in size, this 
+        Use this method to send video files, Telegram clients support MPEG4 videos
+        (other formats may be sent as Document). On success, the sent Message is
+        returned. Bots can currently send video files of up to 50 MB in size, this
         limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -740,6 +783,8 @@ class APIMethods:
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
 
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
         :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
 
         :param supports_streaming: Pass True if the uploaded video is suitable for streaming.
@@ -747,6 +792,9 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -772,21 +820,25 @@ class APIMethods:
         height: int | None = None,
         thumbnail: InputFile | str | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendAnimation`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
 
-        Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without 
-        sound). On success, the sent Message is returned. Bots can currently send 
+        Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without
+        sound). On success, the sent Message is returned. Bots can currently send
         animation files of up to 50 MB in size, this limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -826,11 +878,16 @@ class APIMethods:
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
 
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
         :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation. \
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -852,24 +909,27 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         duration: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendVoice`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
 
-        Use this method to send audio files, if you want Telegram clients to display 
-        the file as a playable voice message. For this to work, your audio must be 
-        in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other 
-        formats may be sent as Audio or Document). On success, the sent Message is 
-        returned. Bots can currently send voice messages of up to 50 MB in size, this 
+        Use this method to send audio files, if you want Telegram clients to display
+        the file as a playable voice message. For this to work, your audio must be
+        in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other
+        formats may be sent as Audio or Document). On success, the sent Message is
+        returned. Bots can currently send voice messages of up to 50 MB in size, this
         limit may be changed in the future.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -900,6 +960,9 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -924,16 +987,19 @@ class APIMethods:
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendVideoNote`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
-        As of v.4.0, Telegram clients support rounded square MPEG4 videos of up 
-        to 1 minute long. Use this method to send video messages. On success, the 
+        As of v.4.0, Telegram clients support rounded square MPEG4 videos of up
+        to 1 minute long. Use this method to send video messages. On success, the
         sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -966,6 +1032,9 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -979,6 +1048,64 @@ class APIMethods:
         )
         return full_result(method_response, Message)
 
+    async def send_paid_media(
+        self,
+        chat_id: int | str,
+        star_count: int,
+        media: list[InputPaidMedia],
+        caption: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
+        caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
+        **other: typing.Any,
+    ) -> Result[Message, APIError]:
+        """Method `sendPaidMedia`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
+
+        Use this method to send paid media to channel chats. On success, the sent
+        Message is returned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+
+        :param star_count: The number of Telegram Stars that must be paid to buy access to the media. \
+
+        :param media: A JSON-serialized array describing the media to be sent; up to 10 items. \
+
+        :param caption: Media caption, 0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the media caption. See formatting options \
+        for more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
+        which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
+
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user.
+        """
+
+        method_response = await self.api.request_raw(
+            "sendPaidMedia",
+            get_params(locals()),
+        )
+        return full_result(method_response, Message)
+
     async def send_media_group(
         self,
         chat_id: int | str,
@@ -987,13 +1114,14 @@ class APIMethods:
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
     ) -> Result[list[Message], APIError]:
         """Method `sendMediaGroup`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
 
-        Use this method to send a group of photos, videos, documents or audios as 
-        an album. Documents and audio files can be only grouped in an album with messages 
+        Use this method to send a group of photos, videos, documents or audios as
+        an album. Documents and audio files can be only grouped in an album with messages
         of the same type. On success, an array of Messages that were sent is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1011,6 +1139,9 @@ class APIMethods:
         :param disable_notification: Sends messages silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent messages from forwarding and saving. \
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
 
         :param reply_parameters: Description of the message to reply to.
         """
@@ -1034,10 +1165,13 @@ class APIMethods:
         proximity_alert_radius: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendLocation`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
@@ -1073,6 +1207,9 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -1101,15 +1238,18 @@ class APIMethods:
         google_place_type: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendVenue`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
 
-        Use this method to send information about a venue. On success, the sent Message 
+        Use this method to send information about a venue. On success, the sent Message
         is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1142,6 +1282,9 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -1166,10 +1309,13 @@ class APIMethods:
         vcard: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendContact`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
@@ -1197,6 +1343,9 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -1217,24 +1366,27 @@ class APIMethods:
         options: list[InputPollOption],
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
-        question_parse_mode: str | None = None,
+        question_parse_mode: str | None = default_params["question_parse_mode"],
         question_entities: list[MessageEntity] | None = None,
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         allows_multiple_answers: bool | None = None,
         correct_option_id: int | None = None,
         explanation: str | None = None,
-        explanation_parse_mode: str | None = None,
+        explanation_parse_mode: str | None = default_params["explanation_parse_mode"],
         explanation_entities: list[MessageEntity] | None = None,
         open_period: int | None = None,
         close_date: datetime | int | None = None,
         is_closed: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendPoll`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
@@ -1294,6 +1446,9 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -1315,15 +1470,18 @@ class APIMethods:
         emoji: DiceEmoji | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendDice`, see the [documentation](https://core.telegram.org/bots/api#senddice)
 
-        Use this method to send an animated emoji that will display a random value. 
+        Use this method to send an animated emoji that will display a random value.
         On success, the sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -1342,6 +1500,9 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -1366,10 +1527,10 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `sendChatAction`, see the [documentation](https://core.telegram.org/bots/api#sendchataction)
 
-        Use this method when you need to tell the user that something is happening 
-        on the bot's side. The status is set for 5 seconds or less (when a message arrives 
-        from your bot, Telegram clients clear its typing status). Returns True 
-        on success. We only recommend using this method when a response from the 
+        Use this method when you need to tell the user that something is happening
+        on the bot's side. The status is set for 5 seconds or less (when a message arrives
+        from your bot, Telegram clients clear its typing status). Returns True
+        on success. We only recommend using this method when a response from the
         bot will take a noticeable amount of time to arrive.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the action \
@@ -1404,9 +1565,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setMessageReaction`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
 
-        Use this method to change the chosen reactions on a message. Service messages 
-        can't be reacted to. Automatically forwarded messages from a channel to 
-        its discussion group have the same available reactions as messages in the 
+        Use this method to change the chosen reactions on a message. Service messages
+        can't be reacted to. Automatically forwarded messages from a channel to
+        its discussion group have the same available reactions as messages in the
         channel. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1438,7 +1599,7 @@ class APIMethods:
     ) -> Result[UserProfilePhotos, APIError]:
         """Method `getUserProfilePhotos`, see the [documentation](https://core.telegram.org/bots/api#getuserprofilephotos)
 
-        Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos 
+        Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos
         object.
 
         :param user_id: Unique identifier of the target user.
@@ -1491,10 +1652,10 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `banChatMember`, see the [documentation](https://core.telegram.org/bots/api#banchatmember)
 
-        Use this method to ban a user in a group, a supergroup or a channel. In the case 
-        of supergroups and channels, the user will not be able to return to the chat 
-        on their own using invite links, etc., unless unbanned first. The bot must 
-        be an administrator in the chat for this to work and must have the appropriate 
+        Use this method to ban a user in a group, a supergroup or a channel. In the case
+        of supergroups and channels, the user will not be able to return to the chat
+        on their own using invite links, etc., unless unbanned first. The bot must
+        be an administrator in the chat for this to work and must have the appropriate
         administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target group or username of the target supergroup \
@@ -1526,12 +1687,12 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `unbanChatMember`, see the [documentation](https://core.telegram.org/bots/api#unbanchatmember)
 
-        Use this method to unban a previously banned user in a supergroup or channel. 
-        The user will not return to the group or channel automatically, but will 
-        be able to join via link, etc. The bot must be an administrator for this to 
-        work. By default, this method guarantees that after the call the user is 
-        not a member of the chat, but will be able to join it. So if the user is a member 
-        of the chat they will also be removed from the chat. If you don't want this, 
+        Use this method to unban a previously banned user in a supergroup or channel.
+        The user will not return to the group or channel automatically, but will
+        be able to join via link, etc. The bot must be an administrator for this to
+        work. By default, this method guarantees that after the call the user is
+        not a member of the chat, but will be able to join it. So if the user is a member
+        of the chat they will also be removed from the chat. If you don't want this,
         use the parameter only_if_banned. Returns True on success.
 
         :param chat_id: Unique identifier for the target group or username of the target supergroup \
@@ -1559,9 +1720,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `restrictChatMember`, see the [documentation](https://core.telegram.org/bots/api#restrictchatmember)
 
-        Use this method to restrict a user in a supergroup. The bot must be an administrator 
-        in the supergroup for this to work and must have the appropriate administrator 
-        rights. Pass True for all permissions to lift restrictions from a user. 
+        Use this method to restrict a user in a supergroup. The bot must be an administrator
+        in the supergroup for this to work and must have the appropriate administrator
+        rights. Pass True for all permissions to lift restrictions from a user.
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -1611,9 +1772,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `promoteChatMember`, see the [documentation](https://core.telegram.org/bots/api#promotechatmember)
 
-        Use this method to promote or demote a user in a supergroup or a channel. The 
-        bot must be an administrator in the chat for this to work and must have the 
-        appropriate administrator rights. Pass False for all boolean parameters 
+        Use this method to promote or demote a user in a supergroup or a channel. The
+        bot must be an administrator in the chat for this to work and must have the
+        appropriate administrator rights. Pass False for all boolean parameters
         to demote a user. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1677,7 +1838,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setChatAdministratorCustomTitle`, see the [documentation](https://core.telegram.org/bots/api#setchatadministratorcustomtitle)
 
-        Use this method to set a custom title for an administrator in a supergroup 
+        Use this method to set a custom title for an administrator in a supergroup
         promoted by the bot. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -1703,10 +1864,10 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `banChatSenderChat`, see the [documentation](https://core.telegram.org/bots/api#banchatsenderchat)
 
-        Use this method to ban a channel chat in a supergroup or a channel. Until the 
-        chat is unbanned, the owner of the banned chat won't be able to send messages 
-        on behalf of any of their channels. The bot must be an administrator in the 
-        supergroup or channel for this to work and must have the appropriate administrator 
+        Use this method to ban a channel chat in a supergroup or a channel. Until the
+        chat is unbanned, the owner of the banned chat won't be able to send messages
+        on behalf of any of their channels. The bot must be an administrator in the
+        supergroup or channel for this to work and must have the appropriate administrator
         rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1729,8 +1890,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `unbanChatSenderChat`, see the [documentation](https://core.telegram.org/bots/api#unbanchatsenderchat)
 
-        Use this method to unban a previously banned channel chat in a supergroup 
-        or channel. The bot must be an administrator for this to work and must have 
+        Use this method to unban a previously banned channel chat in a supergroup
+        or channel. The bot must be an administrator for this to work and must have
         the appropriate administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1754,9 +1915,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setChatPermissions`, see the [documentation](https://core.telegram.org/bots/api#setchatpermissions)
 
-        Use this method to set default chat permissions for all members. The bot 
-        must be an administrator in the group or a supergroup for this to work and 
-        must have the can_restrict_members administrator rights. Returns True 
+        Use this method to set default chat permissions for all members. The bot
+        must be an administrator in the group or a supergroup for this to work and
+        must have the can_restrict_members administrator rights. Returns True
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -1784,9 +1945,9 @@ class APIMethods:
     ) -> Result[str, APIError]:
         """Method `exportChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#exportchatinvitelink)
 
-        Use this method to generate a new primary invite link for a chat; any previously 
-        generated primary link is revoked. The bot must be an administrator in the 
-        chat for this to work and must have the appropriate administrator rights. 
+        Use this method to generate a new primary invite link for a chat; any previously
+        generated primary link is revoked. The bot must be an administrator in the
+        chat for this to work and must have the appropriate administrator rights.
         Returns the new invite link as String on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1810,9 +1971,9 @@ class APIMethods:
     ) -> Result[ChatInviteLink, APIError]:
         """Method `createChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#createchatinvitelink)
 
-        Use this method to create an additional invite link for a chat. The bot must 
-        be an administrator in the chat for this to work and must have the appropriate 
-        administrator rights. The link can be revoked using the method revokeChatInviteLink. 
+        Use this method to create an additional invite link for a chat. The bot must
+        be an administrator in the chat for this to work and must have the appropriate
+        administrator rights. The link can be revoked using the method revokeChatInviteLink.
         Returns the new invite link as ChatInviteLink object.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1847,9 +2008,9 @@ class APIMethods:
     ) -> Result[ChatInviteLink, APIError]:
         """Method `editChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#editchatinvitelink)
 
-        Use this method to edit a non-primary invite link created by the bot. The 
-        bot must be an administrator in the chat for this to work and must have the 
-        appropriate administrator rights. Returns the edited invite link as a 
+        Use this method to edit a non-primary invite link created by the bot. The
+        bot must be an administrator in the chat for this to work and must have the
+        appropriate administrator rights. Returns the edited invite link as a
         ChatInviteLink object.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1882,10 +2043,10 @@ class APIMethods:
     ) -> Result[ChatInviteLink, APIError]:
         """Method `revokeChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#revokechatinvitelink)
 
-        Use this method to revoke an invite link created by the bot. If the primary 
-        link is revoked, a new link is automatically generated. The bot must be an 
-        administrator in the chat for this to work and must have the appropriate 
-        administrator rights. Returns the revoked invite link as ChatInviteLink 
+        Use this method to revoke an invite link created by the bot. If the primary
+        link is revoked, a new link is automatically generated. The bot must be an
+        administrator in the chat for this to work and must have the appropriate
+        administrator rights. Returns the revoked invite link as ChatInviteLink
         object.
 
         :param chat_id: Unique identifier of the target chat or username of the target channel (in \
@@ -1908,8 +2069,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `approveChatJoinRequest`, see the [documentation](https://core.telegram.org/bots/api#approvechatjoinrequest)
 
-        Use this method to approve a chat join request. The bot must be an administrator 
-        in the chat for this to work and must have the can_invite_users administrator 
+        Use this method to approve a chat join request. The bot must be an administrator
+        in the chat for this to work and must have the can_invite_users administrator
         right. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1932,8 +2093,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `declineChatJoinRequest`, see the [documentation](https://core.telegram.org/bots/api#declinechatjoinrequest)
 
-        Use this method to decline a chat join request. The bot must be an administrator 
-        in the chat for this to work and must have the can_invite_users administrator 
+        Use this method to decline a chat join request. The bot must be an administrator
+        in the chat for this to work and must have the can_invite_users administrator
         right. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1956,9 +2117,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#setchatphoto)
 
-        Use this method to set a new profile photo for the chat. Photos can't be changed 
-        for private chats. The bot must be an administrator in the chat for this to 
-        work and must have the appropriate administrator rights. Returns True 
+        Use this method to set a new profile photo for the chat. Photos can't be changed
+        for private chats. The bot must be an administrator in the chat for this to
+        work and must have the appropriate administrator rights. Returns True
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -1980,8 +2141,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `deleteChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#deletechatphoto)
 
-        Use this method to delete a chat photo. Photos can't be changed for private 
-        chats. The bot must be an administrator in the chat for this to work and must 
+        Use this method to delete a chat photo. Photos can't be changed for private
+        chats. The bot must be an administrator in the chat for this to work and must
         have the appropriate administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -2002,8 +2163,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setChatTitle`, see the [documentation](https://core.telegram.org/bots/api#setchattitle)
 
-        Use this method to change the title of a chat. Titles can't be changed for 
-        private chats. The bot must be an administrator in the chat for this to work 
+        Use this method to change the title of a chat. Titles can't be changed for
+        private chats. The bot must be an administrator in the chat for this to work
         and must have the appropriate administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -2026,8 +2187,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setChatDescription`, see the [documentation](https://core.telegram.org/bots/api#setchatdescription)
 
-        Use this method to change the description of a group, a supergroup or a channel. 
-        The bot must be an administrator in the chat for this to work and must have 
+        Use this method to change the description of a group, a supergroup or a channel.
+        The bot must be an administrator in the chat for this to work and must have
         the appropriate administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -2051,10 +2212,10 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `pinChatMessage`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
 
-        Use this method to add a message to the list of pinned messages in a chat. If 
-        the chat is not a private chat, the bot must be an administrator in the chat 
-        for this to work and must have the 'can_pin_messages' administrator right 
-        in a supergroup or 'can_edit_messages' administrator right in a channel. 
+        Use this method to add a message to the list of pinned messages in a chat. If
+        the chat is not a private chat, the bot must be an administrator in the chat
+        for this to work and must have the 'can_pin_messages' administrator right
+        in a supergroup or 'can_edit_messages' administrator right in a channel.
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -2081,10 +2242,10 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `unpinChatMessage`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
 
-        Use this method to remove a message from the list of pinned messages in a chat. 
-        If the chat is not a private chat, the bot must be an administrator in the chat 
-        for this to work and must have the 'can_pin_messages' administrator right 
-        in a supergroup or 'can_edit_messages' administrator right in a channel. 
+        Use this method to remove a message from the list of pinned messages in a chat.
+        If the chat is not a private chat, the bot must be an administrator in the chat
+        for this to work and must have the 'can_pin_messages' administrator right
+        in a supergroup or 'can_edit_messages' administrator right in a channel.
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -2107,10 +2268,10 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `unpinAllChatMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallchatmessages)
 
-        Use this method to clear the list of pinned messages in a chat. If the chat 
-        is not a private chat, the bot must be an administrator in the chat for this 
-        to work and must have the 'can_pin_messages' administrator right in a supergroup 
-        or 'can_edit_messages' administrator right in a channel. Returns True 
+        Use this method to clear the list of pinned messages in a chat. If the chat
+        is not a private chat, the bot must be an administrator in the chat for this
+        to work and must have the 'can_pin_messages' administrator right in a supergroup
+        or 'can_edit_messages' administrator right in a channel. Returns True
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -2130,7 +2291,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `leaveChat`, see the [documentation](https://core.telegram.org/bots/api#leavechat)
 
-        Use this method for your bot to leave a group, supergroup or channel. Returns 
+        Use this method for your bot to leave a group, supergroup or channel. Returns
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2150,7 +2311,7 @@ class APIMethods:
     ) -> Result[ChatFullInfo, APIError]:
         """Method `getChat`, see the [documentation](https://core.telegram.org/bots/api#getchat)
 
-        Use this method to get up-to-date information about the chat. Returns a 
+        Use this method to get up-to-date information about the chat. Returns a
         ChatFullInfo object on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2182,7 +2343,7 @@ class APIMethods:
     ]:
         """Method `getChatAdministrators`, see the [documentation](https://core.telegram.org/bots/api#getchatadministrators)
 
-        Use this method to get a list of administrators in a chat, which aren't bots. 
+        Use this method to get a list of administrators in a chat, which aren't bots.
         Returns an Array of ChatMember objects.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2244,8 +2405,8 @@ class APIMethods:
     ]:
         """Method `getChatMember`, see the [documentation](https://core.telegram.org/bots/api#getchatmember)
 
-        Use this method to get information about a member of a chat. The method is 
-        only guaranteed to work for other users if the bot is an administrator in 
+        Use this method to get information about a member of a chat. The method is
+        only guaranteed to work for other users if the bot is an administrator in
         the chat. Returns a ChatMember object on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2278,10 +2439,10 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setChatStickerSet`, see the [documentation](https://core.telegram.org/bots/api#setchatstickerset)
 
-        Use this method to set a new group sticker set for a supergroup. The bot must 
-        be an administrator in the chat for this to work and must have the appropriate 
-        administrator rights. Use the field can_set_sticker_set optionally 
-        returned in getChat requests to check if the bot can use this method. Returns 
+        Use this method to set a new group sticker set for a supergroup. The bot must
+        be an administrator in the chat for this to work and must have the appropriate
+        administrator rights. Use the field can_set_sticker_set optionally
+        returned in getChat requests to check if the bot can use this method. Returns
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2303,10 +2464,10 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `deleteChatStickerSet`, see the [documentation](https://core.telegram.org/bots/api#deletechatstickerset)
 
-        Use this method to delete a group sticker set from a supergroup. The bot must 
-        be an administrator in the chat for this to work and must have the appropriate 
-        administrator rights. Use the field can_set_sticker_set optionally 
-        returned in getChat requests to check if the bot can use this method. Returns 
+        Use this method to delete a group sticker set from a supergroup. The bot must
+        be an administrator in the chat for this to work and must have the appropriate
+        administrator rights. Use the field can_set_sticker_set optionally
+        returned in getChat requests to check if the bot can use this method. Returns
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2343,9 +2504,9 @@ class APIMethods:
     ) -> Result[ForumTopic, APIError]:
         """Method `createForumTopic`, see the [documentation](https://core.telegram.org/bots/api#createforumtopic)
 
-        Use this method to create a topic in a forum supergroup chat. The bot must 
-        be an administrator in the chat for this to work and must have the can_manage_topics 
-        administrator rights. Returns information about the created topic as 
+        Use this method to create a topic in a forum supergroup chat. The bot must
+        be an administrator in the chat for this to work and must have the can_manage_topics
+        administrator rights. Returns information about the created topic as
         a ForumTopic object.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2377,9 +2538,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `editForumTopic`, see the [documentation](https://core.telegram.org/bots/api#editforumtopic)
 
-        Use this method to edit name and icon of a topic in a forum supergroup chat. 
-        The bot must be an administrator in the chat for this to work and must have 
-        can_manage_topics administrator rights, unless it is the creator of the 
+        Use this method to edit name and icon of a topic in a forum supergroup chat.
+        The bot must be an administrator in the chat for this to work and must have
+        can_manage_topics administrator rights, unless it is the creator of the
         topic. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2409,9 +2570,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `closeForumTopic`, see the [documentation](https://core.telegram.org/bots/api#closeforumtopic)
 
-        Use this method to close an open topic in a forum supergroup chat. The bot 
-        must be an administrator in the chat for this to work and must have the can_manage_topics 
-        administrator rights, unless it is the creator of the topic. Returns True 
+        Use this method to close an open topic in a forum supergroup chat. The bot
+        must be an administrator in the chat for this to work and must have the can_manage_topics
+        administrator rights, unless it is the creator of the topic. Returns True
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2434,9 +2595,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `reopenForumTopic`, see the [documentation](https://core.telegram.org/bots/api#reopenforumtopic)
 
-        Use this method to reopen a closed topic in a forum supergroup chat. The bot 
-        must be an administrator in the chat for this to work and must have the can_manage_topics 
-        administrator rights, unless it is the creator of the topic. Returns True 
+        Use this method to reopen a closed topic in a forum supergroup chat. The bot
+        must be an administrator in the chat for this to work and must have the can_manage_topics
+        administrator rights, unless it is the creator of the topic. Returns True
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2459,9 +2620,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `deleteForumTopic`, see the [documentation](https://core.telegram.org/bots/api#deleteforumtopic)
 
-        Use this method to delete a forum topic along with all its messages in a forum 
-        supergroup chat. The bot must be an administrator in the chat for this to 
-        work and must have the can_delete_messages administrator rights. Returns 
+        Use this method to delete a forum topic along with all its messages in a forum
+        supergroup chat. The bot must be an administrator in the chat for this to
+        work and must have the can_delete_messages administrator rights. Returns
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2484,9 +2645,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `unpinAllForumTopicMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallforumtopicmessages)
 
-        Use this method to clear the list of pinned messages in a forum topic. The 
-        bot must be an administrator in the chat for this to work and must have the 
-        can_pin_messages administrator right in the supergroup. Returns True 
+        Use this method to clear the list of pinned messages in a forum topic. The
+        bot must be an administrator in the chat for this to work and must have the
+        can_pin_messages administrator right in the supergroup. Returns True
         on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2509,8 +2670,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `editGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#editgeneralforumtopic)
 
-        Use this method to edit the name of the 'General' topic in a forum supergroup 
-        chat. The bot must be an administrator in the chat for this to work and must 
+        Use this method to edit the name of the 'General' topic in a forum supergroup
+        chat. The bot must be an administrator in the chat for this to work and must
         have can_manage_topics administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2532,8 +2693,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `closeGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#closegeneralforumtopic)
 
-        Use this method to close an open 'General' topic in a forum supergroup chat. 
-        The bot must be an administrator in the chat for this to work and must have 
+        Use this method to close an open 'General' topic in a forum supergroup chat.
+        The bot must be an administrator in the chat for this to work and must have
         the can_manage_topics administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2553,9 +2714,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `reopenGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#reopengeneralforumtopic)
 
-        Use this method to reopen a closed 'General' topic in a forum supergroup 
-        chat. The bot must be an administrator in the chat for this to work and must 
-        have the can_manage_topics administrator rights. The topic will be automatically 
+        Use this method to reopen a closed 'General' topic in a forum supergroup
+        chat. The bot must be an administrator in the chat for this to work and must
+        have the can_manage_topics administrator rights. The topic will be automatically
         unhidden if it was hidden. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2575,9 +2736,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `hideGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#hidegeneralforumtopic)
 
-        Use this method to hide the 'General' topic in a forum supergroup chat. The 
-        bot must be an administrator in the chat for this to work and must have the 
-        can_manage_topics administrator rights. The topic will be automatically 
+        Use this method to hide the 'General' topic in a forum supergroup chat. The
+        bot must be an administrator in the chat for this to work and must have the
+        can_manage_topics administrator rights. The topic will be automatically
         closed if it was open. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2597,8 +2758,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `unhideGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#unhidegeneralforumtopic)
 
-        Use this method to unhide the 'General' topic in a forum supergroup chat. 
-        The bot must be an administrator in the chat for this to work and must have 
+        Use this method to unhide the 'General' topic in a forum supergroup chat.
+        The bot must be an administrator in the chat for this to work and must have
         the can_manage_topics administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2618,9 +2779,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `unpinAllGeneralForumTopicMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallgeneralforumtopicmessages)
 
-        Use this method to clear the list of pinned messages in a General forum topic. 
-        The bot must be an administrator in the chat for this to work and must have 
-        the can_pin_messages administrator right in the supergroup. Returns 
+        Use this method to clear the list of pinned messages in a General forum topic.
+        The bot must be an administrator in the chat for this to work and must have
+        the can_pin_messages administrator right in the supergroup. Returns
         True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
@@ -2644,8 +2805,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `answerCallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)
 
-        Use this method to send answers to callback queries sent from inline keyboards. 
-        The answer will be displayed to the user as a notification at the top of the 
+        Use this method to send answers to callback queries sent from inline keyboards.
+        The answer will be displayed to the user as a notification at the top of the
         chat screen or as an alert. On success, True is returned.
 
         :param callback_query_id: Unique identifier for the query to be answered.
@@ -2681,7 +2842,7 @@ class APIMethods:
     ) -> Result[UserChatBoosts, APIError]:
         """Method `getUserChatBoosts`, see the [documentation](https://core.telegram.org/bots/api#getuserchatboosts)
 
-        Use this method to get the list of boosts added to a chat by a user. Requires 
+        Use this method to get the list of boosts added to a chat by a user. Requires
         administrator rights in the chat. Returns a UserChatBoosts object.
 
         :param chat_id: Unique identifier for the chat or username of the channel (in the format \
@@ -2724,7 +2885,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setMyCommands`, see the [documentation](https://core.telegram.org/bots/api#setmycommands)
 
-        Use this method to change the list of the bot's commands. See this manual 
+        Use this method to change the list of the bot's commands. See this manual
         for more details about bot commands. Returns True on success.
 
         :param commands: A JSON-serialized list of bot commands to be set as the list of the bot's commands. \
@@ -2752,8 +2913,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `deleteMyCommands`, see the [documentation](https://core.telegram.org/bots/api#deletemycommands)
 
-        Use this method to delete the list of the bot's commands for the given scope 
-        and user language. After deletion, higher level commands will be shown 
+        Use this method to delete the list of the bot's commands for the given scope
+        and user language. After deletion, higher level commands will be shown
         to affected users. Returns True on success.
 
         :param scope: A JSON-serialized object, describing scope of users for which the commands \
@@ -2778,8 +2939,8 @@ class APIMethods:
     ) -> Result[list[BotCommand], APIError]:
         """Method `getMyCommands`, see the [documentation](https://core.telegram.org/bots/api#getmycommands)
 
-        Use this method to get the current list of the bot's commands for the given 
-        scope and user language. Returns an Array of BotCommand objects. If commands 
+        Use this method to get the current list of the bot's commands for the given
+        scope and user language. Returns an Array of BotCommand objects. If commands
         aren't set, an empty list is returned.
 
         :param scope: A JSON-serialized object, describing scope of users. Defaults to BotCommandScopeDefault. \
@@ -2843,7 +3004,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setMyDescription`, see the [documentation](https://core.telegram.org/bots/api#setmydescription)
 
-        Use this method to change the bot's description, which is shown in the chat 
+        Use this method to change the bot's description, which is shown in the chat
         with the bot if the chat is empty. Returns True on success.
 
         :param description: New bot description; 0-512 characters. Pass an empty string to remove the \
@@ -2886,8 +3047,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setMyShortDescription`, see the [documentation](https://core.telegram.org/bots/api#setmyshortdescription)
 
-        Use this method to change the bot's short description, which is shown on 
-        the bot's profile page and is sent together with the link when users share 
+        Use this method to change the bot's short description, which is shown on
+        the bot's profile page and is sent together with the link when users share
         the bot. Returns True on success.
 
         :param short_description: New short description for the bot; 0-120 characters. Pass an empty string \
@@ -2930,7 +3091,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setChatMenuButton`, see the [documentation](https://core.telegram.org/bots/api#setchatmenubutton)
 
-        Use this method to change the bot's menu button in a private chat, or the default 
+        Use this method to change the bot's menu button in a private chat, or the default
         menu button. Returns True on success.
 
         :param chat_id: Unique identifier for the target private chat. If not specified, default \
@@ -2952,7 +3113,7 @@ class APIMethods:
     ) -> Result[Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], APIError]:
         """Method `getChatMenuButton`, see the [documentation](https://core.telegram.org/bots/api#getchatmenubutton)
 
-        Use this method to get the current value of the bot's menu button in a private 
+        Use this method to get the current value of the bot's menu button in a private
         chat, or the default menu button. Returns MenuButton on success.
 
         :param chat_id: Unique identifier for the target private chat. If not specified, default \
@@ -2975,9 +3136,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setMyDefaultAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#setmydefaultadministratorrights)
 
-        Use this method to change the default administrator rights requested by 
-        the bot when it's added as an administrator to groups or channels. These 
-        rights will be suggested to users, but they are free to modify the list before 
+        Use this method to change the default administrator rights requested by
+        the bot when it's added as an administrator to groups or channels. These
+        rights will be suggested to users, but they are free to modify the list before
         adding the bot. Returns True on success.
 
         :param rights: A JSON-serialized object describing new default administrator rights. \
@@ -3001,7 +3162,7 @@ class APIMethods:
     ) -> Result[ChatAdministratorRights, APIError]:
         """Method `getMyDefaultAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#getmydefaultadministratorrights)
 
-        Use this method to get the current default administrator rights of the bot. 
+        Use this method to get the current default administrator rights of the bot.
         Returns ChatAdministratorRights on success.
 
         :param for_channels: Pass True to get default administrator rights of the bot in channels. Otherwise, \
@@ -3018,10 +3179,11 @@ class APIMethods:
     async def edit_message_text(
         self,
         text: str,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         entities: list[MessageEntity] | None = None,
         link_preview_options: LinkPreviewOptions | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
@@ -3029,9 +3191,14 @@ class APIMethods:
     ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageText`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
-        Use this method to edit text and game messages. On success, if the edited 
-        message is not an inline message, the edited Message is returned, otherwise 
-        True is returned.
+        Use this method to edit text and game messages. On success, if the edited
+        message is not an inline message, the edited Message is returned, otherwise
+        True is returned. Note that business messages that were not sent by the bot
+        and do not contain an inline keyboard can only be edited within 48 hours from
+        the time they were sent.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3063,20 +3230,27 @@ class APIMethods:
 
     async def edit_message_caption(
         self,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
         caption: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageCaption`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
 
-        Use this method to edit captions of messages. On success, if the edited message 
-        is not an inline message, the edited Message is returned, otherwise True 
-        is returned.
+        Use this method to edit captions of messages. On success, if the edited message
+        is not an inline message, the edited Message is returned, otherwise True
+        is returned. Note that business messages that were not sent by the bot and
+        do not contain an inline keyboard can only be edited within 48 hours from
+        the time they were sent.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3095,6 +3269,9 @@ class APIMethods:
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
 
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supported \
+        only for animation, photo and video messages.
+
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
 
@@ -3107,6 +3284,7 @@ class APIMethods:
     async def edit_message_media(
         self,
         media: InputMedia,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3115,13 +3293,18 @@ class APIMethods:
     ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageMedia`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
-        Use this method to edit animation, audio, document, photo, or video messages. 
-        If a message is part of a message album, then it can be edited only to an audio 
-        for audio albums, only to a document for document albums and to a photo or 
-        a video otherwise. When an inline message is edited, a new file can't be uploaded; 
-        use a previously uploaded file via its file_id or specify a URL. On success, 
-        if the edited message is not an inline message, the edited Message is returned, 
-        otherwise True is returned.
+        Use this method to edit animation, audio, document, photo, or video messages.
+        If a message is part of a message album, then it can be edited only to an audio
+        for audio albums, only to a document for document albums and to a photo or
+        a video otherwise. When an inline message is edited, a new file can't be uploaded;
+        use a previously uploaded file via its file_id or specify a URL. On success,
+        if the edited message is not an inline message, the edited Message is returned,
+        otherwise True is returned. Note that business messages that were not sent
+        by the bot and do not contain an inline keyboard can only be edited within
+        48 hours from the time they were sent.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3147,6 +3330,7 @@ class APIMethods:
         self,
         latitude: float,
         longitude: float,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3159,10 +3343,13 @@ class APIMethods:
     ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageLiveLocation`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
 
-        Use this method to edit live location messages. A location can be edited 
-        until its live_period expires or editing is explicitly disabled by a call 
-        to stopMessageLiveLocation. On success, if the edited message is not an 
+        Use this method to edit live location messages. A location can be edited
+        until its live_period expires or editing is explicitly disabled by a call
+        to stopMessageLiveLocation. On success, if the edited message is not an
         inline message, the edited Message is returned, otherwise True is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3203,6 +3390,7 @@ class APIMethods:
 
     async def stop_message_live_location(
         self,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3211,9 +3399,12 @@ class APIMethods:
     ) -> Result[Variative[Message, bool], APIError]:
         """Method `stopMessageLiveLocation`, see the [documentation](https://core.telegram.org/bots/api#stopmessagelivelocation)
 
-        Use this method to stop updating a live location message before live_period 
-        expires. On success, if the message is not an inline message, the edited 
+        Use this method to stop updating a live location message before live_period
+        expires. On success, if the message is not an inline message, the edited
         Message is returned, otherwise True is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3235,6 +3426,7 @@ class APIMethods:
 
     async def edit_message_reply_markup(
         self,
+        business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
@@ -3243,9 +3435,14 @@ class APIMethods:
     ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageReplyMarkup`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)
 
-        Use this method to edit only the reply markup of messages. On success, if 
-        the edited message is not an inline message, the edited Message is returned, 
-        otherwise True is returned.
+        Use this method to edit only the reply markup of messages. On success, if
+        the edited message is not an inline message, the edited Message is returned,
+        otherwise True is returned. Note that business messages that were not sent
+        by the bot and do not contain an inline keyboard can only be edited within
+        48 hours from the time they were sent.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
         the target chat or username of the target channel (in the format @channelusername). \
@@ -3269,13 +3466,17 @@ class APIMethods:
         self,
         chat_id: int | str,
         message_id: int,
+        business_connection_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Poll, APIError]:
         """Method `stopPoll`, see the [documentation](https://core.telegram.org/bots/api#stoppoll)
 
-        Use this method to stop a poll which was sent by the bot. On success, the stopped 
+        Use this method to stop a poll which was sent by the bot. On success, the stopped
         Poll is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        to be edited was sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -3299,16 +3500,16 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `deleteMessage`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
 
-        Use this method to delete a message, including service messages, with the 
-        following limitations: - A message can only be deleted if it was sent less 
-        than 48 hours ago. - Service messages about a supergroup, channel, or forum 
-        topic creation can't be deleted. - A dice message in a private chat can only 
-        be deleted if it was sent more than 24 hours ago. - Bots can delete outgoing 
-        messages in private chats, groups, and supergroups. - Bots can delete incoming 
-        messages in private chats. - Bots granted can_post_messages permissions 
-        can delete outgoing messages in channels. - If the bot is an administrator 
-        of a group, it can delete any message there. - If the bot has can_delete_messages 
-        permission in a supergroup or a channel, it can delete any message there. 
+        Use this method to delete a message, including service messages, with the
+        following limitations: - A message can only be deleted if it was sent less
+        than 48 hours ago. - Service messages about a supergroup, channel, or forum
+        topic creation can't be deleted. - A dice message in a private chat can only
+        be deleted if it was sent more than 24 hours ago. - Bots can delete outgoing
+        messages in private chats, groups, and supergroups. - Bots can delete incoming
+        messages in private chats. - Bots granted can_post_messages permissions
+        can delete outgoing messages in channels. - If the bot is an administrator
+        of a group, it can delete any message there. - If the bot has can_delete_messages
+        permission in a supergroup or a channel, it can delete any message there.
         Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -3331,8 +3532,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `deleteMessages`, see the [documentation](https://core.telegram.org/bots/api#deletemessages)
 
-        Use this method to delete multiple messages simultaneously. If some of 
-        the specified messages can't be found, they are skipped. Returns True on 
+        Use this method to delete multiple messages simultaneously. If some of
+        the specified messages can't be found, they are skipped. Returns True on
         success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -3357,15 +3558,18 @@ class APIMethods:
         emoji: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: (
-            InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None
-        ) = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendSticker`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
 
-        Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. 
+        Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
         On success, the sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
@@ -3389,6 +3593,9 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -3428,7 +3635,7 @@ class APIMethods:
     ) -> Result[list[Sticker], APIError]:
         """Method `getCustomEmojiStickers`, see the [documentation](https://core.telegram.org/bots/api#getcustomemojistickers)
 
-        Use this method to get information about custom emoji stickers by their 
+        Use this method to get information about custom emoji stickers by their
         identifiers. Returns an Array of Sticker objects.
 
         :param custom_emoji_ids: A JSON-serialized list of custom emoji identifiers. At most 200 custom \
@@ -3450,8 +3657,8 @@ class APIMethods:
     ) -> Result[File, APIError]:
         """Method `uploadStickerFile`, see the [documentation](https://core.telegram.org/bots/api#uploadstickerfile)
 
-        Use this method to upload a file with a sticker for later use in the createNewStickerSet, 
-        addStickerToSet, or replaceStickerInSet methods (the file can be used 
+        Use this method to upload a file with a sticker for later use in the createNewStickerSet,
+        addStickerToSet, or replaceStickerInSet methods (the file can be used
         multiple times). Returns the uploaded File on success.
 
         :param user_id: User identifier of sticker file owner.
@@ -3480,7 +3687,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `createNewStickerSet`, see the [documentation](https://core.telegram.org/bots/api#createnewstickerset)
 
-        Use this method to create a new sticker set owned by a user. The bot will be 
+        Use this method to create a new sticker set owned by a user. The bot will be
         able to edit the sticker set thus created. Returns True on success.
 
         :param user_id: User identifier of created sticker set owner.
@@ -3519,8 +3726,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `addStickerToSet`, see the [documentation](https://core.telegram.org/bots/api#addstickertoset)
 
-        Use this method to add a new sticker to a set created by the bot. Emoji sticker 
-        sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. 
+        Use this method to add a new sticker to a set created by the bot. Emoji sticker
+        sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers.
         Returns True on success.
 
         :param user_id: User identifier of sticker set owner.
@@ -3589,8 +3796,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `replaceStickerInSet`, see the [documentation](https://core.telegram.org/bots/api#replacestickerinset)
 
-        Use this method to replace an existing sticker in a sticker set with a new 
-        one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, 
+        Use this method to replace an existing sticker in a sticker set with a new
+        one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet,
         then setStickerPositionInSet. Returns True on success.
 
         :param user_id: User identifier of the sticker set owner.
@@ -3641,8 +3848,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setStickerKeywords`, see the [documentation](https://core.telegram.org/bots/api#setstickerkeywords)
 
-        Use this method to change search keywords assigned to a regular or custom 
-        emoji sticker. The sticker must belong to a sticker set created by the bot. 
+        Use this method to change search keywords assigned to a regular or custom
+        emoji sticker. The sticker must belong to a sticker set created by the bot.
         Returns True on success.
 
         :param sticker: File identifier of the sticker.
@@ -3665,7 +3872,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setStickerMaskPosition`, see the [documentation](https://core.telegram.org/bots/api#setstickermaskposition)
 
-        Use this method to change the mask position of a mask sticker. The sticker 
+        Use this method to change the mask position of a mask sticker. The sticker
         must belong to a sticker set that was created by the bot. Returns True on success.
 
         :param sticker: File identifier of the sticker.
@@ -3712,8 +3919,8 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setStickerSetThumbnail`, see the [documentation](https://core.telegram.org/bots/api#setstickersetthumbnail)
 
-        Use this method to set the thumbnail of a regular or mask sticker set. The 
-        format of the thumbnail file must match the format of the stickers in the 
+        Use this method to set the thumbnail of a regular or mask sticker set. The
+        format of the thumbnail file must match the format of the stickers in the
         set. Returns True on success.
 
         :param name: Sticker set name.
@@ -3751,7 +3958,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `setCustomEmojiStickerSetThumbnail`, see the [documentation](https://core.telegram.org/bots/api#setcustomemojistickersetthumbnail)
 
-        Use this method to set the thumbnail of a custom emoji sticker set. Returns 
+        Use this method to set the thumbnail of a custom emoji sticker set. Returns
         True on success.
 
         :param name: Sticker set name.
@@ -3797,7 +4004,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `answerInlineQuery`, see the [documentation](https://core.telegram.org/bots/api#answerinlinequery)
 
-        Use this method to send answers to an inline query. On success, True is returned. 
+        Use this method to send answers to an inline query. On success, True is returned.
         No more than 50 results per query are allowed.
 
         :param inline_query_id: Unique identifier for the answered query.
@@ -3854,10 +4061,10 @@ class APIMethods:
         title: str,
         description: str,
         payload: str,
-        provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
         message_thread_id: int | None = None,
+        provider_token: str | None = None,
         max_tip_amount: int | None = None,
         suggested_tip_amounts: list[int] | None = None,
         start_parameter: str | None = None,
@@ -3875,6 +4082,7 @@ class APIMethods:
         is_flexible: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
@@ -3896,18 +4104,22 @@ class APIMethods:
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
         the user, use for your internal processes.
 
-        :param provider_token: Payment provider token, obtained via @BotFather.
+        :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty string \
+        for payments in Telegram Stars.
 
-        :param currency: Three-letter ISO 4217 currency code, see more on currencies.
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` \
+        for payments in Telegram Stars.
 
         :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price, \
-        tax, discount, delivery cost, delivery tax, bonus, etc.).
+        tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain \
+        exactly one item for payments in Telegram Stars.
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
         (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
         pass max_tip_amount = 145. See the exp parameter in currencies.json, it \
         shows the number of digits past the decimal point for each currency (2 for \
-        the majority of currencies). Defaults to 0.
+        the majority of currencies). Defaults to 0. Not supported for payments \
+        in Telegram Stars.
 
         :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units \
         of the currency (integer, not float/double). At most 4 suggested tip amounts \
@@ -3934,23 +4146,33 @@ class APIMethods:
 
         :param photo_height: Photo height.
 
-        :param need_name: Pass True if you require the user's full name to complete the order.
+        :param need_name: Pass True if you require the user's full name to complete the order. Ignored \
+        for payments in Telegram Stars.
 
-        :param need_phone_number: Pass True if you require the user's phone number to complete the order.
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order. Ignored \
+        for payments in Telegram Stars.
 
         :param need_email: Pass True if you require the user's email address to complete the order. \
+        Ignored for payments in Telegram Stars.
 
         :param need_shipping_address: Pass True if you require the user's shipping address to complete the order. \
+        Ignored for payments in Telegram Stars.
 
-        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to provider.
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider. Ignored \
+        for payments in Telegram Stars.
 
-        :param send_email_to_provider: Pass True if the user's email address should be sent to provider.
+        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider. Ignored \
+        for payments in Telegram Stars.
 
-        :param is_flexible: Pass True if the final price depends on the shipping method.
+        :param is_flexible: Pass True if the final price depends on the shipping method. Ignored for \
+        payments in Telegram Stars.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -3969,9 +4191,9 @@ class APIMethods:
         title: str,
         description: str,
         payload: str,
-        provider_token: str,
         currency: str,
         prices: list[LabeledPrice],
+        provider_token: str | None = None,
         max_tip_amount: int | None = None,
         suggested_tip_amounts: list[int] | None = None,
         provider_data: str | None = None,
@@ -3990,7 +4212,7 @@ class APIMethods:
     ) -> Result[str, APIError]:
         """Method `createInvoiceLink`, see the [documentation](https://core.telegram.org/bots/api#createinvoicelink)
 
-        Use this method to create a link for an invoice. Returns the created invoice 
+        Use this method to create a link for an invoice. Returns the created invoice
         link as String on success.
 
         :param title: Product name, 1-32 characters.
@@ -4000,18 +4222,22 @@ class APIMethods:
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
         the user, use for your internal processes.
 
-        :param provider_token: Payment provider token, obtained via BotFather.
+        :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty string \
+        for payments in Telegram Stars.
 
-        :param currency: Three-letter ISO 4217 currency code, see more on currencies.
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` \
+        for payments in Telegram Stars.
 
         :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price, \
-        tax, discount, delivery cost, delivery tax, bonus, etc.).
+        tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain \
+        exactly one item for payments in Telegram Stars.
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
         (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
         pass max_tip_amount = 145. See the exp parameter in currencies.json, it \
         shows the number of digits past the decimal point for each currency (2 for \
-        the majority of currencies). Defaults to 0.
+        the majority of currencies). Defaults to 0. Not supported for payments \
+        in Telegram Stars.
 
         :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units \
         of the currency (integer, not float/double). At most 4 suggested tip amounts \
@@ -4031,19 +4257,26 @@ class APIMethods:
 
         :param photo_height: Photo height.
 
-        :param need_name: Pass True if you require the user's full name to complete the order.
+        :param need_name: Pass True if you require the user's full name to complete the order. Ignored \
+        for payments in Telegram Stars.
 
-        :param need_phone_number: Pass True if you require the user's phone number to complete the order.
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order. Ignored \
+        for payments in Telegram Stars.
 
         :param need_email: Pass True if you require the user's email address to complete the order. \
+        Ignored for payments in Telegram Stars.
 
         :param need_shipping_address: Pass True if you require the user's shipping address to complete the order. \
+        Ignored for payments in Telegram Stars.
 
-        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider.
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider. Ignored \
+        for payments in Telegram Stars.
 
-        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider.
+        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider. Ignored \
+        for payments in Telegram Stars.
 
-        :param is_flexible: Pass True if the final price depends on the shipping method.
+        :param is_flexible: Pass True if the final price depends on the shipping method. Ignored for \
+        payments in Telegram Stars.
         """
 
         method_response = await self.api.request_raw(
@@ -4062,9 +4295,9 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `answerShippingQuery`, see the [documentation](https://core.telegram.org/bots/api#answershippingquery)
 
-        If you sent an invoice requesting a shipping address and the parameter is_flexible 
-        was specified, the Bot API will send an Update with a shipping_query field 
-        to the bot. Use this method to reply to shipping queries. On success, True 
+        If you sent an invoice requesting a shipping address and the parameter is_flexible
+        was specified, the Bot API will send an Update with a shipping_query field
+        to the bot. Use this method to reply to shipping queries. On success, True
         is returned.
 
         :param shipping_query_id: Unique identifier for the query to be answered.
@@ -4096,10 +4329,10 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `answerPreCheckoutQuery`, see the [documentation](https://core.telegram.org/bots/api#answerprecheckoutquery)
 
-        Once the user has confirmed their payment and shipping details, the Bot 
-        API sends the final confirmation in the form of an Update with the field pre_checkout_query. 
-        Use this method to respond to such pre-checkout queries. On success, True 
-        is returned. Note: The Bot API must receive an answer within 10 seconds after 
+        Once the user has confirmed their payment and shipping details, the Bot
+        API sends the final confirmation in the form of an Update with the field pre_checkout_query.
+        Use this method to respond to such pre-checkout queries. On success, True
+        is returned. Note: The Bot API must receive an answer within 10 seconds after
         the pre-checkout query was sent.
 
         :param pre_checkout_query_id: Unique identifier for the query to be answered.
@@ -4116,6 +4349,50 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "answerPreCheckoutQuery",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def get_star_transactions(
+        self,
+        offset: int | None = None,
+        limit: int | None = None,
+        **other: typing.Any,
+    ) -> Result[StarTransactions, APIError]:
+        """Method `getStarTransactions`, see the [documentation](https://core.telegram.org/bots/api#getstartransactions)
+
+        Returns the bot's Telegram Star transactions in chronological order.
+        On success, returns a StarTransactions object.
+
+        :param offset: Number of transactions to skip in the response.
+
+        :param limit: The maximum number of transactions to be retrieved. Values between 1-100 \
+        are accepted. Defaults to 100.
+        """
+
+        method_response = await self.api.request_raw(
+            "getStarTransactions",
+            get_params(locals()),
+        )
+        return full_result(method_response, StarTransactions)
+
+    async def refund_star_payment(
+        self,
+        user_id: int,
+        telegram_payment_charge_id: str,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `refundStarPayment`, see the [documentation](https://core.telegram.org/bots/api#refundstarpayment)
+
+        Refunds a successful payment in Telegram Stars. Returns True on success.
+
+        :param user_id: Identifier of the user whose payment will be refunded.
+
+        :param telegram_payment_charge_id: Telegram payment identifier.
+        """
+
+        method_response = await self.api.request_raw(
+            "refundStarPayment",
             get_params(locals()),
         )
         return full_result(method_response, bool)
@@ -4156,6 +4433,7 @@ class APIMethods:
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
@@ -4178,6 +4456,9 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -4204,9 +4485,9 @@ class APIMethods:
     ) -> Result[Variative[Message, bool], APIError]:
         """Method `setGameScore`, see the [documentation](https://core.telegram.org/bots/api#setgamescore)
 
-        Use this method to set the score of the specified user in a game message. On 
-        success, if the message is not an inline message, the Message is returned, 
-        otherwise True is returned. Returns an error, if the new score is not greater 
+        Use this method to set the score of the specified user in a game message. On
+        success, if the message is not an inline message, the Message is returned,
+        otherwise True is returned. Returns an error, if the new score is not greater
         than the user's current score in the chat and force is False.
 
         :param user_id: User identifier.
@@ -4245,8 +4526,8 @@ class APIMethods:
     ) -> Result[list[GameHighScore], APIError]:
         """Method `getGameHighScores`, see the [documentation](https://core.telegram.org/bots/api#getgamehighscores)
 
-        Use this method to get data for high score tables. Will return the score of 
-        the specified user and several of their neighbors in a game. Returns an Array 
+        Use this method to get data for high score tables. Will return the score of
+        the specified user and several of their neighbors in a game. Returns an Array
         of GameHighScore objects.
 
         :param user_id: Target user id.

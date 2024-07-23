@@ -2,8 +2,9 @@ import pathlib
 import random
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.bot import WaiterMachine
+from telegrinder.bot import WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
+from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
 from telegrinder.rules import FuzzyText, HasText, Markup, Text
 from telegrinder.types import InputFile
@@ -13,6 +14,8 @@ bot = Telegrinder(api)
 wm = WaiterMachine()
 kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
 logger.set_level("INFO")
+
+bot.dispatch.message.auto_rules.append(IsUser())
 
 
 @bot.on.message(Text("/start"))
@@ -25,6 +28,7 @@ async def start(message: Message):
         bot.dispatch.message,
         message,
         Text(["fine", "bad"], ignore_case=True),
+        exit=MessageReplyHandler("Oh, ok, exiting state...", Text("/exit")),
         default=MessageReplyHandler("Fine or bad"),
     )
 
@@ -67,9 +71,7 @@ async def reverse(message: Message, text: str):
 @bot.on.message(Markup(["/predict", "/predict <thing>"]))
 async def predict(message: Message, thing: str | None = None):
     probability_percent = random.randint(0, 100)
-    await message.answer(
-        f"I predict the probability {thing or 'it'} will happen is {probability_percent}%"
-    )
+    await message.answer(f"I predict the probability {thing or 'it'} will happen is {probability_percent}%")
 
 
 @bot.on.message(FuzzyText("hello"))
@@ -77,4 +79,5 @@ async def hello(message: Message):
     await message.reply("Hi!")
 
 
+bot.loop_wrapper.add_task(clear_wm_storage_worker(wm, bot.dispatch))
 bot.run_forever(skip_updates=True)

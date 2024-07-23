@@ -48,7 +48,10 @@ class DelayedTask(typing.Generic[CoroFunc]):
             await asyncio.sleep(self.seconds)
             if self.is_cancelled:
                 break
-            await self.handler(*args, **kwargs)
+            try:
+                await self.handler(*args, **kwargs)
+            except Exception as e:
+                logger.exception("Error in delayed task: {}", str(e))
             if not self.repeat:
                 break
 
@@ -63,13 +66,11 @@ class Lifespan:
     shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
 
     def on_startup(self, task_or_func: Task) -> Task:
-        task_or_func = to_coroutine_task(task_or_func)
-        self.startup_tasks.append(task_or_func)
+        self.startup_tasks.append(to_coroutine_task(task_or_func))
         return task_or_func
 
     def on_shutdown(self, task_or_func: Task) -> Task:
-        task_or_func = to_coroutine_task(task_or_func)
-        self.shutdown_tasks.append(task_or_func)
+        self.shutdown_tasks.append(to_coroutine_task(task_or_func))
         return task_or_func
 
     def start(self, loop: asyncio.AbstractEventLoop) -> None:

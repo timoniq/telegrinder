@@ -1,0 +1,47 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-merge-conflict
+        stages: [commit, push]
+      - id: check-ast
+        stages: [commit]
+      - id: trailing-whitespace
+        stages: [commit]
+      - id: end-of-file-fixer
+        stages: [commit]
+
+  - repo: local
+    hooks:
+      - id: basedpyright
+        name: basedpyright type checker
+        description: "Run 'basedpyright' for extremely fast Python type checking"
+        entry: basedpyright . --level ERROR
+        language: system
+        types: [python]
+        stages: [commit]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.9
+    hooks:
+      - id: ruff-format
+        name: ruff-format
+        description: "Run 'ruff format' for extremely fast Python formatting"
+        language: system
+        types: [python]
+        stages: [commit]
+
+      - id: ruff
+        name: ruff-isort
+        description: "Run 'ruff --select I --select F401 --fix' for extremely fast Python sorting imports"
+        entry: ruff check --select I --select F401 --fix
+        language: system
+        types: [python]
+        stages: [commit]
+
+      - id: ruff
+        name: ruff-check
+        description: "Run 'ruff-format' for extremely fast Python linting"
+        language: system
+        types: [python]
+        stages: [push]

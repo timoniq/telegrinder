@@ -8,7 +8,7 @@ from .adapter import EventAdapter
 
 
 class MessageRule(ABCRule[Message], abc.ABC):
-    adapter = EventAdapter(MessageEvent, Message)
+    adapter: EventAdapter[Message] = EventAdapter(MessageEvent, Message)
 
     @abc.abstractmethod
     async def check(self, message: Message, ctx: Context) -> bool: ...

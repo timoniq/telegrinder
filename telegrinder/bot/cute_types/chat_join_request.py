@@ -9,9 +9,7 @@ from .base import BaseCute, shortcut
 from .chat_member_updated import ChatMemberShortcuts, chat_member_interaction
 
 
-class ChatJoinRequestCute(
-    BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMemberShortcuts, kw_only=True
-):
+class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMemberShortcuts, kw_only=True):
     api: ABCAPI
 
     @property
@@ -31,8 +29,8 @@ class ChatJoinRequestCute(
     ) -> Result[bool, APIError]:
         """Shortcut `API.approve_chat_join_request()`, see the [documentation](https://core.telegram.org/bots/api#approvechatjoinrequest)
 
-        Use this method to approve a chat join request. The bot must be an administrator 
-        in the chat for this to work and must have the can_invite_users administrator 
+        Use this method to approve a chat join request. The bot must be an administrator
+        in the chat for this to work and must have the can_invite_users administrator
         right. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -52,8 +50,8 @@ class ChatJoinRequestCute(
     ) -> Result[bool, APIError]:
         """Shortcut `API.decline_chat_join_request()`, see the [documentation](https://core.telegram.org/bots/api#declinechatjoinrequest)
 
-        Use this method to decline a chat join request. The bot must be an administrator 
-        in the chat for this to work and must have the can_invite_users administrator 
+        Use this method to decline a chat join request. The bot must be an administrator
+        in the chat for this to work and must have the can_invite_users administrator
         right. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
@@ -63,3 +61,6 @@ class ChatJoinRequestCute(
         """
 
         ...
+
+
+__all__ = ("ChatJoinRequestCute",)

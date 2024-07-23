@@ -47,30 +47,36 @@ class RowButtons(typing.Generic[ButtonT]):
 @dataclasses.dataclass
 class Button(BaseButton):
     text: str
-    _: dataclasses.KW_ONLY
-    request_contact: bool = False
-    request_location: bool = False
-    request_chat: dict[str, typing.Any] | KeyboardButtonRequestChat | None = None
-    request_user: dict[str, typing.Any] | KeyboardButtonRequestUsers | None = None
-    request_poll: dict[str, typing.Any] | KeyboardButtonPollType | None = None
-    web_app: dict[str, typing.Any] | WebAppInfo | None = None
+    request_contact: bool = dataclasses.field(default=False, kw_only=True)
+    request_location: bool = dataclasses.field(default=False, kw_only=True)
+    request_chat: dict[str, typing.Any] | KeyboardButtonRequestChat | None = dataclasses.field(
+        default=None, kw_only=True
+    )
+    request_user: dict[str, typing.Any] | KeyboardButtonRequestUsers | None = dataclasses.field(
+        default=None, kw_only=True
+    )
+    request_poll: dict[str, typing.Any] | KeyboardButtonPollType | None = dataclasses.field(
+        default=None, kw_only=True
+    )
+    web_app: dict[str, typing.Any] | WebAppInfo | None = dataclasses.field(default=None, kw_only=True)
 
 
 @dataclasses.dataclass
 class InlineButton(BaseButton):
     text: str
-    _: dataclasses.KW_ONLY
-    url: str | None = None
-    login_url: dict[str, typing.Any] | LoginUrl | None = None
-    pay: bool | None = None
-    callback_data: str | dict[str, typing.Any] | DataclassInstance | msgspec.Struct | None = None
-    callback_game: dict[str, typing.Any] | CallbackGame | None = None
-    switch_inline_query: str | None = None
-    switch_inline_query_current_chat: str | None = None
-    switch_inline_query_chosen_chat: dict[str, typing.Any] | SwitchInlineQueryChosenChat | None = (
-        None
+    url: str | None = dataclasses.field(default=None, kw_only=True)
+    login_url: dict[str, typing.Any] | LoginUrl | None = dataclasses.field(default=None, kw_only=True)
+    pay: bool | None = dataclasses.field(default=None, kw_only=True)
+    callback_data: str | dict[str, typing.Any] | DataclassInstance | msgspec.Struct | None = (
+        dataclasses.field(default=None, kw_only=True)
     )
-    web_app: dict[str, typing.Any] | WebAppInfo | None = None
+    callback_game: dict[str, typing.Any] | CallbackGame | None = dataclasses.field(default=None, kw_only=True)
+    switch_inline_query: str | None = dataclasses.field(default=None, kw_only=True)
+    switch_inline_query_current_chat: str | None = dataclasses.field(default=None, kw_only=True)
+    switch_inline_query_chosen_chat: dict[str, typing.Any] | SwitchInlineQueryChosenChat | None = (
+        dataclasses.field(default=None, kw_only=True)
+    )
+    web_app: dict[str, typing.Any] | WebAppInfo | None = dataclasses.field(default=None, kw_only=True)
 
 
 __all__ = (

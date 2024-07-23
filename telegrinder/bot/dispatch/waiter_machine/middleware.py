@@ -6,6 +6,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.view.abc import ABCStateView
+from telegrinder.bot.dispatch.waiter_machine.short_state import ShortStateContext
 
 if typing.TYPE_CHECKING:
     from .machine import WaiterMachine
@@ -27,7 +28,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         if not self.view or not hasattr(self.view, "get_state_key"):
             raise RuntimeError(
                 "WaiterMiddleware cannot be used inside a view which doesn't "
-                "provide get_state_key (ABCStateView Protocol)."
+                "provide get_state_key (ABCStateView interface)."
             )
 
         view_name = self.view.__class__.__name__
@@ -41,13 +42,36 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         short_state: "ShortState[EventType] | None" = self.machine.storage[view_name].get(key)
         if not short_state:
             return True
-        
+
         preset_context = Context(short_state=short_state)
-        if (
-            short_state.expiration_date is not None
-            and datetime.datetime.now() >= short_state.expiration_date
+        if short_state.context is not None:
+            preset_context.update(short_state.context.context)
+
+        if short_state.expiration_date is not None and datetime.datetime.now() >= short_state.expiration_date:
+            await self.machine.drop(
+                self.view,
+                short_state.key,
+                event,
+                ctx.raw_update,
+                **preset_context.copy(),
+            )
+            return True
+
+        # before running the handler we check if the user wants to exit waiting
+        if short_state.exit_behaviour is not None and await self.machine.call_behaviour(
+            self.view,
+            event,
+            ctx.raw_update,
+            behaviour=short_state.exit_behaviour,
+            **preset_context,
         ):
-            await self.machine.drop(self.view, short_state.key, ctx.raw_update, **preset_context.copy())
+            await self.machine.drop(
+                self.view,
+                short_state.key,
+                event,
+                ctx.raw_update,
+                **preset_context.copy(),
+            )
             return True
 
         handler = FuncHandler(
@@ -78,7 +102,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         short_state: "ShortState[EventType]",
         ctx: Context,
     ) -> None:
-        setattr(short_state.event, "context", (event, ctx))
+        short_state.context = ShortStateContext(event, ctx)
         short_state.event.set()
 
 

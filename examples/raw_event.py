@@ -24,9 +24,7 @@ class ReactionRule(ABCRule[Update]):
         match update.get_event(MessageReactionUpdated):
             case Some(event) if event.user:
                 user = event.user.unwrap()
-                message_id = bot.dispatch.global_context.get_value(
-                    f"{user.id}:{event.chat.id}", int
-                )
+                message_id = bot.dispatch.global_context.get_value(f"{user.id}:{event.chat.id}", int)
                 return message_id.unwrap_or_none() == event.message_id
         return False
 
@@ -53,8 +51,7 @@ async def chat_boost(update: Update):
 @bot.on.raw_event(UpdateType.MESSAGE_REACTION, ReactionRule(), dataclass=MessageReactionUpdated)
 async def message_reaction(message_reaction: MessageReactionUpdated):
     new_reactions = [
-        x.v.emoji.value if x.v.type == "emoji" else "*custom reaction*"
-        for x in message_reaction.new_reaction
+        x.v.emoji.value if x.v.type == "emoji" else "*custom reaction*" for x in message_reaction.new_reaction
     ]
     await bot.api.send_message(
         chat_id=message_reaction.chat.id,

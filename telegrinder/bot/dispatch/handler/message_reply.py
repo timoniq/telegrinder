@@ -6,7 +6,6 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.modules import logger
-from telegrinder.msgspec_utils import Nothing
 from telegrinder.types.objects import ReplyParameters, Update
 
 from .abc import ABCHandler
@@ -16,15 +15,18 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
     def __init__(
         self,
         text: str,
-        *rules: ABCRule[MessageCute],
+        *rules: ABCRule,
         is_blocking: bool = True,
         as_reply: bool = False,
+        preset_context: Context | None = None,
+        **default_params: typing.Any,
     ) -> None:
         self.text = text
         self.rules = list(rules)
         self.as_reply = as_reply
         self.is_blocking = is_blocking
-        self.preset_context = Context()
+        self.default_params = default_params
+        self.preset_context = preset_context or Context()
 
     def __repr__(self) -> str:
         return "<{}: with rules={!r}, {}: {!r}>".format(
@@ -51,6 +53,7 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         await event.answer(
             text=self.text,
             reply_parameters=ReplyParameters(event.message_id) if self.as_reply else None,
+            **self.default_params,
         )
 
 

@@ -84,7 +84,6 @@ def ctx_var(value: T, *, const: bool = False) -> T:
 @dataclasses.dataclass(frozen=True, eq=False)
 class RootAttr:
     name: str
-    _: dataclasses.KW_ONLY
     can_be_read: bool = dataclasses.field(default=True, kw_only=True)
     can_be_rewritten: bool = dataclasses.field(default=False, kw_only=True)
 
@@ -124,9 +123,7 @@ class Storage:
     order_default=True,
     field_specifiers=(ctx_var,),
 )
-class GlobalContext(
-    ABCGlobalContext, typing.Generic[CtxValueT], dict[str, GlobalCtxVar[CtxValueT]]
-):
+class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, GlobalCtxVar[CtxValueT]]):
     """GlobalContext.
 
     ```
@@ -315,10 +312,10 @@ class GlobalContext(
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
-    def pop(self, var_name: str, var_value_type: type[T] = object) -> Option[GlobalCtxVar[T]]:
+    def pop(self, var_name: str, var_value_type=object):  # type: ignore
         """Pop context variable by name."""
 
-        val = self.get(var_name, var_value_type)
+        val = self.get(var_name, var_value_type)  # type: ignore
         if val:
             del self[var_name]
             return val
@@ -334,13 +331,10 @@ class GlobalContext(
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
-    def get(
-        self,
-        var_name: str,
-        var_value_type: type[T] = object,
-    ) -> Option[GlobalCtxVar[T]]:
+    def get(self, var_name, var_value_type=object):  # type: ignore
         """Get context variable by name."""
 
+        var_value_type = typing.Any if var_value_type is object else type
         generic_types = typing.get_args(get_orig_class(self))
         if generic_types and var_value_type is object:
             var_value_type = generic_types[0]
@@ -369,11 +363,7 @@ class GlobalContext(
         var_value_type: type[T],
     ) -> Option[T]: ...
 
-    def get_value(
-        self,
-        var_name: str,
-        var_value_type: type[T] = object,
-    ) -> Option[T]:
+    def get_value(self, var_name, var_value_type=object):  # type: ignore
         """Get context variable value by name."""
 
         return self.get(var_name, var_value_type).map(lambda var: var.value)

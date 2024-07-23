@@ -29,7 +29,7 @@ class RawEventView(BaseView[UpdateCute]):
     def __call__(
         self,
         update_type: UpdateType,
-        *rules: ABCRule[UpdateCute],
+        *rules: ABCRule,
     ) -> typing.Callable[
         [FuncType[UpdateCute]],
         FuncHandler[UpdateCute, FuncType[UpdateCute], ErrorHandler[UpdateCute]],
@@ -39,7 +39,7 @@ class RawEventView(BaseView[UpdateCute]):
     def __call__(
         self,
         update_type: UpdateType,
-        *rules: ABCRule[UpdateCute],
+        *rules: ABCRule,
         dataclass: type[T],
     ) -> typing.Callable[[FuncType[T]], FuncHandler[UpdateCute, FuncType[T], ErrorHandler[T]]]: ...
 
@@ -47,7 +47,7 @@ class RawEventView(BaseView[UpdateCute]):
     def __call__(
         self,
         update_type: UpdateType,
-        *rules: ABCRule[UpdateCute],
+        *rules: ABCRule,
         error_handler: ErrorHandlerT,
     ) -> typing.Callable[
         [FuncType[UpdateCute]],
@@ -58,7 +58,7 @@ class RawEventView(BaseView[UpdateCute]):
     def __call__(
         self,
         update_type: UpdateType,
-        *rules: ABCRule[UpdateCute],
+        *rules: ABCRule,
         dataclass: type[T],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
@@ -68,7 +68,7 @@ class RawEventView(BaseView[UpdateCute]):
     def __call__(
         self,
         update_type: UpdateType,
-        *rules: ABCRule[UpdateCute],
+        *rules: ABCRule,
         dataclass: typing.Literal[None] = None,
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
@@ -80,7 +80,7 @@ class RawEventView(BaseView[UpdateCute]):
     def __call__(  # type: ignore
         self,
         update_type: UpdateType,
-        *rules: ABCRule[typing.Any],
+        *rules: ABCRule,
         dataclass: type[typing.Any] | None = None,
         error_handler: ABCErrorHandler | None = None,
         is_blocking: bool = True,

@@ -204,6 +204,185 @@
             ]
         },
         {
+            "name": "InputInvoiceMessageContent",
+            "fields": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
+            "name": "Invoice",
+            "fields": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
+            "name": "SuccessfulPayment",
+            "fields": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
+            "name": "PreCheckoutQuery",
+            "fields": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
+            "name": "PaidMediaPreview",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "preview"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PaidMediaPhoto",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "photo"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PaidMediaVideo",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "video"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InputPaidMediaPhoto",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "photo"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "InputPaidMediaVideo",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "video"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "TransactionPartnerTelegramAds",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "telegram_ads"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "RevenueWithdrawalStatePending",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "pending"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "RevenueWithdrawalStateSucceeded",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "succeeded"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "RevenueWithdrawalStateFailed",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "failed"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "RefundedPayment",
+            "fields": [
+                {
+                    "name": "currency",
+                    "literals": [
+                        "XTR"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "TransactionPartnerFragment",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "fragment"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "TransactionPartnerUser",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "user"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "TransactionPartnerOther",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "other"
+                    ]
+                }
+            ]
+        },
+        {
             "name": "EncryptedPassportElement",
             "fields": [
                 {
@@ -724,6 +903,7 @@
                 {
                     "name": "type",
                     "literals": [
+                        "personal_details",
                         "passport",
                         "driver_license",
                         "identity_card",
@@ -984,7 +1164,7 @@
                 {
                     "name": "type",
                     "literals": [
-                        "quiz", 
+                        "quiz",
                         "regular"
                     ]
                 }
@@ -1014,7 +1194,7 @@
                 {
                     "name": "sticker_format",
                     "literals": [
-                        "static", 
+                        "static",
                         "animated",
                         "video"
                     ]
@@ -1027,7 +1207,7 @@
                 {
                     "name": "sticker_format",
                     "literals": [
-                        "static", 
+                        "static",
                         "animated",
                         "video"
                     ]
@@ -1035,7 +1215,7 @@
                 {
                     "name": "sticker_type",
                     "literals": [
-                        "regular", 
+                        "regular",
                         "mask",
                         "custom_emoji"
                     ]

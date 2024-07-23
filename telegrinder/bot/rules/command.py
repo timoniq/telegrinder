@@ -2,16 +2,14 @@ import dataclasses
 import typing
 
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.node import Source
+from telegrinder.node.command import CommandInfo, single_split
+from telegrinder.node.me import Me
 
-from .abc import Message
-from .text import TextMessageRule
+from ...types import ChatType
+from .abc import ABCRule
 
 Validator = typing.Callable[[str], typing.Any | None]
-
-
-def single_split(s: str, separator: str) -> tuple[str, str]:
-    left, *right = s.split(separator, 1)
-    return left, (right[0] if right else "")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -19,6 +17,8 @@ class Argument:
     name: str
     validators: list[Validator] = dataclasses.field(default_factory=lambda: [])
     optional: bool = dataclasses.field(default=False, kw_only=True)
+
+    # NOTE: add optional param `description`
 
     def check(self, data: str) -> typing.Any | None:
         for validator in self.validators:
@@ -28,7 +28,7 @@ class Argument:
         return data
 
 
-class Command(TextMessageRule):
+class Command(ABCRule):
     def __init__(
         self,
         names: str | typing.Iterable[str],
@@ -36,12 +36,18 @@ class Command(TextMessageRule):
         prefixes: tuple[str, ...] = ("/",),
         separator: str = " ",
         lazy: bool = False,
+        validate_mention: bool = True,
+        mention_needed_in_chat: bool = False,
     ) -> None:
         self.names = [names] if isinstance(names, str) else names
         self.arguments = arguments
         self.prefixes = prefixes
         self.separator = separator
         self.lazy = lazy
+        self.validate_mention = validate_mention
+
+        # if true then we'll check for mention when message is from a group
+        self.mention_needed_in_chat = mention_needed_in_chat
 
     def remove_prefix(self, text: str) -> str | None:
         for prefix in self.prefixes:
@@ -93,19 +99,25 @@ class Command(TextMessageRule):
 
         return None
 
-    async def check(self, message: Message, ctx: Context) -> bool:
-        text = self.remove_prefix(message.text.unwrap())
-        if text is None:
+    async def check(self, command: CommandInfo, me: Me, src: Source, ctx: Context) -> bool:
+        name = self.remove_prefix(command.name)
+        if name is None:
             return False
 
-        name, arguments = single_split(text, self.separator)
         if name not in self.names:
             return False
 
-        if not self.arguments:
-            return not arguments
+        if not command.mention and self.mention_needed_in_chat and src.chat.type is not ChatType.PRIVATE:
+            return False
 
-        result = self.parse_arguments(list(self.arguments), arguments)
+        if command.mention and self.validate_mention:  # noqa
+            if command.mention.unwrap().lower() != me.username.unwrap().lower():
+                return False
+
+        if not self.arguments:
+            return not command.arguments
+
+        result = self.parse_arguments(list(self.arguments), command.arguments)
         if result is None:
             return False
 

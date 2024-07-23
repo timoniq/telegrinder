@@ -26,11 +26,12 @@ from .inline import (
     InlineQueryRule,
     InlineQueryText,
 )
-from .integer import Integer, IntegerInRange
+from .integer import IntegerInRange, IsInteger
 from .is_from import (
     IsBot,
     IsChat,
     IsChatId,
+    IsDice,
     IsDiceEmoji,
     IsForum,
     IsForward,
@@ -48,11 +49,12 @@ from .markup import Markup
 from .mention import HasMention
 from .message import MessageRule
 from .message_entities import HasEntities, MessageEntities
+from .node import NodeRule
 from .regex import Regex
 from .rule_enum import RuleEnum
 from .start import StartCommand
-from .text import HasText, Text, TextMessageRule
-from .update import IsUpdate
+from .text import HasText, Text
+from .update import IsUpdateType
 
 __all__ = (
     "ABCRule",
@@ -80,13 +82,14 @@ __all__ = (
     "InlineQueryMarkup",
     "InlineQueryRule",
     "InlineQueryText",
-    "Integer",
+    "IsInteger",
     "IntegerInRange",
     "InviteLinkByCreator",
     "InviteLinkName",
     "IsBot",
     "IsChat",
     "IsChatId",
+    "IsDice",
     "IsDiceEmoji",
     "IsForum",
     "IsForward",
@@ -97,7 +100,7 @@ __all__ = (
     "IsPrivate",
     "IsReply",
     "IsSuperGroup",
-    "IsUpdate",
+    "IsUpdateType",
     "IsUser",
     "IsUserId",
     "Markup",
@@ -109,5 +112,5 @@ __all__ = (
     "RuleEnum",
     "StartCommand",
     "Text",
-    "TextMessageRule",
+    "NodeRule",
 )

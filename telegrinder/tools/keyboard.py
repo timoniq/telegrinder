@@ -5,7 +5,6 @@ from types import NoneType
 
 from fntypes.option import Nothing, Some
 
-from telegrinder.msgspec_utils import Option
 from telegrinder.types.objects import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
@@ -18,12 +17,12 @@ DictStrAny: typing.TypeAlias = dict[str, typing.Any]
 AnyMarkup: typing.TypeAlias = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class KeyboardModel:
-    resize_keyboard: bool | Option[bool]
-    one_time_keyboard: bool | Option[bool]
-    selective: bool | Option[bool]
-    is_persistent: bool | Option[bool]
+    resize_keyboard: bool
+    one_time_keyboard: bool
+    selective: bool
+    is_persistent: bool
     keyboard: list[list[DictStrAny]]
 
 
@@ -40,7 +39,7 @@ class ABCMarkup(ABC, typing.Generic[ButtonT]):
         pass
 
     @classmethod
-    def empty(cls) -> AnyMarkup:
+    def get_empty_markup(cls) -> AnyMarkup:
         return cls().get_markup()
 
     def add(self, row_or_button: RowButtons[ButtonT] | ButtonT) -> typing.Self:
@@ -102,7 +101,7 @@ class Keyboard(ABCMarkup[Button], KeyboardModel):
     def get_markup(self) -> ReplyKeyboardMarkup:
         return ReplyKeyboardMarkup(**self.dict())
 
-    def get_empty_markup(self, *, selective: bool = False) -> ReplyKeyboardRemove:
+    def keyboard_remove(self, *, selective: bool = False) -> ReplyKeyboardRemove:
         return ReplyKeyboardRemove(remove_keyboard=True, selective=Some(selective))
 
 

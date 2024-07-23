@@ -1,6 +1,6 @@
 """Telegrinder
 
-Framework for effective and reliable telegram bot building.
+Modern visionary telegram bot framework.
 
 * Type hinted
 * Customizable and extensible
@@ -51,16 +51,20 @@ from .bot import (
     BaseView,
     CallbackQueryCute,
     CallbackQueryReturnManager,
+    CallbackQueryRule,
     CallbackQueryView,
     ChatJoinRequestCute,
+    ChatJoinRequestRule,
     ChatJoinRequestView,
     ChatMemberUpdatedCute,
     ChatMemberView,
     Checkbox,
+    Choice,
     Dispatch,
     FuncHandler,
     InlineQueryCute,
     InlineQueryReturnManager,
+    InlineQueryRule,
     MessageCute,
     MessageReplyHandler,
     MessageReturnManager,
@@ -69,7 +73,6 @@ from .bot import (
     Polling,
     RawEventView,
     ShortState,
-    SingleChoice,
     Telegrinder,
     UpdateCute,
     ViewBox,
@@ -152,6 +155,9 @@ __all__ = (
     "CallbackQueryView",
     "ChatJoinRequest",
     "ChatJoinRequestCute",
+    "CallbackQueryRule",
+    "ChatJoinRequestRule",
+    "InlineQueryRule",
     "ChatJoinRequestView",
     "ChatMemberUpdated",
     "ChatMemberUpdatedCute",
@@ -190,7 +196,7 @@ __all__ = (
     "ShortState",
     "SimpleI18n",
     "SimpleTranslator",
-    "SingleChoice",
+    "Choice",
     "Telegrinder",
     "Token",
     "Update",

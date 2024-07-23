@@ -15,8 +15,7 @@ async def handler_mention_me(message: Message, message_entities: list[MessageEnt
     my_username = (await api.get_me()).map(lambda me: me.username).unwrap()
     if (
         not my_username
-        or my_username
-        != message.text.unwrap()[message_entities[0].offset + 1 : message_entities[0].length]
+        or my_username != message.text.unwrap()[message_entities[0].offset + 1 : message_entities[0].length]
     ):
         return
     await message.delete()

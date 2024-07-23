@@ -40,10 +40,13 @@ class LoggerModule(typing.Protocol):
 
 logger: LoggerModule
 json: JSONModule = choice_in_order(
-    ["orjson", "ujson", "hyperjson"], do_import=True, default="telegrinder.msgspec_json"
+    ["orjson", "ujson", "hyperjson"],
+    default="telegrinder.msgspec_json",
+    do_import=True,
 )
-logging_module = choice_in_order(["loguru"], default="logging")
 logging_level = os.getenv("LOGGER_LEVEL", default="DEBUG").upper()
+logging_module = choice_in_order(["loguru"], default="logging")
+asyncio_module = choice_in_order(["uvloop"], default="asyncio")
 
 if logging_module == "loguru":
     import os
@@ -201,9 +204,7 @@ elif logging_module == "logging":
             kwargs: dict[str, object],
         ) -> tuple[LogMessage | object, tuple[object, ...], dict[str, object]]:
             log_kwargs = {
-                key: kwargs[key]
-                for key in inspect.getfullargspec(self.logger._log).args[1:]
-                if key in kwargs
+                key: kwargs[key] for key in inspect.getfullargspec(self.logger._log).args[1:] if key in kwargs
             }
 
             if isinstance(msg, str):
@@ -214,9 +215,16 @@ elif logging_module == "logging":
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(TelegrinderLoggingFormatter())
     logger = logging.getLogger("telegrinder")  # type: ignore
-    logger.setLevel(logging.getLevelName(logging_level))  # type: ignore
+    logger.setLevel(logging_level)  # type: ignore
     logger.addHandler(handler)  # type: ignore
     logger = TelegrinderLoggingStyleAdapter(logger)  # type: ignore
+
+if asyncio_module == "uvloop":
+    import asyncio
+
+    import uvloop  # type: ignore
+
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())  # type: ignore
 
 
 def _set_logger_level(level):

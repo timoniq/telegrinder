@@ -1,28 +1,24 @@
+from telegrinder import node
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.tools.i18n.base import ABCTranslator
 
-from .abc import ABC, Message, with_caching_translations
-from .message import MessageRule
+from .abc import ABCRule, with_caching_translations
+from .node import NodeRule
 
 
-class HasText(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
-        return bool(message.text)
+class HasText(NodeRule):
+    def __init__(self) -> None:
+        super().__init__(node.text.Text)
 
 
-class TextMessageRule(MessageRule, ABC, requires=[HasText()]):
-    pass
-
-
-class Text(TextMessageRule):
+class Text(ABCRule):
     def __init__(self, texts: str | list[str], *, ignore_case: bool = False) -> None:
         if not isinstance(texts, list):
             texts = [texts]
         self.texts = texts if not ignore_case else list(map(str.lower, texts))
         self.ignore_case = ignore_case
 
-    async def check(self, message: Message, ctx: Context) -> bool:
-        text = message.text.unwrap()
+    async def check(self, text: node.text.Text, ctx: Context) -> bool:
         return (text if not self.ignore_case else text.lower()) in self.texts
 
     @with_caching_translations
@@ -33,4 +29,4 @@ class Text(TextMessageRule):
         )
 
 
-__all__ = ("HasText", "Text", "TextMessageRule")
+__all__ = ("HasText", "Text")

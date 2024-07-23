@@ -2,95 +2,111 @@ import dataclasses
 
 import typing_extensions as typing
 
+from telegrinder.bot.dispatch.view import (
+    callback_query,
+    chat_join_request,
+    chat_member,
+    inline_query,
+    message,
+    raw,
+)
+from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.types.enums import UpdateType
 
-from .abc import ABCView
-from .callback_query import CallbackQueryView
-from .chat_join_request import ChatJoinRequestView
-from .chat_member import ChatMemberView
-from .inline_query import InlineQueryView
-from .message import MessageView
-from .raw import RawEventView
-
-CallbackQueryViewT = typing.TypeVar("CallbackQueryViewT", bound=ABCView, default=CallbackQueryView)
-ChatJoinRequestViewT = typing.TypeVar(
-    "ChatJoinRequestViewT", bound=ABCView, default=ChatJoinRequestView
+CallbackQueryView = typing.TypeVar(
+    "CallbackQueryView", bound=ABCView, default=callback_query.CallbackQueryView
 )
-ChatMemberViewT = typing.TypeVar("ChatMemberViewT", bound=ABCView, default=ChatMemberView)
-InlineQueryViewT = typing.TypeVar("InlineQueryViewT", bound=ABCView, default=InlineQueryView)
-MessageViewT = typing.TypeVar("MessageViewT", bound=ABCView, default=MessageView)
-RawEventViewT = typing.TypeVar("RawEventViewT", bound=ABCView, default=RawEventView)
+ChatJoinRequestView = typing.TypeVar(
+    "ChatJoinRequestView", bound=ABCView, default=chat_join_request.ChatJoinRequestView
+)
+ChatMemberView = typing.TypeVar("ChatMemberView", bound=ABCView, default=chat_member.ChatMemberView)
+InlineQueryView = typing.TypeVar("InlineQueryView", bound=ABCView, default=inline_query.InlineQueryView)
+MessageView = typing.TypeVar("MessageView", bound=ABCView, default=message.MessageView)
+RawEventView = typing.TypeVar("RawEventView", bound=ABCView, default=raw.RawEventView)
 
 
 @dataclasses.dataclass(kw_only=True)
 class ViewBox(
     typing.Generic[
-        CallbackQueryViewT,
-        ChatJoinRequestViewT,
-        ChatMemberViewT,
-        InlineQueryViewT,
-        MessageViewT,
-        RawEventViewT,
+        CallbackQueryView,
+        ChatJoinRequestView,
+        ChatMemberView,
+        InlineQueryView,
+        MessageView,
+        RawEventView,
     ],
 ):
-    callback_query: CallbackQueryViewT = dataclasses.field(
-        default_factory=lambda: typing.cast(CallbackQueryViewT, CallbackQueryView()),
-    )
-    chat_join_request: ChatJoinRequestViewT = dataclasses.field(
-        default_factory=lambda: typing.cast(ChatJoinRequestViewT, ChatJoinRequestView()),
-    )
-    chat_member: ChatMemberViewT = dataclasses.field(
+    callback_query: CallbackQueryView = dataclasses.field(
         default_factory=lambda: typing.cast(
-            ChatMemberViewT, ChatMemberView(update_type=UpdateType.CHAT_MEMBER)
+            CallbackQueryView,
+            callback_query.CallbackQueryView(),
         ),
     )
-    my_chat_member: ChatMemberViewT = dataclasses.field(
+    chat_join_request: ChatJoinRequestView = dataclasses.field(
         default_factory=lambda: typing.cast(
-            ChatMemberViewT, ChatMemberView(update_type=UpdateType.MY_CHAT_MEMBER)
+            ChatJoinRequestView,
+            chat_join_request.ChatJoinRequestView(),
         ),
     )
-    inline_query: InlineQueryViewT = dataclasses.field(
-        default_factory=lambda: typing.cast(InlineQueryViewT, InlineQueryView()),
-    )
-    message: MessageViewT = dataclasses.field(
+    chat_member: ChatMemberView = dataclasses.field(
         default_factory=lambda: typing.cast(
-            MessageViewT, MessageView(update_type=UpdateType.MESSAGE)
+            ChatMemberView,
+            chat_member.ChatMemberView(update_type=UpdateType.CHAT_MEMBER),
         ),
     )
-    business_message: MessageViewT = dataclasses.field(
+    my_chat_member: ChatMemberView = dataclasses.field(
         default_factory=lambda: typing.cast(
-            MessageViewT, MessageView(update_type=UpdateType.BUSINESS_MESSAGE)
+            ChatMemberView,
+            chat_member.ChatMemberView(update_type=UpdateType.MY_CHAT_MEMBER),
         ),
     )
-    channel_post: MessageViewT = dataclasses.field(
+    inline_query: InlineQueryView = dataclasses.field(
+        default_factory=lambda: typing.cast(InlineQueryView, inline_query.InlineQueryView()),
+    )
+    message: MessageView = dataclasses.field(
         default_factory=lambda: typing.cast(
-            MessageViewT, MessageView(update_type=UpdateType.CHANNEL_POST)
+            MessageView,
+            message.MessageView(update_type=UpdateType.MESSAGE),
         ),
     )
-    edited_message: MessageViewT = dataclasses.field(
+    business_message: MessageView = dataclasses.field(
         default_factory=lambda: typing.cast(
-            MessageViewT, MessageView(update_type=UpdateType.EDITED_MESSAGE)
+            MessageView,
+            message.MessageView(update_type=UpdateType.BUSINESS_MESSAGE),
         ),
     )
-    edited_business_message: MessageViewT = dataclasses.field(
+    channel_post: MessageView = dataclasses.field(
         default_factory=lambda: typing.cast(
-            MessageViewT,
-            MessageView(update_type=UpdateType.EDITED_BUSINESS_MESSAGE),
+            MessageView,
+            message.MessageView(update_type=UpdateType.CHANNEL_POST),
         ),
     )
-    edited_channel_post: MessageViewT = dataclasses.field(
+    edited_message: MessageView = dataclasses.field(
         default_factory=lambda: typing.cast(
-            MessageViewT, MessageView(update_type=UpdateType.EDITED_CHANNEL_POST)
+            MessageView,
+            message.MessageView(update_type=UpdateType.EDITED_MESSAGE),
         ),
     )
-    any_message: MessageViewT = dataclasses.field(
-        default_factory=lambda: typing.cast(MessageViewT, MessageView()),
+    edited_business_message: MessageView = dataclasses.field(
+        default_factory=lambda: typing.cast(
+            MessageView,
+            message.MessageView(update_type=UpdateType.EDITED_BUSINESS_MESSAGE),
+        ),
     )
-    chat_member_updated: ChatMemberViewT = dataclasses.field(
-        default_factory=lambda: typing.cast(ChatMemberViewT, ChatMemberView()),
+    edited_channel_post: MessageView = dataclasses.field(
+        default_factory=lambda: typing.cast(
+            MessageView,
+            message.MessageView(update_type=UpdateType.EDITED_CHANNEL_POST),
+        ),
     )
-    raw_event: RawEventViewT = dataclasses.field(
-        default_factory=lambda: typing.cast(RawEventViewT, RawEventView()),
+    any_message: MessageView = dataclasses.field(
+        default_factory=lambda: typing.cast(MessageView, message.MessageView()),
+    )
+    chat_member_updated: ChatMemberView = dataclasses.field(
+        default_factory=lambda: typing.cast(ChatMemberView, chat_member.ChatMemberView()),
+    )
+    raw_event: RawEventView = dataclasses.field(
+        default_factory=lambda: typing.cast(RawEventView, raw.RawEventView()),
     )
 
     def get_views(self) -> dict[str, ABCView]:

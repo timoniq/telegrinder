@@ -85,14 +85,12 @@ class DummyDatabase:
             aiosqlite.connect(db_path) as conn,
             conn.cursor() as cur,
         ):
-            row = await (
-                await cur.execute("SELECT * FROM users WHERE username = ?", (username,))
-            ).fetchone()
+            row = await (await cur.execute("SELECT * FROM users WHERE username = ?", (username,))).fetchone()
             if row is None:
                 return Nothing()
             return decoder.convert(
                 obj=get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
-                type=Option[User],
+                type=Option[User],  # type: ignore
             )
 
     async def get_user_by_id(self, user_id: int) -> Option[User]:
@@ -100,14 +98,12 @@ class DummyDatabase:
             aiosqlite.connect(db_path) as conn,
             conn.cursor() as cur,
         ):
-            row = await (
-                await cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-            ).fetchone()
+            row = await (await cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))).fetchone()
             if row is None:
                 return Nothing()
             return decoder.convert(
                 obj=get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
-                type=Option[User],
+                type=Option[User],  # type: ignore
             )
 
 
@@ -135,10 +131,7 @@ class MentionRule(
 ):
     async def check(self, message: Message, ctx: Context) -> bool:
         user = None
-        if (
-            ctx.get("message_entities")
-            and ctx.message_entities[0].type == MessageEntityType.TEXT_MENTION
-        ):
+        if ctx.get("message_entities") and ctx.message_entities[0].type == MessageEntityType.TEXT_MENTION:
             user = ctx.message_entities[0].user.unwrap()
             if (await db.get_user_by_id(user.id)).unwrap_or_none() is None:
                 await db.set_user(user)
@@ -162,7 +155,7 @@ async def get_user(_: Message, mentioned_user: User) -> str:
     return f"""
     Id -> {mentioned_user.id}
     Is bot -> {'✅' if mentioned_user.is_bot else '❌'}
-    First name -> {mentioned_user.first_name} 
+    First name -> {mentioned_user.first_name}
     Last name -> {mentioned_user.last_name.unwrap_or(repr('UNKNOWN'))}
     Is premium -> {'✅' if mentioned_user.is_premium.unwrap_or(False) else '❌'}
     Language code -> {mentioned_user.language_code.unwrap_or(repr('UNKNOWN'))}

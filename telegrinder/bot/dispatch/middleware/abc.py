@@ -4,13 +4,13 @@ from abc import ABC
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
 
-T = typing.TypeVar("T", bound=BaseCute)
+Event = typing.TypeVar("Event", bound=BaseCute)
 
 
-class ABCMiddleware(ABC, typing.Generic[T]):
-    async def pre(self, event: T, ctx: Context) -> bool: ...
+class ABCMiddleware(ABC, typing.Generic[Event]):
+    async def pre(self, event: Event, ctx: Context) -> bool: ...
 
-    async def post(self, event: T, responses: list[typing.Any], ctx: Context) -> None: ...
+    async def post(self, event: Event, responses: list[typing.Any], ctx: Context) -> None: ...
 
 
 __all__ = ("ABCMiddleware",)

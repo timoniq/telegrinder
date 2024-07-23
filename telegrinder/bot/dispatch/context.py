@@ -15,7 +15,7 @@ class Context(dict[str, AnyValue]):
     """Context class for rules and middlewares.
     ```
     class MyRule(ABCRule[T]):
-        adapter: ABCAdapter[Update, T] = RawUpdateAdapter()
+        adapter = RawUpdateAdapter()
 
         async def check(self, event: T, ctx: Context) -> bool:
             ctx.set("value", (await event.ctx_api.get_me()).unwrap())
@@ -28,17 +28,17 @@ class Context(dict[str, AnyValue]):
     def __init__(self, **kwargs: AnyValue) -> None:
         cls_vars = vars(self.__class__)
         defaults = {}
+
         for k in self.__class__.__annotations__:
             if k in cls_vars:
                 defaults[k] = cls_vars[k]
                 delattr(self.__class__, k)
+
         dict.__init__(self, **defaults | kwargs)
 
     @recursive_repr()
     def __repr__(self) -> str:
-        return "{}({})".format(
-            self.__class__.__name__, ", ".join(f"{k}={v!r}" for k, v in self.items())
-        )
+        return "{}({})".format(self.__class__.__name__, ", ".join(f"{k}={v!r}" for k, v in self.items()))
 
     def __setitem__(self, __key: Key, __value: AnyValue) -> None:
         dict.__setitem__(self, self.key_to_str(__key), __value)
@@ -70,6 +70,11 @@ class Context(dict[str, AnyValue]):
 
     def get(self, key: Key, default: T | None = None) -> T | AnyValue:
         return dict.get(self, key, default)
+
+    def get_or_set(self, key: Key, default: T) -> T:
+        if key not in self:
+            self.set(key, default)
+        return self.get(key)
 
     def delete(self, key: Key) -> None:
         del self[key]

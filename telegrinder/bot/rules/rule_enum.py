@@ -3,7 +3,7 @@ import typing
 
 from telegrinder.bot.dispatch.context import Context
 
-from .abc import ABCRule, T, Update, check_rule
+from .abc import ABCRule, Update, check_rule
 from .func import FuncRule
 
 
@@ -17,10 +17,10 @@ class RuleEnumState:
         return self.cls == other.cls and self.name == other.name
 
 
-class RuleEnum(ABCRule[T]):
+class RuleEnum(ABCRule):
     __enum__: list[RuleEnumState]
 
-    def __init_subclass__(cls, *args, **kwargs):
+    def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
         new_attributes = set(cls.__dict__) - set(RuleEnum.__dict__) - {"__enum__", "__init__"}
         enum_lst: list[RuleEnumState] = []
 
@@ -34,7 +34,7 @@ class RuleEnum(ABCRule[T]):
             setattr(
                 self,
                 attribute.name,
-                self & FuncRule(lambda _, ctx: self.must_be_state(ctx, attribute)),
+                self & FuncRule(lambda _, ctx: self.must_be_state(ctx, attribute)),  # type: ignore
             )
             enum_lst.append(attribute)
 

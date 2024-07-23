@@ -45,9 +45,21 @@ async def split_handler(
     sep: str = " ",
     count: int | None = None,
 ) -> None:
-    await message.answer(
-        " | ".join(string.split(sep, count) if count is not None else string.split(sep))
+    await message.answer(" | ".join(string.split(sep, count) if count is not None else string.split(sep)))
+
+
+@bot.on.message(
+    Command(
+        ["sum", "s"],
+        Argument("x", [int_validator]),
+        Argument("y", [int_validator]),
+        Argument("r", [int_validator], optional=True),
     )
+)
+async def sum_handler(message: Message, x: int, y: int, r: int | None = None) -> str:
+    if r is not None:
+        return "Yes" if x + y == r else "No"
+    return str(x + y)
 
 
 bot.run_forever()

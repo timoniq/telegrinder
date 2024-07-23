@@ -27,7 +27,7 @@ class LimitedDict(UserDict[KT, VT]):
 
     def __setitem__(self, key: KT, value: VT, /) -> None:
         self.set(key, value)
-    
+
     def __delitem__(self, key: KT) -> None:
         if key in self.queue:
             self.queue.remove(key)

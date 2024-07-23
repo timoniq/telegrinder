@@ -29,9 +29,7 @@ class SimpleI18n(ABCI18n):
         return result
 
     def get_translator_by_locale(self, locale: str) -> "SimpleTranslator":
-        return SimpleTranslator(
-            locale, self.translators.get(locale, self.translators[self.default_locale])
-        )
+        return SimpleTranslator(locale, self.translators.get(locale, self.translators[self.default_locale]))
 
 
 class SimpleTranslator(ABCTranslator):

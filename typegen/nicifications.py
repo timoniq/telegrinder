@@ -1,16 +1,17 @@
 """
 Code in this file is automatically parsed.
 ---
-Nicifications are basically nice features for models which are included in auto-generated models
+Nicifications are basically nice features for models which are included in auto-generate_noded models
 The difference between nicifications and cure types is: cute types can borrow view runtime properties and have context api
 (so they can implement model-specific methods).
 Nicifications can only implement methods/properties working only with model fields.
 """
 
+import pathlib
 import typing
 from datetime import datetime
 
-from fntypes.option import Option, Some
+from fntypes.option import Option
 
 from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import (
@@ -49,6 +50,9 @@ class _Birthdate(Birthdate):
 
 
 class _Chat(Chat):
+    def __eq__(self, other: typing.Any) -> bool:
+        return isinstance(other, self.__class__) and self.id == other.id
+
     @property
     def full_name(self) -> Option[str]:
         """Optional. Full name (`first_name` + `last_name`) of the
@@ -74,6 +78,13 @@ class _ChatMemberUpdated(ChatMemberUpdated):
 
 
 class _Message(Message):
+    def __eq__(self, other: typing.Any) -> bool:
+        return (
+            isinstance(other, self.__class__)
+            and self.message_id == other.message_id
+            and self.chat_id == other.chat_id
+        )
+
     @property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
@@ -104,20 +115,14 @@ class _Message(Message):
         Full name, for `private` chat."""
 
         return (
-            self.chat.full_name.unwrap()
-            if self.chat.type == ChatType.PRIVATE
-            else self.chat.title.unwrap()
-        )
-
-    def __eq__(self, other: typing.Any) -> bool:
-        return (
-            isinstance(other, self.__class__)
-            and self.message_id == other.message_id
-            and self.chat_id == other.chat_id
+            self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
         )
 
 
 class _User(User):
+    def __eq__(self, other: typing.Any) -> bool:
+        return isinstance(other, self.__class__) and self.id == other.id
+
     @property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
@@ -132,19 +137,21 @@ class _User(User):
 
 
 class _Update(Update):
+    def __eq__(self, other: typing.Any) -> bool:
+        return isinstance(other, self.__class__) and self.update_type == other.update_type
+
     @property
-    def update_type(self) -> Option[UpdateType]:
+    def update_type(self) -> UpdateType:
         """Incoming update type."""
 
-        if update := next(
-            filter(
-                lambda x: bool(x[1]),
-                self.to_dict(exclude_fields={"update_id"}).items(),
-            ),
-            None,
-        ):
-            return Some(UpdateType(update[0]))
-        return Nothing
+        return UpdateType(
+            next(
+                filter(
+                    lambda x: bool(x[1]),
+                    self.to_dict(exclude_fields={"update_id"}).items(),
+                ),
+            )[0],
+        )
 
 
 class _InputFile(typing.NamedTuple):
@@ -154,10 +161,18 @@ class _InputFile(typing.NamedTuple):
     data: bytes
     """Bytes of file."""
 
+    @classmethod
+    def from_file(cls, path: str | pathlib.Path) -> typing.Self:
+        path = pathlib.Path(path)
+        return cls(
+            filename=path.name,
+            data=path.read_bytes(),
+        )
+
 
 class _InaccessibleMessage(InaccessibleMessage):
     date: typing.Literal[0]
-    """Always 0. The field can be used to differentiate regular and inaccessible 
+    """Always 0. The field can be used to differentiate regular and inaccessible
     messages."""
 
 

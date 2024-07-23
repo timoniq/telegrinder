@@ -22,7 +22,6 @@ from .dispatch import (
     CallbackQueryView,
     ChatJoinRequestView,
     ChatMemberView,
-    CompositionDispatch,
     Context,
     Dispatch,
     FuncHandler,
@@ -35,11 +34,12 @@ from .dispatch import (
     ShortState,
     ViewBox,
     WaiterMachine,
+    clear_wm_storage_worker,
     register_manager,
 )
 from .polling import ABCPolling, Polling
-from .rules import ABCRule, CallbackQueryRule, MessageRule
-from .scenario import ABCScenario, Checkbox, SingleChoice
+from .rules import ABCRule, CallbackQueryRule, ChatJoinRequestRule, InlineQueryRule, MessageRule
+from .scenario import ABCScenario, Checkbox, Choice
 
 __all__ = (
     "ABCDispatch",
@@ -59,12 +59,13 @@ __all__ = (
     "CallbackQueryReturnManager",
     "CallbackQueryRule",
     "CallbackQueryView",
+    "ChatJoinRequestRule",
+    "InlineQueryRule",
     "ChatJoinRequestCute",
     "ChatJoinRequestView",
     "ChatMemberUpdatedCute",
     "ChatMemberView",
     "Checkbox",
-    "CompositionDispatch",
     "Context",
     "Dispatch",
     "FuncHandler",
@@ -79,10 +80,11 @@ __all__ = (
     "Polling",
     "RawEventView",
     "ShortState",
-    "SingleChoice",
+    "Choice",
     "Telegrinder",
     "UpdateCute",
     "ViewBox",
     "WaiterMachine",
     "register_manager",
+    "clear_wm_storage_worker",
 )

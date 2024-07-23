@@ -17,5 +17,9 @@ class ABCDispatch(ABC):
     def load(self, external: typing.Self) -> None:
         pass
 
+    def load_many(self, *externals: typing.Self) -> None:
+        for external in externals:
+            self.load(external)
+
 
 __all__ = ("ABCDispatch",)

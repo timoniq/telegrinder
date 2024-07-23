@@ -13,9 +13,7 @@ logger.set_level("INFO")
 
 @bot.on.inline_query(InlineQueryText("test"))
 async def test_inline(q: InlineQuery):
-    await q.answer(
-        inline_query_article("1", "Press me", input_text_message_content("I tested inline query"))
-    )
+    await q.answer(inline_query_article("1", "Press me", input_text_message_content("I tested inline query")))
 
 
 @bot.on.inline_query()
@@ -23,9 +21,7 @@ async def reverse_inline(q: InlineQuery):
     if not q.query:
         return
     await q.answer(
-        inline_query_article(
-            "1", "Send reversed", input_text_message_content("I tested inline query")
-        ),
+        inline_query_article("1", "Send reversed", input_text_message_content("I tested inline query")),
     )
 
 

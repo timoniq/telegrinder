@@ -1,6 +1,6 @@
 ---
 name: "\U0001F41B Bug report \U0001F41B"
-about: "Reporting a bug."
+about: "\U0001F41B Reporting a bug. \U0001F41B"
 title: ""
 labels: ["bug", "fix"]
 assignees: "luwqz1"
@@ -12,21 +12,19 @@ assignees: "luwqz1"
 * [ ] 🟢 I have the **latest** version of the **framework** installed 🟢
 
 ### ✏️ Description ✏️
-<!-- Describe the bug -->
-`When I..., it...`
+<!-- Describe the bug. -->
+_No response_
+
 
 ### 🪄 Code example 🪄
-<!--  Provide a minimal reproducible example -->
+<!--  Provide a minimal example. -->
 ```python
-from telegrinder import API, Telegrinder, Token
-
-...
+from telegrinder import ...
 ```
 
 ### 📝 Logs 📝
-<!-- Provide logs/errors to review the issue -->
-```
+<!-- Provide logs/errors to review the issue. -->
+```console
 Traceback (most recent call last):
 File "main.py", line 1, in <module>
-...
 ```

@@ -18,7 +18,6 @@ from .html import (
     strike,
     tg_emoji,
     underline,
-    user_open_message,
 )
 from .links import (
     get_channel_boost_link,
@@ -27,7 +26,6 @@ from .links import (
     get_resolve_domain_link,
     get_start_bot_link,
     get_start_group_link,
-    user_open_message_link,
 )
 from .spec_html_formats import (
     BaseSpecFormat,
@@ -41,7 +39,6 @@ from .spec_html_formats import (
     StartBotLink,
     StartGroupLink,
     TgEmoji,
-    UserOpenMessage,
 )
 
 __all__ = (
@@ -58,7 +55,6 @@ __all__ = (
     "StartBotLink",
     "StartGroupLink",
     "TgEmoji",
-    "UserOpenMessage",
     "block_quote",
     "bold",
     "channel_boost_link",
@@ -82,6 +78,4 @@ __all__ = (
     "strike",
     "tg_emoji",
     "underline",
-    "user_open_message",
-    "user_open_message_link",
 )

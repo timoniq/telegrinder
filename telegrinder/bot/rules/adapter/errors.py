@@ -1,5 +1,4 @@
-class AdapterError(RuntimeError):
-    pass
+class AdapterError(RuntimeError): ...
 
 
 __all__ = ("AdapterError",)

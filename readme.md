@@ -69,6 +69,6 @@ Join our [telegram forum](https://t.me/botoforum).
 
 # License
 
-Telegrinder is [MIT licensed](./LICENSE)  
+Telegrinder is [MIT licensed](./LICENSE)\
 Copyright © 2022-2024 [timoniq](https://github.com/timoniq)\
 Copyright © 2024 [luwqz1](https://github.com/luwqz1)
