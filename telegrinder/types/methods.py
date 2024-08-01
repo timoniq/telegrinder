@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API 7.7 methods, released `July 7, 2024`."""
+    """Telegram Bot API 7.8 methods, released `July 31, 2024`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -2207,6 +2207,7 @@ class APIMethods:
         self,
         chat_id: int | str,
         message_id: int,
+        business_connection_id: str | None = None,
         disable_notification: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2217,6 +2218,9 @@ class APIMethods:
         for this to work and must have the 'can_pin_messages' administrator right
         in a supergroup or 'can_edit_messages' administrator right in a channel.
         Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be pinned.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -2237,6 +2241,7 @@ class APIMethods:
     async def unpin_chat_message(
         self,
         chat_id: int | str,
+        business_connection_id: str | None = None,
         message_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2248,11 +2253,15 @@ class APIMethods:
         in a supergroup or 'can_edit_messages' administrator right in a channel.
         Returns True on success.
 
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be unpinned.
+
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_id: Identifier of a message to unpin. If not specified, the most recent pinned \
-        message (by sending date) will be unpinned.
+        :param message_id: Identifier of the message to unpin. Required if business_connection_id \
+        is specified. If not specified, the most recent pinned message (by sending \
+        date) will be unpinned.
         """
 
         method_response = await self.api.request_raw(
@@ -3929,9 +3938,9 @@ class APIMethods:
 
         :param thumbnail: A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size \
         and have a width and height of exactly 100px, or a .TGS animation with a thumbnail \
-        up to 32 kilobytes in size (see https://core.telegram.org/stickers#animated-sticker-requirements \
+        up to 32 kilobytes in size (see https://core.telegram.org/stickers#animation-requirements \
         for animated sticker technical requirements), or a WEBM video with the \
-        thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-sticker-requirements \
+        thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-requirements \
         for video sticker technical requirements. Pass a file_id as a String to \
         send a file that already exists on the Telegram servers, pass an HTTP URL \
         as a String for Telegram to get a file from the Internet, or upload a new one \

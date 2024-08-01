@@ -423,6 +423,9 @@ class User(Model):
     """Optional. True, if the bot can be connected to a Telegram Business account
     to receive its messages. Returned only in getMe."""
 
+    has_main_web_app: Option[bool] = Nothing
+    """Optional. True, if the bot has a main Web App. Returned only in getMe."""
+
     def __eq__(self, other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
