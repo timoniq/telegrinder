@@ -53,7 +53,7 @@ else:
             return cute_model
 
         for h in typing.get_args(hint):
-            cute = wrap(cute_model, h)
+            cute = wrap_cute_model(cute_model, h)
 
         orig_hint = typing.get_origin(hint) or hint
         if orig_hint is Option:
