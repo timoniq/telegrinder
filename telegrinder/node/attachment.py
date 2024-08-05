@@ -5,9 +5,8 @@ from fntypes import Option, Some
 from fntypes.option import Nothing
 
 import telegrinder.types
-
-from .base import ComposeError, DataNode, ScalarNode
-from .message import MessageNode
+from telegrinder.node.base import ComposeError, DataNode, ScalarNode
+from telegrinder.node.message import MessageNode
 
 
 @dataclasses.dataclass

@@ -7,9 +7,10 @@ from fntypes.co import Nothing, Result, Some, Variative, unwrapping
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
 from telegrinder.msgspec_utils import Option, decoder
-from telegrinder.types import (
+from telegrinder.types.objects import (
     CallbackQuery,
     Chat,
+    InaccessibleMessage,
     InlineKeyboardMarkup,
     InputFile,
     InputMedia,
@@ -26,6 +27,10 @@ from .message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
 
 class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, dict=True):
     api: ABCAPI
+
+    message: Option[Variative[MessageCute, InaccessibleMessage]] = Nothing()
+    """Optional. Message sent by the bot with the callback button that originated
+    the query."""
 
     @property
     def from_user(self) -> User:

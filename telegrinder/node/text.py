@@ -1,5 +1,5 @@
-from .base import ComposeError, ScalarNode
-from .message import MessageNode
+from telegrinder.node.base import ComposeError, ScalarNode
+from telegrinder.node.message import MessageNode
 
 
 class Text(ScalarNode, str):

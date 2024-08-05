@@ -8,15 +8,15 @@ from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.rules import ABCRule
+from telegrinder.bot.dispatch.handler.abc import ABCHandler
+from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, FuncHandler
 from telegrinder.modules import logger
 from telegrinder.tools.error_handler.error_handler import ErrorHandler
-from telegrinder.tools.global_context import TelegrinderCtx
-from telegrinder.types import Update
+from telegrinder.tools.global_context import TelegrinderContext
+from telegrinder.types.enums import UpdateType
+from telegrinder.types.objects import Update
 
 from .abc import ABCDispatch
-from .handler import ABCHandler, FuncHandler
-from .handler.func import ErrorHandlerT
 from .view.box import (
     CallbackQueryView,
     ChatJoinRequestView,
@@ -27,9 +27,10 @@ from .view.box import (
     ViewBox,
 )
 
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.rules.abc import ABCRule
+
 T = typing.TypeVar("T")
-R = typing.TypeVar("R")
-P = typing.ParamSpec("P")
 Handler = typing.Callable[typing.Concatenate[T, ...], typing.Coroutine[typing.Any, typing.Any, typing.Any]]
 Event = typing.TypeVar("Event", bound=BaseCute)
 
@@ -48,17 +49,21 @@ class Dispatch(
         RawEventView,
     ],
 ):
-    global_context: TelegrinderCtx = dataclasses.field(
-        init=False,
-        default_factory=lambda: TelegrinderCtx(),
-    )
     default_handlers: list[ABCHandler] = dataclasses.field(
         init=False,
         default_factory=lambda: [],
     )
+    _global_context: TelegrinderContext = dataclasses.field(
+        init=False,
+        default_factory=lambda: TelegrinderContext(),
+    )
 
     def __repr__(self) -> str:
         return "Dispatch(%s)" % ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items())
+
+    @property
+    def global_context(self) -> TelegrinderContext:
+        return self._global_context
 
     @property
     def patcher(self) -> Patcher:
@@ -69,28 +74,48 @@ class Dispatch(
     @typing.overload
     def handle(
         self,
-        *rules: ABCRule,
-    ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandler]]: ...
-
-    @typing.overload
-    def handle(
-        self,
-        *rules: ABCRule,
+        *rules: "ABCRule",
         is_blocking: bool = True,
     ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandler]]: ...
 
     @typing.overload
     def handle(
         self,
-        *rules: ABCRule,
+        *rules: "ABCRule",
         dataclass: type[T],
+        is_blocking: bool = True,
+    ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandler]]: ...
+
+    @typing.overload
+    def handle(
+        self,
+        *rules: "ABCRule",
+        update_type: UpdateType,
+        is_blocking: bool = True,
+    ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandler]]: ...
+
+    @typing.overload
+    def handle(
+        self,
+        *rules: "ABCRule",
+        dataclass: type[T],
+        update_type: UpdateType,
         is_blocking: bool = True,
     ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandler]]: ...
 
     @typing.overload
     def handle(  # type: ignore
         self,
-        *rules: ABCRule,
+        *rules: "ABCRule",
+        error_handler: ErrorHandlerT,
+        is_blocking: bool = True,
+    ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandlerT]]: ...
+
+    @typing.overload
+    def handle(  # type: ignore
+        self,
+        *rules: "ABCRule",
+        update_type: UpdateType,
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
     ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandlerT]]: ...
@@ -98,7 +123,7 @@ class Dispatch(
     @typing.overload
     def handle(
         self,
-        *rules: ABCRule,
+        *rules: "ABCRule",
         dataclass: type[T],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
@@ -107,7 +132,18 @@ class Dispatch(
     @typing.overload
     def handle(
         self,
-        *rules: ABCRule,
+        *rules: "ABCRule",
+        dataclass: type[T],
+        update_type: UpdateType,
+        error_handler: ErrorHandlerT,
+        is_blocking: bool = True,
+    ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandlerT]]: ...
+
+    @typing.overload
+    def handle(
+        self,
+        *rules: "ABCRule",
+        update_type: UpdateType | None = None,
         dataclass: type[T] = DEFAULT_DATACLASS,
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
@@ -115,7 +151,8 @@ class Dispatch(
 
     def handle(  # type: ignore
         self,
-        *rules: ABCRule,
+        *rules: "ABCRule",
+        update_type: UpdateType | None = None,
         dataclass: type[typing.Any] = DEFAULT_DATACLASS,
         error_handler: ErrorHandlerT | None = None,
         is_blocking: bool = True,
@@ -127,6 +164,7 @@ class Dispatch(
                 is_blocking=is_blocking,
                 dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),
+                update_type=update_type,
             )
             self.default_handlers.append(handler)
             return handler
@@ -142,18 +180,18 @@ class Dispatch(
                 logger.debug(
                     "Update (update_id={}) matched view {!r}.",
                     event.update_id,
-                    view.__class__.__name__,
+                    view,
                 )
-                await view.process(event, api)
-                return True
+                if await view.process(event, api):
+                    return True
 
-        ctx = Context()
+        ctx = Context(raw_update=event)
         loop = asyncio.get_running_loop()
         found = False
         for handler in self.default_handlers:
             if await handler.check(api, event, ctx):
                 found = True
-                loop.create_task(handler.run(event, ctx))
+                loop.create_task(handler.run(api, event, ctx))
                 if handler.is_blocking:
                     break
         return found

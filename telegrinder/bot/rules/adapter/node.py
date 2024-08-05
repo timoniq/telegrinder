@@ -31,7 +31,7 @@ class NodeAdapter(typing.Generic[*Ts], ABCAdapter[Update, Event[tuple[*Ts]]]):
         for node_t in self.nodes:
             try:
                 # FIXME: adapters should have context
-                node_sessions.append(await compose_node(node_t, update_cute, Context()))  # type: ignore
+                node_sessions.append(await compose_node(node_t, update_cute, Context(raw_update=update)))  # type: ignore
             except ComposeError:
                 for session in node_sessions:
                     await session.close(with_value=None)

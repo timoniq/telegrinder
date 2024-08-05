@@ -1,6 +1,5 @@
 from telegrinder.bot.cute_types import UpdateCute
-
-from .base import ScalarNode
+from telegrinder.node.base import ScalarNode
 
 
 class UpdateNode(ScalarNode, UpdateCute):

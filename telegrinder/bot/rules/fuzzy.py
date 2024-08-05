@@ -7,7 +7,7 @@ from .abc import ABCRule
 
 
 class FuzzyText(ABCRule):
-    def __init__(self, texts: str | list[str], min_ratio: float = 0.7):
+    def __init__(self, texts: str | list[str], min_ratio: float = 0.7) -> None:
         if isinstance(texts, str):
             texts = [texts]
         self.texts = texts

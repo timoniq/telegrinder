@@ -123,7 +123,7 @@ class WaiterMachine:
 
         ctx = Context(**context)
         if await behaviour.check(event.api, update, ctx):
-            await behaviour.run(event, ctx)
+            await behaviour.run(event.api, event, ctx)
             return True
 
         return False
@@ -132,7 +132,7 @@ class WaiterMachine:
         self,
         views: typing.Iterable[ABCStateView[EventModel]],
         absolutely_dead_time: datetime.timedelta = WEEK,
-    ):
+    ) -> None:
         """Clears storage.
 
         :param absolutely_dead_time: timedelta when state can be forgotten.

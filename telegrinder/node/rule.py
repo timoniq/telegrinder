@@ -1,4 +1,5 @@
 import dataclasses
+import importlib
 import typing
 
 from telegrinder.bot.dispatch.context import Context
@@ -6,6 +7,7 @@ from telegrinder.node.base import ComposeError, Node
 from telegrinder.node.update import UpdateNode
 
 if typing.TYPE_CHECKING:
+    from telegrinder.bot.dispatch.process import check_rule
     from telegrinder.bot.rules.abc import ABCRule
 
 
@@ -21,7 +23,7 @@ class RuleChain(dict[str, typing.Any]):
     def __new__(cls, *rules: "ABCRule") -> type[Node]:
         return type("_RuleNode", (cls,), {"dataclass": dict, "rules": rules})  # type: ignore
 
-    def __class_getitem__(cls, items: typing.Union[tuple["ABCRule", ...], "ABCRule"]) -> typing.Self:
+    def __class_getitem__(cls, items: "ABCRule | tuple[ABCRule, ...]", /) -> typing.Self:
         if not isinstance(items, tuple):
             items = (items,)
         assert all(isinstance(rule, "ABCRule") for rule in items), "All items must be instances of 'ABCRule'."
@@ -33,12 +35,22 @@ class RuleChain(dict[str, typing.Any]):
 
     @classmethod
     async def compose(cls, update: UpdateNode):
-        from telegrinder.bot.dispatch.process import check_rule
+        globalns = globals()
+        if "check_rule" not in globalns:
+            globalns.update(
+                {
+                    "check_rule": getattr(
+                        importlib.import_module("telegrinder.bot.dispatch.process"),
+                        "check_rule",
+                    ),
+                },
+            )
 
         ctx = Context()
         for rule in cls.rules:
             if not await check_rule(update.api, rule, update, ctx):
-                raise ComposeError
+                raise ComposeError(f"Rule {rule!r} failed!")
+
         try:
             return cls.dataclass(**ctx)  # type: ignore
         except Exception as exc:

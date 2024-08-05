@@ -8,7 +8,6 @@ from telegrinder.model import get_params
 from telegrinder.types.objects import ChatMemberUpdated, ChatPermissions, User
 
 from .base import BaseCute, compose_method_params, shortcut
-from .utils import compose_chat_permissions
 
 
 async def chat_member_interaction(
@@ -17,7 +16,7 @@ async def chat_member_interaction(
     params: dict[str, typing.Any],
 ) -> Result[typing.Any, APIError]:
     if isinstance(params.get("permissions"), dict):
-        params["permissions"] = compose_chat_permissions(**params["permissions"])
+        params["permissions"] = ChatPermissions(**params["permissions"])
     params = compose_method_params(
         get_params(locals()),
         update,

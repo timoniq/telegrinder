@@ -1,7 +1,6 @@
 from telegrinder.bot.cute_types import CallbackQueryCute
-
-from .base import ComposeError, ScalarNode
-from .update import UpdateNode
+from telegrinder.node.base import ComposeError, ScalarNode
+from telegrinder.node.update import UpdateNode
 
 
 class CallbackQueryNode(ScalarNode, CallbackQueryCute):

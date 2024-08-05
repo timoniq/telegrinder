@@ -34,8 +34,6 @@ else:
 
 
 T = typing.TypeVar("T")
-Type = typing.TypeVar("Type", bound=type | typing.Any)
-Ts = typing.TypeVarTuple("Ts")
 
 DecHook: typing.TypeAlias = typing.Callable[[type[T], typing.Any], typing.Any]
 EncHook: typing.TypeAlias = typing.Callable[[T], typing.Any]

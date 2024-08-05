@@ -9,10 +9,12 @@ from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
 from telegrinder.bot.rules.adapter.node import Event
 from telegrinder.node.base import Node, is_node
-from telegrinder.node.composer import NodeCollection
 from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_annotations, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
+
+if typing.TYPE_CHECKING:
+    from telegrinder.node.composer import NodeCollection
 
 AdaptTo = typing.TypeVar("AdaptTo", default=typing.Any)
 
@@ -48,7 +50,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         self,
         adapted_value: AdaptTo,
         ctx: Context,
-        node_col: NodeCollection | None = None,
+        node_col: "NodeCollection | None" = None,
     ) -> bool:
         kw = {}
         node_col_values = node_col.values() if node_col is not None else {}

@@ -43,7 +43,7 @@ from .global_context import (
     CtxVar,
     GlobalContext,
     GlobalCtxVar,
-    TelegrinderCtx,
+    TelegrinderContext,
     ctx_var,
 )
 from .i18n import (
@@ -110,7 +110,7 @@ __all__ = (
     "SpecialFormat",
     "StartBotLink",
     "StartGroupLink",
-    "TelegrinderCtx",
+    "TelegrinderContext",
     "TgEmoji",
     "escape",
     "get_channel_boost_link",

@@ -2,9 +2,8 @@ import abc
 import inspect
 import typing
 
+from telegrinder.node.scope import NodeScope
 from telegrinder.tools.magic import get_annotations
-
-from .scope import NodeScope
 
 ComposeResult: typing.TypeAlias = (
     typing.Coroutine[typing.Any, typing.Any, typing.Any]
@@ -13,7 +12,18 @@ ComposeResult: typing.TypeAlias = (
 )
 
 
-class ComposeError(BaseException): ...
+def is_node(maybe_node: type[typing.Any]) -> typing.TypeGuard[type["Node"]]:
+    maybe_node = typing.get_origin(maybe_node) or maybe_node
+    return (
+        isinstance(maybe_node, type)
+        and issubclass(maybe_node, Node)
+        or isinstance(maybe_node, Node)
+        or hasattr(maybe_node, "as_node")
+    )
+
+
+class ComposeError(BaseException):
+    pass
 
 
 class Node(abc.ABC):
@@ -85,16 +95,6 @@ else:
 
     class ScalarNode(ScalarNodeProto, abc.ABC, metaclass=create_class):
         pass
-
-
-def is_node(maybe_node: type[typing.Any]) -> typing.TypeGuard[type[Node]]:
-    maybe_node = typing.get_origin(maybe_node) or maybe_node
-    return (
-        isinstance(maybe_node, type)
-        and issubclass(maybe_node, Node)
-        or isinstance(maybe_node, Node)
-        or hasattr(maybe_node, "as_node")
-    )
 
 
 __all__ = (

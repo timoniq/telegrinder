@@ -16,12 +16,16 @@ if typing.TYPE_CHECKING:
 
 T = typing.TypeVar("T")
 
-
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "omit_defaults": True,
     "dict": True,
     "rename": {kw + "_": kw for kw in keyword.kwlist},
 }
+
+
+@typing.runtime_checkable
+class DataclassInstance(typing.Protocol):
+    __dataclass_fields__: typing.ClassVar[dict[str, dataclasses.Field[typing.Any]]]
 
 
 @typing.overload
@@ -195,6 +199,7 @@ else:
 __all__ = (
     "Proxy",
     "DataConverter",
+    "DataclassInstance",
     "ProxiedDict",
     "MODEL_CONFIG",
     "Model",

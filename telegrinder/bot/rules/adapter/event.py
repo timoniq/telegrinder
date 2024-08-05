@@ -3,7 +3,7 @@ import typing
 from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.abc import ABCAPI
-from telegrinder.bot.cute_types import BaseCute
+from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.rules.adapter.abc import ABCAdapter
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.msgspec_utils import Nothing

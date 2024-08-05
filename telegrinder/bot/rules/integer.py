@@ -1,4 +1,3 @@
-from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.text import TextInteger
 
 from .abc import ABCRule

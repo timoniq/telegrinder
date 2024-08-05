@@ -10,15 +10,15 @@ Key: typing.TypeAlias = str | enum.Enum
 AnyValue: typing.TypeAlias = typing.Any
 
 
-@typing.dataclass_transform(kw_only_default=True, order_default=True)
 class Context(dict[str, AnyValue]):
-    """Context class for rules and middlewares.
-    ```
-    class MyRule(ABCRule[T]):
-        adapter = RawUpdateAdapter()
+    """Context class like dict & dotdict.
 
+    For example:
+    ```python
+    class MyRule(ABCRule[T]):
         async def check(self, event: T, ctx: Context) -> bool:
-            ctx.set("value", (await event.ctx_api.get_me()).unwrap())
+            ctx.me = (await event.ctx_api.get_me()).unwrap()
+            ctx["items"] = [1, 2, 3]
             return True
     ```
     """

@@ -7,10 +7,11 @@ from fntypes.co import Option, Result, Some, Variative
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
 from telegrinder.msgspec_utils import Nothing
-from telegrinder.types import (
+from telegrinder.types.objects import (
     ChatAction,
     DiceEmoji,
     ForceReply,
+    InaccessibleMessage,
     InlineKeyboardMarkup,
     InputFile,
     InputMedia,
@@ -153,6 +154,16 @@ def get_entity_value(
 
 class MessageCute(BaseCute[Message], Message, kw_only=True):
     api: ABCAPI
+
+    reply_to_message: Option[MessageCute] = Nothing
+    """Optional. For replies in the same chat and message thread, the original
+    message. Note that the Message object in this field will not contain further
+    reply_to_message fields even if it itself is a reply."""
+
+    pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = Nothing
+    """Optional. Specified message was pinned. Note that the Message object in
+    this field will not contain further reply_to_message fields even if it
+    itself is a reply."""
 
     @property
     def mentioned_user(self) -> Option[User]:

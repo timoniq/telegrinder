@@ -1,10 +1,10 @@
 import typing
 from abc import ABC
 
-from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.model import Model
 
-Event = typing.TypeVar("Event", bound=BaseCute)
+Event = typing.TypeVar("Event", bound=Model)
 
 
 class ABCMiddleware(ABC, typing.Generic[Event]):

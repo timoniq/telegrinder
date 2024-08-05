@@ -12,3 +12,6 @@ class Me(ScalarNode, User):
     async def compose(cls, api: API) -> User:
         me = await api.get_me()
         return me.expect(ComposeError("Can't complete get_me request"))
+
+
+__all__ = ("Me",)

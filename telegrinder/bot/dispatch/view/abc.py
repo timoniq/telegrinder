@@ -28,17 +28,14 @@ FuncType: typing.TypeAlias = typing.Callable[
 
 class ABCView(ABC):
     def __repr__(self) -> str:
-        return "<{!r}: {}>".format(
-            self.__class__.__name__,
-            ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items()),
-        )
+        return "<{!r}>".format(self.__class__.__name__)
 
     @abstractmethod
     async def check(self, event: Update) -> bool:
         pass
 
     @abstractmethod
-    async def process(self, event: Update, api: ABCAPI) -> None:
+    async def process(self, event: Update, api: ABCAPI) -> bool:
         pass
 
     @abstractmethod
@@ -186,8 +183,9 @@ class BaseView(ABCView, typing.Generic[Event]):
             case _:
                 return False
 
-    async def process(self, event: Update, api: ABCAPI) -> None:
-        await process_inner(
+    async def process(self, event: Update, api: ABCAPI) -> bool:
+        return await process_inner(
+            api,
             self.get_event_type()
             .unwrap()
             .from_update(

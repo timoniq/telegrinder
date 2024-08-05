@@ -1,10 +1,10 @@
 import typing
 
+from telegrinder.api.abc import ABCAPI
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types import UpdateCute
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node.base import ComposeError, Node
-from telegrinder.node.scope import NodeScope
+from telegrinder.node.base import ComposeError, Node, NodeScope
 from telegrinder.tools.magic import get_annotations, magic_bundle
 
 CONTEXT_STORE_NODES_KEY = "node_ctx"
@@ -26,6 +26,8 @@ async def compose_node(
             context.sessions[name] = NodeSession(None, update, {})
         elif subnode is API:
             context.sessions[name] = NodeSession(None, update.ctx_api, {})
+        elif isinstance(subnode, type) and issubclass(subnode, ABCAPI):  # Custom API
+            context.sessions[name] = NodeSession(None, update.api, {})
         elif subnode is Context:
             context.sessions[name] = NodeSession(None, ctx, {})
         else:
@@ -34,10 +36,8 @@ async def compose_node(
             if getattr(subnode, "scope", None) is NodeScope.PER_EVENT:
                 node_ctx[subnode] = context.sessions[name]
 
-    generator: typing.AsyncGenerator | None
-
     if node.is_generator():
-        generator = typing.cast(typing.AsyncGenerator, node.compose(**context.values()))
+        generator = typing.cast(typing.AsyncGenerator[typing.Any, None], node.compose(**context.values()))
         value = await generator.asend(None)
     else:
         generator = None
@@ -88,7 +88,7 @@ class NodeSession:
         value: typing.Any,
         subnodes: dict[str, typing.Self],
         generator: typing.AsyncGenerator[typing.Any, None] | None = None,
-    ):
+    ) -> None:
         self.node_type = node_type
         self.value = value
         self.subnodes = subnodes

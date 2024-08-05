@@ -2,12 +2,11 @@ import inspect
 import typing
 
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.node.base import ComposeError
+from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, Composition, NodeSession
+from telegrinder.node.scope import NodeScope
+from telegrinder.node.update import UpdateNode
 from telegrinder.tools.magic import get_impls, impl
-
-from .base import ComposeError
-from .composer import CONTEXT_STORE_NODES_KEY, Composition, NodeSession
-from .scope import NodeScope
-from .update import UpdateNode
 
 
 class Polymorphic:

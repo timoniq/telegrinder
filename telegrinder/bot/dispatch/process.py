@@ -3,26 +3,26 @@ import typing
 from fntypes.result import Error, Ok
 
 from telegrinder.api.abc import ABCAPI
-from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
+from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
+from telegrinder.model import Model
 from telegrinder.modules import logger
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope, compose_nodes
 from telegrinder.tools.i18n.base import I18nEnum
-from telegrinder.types import Update
-
-from .middleware.abc import ABCMiddleware
-from .return_manager.abc import ABCReturnManager
+from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.handler.abc import ABCHandler
     from telegrinder.bot.rules.abc import ABCRule
 
-Event = typing.TypeVar("Event", bound=BaseCute)
+Event = typing.TypeVar("Event", bound=Model)
 _: typing.TypeAlias = typing.Any
 
 
 async def process_inner(
+    api: ABCAPI,
     event: Event,
     raw_event: Update,
     middlewares: list[ABCMiddleware[Event]],
@@ -42,9 +42,9 @@ async def process_inner(
     ctx_copy = ctx.copy()
 
     for handler in handlers:
-        if await handler.check(event.api, raw_event, ctx):
+        if await handler.check(api, raw_event, ctx):
             found = True
-            response = await handler.run(event, ctx)
+            response = await handler.run(api, event, ctx)
             logger.debug("Handler {!r} returned: {!r}", handler, response)
             responses.append(response)
             if return_manager is not None:

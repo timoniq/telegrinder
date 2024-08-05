@@ -104,6 +104,7 @@ class RawEventView(BaseView[UpdateCute]):
 
     async def process(self, event: Update, api: ABCAPI) -> bool:
         return await process_inner(
+            api,
             UpdateCute.from_update(event, bound_api=api),
             event,
             self.middlewares,

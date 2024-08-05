@@ -3,7 +3,7 @@ import typing
 
 import msgspec
 
-from telegrinder.model import encoder
+from telegrinder.model import DataclassInstance, encoder
 from telegrinder.types import (
     CallbackGame,
     KeyboardButtonPollType,
@@ -15,11 +15,6 @@ from telegrinder.types import (
 from telegrinder.types.objects import LoginUrl
 
 ButtonT = typing.TypeVar("ButtonT", bound="BaseButton")
-
-
-@typing.runtime_checkable
-class DataclassInstance(typing.Protocol):
-    __dataclass_fields__: typing.ClassVar[dict[str, dataclasses.Field[typing.Any]]]
 
 
 @dataclasses.dataclass
