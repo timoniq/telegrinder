@@ -87,17 +87,21 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         return True
 
     async def run(self, api: ABCAPI, event: Event, ctx: Context) -> typing.Any:
-        if self.dataclass is Update and (event_node := ctx.pop(EVENT_NODE_KEY, None)) is not None:
+        dataclass_type = typing.get_origin(self.dataclass) or self.dataclass
+
+        if dataclass_type is Update and (event_node := ctx.pop(EVENT_NODE_KEY, None)) is not None:
             event = event_node
 
-        elif self.dataclass is not None:
+        elif dataclass_type is not None:
             if self.update_type is not None and isinstance(event, Update):
                 update = event.to_dict()[self.update_type.value].unwrap()
                 event = (
                     self.dataclass.from_update(update, bound_api=api)  # type: ignore
-                    if issubclass(self.dataclass, BaseCute)
-                    else self.dataclass(**update.to_dict())
+                    if issubclass(dataclass_type, BaseCute)
+                    else self.dataclass(**update.to_dict())  # type: ignore
                 )
+            elif issubclass(dataclass_type, UpdateCute) and isinstance(event, Update):
+                event = self.dataclass.from_update(event, bound_api=api)  # type: ignore
             else:
                 event = self.dataclass(**event.to_dict())  # type: ignore
 

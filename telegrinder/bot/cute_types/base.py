@@ -31,7 +31,7 @@ if typing.TYPE_CHECKING:
         def ctx_api(self) -> CtxAPI: ...
 
 else:
-    from fntypes import Some, Variative
+    from fntypes.co import Nothing, Some, Variative
     from msgspec._utils import get_class_annotations
 
     from telegrinder.msgspec_utils import Option
@@ -40,28 +40,26 @@ else:
     UPDATED_ANNOTATIONS_KEY = "__updated_annotations__"
 
     def unwrap_value(value):
-        origin = typing.get_origin(value) or value
-        if isinstance(origin, Variative):
+        if isinstance(value, Variative):
             return unwrap_value(value.v)
-        if isinstance(origin, Some):
+        if isinstance(value, Some):
             return unwrap_value(value.unwrap())
         return value
 
-    def wrap_cute_model(cute_model, hint):
+    def prepare_cute(model, hint):
         orig_hint = typing.get_origin(hint) or hint
-        if orig_hint not in (Option, Variative):
-            return cute_model
+        if not isinstance(orig_hint, type) or orig_hint not in (Option, Variative):
+            return model
 
         for h in typing.get_args(hint):
-            cute = wrap_cute_model(cute_model, h)
+            model = prepare_cute(model, h)
 
-        orig_hint = typing.get_origin(hint) or hint
-        if orig_hint is Option:
-            cute_model = Some(cute_model)
-        elif orig_hint is Variative:
-            cute_model = hint(cute_model)
+        if issubclass(orig_hint, Option) or issubclass(orig_hint, Some | Nothing):
+            model = Some(model)
+        elif issubclass(orig_hint, Variative):
+            model = hint(model)
 
-        return cute_model
+        return model
 
     def get_ctx_api_class(cute_class):
         """Get ctx_api class from generic.
@@ -88,15 +86,15 @@ else:
             return True
         return any(has_cute_annotation(model_type, ann) for ann in typing.get_args(annotation))
 
-    def get_cute_type(model_type, annotation, container_cuties):
+    def get_cute_type(val_type, annotation, container_cuties):
         """Get cute type from container cuties
-        if it is annotated and it is a subclass of a `model_type`."""
+        if it is annotated and it is a subclass of a `val_type`."""
 
-        if not has_cute_annotation(model_type, annotation):
+        if not has_cute_annotation(val_type, annotation):
             return None
 
         for cute in container_cuties:
-            if issubclass(cute, model_type):
+            if issubclass(cute, val_type):
                 return cute
 
         return None
@@ -106,7 +104,8 @@ else:
             setattr(cls, UPDATED_ANNOTATIONS_KEY, False)  # Dunder variable with state for update annotations
 
             super().__init_subclass__(
-                *args, **kwargs
+                *args,
+                **kwargs,
             )  # Call msgspec.Struct.__init_subclass__() for configuration struct
 
             if not cls.__bases__ or not issubclass(cls.__bases__[0], BaseCute):
@@ -114,7 +113,9 @@ else:
 
             if not hasattr(BaseCute, "container_cuties"):
                 setattr(
-                    BaseCute, "container_cuties", []
+                    BaseCute,
+                    "container_cuties",
+                    [],
                 )  # Create container with all cute types which inherit BaseCute class
             getattr(BaseCute, "container_cuties").append(cls)  # Append current cute type to container
 
@@ -123,24 +124,28 @@ else:
             if not getattr(cls, UPDATED_ANNOTATIONS_KEY, False):
                 setattr(cls, UPDATED_ANNOTATIONS_KEY, True)
                 setattr(
-                    cls, "__annotations__", get_class_annotations(cls)
-                )  # Solve forward refs and update annotations
+                    cls,
+                    "__annotations__",
+                    get_class_annotations(cls),  # Solve forward refs and update annotations
+                )
 
             container_cuties = BaseCute.container_cuties
             update_dct = {}
 
-            for k, v in update.to_dict().items():
-                value = unwrap_value(v)
+            for field, val in update.to_dict().items():
+                annotations = cls.__annotations__
+                value = unwrap_value(val)
                 if (
-                    k in cls.__annotations__
-                    and (cute := get_cute_type(value.__class__, cls.__annotations__[k], container_cuties))
+                    field in annotations
+                    and (cute := get_cute_type(value.__class__, annotations[field], container_cuties))
                     is not None
                 ):
-                    update_dct[k] = wrap_cute_model(
-                        cute.from_update(value, bound_api=bound_api), cls.__annotations__[k]
+                    update_dct[field] = prepare_cute(
+                        cute.from_update(value, bound_api=bound_api),
+                        annotations[field],
                     )
                 else:
-                    update_dct[k] = v
+                    update_dct[field] = val
 
             return cls(**update_dct, api=bound_api)
 
@@ -148,7 +153,8 @@ else:
         def ctx_api(self):
             ctx_api_class = get_ctx_api_class(self.__class__)
             assert isinstance(
-                self.api, get_ctx_api_class(self.__class__)
+                self.api,
+                get_ctx_api_class(self.__class__),
             ), f"Bound API of type {self.api.__class__.__name__!r} is incompatible with {ctx_api_class.__name__!r}."
             return self.api
 
