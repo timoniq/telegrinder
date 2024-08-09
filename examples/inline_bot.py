@@ -34,7 +34,7 @@ async def reverse_inline(q: InlineQuery):
             "article",
             "1",
             "Send reversed",
-            InputTextMessageContent(message_text="I tested inline query"),  # type: ignore
+            Variative(InputTextMessageContent(message_text="I tested inline query")),  # type: ignore
         ),
     )
 

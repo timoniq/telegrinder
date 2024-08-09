@@ -9,7 +9,7 @@ from types import NoneType
 import msgspec
 from fntypes.co import Nothing, Result, Some
 
-from .msgspec_utils import decoder, encoder, get_origin
+from .msgspec_utils import decoder, encoder, get_origin, msgspec_convert
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
@@ -64,6 +64,10 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
 
 
 class Model(msgspec.Struct, **MODEL_CONFIG):
+    @classmethod
+    def from_data(cls, data: dict[str, typing.Any]) -> typing.Self:
+        return msgspec_convert(data, cls).unwrap()
+
     @classmethod
     def from_bytes(cls, data: bytes) -> typing.Self:
         return decoder.decode(data, type=cls)
