@@ -22,6 +22,7 @@ if typing.TYPE_CHECKING:
     EventNode: typing.TypeAlias = typing.Annotated[Dataclass, ...]
 
 else:
+    from telegrinder.msgspec_utils import decoder
 
     class EventNode(Node):
         dataclass: type[DataclassType]
@@ -37,11 +38,22 @@ else:
 
         @classmethod
         async def compose(cls, raw_update: UpdateNode, ctx: Context) -> DataclassType:
+            dataclass_type = typing.get_origin(cls.dataclass) or cls.dataclass
+
             try:
-                if issubclass(typing.get_origin(cls.dataclass) or cls.dataclass, DataNodeCute):
+                if issubclass(dataclass_type, DataNodeCute):
                     dataclass = cls.dataclass.from_update(
                         update=raw_update.incoming_update, bound_api=raw_update.api
                     )
+
+                elif issubclass(dataclass_type, dict):
+                    dataclass = cls.dataclass(**raw_update.incoming_update.to_dict(full=True))
+
+                elif issubclass(dataclass_type, msgspec.Struct):
+                    dataclass = decoder.convert(
+                        raw_update.incoming_update.to_dict(full=True), type=cls.dataclass
+                    )
+
                 else:
                     dataclass = cls.dataclass(**raw_update.incoming_update.to_dict())
 

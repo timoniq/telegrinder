@@ -43,16 +43,19 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
                     AdapterError(f"Update is not of event type {self.event!r}."),
                 )
 
-            if update_dct[self.event.value] is Nothing:
+            if (event := getattr(update, self.event.value, Nothing)) is Nothing:
                 return Error(
                     AdapterError(f"Update is not an {self.event!r}."),
                 )
 
             return Ok(
-                self.cute_model.from_update(update_dct[self.event.value].unwrap(), bound_api=api),
+                self.cute_model.from_update(
+                    getattr(update, self.event.value).unwrap(),
+                    bound_api=api,
+                ),
             )
 
-        event = update_dct[update.update_type.value].unwrap()
+        event = getattr(update, update.update_type.value).unwrap()
         if not update.update_type or not issubclass(event.__class__, self.event):
             return Error(AdapterError(f"Update is not an {self.event.__name__!r}."))
         return Ok(self.cute_model.from_update(event, bound_api=api))

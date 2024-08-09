@@ -72,10 +72,13 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         self,
         *,
         exclude_fields: set[str] | None = None,
+        full: bool = False,
     ) -> dict[str, typing.Any]:
         exclude_fields = exclude_fields or set()
         if "model_as_dict" not in self.__dict__:
-            self.__dict__["model_as_dict"] = msgspec.structs.asdict(self)
+            self.__dict__["model_as_dict"] = (
+                encoder.to_builtins(self, order="deterministic") if full else msgspec.structs.asdict(self)
+            )
         return {
             key: value for key, value in self.__dict__["model_as_dict"].items() if key not in exclude_fields
         }

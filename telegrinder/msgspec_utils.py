@@ -61,6 +61,16 @@ def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, str]:
         )
 
 
+def msgspec_to_builtins(
+    obj: typing.Any,
+    *,
+    str_keys: bool = False,
+    builtin_types: typing.Iterable[type[typing.Any]] | None = None,
+    order: typing.Literal["deterministic", "sorted"] | None = None,
+) -> typing.Any:
+    return encoder.to_builtins(**locals())
+
+
 def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
     orig_type = get_origin(tp)
     (value_type,) = typing.get_args(tp) or (typing.Any,)
@@ -300,6 +310,22 @@ class Encoder:
         buf = msgspec.json.encode(obj, enc_hook=self.enc_hook)
         return buf.decode() if as_str else buf
 
+    def to_builtins(
+        self,
+        obj: typing.Any,
+        *,
+        str_keys: bool = False,
+        builtin_types: typing.Iterable[type[typing.Any]] | None = None,
+        order: typing.Literal["deterministic", "sorted"] | None = None,
+    ) -> typing.Any:
+        return msgspec.to_builtins(
+            obj,
+            str_keys=str_keys,
+            builtin_types=builtin_types,
+            enc_hook=self.enc_hook,
+            order=order,
+        )
+
 
 decoder: typing.Final[Decoder] = Decoder()
 encoder: typing.Final[Encoder] = Encoder()
@@ -315,6 +341,7 @@ __all__ = (
     "encoder",
     "get_origin",
     "msgspec_convert",
+    "msgspec_to_builtins",
     "option_dec_hook",
     "repr_type",
     "variative_dec_hook",

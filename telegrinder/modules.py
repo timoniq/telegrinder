@@ -232,7 +232,7 @@ def _set_logger_level(level):
     if logging_module == "logging":
         import logging
 
-        logging.getLogger("telegrinder").setLevel(logging.getLevelName(level))
+        logging.getLogger("telegrinder").setLevel(level)
     elif logging_module == "loguru":
         import loguru  # type: ignore
 

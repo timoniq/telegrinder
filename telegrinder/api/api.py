@@ -24,9 +24,10 @@ def compose_data(
 
 
 class API(ABCAPI, APIMethods):
-    """Bot API with available API methods."""
+    """Bot API with available API methods and http client."""
 
     API_URL = "https://api.telegram.org/"
+    API_FILE_URL = "https://api.telegram.org/file/"
 
     def __init__(self, token: Token, *, http: ABCClient | None = None) -> None:
         self.token = token
@@ -47,6 +48,13 @@ class API(ABCAPI, APIMethods):
     @property
     def request_url(self) -> str:
         return self.API_URL + f"bot{self.token}/"
+
+    @property
+    def request_file_url(self) -> str:
+        return self.API_FILE_URL + f"bot{self.token}/"
+
+    async def download_file(self, file_path: str) -> bytes:
+        return await self.http.request_content(f"{self.request_file_url}/{file_path}")
 
     async def request(
         self,

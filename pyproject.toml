@@ -86,11 +86,9 @@ docstring-quotes = "double"
 
 [tool.pyright]
 exclude = [
-    "**/__pycache__",
-    "examples/blueprint_bot",
-    "examples/webhook_bot",
-    "docs",
-    "local",
+  "**/__pycache__",
+  "docs",
+  "local",
 ]
 typeCheckingMode = "basic"
 pythonPlatform = "All"

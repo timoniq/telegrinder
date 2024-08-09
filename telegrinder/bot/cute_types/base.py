@@ -30,6 +30,13 @@ if typing.TYPE_CHECKING:
         @property
         def ctx_api(self) -> CtxAPI: ...
 
+        def to_dict(
+            self,
+            *,
+            exclude_fields: set[str] | None = None,
+            full: bool = False,
+        ) -> dict[str, typing.Any]: ...
+
 else:
     from fntypes.co import Nothing, Some, Variative
     from msgspec._utils import get_class_annotations
@@ -129,12 +136,13 @@ else:
                     get_class_annotations(cls),  # Solve forward refs and update annotations
                 )
 
+            annotations = cls.__annotations__
             container_cuties = BaseCute.container_cuties
             update_dct = {}
 
             for field, val in update.to_dict().items():
-                annotations = cls.__annotations__
                 value = unwrap_value(val)
+
                 if (
                     field in annotations
                     and (cute := get_cute_type(value.__class__, annotations[field], container_cuties))
@@ -158,9 +166,9 @@ else:
             ), f"Bound API of type {self.api.__class__.__name__!r} is incompatible with {ctx_api_class.__name__!r}."
             return self.api
 
-        def to_dict(self, *, exclude_fields=None):
+        def to_dict(self, *, exclude_fields=None, full=False):
             exclude_fields = exclude_fields or set()
-            return super().to_dict(exclude_fields={"api"} | exclude_fields)
+            return super().to_dict(exclude_fields={"api"} | exclude_fields, full=full)
 
 
 def compose_method_params(
