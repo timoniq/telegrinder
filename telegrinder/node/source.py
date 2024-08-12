@@ -11,7 +11,7 @@ from telegrinder.node.polymorphic import Polymorphic, impl
 from telegrinder.types.objects import Chat, Message, User
 
 
-@dataclasses.dataclass(kw_only=True)
+@dataclasses.dataclass(kw_only=True, slots=True)
 class Source(Polymorphic, DataNode):
     api: API
     chat: Chat

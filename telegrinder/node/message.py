@@ -1,17 +1,14 @@
-from telegrinder.bot.cute_types import MessageCute
+from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.node.base import ComposeError, ScalarNode
 from telegrinder.node.update import UpdateNode
 
 
 class MessageNode(ScalarNode, MessageCute):
     @classmethod
-    async def compose(cls, update: UpdateNode) -> "MessageNode":
+    async def compose(cls, update: UpdateNode) -> MessageCute:
         if not update.message:
-            raise ComposeError
-        return MessageNode(
-            **update.message.unwrap().to_dict(),
-            api=update.api,
-        )
+            raise ComposeError("Update is not a message.")
+        return update.message.unwrap()
 
 
 __all__ = ("MessageNode",)

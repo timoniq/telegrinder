@@ -24,7 +24,7 @@ def register_manager(return_type: type[typing.Any] | types.UnionType):
     return wrapper
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class Manager:
     types: tuple[type, ...]
     callback: typing.Callable[..., typing.Awaitable]

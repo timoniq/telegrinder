@@ -34,8 +34,25 @@ if typing.TYPE_CHECKING:
             self,
             *,
             exclude_fields: set[str] | None = None,
-            full: bool = False,
-        ) -> dict[str, typing.Any]: ...
+        ) -> dict[str, typing.Any]:
+            """
+            :param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
+            :return: A dictionary representation of this cute model.
+            """
+
+            ...
+
+        def to_full_dict(
+            self,
+            *,
+            exclude_fields: set[str] | None = None,
+        ) -> dict[str, typing.Any]:
+            """
+            :param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
+            :return: A dictionary representation of this model including all models, structs, custom types.
+            """
+
+            ...
 
 else:
     from fntypes.co import Nothing, Some, Variative
@@ -43,15 +60,24 @@ else:
 
     from telegrinder.msgspec_utils import Option, decoder
 
-    DEFAULT_API_CLASS = API
+    _DEFAULT_API_CLASS = API
 
     def _get_ctx_api_class(cute_class):
+        if hasattr(cute_class, "__ctx_api_class__"):
+            return cute_class.__ctx_api_class__
+
+        ctx_api_class = _DEFAULT_API_CLASS
         for base in cute_class.__dict__.get("__orig_bases__", ()):
+            if ctx_api_class is not _DEFAULT_API_CLASS:
+                break
             if issubclass(typing.get_origin(base) or base, BaseCute):
                 for generic_type in typing.get_args(base):
                     if issubclass(typing.get_origin(generic_type) or generic_type, ABCAPI):
-                        return generic_type
-        return DEFAULT_API_CLASS
+                        ctx_api_class = generic_type
+                        break
+
+        cute_class.__ctx_api_class__ = ctx_api_class
+        return ctx_api_class
 
     def _get_cute_from_args(args):
         for hint in args:
@@ -130,9 +156,13 @@ else:
             ), f"Bound API of type {self.api.__class__.__name__!r} is incompatible with {ctx_api_class.__name__!r}."
             return self.api
 
-        def to_dict(self, *, exclude_fields=None, full=False):
+        def to_dict(self, *, exclude_fields=None):
             exclude_fields = exclude_fields or set()
-            return super().to_dict(exclude_fields={"api"} | exclude_fields, full=full)
+            return super().to_dict(exclude_fields={"api"} | exclude_fields)
+
+        def to_full_dict(self, *, exclude_fields=None):
+            exclude_fields = exclude_fields or set()
+            return super().to_full_dict(exclude_fields={"api"} | exclude_fields)
 
 
 def compose_method_params(
@@ -169,8 +199,6 @@ def compose_method_params(
     return params
 
 
-# NOTE: implement parser on ast for methods decorated this decorator
-# to support updates to the schema Bot API.
 def shortcut(
     method_name: str,
     *,
@@ -186,7 +214,15 @@ def shortcut(
         ) -> typing.Any:
             if executor is None:
                 return await func(self, *args, **kwargs)
-            signature_params = {k: p for k, p in inspect.signature(func).parameters.items() if k != "self"}
+
+            if not hasattr(func, "_signature_params"):
+                setattr(
+                    func,
+                    "_signature_params",
+                    {k: p for k, p in inspect.signature(func).parameters.items() if k != "self"},
+                )
+
+            signature_params: dict[str, inspect.Parameter] = getattr(func, "_signature_params")
             params: dict[str, typing.Any] = {}
             index = 0
 
@@ -195,9 +231,11 @@ def shortcut(
                     params[k] = args[index]
                     index += 1
                     continue
+
                 if p.kind in (p.VAR_KEYWORD, p.VAR_POSITIONAL):
                     params[k] = kwargs.copy() if p.kind is p.VAR_KEYWORD else args[index:]
                     continue
+
                 params[k] = kwargs.pop(k, p.default) if p.default is not p.empty else kwargs.pop(k)
 
             return await executor(self, method_name, get_params(params))
@@ -212,7 +250,7 @@ def shortcut(
     return wrapper
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True, frozen=True)
 class Shortcut:
     method_name: str
     executor: Executor | None = dataclasses.field(default=None, kw_only=True)

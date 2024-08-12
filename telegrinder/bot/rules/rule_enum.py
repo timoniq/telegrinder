@@ -7,7 +7,7 @@ from .abc import ABCRule, Update, check_rule
 from .func import FuncRule
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class RuleEnumState:
     name: str
     rule: ABCRule

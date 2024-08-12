@@ -16,7 +16,7 @@ ExceptionT = typing.TypeVar("ExceptionT", bound=BaseException, contravariant=Tru
 FuncCatcher = typing.Callable[typing.Concatenate[ExceptionT, ...], typing.Awaitable[typing.Any]]
 
 
-@dataclasses.dataclass(frozen=True, repr=False)
+@dataclasses.dataclass(frozen=True, repr=False, slots=True)
 class Catcher(typing.Generic[EventT]):
     func: FuncCatcher[BaseException]
     exceptions: list[type[BaseException] | BaseException] = dataclasses.field(

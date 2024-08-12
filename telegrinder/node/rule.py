@@ -34,7 +34,7 @@ class RuleChain(dict[str, typing.Any]):
         return dataclasses.dataclass(type(cls_.__name__, (object,), dict(cls_.__dict__)))
 
     @classmethod
-    async def compose(cls, update: UpdateNode):
+    async def compose(cls, update: UpdateNode) -> typing.Any:
         globalns = globals()
         if "check_rule" not in globalns:
             globalns.update(
@@ -63,6 +63,14 @@ class RuleChain(dict[str, typing.Any]):
     @classmethod
     def get_sub_nodes(cls) -> dict:
         return {"update": UpdateNode}
+
+    @classmethod
+    def get_context_annotations(cls) -> dict[str, typing.Any]:
+        return {}
+
+    @classmethod
+    def get_node_impls(cls) -> dict[str, typing.Callable[..., typing.Any]]:
+        return {}
 
     @classmethod
     def is_generator(cls) -> typing.Literal[False]:

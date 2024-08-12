@@ -108,8 +108,8 @@ elif logging_module == "logging":
             "level": "green",
             "level_module": "blue",
             "level_func": "cyan",
-            "level_lineno": "green",
-            "level_message": "white",
+            "level_lineno": "white",
+            "level_message": "green",
         },
         "DEBUG": {
             "level": "blue",

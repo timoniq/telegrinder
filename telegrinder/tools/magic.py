@@ -24,12 +24,10 @@ def get_default_args(func: FuncType) -> dict[str, typing.Any]:
     return dict(zip(fspec.args[::-1], (fspec.defaults or ())[::-1]))
 
 
-def get_annotations(func: FuncType) -> dict[str, typing.Any]:
-    return {
-        name: parameter.annotation
-        for name, parameter in inspect.signature(func).parameters.items()
-        if parameter.annotation is not inspect._empty
-    }
+def get_annotations(func: FuncType, *, return_type: bool = False) -> dict[str, typing.Any]:
+    if not return_type and "return" in func.__annotations__:
+        del func.__annotations__["return"]
+    return func.__annotations__
 
 
 def to_str(s: str | enum.Enum) -> str:

@@ -1,4 +1,5 @@
 import dataclasses
+from functools import cached_property
 
 import typing_extensions as typing
 
@@ -8,11 +9,10 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.model import Model
 from telegrinder.modules import logger
-from telegrinder.node.base import Node, is_node
+from telegrinder.node.base import Node, collect_context_annotations, collect_nodes
 from telegrinder.node.composer import compose_nodes
 from telegrinder.node.event import EVENT_NODE_KEY
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
-from telegrinder.tools.magic import get_annotations
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
 
@@ -29,7 +29,7 @@ Event = typing.TypeVar("Event", bound=Model)
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
     func: F
     rules: list["ABCRule"]
@@ -52,8 +52,13 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
             self.error_handler,
         )
 
-    def get_required_nodes(self) -> dict[str, type[Node]]:
-        return {k: v for k, v in get_annotations(self.func).items() if is_node(v)}
+    @cached_property
+    def required_nodes(self) -> dict[str, type[Node]]:
+        return collect_nodes(self.func)
+
+    @cached_property
+    def context_annotations(self) -> dict[str, type]:
+        return collect_context_annotations(self.func)
 
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         if self.update_type is not None and self.update_type != event.update_type:
@@ -63,11 +68,18 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         temp_ctx = ctx.copy()
         temp_ctx |= self.preset_context
 
-        nodes = self.get_required_nodes()
+        nodes = self.required_nodes
+        context_annotations = self.context_annotations
         node_col = None
 
         if nodes:
-            node_col = await compose_nodes(nodes, UpdateCute.from_update(event, api), ctx)
+            node_col = await compose_nodes(
+                UpdateCute.from_update(event, api),
+                ctx,
+                nodes,
+                context_annotations=context_annotations,
+            )
+
             if node_col is None:
                 return False
             temp_ctx |= node_col.values()

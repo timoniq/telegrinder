@@ -24,7 +24,7 @@ def is_spec_format(obj: typing.Any) -> typing.TypeGuard[SpecialFormat]:
     )
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class BaseSpecFormat:
     __formatter_name__: typing.ClassVar[str] = dataclasses.field(init=False, repr=False)
 
@@ -32,7 +32,7 @@ class BaseSpecFormat:
         return f"<Special formatter {self.__class__.__name__!r} -> {self.__formatter_name__!r}>"
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class ChannelBoostLink(BaseSpecFormat):
     __formatter_name__ = "channel_boost_link"
 
@@ -40,7 +40,7 @@ class ChannelBoostLink(BaseSpecFormat):
     string: str | None = None
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class InviteChatLink(BaseSpecFormat):
     __formatter_name__ = "invite_chat_link"
 
@@ -48,7 +48,7 @@ class InviteChatLink(BaseSpecFormat):
     string: str | None = None
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class Mention(BaseSpecFormat):
     __formatter_name__ = "mention"
 
@@ -56,7 +56,7 @@ class Mention(BaseSpecFormat):
     user_id: int
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class Link(BaseSpecFormat):
     __formatter_name__ = "link"
 
@@ -64,7 +64,7 @@ class Link(BaseSpecFormat):
     string: str | None = None
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class PreCode(BaseSpecFormat):
     __formatter_name__ = "pre_code"
 
@@ -72,7 +72,7 @@ class PreCode(BaseSpecFormat):
     lang: str | ProgrammingLanguage | None = None
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class TgEmoji(BaseSpecFormat):
     __formatter_name__ = "tg_emoji"
 
@@ -80,7 +80,7 @@ class TgEmoji(BaseSpecFormat):
     emoji_id: int
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class StartBotLink(BaseSpecFormat):
     __formatter_name__ = "start_bot_link"
 
@@ -89,7 +89,7 @@ class StartBotLink(BaseSpecFormat):
     string: str | None
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class StartGroupLink(BaseSpecFormat):
     __formatter_name__ = "start_group_link"
 
@@ -98,7 +98,7 @@ class StartGroupLink(BaseSpecFormat):
     string: str | None = None
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class ResolveDomain(BaseSpecFormat):
     __formatter_name__ = "resolve_domain"
 
