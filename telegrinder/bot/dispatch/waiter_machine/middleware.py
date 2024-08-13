@@ -83,7 +83,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         result = await handler.check(event.ctx_api, ctx.raw_update, ctx)
 
         if result is True:
-            await handler.run(event, ctx)
+            await handler.run(event.api, event, ctx)
 
         elif short_state.default_behaviour is not None:
             await self.machine.call_behaviour(

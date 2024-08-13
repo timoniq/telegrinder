@@ -2,7 +2,7 @@ import inspect
 import typing
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.types import Update
+from telegrinder.types.objects import Update
 
 from .abc import ABCAdapter, ABCRule, AdaptTo, RawUpdateAdapter
 

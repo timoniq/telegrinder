@@ -15,7 +15,7 @@ class HasEntities(MessageRule):
 
 
 class MessageEntities(MessageRule, requires=[HasEntities()]):
-    def __init__(self, entities: Entity | list[Entity]):
+    def __init__(self, entities: Entity | list[Entity], /) -> None:
         self.entities = [entities] if not isinstance(entities, list) else entities
 
     async def check(self, message: Message, ctx: Context) -> bool:

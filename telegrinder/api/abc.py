@@ -66,6 +66,11 @@ class ABCAPI(ABC):
 
     @property
     @abstractmethod
+    def request_file_url(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
     def id(self) -> int:
         pass
 

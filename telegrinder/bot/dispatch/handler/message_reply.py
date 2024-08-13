@@ -37,7 +37,7 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         )
 
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
-        ctx = ctx or Context()
+        ctx = Context() if ctx is None else ctx
         temp_ctx = ctx.copy()
         temp_ctx |= self.preset_context
 
@@ -49,7 +49,7 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         ctx |= temp_ctx
         return True
 
-    async def run(self, event: MessageCute, _: Context) -> typing.Any:
+    async def run(self, _: ABCAPI, event: MessageCute, __: Context) -> typing.Any:
         await event.answer(
             text=self.text,
             reply_parameters=ReplyParameters(event.message_id) if self.as_reply else None,

@@ -3,6 +3,7 @@ import inspect
 import typing
 from functools import wraps
 
+import typing_extensions
 from fntypes.result import Result
 
 from telegrinder.api import ABCAPI, API
@@ -10,7 +11,8 @@ from telegrinder.model import Model, get_params
 
 F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
 Cute = typing.TypeVar("Cute", bound="BaseCute")
-Update = typing.TypeVar("Update", bound=Model)
+Update = typing_extensions.TypeVar("Update", bound=Model)
+CtxAPI = typing_extensions.TypeVar("CtxAPI", bound=ABCAPI, default=API)
 
 Executor: typing.TypeAlias = typing.Callable[
     [Cute, str, dict[str, typing.Any]],
@@ -19,30 +21,148 @@ Executor: typing.TypeAlias = typing.Callable[
 
 if typing.TYPE_CHECKING:
 
-    class BaseCute(Model, typing.Generic[Update]):
+    class BaseCute(Model, typing.Generic[Update, CtxAPI]):
         api: ABCAPI
 
         @classmethod
         def from_update(cls, update: Update, bound_api: ABCAPI) -> typing.Self: ...
 
         @property
-        def ctx_api(self) -> API: ...
+        def ctx_api(self) -> CtxAPI: ...
+
+        def to_dict(
+            self,
+            *,
+            exclude_fields: set[str] | None = None,
+        ) -> dict[str, typing.Any]:
+            """
+            :param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
+            :return: A dictionary representation of this cute model.
+            """
+
+            ...
+
+        def to_full_dict(
+            self,
+            *,
+            exclude_fields: set[str] | None = None,
+        ) -> dict[str, typing.Any]:
+            """
+            :param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
+            :return: A dictionary representation of this model including all models, structs, custom types.
+            """
+
+            ...
 
 else:
+    from fntypes.co import Nothing, Some, Variative
+    from msgspec._utils import get_class_annotations as _get_class_annotations
 
-    class BaseCute(typing.Generic[Update]):
+    from telegrinder.msgspec_utils import Option, decoder
+
+    _DEFAULT_API_CLASS = API
+
+    def _get_ctx_api_class(cute_class):
+        if hasattr(cute_class, "__ctx_api_class__"):
+            return cute_class.__ctx_api_class__
+
+        ctx_api_class = _DEFAULT_API_CLASS
+        for base in cute_class.__dict__.get("__orig_bases__", ()):
+            if ctx_api_class is not _DEFAULT_API_CLASS:
+                break
+            if issubclass(typing.get_origin(base) or base, BaseCute):
+                for generic_type in typing.get_args(base):
+                    if issubclass(typing.get_origin(generic_type) or generic_type, ABCAPI):
+                        ctx_api_class = generic_type
+                        break
+
+        cute_class.__ctx_api_class__ = ctx_api_class
+        return ctx_api_class
+
+    def _get_cute_from_args(args):
+        for hint in args:
+            if not isinstance(hint, type):
+                hint = typing.get_origin(hint) or hint
+                if not isinstance(hint, type):
+                    continue
+
+            if hint is Variative or issubclass(hint, Option) or issubclass(hint, Some | Nothing):
+                return _get_cute_from_args(typing.get_args(hint))
+
+            if issubclass(hint, BaseCute):
+                return hint
+
+        return None
+
+    def _get_cute_annotations(annotations):
+        cute_annotations = {}
+
+        for key, hint in annotations.items():
+            if not isinstance(hint, type):
+                if (val := _get_cute_from_args(typing.get_args(hint))) is not None:
+                    cute_annotations[key] = val
+
+            elif issubclass(hint, BaseCute):
+                cute_annotations[key] = hint
+
+        return cute_annotations
+
+    def _get_value(value):
+        while isinstance(value, Variative | Some):
+            if isinstance(value, Variative):
+                value = value.v
+            if isinstance(value, Some):
+                value = value.value
+        return value
+
+    class BaseCute(typing.Generic[Update, CtxAPI]):
+        def __init_subclass__(cls, *args, **kwargs):
+            super().__init_subclass__(*args, **kwargs)
+
+            if not cls.__bases__ or not issubclass(cls.__bases__[0], BaseCute):
+                return
+
+            cls.__is_solved_annotations__ = False
+            cls.__cute_annotations__ = None
+
         @classmethod
         def from_update(cls, update, bound_api):
-            return cls(**update.to_dict(), api=bound_api)
+            if not cls.__is_solved_annotations__:
+                cls.__is_solved_annotations__ = True
+                cls.__annotations__ = _get_class_annotations(cls)
+
+            if cls.__cute_annotations__ is None:
+                cls.__cute_annotations__ = _get_cute_annotations(cls.__annotations__)
+
+            return cls(
+                **{
+                    field: decoder.convert(
+                        cls.__cute_annotations__[field].from_update(_get_value(value), bound_api=bound_api),
+                        type=cls.__annotations__[field],
+                    )
+                    if field in cls.__cute_annotations__ and value
+                    else value
+                    for field, value in update.to_dict().items()
+                },
+                api=bound_api,
+            )
 
         @property
         def ctx_api(self):
-            assert isinstance(self.api, API)
+            ctx_api_class = _get_ctx_api_class(self.__class__)
+            assert isinstance(
+                self.api,
+                ctx_api_class,
+            ), f"Bound API of type {self.api.__class__.__name__!r} is incompatible with {ctx_api_class.__name__!r}."
             return self.api
 
         def to_dict(self, *, exclude_fields=None):
             exclude_fields = exclude_fields or set()
             return super().to_dict(exclude_fields={"api"} | exclude_fields)
+
+        def to_full_dict(self, *, exclude_fields=None):
+            exclude_fields = exclude_fields or set()
+            return super().to_full_dict(exclude_fields={"api"} | exclude_fields)
 
 
 def compose_method_params(
@@ -57,12 +177,12 @@ def compose_method_params(
     :param params: Method params.
     :param update: Update object.
     :param default_params: Default params. \
-    type (`str`) - Attribute name to be taken from `update` if param undefined. \
-    type (`tuple[str, str]`) - tuple[0] Parameter name to be set in `params`, \
-    tuple[1] attribute name to be taken from `update`.
+    (`str`) - Attribute name to be get from `update` if param is undefined. \
+    (`tuple[str, str]`): tuple[0] - Parameter name to be set in `params`, \
+    tuple[1] - attribute name to be get from `update`.
     :param validators: Validators mapping (`str, Callable`), key - `Parameter name` \
     for which the validator will be applied, value - `Validator`, if returned `True` \
-    parameter will be set, otherwise will not be set.
+    parameter will be set, otherwise will not.
     :return: Composed params.
     """
 
@@ -79,8 +199,6 @@ def compose_method_params(
     return params
 
 
-# NOTE: implement parser on ast for methods decorated this decorator
-# to support updates to the schema Bot API.
 def shortcut(
     method_name: str,
     *,
@@ -96,7 +214,15 @@ def shortcut(
         ) -> typing.Any:
             if executor is None:
                 return await func(self, *args, **kwargs)
-            signature_params = {k: p for k, p in inspect.signature(func).parameters.items() if k != "self"}
+
+            if not hasattr(func, "_signature_params"):
+                setattr(
+                    func,
+                    "_signature_params",
+                    {k: p for k, p in inspect.signature(func).parameters.items() if k != "self"},
+                )
+
+            signature_params: dict[str, inspect.Parameter] = getattr(func, "_signature_params")
             params: dict[str, typing.Any] = {}
             index = 0
 
@@ -105,9 +231,11 @@ def shortcut(
                     params[k] = args[index]
                     index += 1
                     continue
+
                 if p.kind in (p.VAR_KEYWORD, p.VAR_POSITIONAL):
                     params[k] = kwargs.copy() if p.kind is p.VAR_KEYWORD else args[index:]
                     continue
+
                 params[k] = kwargs.pop(k, p.default) if p.default is not p.empty else kwargs.pop(k)
 
             return await executor(self, method_name, get_params(params))
@@ -122,12 +250,11 @@ def shortcut(
     return wrapper
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True, frozen=True)
 class Shortcut:
     method_name: str
-    _: dataclasses.KW_ONLY
-    executor: Executor | None = dataclasses.field(default=None)
-    custom_params: set[str] = dataclasses.field(default_factory=lambda: set())
+    executor: Executor | None = dataclasses.field(default=None, kw_only=True)
+    custom_params: set[str] = dataclasses.field(default_factory=lambda: set(), kw_only=True)
 
 
 __all__ = ("BaseCute", "Shortcut", "compose_method_params", "shortcut")

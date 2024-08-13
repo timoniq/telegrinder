@@ -10,7 +10,7 @@ PatternLike: typing.TypeAlias = str | typing.Pattern[str]
 
 
 class Regex(ABCRule):
-    def __init__(self, regexp: PatternLike | list[PatternLike]):
+    def __init__(self, regexp: PatternLike | list[PatternLike]) -> None:
         self.regexp: list[re.Pattern[str]] = []
         match regexp:
             case re.Pattern() as pattern:

@@ -1,4 +1,5 @@
 import dataclasses
+from functools import cached_property
 
 import typing_extensions as typing
 
@@ -6,12 +7,14 @@ from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import BaseCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
+from telegrinder.model import Model
 from telegrinder.modules import logger
-from telegrinder.node import Node, compose_nodes, is_node
+from telegrinder.node.base import Node, collect_nodes
+from telegrinder.node.composer import compose_nodes
+from telegrinder.node.event import EVENT_NODE_KEY
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
-from telegrinder.tools.magic import get_annotations
-from telegrinder.types import Update
 from telegrinder.types.enums import UpdateType
+from telegrinder.types.objects import Update
 
 from .abc import ABCHandler
 
@@ -22,11 +25,11 @@ F = typing.TypeVar(
     "F",
     bound=typing.Callable[typing.Concatenate[typing.Any, ...], typing.Awaitable[typing.Any]],
 )
-Event = typing.TypeVar("Event", bound=BaseCute)
+Event = typing.TypeVar("Event", bound=Model)
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
 
-@dataclasses.dataclass(repr=False)
+@dataclasses.dataclass(repr=False, slots=True)
 class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
     func: F
     rules: list["ABCRule"]
@@ -49,25 +52,36 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
             self.error_handler,
         )
 
-    def get_required_nodes(self) -> dict[str, type[Node]]:
-        return {k: v for k, v in get_annotations(self.func).items() if is_node(v)}
+    @cached_property
+    def required_nodes(self) -> dict[str, type[Node]]:
+        return collect_nodes(self.func)
 
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         if self.update_type is not None and self.update_type != event.update_type:
             return False
 
-        ctx = ctx or Context()
+        ctx = Context(raw_update=event) if ctx is None else ctx
         temp_ctx = ctx.copy()
         temp_ctx |= self.preset_context
 
-        nodes = self.get_required_nodes()
+        nodes = self.required_nodes
         node_col = None
 
         if nodes:
-            node_col = await compose_nodes(nodes, UpdateCute.from_update(event, api), ctx)
+            node_col = await compose_nodes(
+                UpdateCute.from_update(event, api),
+                ctx,
+                nodes,
+            )
+
             if node_col is None:
                 return False
             temp_ctx |= node_col.values()
+
+            if EVENT_NODE_KEY in ctx:
+                for name, node in nodes.items():
+                    if node is ctx[EVENT_NODE_KEY] and name in temp_ctx:
+                        ctx[EVENT_NODE_KEY] = temp_ctx.pop(name)
 
         for rule in self.rules:
             if not await check_rule(api, rule, event, temp_ctx):
@@ -78,19 +92,24 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         ctx |= temp_ctx
         return True
 
-    async def run(self, event: Event, ctx: Context) -> typing.Any:
-        api = event.api
+    async def run(self, api: ABCAPI, event: Event, ctx: Context) -> typing.Any:
+        dataclass_type = typing.get_origin(self.dataclass) or self.dataclass
 
-        if self.dataclass is not None:
-            if self.update_type is not None:
+        if dataclass_type is Update and (event_node := ctx.pop(EVENT_NODE_KEY, None)) is not None:
+            event = event_node
+
+        elif dataclass_type is not None:
+            if self.update_type is not None and isinstance(event, Update):
                 update = event.to_dict()[self.update_type.value].unwrap()
                 event = (
                     self.dataclass.from_update(update, bound_api=api)  # type: ignore
-                    if issubclass(self.dataclass, BaseCute)
-                    else self.dataclass(**update.to_dict())
+                    if issubclass(dataclass_type, BaseCute)
+                    else self.dataclass(**update.to_dict())  # type: ignore
                 )
+            elif issubclass(dataclass_type, UpdateCute) and isinstance(event, Update):
+                event = self.dataclass.from_update(event, bound_api=api)  # type: ignore
             else:
-                event = self.dataclass(**event.to_dict())
+                event = self.dataclass(**event.to_dict())  # type: ignore
 
         result = (await self.error_handler.run(self.func, event, api, ctx)).unwrap()
         if node_col := ctx.node_col:

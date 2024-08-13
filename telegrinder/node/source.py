@@ -1,18 +1,17 @@
 import dataclasses
 import typing
 
-from fntypes import Nothing, Option
+from fntypes.option import Nothing, Option
 
-from telegrinder.api import API
-from telegrinder.types import Chat, Message, User
+from telegrinder.api.api import API
+from telegrinder.node.base import ComposeError, DataNode, ScalarNode
+from telegrinder.node.callback_query import CallbackQueryNode
+from telegrinder.node.message import MessageNode
+from telegrinder.node.polymorphic import Polymorphic, impl
+from telegrinder.types.objects import Chat, Message, User
 
-from .base import ComposeError, DataNode, ScalarNode
-from .callback_query import CallbackQueryNode
-from .message import MessageNode
-from .polymorphic import Polymorphic, impl
 
-
-@dataclasses.dataclass(kw_only=True)
+@dataclasses.dataclass(kw_only=True, slots=True)
 class Source(Polymorphic, DataNode):
     api: API
     chat: Chat
@@ -24,7 +23,7 @@ class Source(Polymorphic, DataNode):
         return cls(
             api=message.ctx_api,
             chat=message.chat,
-            from_user=message.from_user,
+            from_user=message.from_.expect(ComposeError("MessageNode has no from_user")),
             thread_id=message.message_thread_id,
         )
 
@@ -32,7 +31,7 @@ class Source(Polymorphic, DataNode):
     async def compose_callback_query(cls, callback_query: CallbackQueryNode) -> typing.Self:
         return cls(
             api=callback_query.ctx_api,
-            chat=callback_query.chat.expect(ComposeError),
+            chat=callback_query.chat.expect(ComposeError("CallbackQueryNode has no chat")),
             from_user=callback_query.from_user,
             thread_id=callback_query.message_thread_id,
         )

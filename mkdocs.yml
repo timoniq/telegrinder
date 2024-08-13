@@ -1,6 +1,6 @@
-site_name: telegrinder
+site_name: Telegrinder
 site_author: timoniq
-site_description: Telegram bot framework
+site_description: Modern visionary telegram bot framework
 site_url: https://telegrinder.rtfd.io/
 repo_name: timoniq/telegrinder
 repo_url: https://github.com/timoniq/telegrinder
@@ -13,7 +13,7 @@ extra:
   social:
     - icon: fontawesome/brands/telegram
       link: https://t.me/botoforum
-      name: Our forum
+      name: Our Telegram botoforum
 
 nav:
   - Index: index.md

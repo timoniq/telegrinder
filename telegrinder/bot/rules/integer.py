@@ -1,4 +1,3 @@
-from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.text import TextInteger
 
 from .abc import ABCRule
@@ -11,7 +10,7 @@ class IsInteger(NodeRule):
 
 
 class IntegerInRange(ABCRule):
-    def __init__(self, rng: range):
+    def __init__(self, rng: range) -> None:
         self.rng = rng
 
     async def check(self, integer: TextInteger) -> bool:

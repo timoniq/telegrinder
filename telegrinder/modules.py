@@ -108,8 +108,8 @@ elif logging_module == "logging":
             "level": "green",
             "level_module": "blue",
             "level_func": "cyan",
-            "level_lineno": "green",
-            "level_message": "white",
+            "level_lineno": "white",
+            "level_message": "green",
         },
         "DEBUG": {
             "level": "blue",
@@ -232,7 +232,7 @@ def _set_logger_level(level):
     if logging_module == "logging":
         import logging
 
-        logging.getLogger("telegrinder").setLevel(logging.getLevelName(level))
+        logging.getLogger("telegrinder").setLevel(level)
     elif logging_module == "loguru":
         import loguru  # type: ignore
 

@@ -2,23 +2,21 @@ import dataclasses
 import typing
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node import Source
 from telegrinder.node.command import CommandInfo, single_split
 from telegrinder.node.me import Me
+from telegrinder.node.source import Source
+from telegrinder.types.enums import ChatType
 
-from ...types import ChatType
 from .abc import ABCRule
 
-Validator = typing.Callable[[str], typing.Any | None]
+Validator: typing.TypeAlias = typing.Callable[[str], typing.Any | None]
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class Argument:
     name: str
     validators: list[Validator] = dataclasses.field(default_factory=lambda: [])
     optional: bool = dataclasses.field(default=False, kw_only=True)
-
-    # NOTE: add optional param `description`
 
     def check(self, data: str) -> typing.Any | None:
         for validator in self.validators:
@@ -79,7 +77,7 @@ class Command(ABCRule):
 
         return self.parse_arguments(arguments[1:], s)
 
-    def parse_arguments(self, arguments: list[Argument], s: str) -> dict | None:
+    def parse_arguments(self, arguments: list[Argument], s: str) -> dict[str, typing.Any] | None:
         if not arguments:
             return {} if not s else None
 

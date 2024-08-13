@@ -352,6 +352,7 @@ class Currency(str, enum.Enum):
     YER = "YER"
     ZAR = "ZAR"
     XTR = "XTR"
+    """Telegram stars."""
 
 
 class InlineQueryResultType(str, enum.Enum):

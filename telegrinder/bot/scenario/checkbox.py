@@ -114,7 +114,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         api: "API",
         view: "BaseStateView[CallbackQueryCute]",
     ) -> tuple[dict[str, bool], int]:
-        assert len(self.choices) > 1
+        assert len(self.choices) > 0
         message = (
             await api.send_message(
                 chat_id=self.chat_id,

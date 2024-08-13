@@ -2,15 +2,17 @@ from __future__ import annotations
 
 import typing
 
-from fntypes.co import Option, Result, Some, Variative
+import fntypes.option
+from fntypes.co import Result, Some, Variative
 
 from telegrinder.api import ABCAPI, APIError
 from telegrinder.model import get_params
-from telegrinder.msgspec_utils import Nothing
-from telegrinder.types import (
+from telegrinder.msgspec_utils import Nothing, Option
+from telegrinder.types.objects import (
     ChatAction,
     DiceEmoji,
     ForceReply,
+    InaccessibleMessage,
     InlineKeyboardMarkup,
     InputFile,
     InputMedia,
@@ -127,7 +129,7 @@ async def execute_method_edit(
 
     result = await getattr(update.ctx_api, method_name)(**params)
     return result.map(
-        lambda v: Variative["MessageCute", bool](
+        lambda v: Variative[MessageCute, bool](
             v.only()
             .map(
                 lambda x: MessageCute.from_update(x, bound_api=update.api),
@@ -139,9 +141,9 @@ async def execute_method_edit(
 
 def get_entity_value(
     entity_value: typing.Literal["user", "url", "custom_emoji_id", "language"],
-    entities: Option[list[MessageEntity]] = Nothing,
-    caption_entities: Option[list[MessageEntity]] = Nothing,
-) -> Option[typing.Any]:
+    entities: fntypes.option.Option[list[MessageEntity]] = Nothing,
+    caption_entities: fntypes.option.Option[list[MessageEntity]] = Nothing,
+) -> fntypes.option.Option[typing.Any]:
     ents = entities.unwrap_or(caption_entities.unwrap_or_none())
     if not ents:
         return Nothing
@@ -154,26 +156,36 @@ def get_entity_value(
 class MessageCute(BaseCute[Message], Message, kw_only=True):
     api: ABCAPI
 
+    reply_to_message: Option[MessageCute] = Nothing
+    """Optional. For replies in the same chat and message thread, the original
+    message. Note that the Message object in this field will not contain further
+    reply_to_message fields even if it itself is a reply."""
+
+    pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = Nothing
+    """Optional. Specified message was pinned. Note that the Message object in
+    this field will not contain further reply_to_message fields even if it
+    itself is a reply."""
+
     @property
-    def mentioned_user(self) -> Option[User]:
+    def mentioned_user(self) -> fntypes.option.Option[User]:
         """Mentioned user without username."""
 
         return get_entity_value("user", self.entities, self.caption_entities)
 
     @property
-    def url(self) -> Option[str]:
+    def url(self) -> fntypes.option.Option[str]:
         """Clickable text URL."""
 
         return get_entity_value("url", self.entities, self.caption_entities)
 
     @property
-    def programming_language(self) -> Option[str]:
+    def programming_language(self) -> fntypes.option.Option[str]:
         """The programming language of the entity text."""
 
         return get_entity_value("language", self.entities, self.caption_entities)
 
     @property
-    def custom_emoji_id(self) -> Option[str]:
+    def custom_emoji_id(self) -> fntypes.option.Option[str]:
         """Unique identifier of the custom emoji."""
 
         return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)

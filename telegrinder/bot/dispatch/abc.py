@@ -2,12 +2,15 @@ import typing
 from abc import ABC, abstractmethod
 
 from telegrinder.api.abc import ABCAPI
-from telegrinder.tools.global_context import ABCGlobalContext
-from telegrinder.types import Update
+from telegrinder.tools.global_context.abc import ABCGlobalContext
+from telegrinder.types.objects import Update
 
 
 class ABCDispatch(ABC):
-    global_context: ABCGlobalContext
+    @property
+    @abstractmethod
+    def global_context(self) -> ABCGlobalContext:
+        pass
 
     @abstractmethod
     async def feed(self, event: Update, api: ABCAPI) -> bool:

@@ -43,7 +43,12 @@ class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
             return
         await self.api.delete_webhook()
 
-    async def run_polling(self, *, offset: int = 0, skip_updates: bool = False) -> None:
+    async def run_polling(
+        self,
+        *,
+        offset: int = 0,
+        skip_updates: bool = False,
+    ) -> None:
         if skip_updates:
             logger.debug("Dropping pending updates")
             await self.reset_webhook()

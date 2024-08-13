@@ -1,6 +1,6 @@
 from .abc import ABCDispatch
 from .context import Context
-from .dispatch import ABCRule, Dispatch, TelegrinderCtx
+from .dispatch import Dispatch, TelegrinderContext
 from .handler import ABCHandler, FuncHandler, MessageReplyHandler
 from .middleware import ABCMiddleware
 from .process import check_rule, process_inner
@@ -33,7 +33,6 @@ __all__ = (
     "ABCHandler",
     "ABCMiddleware",
     "ABCReturnManager",
-    "ABCRule",
     "ABCStateView",
     "ABCView",
     "BaseReturnManager",
@@ -54,7 +53,7 @@ __all__ = (
     "MessageView",
     "RawEventView",
     "ShortState",
-    "TelegrinderCtx",
+    "TelegrinderContext",
     "ViewBox",
     "WaiterMachine",
     "check_rule",

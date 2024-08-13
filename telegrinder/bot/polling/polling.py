@@ -23,7 +23,7 @@ class Polling(ABCPolling):
         max_reconnetions: int = 10,
         include_updates: set[str | UpdateType] | None = None,
         exclude_updates: set[str | UpdateType] | None = None,
-    ):
+    ) -> None:
         self.api = api
         self.allowed_updates = self.get_allowed_updates(
             include_updates=include_updates,
@@ -48,8 +48,8 @@ class Polling(ABCPolling):
             self.reconnection_timeout,
         )
 
+    @staticmethod
     def get_allowed_updates(
-        self,
         *,
         include_updates: set[str | UpdateType] | None = None,
         exclude_updates: set[str | UpdateType] | None = None,
@@ -111,7 +111,7 @@ class Polling(ABCPolling):
                     exit(6)
                 else:
                     logger.warning(
-                        "Server disconnected, waiting 5 seconds to reconnet...",
+                        "Server disconnected, waiting 5 seconds to reconnect...",
                     )
                     reconn_counter += 1
                     await asyncio.sleep(self.reconnection_timeout)

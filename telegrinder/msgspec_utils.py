@@ -1,3 +1,4 @@
+import dataclasses
 import typing
 
 import fntypes.option
@@ -34,8 +35,6 @@ else:
 
 
 T = typing.TypeVar("T")
-Type = typing.TypeVar("Type", bound=type | typing.Any)
-Ts = typing.TypeVarTuple("Ts")
 
 DecHook: typing.TypeAlias = typing.Callable[[type[T], typing.Any], typing.Any]
 EncHook: typing.TypeAlias = typing.Callable[[T], typing.Any]
@@ -61,6 +60,16 @@ def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, str]:
                 repr_type(type(obj)),
             )
         )
+
+
+def msgspec_to_builtins(
+    obj: typing.Any,
+    *,
+    str_keys: bool = False,
+    builtin_types: typing.Iterable[type[typing.Any]] | None = None,
+    order: typing.Literal["deterministic", "sorted"] | None = None,
+) -> typing.Any:
+    return encoder.to_builtins(**locals())
 
 
 def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
@@ -137,6 +146,11 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
     )
 
 
+@typing.runtime_checkable
+class DataclassInstance(typing.Protocol):
+    __dataclass_fields__: typing.ClassVar[dict[str, dataclasses.Field[typing.Any]]]
+
+
 class Decoder:
     """Class `Decoder` for `msgspec` module with decode hook
     for objects with the specified type.
@@ -155,7 +169,6 @@ class Decoder:
     decoder.dec_hooks[dt] = lambda t, timestamp: t.fromtimestamp(timestamp)
 
     decoder.dec_hook(dt, 1713354732)  #> datetime.datetime(2024, 4, 17, 14, 52, 12)
-    decoder.dec_hook(int, "123")  #> TypeError: Unknown type `int`. You can implement decode hook for this type.
 
     decoder.convert("123", type=int, strict=False)  #> 123
     decoder.convert(1, type=Digit)  #> <Digit.ONE: 1>
@@ -250,8 +263,6 @@ class Encoder:
     encoder.enc_hooks[dt] = lambda d: int(d.timestamp())
 
     encoder.enc_hook(dt.now())  #> 1713354732
-    encoder.enc_hook(123)  #> NotImplementedError: Not implemented encode hook for object of type `int`.
-
     encoder.encode({'digit': Digit.ONE})  #> '{"digit":1}'
     ```
     """
@@ -302,6 +313,22 @@ class Encoder:
         buf = msgspec.json.encode(obj, enc_hook=self.enc_hook)
         return buf.decode() if as_str else buf
 
+    def to_builtins(
+        self,
+        obj: typing.Any,
+        *,
+        str_keys: bool = False,
+        builtin_types: typing.Iterable[type[typing.Any]] | None = None,
+        order: typing.Literal["deterministic", "sorted"] | None = None,
+    ) -> typing.Any:
+        return msgspec.to_builtins(
+            obj,
+            str_keys=str_keys,
+            builtin_types=builtin_types,
+            enc_hook=self.enc_hook,
+            order=order,
+        )
+
 
 decoder: typing.Final[Decoder] = Decoder()
 encoder: typing.Final[Encoder] = Encoder()
@@ -317,6 +344,7 @@ __all__ = (
     "encoder",
     "get_origin",
     "msgspec_convert",
+    "msgspec_to_builtins",
     "option_dec_hook",
     "repr_type",
     "variative_dec_hook",

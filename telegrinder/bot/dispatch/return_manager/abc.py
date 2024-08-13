@@ -3,12 +3,12 @@ import types
 import typing
 from abc import ABC, abstractmethod
 
-from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.model import Model
 from telegrinder.modules import logger
 
 T = typing.TypeVar("T")
-Event = typing.TypeVar("Event", bound=BaseCute, contravariant=True)
+Event = typing.TypeVar("Event", bound=Model, contravariant=True)
 
 
 def get_union_types(t: types.UnionType) -> tuple[type, ...] | None:
@@ -24,7 +24,7 @@ def register_manager(return_type: type[typing.Any] | types.UnionType):
     return wrapper
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class Manager:
     types: tuple[type, ...]
     callback: typing.Callable[..., typing.Awaitable]

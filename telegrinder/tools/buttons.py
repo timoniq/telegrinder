@@ -3,23 +3,18 @@ import typing
 
 import msgspec
 
-from telegrinder.model import encoder
-from telegrinder.types import (
+from telegrinder.msgspec_utils import DataclassInstance, encoder
+from telegrinder.types.objects import (
     CallbackGame,
     KeyboardButtonPollType,
     KeyboardButtonRequestChat,
     KeyboardButtonRequestUsers,
+    LoginUrl,
     SwitchInlineQueryChosenChat,
     WebAppInfo,
 )
-from telegrinder.types.objects import LoginUrl
 
 ButtonT = typing.TypeVar("ButtonT", bound="BaseButton")
-
-
-@typing.runtime_checkable
-class DataclassInstance(typing.Protocol):
-    __dataclass_fields__: typing.ClassVar[dict[str, dataclasses.Field[typing.Any]]]
 
 
 @dataclasses.dataclass
@@ -44,7 +39,7 @@ class RowButtons(typing.Generic[ButtonT]):
         return [b.get_data() for b in self.buttons]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class Button(BaseButton):
     text: str
     request_contact: bool = dataclasses.field(default=False, kw_only=True)
@@ -61,7 +56,7 @@ class Button(BaseButton):
     web_app: dict[str, typing.Any] | WebAppInfo | None = dataclasses.field(default=None, kw_only=True)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class InlineButton(BaseButton):
     text: str
     url: str | None = dataclasses.field(default=None, kw_only=True)

@@ -1,3 +1,4 @@
+import typing
 from dataclasses import dataclass, field
 
 from fntypes import Nothing, Option, Some
@@ -16,14 +17,17 @@ def cut_mention(text: str) -> tuple[str, Option[str]]:
     return left, Some(right) if right else Nothing()
 
 
-@dataclass
+@dataclass(slots=True)
 class CommandInfo(DataNode):
     name: str
     arguments: str
     mention: Option[str] = field(default_factory=Nothing)
 
     @classmethod
-    async def compose(cls, text: Text):
+    async def compose(cls, text: Text) -> typing.Self:
         name, arguments = single_split(text, separator=" ")
         name, mention = cut_mention(name)
         return cls(name, arguments, mention)
+
+
+__all__ = ("CommandInfo", "cut_mention", "single_split")

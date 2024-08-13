@@ -24,13 +24,21 @@ class MessageView(BaseStateView[MessageCute]):
         self.middlewares = []
         self.return_manager = MessageReturnManager()
 
+    def __repr__(self) -> str:
+        return "<{}: {!r}>".format(
+            self.__class__.__name__,
+            "any message update" if self.update_type is None else self.update_type.value,
+        )
+
     def get_state_key(self, event: MessageCute) -> int | None:
         return event.chat_id
 
     async def check(self, event: Update) -> bool:
-        if not await super().check(event):
-            return False
-        return True if self.update_type is None else self.update_type == event.update_type
+        return not (
+            self.update_type is not None
+            and self.update_type != event.update_type
+            or not await super().check(event)
+        )
 
 
 __all__ = ("MessageView",)

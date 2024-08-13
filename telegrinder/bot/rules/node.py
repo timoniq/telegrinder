@@ -1,7 +1,7 @@
 import typing
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node import Node
+from telegrinder.node.base import Node
 
 from .abc import ABCRule
 from .adapter.node import NodeAdapter
@@ -15,7 +15,7 @@ class NodeRule(ABCRule[tuple[Node, ...]]):
 
     @property
     def adapter(self) -> NodeAdapter:
-        return NodeAdapter(*self.nodes)
+        return NodeAdapter(*self.nodes)  # type: ignore
 
     async def check(self, resolved_nodes: tuple[Node, ...], ctx: Context) -> typing.Literal[True]:
         for i, node in enumerate(resolved_nodes):
