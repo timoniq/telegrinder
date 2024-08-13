@@ -17,7 +17,7 @@ def cut_mention(text: str) -> tuple[str, Option[str]]:
     return left, Some(right) if right else Nothing()
 
 
-@dataclass
+@dataclass(slots=True)
 class CommandInfo(DataNode):
     name: str
     arguments: str

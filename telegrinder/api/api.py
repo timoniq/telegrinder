@@ -16,7 +16,7 @@ def compose_data(
     data: dict[str, typing.Any],
     files: dict[str, tuple[str, bytes]],
 ) -> typing.Any:
-    converter = DataConverter(files=files.copy())
+    converter = DataConverter(_files=files.copy())
     return client.get_form(
         data={k: converter(v) for k, v in data.items()},
         files=converter.files,

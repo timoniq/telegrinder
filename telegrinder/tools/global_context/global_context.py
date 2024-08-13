@@ -81,7 +81,7 @@ def ctx_var(value: T, *, const: bool = False) -> T:
     return typing.cast(T, CtxVar(value, const=const))
 
 
-@dataclasses.dataclass(frozen=True, eq=False)
+@dataclasses.dataclass(frozen=True, eq=False, slots=True)
 class RootAttr:
     name: str
     can_be_read: bool = dataclasses.field(default=True, kw_only=True)
@@ -91,7 +91,7 @@ class RootAttr:
         return self.name == __value
 
 
-@dataclasses.dataclass(repr=False, frozen=True)
+@dataclasses.dataclass(repr=False, frozen=True, slots=True)
 class Storage:
     _storage: dict[str, "GlobalContext"] = dataclasses.field(
         default_factory=lambda: {},

@@ -1,6 +1,7 @@
 import asyncio
 import contextlib
 import dataclasses
+import datetime
 import typing
 
 from telegrinder.modules import logger
@@ -32,7 +33,7 @@ def to_coroutine_task(task: Task) -> CoroutineTask[typing.Any]:
     return task
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class DelayedTask(typing.Generic[CoroFunc]):
     handler: CoroFunc
     seconds: float
@@ -60,7 +61,7 @@ class DelayedTask(typing.Generic[CoroFunc]):
             self._cancelled = True
 
 
-@dataclasses.dataclass(kw_only=True)
+@dataclasses.dataclass(kw_only=True, slots=True)
 class Lifespan:
     startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
     shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
@@ -86,10 +87,11 @@ class LoopWrapper(ABCLoopWrapper):
         *,
         tasks: list[CoroutineTask[typing.Any]] | None = None,
         lifespan: Lifespan | None = None,
+        event_loop: asyncio.AbstractEventLoop | None = None,
     ) -> None:
         self.tasks: list[CoroutineTask[typing.Any]] = tasks or []
         self.lifespan = lifespan or Lifespan()
-        self._loop = asyncio.new_event_loop()
+        self._loop = event_loop or asyncio.new_event_loop()
 
     def __repr__(self) -> str:
         return "<{}: loop={!r} with tasks={!r}, lifespan={!r}>".format(
@@ -143,6 +145,10 @@ class LoopWrapper(ABCLoopWrapper):
         with contextlib.suppress(asyncio.CancelledError):
             self._loop.run_until_complete(task_to_cancel)
 
+    @typing.overload
+    def timer(self, *, seconds: datetime.timedelta) -> typing.Callable[..., typing.Any]: ...
+
+    @typing.overload
     def timer(
         self,
         *,
@@ -150,7 +156,19 @@ class LoopWrapper(ABCLoopWrapper):
         hours: int = 0,
         minutes: int = 0,
         seconds: float = 0,
-    ):
+    ) -> typing.Callable[..., typing.Any]: ...
+
+    def timer(
+        self,
+        *,
+        days: int = 0,
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: float | datetime.timedelta = 0,
+    ) -> typing.Callable[..., typing.Any]:
+        if isinstance(seconds, datetime.timedelta):
+            seconds = seconds.total_seconds()
+
         seconds += minutes * 60
         seconds += hours * 60 * 60
         seconds += days * 24 * 60 * 60
@@ -161,6 +179,10 @@ class LoopWrapper(ABCLoopWrapper):
 
         return decorator
 
+    @typing.overload
+    def interval(self, *, seconds: datetime.timedelta) -> typing.Callable[..., typing.Any]: ...
+
+    @typing.overload
     def interval(
         self,
         *,
@@ -168,7 +190,19 @@ class LoopWrapper(ABCLoopWrapper):
         hours: int = 0,
         minutes: int = 0,
         seconds: float = 0,
-    ):
+    ) -> typing.Callable[..., typing.Any]: ...
+
+    def interval(
+        self,
+        *,
+        days: int = 0,
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: float | datetime.timedelta = 0,
+    ) -> typing.Callable[..., typing.Any]:
+        if isinstance(seconds, datetime.timedelta):
+            seconds = seconds.total_seconds()
+
         seconds += minutes * 60
         seconds += hours * 60 * 60
         seconds += days * 24 * 60 * 60

@@ -93,10 +93,10 @@ async def check_rule(
     ctx |= ctx_copy
 
     # Composing required nodes
-    nodes = rule.get_required_nodes()
+    nodes = rule.required_nodes
     node_col = None
     if nodes:
-        node_col = await compose_nodes(nodes, UpdateCute.from_update(update, api), ctx)
+        node_col = await compose_nodes(UpdateCute.from_update(update, api), ctx, nodes)
         if node_col is None:
             return False
 

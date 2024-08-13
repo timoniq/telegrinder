@@ -24,7 +24,7 @@ class ShortStateContext(typing.Generic[EventModel], typing.NamedTuple):
     context: Context
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class ShortState(typing.Generic[EventModel]):
     key: "Identificator"
     ctx_api: ABCAPI
@@ -38,6 +38,7 @@ class ShortState(typing.Generic[EventModel]):
     on_drop_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None, kw_only=True)
     exit_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None, kw_only=True)
     expiration_date: datetime.datetime | None = dataclasses.field(init=False, kw_only=True)
+    creation_date: datetime.datetime = dataclasses.field(init=False)
     context: ShortStateContext[EventModel] | None = dataclasses.field(default=None, init=False, kw_only=True)
 
     def __post_init__(self, expiration: datetime.timedelta | None = None) -> None:
