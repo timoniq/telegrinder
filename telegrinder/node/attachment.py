@@ -1,7 +1,7 @@
 import dataclasses
 import typing
 
-from fntypes import Option, Some
+from fntypes.co import Option, Some
 from fntypes.option import Nothing
 
 import telegrinder.types

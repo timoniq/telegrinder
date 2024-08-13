@@ -6,7 +6,7 @@ from telegrinder.node.base import BaseNode, ComposeError
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, Composition, NodeSession
 from telegrinder.node.scope import NodeScope
 from telegrinder.node.update import UpdateNode
-from telegrinder.tools.magic import get_impls, impl
+from telegrinder.tools.magic import IMPL_MARK, get_impls_by_key, impl
 
 
 class Polymorphic(BaseNode):
@@ -15,7 +15,7 @@ class Polymorphic(BaseNode):
         scope = getattr(cls, "scope", None)
         node_ctx = context.get_or_set(CONTEXT_STORE_NODES_KEY, {})
 
-        for i, impl in enumerate(get_impls(cls)):
+        for i, impl in enumerate(get_impls_by_key(cls, IMPL_MARK).values()):
             composition = Composition(impl, True, node_class=cls)
             node_collection = await composition.compose_nodes(update, context)
             if node_collection is None:

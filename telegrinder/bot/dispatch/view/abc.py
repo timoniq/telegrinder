@@ -179,7 +179,7 @@ class BaseView(ABCView, typing.Generic[Event]):
                     "{!r} has no event type in generic.".format(self.__class__.__name__),
                 ),
                 e.__class__,
-            ):
+            ) and (self.handlers or self.middlewares):
                 return True
             case _:
                 return False

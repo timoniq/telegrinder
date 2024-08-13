@@ -1,6 +1,7 @@
 import pathlib
 import typing
 from abc import ABC, abstractmethod
+from functools import cached_property
 
 import msgspec
 from envparse import env
@@ -33,7 +34,7 @@ class Token(str):
             env.read_envfile(path_to_envfile)
         return cls(env.str(var_name))
 
-    @property
+    @cached_property
     def bot_id(self) -> int:
         return int(self.split(":")[0])
 
