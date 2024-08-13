@@ -1,29 +1,46 @@
-from functools import lru_cache
-
 import enum
 import inspect
 import types
 import typing
-from functools import lru_cache
+from functools import wraps
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
     from telegrinder.node.base import Node
 
     T = typing.TypeVar("T", bound=ABCRule)
+    F = typing.TypeVar(
+        "F",
+        bound=typing.Callable[typing.Concatenate[typing.Callable[..., typing.Any], ...], typing.Any],
+    )
 
 Impl: typing.TypeAlias = type[classmethod]
+NodeImpl: typing.TypeAlias = Impl
 FuncType: typing.TypeAlias = types.FunctionType | typing.Callable[..., typing.Any]
 
 TRANSLATIONS_KEY: typing.Final[str] = "_translations"
 IMPL_MARK: typing.Final[str] = "_is_impl"
+NODE_IMPL_MARK: typing.Final[str] = "_is_node_impl"
+
+
+def cache_magic_value(mark_key: str, /):
+    def inner(func: "F") -> "F":
+        @wraps(func)
+        def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+            if mark_key not in args[0].__dict__:
+                args[0].__dict__[mark_key] = func(*args, **kwargs)
+            return args[0].__dict__[mark_key]
+
+        return wrapper  # type: ignore
+
+    return inner
 
 
 def resolve_arg_names(func: FuncType, start_idx: int = 1) -> tuple[str, ...]:
     return func.__code__.co_varnames[start_idx : func.__code__.co_argcount]
 
 
-@lru_cache(maxsize=65536)
+@cache_magic_value("__default_args__")
 def get_default_args(func: FuncType) -> dict[str, typing.Any]:
     fspec = inspect.getfullargspec(func)
     if not fspec.defaults:
@@ -68,23 +85,29 @@ def cache_translation(base_rule: "T", locale: str, translated_rule: "T") -> None
     setattr(base_rule, TRANSLATIONS_KEY, translations)
 
 
-def get_impls(cls: type["Node"]) -> list[typing.Callable[..., typing.Any]]:
-    return [
-        func.__func__
-        for func in vars(cls).values()
-        if isinstance(func, classmethod) and getattr(func.__func__, IMPL_MARK, False)
-    ]
+def get_impls_by_key(cls: type["Node"], mark_key: str) -> dict[str, typing.Callable[..., typing.Any]]:
+    return {
+        name: func.__func__
+        for name, func in vars(cls).items()
+        if isinstance(func, classmethod) and getattr(func.__func__, mark_key, False)
+    }
 
 
 @typing.cast(typing.Callable[..., Impl], lambda f: f)
 def impl(method: typing.Callable[..., typing.Any]):
-    bound_method = classmethod(method)
     setattr(method, IMPL_MARK, True)
-    return bound_method
+    return classmethod(method)
+
+
+@typing.cast(typing.Callable[..., NodeImpl], lambda f: f)
+def node_impl(method: typing.Callable[..., typing.Any]):
+    setattr(method, NODE_IMPL_MARK, True)
+    return classmethod(method)
 
 
 __all__ = (
     "TRANSLATIONS_KEY",
+    "cache_magic_value",
     "cache_translation",
     "get_annotations",
     "get_cached_translation",
@@ -92,6 +115,7 @@ __all__ = (
     "get_default_args",
     "impl",
     "magic_bundle",
+    "node_impl",
     "resolve_arg_names",
     "to_str",
 )

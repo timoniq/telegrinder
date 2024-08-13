@@ -15,7 +15,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.abc import BaseStateView
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class Choice:
     name: str
     is_picked: bool

@@ -1,4 +1,5 @@
 import typing
+from functools import cached_property
 
 import msgspec
 from fntypes.result import Error, Ok, Result
@@ -41,7 +42,7 @@ class API(ABCAPI, APIMethods):
             self.http,
         )
 
-    @property
+    @cached_property
     def id(self) -> int:
         return self.token.bot_id
 

@@ -15,7 +15,9 @@ class RuleChain(dict[str, typing.Any]):
     dataclass = dict
     rules: tuple["ABCRule", ...] = ()
 
-    def __init_subclass__(cls) -> None:
+    def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
+        super().__init_subclass__(*args, **kwargs)
+
         if cls.__name__ == "_RuleNode":
             return
         cls.dataclass = cls.generate_node_dataclass(cls)
@@ -65,7 +67,7 @@ class RuleChain(dict[str, typing.Any]):
         return {"update": UpdateNode}
 
     @classmethod
-    def get_context_annotations(cls) -> dict[str, typing.Any]:
+    def get_compose_annotations(cls) -> dict[str, typing.Any]:
         return {}
 
     @classmethod

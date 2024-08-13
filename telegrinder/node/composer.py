@@ -11,8 +11,8 @@ from telegrinder.node.base import (
     ComposeError,
     Node,
     NodeScope,
-    collect_context_annotations,
-    collect_nodes,
+    get_compose_annotations,
+    get_nodes,
 )
 from telegrinder.tools.magic import magic_bundle
 
@@ -37,9 +37,11 @@ async def compose_node(
             if getattr(subnode, "scope", None) is NodeScope.PER_EVENT:
                 node_ctx[subnode] = context.sessions[name]
 
-    for name, annotation in node.get_context_annotations().items():
+    for name, annotation in node.get_compose_annotations().items():
         context.sessions[name] = NodeSession(
-            None, await node.compose_context_annotation(annotation, update, ctx), {}
+            None,
+            await node.compose_annotation(annotation, update, ctx),
+            {},
         )
 
     if node.is_generator():
@@ -47,7 +49,7 @@ async def compose_node(
         value = await generator.asend(None)
     else:
         generator = None
-        value = await node.compose(**context.values())  # type: ignore
+        value = await typing.cast(typing.Awaitable[typing.Any], node.compose(**context.values()))
 
     return NodeSession(_node, value, context.sessions, generator)
 
@@ -89,7 +91,7 @@ async def compose_nodes(
 
         try:
             for name, annotation in context_annotations.items():
-                node_sessions[name] = await node_class.compose_context_annotation(annotation, update, ctx)
+                node_sessions[name] = await node_class.compose_annotation(annotation, update, ctx)
         except (ComposeError, UnwrapError) as exc:
             logger.debug(
                 f"Composing context annotation (name={name!r}, annotation={annotation!r}) failed with error: {str(exc)!r}",
@@ -159,8 +161,8 @@ class Composition:
     context_annotations: dict[str, typing.Any] = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
-        self.nodes = collect_nodes(self.func)
-        self.context_annotations = collect_context_annotations(self.func)
+        self.nodes = get_nodes(self.func)
+        self.context_annotations = get_compose_annotations(self.func)
 
     def __repr__(self) -> str:
         return "<{}: for function={!r} with nodes={!r}, context_annotations={!r}>".format(

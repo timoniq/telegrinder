@@ -199,7 +199,7 @@ class DataConverter:
 
 
 class Proxy:
-    def __init__(self, cfg: "_ProxiedDict", key: str):
+    def __init__(self, cfg: "_ProxiedDict", key: str) -> None:
         self.key = key
         self.cfg = cfg
 
@@ -232,11 +232,11 @@ else:
 
 
 __all__ = (
-    "Proxy",
     "DataConverter",
-    "ProxiedDict",
     "MODEL_CONFIG",
     "Model",
+    "ProxiedDict",
+    "Proxy",
     "full_result",
     "get_params",
 )

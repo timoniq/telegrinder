@@ -9,7 +9,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
 from telegrinder.bot.rules.adapter.node import Event
-from telegrinder.node.base import Node, collect_nodes, is_node
+from telegrinder.node.base import Node, get_nodes, is_node
 from telegrinder.tools.i18n.base import ABCTranslator
 from telegrinder.tools.magic import cache_translation, get_annotations, get_cached_translation
 from telegrinder.types.objects import Update as UpdateObject
@@ -46,7 +46,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
 
     @cached_property
     def required_nodes(self) -> dict[str, type[Node]]:
-        return collect_nodes(self.check)
+        return get_nodes(self.check)
 
     async def bounding_check(
         self,
@@ -183,10 +183,10 @@ class Always(ABCRule):
 
 __all__ = (
     "ABCRule",
+    "Always",
     "AndRule",
+    "Never",
     "NotRule",
     "OrRule",
     "with_caching_translations",
-    "Never",
-    "Always",
 )

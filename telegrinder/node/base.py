@@ -1,29 +1,22 @@
 import abc
 import inspect
 import typing
+from types import AsyncGeneratorType
 
-from telegrinder.api import ABCAPI, API
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.scope import NodeScope
-from telegrinder.tools.magic import get_annotations, magic_bundle
-
-ComposeResult: typing.TypeAlias = (
-    typing.Coroutine[typing.Any, typing.Any, typing.Any]
-    | typing.AsyncGenerator[typing.Any, None]
-    | typing.Any
+from telegrinder.tools.magic import (
+    NODE_IMPL_MARK,
+    cache_magic_value,
+    get_annotations,
+    get_impls_by_key,
+    magic_bundle,
+    node_impl,
 )
 
-NODE_IMPL_MARK = "_node_impl"
-
-if typing.TYPE_CHECKING:
-    node_impl = classmethod
-
-else:
-
-    def node_impl(func):
-        setattr(func, NODE_IMPL_MARK, True)
-        return func
+ComposeResult: typing.TypeAlias = typing.Awaitable[typing.Any] | typing.AsyncGenerator[typing.Any, None]
 
 
 def is_node(maybe_node: type[typing.Any]) -> typing.TypeGuard[type["Node"]]:
@@ -36,16 +29,28 @@ def is_node(maybe_node: type[typing.Any]) -> typing.TypeGuard[type["Node"]]:
     )
 
 
-def collect_context_annotations(function: typing.Callable[..., typing.Any]) -> dict[str, typing.Any]:
+@cache_magic_value("__compose_annotations__")
+def get_compose_annotations(function: typing.Callable[..., typing.Any]) -> dict[str, typing.Any]:
     return {k: v for k, v in get_annotations(function).items() if not is_node(v)}
 
 
-def collect_nodes(function: typing.Callable[..., typing.Any]) -> dict[str, type["Node"]]:
+@cache_magic_value("__nodes__")
+def get_nodes(function: typing.Callable[..., typing.Any]) -> dict[str, type["Node"]]:
     return {k: v for k, v in get_annotations(function).items() if is_node(v)}
 
 
-def collect_node_impls(node_cls: type["Node"]) -> dict[str, typing.Any]:
-    return {k: v for k, v in vars(node_cls).items() if getattr(v, NODE_IMPL_MARK, False) is True}
+@cache_magic_value("__is_generator__")
+def is_generator(function: typing.Callable[..., typing.Any]) -> typing.TypeGuard[AsyncGeneratorType[typing.Any, None]]:
+    return inspect.isasyncgenfunction(function)
+
+
+def get_node_impls(node_cls: type["Node"]) -> dict[str, typing.Any]:
+    if not hasattr(node_cls, "__node_impls__"):
+        impls = get_impls_by_key(node_cls, NODE_IMPL_MARK)
+        if issubclass(node_cls, BaseNode):
+            impls |= get_impls_by_key(BaseNode, NODE_IMPL_MARK)
+        setattr(node_cls, "__node_impls__", impls)
+    return getattr(node_cls, "__node_impls__")
 
 
 def get_node_impl(
@@ -53,7 +58,7 @@ def get_node_impl(
     node_impls: dict[str, typing.Callable[..., typing.Any]],
 ) -> typing.Callable[..., typing.Any] | None:
     for n_impl in node_impls.values():
-        if "return" in n_impl.__annotations__ and issubclass(node, n_impl.__annotations__["return"]):
+        if "return" in n_impl.__annotations__ and node is n_impl.__annotations__["return"]:
             return n_impl
     return None
 
@@ -66,17 +71,13 @@ class Node(abc.ABC):
     node: str = "node"
     scope: NodeScope = NodeScope.PER_EVENT
 
-    __nodes__: dict[str, type["Node"]]
-    __context_annotations__: dict[str, typing.Any]
-    __node_impls__: dict[str, typing.Callable[..., typing.Any]]
-
     @classmethod
     @abc.abstractmethod
     def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
     @classmethod
-    async def compose_context_annotation(
+    async def compose_annotation(
         cls,
         annotation: typing.Any,
         update: UpdateCute,
@@ -85,7 +86,7 @@ class Node(abc.ABC):
         orig_annotation: type[typing.Any] = typing.get_origin(annotation) or annotation
         n_impl = get_node_impl(orig_annotation, cls.get_node_impls())
         if n_impl is None:
-            raise ComposeError(f"Node implementation for {orig_annotation.__name__!r} not found.")
+            raise ComposeError(f"Node implementation for {orig_annotation!r} not found.")
 
         result = n_impl(
             cls,
@@ -106,21 +107,15 @@ class Node(abc.ABC):
 
     @classmethod
     def get_sub_nodes(cls) -> dict[str, type["Node"]]:
-        if not hasattr(cls, "__nodes__"):
-            cls.__nodes__ = collect_nodes(cls.compose)
-        return cls.__nodes__
+        return get_nodes(cls.compose)
 
     @classmethod
-    def get_context_annotations(cls) -> dict[str, typing.Any]:
-        if not hasattr(cls, "__context_annotations__"):
-            cls.__context_annotations__ = collect_context_annotations(cls.compose)
-        return cls.__context_annotations__
+    def get_compose_annotations(cls) -> dict[str, typing.Any]:
+        return get_compose_annotations(cls.compose)
 
     @classmethod
     def get_node_impls(cls) -> dict[str, typing.Callable[..., typing.Any]]:
-        if not hasattr(cls, "__node_impls__"):
-            cls.__node_impls__ = collect_node_impls(cls) | collect_node_impls(BaseNode)
-        return cls.__node_impls__
+        return get_node_impls(cls)
 
     @classmethod
     def as_node(cls) -> type[typing.Self]:
@@ -128,7 +123,7 @@ class Node(abc.ABC):
 
     @classmethod
     def is_generator(cls) -> bool:
-        return inspect.isasyncgenfunction(cls.compose)
+        return is_generator(cls.compose)
 
 
 class BaseNode(Node, abc.ABC):
@@ -140,10 +135,6 @@ class BaseNode(Node, abc.ABC):
     @node_impl
     def compose_api(cls, update: UpdateCute) -> API:
         return update.ctx_api
-
-    @node_impl
-    def compose_bound_api(cls, update: UpdateCute) -> ABCAPI:
-        return update.api
 
     @node_impl
     def compose_context(cls, context: Context) -> Context:
@@ -191,7 +182,6 @@ else:
             {
                 "as_node": classmethod(lambda cls: create_node(cls, bases, dct)),
                 "scope": Node.scope,
-                **collect_node_impls(BaseNode),
             },
         )
 
@@ -206,8 +196,8 @@ __all__ = (
     "Node",
     "SCALAR_NODE",
     "ScalarNode",
-    "collect_context_annotations",
-    "collect_nodes",
+    "ScalarNodeProto",
+    "get_compose_annotations",
+    "get_nodes",
     "is_node",
-    "node_impl",
 )

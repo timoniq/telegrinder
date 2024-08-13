@@ -9,7 +9,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.model import Model
 from telegrinder.modules import logger
-from telegrinder.node.base import Node, collect_nodes
+from telegrinder.node.base import Node, get_nodes
 from telegrinder.node.composer import compose_nodes
 from telegrinder.node.event import EVENT_NODE_KEY
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
@@ -54,7 +54,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
 
     @cached_property
     def required_nodes(self) -> dict[str, type[Node]]:
-        return collect_nodes(self.func)
+        return get_nodes(self.func)
 
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         if self.update_type is not None and self.update_type != event.update_type:
