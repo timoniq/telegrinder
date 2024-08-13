@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 import enum
 import inspect
 import types
