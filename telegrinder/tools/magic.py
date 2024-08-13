@@ -2,9 +2,11 @@ import enum
 import inspect
 import types
 import typing
+from functools import lru_cache
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
+    from telegrinder.node.base import Node
 
     T = typing.TypeVar("T", bound=ABCRule)
 
@@ -19,9 +21,12 @@ def resolve_arg_names(func: FuncType, start_idx: int = 1) -> tuple[str, ...]:
     return func.__code__.co_varnames[start_idx : func.__code__.co_argcount]
 
 
+@lru_cache(maxsize=65536)
 def get_default_args(func: FuncType) -> dict[str, typing.Any]:
     fspec = inspect.getfullargspec(func)
-    return dict(zip(fspec.args[::-1], (fspec.defaults or ())[::-1]))
+    if not fspec.defaults:
+        return {}
+    return dict(zip(fspec.args[-len(fspec.defaults):], fspec.defaults))
 
 
 def get_annotations(func: FuncType, *, return_type: bool = False) -> dict[str, typing.Any]:
@@ -57,12 +62,16 @@ def get_cached_translation(rule: "T", locale: str) -> "T | None":
 
 def cache_translation(base_rule: "T", locale: str, translated_rule: "T") -> None:
     translations = getattr(base_rule, TRANSLATIONS_KEY, {})
-    setattr(base_rule, TRANSLATIONS_KEY, {locale: translated_rule, **translations})
+    translations[locale] = translated_rule
+    setattr(base_rule, TRANSLATIONS_KEY, translations)
 
 
-def get_impls(cls: type[typing.Any]) -> list[typing.Callable[..., typing.Any]]:
-    functions = [func.__func__ for func in vars(cls).values() if isinstance(func, classmethod)]
-    return [impl for impl in functions if getattr(impl, IMPL_MARK, False) is True]
+def get_impls(cls: type["Node"]) -> list[typing.Callable[..., typing.Any]]:
+    return [
+        func.__func__
+        for func in vars(cls).values()
+        if isinstance(func, classmethod) and getattr(func.__func__, IMPL_MARK, False)
+    ]
 
 
 @typing.cast(typing.Callable[..., Impl], lambda f: f)
@@ -75,12 +84,12 @@ def impl(method: typing.Callable[..., typing.Any]):
 __all__ = (
     "TRANSLATIONS_KEY",
     "cache_translation",
+    "get_annotations",
     "get_cached_translation",
     "get_default_args",
     "get_default_args",
-    "magic_bundle",
     "impl",
+    "magic_bundle",
     "resolve_arg_names",
     "to_str",
-    "get_annotations",
 )

@@ -14,7 +14,7 @@ ComposeResult: typing.TypeAlias = (
     | typing.Any
 )
 
-NODE_IMPL_KEY = "_node_impl"
+NODE_IMPL_MARK = "_node_impl"
 
 if typing.TYPE_CHECKING:
     node_impl = classmethod
@@ -22,7 +22,7 @@ if typing.TYPE_CHECKING:
 else:
 
     def node_impl(func):
-        setattr(func, NODE_IMPL_KEY, True)
+        setattr(func, NODE_IMPL_MARK, True)
         return func
 
 
@@ -44,8 +44,8 @@ def collect_nodes(function: typing.Callable[..., typing.Any]) -> dict[str, type[
     return {k: v for k, v in get_annotations(function).items() if is_node(v)}
 
 
-def collect_node_impls(node_namespace: dict[str, typing.Any]) -> dict[str, typing.Any]:
-    return {k: v for k, v in node_namespace.items() if getattr(v, NODE_IMPL_KEY, False) is True}
+def collect_node_impls(node_cls: type["Node"]) -> dict[str, typing.Any]:
+    return {k: v for k, v in vars(node_cls).items() if getattr(v, NODE_IMPL_MARK, False) is True}
 
 
 def get_node_impl(
@@ -70,13 +70,6 @@ class Node(abc.ABC):
     __context_annotations__: dict[str, typing.Any]
     __node_impls__: dict[str, typing.Callable[..., typing.Any]]
 
-    def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
-        super().__init_subclass__(*args, **kwargs)
-
-        if cls.__name__ != "BaseNode":
-            return
-        cls.__node_impls__ = collect_node_impls(dict(vars(cls)))
-
     @classmethod
     @abc.abstractmethod
     def compose(cls, *args, **kwargs) -> ComposeResult:
@@ -95,7 +88,13 @@ class Node(abc.ABC):
             raise ComposeError(f"Node implementation for {orig_annotation.__name__!r} not found.")
 
         result = n_impl(
-            cls, **magic_bundle(n_impl, {"update": update, "context": ctx}, start_idx=0, bundle_ctx=False)
+            cls,
+            **magic_bundle(
+                n_impl,
+                {"update": update, "context": ctx},
+                start_idx=0,
+                bundle_ctx=False,
+            ),
         )
         if inspect.isawaitable(result):
             return await result
@@ -119,6 +118,8 @@ class Node(abc.ABC):
 
     @classmethod
     def get_node_impls(cls) -> dict[str, typing.Callable[..., typing.Any]]:
+        if not hasattr(cls, "__node_impls__"):
+            cls.__node_impls__ = collect_node_impls(cls) | collect_node_impls(BaseNode)
         return cls.__node_impls__
 
     @classmethod
@@ -137,19 +138,19 @@ class BaseNode(Node, abc.ABC):
         pass
 
     @node_impl
-    async def compose_api(cls, update: UpdateCute) -> API:
+    def compose_api(cls, update: UpdateCute) -> API:
         return update.ctx_api
 
     @node_impl
-    async def compose_bound_api(cls, update: UpdateCute) -> ABCAPI:
+    def compose_bound_api(cls, update: UpdateCute) -> ABCAPI:
         return update.api
 
     @node_impl
-    async def compose_context(cls, context: Context) -> Context:
+    def compose_context(cls, context: Context) -> Context:
         return context
 
     @node_impl
-    async def compose_update(cls, update: UpdateCute) -> UpdateCute:
+    def compose_update(cls, update: UpdateCute) -> UpdateCute:
         return update
 
 
@@ -179,7 +180,6 @@ if typing.TYPE_CHECKING:
         pass
 
 else:
-
     def create_node(cls, bases, dct):
         dct.update(cls.__dict__)
         return type(cls.__name__, bases, dct)
@@ -191,7 +191,7 @@ else:
             {
                 "as_node": classmethod(lambda cls: create_node(cls, bases, dct)),
                 "scope": Node.scope,
-                **collect_node_impls(dict(vars(BaseNode))),
+                **collect_node_impls(BaseNode),
             },
         )
 
@@ -200,14 +200,14 @@ else:
 
 
 __all__ = (
+    "BaseNode",
     "ComposeError",
     "DataNode",
     "Node",
-    "BaseNode",
     "SCALAR_NODE",
     "ScalarNode",
-    "collect_nodes",
     "collect_context_annotations",
+    "collect_nodes",
     "is_node",
     "node_impl",
 )

@@ -1,12 +1,11 @@
-import asyncio
 import dataclasses
 import typing
-from contextlib import suppress
 
 from fntypes.error import UnwrapError
 
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.modules import logger
 from telegrinder.node.base import (
     BaseNode,
     ComposeError,
@@ -18,15 +17,6 @@ from telegrinder.node.base import (
 from telegrinder.tools.magic import magic_bundle
 
 CONTEXT_STORE_NODES_KEY = "node_ctx"
-
-
-async def run_node_composers(
-    tasks: typing.Iterable[asyncio.Task["NodeSession"]],
-) -> bool:
-    with suppress(ComposeError, UnwrapError):
-        await asyncio.gather(*tasks)
-        return True
-    return False
 
 
 async def compose_node(
@@ -71,48 +61,41 @@ async def compose_nodes(
 ) -> "NodeCollection | None":
     node_sessions: dict[str, NodeSession] = {}
     node_ctx: dict[type[Node], "NodeSession"] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
-    node_tasks: dict[str, asyncio.Task[NodeSession]] = {}
 
-    for name, node_t in nodes.items():
-        scope = getattr(node_t, "scope", None)
+    try:
+        for name, node_t in nodes.items():
+            scope = getattr(node_t, "scope", None)
 
-        if scope is NodeScope.PER_EVENT and node_t in node_ctx:
-            node_sessions[name] = node_ctx[node_t]
-            continue
-        elif scope is NodeScope.GLOBAL and hasattr(node_t, "_value"):
-            node_sessions[name] = getattr(node_t, "_value")
-            continue
+            if scope is NodeScope.PER_EVENT and node_t in node_ctx:
+                node_sessions[name] = node_ctx[node_t]
+                continue
+            elif scope is NodeScope.GLOBAL and hasattr(node_t, "_value"):
+                node_sessions[name] = getattr(node_t, "_value")
+                continue
 
-        node_tasks[name] = asyncio.Task(compose_node(node_t, update, ctx))
+            node_sessions[name] = await compose_node(node_t, update, ctx)
 
-    if not await run_node_composers(node_tasks.values()):
+            if scope is NodeScope.PER_EVENT:
+                node_ctx[node_t] = node_sessions[name]
+            elif scope is NodeScope.GLOBAL:
+                setattr(node_t, "_value", node_sessions[name])
+    except (ComposeError, UnwrapError) as exc:
+        logger.debug(f"Composing node (name={name!r}, node_class={node_t!r}) failed with error: {str(exc)!r}")
         await NodeCollection(node_sessions).close_all()
         return None
 
-    for name, task in node_tasks.items():
-        node_sessions[name] = session = task.result()
-        assert session.node_type is not None
-        node_t = session.node_type
-        scope = getattr(node_t, "scope", None)
-
-        if scope is NodeScope.PER_EVENT:
-            node_ctx[session.node_type] = session
-        elif scope is NodeScope.GLOBAL:
-            setattr(node_t, "_value", session)
-
     if context_annotations:
         node_class = node_class or BaseNode
-        _node_tasks: dict[str, asyncio.Task[NodeSession]] = {
-            name: asyncio.Task(node_class.compose_context_annotation(annotation, update, ctx))
-            for name, annotation in context_annotations.items()
-        }
 
-        if not await run_node_composers(_node_tasks.values()):
+        try:
+            for name, annotation in context_annotations.items():
+                node_sessions[name] = await node_class.compose_context_annotation(annotation, update, ctx)
+        except (ComposeError, UnwrapError) as exc:
+            logger.debug(
+                f"Composing context annotation (name={name!r}, annotation={annotation!r}) failed with error: {str(exc)!r}",
+            )
             await NodeCollection(node_sessions).close_all()
             return None
-
-        for name, task in _node_tasks.items():
-            node_sessions[name] = task.result()
 
     return NodeCollection(node_sessions)
 
@@ -125,7 +108,7 @@ class NodeSession:
     generator: typing.AsyncGenerator[typing.Any, None] | None = None
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}: {self.value}" + ("ACTIVE>" if self.generator else ">")
+        return f"<{self.__class__.__name__}: {self.value!r}" + (" ACTIVE>" if self.generator else ">")
 
     async def close(
         self,
@@ -200,4 +183,4 @@ class Composition:
         return await self.func(**magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))  # type: ignore
 
 
-__all__ = ("NodeCollection", "NodeSession", "Composition", "compose_node", "compose_nodes")
+__all__ = ("Composition", "NodeCollection", "NodeSession", "compose_node", "compose_nodes")

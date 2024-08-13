@@ -9,7 +9,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.model import Model
 from telegrinder.modules import logger
-from telegrinder.node.base import Node, collect_context_annotations, collect_nodes
+from telegrinder.node.base import Node, collect_nodes
 from telegrinder.node.composer import compose_nodes
 from telegrinder.node.event import EVENT_NODE_KEY
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
@@ -56,10 +56,6 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
     def required_nodes(self) -> dict[str, type[Node]]:
         return collect_nodes(self.func)
 
-    @cached_property
-    def context_annotations(self) -> dict[str, type]:
-        return collect_context_annotations(self.func)
-
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
         if self.update_type is not None and self.update_type != event.update_type:
             return False
@@ -69,7 +65,6 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         temp_ctx |= self.preset_context
 
         nodes = self.required_nodes
-        context_annotations = self.context_annotations
         node_col = None
 
         if nodes:
@@ -77,7 +72,6 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
                 UpdateCute.from_update(event, api),
                 ctx,
                 nodes,
-                context_annotations=context_annotations,
             )
 
             if node_col is None:
