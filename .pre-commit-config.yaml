@@ -21,31 +21,20 @@ repos:
         types: [ python ]
         stages: [ commit ]
 
-      - id: ruff-isort
-        name: ruff-isort
-        description: "Run 'ruff --select I --select F401 --fix' for extremely fast Python sorting imports"
-        entry: ruff check --select I --select F401 --fix
-        language: system
-        types: [ python ]
-        stages: [ commit ]
-
-  - repo: https://github.com/aio-libs/sort-all
-    rev: v1.2.0
-    hooks:
-      - id: sort-all
-        name: sort-all
-        stages: [ commit ]
-        description: "Sorting __all__ in python files"
-        language: system
-        types: [ python ]
-        stages: [ commit ]
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.9
     hooks:
       - id: ruff
         name: ruff-format
         description: "Run 'ruff format' for extremely fast Python formatting"
+        language: system
+        types: [ python ]
+        stages: [ commit ]
+
+      - id: ruff
+        name: ruff-isort
+        description: "Run 'ruff --select I --select F401 --fix' for extremely fast Python sorting imports"
+        entry: ruff check --select I --select F401 --fix
         language: system
         types: [ python ]
         stages: [ commit ]

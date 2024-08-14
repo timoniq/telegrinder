@@ -1,5 +1,6 @@
 import pathlib
 import typing
+from functools import cached_property
 
 from fntypes.co import Variative
 
@@ -323,17 +324,17 @@ class Update(Model):
     def __eq__(self, other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and self.update_type == other.update_type
 
-    @property
+    @cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
 
         return UpdateType(
-            next(
-                filter(
-                    lambda x: bool(x[1]),
-                    self.to_dict(exclude_fields={"update_id"}).items(),
-                ),
-            )[0],
+            next((
+                x
+                for x in self.__struct_fields__
+                if x != "update_id"
+                and getattr(self, x) is not Nothing
+            )),
         )
 
 
@@ -980,7 +981,7 @@ class Message(MaybeInaccessibleMessage):
             and self.chat_id == other.chat_id
         )
 
-    @property
+    @cached_property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
 
@@ -1629,6 +1630,15 @@ class Dice(Model):
     value: int
     """Value of the dice, 1-6 for `🎲`, `🎯` and `🎳` base emoji, 1-5 for `🏀` and `⚽` base
     emoji, 1-64 for `🎰` base emoji."""
+
+
+
+
+
+
+
+
+
 
 
 class PollOption(Model):
@@ -3314,6 +3324,15 @@ class ReactionTypeEmoji(ReactionType):
     `🍾`, `💋`, `🖕`, `😈`, `😴`, `😭`, `🤓`, `👻`, `👨‍💻`, `👀`, `🎃`, `🙈`, `😇`, `😨`, `🤝`,
     `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`,
     `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`."""
+
+
+
+
+
+
+
+
+
 
 
 class ReactionTypeCustomEmoji(ReactionType):

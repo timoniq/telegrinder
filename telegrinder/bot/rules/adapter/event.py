@@ -36,7 +36,6 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
         )
 
     async def adapt(self, api: ABCAPI, update: Update) -> Result[ToCute, AdapterError]:
-        update_dct = update.to_dict()
         if isinstance(self.event, UpdateType):
             if update.update_type != self.event:
                 return Error(

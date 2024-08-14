@@ -341,6 +341,7 @@ class ObjectGenerator(ABCGenerator):
             "import typing\n\n",
             "from fntypes.co import Some, Variative\n",
             "from telegrinder.model import Model\n",
+            "from functools import cached_property\n",
             "from telegrinder.msgspec_utils import Option, Nothing, datetime\n\n",
         ]
         all_ = ["Model"]
@@ -634,7 +635,7 @@ __all__ = (
     "ParamLiteralTypes",
     "find_nicifications",
     "generate",
-    "sort_all",
     "get_bot_api_schema",
     "read_config_literals",
+    "sort_all",
 )

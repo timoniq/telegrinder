@@ -2,6 +2,7 @@ import typing
 
 from telegrinder.bot.cute_types import ChatMemberUpdatedCute
 from telegrinder.types.enums import UpdateType
+from telegrinder.types.objects import Update
 
 from .abc import BaseStateView
 
@@ -19,8 +20,22 @@ class ChatMemberView(BaseStateView[ChatMemberUpdatedCute]):
         self.return_manager = None
         self.update_type = update_type
 
+    def __repr__(self) -> str:
+        return "<{}: {!r}>".format(
+            self.__class__.__name__,
+            "chat_member_updated" if self.update_type is None else self.update_type.value,
+        )
+
     def get_state_key(self, event: ChatMemberUpdatedCute) -> int | None:
         return event.chat_id
+
+
+    async def check(self, event: Update) -> bool:
+        return not (
+            self.update_type is not None
+            and self.update_type != event.update_type
+            or not await super().check(event)
+        )
 
 
 __all__ = ("ChatMemberView",)

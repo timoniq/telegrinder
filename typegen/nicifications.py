@@ -10,6 +10,7 @@ Nicifications can only implement methods/properties working only with model fiel
 import pathlib
 import typing
 from datetime import datetime
+from functools import cached_property
 
 from fntypes.option import Option
 
@@ -85,7 +86,7 @@ class _Message(Message):
             and self.chat_id == other.chat_id
         )
 
-    @property
+    @cached_property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
 
@@ -140,17 +141,17 @@ class _Update(Update):
     def __eq__(self, other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and self.update_type == other.update_type
 
-    @property
+    @cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
 
         return UpdateType(
-            next(
-                filter(
-                    lambda x: bool(x[1]),
-                    self.to_dict(exclude_fields={"update_id"}).items(),
-                ),
-            )[0],
+            next((
+                x
+                for x in self.__struct_fields__
+                if x != "update_id"
+                and getattr(self, x) is not Nothing
+            )),
         )
 
 

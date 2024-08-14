@@ -78,14 +78,14 @@ def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typ
 
     if obj is None and orig_type in (fntypes.option.Nothing, Option):
         return fntypes.option.Nothing()
-    return fntypes.option.Some(msgspec_convert(obj, value_type).unwrap())
+    return fntypes.option.Some(decoder.convert(obj, type=value_type))
 
 
 def result_dec_hook(
     tp: type[Result[typing.Any, typing.Any]], obj: typing.Any
 ) -> Result[typing.Any, typing.Any]:
     if not isinstance(obj, dict):
-        raise TypeError(f"Cannot parse to Result object of type `{repr_type(type(obj))}`.")
+        raise TypeError(f"Cannot parse to `fntypes.Result` object of type `{repr_type(type(obj))}`.")
 
     orig_type = get_origin(tp)
     (first_type, second_type) = (
@@ -93,19 +93,19 @@ def result_dec_hook(
     ) or (typing.Any, typing.Any)
 
     if orig_type is Ok and "ok" in obj:
-        return Ok(msgspec_convert(obj["ok"], first_type).unwrap())
+        return Ok(decoder.convert(obj["ok"], type=first_type))
 
     if orig_type is Error and "error" in obj:
-        return Error(msgspec_convert(obj["error"], first_type).unwrap())
+        return Error(decoder.convert(obj["error"], type=first_type))
 
     if orig_type is Result:
         match obj:
             case {"ok": ok}:
-                return Ok(msgspec_convert(ok, first_type).unwrap())
+                return Ok(decoder.convert(ok, type=first_type))
             case {"error": error}:
-                return Error(msgspec_convert(error, second_type).unwrap())
+                return Error(decoder.convert(error, type=second_type))
 
-    raise msgspec.ValidationError(f"Cannot parse object `{obj!r}` to Result.")
+    raise msgspec.ValidationError(f"Cannot parse object `{obj!r}` to `fntypes.Result`.")
 
 
 def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:

@@ -35,7 +35,7 @@ class NodeAdapter(typing.Generic[*Ts], ABCAdapter[Update, Event[tuple[*Ts]]]):
             except ComposeError:
                 for session in node_sessions:
                     await session.close(with_value=None)
-                return Error(AdapterError(f"Couldn't compose nodes, error on {node_t}"))
+                return Error(AdapterError(f"Couldn't compose nodes, error on {node_t!r}"))
         return Ok(Event(tuple(node_sessions)))  # type: ignore
 
 
