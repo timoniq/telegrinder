@@ -329,12 +329,7 @@ class Update(Model):
         """Incoming update type."""
 
         return UpdateType(
-            next((
-                x
-                for x in self.__struct_fields__
-                if x != "update_id"
-                and getattr(self, x) is not Nothing
-            )),
+            next((x for x in self.__struct_fields__ if x != "update_id" and getattr(self, x) is not Nothing)),
         )
 
 
@@ -1630,15 +1625,6 @@ class Dice(Model):
     value: int
     """Value of the dice, 1-6 for `🎲`, `🎯` and `🎳` base emoji, 1-5 for `🏀` and `⚽` base
     emoji, 1-64 for `🎰` base emoji."""
-
-
-
-
-
-
-
-
-
 
 
 class PollOption(Model):
@@ -3324,15 +3310,6 @@ class ReactionTypeEmoji(ReactionType):
     `🍾`, `💋`, `🖕`, `😈`, `😴`, `😭`, `🤓`, `👻`, `👨‍💻`, `👀`, `🎃`, `🙈`, `😇`, `😨`, `🤝`,
     `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`,
     `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`."""
-
-
-
-
-
-
-
-
-
 
 
 class ReactionTypeCustomEmoji(ReactionType):
