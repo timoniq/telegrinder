@@ -5,7 +5,14 @@ import typing
 import fntypes.option
 from fntypes.co import Result, Some, Variative
 
-from telegrinder.api import ABCAPI, APIError
+from telegrinder.api.abc import ABCAPI, APIError
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.bot.cute_types.utils import (
+    compose_link_preview_options,
+    compose_reactions,
+    compose_reply_params,
+    input_media,
+)
 from telegrinder.model import get_params
 from telegrinder.msgspec_utils import Nothing, Option
 from telegrinder.types.objects import (
@@ -28,14 +35,6 @@ from telegrinder.types.objects import (
     ReplyKeyboardRemove,
     ReplyParameters,
     User,
-)
-
-from .base import BaseCute, compose_method_params, shortcut
-from .utils import (
-    compose_link_preview_options,
-    compose_reactions,
-    compose_reply_params,
-    input_media,
 )
 
 if typing.TYPE_CHECKING:

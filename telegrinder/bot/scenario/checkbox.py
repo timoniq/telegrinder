@@ -4,11 +4,10 @@ import typing
 
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.waiter_machine import WaiterMachine
+from telegrinder.bot.scenario.abc import ABCScenario
 from telegrinder.tools import InlineButton, InlineKeyboard
 from telegrinder.tools.parse_mode import ParseMode
 from telegrinder.types.objects import InlineKeyboardMarkup
-
-from .abc import ABCScenario
 
 if typing.TYPE_CHECKING:
     from telegrinder.api import API

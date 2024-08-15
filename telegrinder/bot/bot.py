@@ -1,10 +1,13 @@
 import typing_extensions as typing
 
-from telegrinder.api import API
-from telegrinder.bot.dispatch import ABCDispatch, Dispatch
-from telegrinder.bot.polling import ABCPolling, Polling
+from telegrinder.api.api import API
+from telegrinder.bot.dispatch.abc import ABCDispatch
+from telegrinder.bot.dispatch.dispatch import Dispatch
+from telegrinder.bot.polling.abc import ABCPolling
+from telegrinder.bot.polling.polling import Polling
 from telegrinder.modules import logger
-from telegrinder.tools.loop_wrapper import ABCLoopWrapper, LoopWrapper
+from telegrinder.tools.loop_wrapper import ABCLoopWrapper
+from telegrinder.tools.loop_wrapper.loop_wrapper import LoopWrapper
 
 DispatchT = typing.TypeVar("DispatchT", bound=ABCDispatch, default=Dispatch)
 PollingT = typing.TypeVar("PollingT", bound=ABCPolling, default=Polling)

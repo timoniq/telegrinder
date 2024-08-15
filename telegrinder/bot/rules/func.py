@@ -12,7 +12,7 @@ class FuncRule(ABCRule, typing.Generic[AdaptTo]):
         self,
         func: typing.Callable[[AdaptTo, Context], typing.Awaitable[bool] | bool],
         adapter: ABCAdapter[Update, AdaptTo] | None = None,
-    ):
+    ) -> None:
         self.func = func
         self.adapter = adapter or RawUpdateAdapter()  # type: ignore
 

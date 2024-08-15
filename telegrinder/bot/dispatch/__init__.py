@@ -1,10 +1,10 @@
-from .abc import ABCDispatch
-from .context import Context
-from .dispatch import Dispatch, TelegrinderContext
-from .handler import ABCHandler, FuncHandler, MessageReplyHandler
-from .middleware import ABCMiddleware
-from .process import check_rule, process_inner
-from .return_manager import (
+from telegrinder.bot.dispatch.abc import ABCDispatch
+from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.dispatch.dispatch import Dispatch, TelegrinderContext
+from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler, MessageReplyHandler
+from telegrinder.bot.dispatch.middleware import ABCMiddleware
+from telegrinder.bot.dispatch.process import check_rule, process_inner
+from telegrinder.bot.dispatch.return_manager import (
     ABCReturnManager,
     BaseReturnManager,
     CallbackQueryReturnManager,
@@ -13,7 +13,7 @@ from .return_manager import (
     MessageReturnManager,
     register_manager,
 )
-from .view import (
+from telegrinder.bot.dispatch.view import (
     ABCStateView,
     ABCView,
     BaseStateView,
@@ -26,7 +26,7 @@ from .view import (
     RawEventView,
     ViewBox,
 )
-from .waiter_machine import ShortState, WaiterMachine, clear_wm_storage_worker
+from telegrinder.bot.dispatch.waiter_machine import ShortState, WaiterMachine, clear_wm_storage_worker
 
 __all__ = (
     "ABCDispatch",

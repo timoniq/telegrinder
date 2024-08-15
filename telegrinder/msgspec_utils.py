@@ -10,7 +10,6 @@ if typing.TYPE_CHECKING:
     from datetime import datetime
 
     from fntypes.option import Option
-    from fntypes.result import Result
 else:
     from datetime import datetime as dt
 
@@ -23,14 +22,8 @@ else:
         def __instancecheck__(cls, __instance: typing.Any) -> bool:
             return isinstance(__instance, fntypes.option.Some | fntypes.option.Nothing)
 
-    class ResultMeta(type):
-        def __instancecheck__(cls, __instance: typing.Any) -> bool:
-            return isinstance(__instance, fntypes.result.Ok | fntypes.result.Error)
 
     class Option(typing.Generic[Value], metaclass=OptionMeta):
-        pass
-
-    class Result(typing.Generic[Value, Err], metaclass=ResultMeta):
         pass
 
 
@@ -46,8 +39,27 @@ def get_origin(t: type[T]) -> type[T]:
     return typing.cast(T, typing.get_origin(t)) or t
 
 
-def repr_type(t: type) -> str:
+def repr_type(t: typing.Any) -> str:
     return getattr(t, "__name__", repr(get_origin(t)))
+
+
+def is_common_type(type_: typing.Any) -> typing.TypeGuard[type[typing.Any]]:
+    if not isinstance(type_, type):
+        return False
+    return (
+        type_ in (str, int, float, bool, None, Variative)
+        or issubclass(type_, msgspec.Struct)
+        or hasattr(type_, "__dataclass_fields__")
+    )
+
+
+def type_check(obj: typing.Any, t: typing.Any) -> bool:
+    return (
+        isinstance(obj, t)
+        if isinstance(t, type)
+        and issubclass(t, msgspec.Struct)
+        else type(obj) in t if isinstance(t, tuple) else type(obj) is t
+    )
 
 
 def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, str]:
@@ -68,72 +80,62 @@ def msgspec_to_builtins(
     str_keys: bool = False,
     builtin_types: typing.Iterable[type[typing.Any]] | None = None,
     order: typing.Literal["deterministic", "sorted"] | None = None,
-) -> typing.Any:
-    return encoder.to_builtins(**locals())
+) -> fntypes.result.Result[typing.Any, msgspec.ValidationError]:
+    try:
+        return Ok(encoder.to_builtins(**locals()))
+    except msgspec.ValidationError as exc:
+        return Error(exc)
 
 
 def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
-    orig_type = get_origin(tp)
+    if obj is None:
+        return Nothing
+
     (value_type,) = typing.get_args(tp) or (typing.Any,)
+    orig_value_type = typing.get_origin(value_type) or value_type
+    orig_obj = obj
 
-    if obj is None and orig_type in (fntypes.option.Nothing, Option):
-        return fntypes.option.Nothing()
-    return fntypes.option.Some(decoder.convert(obj, type=value_type))
+    if not isinstance(orig_obj, dict | list) and is_common_type(orig_value_type):
+        if orig_value_type is Variative:
+            obj = value_type(orig_obj)  # type: ignore
+            orig_value_type = typing.get_args(value_type)
 
+        if not type_check(orig_obj, orig_value_type):
+            raise TypeError(f"Expected `{repr_type(orig_value_type)}`, got `{repr_type(type(orig_obj))}`.")
 
-def result_dec_hook(
-    tp: type[Result[typing.Any, typing.Any]], obj: typing.Any
-) -> Result[typing.Any, typing.Any]:
-    if not isinstance(obj, dict):
-        raise TypeError(f"Cannot parse to `fntypes.Result` object of type `{repr_type(type(obj))}`.")
+        return fntypes.option.Some(obj)
 
-    orig_type = get_origin(tp)
-    (first_type, second_type) = (
-        typing.get_args(tp) + (typing.Any,) if len(typing.get_args(tp)) == 1 else typing.get_args(tp)
-    ) or (typing.Any, typing.Any)
-
-    if orig_type is Ok and "ok" in obj:
-        return Ok(decoder.convert(obj["ok"], type=first_type))
-
-    if orig_type is Error and "error" in obj:
-        return Error(decoder.convert(obj["error"], type=first_type))
-
-    if orig_type is Result:
-        match obj:
-            case {"ok": ok}:
-                return Ok(decoder.convert(ok, type=first_type))
-            case {"error": error}:
-                return Error(decoder.convert(error, type=second_type))
-
-    raise msgspec.ValidationError(f"Cannot parse object `{obj!r}` to `fntypes.Result`.")
+    return fntypes.option.Some(decoder.convert(orig_obj, type=value_type))
 
 
 def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
     union_types = typing.get_args(tp)
 
     if isinstance(obj, dict):
-        struct_fields_match_sums: dict[type[msgspec.Struct], int] = {
+        models_struct_fields: dict[type[msgspec.Struct], int] = {
             m: sum(1 for k in obj if k in m.__struct_fields__)
             for m in union_types
             if issubclass(get_origin(m), msgspec.Struct)
         }
-        union_types = tuple(t for t in union_types if t not in struct_fields_match_sums)
+        union_types = tuple(t for t in union_types if t not in models_struct_fields)
         reverse = False
 
-        if len(set(struct_fields_match_sums.values())) != len(struct_fields_match_sums.values()):
-            struct_fields_match_sums = {m: len(m.__struct_fields__) for m in struct_fields_match_sums}
+        if len(set(models_struct_fields.values())) != len(models_struct_fields.values()):
+            models_struct_fields = {m: len(m.__struct_fields__) for m in models_struct_fields}
             reverse = True
 
         union_types = (
             *sorted(
-                struct_fields_match_sums,
-                key=lambda k: struct_fields_match_sums[k],
+                models_struct_fields,
+                key=lambda k: models_struct_fields[k],
                 reverse=reverse,
             ),
             *union_types,
         )
 
     for t in union_types:
+        if not isinstance(obj, dict | list) and is_common_type(t) and type_check(obj, t):
+            return tp(obj)
         match msgspec_convert(obj, t):
             case Ok(value):
                 return tp(value)
@@ -179,12 +181,9 @@ class Decoder:
 
     def __init__(self) -> None:
         self.dec_hooks: dict[typing.Any, DecHook[typing.Any]] = {
-            Result: result_dec_hook,
             Option: option_dec_hook,
             Variative: variative_dec_hook,
             datetime: lambda t, obj: t.fromtimestamp(obj),
-            fntypes.result.Error: result_dec_hook,
-            fntypes.result.Ok: result_dec_hook,
             fntypes.option.Some: option_dec_hook,
             fntypes.option.Nothing: option_dec_hook,
         }
@@ -271,10 +270,6 @@ class Encoder:
         self.enc_hooks: dict[typing.Any, EncHook[typing.Any]] = {
             fntypes.option.Some: lambda opt: opt.value,
             fntypes.option.Nothing: lambda _: None,
-            fntypes.result.Ok: lambda ok: {"ok": ok.value},
-            fntypes.result.Error: lambda err: {
-                "error": (str(err.error) if isinstance(err.error, BaseException) else err.error)
-            },
             Variative: lambda variative: variative.v,
             datetime: lambda date: int(date.timestamp()),
         }
@@ -342,10 +337,6 @@ __all__ = (
     "datetime",
     "decoder",
     "encoder",
-    "get_origin",
     "msgspec_convert",
     "msgspec_to_builtins",
-    "option_dec_hook",
-    "repr_type",
-    "variative_dec_hook",
 )

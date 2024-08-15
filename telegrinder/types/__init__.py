@@ -205,6 +205,7 @@ __all__ = (
     "ReactionType",
     "ReactionTypeCustomEmoji",
     "ReactionTypeEmoji",
+    "ReactionTypePaid",
     "ReactionTypeType",
     "RefundedPayment",
     "ReplyKeyboardMarkup",

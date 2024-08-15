@@ -26,12 +26,12 @@ class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
     adapter: EventAdapter[CallbackQuery] = EventAdapter(UpdateType.CALLBACK_QUERY, CallbackQuery)
 
     @abc.abstractmethod
-    async def check(self, event: CallbackQuery, ctx: Context) -> bool:
+    async def check(self, event: CallbackQuery, context: Context) -> bool:
         pass
 
 
 class HasData(CallbackQueryRule):
-    async def check(self, event: CallbackQuery, ctx: Context) -> bool:
+    async def check(self, event: CallbackQuery) -> bool:
         return bool(event.data.unwrap_or_none())
 
 
@@ -122,7 +122,7 @@ class CallbackDataEq(CallbackQueryDataRule):
     def __init__(self, value: str, /) -> None:
         self.value = value
 
-    async def check(self, event: CallbackQuery, ctx: Context) -> bool:
+    async def check(self, event: CallbackQuery) -> bool:
         return event.data.unwrap() == self.value
 
 
@@ -130,7 +130,7 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
     def __init__(self, d: dict[str, typing.Any], /) -> None:
         self.d = d
 
-    async def check(self, event: CallbackQuery, ctx: Context) -> bool:
+    async def check(self, event: CallbackQuery) -> bool:
         return event.decode_callback_data().unwrap_or_none() == self.d
 
 

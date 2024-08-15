@@ -1,5 +1,5 @@
-from .bot import Telegrinder
-from .cute_types import (
+from telegrinder.bot.bot import Telegrinder
+from telegrinder.bot.cute_types import (
     BaseCute,
     CallbackQueryCute,
     ChatJoinRequestCute,
@@ -8,7 +8,7 @@ from .cute_types import (
     MessageCute,
     UpdateCute,
 )
-from .dispatch import (
+from telegrinder.bot.dispatch import (
     ABCDispatch,
     ABCHandler,
     ABCMiddleware,
@@ -37,9 +37,15 @@ from .dispatch import (
     clear_wm_storage_worker,
     register_manager,
 )
-from .polling import ABCPolling, Polling
-from .rules import ABCRule, CallbackQueryRule, ChatJoinRequestRule, InlineQueryRule, MessageRule
-from .scenario import ABCScenario, Checkbox, Choice
+from telegrinder.bot.polling import ABCPolling, Polling
+from telegrinder.bot.rules import (
+    ABCRule,
+    CallbackQueryRule,
+    ChatJoinRequestRule,
+    InlineQueryRule,
+    MessageRule,
+)
+from telegrinder.bot.scenario import ABCScenario, Checkbox, Choice
 
 __all__ = (
     "ABCDispatch",

@@ -11,7 +11,12 @@ from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
 from telegrinder.bot.rules.adapter.node import Event
 from telegrinder.node.base import Node, get_nodes, is_node
 from telegrinder.tools.i18n.base import ABCTranslator
-from telegrinder.tools.magic import cache_translation, get_annotations, get_cached_translation
+from telegrinder.tools.magic import (
+    cache_translation,
+    get_annotations,
+    get_cached_translation,
+    get_default_args,
+)
 from telegrinder.types.objects import Update as UpdateObject
 
 if typing.TYPE_CHECKING:
@@ -37,50 +42,15 @@ def with_caching_translations(func: typing.Callable[..., typing.Any]):
 
 
 class ABCRule(ABC, typing.Generic[AdaptTo]):
-    adapter: ABCAdapter[UpdateObject, AdaptTo] = RawUpdateAdapter()  # type: ignore
+    adapter: ABCAdapter[UpdateObject, AdaptTo]
     requires: list["ABCRule"] = []
+
+    if not typing.TYPE_CHECKING:
+        adapter = RawUpdateAdapter()
 
     @abstractmethod
     async def check(self, event: AdaptTo, *, ctx: Context) -> bool:
         pass
-
-    @cached_property
-    def required_nodes(self) -> dict[str, type[Node]]:
-        return get_nodes(self.check)
-
-    async def bounding_check(
-        self,
-        adapted_value: AdaptTo,
-        ctx: Context,
-        node_col: "NodeCollection | None" = None,
-    ) -> bool:
-        kw = {}
-        node_col_values = node_col.values() if node_col is not None else {}
-
-        for i, (k, v) in enumerate(get_annotations(self.check).items()):
-            if (isinstance(adapted_value, Event) and not i) or (
-                isinstance(v, type) and isinstance(adapted_value, v)
-            ):
-                kw[k] = adapted_value if not isinstance(adapted_value, Event) else adapted_value.obj
-            elif is_node(v):
-                assert k in node_col_values, "Node is undefined, error while bounding."
-                kw[k] = node_col_values[k]
-            elif k in ctx:
-                kw[k] = ctx[k]
-            elif v is Context:
-                kw[k] = ctx
-            else:
-                raise LookupError(
-                    f"Cannot bound {k!r} of type {v!r} to '{self.__class__.__name__}.check()', because it cannot be resolved."
-                )
-
-        return await self.check(**kw)
-
-    def optional(self) -> "ABCRule":
-        return self | Always()
-
-    def should_fail(self) -> "ABCRule":
-        return self & Never()
 
     def __init_subclass__(cls, requires: list["ABCRule"] | None = None) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
@@ -131,6 +101,46 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
             self.__class__.__name__,
             self.adapter,
         )
+
+    @cached_property
+    def required_nodes(self) -> dict[str, type[Node]]:
+        return get_nodes(self.check)
+
+    def as_optional(self) -> "ABCRule":
+        return self | Always()
+
+    def should_fail(self) -> "ABCRule":
+        return self & Never()
+
+    async def bounding_check(
+        self,
+        adapted_value: AdaptTo,
+        ctx: Context,
+        node_col: "NodeCollection | None" = None,
+    ) -> bool:
+        kw = {}
+        node_col_values = node_col.values() if node_col is not None else {}
+        temp_ctx = get_default_args(self.check) | ctx
+
+        for i, (k, v) in enumerate(get_annotations(self.check).items()):
+            if (isinstance(adapted_value, Event) and not i) or (
+                isinstance(v, type) and isinstance(adapted_value, v)
+            ):
+                kw[k] = adapted_value if not isinstance(adapted_value, Event) else adapted_value.obj
+            elif is_node(v):
+                assert k in node_col_values, "Node is undefined, error while bounding."
+                kw[k] = node_col_values[k]
+            elif k in temp_ctx:
+                kw[k] = temp_ctx[k]
+            elif v is Context:
+                kw[k] = ctx
+            else:
+                raise LookupError(
+                    f"Cannot bound {k!r} of type {v!r} to '{self.__class__.__qualname__}.check()', "
+                    "because it cannot be resolved."
+                )
+
+        return await self.check(**kw)
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
         return self

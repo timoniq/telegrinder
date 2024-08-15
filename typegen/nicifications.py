@@ -51,7 +51,7 @@ class _Birthdate(Birthdate):
 
 
 class _Chat(Chat):
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
@@ -79,7 +79,7 @@ class _ChatMemberUpdated(ChatMemberUpdated):
 
 
 class _Message(Message):
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, self.__class__)
             and self.message_id == other.message_id
@@ -115,13 +115,11 @@ class _Message(Message):
         """Chat title, for `supergroups`, `channels` and `group` chats.
         Full name, for `private` chat."""
 
-        return (
-            self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
-        )
+        return self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
 
 
 class _User(User):
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
@@ -138,7 +136,7 @@ class _User(User):
 
 
 class _Update(Update):
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, self.__class__) and self.update_type == other.update_type
 
     @cached_property
@@ -146,12 +144,13 @@ class _Update(Update):
         """Incoming update type."""
 
         return UpdateType(
-            next((
-                x
-                for x in self.__struct_fields__
-                if x != "update_id"
-                and getattr(self, x) is not Nothing
-            )),
+            next(
+                (
+                    x
+                    for x in self.__struct_fields__
+                    if x != "update_id" and not isinstance(getattr(self, x), type(Nothing))
+                )
+            ),
         )
 
 

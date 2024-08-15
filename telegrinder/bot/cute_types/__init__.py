@@ -1,10 +1,10 @@
-from .base import BaseCute
-from .callback_query import CallbackQueryCute
-from .chat_join_request import ChatJoinRequestCute
-from .chat_member_updated import ChatMemberUpdatedCute
-from .inline_query import InlineQueryCute
-from .message import MessageCute
-from .update import UpdateCute
+from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
+from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute
+from telegrinder.bot.cute_types.chat_member_updated import ChatMemberUpdatedCute
+from telegrinder.bot.cute_types.inline_query import InlineQueryCute
+from telegrinder.bot.cute_types.message import MessageCute
+from telegrinder.bot.cute_types.update import UpdateCute
 
 __all__ = (
     "BaseCute",

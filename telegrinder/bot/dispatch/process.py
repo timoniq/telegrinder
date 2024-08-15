@@ -73,12 +73,20 @@ async def check_rule(
     Returns check result."""
 
     # Running adapter
-    match await rule.adapter.adapt(api, update):
+    match await rule.adapter.adapt(api, update, ctx):
         case Ok(value):
             adapted_value = value
         case Error(err):
             logger.debug("Adapter failed with error message: {!r}", str(err))
             return False
+
+    # Preparing update
+    if isinstance(adapted_val := ctx.get(rule.adapter.ADAPTED_VALUE_KEY), UpdateCute):
+        update = adapted_val
+    elif isinstance(adapted_value, UpdateCute):
+        update = adapted_value
+    else:
+        update = UpdateCute.from_update(update, bound_api=api)
 
     # Running subrules to fetch requirements
     ctx_copy = ctx.copy()
@@ -88,7 +96,7 @@ async def check_rule(
 
     # Translating translatable rules
     if I18nEnum.I18N in ctx:
-        rule = await rule.translate(ctx.get(I18nEnum.I18N))
+        rule = await rule.translate(ctx[I18nEnum.I18N])
 
     ctx |= ctx_copy
 
@@ -96,7 +104,7 @@ async def check_rule(
     nodes = rule.required_nodes
     node_col = None
     if nodes:
-        node_col = await compose_nodes(UpdateCute.from_update(update, api), ctx, nodes)
+        node_col = await compose_nodes(update, ctx, nodes)
         if node_col is None:
             return False
 

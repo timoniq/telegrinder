@@ -4,11 +4,10 @@ from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types import UpdateCute
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.process import process_inner
+from telegrinder.bot.dispatch.view.abc import BaseView, ErrorHandlerT
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.types import Update, UpdateType
-
-from .abc import BaseView, ErrorHandlerT
 
 T = typing.TypeVar("T")
 

@@ -97,7 +97,7 @@ async def getadmin_handler(message: Message, token: str, db: DB) -> str:
     return "Done"
 
 
-@bot.on.message(Text("/amiadmin"), IsAdmin().optional())
+@bot.on.message(Text("/amiadmin"), IsAdmin().as_optional())
 async def amiadmin_handler(message: Message, is_admin: bool = False):
     await message.answer("You are " + ("not " if not is_admin else "") + "an admin")
 

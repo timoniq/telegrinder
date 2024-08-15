@@ -350,6 +350,17 @@
             ]
         },
         {
+            "name": "ReactionTypePaid",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "paid"
+                    ]
+                }
+            ]
+        },
+        {
             "name": "TransactionPartnerFragment",
             "fields": [
                 {

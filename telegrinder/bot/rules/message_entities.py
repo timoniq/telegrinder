@@ -10,7 +10,7 @@ Entity: typing.TypeAlias = str | MessageEntityType
 
 
 class HasEntities(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
+    async def check(self, message: Message) -> bool:
         return bool(message.entities)
 
 

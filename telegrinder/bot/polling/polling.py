@@ -10,7 +10,7 @@ from telegrinder.api.error import InvalidTokenError
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import decoder
-from telegrinder.types import Update, UpdateType
+from telegrinder.types.objects import Update, UpdateType
 
 
 class Polling(ABCPolling):

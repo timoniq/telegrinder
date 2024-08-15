@@ -1,10 +1,9 @@
 import typing
 
 from telegrinder.bot.cute_types import ChatMemberUpdatedCute
+from telegrinder.bot.dispatch.view.abc import BaseStateView
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
-
-from .abc import BaseStateView
 
 ChatMemberUpdateType: typing.TypeAlias = typing.Literal[
     UpdateType.CHAT_MEMBER,

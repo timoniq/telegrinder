@@ -6,7 +6,8 @@ from functools import wraps
 import typing_extensions
 from fntypes.result import Result
 
-from telegrinder.api import ABCAPI, API
+from telegrinder.api.abc import ABCAPI
+from telegrinder.api.api import API
 from telegrinder.model import Model, get_params
 
 F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
@@ -55,7 +56,7 @@ if typing.TYPE_CHECKING:
             ...
 
 else:
-    from fntypes.co import Nothing, Some, Variative
+    from fntypes.co import Some, Variative
     from msgspec._utils import get_class_annotations as _get_class_annotations
 
     from telegrinder.msgspec_utils import Option, decoder
@@ -86,9 +87,8 @@ else:
                 if not isinstance(hint, type):
                     continue
 
-            if hint is Variative or issubclass(hint, Option) or issubclass(hint, Some | Nothing):
+            if hint in (Variative, Some, Option):
                 return _get_cute_from_args(typing.get_args(hint))
-
             if issubclass(hint, BaseCute):
                 return hint
 

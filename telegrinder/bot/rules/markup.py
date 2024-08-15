@@ -9,7 +9,7 @@ from telegrinder.tools.global_context.telegrinder_ctx import TelegrinderContext
 from .abc import ABCRule
 
 PatternLike: typing.TypeAlias = str | vbml.Pattern
-global_ctx = TelegrinderContext()
+global_ctx: typing.Final[TelegrinderContext] = TelegrinderContext()
 
 
 def check_string(patterns: list[vbml.Pattern], s: str, ctx: Context) -> bool:
@@ -24,6 +24,8 @@ def check_string(patterns: list[vbml.Pattern], s: str, ctx: Context) -> bool:
 
 
 class Markup(ABCRule):
+    """Markup Language. See [VBML docs](https://github.com/tesseradecade/vbml/blob/master/docs/index.md)"""
+
     def __init__(self, patterns: PatternLike | list[PatternLike], /) -> None:
         if not isinstance(patterns, list):
             patterns = [patterns]

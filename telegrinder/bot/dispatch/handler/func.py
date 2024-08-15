@@ -66,13 +66,11 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
 
         nodes = self.required_nodes
         node_col = None
+        update = event
 
         if nodes:
-            node_col = await compose_nodes(
-                UpdateCute.from_update(event, api),
-                ctx,
-                nodes,
-            )
+            update = UpdateCute.from_update(event, api)
+            node_col = await compose_nodes(update, ctx, nodes)
 
             if node_col is None:
                 return False
@@ -84,7 +82,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
                         ctx[EVENT_NODE_KEY] = temp_ctx.pop(name)
 
         for rule in self.rules:
-            if not await check_rule(api, rule, event, temp_ctx):
+            if not await check_rule(api, rule, update, temp_ctx):
                 logger.debug("Rule {!r} failed!", rule)
                 return False
 
@@ -106,8 +104,10 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
                     if issubclass(dataclass_type, BaseCute)
                     else self.dataclass(**update.to_dict())  # type: ignore
                 )
+
             elif issubclass(dataclass_type, UpdateCute) and isinstance(event, Update):
                 event = self.dataclass.from_update(event, bound_api=api)  # type: ignore
+
             else:
                 event = self.dataclass(**event.to_dict())  # type: ignore
 

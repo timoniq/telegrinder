@@ -16,7 +16,7 @@ from telegrinder.node.base import (
 )
 from telegrinder.tools.magic import magic_bundle
 
-CONTEXT_STORE_NODES_KEY = "node_ctx"
+CONTEXT_STORE_NODES_KEY = "_node_ctx"
 
 
 async def compose_node(
@@ -121,6 +121,8 @@ class NodeSession:
             return
 
         for subnode in self.subnodes.values():
+            if subnode.node_type is not None and hasattr(subnode.node_type, "_value"):
+                delattr(subnode.node_type, "_value")
             await subnode.close(scopes=scopes)
 
         if self.generator is None:

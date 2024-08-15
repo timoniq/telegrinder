@@ -5,12 +5,16 @@ import typing
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.view.abc import ABCStateView, BaseStateView
+from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
+from telegrinder.bot.dispatch.waiter_machine.short_state import (
+    Behaviour,
+    EventModel,
+    ShortState,
+    ShortStateContext,
+)
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.tools.limited_dict import LimitedDict
 from telegrinder.types import Update
-
-from .middleware import WaiterMiddleware
-from .short_state import Behaviour, EventModel, ShortState, ShortStateContext
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch import Dispatch

@@ -2,8 +2,6 @@ import hashlib
 import hmac
 import typing
 
-from telegrinder.api.abc import Token
-
 
 def verify_webapp_request(
     secret_token: str,
@@ -15,7 +13,7 @@ def verify_webapp_request(
 
 
 def webapp_validate_request(
-    bot_token: Token,
+    bot_token: str,
     request_query_params: typing.Mapping[str, typing.Any],
 ) -> bool:
     """Verifies authentity of webapp request by counting hash of its parameters."""

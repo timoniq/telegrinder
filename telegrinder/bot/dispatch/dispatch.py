@@ -7,17 +7,11 @@ from vbml.patcher import Patcher
 from telegrinder.api.abc import ABCAPI
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, FuncHandler
-from telegrinder.modules import logger
-from telegrinder.tools.error_handler.error_handler import ErrorHandler
-from telegrinder.tools.global_context import TelegrinderContext
-from telegrinder.types.enums import UpdateType
-from telegrinder.types.objects import Update
-
-from .abc import ABCDispatch
-from .view.box import (
+from telegrinder.bot.dispatch.view.box import (
     CallbackQueryView,
     ChatJoinRequestView,
     ChatMemberView,
@@ -26,6 +20,11 @@ from .view.box import (
     RawEventView,
     ViewBox,
 )
+from telegrinder.modules import logger
+from telegrinder.tools.error_handler.error_handler import ErrorHandler
+from telegrinder.tools.global_context import TelegrinderContext
+from telegrinder.types.enums import UpdateType
+from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule

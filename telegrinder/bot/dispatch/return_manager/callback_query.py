@@ -2,8 +2,7 @@ import typing
 
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.context import Context
-
-from .abc import BaseReturnManager, register_manager
+from telegrinder.bot.dispatch.return_manager.abc import BaseReturnManager, register_manager
 
 
 class CallbackQueryReturnManager(BaseReturnManager[CallbackQueryCute]):

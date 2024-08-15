@@ -37,7 +37,7 @@ class MessageReplyHandler(ABCHandler[MessageCute]):
         )
 
     async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
-        ctx = Context() if ctx is None else ctx
+        ctx = Context(raw_update=event) if ctx is None else ctx
         temp_ctx = ctx.copy()
         temp_ctx |= self.preset_context
 

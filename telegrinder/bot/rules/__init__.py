@@ -1,5 +1,5 @@
-from .abc import ABCRule, AndRule, NotRule, OrRule
-from .callback_data import (
+from telegrinder.bot.rules.abc import ABCRule, AndRule, NotRule, OrRule
+from telegrinder.bot.rules.callback_data import (
     CallbackDataEq,
     CallbackDataJsonEq,
     CallbackDataJsonModel,
@@ -9,25 +9,25 @@ from .callback_data import (
     CallbackQueryRule,
     HasData,
 )
-from .chat_join import (
+from telegrinder.bot.rules.chat_join import (
     ChatJoinRequestRule,
     HasInviteLink,
     InviteLinkByCreator,
     InviteLinkName,
 )
-from .command import Argument, Command
-from .enum_text import EnumTextRule
-from .func import FuncRule
-from .fuzzy import FuzzyText
-from .inline import (
+from telegrinder.bot.rules.command import Argument, Command
+from telegrinder.bot.rules.enum_text import EnumTextRule
+from telegrinder.bot.rules.func import FuncRule
+from telegrinder.bot.rules.fuzzy import FuzzyText
+from telegrinder.bot.rules.inline import (
     HasLocation,
     InlineQueryChatType,
     InlineQueryMarkup,
     InlineQueryRule,
     InlineQueryText,
 )
-from .integer import IntegerInRange, IsInteger
-from .is_from import (
+from telegrinder.bot.rules.integer import IntegerInRange, IsInteger
+from telegrinder.bot.rules.is_from import (
     IsBot,
     IsChat,
     IsChatId,
@@ -45,16 +45,16 @@ from .is_from import (
     IsUser,
     IsUserId,
 )
-from .markup import Markup
-from .mention import HasMention
-from .message import MessageRule
-from .message_entities import HasEntities, MessageEntities
-from .node import NodeRule
-from .regex import Regex
-from .rule_enum import RuleEnum
-from .start import StartCommand
-from .text import HasText, Text
-from .update import IsUpdateType
+from telegrinder.bot.rules.markup import Markup
+from telegrinder.bot.rules.mention import HasMention
+from telegrinder.bot.rules.message import MessageRule
+from telegrinder.bot.rules.message_entities import HasEntities, MessageEntities
+from telegrinder.bot.rules.node import NodeRule
+from telegrinder.bot.rules.regex import Regex
+from telegrinder.bot.rules.rule_enum import RuleEnum
+from telegrinder.bot.rules.start import StartCommand
+from telegrinder.bot.rules.text import HasText, Text
+from telegrinder.bot.rules.update import IsUpdateType
 
 __all__ = (
     "ABCRule",

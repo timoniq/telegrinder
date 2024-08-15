@@ -1,6 +1,5 @@
 from telegrinder.bot.cute_types import ChatJoinRequestCute
-
-from .abc import BaseStateView
+from telegrinder.bot.dispatch.view.abc import BaseStateView
 
 
 class ChatJoinRequestView(BaseStateView[ChatJoinRequestCute]):

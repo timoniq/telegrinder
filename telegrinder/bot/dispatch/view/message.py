@@ -2,9 +2,8 @@ import typing
 
 from telegrinder.bot.cute_types import MessageCute
 from telegrinder.bot.dispatch.return_manager import MessageReturnManager
+from telegrinder.bot.dispatch.view.abc import BaseStateView
 from telegrinder.types import Update, UpdateType
-
-from .abc import BaseStateView
 
 MessageUpdateType: typing.TypeAlias = typing.Literal[
     UpdateType.MESSAGE,

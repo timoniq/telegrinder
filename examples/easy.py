@@ -13,7 +13,7 @@ api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine()
 kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
-logger.set_level("INFO")
+logger.set_level("DEBUG")
 
 bot.dispatch.message.auto_rules.append(IsUser())
 

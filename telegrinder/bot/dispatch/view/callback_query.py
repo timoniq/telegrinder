@@ -1,7 +1,6 @@
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.return_manager import CallbackQueryReturnManager
-
-from .abc import BaseStateView
+from telegrinder.bot.dispatch.view.abc import BaseStateView
 
 
 class CallbackQueryView(BaseStateView[CallbackQueryCute]):

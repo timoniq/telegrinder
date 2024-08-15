@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API 7.8 methods, released `July 31, 2024`."""
+    """Telegram Bot API 7.9 methods, released `August 14, 2024`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -1053,6 +1053,7 @@ class APIMethods:
         chat_id: int | str,
         star_count: int,
         media: list[InputPaidMedia],
+        business_connection_id: str | None = None,
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -1069,11 +1070,15 @@ class APIMethods:
     ) -> Result[Message, APIError]:
         """Method `sendPaidMedia`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
 
-        Use this method to send paid media to channel chats. On success, the sent
-        Message is returned.
+        Use this method to send paid media. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        (in the format @channelusername). If the chat is a channel, all Telegram \
+        Star proceeds from this media will be credited to the chat's balance. Otherwise, \
+        they will be credited to the bot's balance.
 
         :param star_count: The number of Telegram Stars that must be paid to buy access to the media. \
 
@@ -1568,7 +1573,7 @@ class APIMethods:
         Use this method to change the chosen reactions on a message. Service messages
         can't be reacted to. Automatically forwarded messages from a channel to
         its discussion group have the same available reactions as messages in the
-        channel. Returns True on success.
+        channel. Bots can't use paid reactions. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1579,7 +1584,8 @@ class APIMethods:
         :param reaction: A JSON-serialized list of reaction types to set on the message. Currently, \
         as non-premium users, bots can set up to one reaction per message. A custom \
         emoji reaction can be used if it is either already present on the message \
-        or explicitly allowed by chat administrators.
+        or explicitly allowed by chat administrators. Paid reactions can't be \
+        used by bots.
 
         :param is_big: Pass True to set the reaction with a big animation.
         """
@@ -2031,6 +2037,67 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "editChatInviteLink",
+            get_params(locals()),
+        )
+        return full_result(method_response, ChatInviteLink)
+
+    async def create_chat_subscription_invite_link(
+        self,
+        chat_id: int | str,
+        subscription_period: int,
+        subscription_price: int,
+        name: str | None = None,
+        **other: typing.Any,
+    ) -> Result[ChatInviteLink, APIError]:
+        """Method `createChatSubscriptionInviteLink`, see the [documentation](https://core.telegram.org/bots/api#createchatsubscriptioninvitelink)
+
+        Use this method to create a subscription invite link for a channel chat.
+        The bot must have the can_invite_users administrator rights. The link
+        can be edited using the method editChatSubscriptionInviteLink or revoked
+        using the method revokeChatInviteLink. Returns the new invite link as
+        a ChatInviteLink object.
+
+        :param chat_id: Unique identifier for the target channel chat or username of the target \
+        channel (in the format @channelusername).
+
+        :param name: Invite link name; 0-32 characters.
+
+        :param subscription_period: The number of seconds the subscription will be active for before the next \
+        payment. Currently, it must always be 2592000 (30 days).
+
+        :param subscription_price: The amount of Telegram Stars a user must pay initially and after each subsequent \
+        subscription period to be a member of the chat; 1-2500.
+        """
+
+        method_response = await self.api.request_raw(
+            "createChatSubscriptionInviteLink",
+            get_params(locals()),
+        )
+        return full_result(method_response, ChatInviteLink)
+
+    async def edit_chat_subscription_invite_link(
+        self,
+        chat_id: int | str,
+        invite_link: str,
+        name: str | None = None,
+        **other: typing.Any,
+    ) -> Result[ChatInviteLink, APIError]:
+        """Method `editChatSubscriptionInviteLink`, see the [documentation](https://core.telegram.org/bots/api#editchatsubscriptioninvitelink)
+
+        Use this method to edit a subscription invite link created by the bot. The
+        bot must have the can_invite_users administrator rights. Returns the
+        edited invite link as a ChatInviteLink object.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+
+        :param invite_link: The invite link to edit.
+
+        :param name: Invite link name; 0-32 characters.
+        """
+
+        method_response = await self.api.request_raw(
+            "editChatSubscriptionInviteLink",
             get_params(locals()),
         )
         return full_result(method_response, ChatInviteLink)
@@ -2549,8 +2616,8 @@ class APIMethods:
 
         Use this method to edit name and icon of a topic in a forum supergroup chat.
         The bot must be an administrator in the chat for this to work and must have
-        can_manage_topics administrator rights, unless it is the creator of the
-        topic. Returns True on success.
+        the can_manage_topics administrator rights, unless it is the creator
+        of the topic. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
@@ -2681,7 +2748,7 @@ class APIMethods:
 
         Use this method to edit the name of the 'General' topic in a forum supergroup
         chat. The bot must be an administrator in the chat for this to work and must
-        have can_manage_topics administrator rights. Returns True on success.
+        have the can_manage_topics administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).

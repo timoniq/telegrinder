@@ -36,6 +36,7 @@ class ReactionType(Model):
     This object describes the type of a reaction. Currently, it can be one of
     - ReactionTypeEmoji
     - ReactionTypeCustomEmoji
+    - ReactionTypePaid
     """
 
 
@@ -321,7 +322,7 @@ class Update(Model):
     """Optional. A boost was removed from a chat. The bot must be an administrator
     in the chat to receive these updates."""
 
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, self.__class__) and self.update_type == other.update_type
 
     @cached_property
@@ -329,7 +330,13 @@ class Update(Model):
         """Incoming update type."""
 
         return UpdateType(
-            next((x for x in self.__struct_fields__ if x != "update_id" and getattr(self, x) is not Nothing)),
+            next(
+                (
+                    x
+                    for x in self.__struct_fields__
+                    if x != "update_id" and not isinstance(getattr(self, x), type(Nothing))
+                )
+            ),
         )
 
 
@@ -422,7 +429,7 @@ class User(Model):
     has_main_web_app: Option[bool] = Nothing
     """Optional. True, if the bot has a main Web App. Returned only in getMe."""
 
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
@@ -468,7 +475,7 @@ class Chat(Model):
     is_forum: Option[bool] = Nothing
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
 
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
@@ -540,7 +547,9 @@ class ChatFullInfo(Model):
     personal_chat: Option["Chat"] = Nothing
     """Optional. For private chats, the personal channel of the user."""
 
-    available_reactions: Option[list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]] = Nothing
+    available_reactions: Option[
+        list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji", "ReactionTypePaid"]]
+    ] = Nothing
     """Optional. List of available reactions allowed in the chat. If omitted,
     then all emoji reactions are allowed."""
 
@@ -669,17 +678,17 @@ class Message(MaybeInaccessibleMessage):
     for supergroups only."""
 
     from_: Option["User"] = Nothing
-    """Optional. Sender of the message; empty for messages sent to channels. For
-    backward compatibility, the field contains a fake sender user in non-channel
-    chats, if the message was sent on behalf of a chat."""
+    """Optional. Sender of the message; may be empty for messages sent to channels.
+    For backward compatibility, if the message was sent on behalf of a chat,
+    the field contains a fake sender user in non-channel chats."""
 
     sender_chat: Option["Chat"] = Nothing
-    """Optional. Sender of the message, sent on behalf of a chat. For example, the
-    channel itself for channel posts, the supergroup itself for messages from
-    anonymous group administrators, the linked channel for messages automatically
-    forwarded to the discussion group. For backward compatibility, the field
-    from contains a fake sender user in non-channel chats, if the message was
-    sent on behalf of a chat."""
+    """Optional. Sender of the message when sent on behalf of a chat. For example,
+    the supergroup itself for messages sent by its anonymous administrators
+    or a linked channel for messages automatically forwarded to the channel's
+    discussion group. For backward compatibility, if the message was sent
+    on behalf of a chat, the field from contains a fake sender user in non-channel
+    chats."""
 
     sender_boost_count: Option[int] = Nothing
     """Optional. If the sender of the message boosted the chat, the number of boosts
@@ -969,7 +978,7 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Inline keyboard attached to the message. login_url buttons
     are represented as ordinary url buttons."""
 
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, self.__class__)
             and self.message_id == other.message_id
@@ -3007,6 +3016,9 @@ class ChatMemberMember(ChatMember):
     user: "User"
     """Information about the user."""
 
+    until_date: Option[datetime] = Nothing
+    """Optional. Date when the user's subscription will expire; Unix time."""
+
 
 class ChatMemberRestricted(ChatMember):
     """Object `ChatMemberRestricted`, see the [documentation](https://core.telegram.org/bots/api#chatmemberrestricted).
@@ -3325,13 +3337,23 @@ class ReactionTypeCustomEmoji(ReactionType):
     """Custom emoji identifier."""
 
 
+class ReactionTypePaid(ReactionType):
+    """Object `ReactionTypePaid`, see the [documentation](https://core.telegram.org/bots/api#reactiontypepaid).
+
+    The reaction is paid.
+    """
+
+    type: typing.Literal["paid"]
+    """Type of the reaction, always `paid`."""
+
+
 class ReactionCount(Model):
     """Object `ReactionCount`, see the [documentation](https://core.telegram.org/bots/api#reactioncount).
 
     Represents a reaction added to a message along with the number of times it was added.
     """
 
-    type: Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]
+    type: Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji", "ReactionTypePaid"]
     """Type of the reaction."""
 
     total_count: int
@@ -3353,10 +3375,10 @@ class MessageReactionUpdated(Model):
     date: datetime
     """Date of the change in Unix time."""
 
-    old_reaction: list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]
+    old_reaction: list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji", "ReactionTypePaid"]]
     """Previous list of reaction types that were set by the user."""
 
-    new_reaction: list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji"]]
+    new_reaction: list[Variative["ReactionTypeEmoji", "ReactionTypeCustomEmoji", "ReactionTypePaid"]]
     """New list of reaction types that have been set by the user."""
 
     user: Option["User"] = Nothing
@@ -5745,6 +5767,9 @@ class TransactionPartnerUser(TransactionPartner):
     invoice_payload: Option[str] = Nothing
     """Optional. Bot-specified invoice payload."""
 
+    paid_media: Option[list[Variative["PaidMediaPreview", "PaidMediaPhoto", "PaidMediaVideo"]]] = Nothing
+    """Optional. Information about the paid media bought by the user."""
+
 
 class TransactionPartnerFragment(TransactionPartner):
     """Object `TransactionPartnerFragment`, see the [documentation](https://core.telegram.org/bots/api#transactionpartnerfragment).
@@ -6417,6 +6442,7 @@ __all__ = (
     "ReactionType",
     "ReactionTypeCustomEmoji",
     "ReactionTypeEmoji",
+    "ReactionTypePaid",
     "RefundedPayment",
     "ReplyKeyboardMarkup",
     "ReplyKeyboardRemove",

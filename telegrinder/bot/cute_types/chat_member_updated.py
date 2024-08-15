@@ -3,11 +3,10 @@ from datetime import datetime
 
 from fntypes.result import Result
 
-from telegrinder.api import ABCAPI, APIError
+from telegrinder.api.abc import ABCAPI, APIError
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.model import get_params
 from telegrinder.types.objects import ChatMemberUpdated, ChatPermissions, User
-
-from .base import BaseCute, compose_method_params, shortcut
 
 
 async def chat_member_interaction(

@@ -4,7 +4,9 @@ from contextlib import suppress
 import msgspec
 from fntypes.co import Nothing, Result, Some, Variative, unwrapping
 
-from telegrinder.api import ABCAPI, APIError
+from telegrinder.api.abc import ABCAPI, APIError
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.bot.cute_types.message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
 from telegrinder.model import get_params
 from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.types.objects import (
@@ -21,11 +23,8 @@ from telegrinder.types.objects import (
     User,
 )
 
-from .base import BaseCute, compose_method_params, shortcut
-from .message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
 
-
-class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True, dict=True):
+class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     api: ABCAPI
 
     message: Option[Variative[MessageCute, InaccessibleMessage]] = Nothing()
