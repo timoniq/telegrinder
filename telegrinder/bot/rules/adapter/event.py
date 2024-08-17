@@ -15,7 +15,7 @@ ToCute = typing.TypeVar("ToCute", bound=BaseCute)
 
 
 class EventAdapter(ABCAdapter[Update, ToCute]):
-    ADAPTED_VALUE_KEY = "_adapted_cute_event"
+    ADAPTED_VALUE_KEY: str = "_adapted_cute_event"
 
     def __init__(self, event: UpdateType | type[Model], cute_model: type[ToCute]) -> None:
         self.event = event

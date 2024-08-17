@@ -61,23 +61,23 @@ class DelayedTask(typing.Generic[CoroFunc]):
             self._cancelled = True
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, slots=True, frozen=True)
 class Lifespan:
     startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
     shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
 
-    def on_startup(self, task_or_func: Task) -> Task:
-        self.startup_tasks.append(to_coroutine_task(task_or_func))
-        return task_or_func
+    def on_startup(self, task: Task, /) -> Task:
+        self.startup_tasks.append(to_coroutine_task(task))
+        return task
 
-    def on_shutdown(self, task_or_func: Task) -> Task:
-        self.shutdown_tasks.append(to_coroutine_task(task_or_func))
-        return task_or_func
+    def on_shutdown(self, task: Task, /) -> Task:
+        self.shutdown_tasks.append(to_coroutine_task(task))
+        return task
 
-    def start(self, loop: asyncio.AbstractEventLoop) -> None:
+    def start(self, loop: asyncio.AbstractEventLoop, /) -> None:
         run_tasks(self.startup_tasks, loop)
 
-    def shutdown(self, loop: asyncio.AbstractEventLoop) -> None:
+    def shutdown(self, loop: asyncio.AbstractEventLoop, /) -> None:
         run_tasks(self.shutdown_tasks, loop)
 
 

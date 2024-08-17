@@ -9,7 +9,7 @@ from telegrinder.types.objects import Update
 
 
 class RawUpdateAdapter(ABCAdapter[Update, UpdateCute]):
-    ADAPTED_VALUE_KEY = "_adapted_update_cute"
+    ADAPTED_VALUE_KEY: str = "_adapted_update_cute"
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: adapt Update -> UpdateCute>"

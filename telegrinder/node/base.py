@@ -29,6 +29,13 @@ def is_node(maybe_node: type[typing.Any]) -> typing.TypeGuard[type["Node"]]:
     )
 
 
+def get_impls_with_return_type(functions: typing.Iterable[typing.Callable[..., typing.Any]]) -> dict[typing.Any, typing.Callable[..., typing.Any]]:
+    return {
+        typing.get_origin(f.__annotations__["return"]) or f.__annotations__["return"]: f
+        for f in functions
+    }
+
+
 @cache_magic_value("__compose_annotations__")
 def get_compose_annotations(function: typing.Callable[..., typing.Any]) -> dict[str, typing.Any]:
     return {k: v for k, v in get_annotations(function).items() if not is_node(v)}
@@ -44,23 +51,13 @@ def is_generator(function: typing.Callable[..., typing.Any]) -> typing.TypeGuard
     return inspect.isasyncgenfunction(function)
 
 
-def get_node_impls(node_cls: type["Node"]) -> dict[str, typing.Any]:
+def get_node_impls(node_cls: type["Node"]) -> dict[typing.Any, typing.Callable[..., typing.Any]]:
     if not hasattr(node_cls, "__node_impls__"):
-        impls = get_impls_by_key(node_cls, NODE_IMPL_MARK)
-        if issubclass(node_cls, BaseNode):
-            impls |= get_impls_by_key(BaseNode, NODE_IMPL_MARK)
+        impls = get_impls_with_return_type(get_impls_by_key(node_cls, NODE_IMPL_MARK).values())
+        if node_cls is not BaseNode and issubclass(node_cls, BaseNode):
+            impls |= get_impls_with_return_type(get_impls_by_key(BaseNode, NODE_IMPL_MARK).values())
         setattr(node_cls, "__node_impls__", impls)
     return getattr(node_cls, "__node_impls__")
-
-
-def get_node_impl(
-    node: type[typing.Any],
-    node_impls: dict[str, typing.Callable[..., typing.Any]],
-) -> typing.Callable[..., typing.Any] | None:
-    for n_impl in node_impls.values():
-        if "return" in n_impl.__annotations__ and node is n_impl.__annotations__["return"]:
-            return n_impl
-    return None
 
 
 class ComposeError(BaseException):
@@ -83,10 +80,10 @@ class Node(abc.ABC):
         update: UpdateCute,
         ctx: Context,
     ) -> typing.Any:
-        orig_annotation: type[typing.Any] = typing.get_origin(annotation) or annotation
-        n_impl = get_node_impl(orig_annotation, cls.get_node_impls())
+        orig_annotation = typing.get_origin(annotation) or annotation
+        n_impl = cls.get_node_impls().get(orig_annotation)
         if n_impl is None:
-            raise ComposeError(f"Node implementation for {orig_annotation!r} not found.")
+            raise ComposeError(f"Node implementation for compose annotation {annotation!r} not found.")
 
         result = n_impl(
             cls,
@@ -114,7 +111,7 @@ class Node(abc.ABC):
         return get_compose_annotations(cls.compose)
 
     @classmethod
-    def get_node_impls(cls) -> dict[str, typing.Callable[..., typing.Any]]:
+    def get_node_impls(cls) -> dict[typing.Any, typing.Callable[..., typing.Any]]:
         return get_node_impls(cls)
 
     @classmethod

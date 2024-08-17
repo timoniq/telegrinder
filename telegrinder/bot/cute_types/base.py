@@ -57,9 +57,9 @@ if typing.TYPE_CHECKING:
 
 else:
     from fntypes.co import Some, Variative
-    from msgspec._utils import get_class_annotations as _get_class_annotations
 
     from telegrinder.msgspec_utils import Option, decoder
+    from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
 
     _DEFAULT_API_CLASS = API
 

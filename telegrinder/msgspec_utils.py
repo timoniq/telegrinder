@@ -10,8 +10,15 @@ if typing.TYPE_CHECKING:
     from datetime import datetime
 
     from fntypes.option import Option
+
+    def get_class_annotations(obj: typing.Any) -> dict[str, type[typing.Any]]: ...
+
+    def get_type_hints(obj: typing.Any) -> dict[str, type[typing.Any]]: ...
+
 else:
     from datetime import datetime as dt
+
+    from msgspec._utils import get_class_annotations, get_type_hints
 
     Value = typing.TypeVar("Value")
     Err = typing.TypeVar("Err")
@@ -338,5 +345,7 @@ __all__ = (
     "decoder",
     "encoder",
     "msgspec_convert",
+    "get_class_annotations",
+    "get_type_hints",
     "msgspec_to_builtins",
 )

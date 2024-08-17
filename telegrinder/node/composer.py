@@ -59,7 +59,7 @@ async def compose_nodes(
     ctx: Context,
     nodes: dict[str, type[Node]],
     node_class: type[Node] | None = None,
-    context_annotations: dict[str, typing.Any] | None = None,
+    compose_annotations: dict[str, typing.Any] | None = None,
 ) -> "NodeCollection | None":
     node_sessions: dict[str, NodeSession] = {}
     node_ctx: dict[type[Node], "NodeSession"] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
@@ -86,11 +86,11 @@ async def compose_nodes(
         await NodeCollection(node_sessions).close_all()
         return None
 
-    if context_annotations:
+    if compose_annotations:
         node_class = node_class or BaseNode
 
         try:
-            for name, annotation in context_annotations.items():
+            for name, annotation in compose_annotations.items():
                 node_sessions[name] = await node_class.compose_annotation(annotation, update, ctx)
         except (ComposeError, UnwrapError) as exc:
             logger.debug(
@@ -107,7 +107,7 @@ class NodeSession:
     node_type: type[Node] | None
     value: typing.Any
     subnodes: dict[str, typing.Self]
-    generator: typing.AsyncGenerator[typing.Any, None] | None = None
+    generator: typing.AsyncGenerator[typing.Any, typing.Any | None] | None = None
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.value!r}" + (" ACTIVE>" if self.generator else ">")
@@ -121,8 +121,6 @@ class NodeSession:
             return
 
         for subnode in self.subnodes.values():
-            if subnode.node_type is not None and hasattr(subnode.node_type, "_value"):
-                delattr(subnode.node_type, "_value")
             await subnode.close(scopes=scopes)
 
         if self.generator is None:
@@ -160,18 +158,18 @@ class Composition:
     is_blocking: bool
     node_class: type[Node] = dataclasses.field(default_factory=lambda: BaseNode)
     nodes: dict[str, type[Node]] = dataclasses.field(init=False)
-    context_annotations: dict[str, typing.Any] = dataclasses.field(init=False)
+    compose_annotations: dict[str, typing.Any] = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
         self.nodes = get_nodes(self.func)
-        self.context_annotations = get_compose_annotations(self.func)
+        self.compose_annotations = get_compose_annotations(self.func)
 
     def __repr__(self) -> str:
-        return "<{}: for function={!r} with nodes={!r}, context_annotations={!r}>".format(
+        return "<{}: for function={!r} with nodes={!r}, compose_annotations={!r}>".format(
             ("blocking " if self.is_blocking else "") + self.__class__.__name__,
             self.func.__qualname__,
             self.nodes,
-            self.context_annotations,
+            self.compose_annotations,
         )
 
     async def compose_nodes(self, update: UpdateCute, context: Context) -> NodeCollection | None:
@@ -180,7 +178,7 @@ class Composition:
             ctx=context,
             nodes=self.nodes,
             node_class=self.node_class,
-            context_annotations=self.context_annotations,
+            compose_annotations=self.compose_annotations,
         )
 
     async def __call__(self, **kwargs: typing.Any) -> typing.Any:

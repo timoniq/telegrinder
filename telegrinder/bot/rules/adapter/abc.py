@@ -14,7 +14,7 @@ To = typing.TypeVar("To")
 
 
 class ABCAdapter(abc.ABC, typing.Generic[From, To]):
-    ADAPTED_VALUE_KEY: typing.LiteralString
+    ADAPTED_VALUE_KEY: str | None = None
 
     @abc.abstractmethod
     async def adapt(self, api: ABCAPI, update: From, context: Context) -> Result[To, AdapterError]:
