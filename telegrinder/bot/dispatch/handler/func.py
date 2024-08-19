@@ -74,7 +74,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
 
             if node_col is None:
                 return False
-            temp_ctx |= node_col.values()
+            temp_ctx |= node_col.values
 
             if EVENT_NODE_KEY in ctx:
                 for name, node in nodes.items():

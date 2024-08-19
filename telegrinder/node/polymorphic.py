@@ -27,7 +27,7 @@ class Polymorphic(BaseNode):
                 await node_collection.close_all()
                 return res.value
 
-            result = composition.func(cls, **node_collection.values())
+            result = composition.func(cls, **node_collection.values)
             if inspect.isawaitable(result):
                 result = await result
 

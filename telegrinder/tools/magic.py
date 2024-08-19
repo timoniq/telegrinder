@@ -60,9 +60,41 @@ def to_str(s: str | enum.Enum) -> str:
     return s
 
 
+@typing.overload
+def magic_bundle(handler: FuncType, kw: dict[str, typing.Any]) -> dict[str, typing.Any]:
+    ...
+
+
+@typing.overload
+def magic_bundle(handler: FuncType, kw: dict[enum.Enum, typing.Any]) -> dict[str, typing.Any]:
+    ...
+
+
+@typing.overload
 def magic_bundle(
     handler: FuncType,
-    kw: dict[str | enum.Enum, typing.Any],
+    kw: dict[str, typing.Any],
+    *,
+    start_idx: int = 1,
+    bundle_ctx: bool = True,
+) -> dict[str, typing.Any]:
+    ...
+
+
+@typing.overload
+def magic_bundle(
+    handler: FuncType,
+    kw: dict[enum.Enum, typing.Any],
+    *,
+    start_idx: int = 1,
+    bundle_ctx: bool = True,
+) -> dict[str, typing.Any]:
+    ...
+
+
+def magic_bundle(
+    handler: FuncType,
+    kw: dict[typing.Any, typing.Any],
     *,
     start_idx: int = 1,
     bundle_ctx: bool = True,

@@ -29,7 +29,7 @@ FuncType: typing.TypeAlias = typing.Callable[
 
 class ABCView(ABC):
     def __repr__(self) -> str:
-        return "<{!r}>".format(self.__class__.__name__)
+        return "<{}>".format(self.__class__.__name__)
 
     @abstractmethod
     async def check(self, event: Update) -> bool:

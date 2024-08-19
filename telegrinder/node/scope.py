@@ -33,4 +33,12 @@ def global_node(node: T) -> T:
     return node
 
 
-__all__ = ("NodeScope", "PER_EVENT", "PER_CALL", "per_call", "per_event", "global_node", "GLOBAL")
+__all__ = (
+    "NodeScope",
+    "PER_EVENT",
+    "PER_CALL",
+    "per_call",
+    "per_event",
+    "global_node",
+    "GLOBAL",
+)

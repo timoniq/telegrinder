@@ -45,11 +45,11 @@ async def compose_node(
         )
 
     if node.is_generator():
-        generator = typing.cast(typing.AsyncGenerator[typing.Any, None], node.compose(**context.values()))
+        generator = typing.cast(typing.AsyncGenerator[typing.Any, None], node.compose(**context.values))
         value = await generator.asend(None)
     else:
         generator = None
-        value = await typing.cast(typing.Awaitable[typing.Any], node.compose(**context.values()))
+        value = await typing.cast(typing.Awaitable[typing.Any], node.compose(**context.values))
 
     return NodeSession(_node, value, context.sessions, generator)
 
@@ -75,7 +75,11 @@ async def compose_nodes(
                 node_sessions[name] = getattr(node_t, "_value")
                 continue
 
-            node_sessions[name] = await compose_node(node_t, update, ctx)
+            composer = getattr(node_t, "_composer", None)
+            node_composer: Composer = composer or Composer.compose(name, node_t)
+            node_sessions[name] = await node_composer.compose_node(update, ctx, node_ctx)
+            if composer is None:
+                setattr(node_t, "_composer", node_composer)
 
             if scope is NodeScope.PER_EVENT:
                 node_ctx[node_t] = node_sessions[name]
@@ -100,6 +104,91 @@ async def compose_nodes(
             return None
 
     return NodeCollection(node_sessions)
+
+
+@dataclasses.dataclass(frozen=True, slots=True)
+class Composer:
+    parent: tuple[str, type[Node]]
+    children: list[tuple[str, type[Node]]]
+
+    @classmethod
+    def compose(cls, name: str, node: type[Node]) -> "Composer":
+        stack_nodes = [(name, node)]
+        for stacked_node in stack_nodes:
+            stack_nodes.extend(stacked_node[1].as_node().get_sub_nodes().items())
+        return cls(parent=stack_nodes[0], children=stack_nodes)
+
+    async def compose_annotations(
+        self,
+        update: UpdateCute,
+        ctx: Context,
+        node: type[Node],
+        context: dict[str, "NodeSession"],
+    ) -> None:
+        for name, annotation in node.get_compose_annotations().items():
+            context[name] = NodeSession(
+                None,
+                await node.compose_annotation(annotation, update, ctx),
+                {},
+            )
+
+    async def compose_node(
+        self,
+        update: UpdateCute,
+        ctx: Context,
+        node_ctx: dict[type[Node], "NodeSession"],
+    ) -> "NodeSession":
+        collection = NodeCollection({})  # General Context
+        children_collection = NodeCollection({})  # General children context
+        context: dict[type[Node], NodeSession] = {}  # Context with composed dependencies
+
+        # From (Parent -> children -> dependencies -> ...) to (... -> dependencies -> children -> parent)
+        for name, child in reversed(self.children):
+            if child in node_ctx:  # Node in PER_EVENT scope
+                collection.sessions[name] = children_collection.sessions[name] = node_ctx[child]
+                continue
+
+            if child in context:  # Node already comsposed
+                collection.sessions[name] = children_collection.sessions[name] = context[child]
+                continue
+
+            node_child = child.as_node()
+
+            # Compose annotations of Node.compose, ex. built-in UpdateCute, etc...
+            await self.compose_annotations(update, ctx, node_child, children_collection.sessions)
+
+            # Bundle child context for Node.compose from general children context
+            child_context = magic_bundle(
+                node_child.compose,
+                children_collection.values,
+                start_idx=0,
+                bundle_ctx=False,
+            )
+
+            # Compose node
+            if node_child.is_generator():
+                generator = typing.cast(typing.AsyncGenerator[typing.Any, None], node_child.compose(**child_context))
+                value = await generator.asend(None)
+            else:
+                generator = None
+                value = await typing.cast(typing.Awaitable[typing.Any], node_child.compose(**child_context))
+
+            # Get current child sessions from chilred collection
+            child_sessions = {
+                k: children_collection.sessions.pop(k)
+                for k in child_context if k in children_collection.sessions
+            }
+
+            # Set current node session in to contexts
+            session = NodeSession(child, value, child_sessions, generator)
+            collection.sessions[name] = children_collection.sessions[name] = context[child] = session
+
+            if getattr(child, "scope", None) is NodeScope.PER_EVENT:
+                node_ctx[child] = collection.sessions[name]
+
+        # Get parent node session from context
+        parent_node_session = context.pop(self.parent[1])
+        return parent_node_session
 
 
 @dataclasses.dataclass(slots=True, repr=False)
@@ -140,6 +229,7 @@ class NodeCollection:
     def __repr__(self) -> str:
         return "<{}: sessions={!r}>".format(self.__class__.__name__, self.sessions)
 
+    @property
     def values(self) -> dict[str, typing.Any]:
         return {name: session.value for name, session in self.sessions.items()}
 

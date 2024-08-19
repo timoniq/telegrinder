@@ -119,7 +119,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         node_col: "NodeCollection | None" = None,
     ) -> bool:
         kw = {}
-        node_col_values = node_col.values() if node_col is not None else {}
+        node_col_values = node_col.values if node_col is not None else {}
         temp_ctx = get_default_args(self.check) | ctx
 
         for i, (k, v) in enumerate(get_annotations(self.check).items()):

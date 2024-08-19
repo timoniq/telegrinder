@@ -177,8 +177,9 @@ class Dispatch(
         for view in self.get_views().values():
             if await view.check(event):
                 logger.debug(
-                    "Update (update_id={}) matched view {!r}.",
+                    "Update (update_id={}, update_type={!r}) matched view {!r}.",
                     event.update_id,
+                    event.update_type,
                     view,
                 )
                 if await view.process(event, api):
