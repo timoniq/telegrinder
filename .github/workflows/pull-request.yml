@@ -44,7 +44,9 @@ jobs:
           - ubuntu-latest
           - windows-latest
 
-    uses: ./.github/workflows/lint-and-test.yml
-    with:
-      os: ${{ matrix.os }}
-      python-version: ${{ matrix.python-version }}
+    on:
+      workflow_call:
+        uses: ./.github/workflows/lint-and-test.yml
+        with:
+          os: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
