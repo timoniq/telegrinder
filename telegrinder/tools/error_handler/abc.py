@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from fntypes.result import Result
 
-from telegrinder.api import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.dispatch.context import Context
 
 EventT = typing.TypeVar("EventT")
@@ -24,7 +24,7 @@ class ABCErrorHandler(ABC, typing.Generic[EventT]):
         self,
         handler: Handler[EventT],
         event: EventT,
-        api: ABCAPI,
+        api: API,
         ctx: Context,
     ) -> Result[typing.Any, typing.Any]:
         """Run error handler."""

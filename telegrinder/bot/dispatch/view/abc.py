@@ -4,7 +4,7 @@ from functools import cached_property
 
 from fntypes.co import Nothing, Some
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import FuncHandler
@@ -36,7 +36,7 @@ class ABCView(ABC):
         pass
 
     @abstractmethod
-    async def process(self, event: Update, api: ABCAPI) -> bool:
+    async def process(self, event: Update, api: API) -> bool:
         pass
 
     @abstractmethod
@@ -184,7 +184,7 @@ class BaseView(ABCView, typing.Generic[Event]):
             case _:
                 return False
 
-    async def process(self, event: Update, api: ABCAPI) -> bool:
+    async def process(self, event: Update, api: API) -> bool:
         return await process_inner(
             api,
             self.get_event_type.unwrap().from_update(

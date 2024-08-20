@@ -63,16 +63,8 @@ class RuleChain(dict[str, typing.Any]):
         return cls
 
     @classmethod
-    def get_sub_nodes(cls) -> dict:
+    def get_subnodes(cls) -> dict:
         return {"update": UpdateNode}
-
-    @classmethod
-    def get_compose_annotations(cls) -> dict[str, typing.Any]:
-        return {}
-
-    @classmethod
-    def get_node_impls(cls) -> dict[str, typing.Callable[..., typing.Any]]:
-        return {}
 
     @classmethod
     def is_generator(cls) -> typing.Literal[False]:

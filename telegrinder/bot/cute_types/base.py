@@ -6,14 +6,13 @@ from functools import wraps
 import typing_extensions
 from fntypes.result import Result
 
-from telegrinder.api.abc import ABCAPI
 from telegrinder.api.api import API
 from telegrinder.model import Model, get_params
 
 F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
 Cute = typing.TypeVar("Cute", bound="BaseCute")
 Update = typing_extensions.TypeVar("Update", bound=Model)
-CtxAPI = typing_extensions.TypeVar("CtxAPI", bound=ABCAPI, default=API)
+CtxAPI = typing_extensions.TypeVar("CtxAPI", bound=API, default=API)
 
 Executor: typing.TypeAlias = typing.Callable[
     [Cute, str, dict[str, typing.Any]],
@@ -23,10 +22,10 @@ Executor: typing.TypeAlias = typing.Callable[
 if typing.TYPE_CHECKING:
 
     class BaseCute(Model, typing.Generic[Update, CtxAPI]):
-        api: ABCAPI
+        api: API
 
         @classmethod
-        def from_update(cls, update: Update, bound_api: ABCAPI) -> typing.Self: ...
+        def from_update(cls, update: Update, bound_api: API) -> typing.Self: ...
 
         @property
         def ctx_api(self) -> CtxAPI: ...
@@ -73,7 +72,7 @@ else:
                 break
             if issubclass(typing.get_origin(base) or base, BaseCute):
                 for generic_type in typing.get_args(base):
-                    if issubclass(typing.get_origin(generic_type) or generic_type, ABCAPI):
+                    if issubclass(typing.get_origin(generic_type) or generic_type, API):
                         ctx_api_class = generic_type
                         break
 

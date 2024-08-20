@@ -9,7 +9,7 @@ from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.objects import *  # noqa: F403
 
 if typing.TYPE_CHECKING:
-    from telegrinder.api.abc import ABCAPI
+    from telegrinder.api import API
 
 
 class APIMethods:
@@ -21,7 +21,7 @@ class APIMethods:
         )
     )
 
-    def __init__(self, api: "ABCAPI") -> None:
+    def __init__(self, api: "API") -> None:
         self.api = api
 
     async def get_updates(

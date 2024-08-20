@@ -1,9 +1,9 @@
 import typing
 
-from telegrinder.node.base import BaseNode, Node
+from telegrinder.node.base import Node
 
 
-class ContainerNode(BaseNode):
+class ContainerNode(Node):
     linked_nodes: typing.ClassVar[list[type[Node]]]
 
     @classmethod
@@ -11,7 +11,7 @@ class ContainerNode(BaseNode):
         return tuple(t[1] for t in sorted(kw.items(), key=lambda t: t[0]))
 
     @classmethod
-    def get_sub_nodes(cls) -> dict[str, type[Node]]:
+    def get_subnodes(cls) -> dict[str, type[Node]]:
         return {f"node_{i}": node_t for i, node_t in enumerate(cls.linked_nodes)}
 
     @classmethod

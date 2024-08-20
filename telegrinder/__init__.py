@@ -34,7 +34,7 @@ bot.run_forever()
 
 import typing
 
-from .api import ABCAPI, API, APIError, APIResponse, Token
+from .api import API, APIError, APIResponse, Token
 from .bot import (
     ABCDispatch,
     ABCHandler,
@@ -122,7 +122,7 @@ Bot: typing.TypeAlias = Telegrinder
 
 
 __all__ = (
-    "ABCAPI",
+    "API",
     "ABCClient",
     "ABCDispatch",
     "ABCErrorHandler",

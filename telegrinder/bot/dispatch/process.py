@@ -2,7 +2,7 @@ import typing
 
 from fntypes.result import Error, Ok
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
@@ -22,7 +22,7 @@ _: typing.TypeAlias = typing.Any
 
 
 async def process_inner(
-    api: ABCAPI,
+    api: API,
     event: Event,
     raw_event: Update,
     middlewares: list[ABCMiddleware[Event]],
@@ -64,7 +64,7 @@ async def process_inner(
 
 
 async def check_rule(
-    api: ABCAPI,
+    api: API,
     rule: "ABCRule",
     update: Update,
     ctx: Context,
@@ -104,12 +104,13 @@ async def check_rule(
     nodes = rule.required_nodes
     node_col = None
     if nodes:
-        node_col = await compose_nodes(update, ctx, nodes)
-        if node_col is None:
+        result = await compose_nodes(nodes, ctx, data={Update: update, API: api})
+        if not result:
             return False
+        node_col = result.value
 
     # Running check
-    result = await rule.bounding_check(adapted_value, ctx, node_col)
+    result = await rule.bounding_check(adapted_value, ctx, node_col=node_col)
 
     # Closing node sessions if there are any
     if node_col is not None:

@@ -3,7 +3,7 @@ import dataclasses
 import datetime
 import typing
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
@@ -27,7 +27,7 @@ class ShortStateContext(typing.Generic[EventModel], typing.NamedTuple):
 @dataclasses.dataclass(slots=True)
 class ShortState(typing.Generic[EventModel]):
     key: "Identificator"
-    ctx_api: ABCAPI
+    ctx_api: API
     event: asyncio.Event
     rules: tuple[ABCRule, ...]
     expiration: dataclasses.InitVar[datetime.timedelta | None] = dataclasses.field(

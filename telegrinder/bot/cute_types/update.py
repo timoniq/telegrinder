@@ -2,7 +2,7 @@ import typing
 
 from fntypes.co import Nothing, Some
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute
@@ -16,7 +16,7 @@ ModelT = typing.TypeVar("ModelT", bound=Model)
 
 
 class UpdateCute(BaseCute[Update], Update, kw_only=True):
-    api: ABCAPI
+    api: API
 
     message: Option[MessageCute] = Nothing()
     """Optional. New incoming message of any kind - text, photo, sticker, etc."""

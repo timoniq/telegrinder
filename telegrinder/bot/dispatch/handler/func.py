@@ -3,7 +3,7 @@ from functools import cached_property
 
 import typing_extensions as typing
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types import BaseCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
@@ -56,7 +56,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
     def required_nodes(self) -> dict[str, type[Node]]:
         return get_nodes(self.func)
 
-    async def check(self, api: ABCAPI, event: Update, ctx: Context | None = None) -> bool:
+    async def check(self, api: API, event: Update, ctx: Context | None = None) -> bool:
         if self.update_type is not None and self.update_type != event.update_type:
             return False
 
@@ -69,11 +69,12 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         update = event
 
         if nodes:
-            update = UpdateCute.from_update(event, api)
-            node_col = await compose_nodes(update, ctx, nodes)
-
-            if node_col is None:
+            result = await compose_nodes(nodes, ctx, data={Update: event, API: api})
+            if not result:
+                logger.debug(f"Cannot compose nodes for handler. {result.error}")
                 return False
+            node_col = result.value
+
             temp_ctx |= node_col.values
 
             if EVENT_NODE_KEY in ctx:
@@ -90,7 +91,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         ctx |= temp_ctx
         return True
 
-    async def run(self, api: ABCAPI, event: Event, ctx: Context) -> typing.Any:
+    async def run(self, api: API, event: Event, ctx: Context) -> typing.Any:
         dataclass_type = typing.get_origin(self.dataclass) or self.dataclass
 
         if dataclass_type is Update and (event_node := ctx.pop(EVENT_NODE_KEY, None)) is not None:

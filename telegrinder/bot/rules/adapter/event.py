@@ -2,7 +2,7 @@ import typing
 
 from fntypes.result import Error, Ok, Result
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter.abc import ABCAdapter
@@ -38,7 +38,7 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
             self.cute_model.__name__,
         )
 
-    async def adapt(self, api: ABCAPI, update: Update, context: Context) -> Result[ToCute, AdapterError]:
+    async def adapt(self, api: API, update: Update, context: Context) -> Result[ToCute, AdapterError]:
         if self.ADAPTED_VALUE_KEY in context:
             return context[self.ADAPTED_VALUE_KEY]
 

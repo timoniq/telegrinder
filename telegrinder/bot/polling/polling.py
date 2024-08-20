@@ -5,7 +5,7 @@ import aiohttp
 import msgspec
 from fntypes.result import Error, Ok
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.api.error import InvalidTokenError
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
@@ -16,7 +16,7 @@ from telegrinder.types.objects import Update, UpdateType
 class Polling(ABCPolling):
     def __init__(
         self,
-        api: ABCAPI,
+        api: API,
         *,
         offset: int = 0,
         reconnection_timeout: float = 5,

@@ -4,7 +4,7 @@ import typing
 
 from vbml.patcher import Patcher
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
@@ -170,7 +170,7 @@ class Dispatch(
 
         return wrapper
 
-    async def feed(self, event: Update, api: ABCAPI) -> bool:
+    async def feed(self, event: Update, api: API) -> bool:
         logger.debug("Processing update (update_id={})", event.update_id)
         await self.raw_event.process(event, api)
 
