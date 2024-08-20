@@ -40,7 +40,7 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
 
     async def adapt(self, api: API, update: Update, context: Context) -> Result[ToCute, AdapterError]:
         if self.ADAPTED_VALUE_KEY in context:
-            return context[self.ADAPTED_VALUE_KEY]
+            return Ok(context[self.ADAPTED_VALUE_KEY])
 
         if isinstance(self.event, UpdateType):
             if update.update_type != self.event:

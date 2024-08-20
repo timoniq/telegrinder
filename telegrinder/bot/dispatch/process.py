@@ -20,7 +20,7 @@ if typing.TYPE_CHECKING:
 Event = typing.TypeVar("Event", bound=Model)
 
 
-async def inner_process(
+async def process_inner(
     api: API,
     event: Event,
     raw_event: Update,
@@ -66,8 +66,8 @@ async def inner_process(
         await session.close(scopes=(NodeScope.PER_EVENT,))
 
     logger.debug(
-        "Inner process {} handlers, returns {!r}",
-        "no matches" if not found else "matches",
+        "{} handlers, returns {!r}",
+        "No found" if not found else "Found",
         found,
     )
     return found
@@ -129,4 +129,4 @@ async def check_rule(
     return result
 
 
-__all__ = ("check_rule", "inner_process")
+__all__ = ("check_rule", "process_inner")

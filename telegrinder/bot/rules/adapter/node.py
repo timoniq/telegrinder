@@ -16,8 +16,6 @@ Ts = typing.TypeVarTuple("Ts", default=typing.Unpack[tuple[type["Node"], ...]])
 
 
 class NodeAdapter(typing.Generic[*Ts], ABCAdapter[Update, Event[tuple[*Ts]]]):
-    ADAPTED_VALUE_KEY: str = "_adapted_update_cute"
-
     def __init__(self, *nodes: *Ts) -> None:
         self.nodes = nodes
 
