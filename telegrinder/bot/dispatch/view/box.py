@@ -10,7 +10,7 @@ from telegrinder.bot.dispatch.view import (
     message,
     raw,
 )
-from telegrinder.bot.dispatch.view.abc import ABCView
+from telegrinder.bot.dispatch.view.abc import ABCEventRawView, ABCView
 from telegrinder.types.enums import UpdateType
 
 CallbackQueryView = typing.TypeVar(
@@ -22,7 +22,7 @@ ChatJoinRequestView = typing.TypeVar(
 ChatMemberView = typing.TypeVar("ChatMemberView", bound=ABCView, default=chat_member.ChatMemberView)
 InlineQueryView = typing.TypeVar("InlineQueryView", bound=ABCView, default=inline_query.InlineQueryView)
 MessageView = typing.TypeVar("MessageView", bound=ABCView, default=message.MessageView)
-RawEventView = typing.TypeVar("RawEventView", bound=ABCView, default=raw.RawEventView)
+RawEventView = typing.TypeVar("RawEventView", bound=ABCEventRawView, default=raw.RawEventView)
 
 
 @dataclasses.dataclass(kw_only=True)

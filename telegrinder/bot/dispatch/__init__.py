@@ -3,7 +3,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.dispatch import Dispatch, TelegrinderContext
 from telegrinder.bot.dispatch.handler import ABCHandler, FuncHandler, MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
-from telegrinder.bot.dispatch.process import check_rule, process_inner
+from telegrinder.bot.dispatch.process import check_rule, inner_process
 from telegrinder.bot.dispatch.return_manager import (
     ABCReturnManager,
     BaseReturnManager,
@@ -57,7 +57,7 @@ __all__ = (
     "ViewBox",
     "WaiterMachine",
     "check_rule",
-    "process_inner",
+    "inner_process",
     "register_manager",
     "clear_wm_storage_worker",
 )

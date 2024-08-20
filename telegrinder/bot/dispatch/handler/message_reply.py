@@ -1,14 +1,13 @@
 import typing
 
-from telegrinder.api import API
-from telegrinder.bot.cute_types import MessageCute
+from telegrinder.api.api import API
+from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.modules import logger
 from telegrinder.types.objects import ReplyParameters, Update
-
-from .abc import ABCHandler
 
 
 class MessageReplyHandler(ABCHandler[MessageCute]):

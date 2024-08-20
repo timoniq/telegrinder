@@ -42,6 +42,7 @@ async def compose_nodes(
     ctx: Context,
     data: dict[type, typing.Any] | None = None,
 ) -> Result["NodeCollection", ComposeError]:
+    logger.debug("Composing nodes: {!r}...", nodes)
 
     parent_nodes: dict[type[Node], NodeSession] = {}
     event_nodes: dict[type[Node], "NodeSession"] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
@@ -53,12 +54,9 @@ async def compose_nodes(
     for node_t in nodes.values():
         calculation_nodes.append(get_node_calc_lst(node_t))
 
-    # calculation_nodes = list(OrderedDict.fromkeys(calculation_nodes))
-
     for linked_nodes in calculation_nodes:
         local_nodes: dict[type[Node], "NodeSession"] = {}
         for node_t in linked_nodes:
-
             scope = getattr(node_t, "scope", None)
 
             if scope is NodeScope.PER_EVENT and node_t in event_nodes:
@@ -75,15 +73,11 @@ async def compose_nodes(
             }
 
             try:
-
                 local_nodes[node_t] = await compose_node(node_t, subnodes | data)
-
             except ComposeError as exc:
-
                 for t, local_node in local_nodes.items():
                     if t.scope is NodeScope.PER_CALL:
                         await local_node.close()
-
                 return Error(ComposeError(f"Cannot compose {node_t}. Error: {exc}"))
 
             if scope is NodeScope.PER_EVENT:
@@ -96,7 +90,6 @@ async def compose_nodes(
         parent_nodes[parent_node_t] = local_nodes[parent_node_t]
 
     node_sessions = {k: parent_nodes[t] for k, t in nodes.items()}
-
     return Ok(NodeCollection(node_sessions))
 
 
@@ -124,6 +117,7 @@ class NodeSession:
         if self.generator is None:
             return
         try:
+            logger.debug("Closing session for node {!r}...", self.node_type)
             await self.generator.asend(with_value)
         except StopAsyncIteration:
             self.generator = None
@@ -180,7 +174,7 @@ class Composition:
             case Ok(col):
                 return col
             case Error(err):
-                logger.info(f"Composition failed. {err!r}")
+                logger.debug(f"Composition failed with error: {err!r}")
                 return None
 
     async def __call__(self, **kwargs: typing.Any) -> typing.Any:

@@ -60,6 +60,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         if self.update_type is not None and self.update_type != event.update_type:
             return False
 
+        logger.debug("Checking handler {!r}...", self)
         ctx = Context(raw_update=event) if ctx is None else ctx
         temp_ctx = ctx.copy()
         temp_ctx |= self.preset_context
@@ -73,8 +74,8 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
             if not result:
                 logger.debug(f"Cannot compose nodes for handler. {result.error}")
                 return False
-            node_col = result.value
 
+            node_col = result.value
             temp_ctx |= node_col.values
 
             if EVENT_NODE_KEY in ctx:

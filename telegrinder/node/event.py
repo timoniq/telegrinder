@@ -53,7 +53,7 @@ else:
                 ctx[EVENT_NODE_KEY] = cls
                 return dataclass
             except Exception as exc:
-                raise ComposeError(f"Cannot parse update into {cls.dataclass.__name__!r}. {exc}")
+                raise ComposeError(f"Cannot parse update into {cls.dataclass.__name__!r}, error: {exc}")
 
 
 __all__ = ("EventNode",)

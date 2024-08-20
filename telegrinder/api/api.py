@@ -6,11 +6,10 @@ from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
+from telegrinder.api.token import Token
 from telegrinder.client import ABCClient, AiohttpClient
 from telegrinder.model import DataConverter, decoder
 from telegrinder.types.methods import APIMethods
-
-from .token import Token
 
 
 def compose_data(

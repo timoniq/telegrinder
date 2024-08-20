@@ -7,7 +7,7 @@ from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
 from telegrinder.rules import FuzzyText, HasText, Markup, Text
-from telegrinder.types import InputFile
+from telegrinder.types.objects import InputFile
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -29,7 +29,7 @@ async def start(message: Message):
         message,
         Text(["fine", "bad"], ignore_case=True),
         exit=MessageReplyHandler("Oh, ok, exiting state...", Text("/exit")),
-        default=MessageReplyHandler("Fine or bad"),
+        default=MessageReplyHandler("Fine or bad", as_reply=True),
     )
 
     match m.text.unwrap().lower():

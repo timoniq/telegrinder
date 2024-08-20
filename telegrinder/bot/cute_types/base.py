@@ -60,25 +60,6 @@ else:
     from telegrinder.msgspec_utils import Option, decoder
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
 
-    _DEFAULT_API_CLASS = API
-
-    def _get_ctx_api_class(cute_class):
-        if hasattr(cute_class, "__ctx_api_class__"):
-            return cute_class.__ctx_api_class__
-
-        ctx_api_class = _DEFAULT_API_CLASS
-        for base in cute_class.__dict__.get("__orig_bases__", ()):
-            if ctx_api_class is not _DEFAULT_API_CLASS:
-                break
-            if issubclass(typing.get_origin(base) or base, BaseCute):
-                for generic_type in typing.get_args(base):
-                    if issubclass(typing.get_origin(generic_type) or generic_type, API):
-                        ctx_api_class = generic_type
-                        break
-
-        cute_class.__ctx_api_class__ = ctx_api_class
-        return ctx_api_class
-
     def _get_cute_from_args(args):
         for hint in args:
             if not isinstance(hint, type):
@@ -148,11 +129,6 @@ else:
 
         @property
         def ctx_api(self):
-            ctx_api_class = _get_ctx_api_class(self.__class__)
-            assert isinstance(
-                self.api,
-                ctx_api_class,
-            ), f"Bound API of type {self.api.__class__.__name__!r} is incompatible with {ctx_api_class.__name__!r}."
             return self.api
 
         def to_dict(self, *, exclude_fields=None):

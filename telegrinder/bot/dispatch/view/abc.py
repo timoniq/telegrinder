@@ -9,7 +9,7 @@ from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
-from telegrinder.bot.dispatch.process import process_inner
+from telegrinder.bot.dispatch.process import inner_process
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.model import Model
@@ -42,6 +42,10 @@ class ABCView(ABC):
     @abstractmethod
     def load(self, external: typing.Self) -> None:
         pass
+
+
+class ABCEventRawView(ABCView, ABC, typing.Generic[Event]):
+    handlers: list[ABCHandler[Event]]
 
 
 class ABCStateView(ABCView, typing.Generic[Event]):
@@ -185,7 +189,7 @@ class BaseView(ABCView, typing.Generic[Event]):
                 return False
 
     async def process(self, event: Update, api: API) -> bool:
-        return await process_inner(
+        return await inner_process(
             api,
             self.get_event_type.unwrap().from_update(
                 update=self.get_raw_event(event).unwrap(),
@@ -211,6 +215,7 @@ class BaseStateView(ABCStateView[Event], BaseView[Event], ABC, typing.Generic[Ev
 
 __all__ = (
     "ABCStateView",
+    "ABCEventRawView",
     "ABCView",
     "BaseStateView",
     "BaseView",
