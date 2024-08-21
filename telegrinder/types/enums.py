@@ -443,6 +443,7 @@ class ChatType(str, enum.Enum):
     GROUP = "group"
     SUPERGROUP = "supergroup"
     CHANNEL = "channel"
+    SENDER = "sender"
 
 
 class ChatMemberStatus(str, enum.Enum):

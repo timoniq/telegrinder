@@ -10,7 +10,7 @@ from telegrinder.types import (
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logger.set_level("INFO")
+logger.set_level("DEBUG")
 
 
 @bot.on.inline_query(InlineQueryText("test"))
@@ -34,7 +34,7 @@ async def reverse_inline(q: InlineQuery):
             "article",
             "1",
             "Send reversed",
-            Variative(InputTextMessageContent(message_text="I tested inline query")),  # type: ignore
+            Variative(InputTextMessageContent(message_text=q.query[::-1])),  # type: ignore
         ),
     )
 

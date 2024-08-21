@@ -53,8 +53,10 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
                     AdapterError(f"Update is not an {self.event!r}."),
                 )
 
+            event = event.unwrap()
+
             if type(event) is self.cute_model:
-                adapted = Ok(event)  # type: ignore
+                adapted = event
             else:
                 adapted = self.cute_model.from_update(event, bound_api=api)
         else:
