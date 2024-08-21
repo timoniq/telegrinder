@@ -40,7 +40,7 @@ async def start_handler(m: Message):
 
 
 @bot.on.message(HasNicePhoto())
-async def nice_photo_handler(m: Message):
+async def dad_photo_handler(m: Message):
     await m.reply("Wow this photo is really nice")
 
 

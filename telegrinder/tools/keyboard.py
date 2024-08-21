@@ -94,7 +94,7 @@ class Keyboard(ABCMarkup[Button], KeyboardModel):
         self.keyboard = [row for row in self.keyboard if row]
         return {
             k: v.unwrap() if v and isinstance(v, Some) else v
-            for k, v in self.__dict__.items()
+            for k, v in dataclasses.asdict(self).items()
             if type(v) not in (NoneType, Nothing)
         }
 

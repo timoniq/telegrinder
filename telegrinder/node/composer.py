@@ -2,6 +2,7 @@ import dataclasses
 import typing
 
 from fntypes import Error, Ok, Result
+from fntypes.error import UnwrapError
 
 from telegrinder.api import API
 from telegrinder.bot.cute_types.update import Update, UpdateCute
@@ -74,7 +75,7 @@ async def compose_nodes(
 
             try:
                 local_nodes[node_t] = await compose_node(node_t, subnodes | data)
-            except ComposeError as exc:
+            except (ComposeError, UnwrapError) as exc:
                 for t, local_node in local_nodes.items():
                     if t.scope is NodeScope.PER_CALL:
                         await local_node.close()
@@ -174,7 +175,7 @@ class Composition:
             case Ok(col):
                 return col
             case Error(err):
-                logger.debug(f"Composition failed with error: {err!r}")
+                logger.debug(f"Composition failed with error: {err}")
                 return None
 
     async def __call__(self, **kwargs: typing.Any) -> typing.Any:

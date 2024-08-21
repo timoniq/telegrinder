@@ -58,6 +58,11 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     return validated_params
 
 
+def encode_name(name: str) -> str:
+    # TODO
+    return MODEL_CONFIG.get("rename", {}).get(name, name)
+
+
 class Model(msgspec.Struct, **MODEL_CONFIG):
     @classmethod
     def from_data(cls, data: dict[str, typing.Any]) -> typing.Self:

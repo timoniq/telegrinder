@@ -88,11 +88,14 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
                 logger.debug("Rule {!r} failed!", rule)
                 return False
 
+        logger.debug("All checks passed for handler.")
+
         temp_ctx["node_col"] = node_col
         ctx |= temp_ctx
         return True
 
     async def run(self, api: API, event: Event, ctx: Context) -> typing.Any:
+        logger.debug(f"Running func handler {self.func}")
         dataclass_type = typing.get_origin(self.dataclass) or self.dataclass
 
         if dataclass_type is Update and (event_node := ctx.pop(EVENT_NODE_KEY, None)) is not None:

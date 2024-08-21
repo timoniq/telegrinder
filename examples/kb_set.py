@@ -36,6 +36,7 @@ class KeyboardSet(KeyboardSetYAML):
     KEYBOARD_MENU: Keyboard
     KEYBOARD_YES_NO: Keyboard
     KEYBOARD_ITEMS: InlineKeyboard
+    KEYBOARD_EDIT: InlineKeyboard
 
 
 @bot.on.message(Text("/menu"))
@@ -61,10 +62,10 @@ async def choose_handler(m: Message):
     if answer.text.unwrap().lower() == "yes":
         await answer.reply("Rockets have been launched.")
     else:
-        await answer.reply(":(( maybe you need some psychological help")
+        await answer.reply(":(( maybe you need some psychological help", reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup())
 
 
-@bot.on.message(Text(["/choose", "choose"]))
+@bot.on.message(Text(["/items", "Items"]))
 async def choose_item_handler(m: Message):
     await m.answer(
         text="You can choose the inline button below:",
@@ -72,12 +73,12 @@ async def choose_item_handler(m: Message):
     )
 
 
-@bot.on.callback_query(CallbackDataEq("remove_kb"))
+@bot.on.callback_query(CallbackDataEq("edit"))
 async def edit_callback_handler(cb: CallbackQuery):
     await cb.answer("Yay")
     chars = list(cb.message.unwrap().only().unwrap().text.unwrap())
     random.shuffle(chars)
-    await cb.edit_text("".join(chars))
+    await cb.edit_text("".join(chars), reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup())
 
 
 @bot.on.callback_query(CallbackDataJsonModel(Item))

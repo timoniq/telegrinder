@@ -9,9 +9,10 @@ bot = Telegrinder(API(Token.from_env()))
 async def forward_message(message: Message) -> str:
     result = (await message.forward(message.chat_id)).unwrap()
     forward_origin = result.forward_origin.unwrap().v
-    text_response = "Forwarded message that was sent on {!r} from {}: {!r}".format(
+    text_response = "Forwarded message that was sent on {} from {}: {}".format(
         forward_origin.date.ctime(),
         forward_origin.type,
+        "{!r}"
     )
 
     match forward_origin.type:

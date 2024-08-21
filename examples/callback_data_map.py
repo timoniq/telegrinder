@@ -7,7 +7,7 @@ kb = (
     InlineKeyboard()
     .add(InlineButton("Apple", callback_data={"item": "apple", "cost": 5}))
     .add(InlineButton("Banana", callback_data={"item": "banana", "cost": 15}))
-    .add(InlineButton("Pineapple", callback_data={"item": b"pineapple", "cost": 30}))
+    .add(InlineButton("Pineapple", callback_data={"item": "pineapple", "cost": 30}))
 ).get_markup()
 
 
