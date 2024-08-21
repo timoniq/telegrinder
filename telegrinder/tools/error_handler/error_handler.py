@@ -3,7 +3,7 @@ import typing
 
 from fntypes.result import Error, Ok, Result
 
-from telegrinder.api import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 from telegrinder.tools.magic import magic_bundle
@@ -39,7 +39,7 @@ class Catcher(typing.Generic[EventT]):
         self,
         handler: Handler[EventT],
         event: EventT,
-        api: ABCAPI,
+        api: API,
         ctx: Context,
     ) -> Result[typing.Any, BaseException]:
         try:
@@ -49,7 +49,7 @@ class Catcher(typing.Generic[EventT]):
 
     async def process_exception(
         self,
-        api: ABCAPI,
+        api: API,
         event: EventT,
         ctx: Context,
         exception: BaseException,
@@ -125,7 +125,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         self,
         handler: Handler[EventT],
         event: EventT,
-        api: ABCAPI,
+        api: API,
         ctx: Context,
     ) -> Result[typing.Any, BaseException]:
         assert self.catcher is not None
@@ -159,7 +159,7 @@ class ErrorHandler(ABCErrorHandler[EventT]):
         self,
         handler: Handler[EventT],
         event: EventT,
-        api: ABCAPI,
+        api: API,
         ctx: Context,
     ) -> Result[typing.Any, BaseException]:
         if not self.catcher:

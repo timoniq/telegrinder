@@ -4,7 +4,7 @@ import msgspec
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.msgspec_utils import DataclassInstance
-from telegrinder.node.base import BaseNode, ComposeError, DataNode
+from telegrinder.node.base import ComposeError, DataNode, Node
 from telegrinder.node.update import UpdateNode
 
 if typing.TYPE_CHECKING:
@@ -21,7 +21,7 @@ if typing.TYPE_CHECKING:
 else:
     from telegrinder.msgspec_utils import decoder
 
-    class EventNode(BaseNode):
+    class EventNode(Node):
         dataclass: type["DataclassType"]
 
         def __new__(cls, dataclass: type["DataclassType"], /) -> type[typing.Self]:
@@ -52,8 +52,8 @@ else:
 
                 ctx[EVENT_NODE_KEY] = cls
                 return dataclass
-            except Exception:
-                raise ComposeError(f"Cannot parse update to {cls.dataclass.__name__!r}.")
+            except Exception as exc:
+                raise ComposeError(f"Cannot parse update into {cls.dataclass.__name__!r}, error: {exc}")
 
 
 __all__ = ("EventNode",)

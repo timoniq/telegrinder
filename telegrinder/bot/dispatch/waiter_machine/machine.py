@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import typing
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.view.abc import ABCStateView, BaseStateView
 from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
@@ -71,7 +71,7 @@ class WaiterMachine:
     async def wait(
         self,
         state_view: "BaseStateView[EventModel]",
-        linked: EventModel | tuple[ABCAPI, Identificator],
+        linked: EventModel | tuple[API, Identificator],
         *rules: ABCRule,
         default: Behaviour[EventModel] | None = None,
         on_drop: Behaviour[EventModel] | None = None,
@@ -81,7 +81,7 @@ class WaiterMachine:
         if isinstance(expiration, int | float):
             expiration = datetime.timedelta(seconds=expiration)
 
-        api: ABCAPI
+        api: API
         key: Identificator
         api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
         if not key:

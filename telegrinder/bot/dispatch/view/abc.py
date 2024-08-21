@@ -4,7 +4,7 @@ from functools import cached_property
 
 from fntypes.co import Nothing, Some
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import FuncHandler
@@ -29,19 +29,23 @@ FuncType: typing.TypeAlias = typing.Callable[
 
 class ABCView(ABC):
     def __repr__(self) -> str:
-        return "<{!r}>".format(self.__class__.__name__)
+        return "<{}>".format(self.__class__.__name__)
 
     @abstractmethod
     async def check(self, event: Update) -> bool:
         pass
 
     @abstractmethod
-    async def process(self, event: Update, api: ABCAPI) -> bool:
+    async def process(self, event: Update, api: API) -> bool:
         pass
 
     @abstractmethod
     def load(self, external: typing.Self) -> None:
         pass
+
+
+class ABCEventRawView(ABCView, ABC, typing.Generic[Event]):
+    handlers: list[ABCHandler[Event]]
 
 
 class ABCStateView(ABCView, typing.Generic[Event]):
@@ -184,7 +188,7 @@ class BaseView(ABCView, typing.Generic[Event]):
             case _:
                 return False
 
-    async def process(self, event: Update, api: ABCAPI) -> bool:
+    async def process(self, event: Update, api: API) -> bool:
         return await process_inner(
             api,
             self.get_event_type.unwrap().from_update(
@@ -211,6 +215,7 @@ class BaseStateView(ABCStateView[Event], BaseView[Event], ABC, typing.Generic[Ev
 
 __all__ = (
     "ABCStateView",
+    "ABCEventRawView",
     "ABCView",
     "BaseStateView",
     "BaseView",

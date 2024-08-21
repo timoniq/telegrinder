@@ -3,14 +3,14 @@ import typing
 from fntypes.co import Error, Ok, Result
 
 from telegrinder import Dispatch, LoopWrapper, Message, Polling
-from telegrinder.api import ABCAPI, API, Token
+from telegrinder.api import API, Token
 from telegrinder.api.error import APIError
 from telegrinder.rules import Command
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import User
 
 
-class DummyAPI(API, ABCAPI):
+class DummyAPI(API):
     _cached_me: User | None = None
 
     async def get_me(self, **other: typing.Any) -> Result[User, APIError]:

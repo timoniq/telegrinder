@@ -168,7 +168,7 @@ class DataConverter:
         data: Model,
         serialize: bool = True,
     ) -> str | dict[str, typing.Any]:
-        converted_dct = self(data.to_full_dict(), serialize=False)
+        converted_dct = self(data.to_dict(), serialize=False)
         return encoder.encode(converted_dct) if serialize is True else converted_dct
 
     def convert_dct(

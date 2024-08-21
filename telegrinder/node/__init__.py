@@ -1,5 +1,5 @@
 from .attachment import Attachment, Audio, Photo, Video
-from .base import BaseNode, ComposeError, DataNode, Node, ScalarNode, is_node, node_impl
+from .base import ComposeError, DataNode, Node, ScalarNode, is_node
 from .callback_query import CallbackQueryNode
 from .command import CommandInfo
 from .composer import Composition, NodeCollection, NodeSession, compose_node, compose_nodes
@@ -18,7 +18,6 @@ from .update import UpdateNode
 __all__ = (
     "Attachment",
     "Audio",
-    "BaseNode",
     "CallbackQueryNode",
     "ChatSource",
     "CommandInfo",
@@ -52,7 +51,6 @@ __all__ = (
     "global_node",
     "impl",
     "is_node",
-    "node_impl",
     "per_call",
     "per_event",
 )

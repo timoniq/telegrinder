@@ -2,7 +2,7 @@
 
 API instance is used to make telegram bot api requests.
 
-It is derived from ABCAPI which guarantees implementation of `request` and `request_raw` methods.
+It is derived from API which guarantees implementation of `request` and `request_raw` methods.
 
 `telegrinder.API` instance is fully typed and implements all the methods provided by telegram bot api.
 

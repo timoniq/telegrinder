@@ -4,12 +4,12 @@ from functools import cached_property
 import msgspec
 from fntypes.result import Error, Ok, Result
 
+from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
+from telegrinder.api.token import Token
 from telegrinder.client import ABCClient, AiohttpClient
 from telegrinder.model import DataConverter, decoder
 from telegrinder.types.methods import APIMethods
-
-from .abc import ABCAPI, APIError, Token
 
 
 def compose_data(
@@ -24,7 +24,7 @@ def compose_data(
     )
 
 
-class API(ABCAPI, APIMethods):
+class API(APIMethods):
     """Bot API with available API methods and http client."""
 
     API_URL = "https://api.telegram.org/"

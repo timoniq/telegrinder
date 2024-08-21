@@ -15,16 +15,15 @@ if typing.TYPE_CHECKING:
     )
 
 Impl: typing.TypeAlias = type[classmethod]
-NodeImpl: typing.TypeAlias = Impl
 FuncType: typing.TypeAlias = types.FunctionType | typing.Callable[..., typing.Any]
 
 TRANSLATIONS_KEY: typing.Final[str] = "_translations"
 IMPL_MARK: typing.Final[str] = "_is_impl"
-NODE_IMPL_MARK: typing.Final[str] = "_is_node_impl"
 
 
 def cache_magic_value(mark_key: str, /):
     def inner(func: "F") -> "F":
+
         @wraps(func)
         def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
             if mark_key not in args[0].__dict__:
@@ -32,7 +31,6 @@ def cache_magic_value(mark_key: str, /):
             return args[0].__dict__[mark_key]
 
         return wrapper  # type: ignore
-
     return inner
 
 
@@ -49,9 +47,10 @@ def get_default_args(func: FuncType) -> dict[str, typing.Any]:
 
 
 def get_annotations(func: FuncType, *, return_type: bool = False) -> dict[str, typing.Any]:
+    annotations = func.__annotations__
     if not return_type and "return" in func.__annotations__:
-        del func.__annotations__["return"]
-    return func.__annotations__
+       annotations.pop("return")
+    return annotations
 
 
 def to_str(s: str | enum.Enum) -> str:
@@ -60,13 +59,64 @@ def to_str(s: str | enum.Enum) -> str:
     return s
 
 
+@typing.overload
+def magic_bundle(handler: FuncType, kw: dict[str, typing.Any]) -> dict[str, typing.Any]:
+    ...
+
+
+@typing.overload
+def magic_bundle(handler: FuncType, kw: dict[enum.Enum, typing.Any]) -> dict[str, typing.Any]:
+    ...
+
+
+@typing.overload
 def magic_bundle(
     handler: FuncType,
-    kw: dict[str | enum.Enum, typing.Any],
+    kw: dict[str, typing.Any],
     *,
     start_idx: int = 1,
     bundle_ctx: bool = True,
 ) -> dict[str, typing.Any]:
+    ...
+
+
+@typing.overload
+def magic_bundle(
+    handler: FuncType,
+    kw: dict[enum.Enum, typing.Any],
+    *,
+    start_idx: int = 1,
+    bundle_ctx: bool = True,
+) -> dict[str, typing.Any]:
+    ...
+
+
+@typing.overload
+def magic_bundle(
+    handler: FuncType,
+    kw: dict[type, typing.Any],
+    *,
+    typebundle: typing.Literal[True] = True,
+) -> dict[str, typing.Any]:
+    ...
+
+
+def magic_bundle(
+    handler: FuncType,
+    kw: dict[typing.Any, typing.Any],
+    *,
+    start_idx: int = 1,
+    bundle_ctx: bool = True,
+    typebundle: bool = False,
+) -> dict[str, typing.Any]:
+
+    if typebundle:
+        types = get_annotations(handler, return_type=False)
+        bundle: dict[str, typing.Any] = {}
+        for name, type in types.items():
+            bundle[name] = kw[type]
+        return bundle
+
     names = resolve_arg_names(handler, start_idx=start_idx)
     args = get_default_args(handler)
     args.update({to_str(k): v for k, v in kw.items() if to_str(k) in names})
@@ -85,24 +135,19 @@ def cache_translation(base_rule: "T", locale: str, translated_rule: "T") -> None
     setattr(base_rule, TRANSLATIONS_KEY, translations)
 
 
-def get_impls_by_key(cls: type["Node"], mark_key: str) -> dict[str, typing.Callable[..., typing.Any]]:
-    return {
-        name: func.__func__
-        for name, func in vars(cls).items()
-        if isinstance(func, classmethod) and getattr(func.__func__, mark_key, False)
-    }
-
-
 @typing.cast(typing.Callable[..., Impl], lambda f: f)
 def impl(method: typing.Callable[..., typing.Any]):
     setattr(method, IMPL_MARK, True)
     return classmethod(method)
 
 
-@typing.cast(typing.Callable[..., NodeImpl], lambda f: f)
-def node_impl(method: typing.Callable[..., typing.Any]):
-    setattr(method, NODE_IMPL_MARK, True)
-    return classmethod(method)
+def get_impls(cls: type["Node"]) -> list[typing.Callable[..., typing.Any]]:
+    return [
+        func.__func__
+        for func in vars(cls).values()
+        if isinstance(func, classmethod) and getattr(func.__func__, IMPL_MARK, False)
+    ]
+
 
 
 __all__ = (
@@ -114,8 +159,8 @@ __all__ = (
     "get_default_args",
     "get_default_args",
     "impl",
+    "get_impls",
     "magic_bundle",
-    "node_impl",
     "resolve_arg_names",
     "to_str",
 )

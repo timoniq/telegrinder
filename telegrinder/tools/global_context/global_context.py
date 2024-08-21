@@ -334,7 +334,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def get(self, var_name, var_value_type=object):  # type: ignore
         """Get context variable by name."""
 
-        var_value_type = typing.Any if var_value_type is object else type
+        var_value_type = typing.Any if var_value_type is object else var_value_type
         generic_types = typing.get_args(get_orig_class(self))
         if generic_types and var_value_type is object:
             var_value_type = generic_types[0]

@@ -2,7 +2,7 @@ import typing
 
 from fntypes.result import Result
 
-from telegrinder.api.abc import ABCAPI, APIError
+from telegrinder.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.model import get_params
 from telegrinder.types import (
@@ -14,7 +14,7 @@ from telegrinder.types import (
 
 
 class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
-    api: ABCAPI
+    api: API
 
     @property
     def from_user(self) -> User:

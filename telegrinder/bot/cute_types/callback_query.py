@@ -4,7 +4,7 @@ from contextlib import suppress
 import msgspec
 from fntypes.co import Nothing, Result, Some, Variative, unwrapping
 
-from telegrinder.api.abc import ABCAPI, APIError
+from telegrinder.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
 from telegrinder.model import get_params
@@ -25,7 +25,7 @@ from telegrinder.types.objects import (
 
 
 class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
-    api: ABCAPI
+    api: API
 
     message: Option[Variative[MessageCute, InaccessibleMessage]] = Nothing()
     """Optional. Message sent by the bot with the callback button that originated

@@ -4,7 +4,7 @@ import typing
 
 from fntypes.result import Result
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.model import Model
@@ -17,7 +17,7 @@ class ABCAdapter(abc.ABC, typing.Generic[From, To]):
     ADAPTED_VALUE_KEY: str | None = None
 
     @abc.abstractmethod
-    async def adapt(self, api: ABCAPI, update: From, context: Context) -> Result[To, AdapterError]:
+    async def adapt(self, api: API, update: From, context: Context) -> Result[To, AdapterError]:
         pass
 
 

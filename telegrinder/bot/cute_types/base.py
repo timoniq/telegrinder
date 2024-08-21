@@ -6,14 +6,13 @@ from functools import wraps
 import typing_extensions
 from fntypes.result import Result
 
-from telegrinder.api.abc import ABCAPI
 from telegrinder.api.api import API
 from telegrinder.model import Model, get_params
 
 F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
 Cute = typing.TypeVar("Cute", bound="BaseCute")
 Update = typing_extensions.TypeVar("Update", bound=Model)
-CtxAPI = typing_extensions.TypeVar("CtxAPI", bound=ABCAPI, default=API)
+CtxAPI = typing_extensions.TypeVar("CtxAPI", bound=API, default=API)
 
 Executor: typing.TypeAlias = typing.Callable[
     [Cute, str, dict[str, typing.Any]],
@@ -23,10 +22,10 @@ Executor: typing.TypeAlias = typing.Callable[
 if typing.TYPE_CHECKING:
 
     class BaseCute(Model, typing.Generic[Update, CtxAPI]):
-        api: ABCAPI
+        api: API
 
         @classmethod
-        def from_update(cls, update: Update, bound_api: ABCAPI) -> typing.Self: ...
+        def from_update(cls, update: Update, bound_api: API) -> typing.Self: ...
 
         @property
         def ctx_api(self) -> CtxAPI: ...
@@ -60,25 +59,6 @@ else:
 
     from telegrinder.msgspec_utils import Option, decoder
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
-
-    _DEFAULT_API_CLASS = API
-
-    def _get_ctx_api_class(cute_class):
-        if hasattr(cute_class, "__ctx_api_class__"):
-            return cute_class.__ctx_api_class__
-
-        ctx_api_class = _DEFAULT_API_CLASS
-        for base in cute_class.__dict__.get("__orig_bases__", ()):
-            if ctx_api_class is not _DEFAULT_API_CLASS:
-                break
-            if issubclass(typing.get_origin(base) or base, BaseCute):
-                for generic_type in typing.get_args(base):
-                    if issubclass(typing.get_origin(generic_type) or generic_type, ABCAPI):
-                        ctx_api_class = generic_type
-                        break
-
-        cute_class.__ctx_api_class__ = ctx_api_class
-        return ctx_api_class
 
     def _get_cute_from_args(args):
         for hint in args:
@@ -149,11 +129,6 @@ else:
 
         @property
         def ctx_api(self):
-            ctx_api_class = _get_ctx_api_class(self.__class__)
-            assert isinstance(
-                self.api,
-                ctx_api_class,
-            ), f"Bound API of type {self.api.__class__.__name__!r} is incompatible with {ctx_api_class.__name__!r}."
             return self.api
 
         def to_dict(self, *, exclude_fields=None):

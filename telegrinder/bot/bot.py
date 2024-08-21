@@ -60,7 +60,11 @@ class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
 
         async for updates in self.polling.listen():
             for update in updates:
-                logger.debug("Received update (update_id={})", update.update_id)
+                logger.debug(
+                    "Received update (update_id={}, update_type={!r})",
+                    update.update_id,
+                    update.update_type.name,
+                )
                 self.loop_wrapper.add_task(self.dispatch.feed(update, self.api))
 
     def run_forever(self, *, offset: int = 0, skip_updates: bool = False) -> None:

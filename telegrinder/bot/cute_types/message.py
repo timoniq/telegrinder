@@ -5,7 +5,7 @@ import typing
 import fntypes.option
 from fntypes.co import Result, Some, Variative
 
-from telegrinder.api.abc import ABCAPI, APIError
+from telegrinder.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import (
     compose_link_preview_options,
@@ -153,7 +153,7 @@ def get_entity_value(
 
 
 class MessageCute(BaseCute[Message], Message, kw_only=True):
-    api: ABCAPI
+    api: API
 
     reply_to_message: Option[MessageCute] = Nothing
     """Optional. For replies in the same chat and message thread, the original

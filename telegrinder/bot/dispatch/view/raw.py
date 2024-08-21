@@ -1,13 +1,14 @@
 import typing
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types import UpdateCute
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.process import process_inner
-from telegrinder.bot.dispatch.view.abc import BaseView, ErrorHandlerT
+from telegrinder.bot.dispatch.view.abc import ABCEventRawView, BaseView, ErrorHandlerT
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, ErrorHandler
-from telegrinder.types import Update, UpdateType
+from telegrinder.types.enums import UpdateType
+from telegrinder.types.objects import Update
 
 T = typing.TypeVar("T")
 
@@ -17,7 +18,7 @@ FuncType: typing.TypeAlias = typing.Callable[
 ]
 
 
-class RawEventView(BaseView[UpdateCute]):
+class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
     def __init__(self) -> None:
         self.auto_rules = []
         self.handlers = []
@@ -87,7 +88,7 @@ class RawEventView(BaseView[UpdateCute]):
         def wrapper(func: FuncType[typing.Any]):
             func_handler = FuncHandler(
                 func,
-                [*self.auto_rules, *rules],
+                rules=[*self.auto_rules, *rules],
                 is_blocking=is_blocking,
                 dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),
@@ -99,11 +100,9 @@ class RawEventView(BaseView[UpdateCute]):
         return wrapper
 
     async def check(self, event: Update) -> bool:
-        return False
+        return bool(self.handlers) or bool(self.middlewares)
 
-    async def process(self, event: Update, api: ABCAPI) -> bool:
-        if not self.handlers or not self.middlewares:
-            return False
+    async def process(self, event: Update, api: API) -> bool:
         return await process_inner(
             api,
             UpdateCute.from_update(event, bound_api=api),

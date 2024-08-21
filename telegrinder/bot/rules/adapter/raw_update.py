@@ -1,6 +1,6 @@
 from fntypes.result import Ok, Result
 
-from telegrinder.api.abc import ABCAPI
+from telegrinder.api import API
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter.abc import ABCAdapter
@@ -16,7 +16,7 @@ class RawUpdateAdapter(ABCAdapter[Update, UpdateCute]):
 
     async def adapt(
         self,
-        api: ABCAPI,
+        api: API,
         update: Update,
         context: Context,
     ) -> Result[UpdateCute, AdapterError]:
