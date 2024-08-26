@@ -135,12 +135,18 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
 
 
 class CallbackDataJsonModel(CallbackQueryDataRule):
-    def __init__(self, model: type[msgspec.Struct] | type[DataclassInstance], /) -> None:
+    def __init__(
+        self,
+        model: type[msgspec.Struct] | type[DataclassInstance],
+        *,
+        alias: str | None = None,
+    ) -> None:
         self.model = model
+        self.alias = alias or "data"
 
     async def check(self, event: CallbackQuery, ctx: Context) -> bool:
         with suppress(BaseException):
-            ctx.data = decoder.decode(event.data.unwrap().encode(), type=self.model)
+            ctx.set(self.alias, decoder.decode(event.data.unwrap().encode(), type=self.model))
             return True
         return False
 

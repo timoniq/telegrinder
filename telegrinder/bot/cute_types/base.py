@@ -55,22 +55,21 @@ if typing.TYPE_CHECKING:
             ...
 
 else:
-    from fntypes.co import Some, Variative
+    from fntypes.co import Nothing, Some, Variative
 
     from telegrinder.msgspec_utils import Option, decoder
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
 
-    def _get_cute_from_args(args):
-        for hint in args:
-            if not isinstance(hint, type):
-                hint = typing.get_origin(hint) or hint
-                if not isinstance(hint, type):
-                    continue
+    def _get_cute_from_generic(generic_args):
+        for arg in generic_args:
+            orig_arg = typing.get_origin(arg) or arg
 
-            if hint in (Variative, Some, Option):
-                return _get_cute_from_args(typing.get_args(hint))
-            if issubclass(hint, BaseCute):
-                return hint
+            if not isinstance(orig_arg, type):
+                continue
+            if orig_arg in (Variative, Some, Option):
+                return _get_cute_from_generic(typing.get_args(arg))
+            if issubclass(arg, BaseCute):
+                return arg
 
         return None
 
@@ -79,8 +78,8 @@ else:
 
         for key, hint in annotations.items():
             if not isinstance(hint, type):
-                if (val := _get_cute_from_args(typing.get_args(hint))) is not None:
-                    cute_annotations[key] = val
+                if (cute := _get_cute_from_generic(typing.get_args(hint))) is not None:
+                    cute_annotations[key] = cute
 
             elif issubclass(hint, BaseCute):
                 cute_annotations[key] = hint
@@ -120,7 +119,7 @@ else:
                         cls.__cute_annotations__[field].from_update(_get_value(value), bound_api=bound_api),
                         type=cls.__annotations__[field],
                     )
-                    if field in cls.__cute_annotations__ and value
+                    if field in cls.__cute_annotations__ and not isinstance(value, Nothing)
                     else value
                     for field, value in update.to_dict().items()
                 },

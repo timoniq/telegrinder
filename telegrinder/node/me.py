@@ -1,8 +1,7 @@
 from telegrinder.api.api import API
-from telegrinder.types import User
-
-from .base import ComposeError, ScalarNode
-from .scope import GLOBAL
+from telegrinder.node.base import ComposeError, ScalarNode
+from telegrinder.node.scope import GLOBAL
+from telegrinder.types.objects import User
 
 
 class Me(ScalarNode, User):

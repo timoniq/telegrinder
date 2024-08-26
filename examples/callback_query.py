@@ -22,10 +22,10 @@ bot = Telegrinder(api)
 logger.set_level("INFO")
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True, frozen=True)
 class Item:
     name: str
-    cost: int = dataclasses.field(default=0, kw_only=True)
+    amount: int = dataclasses.field(default=0, kw_only=True)
 
 
 kb = (
@@ -35,8 +35,8 @@ kb = (
     .add(InlineButton("One", callback_data="number/1"))
     .add(InlineButton("Two", callback_data="number/2"))
     .row()
-    .add(InlineButton("🍎", callback_data=Item("apple", cost=10)))
-    .add(InlineButton("🍌", callback_data=Item("banana", cost=20)))
+    .add(InlineButton("🍎", callback_data=Item("apple", amount=10)))
+    .add(InlineButton("🍌", callback_data=Item("banana", amount=20)))
     .row()
     .add(InlineButton("Won't respond", callback_data="number/foobar"))
 ).get_markup()
@@ -59,9 +59,9 @@ async def callback_number_handler(cb: CallbackQuery, n: int):
     await cb.answer("{0} + (7 * 6) - {0} = 42🤯🤯🤯".format(n))
 
 
-@bot.on.callback_query(CallbackDataJsonModel(Item))
-async def select_item(cb: CallbackQuery, data: Item):
-    await cb.answer(f"You ate a {data.name} for {data.cost} cents 😋")
+@bot.on.callback_query(CallbackDataJsonModel(Item, alias="item"))
+async def select_item(cb: CallbackQuery, item: Item):
+    await cb.answer(f"You ate an {item.name} for {item.amount} cents 😋")
 
 
 bot.run_forever()

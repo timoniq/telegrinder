@@ -46,7 +46,7 @@ async def compose_nodes(
     logger.debug("Composing nodes: {!r}...", nodes)
 
     parent_nodes: dict[type[Node], NodeSession] = {}
-    event_nodes: dict[type[Node], "NodeSession"] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
+    event_nodes: dict[type[Node], NodeSession] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
     data = {Context: ctx} | (data or {})
 
     # Create flattened list of ordered nodes to be calculated

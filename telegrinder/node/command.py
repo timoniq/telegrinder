@@ -1,10 +1,10 @@
 import typing
 from dataclasses import dataclass, field
 
-from fntypes import Nothing, Option, Some
+from fntypes.option import Nothing, Option, Some
 
-from .base import DataNode
-from .text import Text
+from telegrinder.node.base import DataNode
+from telegrinder.node.text import Text
 
 
 def single_split(s: str, separator: str) -> tuple[str, str]:

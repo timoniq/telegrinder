@@ -22,12 +22,12 @@ class Polymorphic(Node):
             composition = Composition(impl, True)
             node_collection = await composition.compose_nodes(update, context)
             if node_collection is None:
-                logger.debug("Impl {} composition failed", impl.__name__)
+                logger.debug("Impl {!r} composition failed", impl.__name__)
                 continue
 
             # To determine whether this is a right morph, all subnodes must be resolved
             if scope is NodeScope.PER_EVENT and (cls, i) in node_ctx:
-                logger.debug("Morph is already cached as per_event node, using its value. Impl {} succeeded", impl.__name__)
+                logger.debug("Morph is already cached as per_event node, using its value. Impl {!r} succeeded", impl.__name__)
                 res: NodeSession = node_ctx[(cls, i)]
                 await node_collection.close_all()
                 return res.value
@@ -40,7 +40,7 @@ class Polymorphic(Node):
                 node_ctx[(cls, i)] = NodeSession(cls, result, {})
 
             await node_collection.close_all(with_value=result)
-            logger.debug("Impl {} succeeded with value {}", impl.__name__, result)
+            logger.debug("Impl {!r} succeeded with value {}", impl.__name__, result)
             return result
 
         raise ComposeError("No implementation found.")

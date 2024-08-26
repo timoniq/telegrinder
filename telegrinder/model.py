@@ -16,10 +16,17 @@ if typing.TYPE_CHECKING:
 
 T = typing.TypeVar("T")
 
+
+def rename_field(name: str) -> str:
+    if name.endswith("_") and name.removesuffix("_") in keyword.kwlist:
+        return name.removesuffix("_")
+    return name if not keyword.iskeyword(name) else name + "_"
+
+
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "omit_defaults": True,
     "dict": True,
-    "rename": {kw + "_": kw for kw in keyword.kwlist},
+    "rename": rename_field,
 }
 
 
@@ -56,11 +63,6 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
             continue
         validated_params[k] = v.unwrap() if isinstance(v, Some) else v
     return validated_params
-
-
-def encode_name(name: str) -> str:
-    # TODO
-    return MODEL_CONFIG.get("rename", {}).get(name, name)
 
 
 class Model(msgspec.Struct, **MODEL_CONFIG):

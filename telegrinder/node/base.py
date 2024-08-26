@@ -33,7 +33,9 @@ def is_generator(function: typing.Callable[..., typing.Any]) -> typing.TypeGuard
 
 
 def get_node_calc_lst(node: type["Node"]) -> list[type["Node"]]:
-    """ Returns flattened list of node types in ordering required to calculate given node. Provides caching for passed node type """
+    """Returns flattened list of node types in ordering required to calculate given node.
+    Provides caching for passed node type"""
+
     if calc_lst := getattr(node, "__nodes_calc_lst__", None):
         return calc_lst
     nodes_lst: list[type["Node"]] = []
@@ -101,6 +103,10 @@ if typing.TYPE_CHECKING:
         pass
 
 else:
+    def __init_subclass__(cls, *args, **kwargs):  # noqa: N807
+        if any(issubclass(base, ScalarNode) for base in cls.__bases__ if base is not ScalarNode):
+            raise RuntimeError("Scalar nodes do not support inheritance.")
+
     def create_node(cls, bases, dct):
         dct.update(cls.__dict__)
         return type(cls.__name__, bases, dct)
@@ -112,6 +118,7 @@ else:
             {
                 "as_node": classmethod(lambda cls: create_node(cls, bases, dct)),
                 "scope": Node.scope,
+                "__init_subclass__": __init_subclass__,
             },
         )
 
