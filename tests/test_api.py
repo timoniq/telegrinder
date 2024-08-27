@@ -6,7 +6,8 @@ from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
 from telegrinder.msgspec_utils import decoder
 from telegrinder.types.objects import User
-from tests.test_utils import with_mocked_api
+
+from .test_utils import with_mocked_api
 
 API_ERROR_RESPONSE = {
   "ok": False,

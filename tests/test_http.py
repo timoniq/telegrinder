@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-from tests.test_utils import MockedHttpClient
+from .test_utils import MockedHttpClient
 
 RESPONSE_KITTEN_BYTES = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
 RESPONSE_JSON = {

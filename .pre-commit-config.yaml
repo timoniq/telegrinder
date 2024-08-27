@@ -21,6 +21,13 @@ repos:
         types: [ python ]
         stages: [ commit ]
 
+      - id: pytest
+        name: run tests
+        entry: poetry run pytest --cov
+        language: system
+        types: [ python ]
+        stages: [ commit ]
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.9
     hooks:

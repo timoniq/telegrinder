@@ -1,7 +1,8 @@
 import pytest
 
 from telegrinder.api.api import API, Token
-from tests.test_utils import MockedHttpClient
+
+from ..test_utils import MockedHttpClient
 
 
 @pytest.fixture()
