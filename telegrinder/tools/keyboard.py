@@ -26,6 +26,11 @@ class KeyboardModel:
     keyboard: list[list[DictStrAny]]
 
 
+
+def copy_keyboard(keyboard: list[list[DictStrAny]]) -> list[list[DictStrAny]]:
+    return [row.copy() for row in keyboard]
+
+
 class ABCMarkup(ABC, typing.Generic[ButtonT]):
     BUTTON: type[ButtonT]
     keyboard: list[list[DictStrAny]]
@@ -73,7 +78,7 @@ class ABCMarkup(ABC, typing.Generic[ButtonT]):
         return copy_keyboard
 
     def merge(self, other: typing.Self) -> typing.Self:
-        self.keyboard.extend(other.keyboard)
+        self.keyboard.extend(copy_keyboard(other.keyboard))
         return self
 
 
