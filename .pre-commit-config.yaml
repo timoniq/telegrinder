@@ -16,7 +16,7 @@ repos:
       - id: basedpyright
         name: basedpyright type checker
         description: "Run 'basedpyright' for Python type checking"
-        entry: basedpyright --level ERROR
+        entry: poetry run basedpyright --level ERROR
         language: system
         pass_filenames: false
         types: [ python ]
@@ -25,18 +25,16 @@ repos:
       - id: pytest
         name: run tests
         description: "Run tests"
-        entry: pytest
+        entry: poetry run pytest
         language: system
         pass_filenames: false
         types: [ python ]
         stages: [ commit ]
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.9
-    hooks:
       - id: ruff
         name: ruff-format
         description: "Run 'ruff format' for extremely fast Python formatting"
+        entry: poetry run ruff format
         language: system
         types: [ python ]
         stages: [ commit ]
@@ -44,7 +42,7 @@ repos:
       - id: ruff
         name: ruff-isort
         description: "Run 'ruff --select I --select F401 --fix' for extremely fast Python sorting imports"
-        entry: ruff check --select I --select F401 --fix
+        entry: poetry run ruff check --select I --select F401 --fix
         language: system
         types: [ python ]
         stages: [ commit ]
@@ -52,6 +50,7 @@ repos:
       - id: ruff
         name: ruff-check
         description: "Run 'ruff-format' for extremely fast Python linting"
+        entry: poetry run ruff check --fix
         language: system
         types: [ python ]
         stages: [ commit, push ]

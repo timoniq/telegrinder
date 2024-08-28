@@ -1,10 +1,16 @@
 name: Lint and test
 
-on: [push]
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating system"
+        required: true
+        type: string
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os }}
 
     steps:
         - uses: actions/checkout@v4
@@ -23,10 +29,10 @@ jobs:
           run: >
             poetry run ruff check --fix
 
-        - name: Run tests with pytest
-          run: >
-            poetry run pytest
-
-        - name: Static check types with basedpyright
+        - name: Check types with basedpyright
           run: >
             poetry run basedpyright --level ERROR
+
+        - name: Run tests with pytest
+          run: >
+            poetry run pytest --cov
