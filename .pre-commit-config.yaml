@@ -23,8 +23,8 @@ repos:
         stages: [ commit ]
 
       - id: pytest
-        name: pytests
-        description: "Run tests"
+        name: pytest
+        description: "Run tests for testing code"
         entry: poetry run pytest
         language: system
         pass_filenames: false
@@ -53,4 +53,4 @@ repos:
         entry: poetry run ruff check --fix
         language: system
         types: [ python ]
-        stages: [ commit, push ]
+        stages: [ commit ]
