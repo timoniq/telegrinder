@@ -14,7 +14,7 @@ repos:
   - repo: local
     hooks:
       - id: basedpyright
-        name: basedpyright type checker
+        name: basedpyright
         description: "Run 'basedpyright' for Python type checking"
         entry: poetry run basedpyright --level ERROR
         language: system
@@ -23,7 +23,7 @@ repos:
         stages: [ commit ]
 
       - id: pytest
-        name: run tests
+        name: pytests
         description: "Run tests"
         entry: poetry run pytest
         language: system
