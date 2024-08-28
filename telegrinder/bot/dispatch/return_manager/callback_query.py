@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.bot.cute_types import CallbackQueryCute
+from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.return_manager.abc import BaseReturnManager, register_manager
 

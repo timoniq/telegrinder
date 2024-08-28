@@ -10,13 +10,17 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: asottile/workflows/.github/actions/fast-checkout@v1.4.1
-
-      - name: Install poetry and dependencies
-        uses: ./.github/actions/install-dependencies
+      - uses: actions/checkout@v4
+      - name: Set up CPython 3.11
+        uses: actions/setup-python@v5
         with:
-          os: ubuntu-latest
           python-version: "3.11"
+
+      - name: Install poetry manager
+        run: pip install --upgrade pip setuptools wheel && pip install --user pipx && pipx install poetry
+
+      - name: Poetry check structure and install dependencies
+        run: poetry check && poetry install
 
       - name: Load pre-commit cache
         id: cached-pre-commit
@@ -36,18 +40,4 @@ jobs:
         if: failure()
 
   lint-and-test:
-    strategy:
-      matrix:
-        python-version:
-          - "3.11"
-        os:
-          - ubuntu-latest
-          - windows-latest
-
-    on:
-      workflow_call:
-        steps:
-        - uses: ./.github/workflows/lint-and-test.yml
-          with:
-            os: ${{ matrix.os }}
-            python-version: ${{ matrix.python-version }}
+    uses: ./.github/workflows/lint-and-test.yml

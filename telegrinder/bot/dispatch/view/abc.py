@@ -2,9 +2,9 @@ import typing
 from abc import ABC, abstractmethod
 from functools import cached_property
 
-from fntypes.co import Nothing, Some
+from fntypes.option import Nothing, Some
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import FuncHandler

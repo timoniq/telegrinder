@@ -3,7 +3,7 @@ import dataclasses
 import datetime
 import typing
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler

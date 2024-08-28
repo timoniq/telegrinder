@@ -1,13 +1,11 @@
-import typing
-
 from examples.nodes import DB, create_tables
 from telegrinder import API, Message, Telegrinder, Token, node
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
 from telegrinder.modules import logger
-from telegrinder.node import ScalarNode, UpdateNode
+from telegrinder.node import MessageNode, ScalarNode
 
-MessageId = typing.NewType("MessageId", int)
+MessageId = type("MessageId", (int,), {})
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -26,10 +24,10 @@ class IsAdmin(ABCRule):
         return bool(await result.fetchone())
 
 
-class IncomingMessageId(ScalarNode, int):
+class IncomingMessageId(ScalarNode, MessageId):
     @classmethod
-    async def compose(cls, update: UpdateNode) -> MessageId:
-        return MessageId(update.message.expect("Update is not a message.").message_id)
+    async def compose(cls, message: MessageNode) -> MessageId:
+        return MessageId(message.message_id)
 
 
 async def promote(user_id: int, *, db: DB) -> None:

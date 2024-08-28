@@ -26,7 +26,7 @@ class YesOrNo(enum.Enum):
 
 
 @bot.on.message(StartCommand())
-async def start(message: Message) -> str | None:
+async def start(message: Message) -> str:
     await message.answer("Do you want some tee?")
     _, ctx = await wm.wait(
         bot.dispatch.message,
@@ -38,12 +38,14 @@ async def start(message: Message) -> str | None:
         return "Leee thats sad dat tee is so sweet"
 
     await message.answer("Yay here is you tee with a nice krendeliok")
+
     m = (await message.answer("Preparing..")).unwrap()
     queue = itertools.cycle(["🫖🥨", "🥨🤗", "🤗🫖"])
     for _ in range(10):
         await m.edit(next(queue))
         await asyncio.sleep(0.5)
-    await message.answer("Tee session is over! Goodbye!")
+
+    return "Tee session is over! Goodbye!"
 
 
 bot.run_forever()

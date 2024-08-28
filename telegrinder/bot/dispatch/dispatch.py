@@ -3,7 +3,7 @@ import typing
 
 from vbml.patcher import Patcher
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch

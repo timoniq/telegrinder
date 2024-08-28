@@ -25,12 +25,6 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         self.view = view
 
     async def pre(self, event: EventType, ctx: Context) -> bool:
-        if not self.view or not hasattr(self.view, "get_state_key"):
-            raise RuntimeError(
-                "WaiterMiddleware cannot be used inside a view which doesn't "
-                "provide get_state_key (ABCStateView interface)."
-            )
-
         view_name = self.view.__class__.__name__
         if view_name not in self.machine.storage:
             return True

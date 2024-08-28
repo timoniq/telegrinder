@@ -1,7 +1,7 @@
 import typing
 from abc import ABC, abstractmethod
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.tools.global_context.abc import ABCGlobalContext
 from telegrinder.types.objects import Update
 

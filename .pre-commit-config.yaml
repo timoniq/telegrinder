@@ -16,15 +16,18 @@ repos:
       - id: basedpyright
         name: basedpyright type checker
         description: "Run 'basedpyright' for Python type checking"
-        entry: basedpyright . --level ERROR
+        entry: basedpyright --level ERROR
         language: system
+        pass_filenames: false
         types: [ python ]
         stages: [ commit ]
 
       - id: pytest
         name: run tests
-        entry: poetry run pytest --cov
+        description: "Run tests"
+        entry: pytest
         language: system
+        pass_filenames: false
         types: [ python ]
         stages: [ commit ]
 

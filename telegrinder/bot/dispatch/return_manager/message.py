@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.bot.cute_types import MessageCute
+from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.return_manager.abc import BaseReturnManager, register_manager
 from telegrinder.tools.formatting import HTMLFormatter

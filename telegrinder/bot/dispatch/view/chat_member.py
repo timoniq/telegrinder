@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.bot.cute_types import ChatMemberUpdatedCute
+from telegrinder.bot.cute_types.chat_member_updated import ChatMemberUpdatedCute
 from telegrinder.bot.dispatch.view.abc import BaseStateView
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update

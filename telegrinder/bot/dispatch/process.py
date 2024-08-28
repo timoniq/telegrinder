@@ -35,7 +35,7 @@ async def process_inner(
     logger.debug("Run pre middlewares...")
     for middleware in middlewares:
         middleware_result = await middleware.pre(event, ctx)
-        logger.debug("Middleware {!r} returned {!r}", middleware.__class__.__name__, middleware_result)
+        logger.debug("Middleware {!r} returned: {!r}", middleware.__class__.__name__, middleware_result)
         if middleware_result is False:
             return False
 

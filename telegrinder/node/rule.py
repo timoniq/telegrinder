@@ -37,6 +37,7 @@ class RuleChain(dict[str, typing.Any]):
 
     @classmethod
     async def compose(cls, update: UpdateNode) -> typing.Any:
+        # Hack for avoid circular import
         globalns = globals()
         if "check_rule" not in globalns:
             globalns.update(
@@ -63,7 +64,7 @@ class RuleChain(dict[str, typing.Any]):
         return cls
 
     @classmethod
-    def get_subnodes(cls) -> dict:
+    def get_subnodes(cls) -> dict[typing.Literal["update"], type[UpdateNode]]:
         return {"update": UpdateNode}
 
     @classmethod

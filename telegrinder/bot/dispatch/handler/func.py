@@ -3,7 +3,7 @@ from functools import cached_property
 
 import typing_extensions as typing
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types import BaseCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule

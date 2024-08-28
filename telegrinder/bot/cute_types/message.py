@@ -1676,14 +1676,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_media_group(
         self,
-        media: list[InputMedia | tuple[MediaType, InputFile | str]],
+        media: list[InputMedia | tuple[MediaType, str | InputFile]],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         message_effect_id: str | None = None,
-        caption: str | None = None,
-        parse_mode: str | None = None,
-        caption_entities: list[MessageEntity] | None = None,
+        caption: str | list[str] | None = None,
+        parse_mode: str | list[str] | None = None,
+        caption_entities: list[MessageEntity] | list[list[MessageEntity]] | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
@@ -1725,6 +1725,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param reply_parameters: Description of the message to reply to."""
 
         params = get_params(locals())
+        caption_entities_lst = typing.cast(
+            list[list[MessageEntity]],
+            [caption_entities]
+            if caption_entities and len(caption_entities) == 1 and not isinstance(caption_entities[0], list)
+            else caption_entities
+        )
 
         for i, m in enumerate(media[:]):
             if isinstance(m, tuple):
@@ -1732,9 +1738,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                     i,
                     input_media(  # type: ignore
                         *media.pop(i),  # type: ignore
-                        caption=caption,
-                        caption_entities=caption_entities,
-                        parse_mode=parse_mode,
+                        caption=caption if not isinstance(caption, list) else caption[i],
+                        caption_entities=caption_entities_lst[i] if caption_entities_lst else None,
+                        parse_mode=parse_mode if not isinstance(parse_mode, list) else parse_mode[i],
                     ),
                 )
 

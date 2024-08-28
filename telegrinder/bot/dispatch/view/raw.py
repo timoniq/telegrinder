@@ -1,7 +1,7 @@
 import typing
 
-from telegrinder.api import API
-from telegrinder.bot.cute_types import UpdateCute
+from telegrinder.api.api import API
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.bot.dispatch.view.abc import ABCEventRawView, BaseView, ErrorHandlerT

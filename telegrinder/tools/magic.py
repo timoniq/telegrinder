@@ -6,7 +6,7 @@ from functools import wraps
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
-    from telegrinder.node.base import Node
+    from telegrinder.node.polymorphic import Polymorphic
 
     T = typing.TypeVar("T", bound=ABCRule)
     F = typing.TypeVar(
@@ -141,13 +141,17 @@ def impl(method: typing.Callable[..., typing.Any]):
     return classmethod(method)
 
 
-def get_impls(cls: type["Node"]) -> list[typing.Callable[..., typing.Any]]:
-    return [
+def get_impls(cls: type["Polymorphic"]) -> list[typing.Callable[..., typing.Any]]:
+    moprh_impls = getattr(cls, "__morph_impls__", None)
+    if moprh_impls is not None:
+        return moprh_impls
+    impls = [
         func.__func__
         for func in vars(cls).values()
         if isinstance(func, classmethod) and getattr(func.__func__, IMPL_MARK, False)
     ]
-
+    setattr(cls, "__morph_impls__", impls)
+    return impls
 
 
 __all__ = (

@@ -2,7 +2,7 @@ import enum
 import typing
 from reprlib import recursive_repr
 
-from telegrinder.types import Update
+from telegrinder.types.objects import Update
 
 T = typing.TypeVar("T")
 
@@ -63,7 +63,7 @@ class Context(dict[str, AnyValue]):
         return key if isinstance(key, str) else str(key.value)
 
     def copy(self) -> typing.Self:
-        return self.__class__(**self)
+        return self.__class__(**dict.copy(self))
 
     def set(self, key: Key, value: AnyValue) -> None:
         self[key] = value

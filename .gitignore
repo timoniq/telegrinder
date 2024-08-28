@@ -137,5 +137,8 @@ dmypy.json
 # pytest
 .pytest_cache
 
+# ruff
+.ruff_cache
+
 .vscode
 local
