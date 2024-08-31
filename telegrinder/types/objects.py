@@ -2795,6 +2795,15 @@ class ChatInviteLink(Model):
     pending_join_request_count: Option[int] = Nothing
     """Optional. Number of pending join requests created using this link."""
 
+    subscription_period: Option[int] = Nothing
+    """Optional. The number of seconds the subscription will be active for before
+    the next payment."""
+
+    subscription_price: Option[int] = Nothing
+    """Optional. The amount of Telegram Stars a user must pay initially and after
+    each subsequent subscription period to be a member of the chat using the
+    link."""
+
 
 class ChatAdministratorRights(Model):
     """Object `ChatAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#chatadministratorrights).
@@ -5393,7 +5402,7 @@ class InputInvoiceMessageContent(InputMessageContent):
 
     payload: str
     """Bot-defined invoice payload, 1-128 bytes. This will not be displayed to
-    the user, use for your internal processes."""
+    the user, use it for your internal processes."""
 
     currency: Currency
     """Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR`
