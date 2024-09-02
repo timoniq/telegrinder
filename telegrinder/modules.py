@@ -5,13 +5,6 @@ from choicelib import choice_in_order
 
 
 @typing.runtime_checkable
-class JSONModule(typing.Protocol):
-    def loads(self, s: str | bytes) -> typing.Any: ...
-
-    def dumps(self, o: typing.Any) -> str: ...
-
-
-@typing.runtime_checkable
 class LoggerModule(typing.Protocol):
     def debug(self, __msg: object, *args: object, **kwargs: object) -> None: ...
 
@@ -25,25 +18,22 @@ class LoggerModule(typing.Protocol):
 
     def exception(self, __msg: object, *args: object, **kwargs: object) -> None: ...
 
-    def set_level(
-        self,
-        level: typing.Literal[
-            "DEBUG",
-            "INFO",
-            "WARNING",
-            "ERROR",
-            "CRITICAL",
-            "EXCEPTION",
-        ],
-    ) -> None: ...
+    if typing.TYPE_CHECKING:
+
+        def set_level(
+            self,
+            level: typing.Literal[
+                "DEBUG",
+                "INFO",
+                "WARNING",
+                "ERROR",
+                "CRITICAL",
+                "EXCEPTION",
+            ],
+        ) -> None: ...
 
 
 logger: LoggerModule
-json: JSONModule = choice_in_order(
-    ["orjson", "ujson", "hyperjson"],
-    default="telegrinder.msgspec_json",
-    do_import=True,
-)
 logging_level = os.getenv("LOGGER_LEVEL", default="DEBUG").upper()
 logging_module = choice_in_order(["loguru"], default="logging")
 asyncio_module = choice_in_order(["uvloop"], default="asyncio")
@@ -243,4 +233,4 @@ def _set_logger_level(level):
 setattr(logger, "set_level", staticmethod(_set_logger_level))  # type: ignore
 
 
-__all__ = ("json", "logger")
+__all__ = ("LoggerModule", "logger")

@@ -4178,7 +4178,7 @@ class APIMethods:
         :param description: Product description, 1-255 characters.
 
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
-        the user, use for your internal processes.
+        the user, use it for your internal processes.
 
         :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty string \
         for payments in Telegram Stars.
@@ -4296,7 +4296,7 @@ class APIMethods:
         :param description: Product description, 1-255 characters.
 
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
-        the user, use for your internal processes.
+        the user, use it for your internal processes.
 
         :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty string \
         for payments in Telegram Stars.

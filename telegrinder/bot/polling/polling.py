@@ -5,7 +5,7 @@ import aiohttp
 import msgspec
 from fntypes.result import Error, Ok
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.api.error import InvalidTokenError
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
@@ -72,7 +72,10 @@ class Polling(ABCPolling):
     async def get_updates(self) -> msgspec.Raw | None:
         raw_updates = await self.api.request_raw(
             "getUpdates",
-            {"offset": self.offset, "allowed_updates": self.allowed_updates},
+            {
+                "offset": self.offset - 10 if self.offset > 0 else self.offset,
+                "allowed_updates": self.allowed_updates,
+            },
         )
         match raw_updates:
             case Ok(value):

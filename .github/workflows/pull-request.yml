@@ -7,38 +7,6 @@ defaults:
     shell: bash
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up CPython 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install poetry manager
-        run: pip install --upgrade pip setuptools wheel && pip install --user pipx && pipx install poetry
-
-      - name: Poetry check structure and install dependencies
-        run: poetry check && poetry install
-
-      - name: Load pre-commit cache
-        id: cached-pre-commit
-        uses: actions/cache@v3
-        with:
-          key: pre-commit-${{ env.pythonLocation }}-${{ hashFiles('.pre-commit-config.yaml') }}
-          path: ~/.cache/pre-commit
-
-      - name: Run pre-commit
-        run: poetry run pre-commit run --all-files
-
-      - name: Run pre-commit-ci-lite
-        uses: pre-commit-ci/lite-action@v1.0.1
-        if: failure() || cancelled()
-
-      - uses: andymckay/cancel-action@0.3
-        if: failure()
-
   lint-and-test:
     uses: ./.github/workflows/lint-and-test.yml
     with:

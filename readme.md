@@ -9,6 +9,7 @@ Still in development.
 * Ready to use scenarios and rules
 * Fast models built on msgspec
 * Both low-level and high-level API
+* Support [optional dependecies](/docs/guide/optional_dependecies.md)
 
 # Getting started
 
@@ -49,9 +50,7 @@ logger.set_level("INFO")
 @bot.on.message(Text("/start"))
 async def start(message: Message):
     me = (await api.get_me()).unwrap()
-    await message.answer(
-        f"Hello, {message.from_user.full_name}! I'm {me.full_name}."
-    )
+    await message.answer(f"Hello, {message.from_user.full_name}! I'm {me.full_name}.")
 
 
 bot.run_forever()

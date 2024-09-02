@@ -5,8 +5,8 @@ import aiohttp
 import certifi
 from aiohttp import ClientSession, TCPConnector
 
+import telegrinder.msgspec_json as json
 from telegrinder.client.abc import ABCClient
-from telegrinder.modules import JSONModule, json
 
 if typing.TYPE_CHECKING:
     from aiohttp import ClientResponse
@@ -16,12 +16,10 @@ class AiohttpClient(ABCClient):
     def __init__(
         self,
         session: ClientSession | None = None,
-        json_processing_module: JSONModule | None = None,
         timeout: aiohttp.ClientTimeout | None = None,
         **session_params: typing.Any,
     ) -> None:
         self.session = session
-        self.json_processing_module = json_processing_module or json
         self.session_params = session_params
         self.timeout = timeout or aiohttp.ClientTimeout(total=0)
 
@@ -43,7 +41,7 @@ class AiohttpClient(ABCClient):
         if not self.session:
             self.session = ClientSession(
                 connector=TCPConnector(ssl=ssl.create_default_context(cafile=certifi.where())),
-                json_serialize=self.json_processing_module.dumps,
+                json_serialize=json.dumps,
                 **self.session_params,
             )
         async with self.session.request(
@@ -65,8 +63,8 @@ class AiohttpClient(ABCClient):
     ) -> dict[str, typing.Any]:
         response = await self.request_raw(url, method, data, **kwargs)
         return await response.json(
-            encoding="utf-8",
-            loads=self.json_processing_module.loads,
+            encoding="UTF-8",
+            loads=json.loads,
             content_type=None,
         )
 
@@ -78,7 +76,7 @@ class AiohttpClient(ABCClient):
         **kwargs: typing.Any,
     ) -> str:
         response = await self.request_raw(url, method, data, **kwargs)  # type: ignore
-        return await response.text(encoding="utf-8")
+        return await response.text(encoding="UTF-8")
 
     async def request_bytes(
         self,
