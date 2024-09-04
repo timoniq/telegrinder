@@ -59,7 +59,6 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
 
         # before running the handler we check if the user wants to exit waiting
         if short_state.exit_behaviour is not None and await self.machine.call_behaviour(
-            self.view,
             event,
             ctx.raw_update,
             behaviour=short_state.exit_behaviour,
@@ -87,7 +86,6 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
 
         elif short_state.default_behaviour is not None:
             await self.machine.call_behaviour(
-                self.view,
                 event,
                 ctx.raw_update,
                 behaviour=short_state.default_behaviour,

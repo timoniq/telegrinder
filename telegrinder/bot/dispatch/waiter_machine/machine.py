@@ -45,13 +45,13 @@ class WaiterMachine:
 
     async def drop(
         self,
-        state_view: "ABCStateView[EventModel]",
+        state_view: typing.Union["ABCStateView[EventModel]", str],
         id: Identificator,
         event: EventModel,
         update: Update,
         **context: typing.Any,
     ) -> None:
-        view_name = state_view.__class__.__name__
+        view_name = state_view if isinstance(state_view, str) else state_view.__class__.__name__
         if view_name not in self.storage:
             raise LookupError("No record of view {!r} found.".format(view_name))
 
@@ -61,12 +61,25 @@ class WaiterMachine:
 
         short_state.cancel()
         await self.call_behaviour(
-            state_view,
             event,
             update,
             behaviour=short_state.on_drop_behaviour,
             **context,
         )
+
+    async def drop_all(self) -> None:
+        """Drops all waiters in storage"""
+        for view_name in self.storage:
+            for ident, short_state in self.storage[view_name].items():
+                if short_state.context:
+                    await self.drop(
+                        view_name,
+                        ident,
+                        short_state.context.event,
+                        short_state.context.context.raw_update
+                    )
+                else:
+                    short_state.cancel()
 
     async def wait(
         self,
@@ -114,7 +127,6 @@ class WaiterMachine:
 
     async def call_behaviour(
         self,
-        view: "ABCStateView[EventModel]",
         event: EventModel,
         update: Update,
         behaviour: Behaviour[EventModel] | None = None,
@@ -147,7 +159,7 @@ class WaiterMachine:
             now = datetime.datetime.now()
             for ident, short_state in self.storage.get(view_name, {}).copy().items():
                 if short_state.expiration_date is not None and now > short_state.expiration_date:
-                    assert short_state.context
+                    assert short_state.context  # FIXME: why???
                     await self.drop(
                         view,
                         ident,
