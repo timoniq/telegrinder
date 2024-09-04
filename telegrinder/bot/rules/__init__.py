@@ -53,6 +53,7 @@ from telegrinder.bot.rules.node import NodeRule
 from telegrinder.bot.rules.regex import Regex
 from telegrinder.bot.rules.rule_enum import RuleEnum
 from telegrinder.bot.rules.start import StartCommand
+from telegrinder.bot.rules.state import State, StateMeta
 from telegrinder.bot.rules.text import HasText, Text
 from telegrinder.bot.rules.update import IsUpdateType
 
@@ -113,4 +114,6 @@ __all__ = (
     "StartCommand",
     "Text",
     "NodeRule",
+    "State",
+    "StateMeta",
 )

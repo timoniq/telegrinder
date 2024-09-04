@@ -67,6 +67,7 @@ from .limited_dict import LimitedDict
 from .loop_wrapper import ABCLoopWrapper, DelayedTask, Lifespan, LoopWrapper
 from .magic import impl, magic_bundle, resolve_arg_names
 from .parse_mode import ParseMode
+from .state_storage import ABCStateStorage, MemoryStateStorage, StateData
 
 __all__ = (
     "ABCErrorHandler",
@@ -139,4 +140,7 @@ __all__ = (
     "block_quote",
     "impl",
     "resolve_arg_names",
+    "ABCStateStorage",
+    "MemoryStateStorage",
+    "StateData",
 )

@@ -79,6 +79,7 @@ from .bot import (
     WaiterMachine,
     register_manager,
 )
+from .bot.rules import StateMeta
 from .client import ABCClient, AiohttpClient
 from .model import Model
 from .modules import logger
@@ -86,6 +87,7 @@ from .tools import (
     ABCErrorHandler,
     ABCGlobalContext,
     ABCLoopWrapper,
+    ABCStateStorage,
     ABCTranslator,
     ABCTranslatorMiddleware,
     AnyMarkup,
@@ -104,10 +106,12 @@ from .tools import (
     KeyboardSetYAML,
     Lifespan,
     LoopWrapper,
+    MemoryStateStorage,
     ParseMode,
     RowButtons,
     SimpleI18n,
     SimpleTranslator,
+    StateData,
     ctx_var,
     magic_bundle,
 )
@@ -207,4 +211,8 @@ __all__ = (
     "logger",
     "magic_bundle",
     "register_manager",
+    "ABCStateStorage",
+    "MemoryStateStorage",
+    "StateData",
+    "StateMeta",
 )
