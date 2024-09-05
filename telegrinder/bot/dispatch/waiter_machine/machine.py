@@ -45,7 +45,7 @@ class WaiterMachine:
 
     async def drop(
         self,
-        state_view: typing.Union["ABCStateView[EventModel]", str],
+        state_view: "ABCStateView[EventModel] | str",
         id: Identificator,
         event: EventModel,
         update: Update,
