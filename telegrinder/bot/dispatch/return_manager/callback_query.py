@@ -11,7 +11,7 @@ class CallbackQueryReturnManager(BaseReturnManager[CallbackQueryCute]):
     async def str_manager(value: str, event: CallbackQueryCute, ctx: Context) -> None:
         await event.answer(value)
 
-    @register_manager(dict)
+    @register_manager(dict[str, typing.Any])
     @staticmethod
     async def dict_manager(value: dict[str, typing.Any], event: CallbackQueryCute, ctx: Context) -> None:
         await event.answer(**value)

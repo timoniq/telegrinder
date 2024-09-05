@@ -5,7 +5,7 @@ from telegrinder.types.objects import Update
 UPDATE = Update.from_bytes(
     b"""
     {
-        "update_id": 12345667,
+        "update_id": 12345,
         "message": {
             "message_id": 23423522,
             "from": {

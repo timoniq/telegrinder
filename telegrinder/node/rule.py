@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
 
 
-class RuleChain(dict[str, typing.Any]):
+class RuleChain(dict[str, typing.Any], Node):
     dataclass = dict
     rules: tuple["ABCRule", ...] = ()
 
@@ -28,7 +28,6 @@ class RuleChain(dict[str, typing.Any]):
     def __class_getitem__(cls, items: "ABCRule | tuple[ABCRule, ...]", /) -> typing.Self:
         if not isinstance(items, tuple):
             items = (items,)
-        assert all(isinstance(rule, "ABCRule") for rule in items), "All items must be instances of 'ABCRule'."
         return cls(*items)
 
     @staticmethod
@@ -37,7 +36,7 @@ class RuleChain(dict[str, typing.Any]):
 
     @classmethod
     async def compose(cls, update: UpdateNode) -> typing.Any:
-        # Hack for avoid circular import
+        # Hack to avoid circular import
         globalns = globals()
         if "check_rule" not in globalns:
             globalns.update(
@@ -55,7 +54,9 @@ class RuleChain(dict[str, typing.Any]):
                 raise ComposeError(f"Rule {rule!r} failed!")
 
         try:
-            return cls.dataclass(**ctx)  # type: ignore
+            if dataclasses.is_dataclass(cls.dataclass):
+                return cls.dataclass(**{k: ctx[k] for k in cls.__annotations__})
+            return cls.dataclass(**ctx)
         except Exception as exc:
             raise ComposeError(f"Dataclass validation error: {exc}")
 

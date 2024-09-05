@@ -1,7 +1,7 @@
 import pytest
 from fntypes.error import UnwrapError
 
-from telegrinder.api.api import API
+from telegrinder.api.api import API, Token
 from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
 from telegrinder.msgspec_utils import decoder
@@ -9,11 +9,7 @@ from telegrinder.types.objects import User
 
 from .test_utils import with_mocked_api
 
-API_ERROR_RESPONSE = {
-  "ok": False,
-  "error_code": 404,
-  "description": "Not Found"
-}
+API_ERROR_RESPONSE = {"ok": False, "error_code": 404, "description": "Not Found"}
 
 GET_ME_RAW_RESPONSE = """
 {
@@ -80,3 +76,21 @@ async def test_api_error(api: API):
     assert response.error.error == "Not Found"
     with pytest.raises(UnwrapError, match="Not Found"):
         response.unwrap()
+
+
+@pytest.mark.asyncio()
+@with_mocked_api(None)
+async def test_api_id(api: API):
+    assert api.id == 123
+
+
+@pytest.mark.asyncio()
+@with_mocked_api(None)
+async def test_api_token(api: API):
+    assert api.token == Token("123:ABCdef")
+
+
+@pytest.mark.asyncio()
+@with_mocked_api(b"somefile")
+async def test_download_file(api: API):
+    assert await api.download_file("cool_file") == b"somefile"

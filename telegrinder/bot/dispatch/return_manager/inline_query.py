@@ -6,7 +6,7 @@ from telegrinder.bot.dispatch.return_manager.abc import BaseReturnManager, regis
 
 
 class InlineQueryReturnManager(BaseReturnManager[InlineQueryCute]):
-    @register_manager(dict)
+    @register_manager(dict[str, typing.Any])
     @staticmethod
     async def dict_manager(value: dict[str, typing.Any], event: InlineQueryCute, ctx: Context) -> None:
         await event.answer(**value)

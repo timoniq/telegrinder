@@ -123,7 +123,7 @@ class ViewBox(
     def get_views(self) -> dict[str, ABCView]:
         """Get all views."""
 
-        return {name: view for name, view in self.__dict__.items() if isinstance(view, ABCView)}
+        return {name: view for name, view in dataclasses.asdict(self).items() if isinstance(view, ABCView)}
 
 
 __all__ = ("ViewBox",)

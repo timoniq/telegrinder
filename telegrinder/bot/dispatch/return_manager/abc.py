@@ -27,13 +27,10 @@ def register_manager(return_type: type[typing.Any] | types.UnionType):
 @dataclasses.dataclass(frozen=True, slots=True)
 class Manager:
     types: tuple[type, ...]
-    callback: typing.Callable[..., typing.Awaitable]
+    callback: typing.Callable[..., typing.Awaitable[typing.Any]]
 
     async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-        try:
-            await self.callback(*args, **kwargs)
-        except BaseException as ex:
-            logger.exception(ex)
+        await self.callback(*args, **kwargs)
 
 
 class ABCReturnManager(ABC, typing.Generic[Event]):
@@ -51,11 +48,16 @@ class BaseReturnManager(ABCReturnManager[Event]):
 
     @property
     def managers(self) -> list[Manager]:
-        return [
+        managers = self.__dict__.get("managers")
+        if managers is not None:
+            return managers
+        managers_lst = [
             manager
             for manager in (vars(BaseReturnManager) | vars(self.__class__)).values()
             if isinstance(manager, Manager)
         ]
+        self.__dict__["managers"] = managers_lst
+        return managers_lst
 
     @register_manager(Context)
     @staticmethod
@@ -73,7 +75,8 @@ class BaseReturnManager(ABCReturnManager[Event]):
 
     @typing.overload
     def register_manager(
-        self, return_type: type[T]
+        self,
+        return_type: type[T],
     ) -> typing.Callable[[typing.Callable[[T, Event, Context], typing.Awaitable[typing.Any]]], Manager]: ...
 
     @typing.overload
@@ -94,7 +97,7 @@ class BaseReturnManager(ABCReturnManager[Event]):
     ]:
         def wrapper(func: typing.Callable[[T, Event, Context], typing.Awaitable]) -> Manager:
             manager = Manager(get_union_types(return_type) or (return_type,), func)  # type: ignore
-            setattr(self.__class__, func.__name__, manager)
+            self.managers.append(manager)
             return manager
 
         return wrapper

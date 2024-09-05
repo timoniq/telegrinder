@@ -20,13 +20,13 @@ def error_on_none(value: T | None) -> T:
 
 
 def generate_node(
-    subnodes: tuple[type["Node"], ...],
-    func: typing.Callable[..., T],
+    subnodes: tuple[type[Node], ...],
+    func: typing.Callable[..., typing.Any],
     casts: tuple[typing.Callable[[typing.Any], typing.Any], ...] = (cast_false_to_none, error_on_none),
-) -> type["Node"]:
-    async def compose(**kw: typing.Any) -> typing.Any:
+) -> type[Node]:
+    async def compose(cls, **kw) -> typing.Any:
         args = await ContainerNode.compose(**kw)
-        result = func(*args)
+        result = func(*args)  # type: ignore
         if inspect.isawaitable(result):
             result = await result
         for cast in casts:
@@ -34,7 +34,8 @@ def generate_node(
         return result
 
     container = ContainerNode.link_nodes(list(subnodes))
-    return type("_ContainerNode", (container,), {"compose": compose})
+    compose.__annotations__ = container.get_subnodes()
+    return type("_ContainerNode", (container,), {"compose": classmethod(compose)})
 
 
 __all__ = ("generate_node",)

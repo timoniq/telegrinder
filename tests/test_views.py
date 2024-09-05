@@ -1,14 +1,24 @@
+import typing
+
 import pytest
 
-from telegrinder.api.api import API, Token
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
+from telegrinder.bot.dispatch.return_manager.abc import register_manager
 from telegrinder.bot.dispatch.return_manager.message import MessageReturnManager
 from telegrinder.bot.dispatch.view.abc import BaseStateView
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.text import Text
+
+
+class CustomMessageReturnManager(MessageReturnManager):
+    @register_manager(int)
+    @staticmethod
+    async def int_manager(value: int, event: MessageCute, ctx: Context) -> None:
+        assert isinstance(value, int)
 
 
 class CustomMessageView(BaseStateView[MessageCute]):
@@ -16,10 +26,20 @@ class CustomMessageView(BaseStateView[MessageCute]):
         self.middlewares: list[ABCMiddleware[MessageCute]] = []
         self.auto_rules: list[ABCRule[MessageCute]] = []
         self.handlers: list[ABCHandler[MessageCute]] = []
-        self.return_manager: MessageReturnManager = MessageReturnManager()
+        self.return_manager: CustomMessageReturnManager = CustomMessageReturnManager()
 
     async def get_state_key(self, event: MessageCute) -> int | None:
         return event.message_id
+
+
+class PreMiddleware(ABCMiddleware[MessageCute]):
+    async def pre(self, event: MessageCute, ctx: Context) -> bool:
+        return True
+
+
+class PostMiddleware(ABCMiddleware[MessageCute]):
+    async def post(self, event: MessageCute, responses: list[typing.Any], ctx: Context) -> None:
+        assert responses == [b"123data"]
 
 
 @pytest.mark.asyncio()
@@ -60,8 +80,7 @@ async def test_register_auto_rule():
     view = CustomMessageView()
 
     class SomeRule(ABCRule[MessageCute]):
-        async def check(self, event: MessageCute) -> bool:
-            ...
+        async def check(self, event: MessageCute) -> bool: ...
 
     view.auto_rules.append(SomeRule())
     assert len(view.auto_rules) == 1
@@ -73,16 +92,14 @@ async def test_register_return_manager():
     view = CustomMessageView()
 
     @view.return_manager.register_manager(bytes)
-    async def manager(value: bytes, event: MessageCute, ctx: Context) -> None:
-        ...
+    async def manager(value: bytes, event: MessageCute, ctx: Context) -> None: ...
 
     assert isinstance(view.return_manager, MessageReturnManager)
     assert manager in view.return_manager.managers
 
 
 @pytest.mark.asyncio()
-async def test_view_check_and_process(message_update):
-    api = API(Token("123:ABCdef"))
+async def test_view_check_and_process(api_instance, message_update):
     view = CustomMessageView()
 
     @view()
@@ -90,4 +107,54 @@ async def test_view_check_and_process(message_update):
         assert isinstance(message, MessageCute) is True
 
     assert await view.check(message_update) is True
-    assert await view.process(message_update, api) is True
+    assert await view.process(message_update, api_instance) is True
+
+
+@pytest.mark.asyncio()
+async def test_process_pre_middleware(api_instance, message_update):
+    view = CustomMessageView()
+    view.middlewares.append(PreMiddleware())
+
+    @view()
+    async def handler(message):
+        return None
+
+    assert await view.check(message_update) is True
+    assert await view.process(message_update, api_instance) is True
+
+
+@pytest.mark.asyncio()
+async def test_process_post_middleware(api_instance, message_update):
+    view = CustomMessageView()
+    view.middlewares.append(PostMiddleware())
+
+    @view()
+    async def handler(message):
+        return b"123data"
+
+    assert await view.check(message_update) is True
+    assert await view.process(message_update, api_instance) is True
+
+
+@pytest.mark.asyncio()
+async def test_process_with_rule(api_instance, message_update):
+    view = CustomMessageView()
+
+    @view(Text("Hello, Telegrinder! btw, laurelang - nice pure logical programming launguage ^_^"))
+    async def handler(message):
+        return None
+
+    assert await view.check(message_update) is True
+    assert await view.process(message_update, api_instance) is True
+
+
+@pytest.mark.asyncio()
+async def test_process_with_return_manager(api_instance, message_update):
+    view = CustomMessageView()
+
+    @view()
+    async def handler(message):
+        return 123
+
+    assert await view.check(message_update) is True
+    assert await view.process(message_update, api_instance) is True

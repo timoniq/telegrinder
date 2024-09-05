@@ -9,7 +9,7 @@ Still in development.
 * Ready to use scenarios and rules
 * Fast models built on msgspec
 * Both low-level and high-level API
-* Support [optional dependecies](/docs/guide/optional_dependecies.md)
+* Support [optional dependecies](https://github.com/timoniq/telegrinder/tree/dev/docs/guide/optional_dependecies.md)
 
 # Getting started
 
