@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import typing
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.view.abc import ABCStateView, BaseStateView
 from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware

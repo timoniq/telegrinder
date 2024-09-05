@@ -44,17 +44,16 @@ class DelayedTask(typing.Generic[CoroFunc]):
     def is_cancelled(self) -> bool:
         return self._cancelled
 
-    async def __call__(self, *args, **kwargs) -> None:
+    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         while not self.is_cancelled:
             await asyncio.sleep(self.seconds)
             if self.is_cancelled:
                 break
             try:
                 await self.handler(*args, **kwargs)
-            except Exception as e:
-                logger.exception("Error in delayed task: {}", str(e))
-            if not self.repeat:
-                break
+            finally:
+                if not self.repeat:
+                    break
 
     def cancel(self) -> None:
         if not self._cancelled:

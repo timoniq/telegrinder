@@ -4,7 +4,7 @@ import typing
 from fntypes import Error, Ok, Result
 from fntypes.error import UnwrapError
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types.update import Update, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
@@ -41,7 +41,7 @@ async def compose_node(
 async def compose_nodes(
     nodes: dict[str, type[Node]],
     ctx: Context,
-    data: dict[type, typing.Any] | None = None,
+    data: dict[type[typing.Any], typing.Any] | None = None,
 ) -> Result["NodeCollection", ComposeError]:
     logger.debug("Composing nodes: {!r}...", nodes)
 
@@ -67,11 +67,7 @@ async def compose_nodes(
                 local_nodes[node_t] = getattr(node_t, GLOBAL_VALUE_KEY)
                 continue
 
-            subnodes = {
-                k: session.value
-                for k, session in
-                (local_nodes | event_nodes).items()
-            }
+            subnodes = {k: session.value for k, session in (local_nodes | event_nodes).items()}
 
             try:
                 local_nodes[node_t] = await compose_node(node_t, subnodes | data)
@@ -175,11 +171,11 @@ class Composition:
             case Ok(col):
                 return col
             case Error(err):
-                logger.debug(f"Composition failed with error: {err}")
+                logger.debug(f"Composition failed with error: {err!r}")
                 return None
 
     async def __call__(self, **kwargs: typing.Any) -> typing.Any:
-        return await self.func(**magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))  # type: ignore
+        return await self.func(**magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))
 
 
 __all__ = ("Composition", "NodeCollection", "NodeSession", "compose_node", "compose_nodes")

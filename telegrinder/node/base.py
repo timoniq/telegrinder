@@ -12,8 +12,8 @@ from telegrinder.tools.magic import (
 ComposeResult: typing.TypeAlias = typing.Awaitable[typing.Any] | typing.AsyncGenerator[typing.Any, None]
 
 
-def is_node(maybe_node: type[typing.Any]) -> typing.TypeGuard[type["Node"]]:
-    maybe_node = typing.get_origin(maybe_node) or maybe_node
+def is_node(maybe_node: typing.Any) -> typing.TypeGuard[type["Node"]]:
+    maybe_node = maybe_node if isinstance(maybe_node, type) else typing.get_origin(maybe_node)
     return (
         isinstance(maybe_node, type)
         and issubclass(maybe_node, Node)

@@ -7,47 +7,7 @@ defaults:
     shell: bash
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: asottile/workflows/.github/actions/fast-checkout@v1.4.1
-
-      - name: Install poetry and dependencies
-        uses: ./.github/actions/install-dependencies
-        with:
-          os: ubuntu-latest
-          python-version: "3.11"
-
-      - name: Load pre-commit cache
-        id: cached-pre-commit
-        uses: actions/cache@v3
-        with:
-          key: pre-commit-${{ env.pythonLocation }}-${{ hashFiles('.pre-commit-config.yaml') }}
-          path: ~/.cache/pre-commit
-
-      - name: Run pre-commit
-        run: poetry run pre-commit run --all-files
-
-      - name: Run pre-commit-ci-lite
-        uses: pre-commit-ci/lite-action@v1.0.1
-        if: failure() || cancelled()
-
-      - uses: andymckay/cancel-action@0.3
-        if: failure()
-
   lint-and-test:
-    strategy:
-      matrix:
-        python-version:
-          - "3.11"
-        os:
-          - ubuntu-latest
-          - windows-latest
-
-    on:
-      workflow_call:
-        steps:
-        - uses: ./.github/workflows/lint-and-test.yml
-          with:
-            os: ${{ matrix.os }}
-            python-version: ${{ matrix.python-version }}
+    uses: ./.github/workflows/lint-and-test.yml
+    with:
+      os: ubuntu-latest

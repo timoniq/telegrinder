@@ -3,7 +3,7 @@ from functools import cached_property
 
 import typing_extensions as typing
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types import BaseCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
@@ -72,7 +72,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         if nodes:
             result = await compose_nodes(nodes, ctx, data={Update: event, API: api})
             if not result:
-                logger.debug(f"Cannot compose nodes for handler. {result.error}")
+                logger.debug(f"Cannot compose nodes for handler. Error: {result.error!r}")
                 return False
 
             node_col = result.value
@@ -95,7 +95,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         return True
 
     async def run(self, api: API, event: Event, ctx: Context) -> typing.Any:
-        logger.debug(f"Running func handler {self.func}")
+        logger.debug(f"Running func handler {self.func.__qualname__!r}")
         dataclass_type = typing.get_origin(self.dataclass) or self.dataclass
 
         if dataclass_type is Update and (event_node := ctx.pop(EVENT_NODE_KEY, None)) is not None:

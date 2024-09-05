@@ -4,7 +4,7 @@ Code in this file is automatically parsed.
 Nicifications are basically nice features for models which are included in auto-generate_noded models
 The difference between nicifications and cure types is: cute types can borrow view runtime properties and have context api
 (so they can implement model-specific methods).
-Nicifications can only implement methods/properties working only with model fields.
+Nicifications can only implement fields/methods/properties working only with model fields.
 """
 
 import pathlib
@@ -115,7 +115,9 @@ class _Message(Message):
         """Chat title, for `supergroups`, `channels` and `group` chats.
         Full name, for `private` chat."""
 
-        return self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
+        return (
+            self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
+        )
 
 
 class _User(User):

@@ -118,12 +118,13 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         ctx: Context,
         node_col: "NodeCollection | None" = None,
     ) -> bool:
+        bound_check_rule = self.check
         kw = {}
         node_col_values = node_col.values if node_col is not None else {}
-        temp_ctx = get_default_args(self.check) | ctx
+        temp_ctx = get_default_args(bound_check_rule) | ctx
 
-        for i, (k, v) in enumerate(get_annotations(self.check).items()):
-            if (isinstance(adapted_value, Event) and not i) or (
+        for i, (k, v) in enumerate(get_annotations(bound_check_rule).items()):
+            if (isinstance(adapted_value, Event) and i == 0) or (  # First arg is Event
                 isinstance(v, type) and isinstance(adapted_value, v)
             ):
                 kw[k] = adapted_value if not isinstance(adapted_value, Event) else adapted_value.obj
@@ -140,14 +141,14 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
                     "because it cannot be resolved."
                 )
 
-        return await self.check(**kw)
+        return await bound_check_rule(**kw)
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
         return self
 
 
 class AndRule(ABCRule):
-    def __init__(self, *rules: ABCRule[AdaptTo]) -> None:
+    def __init__(self, *rules: ABCRule) -> None:
         self.rules = rules
 
     async def check(self, event: Update, ctx: Context) -> bool:

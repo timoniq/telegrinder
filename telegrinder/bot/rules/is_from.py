@@ -107,6 +107,21 @@ class IsSticker(MessageRule):
         return bool(message.sticker)
 
 
+class IsVideoNote(MessageRule):
+    async def check(self, message: Message) -> bool:
+        return bool(message.video_note)
+
+
+class IsDocument(MessageRule):
+    async def check(self, message: Message) -> bool:
+        return bool(message.document)
+
+
+class IsPhoto(MessageRule):
+    async def check(self, message: Message) -> bool:
+        return bool(message.photo)
+
+
 __all__ = (
     "IsBot",
     "IsChat",
@@ -124,4 +139,8 @@ __all__ = (
     "IsSuperGroup",
     "IsUser",
     "IsUserId",
+    "IsVideoNote",
+    "IsSticker",
+    "IsDocument",
+    "IsPhoto",
 )

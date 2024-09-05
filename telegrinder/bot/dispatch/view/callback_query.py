@@ -1,5 +1,5 @@
-from telegrinder.bot.cute_types import CallbackQueryCute
-from telegrinder.bot.dispatch.return_manager import CallbackQueryReturnManager
+from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
+from telegrinder.bot.dispatch.return_manager.callback_query import CallbackQueryReturnManager
 from telegrinder.bot.dispatch.view.abc import BaseStateView
 
 

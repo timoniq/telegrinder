@@ -6,7 +6,7 @@ from functools import wraps
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
-    from telegrinder.node.base import Node
+    from telegrinder.node.polymorphic import Polymorphic
 
     T = typing.TypeVar("T", bound=ABCRule)
     F = typing.TypeVar(
@@ -23,7 +23,6 @@ IMPL_MARK: typing.Final[str] = "_is_impl"
 
 def cache_magic_value(mark_key: str, /):
     def inner(func: "F") -> "F":
-
         @wraps(func)
         def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
             if mark_key not in args[0].__dict__:
@@ -31,6 +30,7 @@ def cache_magic_value(mark_key: str, /):
             return args[0].__dict__[mark_key]
 
         return wrapper  # type: ignore
+
     return inner
 
 
@@ -43,13 +43,13 @@ def get_default_args(func: FuncType) -> dict[str, typing.Any]:
     fspec = inspect.getfullargspec(func)
     if not fspec.defaults:
         return {}
-    return dict(zip(fspec.args[-len(fspec.defaults):], fspec.defaults))
+    return dict(zip(fspec.args[-len(fspec.defaults) :], fspec.defaults))
 
 
 def get_annotations(func: FuncType, *, return_type: bool = False) -> dict[str, typing.Any]:
     annotations = func.__annotations__
     if not return_type and "return" in func.__annotations__:
-       annotations.pop("return")
+        annotations.pop("return")
     return annotations
 
 
@@ -60,13 +60,11 @@ def to_str(s: str | enum.Enum) -> str:
 
 
 @typing.overload
-def magic_bundle(handler: FuncType, kw: dict[str, typing.Any]) -> dict[str, typing.Any]:
-    ...
+def magic_bundle(handler: FuncType, kw: dict[str, typing.Any]) -> dict[str, typing.Any]: ...
 
 
 @typing.overload
-def magic_bundle(handler: FuncType, kw: dict[enum.Enum, typing.Any]) -> dict[str, typing.Any]:
-    ...
+def magic_bundle(handler: FuncType, kw: dict[enum.Enum, typing.Any]) -> dict[str, typing.Any]: ...
 
 
 @typing.overload
@@ -76,8 +74,7 @@ def magic_bundle(
     *,
     start_idx: int = 1,
     bundle_ctx: bool = True,
-) -> dict[str, typing.Any]:
-    ...
+) -> dict[str, typing.Any]: ...
 
 
 @typing.overload
@@ -87,8 +84,7 @@ def magic_bundle(
     *,
     start_idx: int = 1,
     bundle_ctx: bool = True,
-) -> dict[str, typing.Any]:
-    ...
+) -> dict[str, typing.Any]: ...
 
 
 @typing.overload
@@ -97,8 +93,7 @@ def magic_bundle(
     kw: dict[type, typing.Any],
     *,
     typebundle: typing.Literal[True] = True,
-) -> dict[str, typing.Any]:
-    ...
+) -> dict[str, typing.Any]: ...
 
 
 def magic_bundle(
@@ -109,7 +104,6 @@ def magic_bundle(
     bundle_ctx: bool = True,
     typebundle: bool = False,
 ) -> dict[str, typing.Any]:
-
     if typebundle:
         types = get_annotations(handler, return_type=False)
         bundle: dict[str, typing.Any] = {}
@@ -141,13 +135,17 @@ def impl(method: typing.Callable[..., typing.Any]):
     return classmethod(method)
 
 
-def get_impls(cls: type["Node"]) -> list[typing.Callable[..., typing.Any]]:
-    return [
+def get_impls(cls: type["Polymorphic"]) -> list[typing.Callable[..., typing.Any]]:
+    moprh_impls = getattr(cls, "__morph_impls__", None)
+    if moprh_impls is not None:
+        return moprh_impls
+    impls = [
         func.__func__
         for func in vars(cls).values()
         if isinstance(func, classmethod) and getattr(func.__func__, IMPL_MARK, False)
     ]
-
+    setattr(cls, "__morph_impls__", impls)
+    return impls
 
 
 __all__ = (
