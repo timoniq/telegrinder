@@ -73,7 +73,7 @@ class Polling(ABCPolling):
         raw_updates = await self.api.request_raw(
             "getUpdates",
             {
-                "offset": self.offset - 10 if self.offset > 0 else self.offset,
+                "offset": self.offset,
                 "allowed_updates": self.allowed_updates,
             },
         )
