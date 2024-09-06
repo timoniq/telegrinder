@@ -3,7 +3,7 @@ import random
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import WaiterMachine, clear_wm_storage_worker
-from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
+from telegrinder.bot.dispatch.handler import MessageReplyHandler, PhotoReplyHandler
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
 from telegrinder.rules import FuzzyText, HasText, Markup, Text
@@ -29,7 +29,9 @@ async def start(message: Message):
         message,
         Text(["fine", "bad"], ignore_case=True),
         exit=MessageReplyHandler("Oh, ok, exiting state...", Text("/exit")),
-        default=MessageReplyHandler("Fine or bad", as_reply=True),
+        default=PhotoReplyHandler(
+            InputFile.from_file("examples/assets/cat.jpg"), caption="Fine or bad", as_reply=True
+        ),
     )
 
     match m.text.unwrap().lower():

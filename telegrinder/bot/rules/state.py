@@ -17,7 +17,7 @@ class StateMeta(enum.Enum):
     ANY = enum.auto()
 
 
-@dataclasses.dataclass(frozen=True, slots=True)
+@dataclasses.dataclass(frozen=True, slots=True, repr=False)
 class State(ABCRule, typing.Generic[Payload]):
     storage: "ABCStateStorage[Payload]"
     key: str | StateMeta | enum.Enum

@@ -34,11 +34,11 @@ def global_node(node: T) -> T:
 
 
 __all__ = (
+    "GLOBAL",
     "NodeScope",
-    "PER_EVENT",
     "PER_CALL",
+    "PER_EVENT",
+    "global_node",
     "per_call",
     "per_event",
-    "global_node",
-    "GLOBAL",
 )

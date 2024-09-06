@@ -29,7 +29,6 @@ else:
         def __instancecheck__(cls, __instance: typing.Any) -> bool:
             return isinstance(__instance, fntypes.option.Some | fntypes.option.Nothing)
 
-
     class Option(typing.Generic[Value], metaclass=OptionMeta):
         pass
 
@@ -63,9 +62,10 @@ def is_common_type(type_: typing.Any) -> typing.TypeGuard[type[typing.Any]]:
 def type_check(obj: typing.Any, t: typing.Any) -> bool:
     return (
         isinstance(obj, t)
-        if isinstance(t, type)
-        and issubclass(t, msgspec.Struct)
-        else type(obj) in t if isinstance(t, tuple) else type(obj) is t
+        if isinstance(t, type) and issubclass(t, msgspec.Struct)
+        else type(obj) in t
+        if isinstance(t, tuple)
+        else type(obj) is t
     )
 
 
@@ -344,8 +344,8 @@ __all__ = (
     "datetime",
     "decoder",
     "encoder",
-    "msgspec_convert",
     "get_class_annotations",
     "get_type_hints",
+    "msgspec_convert",
     "msgspec_to_builtins",
 )

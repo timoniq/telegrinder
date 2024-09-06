@@ -5,21 +5,24 @@ from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.base import BaseReplyHandler
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.types.objects import InputFile
 
 
-class MessageReplyHandler(BaseReplyHandler):
+class AudioReplyHandler(BaseReplyHandler):
     def __init__(
         self,
-        text: str,
+        audio: InputFile | str,
         *rules: ABCRule,
+        caption: str | None = None,
         parse_mode: str | None = None,
         is_blocking: bool = True,
         as_reply: bool = False,
         preset_context: Context | None = None,
         **default_params: typing.Any,
     ) -> None:
-        self.text = text
+        self.audio = audio
         self.parse_mode = parse_mode
+        self.caption = caption
         super().__init__(
             *rules,
             is_blocking=is_blocking,
@@ -29,8 +32,13 @@ class MessageReplyHandler(BaseReplyHandler):
         )
 
     async def run(self, _: API, event: MessageCute, __: Context) -> typing.Any:
-        method = event.answer if not self.as_reply else event.reply
-        await method(text=self.text, parse_mode=self.parse_mode, **self.default_params)
+        method = event.answer_audio if not self.as_reply else event.reply_audio
+        await method(
+            audio=self.audio,
+            parse_mode=self.parse_mode,
+            caption=self.caption,
+            **self.default_params,
+        )
 
 
-__all__ = ("MessageReplyHandler",)
+__all__ = ("AudioReplyHandler",)

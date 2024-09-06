@@ -42,7 +42,6 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 
-
 MediaType: typing.TypeAlias = typing.Literal[
     "animation",
     "audio",
@@ -50,6 +49,7 @@ MediaType: typing.TypeAlias = typing.Literal[
     "photo",
     "video",
 ]
+InputMediaType: typing.TypeAlias = InputMedia | tuple[MediaType, InputFile | str]
 ReplyMarkup: typing.TypeAlias = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 
 
@@ -1676,7 +1676,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_media_group(
         self,
-        media: list[InputMedia | tuple[MediaType, str | InputFile]],
+        media: InputMediaType | list[InputMediaType],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -1724,12 +1724,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to."""
 
+        media = [media] if not isinstance(media, list) else media
         params = get_params(locals())
         caption_entities_lst = typing.cast(
             list[list[MessageEntity]],
             [caption_entities]
             if caption_entities and len(caption_entities) == 1 and not isinstance(caption_entities[0], list)
-            else caption_entities
+            else caption_entities,
         )
 
         for i, m in enumerate(media[:]):
@@ -2879,13 +2880,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_media_group(
         self,
-        media: list[InputMedia | tuple[MediaType, InputFile | str]],
+        media: InputMediaType | list[InputMediaType],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         message_effect_id: str | None = None,
-        caption: str | None = None,
-        parse_mode: str | None = None,
+        caption: str | list[str] | None = None,
+        parse_mode: str | list[str] | None = None,
         caption_entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
