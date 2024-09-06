@@ -1,6 +1,6 @@
 from telegrinder.bot.cute_types.inline_query import InlineQueryCute
 from telegrinder.bot.dispatch.return_manager import InlineQueryReturnManager
-from telegrinder.bot.dispatch.view.abc import BaseStateView
+from telegrinder.bot.dispatch.view.base import BaseStateView
 
 
 class InlineQueryView(BaseStateView[InlineQueryCute]):

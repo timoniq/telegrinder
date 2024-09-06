@@ -1,7 +1,7 @@
 import typing
 
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberUpdatedCute
-from telegrinder.bot.dispatch.view.abc import BaseStateView
+from telegrinder.bot.dispatch.view.base import BaseStateView
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
 
@@ -27,7 +27,6 @@ class ChatMemberView(BaseStateView[ChatMemberUpdatedCute]):
 
     def get_state_key(self, event: ChatMemberUpdatedCute) -> int | None:
         return event.chat_id
-
 
     async def check(self, event: Update) -> bool:
         return not (

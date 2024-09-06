@@ -35,7 +35,7 @@ async def process_inner(
     logger.debug("Run pre middlewares...")
     for middleware in middlewares:
         middleware_result = await middleware.pre(event, ctx)
-        logger.debug("Middleware {!r} returned: {!r}", middleware.__class__.__name__, middleware_result)
+        logger.debug("Middleware {!r} returned: {!r}", middleware.__class__.__qualname__, middleware_result)
         if middleware_result is False:
             return False
 
@@ -59,7 +59,7 @@ async def process_inner(
 
     logger.debug("Run post middlewares...")
     for middleware in middlewares:
-        logger.debug("Run post middleware {!r}", middleware.__class__.__name__)
+        logger.debug("Run post middleware {!r}", middleware.__class__.__qualname__)
         await middleware.post(event, responses, ctx)
 
     for session in ctx.get(CONTEXT_STORE_NODES_KEY, {}).values():

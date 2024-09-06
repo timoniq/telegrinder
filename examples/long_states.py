@@ -1,3 +1,5 @@
+import enum
+
 from telegrinder import API, MemoryStateStorage, Message, StateData, StateMeta, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.rules import Text
@@ -9,7 +11,7 @@ states = MemoryStateStorage()
 logger.set_level("INFO")
 
 
-class StateEnum:
+class StateEnum(enum.StrEnum):
     # You can't get blessed when cursed,
     # but you can get cursed when blessed...
     CURSED = "cursed"
@@ -18,8 +20,7 @@ class StateEnum:
 
 @bot.on.message(
     Text("/curse"),
-    states.State(StateEnum.BLESSED) |
-    states.State(StateMeta.NO_STATE),
+    states.State(StateEnum.BLESSED) | states.State(StateMeta.NO_STATE),
 )
 async def curse_handler(m: Message):
     await states.set(m.from_user.id, StateEnum.CURSED, {})

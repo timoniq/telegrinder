@@ -30,6 +30,7 @@ class LoggerModule(typing.Protocol):
                 "CRITICAL",
                 "EXCEPTION",
             ],
+            /,
         ) -> None: ...
 
 
@@ -217,7 +218,7 @@ if asyncio_module == "uvloop":
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())  # type: ignore
 
 
-def _set_logger_level(level):
+def _set_logger_level(level, /):
     level = level.upper()
     if logging_module == "logging":
         import logging

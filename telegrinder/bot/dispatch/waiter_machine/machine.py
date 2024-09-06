@@ -4,7 +4,8 @@ import typing
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.view.abc import ABCStateView, BaseStateView
+from telegrinder.bot.dispatch.view.abc import ABCStateView
+from telegrinder.bot.dispatch.view.base import BaseStateView
 from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
     Behaviour,
@@ -68,15 +69,13 @@ class WaiterMachine:
         )
 
     async def drop_all(self) -> None:
-        """Drops all waiters in storage"""
+        """Drops all waiters in storage."""
+
         for view_name in self.storage:
             for ident, short_state in self.storage[view_name].items():
                 if short_state.context:
                     await self.drop(
-                        view_name,
-                        ident,
-                        short_state.context.event,
-                        short_state.context.context.raw_update
+                        view_name, ident, short_state.context.event, short_state.context.context.raw_update
                     )
                 else:
                     short_state.cancel()

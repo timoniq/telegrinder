@@ -42,7 +42,8 @@ async def react_message(message: Message):
     bot.dispatch.global_context[f"{msg.from_user.id}:{msg.chat.id}"] = msg.message_id
 
 
-@bot.on.raw_event(UpdateType.CHAT_BOOST)
+# Same as bot.on.raw_event
+@bot.on(update_type=UpdateType.CHAT_BOOST)
 async def chat_boost(update: Update):
     boosted_chat = update.chat_boost.unwrap().chat
     logger.info(f"User boosted chat (title={boosted_chat.title.unwrap()}, id={boosted_chat.id})")

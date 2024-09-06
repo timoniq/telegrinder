@@ -1,4 +1,5 @@
-from telegrinder.bot.dispatch.view.abc import ABCStateView, ABCView, BaseStateView, BaseView
+from telegrinder.bot.dispatch.view.abc import ABCStateView, ABCView
+from telegrinder.bot.dispatch.view.base import BaseStateView, BaseView
 from telegrinder.bot.dispatch.view.box import ViewBox
 from telegrinder.bot.dispatch.view.callback_query import CallbackQueryView
 from telegrinder.bot.dispatch.view.chat_join_request import ChatJoinRequestView

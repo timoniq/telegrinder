@@ -4,7 +4,8 @@ from telegrinder.api.api import API
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.process import process_inner
-from telegrinder.bot.dispatch.view.abc import ABCEventRawView, BaseView, ErrorHandlerT
+from telegrinder.bot.dispatch.view.abc import ABCEventRawView
+from telegrinder.bot.dispatch.view.base import BaseView, ErrorHandlerT
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.types.enums import UpdateType

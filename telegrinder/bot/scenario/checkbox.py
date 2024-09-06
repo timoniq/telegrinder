@@ -11,7 +11,7 @@ from telegrinder.types.objects import InlineKeyboardMarkup
 
 if typing.TYPE_CHECKING:
     from telegrinder.api import API
-    from telegrinder.bot.dispatch.view.abc import BaseStateView
+    from telegrinder.bot.dispatch.view.base import BaseStateView
 
 
 @dataclasses.dataclass(slots=True)

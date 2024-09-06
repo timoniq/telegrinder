@@ -9,7 +9,7 @@ from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.return_manager.abc import register_manager
 from telegrinder.bot.dispatch.return_manager.message import MessageReturnManager
-from telegrinder.bot.dispatch.view.abc import BaseStateView
+from telegrinder.bot.dispatch.view.base import BaseStateView
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.text import Text
 

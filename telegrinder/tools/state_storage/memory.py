@@ -2,13 +2,13 @@ import typing
 
 from fntypes import Nothing, Option, Some
 
-from .abc import ABCStateStorage, StateData
+from telegrinder.tools.state_storage.abc import ABCStateStorage, StateData
 
-Payload = dict[str, typing.Any]
+Payload: typing.TypeAlias = dict[str, typing.Any]
 
 
 class MemoryStateStorage(ABCStateStorage[Payload]):
-    def __init__(self):
+    def __init__(self) -> None:
         self.storage: dict[int, StateData[Payload]] = {}
 
     async def get(self, user_id: int) -> Option[StateData[Payload]]:
@@ -20,3 +20,6 @@ class MemoryStateStorage(ABCStateStorage[Payload]):
 
     async def delete(self, user_id: int) -> None:
         self.storage.pop(user_id)
+
+
+__all__ = ("MemoryStateStorage",)
