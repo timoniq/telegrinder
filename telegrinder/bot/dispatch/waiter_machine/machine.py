@@ -53,17 +53,16 @@ class WaiterMachine:
         id: HasherData,
         **context: typing.Any,
     ) -> None:
-        hasher_name = hasher.get_name()
-        if hasher_name not in self.storage:
-            raise LookupError("No record of hasher {!r} found.".format(hasher_name))
+        if hasher not in self.storage:
+            raise LookupError("No record of hasher {!r} found.".format(hasher))
 
         waiter_id: typing.Hashable = hasher.create_hash(id).expect(
             RuntimeError("Couldn't create hash from data")
         )
-        short_state = self.storage[hasher_name].pop(waiter_id, None)
+        short_state = self.storage[hasher].pop(waiter_id, None)
         if short_state is None:
             raise LookupError(
-                "Waiter with identificator {} is not found for hasher {!r}".format(waiter_id, hasher_name)
+                "Waiter with identificator {} is not found for hasher {!r}".format(waiter_id, hasher)
             )
 
         short_state.cancel()
