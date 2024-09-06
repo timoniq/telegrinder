@@ -2,35 +2,38 @@ import asyncio
 import datetime
 import typing
 
-from telegrinder.api.api import API
-from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.view.abc import ABCStateView
 from telegrinder.bot.dispatch.view.base import BaseStateView
 from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
-    Behaviour,
     EventModel,
     ShortState,
     ShortStateContext,
 )
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.tools.limited_dict import LimitedDict
-from telegrinder.types import Update
 
-if typing.TYPE_CHECKING:
-    from telegrinder.bot.dispatch import Dispatch
+from .hasher import Hasher, StateViewHasher
 
 T = typing.TypeVar("T")
+HasherData = typing.TypeVar("HasherData")
 
-Identificator: typing.TypeAlias = str | int
-Storage: typing.TypeAlias = dict[str, LimitedDict[Identificator, ShortState[EventModel]]]
+
+Storage: typing.TypeAlias = dict[
+    Hasher[EventModel, HasherData], LimitedDict[typing.Hashable, ShortState[EventModel]]
+]
 
 WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
 
 
 class WaiterMachine:
-    def __init__(self, *, max_storage_size: int = 1000) -> None:
+    def __init__(
+        self,
+        *,
+        max_storage_size: int = 1000,
+        base_state_lifetime: datetime.timedelta = WEEK,
+    ) -> None:
         self.max_storage_size = max_storage_size
+        self.base_state_lifetime = base_state_lifetime
         self.storage: Storage = {}
 
     def __repr__(self) -> str:
@@ -46,142 +49,113 @@ class WaiterMachine:
 
     async def drop(
         self,
-        state_view: "ABCStateView[EventModel] | str",
-        id: Identificator,
-        event: EventModel,
-        update: Update,
+        hasher: Hasher[EventModel, HasherData],
+        id: HasherData,
         **context: typing.Any,
     ) -> None:
-        view_name = state_view if isinstance(state_view, str) else state_view.__class__.__name__
-        if view_name not in self.storage:
-            raise LookupError("No record of view {!r} found.".format(view_name))
+        hasher_name = hasher.get_name()
+        if hasher_name not in self.storage:
+            raise LookupError("No record of hasher {!r} found.".format(hasher_name))
 
-        short_state = self.storage[view_name].pop(id, None)
+        waiter_id: typing.Hashable = hasher.create_hash(id).expect(
+            RuntimeError("Couldn't create hash from data")
+        )
+        short_state = self.storage[hasher_name].pop(waiter_id, None)
         if short_state is None:
-            raise LookupError("Waiter with identificator {} is not found for view {!r}".format(id, view_name))
+            raise LookupError(
+                "Waiter with identificator {} is not found for hasher {!r}".format(waiter_id, hasher_name)
+            )
 
         short_state.cancel()
-        await self.call_behaviour(
-            event,
-            update,
-            behaviour=short_state.on_drop_behaviour,
-            **context,
-        )
 
     async def drop_all(self) -> None:
         """Drops all waiters in storage."""
 
-        for view_name in self.storage:
-            for ident, short_state in self.storage[view_name].items():
+        for hasher in self.storage:
+            for ident, short_state in self.storage[hasher].items():
                 if short_state.context:
                     await self.drop(
-                        view_name, ident, short_state.context.event, short_state.context.context.raw_update
+                        hasher,
+                        ident,
                     )
                 else:
                     short_state.cancel()
 
-    async def wait(
+    async def wait_from_event(
         self,
-        state_view: "BaseStateView[EventModel]",
-        linked: EventModel | tuple[API, Identificator],
-        *rules: ABCRule,
-        default: Behaviour[EventModel] | None = None,
-        on_drop: Behaviour[EventModel] | None = None,
-        exit: Behaviour[EventModel] | None = None,
-        expiration: datetime.timedelta | float | None = None,
+        view: BaseStateView[EventModel],
+        event: EventModel,
+        *,
+        filter: ABCRule | None = None,
+        release: ABCRule | None = None,
+        lifetime: datetime.timedelta | float | None = None,
     ) -> ShortStateContext[EventModel]:
-        if isinstance(expiration, int | float):
-            expiration = datetime.timedelta(seconds=expiration)
-
-        api: API
-        key: Identificator
-        api, key = linked if isinstance(linked, tuple) else (linked.ctx_api, state_view.get_state_key(linked))  # type: ignore
-        if not key:
-            raise RuntimeError("Unable to get state key.")
-
-        view_name = state_view.__class__.__name__
-        event = asyncio.Event()
-        short_state = ShortState[EventModel](
-            key,
-            api,
-            event,
-            rules,
-            expiration=expiration,
-            default_behaviour=default,
-            on_drop_behaviour=on_drop,
-            exit_behaviour=exit,
+        hasher = StateViewHasher(view)
+        return await self.wait(
+            hasher=hasher,
+            data=hasher.get_data_from_event(event).expect(
+                RuntimeError("Hasher couldn't create data from event.")
+            ),
+            filter=filter,
+            release=release,
+            lifetime=lifetime,
         )
 
-        if view_name not in self.storage:
-            state_view.middlewares.insert(0, WaiterMiddleware(self, state_view))
-            self.storage[view_name] = LimitedDict(maxlimit=self.max_storage_size)
+    async def wait(
+        self,
+        hasher: Hasher[EventModel, HasherData],
+        data: HasherData,
+        *,
+        filter: ABCRule | None = None,
+        release: ABCRule | None = None,
+        lifetime: datetime.timedelta | float | None = None,
+    ) -> ShortStateContext[EventModel]:
+        if isinstance(lifetime, int | float):
+            lifetime = datetime.timedelta(seconds=lifetime)
 
-        if (deleted_short_state := self.storage[view_name].set(key, short_state)) is not None:
+        event = asyncio.Event()
+        short_state = ShortState[EventModel](
+            filter=filter,
+            release=release,
+            event=event,
+            lifetime=lifetime or self.base_state_lifetime,
+        )
+        waiter_hash = hasher.create_hash(data).expect(RuntimeError("Hasher couldn't create hash."))
+
+        if hasher not in self.storage:
+            hasher.view.middlewares.insert(0, WaiterMiddleware(self, hasher))
+            self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)
+
+        if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
             deleted_short_state.cancel()
 
         await event.wait()
-        self.storage[view_name].pop(key, None)
+        self.storage[hasher].pop(waiter_hash, None)
         assert short_state.context is not None
         return short_state.context
 
-    async def call_behaviour(
-        self,
-        event: EventModel,
-        update: Update,
-        behaviour: Behaviour[EventModel] | None = None,
-        **context: typing.Any,
-    ) -> bool:
-        # TODO: support view as a behaviour
-
-        if behaviour is None:
-            return False
-
-        ctx = Context(**context)
-        if await behaviour.check(event.api, update, ctx):
-            await behaviour.run(event.api, event, ctx)
-            return True
-
-        return False
-
     async def clear_storage(
         self,
-        views: typing.Iterable[ABCStateView[EventModel]],
-        absolutely_dead_time: datetime.timedelta = WEEK,
     ) -> None:
-        """Clears storage.
+        """Clears storage."""
 
-        :param absolutely_dead_time: timedelta when state can be forgotten.
-        """
-
-        for view in views:
-            view_name = view.__class__.__name__
+        for hasher in self.storage:
             now = datetime.datetime.now()
-            for ident, short_state in self.storage.get(view_name, {}).copy().items():
+            for ident, short_state in self.storage.get(hasher, {}).copy().items():
                 if short_state.expiration_date is not None and now > short_state.expiration_date:
-                    assert short_state.context  # FIXME: why???
                     await self.drop(
-                        view,
+                        hasher,
                         ident,
-                        event=short_state.context.event,
-                        update=short_state.context.context.raw_update,
                         force=True,
                     )
-                elif short_state.creation_date + absolutely_dead_time < now:
-                    short_state.cancel()
-                    del self.storage[view_name][short_state.key]
 
 
 async def clear_wm_storage_worker(
     wm: WaiterMachine,
-    dp: "Dispatch",
     interval_seconds: int = 60,
-    absolutely_dead_time: datetime.timedelta = WEEK,
 ) -> typing.NoReturn:
     while True:
-        await wm.clear_storage(
-            views=[view for view in dp.get_views().values() if isinstance(view, ABCStateView)],
-            absolutely_dead_time=absolutely_dead_time,
-        )
+        await wm.clear_storage()
         await asyncio.sleep(interval_seconds)
 
 

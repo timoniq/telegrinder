@@ -25,6 +25,7 @@ from telegrinder.bot.dispatch import (
     Context,
     Dispatch,
     FuncHandler,
+    Hasher,
     InlineQueryReturnManager,
     Manager,
     MessageReplyHandler,
@@ -32,6 +33,7 @@ from telegrinder.bot.dispatch import (
     MessageView,
     RawEventView,
     ShortState,
+    StateViewHasher,
     ViewBox,
     WaiterMachine,
     clear_wm_storage_worker,
@@ -93,4 +95,6 @@ __all__ = (
     "WaiterMachine",
     "register_manager",
     "clear_wm_storage_worker",
+    "Hasher",
+    "StateViewHasher",
 )

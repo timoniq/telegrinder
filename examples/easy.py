@@ -3,7 +3,6 @@ import random
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import WaiterMachine, clear_wm_storage_worker
-from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
 from telegrinder.rules import FuzzyText, HasText, Markup, Text
@@ -24,12 +23,12 @@ async def start(message: Message):
     await message.answer(
         "Hello, {}! It's {}. How are you today?".format(message.from_user.first_name, me),
     )
-    m, _ = await wm.wait(
+    m, _ = await wm.wait_from_event(
         bot.dispatch.message,
         message,
-        Text(["fine", "bad"], ignore_case=True),
-        exit=MessageReplyHandler("Oh, ok, exiting state...", Text("/exit")),
-        default=MessageReplyHandler("Fine or bad", as_reply=True),
+        release=Text(["fine", "bad"], ignore_case=True),
+        # exit=MessageReplyHandler("Oh, ok, exiting state...", Text("/exit")),
+        # default=MessageReplyHandler("Fine or bad", as_reply=True), TODO
     )
 
     match m.text.unwrap().lower():
@@ -45,11 +44,11 @@ async def start(message: Message):
 @bot.on.message(Text("/react"))
 async def react(message: Message):
     await message.reply("Send me any message...")
-    msg, _ = await wm.wait(
+    msg, _ = await wm.wait_from_event(
         bot.dispatch.message,
         message,
-        HasText(),
-        default=MessageReplyHandler("Your message has no text!"),
+        release=HasText(),
+        # default=MessageReplyHandler("Your message has no text!"),
     )
     await msg.react("💋")
 
@@ -79,5 +78,5 @@ async def hello(message: Message):
     await message.reply("Hi!")
 
 
-bot.loop_wrapper.add_task(clear_wm_storage_worker(wm, bot.dispatch))
+bot.loop_wrapper.add_task(clear_wm_storage_worker(wm))
 bot.run_forever(skip_updates=True)

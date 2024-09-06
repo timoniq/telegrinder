@@ -61,6 +61,7 @@ from .bot import (
     Choice,
     Dispatch,
     FuncHandler,
+    Hasher,
     InlineQueryCute,
     InlineQueryReturnManager,
     InlineQueryRule,
@@ -72,6 +73,7 @@ from .bot import (
     Polling,
     RawEventView,
     ShortState,
+    StateViewHasher,
     Telegrinder,
     UpdateCute,
     ViewBox,
@@ -214,4 +216,6 @@ __all__ = (
     "MemoryStateStorage",
     "StateData",
     "StateMeta",
+    "Hasher",
+    "StateViewHasher",
 )

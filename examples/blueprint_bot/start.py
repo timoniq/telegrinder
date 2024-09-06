@@ -10,7 +10,7 @@ dp = Dispatch()
 @dp.message(Text("/funnel"))
 async def funnel_handler(message: Message):
     await message.answer("What is your favourite colour of thursday evening")
-    msg, _ = await wm.wait(dp.message, message, HasText())
+    msg, _ = await wm.wait_from_event(dp.message, message, release=HasText())
     await message.answer("Oki")
     logger.info(
         "{}'s favourite colour of thursday evening is {}",
@@ -18,7 +18,7 @@ async def funnel_handler(message: Message):
         msg.text,
     )
     await message.answer("And what is the pattern of the beautiful scarf you wear in the winter nights?")
-    msg, _ = await wm.wait(dp.message, message, HasText())
+    msg, _ = await wm.wait_from_event(dp.message, message, release=HasText())
     logger.info(
         "{}'s pattern of the winter scarf is {}",
         msg.from_user.first_name,

@@ -5,7 +5,6 @@ import itertools
 from telegrinder import (
     API,
     Message,
-    MessageReplyHandler,
     Telegrinder,
     Token,
     WaiterMachine,
@@ -28,11 +27,11 @@ class YesOrNo(enum.Enum):
 @bot.on.message(StartCommand())
 async def start(message: Message) -> str:
     await message.answer("Do you want some tee?")
-    _, ctx = await wm.wait(
+    _, ctx = await wm.wait_from_event(
         bot.dispatch.message,
         message,
-        EnumTextRule(YesOrNo),
-        default=MessageReplyHandler("You want, dont you?", as_reply=True),
+        release=EnumTextRule(YesOrNo),
+        # default=MessageReplyHandler("You want, dont you?", as_reply=True),
     )
     if ctx.enum_text == YesOrNo.NO:
         return "Leee thats sad dat tee is so sweet"

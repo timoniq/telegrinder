@@ -13,7 +13,6 @@ from telegrinder import (
     Token,
     WaiterMachine,
 )
-from telegrinder.bot.dispatch.handler.message_reply import MessageReplyHandler
 from telegrinder.modules import logger
 from telegrinder.rules import CallbackDataEq, CallbackDataJsonModel, Text
 
@@ -53,16 +52,18 @@ async def choose_handler(m: Message):
         text="Do you like making important decisions?",
         reply_markup=KeyboardSet.KEYBOARD_YES_NO.get_markup(),
     )
-    answer, _ = await wm.wait(
+    answer, _ = await wm.wait_from_event(
         bot.dispatch.message,
         m,
-        Text(["yes", "no"], ignore_case=True),
-        default=MessageReplyHandler("Please make a decision: Yes or No. This is extremely important!"),
+        release=Text(["yes", "no"], ignore_case=True),
+        # default=MessageReplyHandler("Please make a decision: Yes or No. This is extremely important!"),
     )
     if answer.text.unwrap().lower() == "yes":
         await answer.reply("Rockets have been launched.")
     else:
-        await answer.reply(":(( maybe you need some psychological help", reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup())
+        await answer.reply(
+            ":(( maybe you need some psychological help", reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup()
+        )
 
 
 @bot.on.message(Text(["/items", "Items"]))

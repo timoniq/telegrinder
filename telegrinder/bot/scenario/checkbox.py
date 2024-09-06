@@ -3,7 +3,7 @@ import secrets
 import typing
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
-from telegrinder.bot.dispatch.waiter_machine import WaiterMachine
+from telegrinder.bot.dispatch.waiter_machine import StateViewHasher, WaiterMachine
 from telegrinder.bot.scenario.abc import ABCScenario
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 from telegrinder.tools.parse_mode import ParseMode
@@ -124,7 +124,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         ).unwrap()
 
         while True:
-            q, _ = await self.waiter_machine.wait(view, (api, message.message_id))
+            q, _ = await self.waiter_machine.wait(StateViewHasher(view), message.message_id)
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
             if not should_continue:

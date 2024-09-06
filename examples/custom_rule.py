@@ -1,7 +1,6 @@
 from telegrinder import (
     API,
     Message,
-    MessageReplyHandler,
     MessageRule,
     Telegrinder,
     Token,
@@ -30,11 +29,10 @@ class HasNicePhoto(MessageRule, requires=[HasPhoto()]):
 @bot.on.message(Text("/chain"))
 async def start_handler(m: Message):
     await m.answer("Send me a photo please")
-    m, _ = await wm.wait(
+    m, _ = await wm.wait_from_event(
         bot.dispatch.message,
         m,
-        HasPhoto(),
-        default=MessageReplyHandler("Waiting for the photo", as_reply=True),
+        release=HasPhoto(),
     )
     await m.reply("Great photo! Chain completed.")
 

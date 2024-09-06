@@ -26,7 +26,13 @@ from telegrinder.bot.dispatch.view import (
     RawEventView,
     ViewBox,
 )
-from telegrinder.bot.dispatch.waiter_machine import ShortState, WaiterMachine, clear_wm_storage_worker
+from telegrinder.bot.dispatch.waiter_machine import (
+    Hasher,
+    ShortState,
+    StateViewHasher,
+    WaiterMachine,
+    clear_wm_storage_worker,
+)
 
 __all__ = (
     "ABCDispatch",
@@ -60,4 +66,6 @@ __all__ = (
     "process_inner",
     "register_manager",
     "clear_wm_storage_worker",
+    "Hasher",
+    "StateViewHasher",
 )
