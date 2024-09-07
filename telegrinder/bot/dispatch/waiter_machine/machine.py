@@ -27,7 +27,7 @@ WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
 
 
 class WaiterSettings(typing.TypedDict, typing.Generic[EventModel]):
-    on_no_release: typing.NotRequired[ABCHandler[EventModel]]
+    on_miss: typing.NotRequired[ABCHandler[EventModel]]
     on_drop: typing.NotRequired[typing.Callable[[ShortState[EventModel]], None]]
 
 
@@ -130,7 +130,7 @@ class WaiterMachine:
             release=release,
             event=event,
             lifetime=lifetime or self.base_state_lifetime,
-            on_no_release=settings.get("on_no_release"),
+            on_miss=settings.get("on_miss"),
             on_drop=settings.get("on_drop"),
         )
         waiter_hash = hasher.create_hash(data).expect(RuntimeError("Hasher couldn't create hash."))

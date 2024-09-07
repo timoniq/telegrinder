@@ -30,7 +30,7 @@ class ShortState(typing.Generic[EventModel]):
         kw_only=True,
     )
 
-    on_no_release: ABCHandler[EventModel] | None = None
+    on_miss: ABCHandler[EventModel] | None = None
     on_drop: typing.Callable[["ShortState[EventModel]"], None] | None = None
 
     expiration_date: datetime.datetime | None = dataclasses.field(init=False, kw_only=True)

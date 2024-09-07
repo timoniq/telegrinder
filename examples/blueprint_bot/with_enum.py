@@ -20,7 +20,7 @@ class WasNaughty(ABCRule, requires=[HasText()]):
             dp.message,
             message,
             release=Text(["yes", "no"], ignore_case=True),
-            on_no_release=MessageReplyHandler("Yes or no? Were you naughty??"),
+            on_miss=MessageReplyHandler("Yes or no? Were you naughty??"),
         )
         return m.text.unwrap().lower() == "yes"
 

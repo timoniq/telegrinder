@@ -32,7 +32,7 @@ async def start(message: Message) -> str:
         bot.dispatch.message,
         message,
         release=EnumTextRule(YesOrNo),
-        on_no_release=MessageReplyHandler("You want, dont you?", as_reply=True),
+        on_miss=MessageReplyHandler("You want, dont you?", as_reply=True),
     )
     if ctx.enum_text == YesOrNo.NO:
         return "Leee thats sad dat tee is so sweet"

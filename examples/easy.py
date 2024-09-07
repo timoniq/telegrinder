@@ -27,7 +27,7 @@ async def start(message: Message):
         bot.dispatch.message,
         message,
         release=Text(["fine", "bad"], ignore_case=True),
-        on_no_release=MessageReplyHandler("Fine or bad", as_reply=True),
+        on_miss=MessageReplyHandler("Fine or bad", as_reply=True),
     )
 
     match m.text.unwrap().lower():
@@ -47,7 +47,7 @@ async def react(message: Message):
         bot.dispatch.message,
         message,
         release=HasText(),
-        on_no_release=MessageReplyHandler("Your message has no text!"),
+        on_miss=MessageReplyHandler("Your message has no text!"),
     )
     await msg.react("💋")
 
