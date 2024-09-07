@@ -5,6 +5,7 @@ from telegrinder import (
     Checkbox,
     Dispatch,
     Message,
+    MessageReplyHandler,
     StateViewHasher,
     WaiterMachine,
 )
@@ -92,7 +93,7 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         message_hasher,
         message.chat.id,
         release=HasText(),
-        # default=MessageReplyHandler("Im still waiting for your message!"), TODO
+        on_no_release=MessageReplyHandler("Im still waiting for your message!"),
     )
     await msg.reply(HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE)
 
@@ -110,7 +111,7 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
         message_hasher,
         message.chat.id,
         release=IntegerInRange(range(1, 11)),
-        # default=MessageReplyHandler("Send a number between 1 and 10!"), TODO
+        on_no_release=MessageReplyHandler("Send a number between 1 and 10!"),
     )
     random_number = random.randint(1, 10)
     if int(msg.text.unwrap()) == random_number:

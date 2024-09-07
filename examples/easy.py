@@ -1,7 +1,7 @@
 import pathlib
 import random
 
-from telegrinder import API, Message, Telegrinder, Token
+from telegrinder import API, Message, MessageReplyHandler, Telegrinder, Token
 from telegrinder.bot import WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
@@ -27,8 +27,7 @@ async def start(message: Message):
         bot.dispatch.message,
         message,
         release=Text(["fine", "bad"], ignore_case=True),
-        # exit=MessageReplyHandler("Oh, ok, exiting state...", Text("/exit")),
-        # default=MessageReplyHandler("Fine or bad", as_reply=True), TODO
+        on_no_release=MessageReplyHandler("Fine or bad", as_reply=True),
     )
 
     match m.text.unwrap().lower():
@@ -48,7 +47,7 @@ async def react(message: Message):
         bot.dispatch.message,
         message,
         release=HasText(),
-        # default=MessageReplyHandler("Your message has no text!"),
+        on_no_release=MessageReplyHandler("Your message has no text!"),
     )
     await msg.react("💋")
 

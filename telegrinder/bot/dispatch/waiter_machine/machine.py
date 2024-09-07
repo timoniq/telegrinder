@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import typing
 
+from telegrinder.bot.dispatch.handler import ABCHandler
 from telegrinder.bot.dispatch.view.base import BaseStateView
 from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
@@ -23,6 +24,11 @@ Storage: typing.TypeAlias = dict[
 ]
 
 WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
+
+
+class WaiterSettings(typing.TypedDict, typing.Generic[EventModel]):
+    on_no_release: typing.NotRequired[ABCHandler[EventModel]]
+    on_drop: typing.NotRequired[typing.Callable[[ShortState[EventModel]], None]]
 
 
 class WaiterMachine:
@@ -65,6 +71,9 @@ class WaiterMachine:
                 "Waiter with identificator {} is not found for hasher {!r}".format(waiter_id, hasher)
             )
 
+        if short_state.on_drop:
+            short_state.on_drop(short_state, **context)
+
         short_state.cancel()
 
     async def drop_all(self) -> None:
@@ -88,6 +97,7 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
+        **settings: typing.Unpack[WaiterSettings],
     ) -> ShortStateContext[EventModel]:
         hasher = StateViewHasher(view)
         return await self.wait(
@@ -98,6 +108,7 @@ class WaiterMachine:
             filter=filter,
             release=release,
             lifetime=lifetime,
+            **settings,
         )
 
     async def wait(
@@ -108,6 +119,7 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
+        **settings: typing.Unpack[WaiterSettings],
     ) -> ShortStateContext[EventModel]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
@@ -118,6 +130,8 @@ class WaiterMachine:
             release=release,
             event=event,
             lifetime=lifetime or self.base_state_lifetime,
+            on_no_release=settings.get("on_no_release"),
+            on_drop=settings.get("on_drop"),
         )
         waiter_hash = hasher.create_hash(data).expect(RuntimeError("Hasher couldn't create hash."))
 

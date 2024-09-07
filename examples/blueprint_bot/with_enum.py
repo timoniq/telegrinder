@@ -1,4 +1,4 @@
-from telegrinder import Dispatch, Message
+from telegrinder import Dispatch, Message, MessageReplyHandler
 from telegrinder.modules import logger
 from telegrinder.rules import ABCRule, HasText, Markup, RuleEnum, Text
 
@@ -20,7 +20,7 @@ class WasNaughty(ABCRule, requires=[HasText()]):
             dp.message,
             message,
             release=Text(["yes", "no"], ignore_case=True),
-            # default=MessageReplyHandler("Yes or no? Were you naughty??"), TODO
+            on_no_release=MessageReplyHandler("Yes or no? Were you naughty??"),
         )
         return m.text.unwrap().lower() == "yes"
 

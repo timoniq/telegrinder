@@ -70,9 +70,10 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         if result is True:
             await handler.run(event.api, event, ctx)
 
-        else:
-            # TODO: default behaviour
-            pass
+        elif short_state.on_no_release and await short_state.on_no_release.check(
+            event.ctx_api, ctx.raw_update, ctx
+        ):
+            await short_state.on_no_release.run(event.ctx_api, event, ctx)
 
         return False
 

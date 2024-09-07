@@ -3,6 +3,7 @@ from fntypes.co import Some
 from telegrinder import (
     API,
     Message,
+    MessageReplyHandler,
     Telegrinder,
     Token,
     Update,
@@ -35,7 +36,7 @@ async def react_message(message: Message):
         bot.dispatch.message,
         message,
         release=HasText(),
-        # default=MessageReplyHandler("Im still waiting for the message with any text!"),
+        on_no_release=MessageReplyHandler("Im still waiting for the message with any text!"),
     )
     await msg.react(ReactionEmoji.HEART_ON_FIRE)
     bot.dispatch.global_context[f"{msg.from_user.id}:{msg.chat.id}"] = msg.message_id
