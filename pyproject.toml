@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "telegrinder"
-version = "0.2.1.post3"
+version = "0.2.2"
 description = "Modern visionary telegram bot framework."
 authors = ["timoniq <tesseradecades@mail.ru>"]
 maintainers = ["luwqz1 <howluwqz1@gmail.com>"]
