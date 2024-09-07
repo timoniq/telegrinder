@@ -60,6 +60,7 @@ from .bot import (
     ChatMemberView,
     Checkbox,
     Choice,
+    Context,
     Dispatch,
     DocumentReplyHandler,
     FuncHandler,
@@ -224,4 +225,5 @@ __all__ = (
     "logger",
     "magic_bundle",
     "register_manager",
+    "Context",
 )
