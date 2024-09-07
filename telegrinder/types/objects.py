@@ -292,6 +292,10 @@ class Update(Model):
     """Optional. New incoming pre-checkout query. Contains full information
     about checkout."""
 
+    purchased_paid_media: Option["PaidMediaPurchased"] = Nothing
+    """Optional. A user purchased paid media with a non-empty payload sent by the
+    bot in a non-channel chat."""
+
     poll: Option["Poll"] = Nothing
     """Optional. New poll state. Bots receive only updates about manually stopped
     polls and polls, which are sent by the bot."""
@@ -2179,8 +2183,12 @@ class VideoChatParticipantsInvited(Model):
 class GiveawayCreated(Model):
     """Object `GiveawayCreated`, see the [documentation](https://core.telegram.org/bots/api#giveawaycreated).
 
-    This object represents a service message about the creation of a scheduled giveaway. Currently holds no information.
+    This object represents a service message about the creation of a scheduled giveaway.
     """
+
+    prize_star_count: Option[int] = Nothing
+    """Optional. The number of Telegram Stars to be split between giveaway winners;
+    for Telegram Star giveaways only."""
 
 
 class Giveaway(Model):
@@ -2214,9 +2222,13 @@ class Giveaway(Model):
     then all users can participate in the giveaway. Users with a phone number
     that was bought on Fragment can always participate in giveaways."""
 
+    prize_star_count: Option[int] = Nothing
+    """Optional. The number of Telegram Stars to be split between giveaway winners;
+    for Telegram Star giveaways only."""
+
     premium_subscription_month_count: Option[int] = Nothing
     """Optional. The number of months the Telegram Premium subscription won from
-    the giveaway will be active for."""
+    the giveaway will be active for; for Telegram Premium giveaways only."""
 
 
 class GiveawayWinners(Model):
@@ -2244,9 +2256,13 @@ class GiveawayWinners(Model):
     """Optional. The number of other chats the user had to join in order to be eligible
     for the giveaway."""
 
+    prize_star_count: Option[int] = Nothing
+    """Optional. The number of Telegram Stars that were split between giveaway
+    winners; for Telegram Star giveaways only."""
+
     premium_subscription_month_count: Option[int] = Nothing
     """Optional. The number of months the Telegram Premium subscription won from
-    the giveaway will be active for."""
+    the giveaway will be active for; for Telegram Premium giveaways only."""
 
     unclaimed_prize_count: Option[int] = Nothing
     """Optional. Number of undistributed prizes."""
@@ -2277,6 +2293,10 @@ class GiveawayCompleted(Model):
 
     giveaway_message: Option["Message"] = Nothing
     """Optional. Message with the giveaway that was completed, if it wasn't deleted."""
+
+    is_star_giveaway: Option[bool] = Nothing
+    """Optional. True, if the giveaway is a Telegram Star giveaway. Otherwise,
+    currently, the giveaway is a Telegram Premium giveaway."""
 
 
 class LinkPreviewOptions(Model):
@@ -3634,7 +3654,7 @@ class ChatBoostSourceGiftCode(ChatBoostSource):
 class ChatBoostSourceGiveaway(ChatBoostSource):
     """Object `ChatBoostSourceGiveaway`, see the [documentation](https://core.telegram.org/bots/api#chatboostsourcegiveaway).
 
-    The boost was obtained by the creation of a Telegram Premium giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
+    The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and prize_star_count / 500 times for one year for Telegram Star giveaways.
     """
 
     source: typing.Literal["giveaway"]
@@ -3645,7 +3665,12 @@ class ChatBoostSourceGiveaway(ChatBoostSource):
     have been deleted already. May be 0 if the message isn't sent yet."""
 
     user: Option["User"] = Nothing
-    """Optional. User that won the prize in the giveaway if any."""
+    """Optional. User that won the prize in the giveaway if any; for Telegram Premium
+    giveaways only."""
+
+    prize_star_count: Option[int] = Nothing
+    """Optional. The number of Telegram Stars to be split between giveaway winners;
+    for Telegram Star giveaways only."""
 
     is_unclaimed: Option[bool] = Nothing
     """Optional. True, if the giveaway was completed, but there was no user to win
@@ -5725,6 +5750,19 @@ class PreCheckoutQuery(Model):
     """Optional. Order information provided by the user."""
 
 
+class PaidMediaPurchased(Model):
+    """Object `PaidMediaPurchased`, see the [documentation](https://core.telegram.org/bots/api#paidmediapurchased).
+
+    This object contains information about a paid media purchase.
+    """
+
+    from_: "User"
+    """User who purchased the media."""
+
+    paid_media_payload: str
+    """Bot-specified paid media payload."""
+
+
 class RevenueWithdrawalStatePending(RevenueWithdrawalState):
     """Object `RevenueWithdrawalStatePending`, see the [documentation](https://core.telegram.org/bots/api#revenuewithdrawalstatepending).
 
@@ -5778,6 +5816,9 @@ class TransactionPartnerUser(TransactionPartner):
 
     paid_media: Option[list[Variative["PaidMediaPreview", "PaidMediaPhoto", "PaidMediaVideo"]]] = Nothing
     """Optional. Information about the paid media bought by the user."""
+
+    paid_media_payload: Option[str] = Nothing
+    """Optional. Bot-specified paid media payload."""
 
 
 class TransactionPartnerFragment(TransactionPartner):
@@ -6428,6 +6469,7 @@ __all__ = (
     "PaidMediaInfo",
     "PaidMediaPhoto",
     "PaidMediaPreview",
+    "PaidMediaPurchased",
     "PaidMediaVideo",
     "PassportData",
     "PassportElementError",

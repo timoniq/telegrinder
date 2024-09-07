@@ -526,8 +526,8 @@ class MethodGenerator(ABCGenerator):
             ""
             if not self.api_version or not self.release_date
             else (
-                '    """Telegram {} methods, released `{}`."""\n\n'.format(
-                    self.api_version or "Bot API",
+                '    """Telegram {}, released `{}`."""\n\n'.format(
+                    (self.api_version or "Bot API x.x").replace("Bot API", "Bot API methods version"),
                     self.release_date or datetime.datetime.now().ctime(),
                 )
             )
@@ -559,6 +559,7 @@ class MethodGenerator(ABCGenerator):
             lines.append(self.make_method(method_schema) + "\n\n")
 
         with open(path + "/methods.py", mode="w", encoding="UTF-8") as f:
+            lines.append('\n\n\n__all__ = ("APIMethods",)\n\n')
             f.writelines(lines)
 
         logger.info(
