@@ -2,7 +2,6 @@ import asyncio
 import datetime
 import typing
 
-from telegrinder.bot.dispatch.handler import ABCHandler
 from telegrinder.bot.dispatch.view.base import BaseStateView
 from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
@@ -13,6 +12,7 @@ from telegrinder.bot.dispatch.waiter_machine.short_state import (
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.tools.limited_dict import LimitedDict
 
+from .actions import WaiterActions
 from .hasher import Hasher, StateViewHasher
 
 T = typing.TypeVar("T")
@@ -24,11 +24,6 @@ Storage: typing.TypeAlias = dict[
 ]
 
 WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
-
-
-class WaiterSettings(typing.TypedDict, typing.Generic[EventModel]):
-    on_miss: typing.NotRequired[ABCHandler[EventModel]]
-    on_drop: typing.NotRequired[typing.Callable[[ShortState[EventModel]], None]]
 
 
 class WaiterMachine:
@@ -71,8 +66,8 @@ class WaiterMachine:
                 "Waiter with identificator {} is not found for hasher {!r}".format(waiter_id, hasher)
             )
 
-        if short_state.on_drop:
-            short_state.on_drop(short_state, **context)
+        if on_drop := short_state.actions.get("on_drop"):
+            on_drop(short_state, **context)
 
         short_state.cancel()
 
@@ -97,7 +92,7 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        **settings: typing.Unpack[WaiterSettings],
+        **actions: typing.Unpack[WaiterActions],
     ) -> ShortStateContext[EventModel]:
         hasher = StateViewHasher(view)
         return await self.wait(
@@ -108,7 +103,7 @@ class WaiterMachine:
             filter=filter,
             release=release,
             lifetime=lifetime,
-            **settings,
+            **actions,
         )
 
     async def wait(
@@ -119,7 +114,7 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        **settings: typing.Unpack[WaiterSettings],
+        **actions: typing.Unpack[WaiterActions],
     ) -> ShortStateContext[EventModel]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
@@ -130,8 +125,7 @@ class WaiterMachine:
             release=release,
             event=event,
             lifetime=lifetime or self.base_state_lifetime,
-            on_miss=settings.get("on_miss"),
-            on_drop=settings.get("on_drop"),
+            actions=actions,
         )
         waiter_hash = hasher.create_hash(data).expect(RuntimeError("Hasher couldn't create hash."))
 

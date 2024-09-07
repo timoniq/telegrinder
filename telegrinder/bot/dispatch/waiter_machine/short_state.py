@@ -9,6 +9,10 @@ from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.model import Model
 
+if typing.TYPE_CHECKING:
+    from .actions import WaiterActions
+
+
 T = typing.TypeVar("T", bound=Model)
 EventModel = typing.TypeVar("EventModel", bound=BaseCute)
 
@@ -23,15 +27,14 @@ class ShortStateContext(typing.Generic[EventModel], typing.NamedTuple):
 @dataclasses.dataclass(slots=True)
 class ShortState(typing.Generic[EventModel]):
     event: asyncio.Event
+    actions: "WaiterActions"
+
     release: ABCRule | None = None
     filter: ABCRule | None = None
     lifetime: dataclasses.InitVar[datetime.timedelta | None] = dataclasses.field(
         default=None,
         kw_only=True,
     )
-
-    on_miss: ABCHandler[EventModel] | None = None
-    on_drop: typing.Callable[["ShortState[EventModel]"], None] | None = None
 
     expiration_date: datetime.datetime | None = dataclasses.field(init=False, kw_only=True)
     creation_date: datetime.datetime = dataclasses.field(init=False)
