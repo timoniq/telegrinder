@@ -3,7 +3,6 @@ import dataclasses
 import datetime
 import typing
 
-from telegrinder.api.api import API
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
@@ -11,7 +10,8 @@ from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.model import Model
 
 if typing.TYPE_CHECKING:
-    from .machine import Identificator
+    from .actions import WaiterActions
+
 
 T = typing.TypeVar("T", bound=Model)
 EventModel = typing.TypeVar("EventModel", bound=BaseCute)
@@ -26,19 +26,19 @@ class ShortStateContext(typing.Generic[EventModel], typing.NamedTuple):
 
 @dataclasses.dataclass(slots=True)
 class ShortState(typing.Generic[EventModel]):
-    key: "Identificator"
-    ctx_api: API
     event: asyncio.Event
-    rules: tuple[ABCRule, ...]
-    expiration: dataclasses.InitVar[datetime.timedelta | None] = dataclasses.field(
+    actions: "WaiterActions"
+
+    release: ABCRule | None = None
+    filter: ABCRule | None = None
+    lifetime: dataclasses.InitVar[datetime.timedelta | None] = dataclasses.field(
         default=None,
         kw_only=True,
     )
-    default_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None, kw_only=True)
-    on_drop_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None, kw_only=True)
-    exit_behaviour: Behaviour[EventModel] | None = dataclasses.field(default=None, kw_only=True)
+
     expiration_date: datetime.datetime | None = dataclasses.field(init=False, kw_only=True)
     creation_date: datetime.datetime = dataclasses.field(init=False)
+
     context: ShortStateContext[EventModel] | None = dataclasses.field(default=None, init=False, kw_only=True)
 
     def __post_init__(self, expiration: datetime.timedelta | None = None) -> None:
