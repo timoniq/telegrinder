@@ -14,3 +14,6 @@ class StateViewHasher(Hasher[Event, int]):
 
     def get_data_from_event(self, event: Event) -> Option[int]:
         return from_optional(self.view.get_state_key(event))
+
+
+__all__ = ("StateViewHasher",)

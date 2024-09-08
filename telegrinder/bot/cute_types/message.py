@@ -207,44 +207,37 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         protect_content: bool | None = None,
         link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
 
-        Use this method to send a message with text messages. On success, the sent Message is returned.
+        Use this method to send text messages. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
 
-        :param text: Text of the message to be sent, 1-4096 characters after entities parsing. \
-
-        :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
-        more details.
-
-        :param entities: A JSON-serialized list of special entities that appear in message text, \
-        which can be specified instead of parse_mode.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
 
         :param link_preview_options: Link preview generation options for the message.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -255,7 +248,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply(
         self,
-        text: str | None = None,
+        text: str,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -265,46 +258,39 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
 
-        Use this method to send a reply to a message with text messages. On success, the sent Message is returned.
+        Use this method to send text messages. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
 
-        :param text: Text of the message to be sent, 1-4096 characters after entities parsing. \
-
-        :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
-        more details.
-
-        :param entities: A JSON-serialized list of special entities that appear in message text, \
-        which can be specified instead of parse_mode.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
 
         :param link_preview_options: Link preview generation options for the message.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -329,13 +315,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         of a group, it can delete any message there. - If the bot has can_delete_messages
         permission in a supergroup or a channel, it can delete any message there.
         Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        :param chat_id: Unique identifier for the target chat or username of the target channel
         (in the format @channelusername).
 
         :param message_id: Identifier of the message to delete.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for
         forum supergroups only."""
 
         params = compose_method_params(
@@ -353,38 +338,167 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def edit(
         self,
-        text: str | None = None,
-        chat_id: int | None = None,
+        text: str,
+        chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
         parse_mode: str | None = None,
         entities: list[MessageEntity] | None = None,
         link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        business_connection_id: str | None = None,
+        inline_message_id: str | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
         Use this method to edit text and game messages. On success, if the edited
         message is not an inline message, the edited Message is returned, otherwise
-        True is returned.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername). \
-
-        :param message_id: Required if inline_message_id is not specified. Identifier of the message \
+        True is returned. Note that business messages that were not sent by the bot
+        and do not contain an inline keyboard can only be edited within 48 hours from
+        the time they were sent.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
         to edit.
 
-        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the
         inline message.
 
         :param text: New text of the message, 1-4096 characters after entities parsing.
 
-        :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options for
         more details.
 
-        :param entities: A JSON-serialized list of special entities that appear in message text, \
+        :param entities: A JSON-serialized list of special entities that appear in message text,
         which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the message
+        to be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
+        to edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the
+        inline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options for
+        more details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,
+        which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
 
         :param link_preview_options: Link preview generation options for the message.
 
@@ -408,48 +522,50 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
+        show_caption_above_media: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
-        Use this method to copy messages of any kind. Service messages, giveaway
-        messages, giveaway winners messages, and invoice messages can't be copied.
-        A quiz poll can be copied only if the value of the field correct_option_id
-        is known to the bot. The method is analogous to the method forwardMessage,
-        but the copied message doesn't have a link to the original message. Returns
-        the MessageId of the sent message on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        Use this method to copy messages of any kind. Service messages, paid media
+        messages, giveaway messages, giveaway winners messages, and invoice
+        messages can't be copied. A quiz poll can be copied only if the value of the
+        field correct_option_id is known to the bot. The method is analogous to
+        the method forwardMessage, but the copied message doesn't have a link to
+        the original message. Returns the MessageId of the sent message on success.
+        :param chat_id: Unique identifier for the target chat or username of the target channel
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for
         forum supergroups only.
 
-        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channel \
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channel
         username in the format @channelusername).
 
         :param message_id: Message identifier in the chat specified in from_chat_id.
 
-        :param caption: New caption for media, 0-1024 characters after entities parsing. If not \
+        :param caption: New caption for media, 0-1024 characters after entities parsing. If not
         specified, the original caption is kept.
 
-        :param parse_mode: Mode for parsing entities in the new caption. See formatting options for \
+        :param parse_mode: Mode for parsing entities in the new caption. See formatting options for
         more details.
 
-        :param caption_entities: A JSON-serialized list of special entities that appear in the new caption, \
+        :param caption_entities: A JSON-serialized list of special entities that appear in the new caption,
         which can be specified instead of parse_mode.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inline
+        keyboard, custom reply keyboard, instructions to remove reply keyboard
+        or to force a reply from the user."""
 
         params = compose_method_params(
             params=get_params(locals()),
@@ -488,24 +604,21 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to change the chosen reactions on a message. Service messages
         can't be reacted to. Automatically forwarded messages from a channel to
         its discussion group have the same available reactions as messages in the
-        channel. Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        channel. Bots can't use paid reactions. Returns True on success.
+        :param chat_id: Unique identifier for the target chat or username of the target channel
         (in the format @channelusername).
 
-        :param message_id: Identifier of the target message. If the message belongs to a media group, \
-        the reaction is set to the first non-deleted message in the group instead. \
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
+        :param message_id: Identifier of the target message. If the message belongs to a media group,
+        the reaction is set to the first non-deleted message in the group instead.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for
         forum supergroups only.
 
-        :param reaction: New list of reaction types to set on the message. Currently, as non-premium \
-        users, bots can set up to one reaction per message. A custom emoji reaction \
-        can be used if it is either already present on the message or explicitly allowed \
+        :param reaction: New list of reaction types to set on the message. Currently, as non-premium
+        users, bots can set up to one reaction per message. A custom emoji reaction
+        can be used if it is either already present on the message or explicitly allowed
         by chat administrators.
 
-        :param is_big: Pass True to set the reaction with a big animation.
-        """
+        :param is_big: Pass True to set the reaction with a big animation."""
 
         params = compose_method_params(
             params=get_params(locals()),
@@ -535,20 +648,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to forward messages of any kind. Service messages and messages
         with protected content can't be forwarded. On success, the sent Message
         is returned.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channelusername in the format @channelusername).
 
-        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channel \
-        username in the format @channelusername).
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
-        :param protect_content: Protects the contents of the forwarded message from forwarding and saving. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the forwarded message from forwarding and saving.
         :param message_id: Message identifier in the chat specified in from_chat_id."""
 
         params = compose_method_params(
@@ -572,6 +679,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_id: int | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
+        business_connection_id: str | None = None,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.pin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
@@ -581,19 +689,70 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         for this to work and must have the 'can_pin_messages' administrator right
         in a supergroup or 'can_edit_messages' administrator right in a channel.
         Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        :param chat_id: Unique identifier for the target chat or username of the target channel
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for
         forum supergroups only.
 
         :param message_id: Identifier of a message to pin.
 
-        :param disable_notification: Pass True if it is not necessary to send a notification to all chat members \
-        about the new pinned message. Notifications are always disabled in channels \
-        and private chats.
-        """
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat members
+        about the new pinned message. Notifications are always disabled in channels
+        and private chats.:param business_connection_id: Unique identifier of the business connection on behalf of which the message
+        will be pinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel
+        (in the format @channelusername).
+
+        :param message_id: Identifier of a message to pin.
+
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat members
+        about the new pinned message. Notifications are always disabled in channels
+        and private chats.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be pinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of a message to pin.
+
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be pinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of a message to pin.
+
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be pinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of a message to pin.
+
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be pinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of a message to pin.
+
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be pinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of a message to pin.
+
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be pinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of a message to pin.
+
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be pinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of a message to pin.
+
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats."""
 
         params = compose_method_params(
             params=get_params(locals()),
@@ -609,6 +768,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
+        business_connection_id: str | None = None,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.unpin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
@@ -618,13 +778,48 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         for this to work and must have the 'can_pin_messages' administrator right
         in a supergroup or 'can_edit_messages' administrator right in a channel.
         Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        :param chat_id: Unique identifier for the target chat or username of the target channel
         (in the format @channelusername).
 
-        :param message_id: Identifier of a message to unpin. If not specified, the most recent pinned \
-        message (by sending date) will be unpinned.
-        """
+        :param message_id: Identifier of a message to unpin. If not specified, the most recent pinned
+        message (by sending date) will be unpinned.:param business_connection_id: Unique identifier of the business connection on behalf of which the message
+        will be unpinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel
+        (in the format @channelusername).
+
+        :param message_id: Identifier of the message to unpin. Required if business_connection_id
+        is specified. If not specified, the most recent pinned message (by sending
+        date) will be unpinned.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be unpinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be unpinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be unpinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be unpinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be unpinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned.:param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be unpinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be unpinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned."""
 
         params = compose_method_params(
             params=get_params(locals()),
@@ -656,7 +851,11 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
@@ -666,31 +865,18 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         success, the sent Message is returned. Bots can currently send audio files
         of up to 50 MB in size, this limit may be changed in the future. For sending
         voice messages, use the sendVoice method instead.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param audio: Audio file to send. Pass a file_id as String to send an audio file that exists \
-        on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
-        to get an audio file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
+        :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Audio caption, 0-1024 characters after entities parsing.
 
-        :param parse_mode: Mode for parsing entities in the audio caption. See formatting options \
-        for more details.
+        :param parse_mode: Mode for parsing entities in the audio caption. See formatting optionsfor more details.
 
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
         :param duration: Duration of the audio in seconds.
 
@@ -698,23 +884,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param title: Track name.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -742,7 +920,11 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
@@ -750,60 +932,37 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without
         sound). On success, the sent Message is returned. Bots can currently send
         animation files of up to 50 MB in size, this limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param animation: Animation to send. Pass a file_id as String to send an animation that exists \
-        on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
-        to get an animation from the Internet, or upload a new animation using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
+        :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent animation in seconds.
 
         :param width: Animation width.
 
         :param height: Animation height.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Animation caption (may also be used when resending animation by file_id),0-1024 characters after entities parsing.
 
-        :param caption: Animation caption (may also be used when resending animation by file_id), \
-        0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the animation caption. See formatting optionsfor more details.
 
-        :param parse_mode: Mode for parsing entities in the animation caption. See formatting options \
-        for more details.
-
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
         :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
 
-        :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -828,7 +987,11 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
@@ -836,55 +999,30 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send general files. On success, the sent Message is returned.
         Bots can currently send files of any type of up to 50 MB in size, this limit
         may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Document caption (may also be used when resending documents by file_id),0-1024 characters after entities parsing.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param parse_mode: Mode for parsing entities in the document caption. See formatting optionsfor more details.
 
-        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegram \
-        servers (recommended), pass an HTTP URL as a String for Telegram to get a \
-        file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        :param disable_content_type_detection: Disables automatic server-side content type detection for files uploadedusing multipart/form-data.
 
-        :param caption: Document caption (may also be used when resending documents by file_id), \
-        0-1024 characters after entities parsing.
-
-        :param parse_mode: Mode for parsing entities in the document caption. See formatting options \
-        for more details.
-
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
-
-        :param disable_content_type_detection: Disables automatic server-side content type detection for files uploaded \
-        using multipart/form-data.
-
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -908,54 +1046,41 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
 
         Use this method to send photos. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param parse_mode: Mode for parsing entities in the photo caption. See formatting optionsfor more details.
 
-        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegram \
-        servers (recommended), pass an HTTP URL as a String for Telegram to get a \
-        photo from the Internet, or upload a new photo using multipart/form-data. \
-        The photo must be at most 10 MB in size. The photo's width and height must not \
-        exceed 10000 in total. Width and height ratio must be at most 20. More information \
-        on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
-        :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024 \
-        characters after entities parsing.
-
-        :param parse_mode: Mode for parsing entities in the photo caption. See formatting options \
-        for more details.
-
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
-
-        :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
-        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
         :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
 
+        :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -975,44 +1100,35 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
 
         Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
         On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on the \
-        Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
-        to get a .WEBP sticker from the Internet, or upload a new .WEBP or .TGS sticker \
-        using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-        Video stickers can only be sent by a file_id. Animated stickers can't be \
-        sent via an HTTP URL.
+        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
 
         :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1032,7 +1148,20 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
+        has_spoiler: bool | None = None,
+        supports_streaming: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
@@ -1041,62 +1170,40 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         (other formats may be sent as Document). On success, the sent Message is
         returned. Bots can currently send video files of up to 50 MB in size, this
         limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegram \
-        servers (recommended), pass an HTTP URL as a String for Telegram to get a \
-        video from the Internet, or upload a new video using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
+        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent video in seconds.
 
         :param width: Video width.
 
         :param height: Video height.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
 
-        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024 \
-        characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.
 
-        :param parse_mode: Mode for parsing entities in the video caption. See formatting options \
-        for more details.
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
 
         :param supports_streaming: Pass True if the uploaded video is suitable for streaming.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1118,7 +1225,11 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
@@ -1126,45 +1237,27 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         As of v.4.0, Telegram clients support rounded square MPEG4 videos of up
         to 1 minute long. Use this method to send video messages. On success, the
         sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param video_note: Video note to send. Pass a file_id as String to send a video note that exists \
-        on the Telegram servers (recommended) or upload a new video using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-        Sending video notes by a URL is currently unsupported.
+        :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
 
         :param duration: Duration of sent video in seconds.
 
         :param length: Video width and height, i.e. diameter of the video message.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1187,53 +1280,44 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
 
         Use this method to send audio files, if you want Telegram clients to display
         the file as a playable voice message. For this to work, your audio must be
-        in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document).
-        On success, the sent Message is returned. Bots can currently send voice
-        messages of up to 50 MB in size, this limit may be changed in the future.
+        in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other
+        formats may be sent as Audio or Document). On success, the sent Message is
+        returned. Bots can currently send voice messages of up to 50 MB in size, this
+        limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on the \
-        Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
-        to get a file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
+        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
 
-        :param parse_mode: Mode for parsing entities in the voice message caption. See formatting \
-        options for more details.
+        :param parse_mode: Mode for parsing entities in the voice message caption. See formattingoptions for more details.
 
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
         :param duration: Duration of the voice message in seconds.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1266,32 +1350,27 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
 
         Use this method to send a native poll. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param question_parse_mode: Mode for parsing entities in the question. See formatting options for more \
-        details. Currently, only custom emoji entities are allowed.
-
-        :param question_entities: A JSON-serialized list of special entities that appear in the poll question. \
-        It can be specified instead of question_parse_mode.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
         :param question: Poll question, 1-300 characters.
+
+        :param question_parse_mode: Mode for parsing entities in the question. See formatting options for moredetails. Currently, only custom emoji entities are allowed.
+
+        :param question_entities: A JSON-serialized list of special entities that appear in the poll question.It can be specified instead of question_parse_mode.
 
         :param options: A JSON-serialized list of 2-10 answer options.
 
@@ -1299,43 +1378,30 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode, \
-        defaults to False.
+        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode,defaults to False.
 
-        :param correct_option_id: 0-based identifier of the correct answer option, required for polls in \
-        quiz mode.
+        :param correct_option_id: 0-based identifier of the correct answer option, required for polls inquiz mode.
 
-        :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lamp \
-        icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after \
-        entities parsing.
+        :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lampicon in a quiz-style poll, 0-200 characters with at most 2 line feeds afterentities parsing.
 
-        :param explanation_parse_mode: Mode for parsing entities in the explanation. See formatting options for \
-        more details.
+        :param explanation_parse_mode: Mode for parsing entities in the explanation. See formatting options formore details.
 
-        :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation, \
-        which can be specified instead of parse_mode.
+        :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation.It can be specified instead of explanation_parse_mode.
 
-        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600. \
-        Can't be used together with close_date.
+        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600.Can't be used together with close_date.
 
-        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed. \
-        Must be at least 5 and no more than 600 seconds in the future. Can't be used \
-        together with open_period.
+        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 600 seconds in the future. Can't be usedtogether with open_period.
 
-        :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful for \
-        poll preview.
+        :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful forpoll preview.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1361,25 +1427,22 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
 
         Use this method to send information about a venue. On success, the sent Message
         is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
         :param latitude: Latitude of the venue.
 
@@ -1391,22 +1454,20 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param foursquare_id: Foursquare identifier of the venue.
 
-        :param foursquare_type: Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, \
-        `arts_entertainment/aquarium` or `food/icecream`.).
+        :param foursquare_type: Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,`arts_entertainment/aquarium` or `food/icecream`.).
 
         :param google_place_id: Google Places identifier of the venue.
 
         :param google_place_type: Google Places type of the venue. (See supported types.).
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1425,39 +1486,32 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
 
         Use this method to send an animated emoji that will display a random value.
         On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param emoji: Emoji on which the dice throw animation is based. Currently, must be one \
-        of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and \
-        `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param emoji: Emoji on which the dice throw animation is based. Currently, must be oneof `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and`🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1476,35 +1530,28 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
 
         Use this method to send a game. On success, the sent Message is returned.
-
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
         :param chat_id: Unique identifier for the target chat.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param game_short_name: Short name of the game, serves as the unique identifier for the game. Setup your games via @BotFather.
 
-        :param game_short_name: Short name of the game, serves as the unique identifier for the game. Set \
-        up your games via @BotFather.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' \
-        button will be shown. If not empty, the first button must launch the game."""
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title'button will be shown. If not empty, the first button must launch the game."""
 
         ...
 
@@ -1549,56 +1596,55 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
         Use this method to send invoices. On success, the sent Message is returned.
-
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message
         will be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        :param chat_id: Unique identifier for the target chat or username of the target channel
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for
         forum supergroups only.
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private
         chats only.
 
         :param title: Product name, 1-32 characters.
 
         :param description: Product description, 1-255 characters.
 
-        :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
+        :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to
         the user, use for your internal processes.
 
         :param provider_token: Payment provider token, obtained via @BotFather.
 
         :param currency: Three-letter ISO 4217 currency code, see more on currencies.
 
-        :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price, \
+        :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price,
         tax, discount, delivery cost, delivery tax, bonus, etc.).
 
-        :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
-        (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
-        pass max_tip_amount = 145. See the exp parameter in currencies.json, it \
-        shows the number of digits past the decimal point for each currency (2 for \
+        :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency
+        (integer, not float/double). For example, for a maximum tip of US$ 1.45
+        pass max_tip_amount = 145. See the exp parameter in currencies.json, it
+        shows the number of digits past the decimal point for each currency (2 for
         the majority of currencies). Defaults to 0.
 
-        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units \
-        of the currency (integer, not float/double). At most 4 suggested tip amounts \
-        can be specified. The suggested tip amounts must be positive, passed in \
+        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units
+        of the currency (integer, not float/double). At most 4 suggested tip amounts
+        can be specified. The suggested tip amounts must be positive, passed in
         a strictly increased order and must not exceed max_tip_amount.
 
-        :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of the \
-        sent message will have a Pay button, allowing multiple users to pay directly \
-        from the forwarded message, using the same invoice. If non-empty, forwarded \
-        copies of the sent message will have a URL button with a deep link to the bot \
+        :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of the
+        sent message will have a Pay button, allowing multiple users to pay directly
+        from the forwarded message, using the same invoice. If non-empty, forwarded
+        copies of the sent message will have a URL button with a deep link to the bot
         (instead of a Pay button), with the value used as the start parameter.
 
-        :param provider_data: JSON-serialized data about the invoice, which will be shared with the payment \
-        provider. A detailed description of required fields should be provided \
+        :param provider_data: JSON-serialized data about the invoice, which will be shared with the payment
+        provider. A detailed description of required fields should be provided
         by the payment provider.
 
-        :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketing \
-        image for a service. People like it better when they see what they are paying \
+        :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketing
+        image for a service. People like it better when they see what they are paying
         for.
 
         :param photo_size: Photo size in bytes.
@@ -1611,23 +1657,20 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param need_phone_number: Pass True if you require the user's phone number to complete the order.
 
-        :param need_email: Pass True if you require the user's email address to complete the order. \
-
-        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order. \
-
+        :param need_email: Pass True if you require the user's email address to complete the order.
+        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order.
         :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to provider.
 
         :param send_email_to_provider: Pass True if the user's email address should be sent to provider.
 
         :param is_flexible: Pass True if the final price depends on the shipping method.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total \
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total
         price' button will be shown. If not empty, the first button must be a Pay button."""
 
         ...
@@ -1652,21 +1695,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         from your bot, Telegram clients clear its typing status). Returns True
         on success. We only recommend using this method when a response from the
         bot will take a noticeable amount of time to arrive.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the actionwill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread; supergroups only.
-
-        :param action: Type of action to broadcast. Choose one, depending on what the user is about \
-        to receive: typing for text messages, upload_photo for photos, record_video \
-        or upload_video for videos, record_voice or upload_voice for voice notes, \
-        upload_document for general files, choose_sticker for stickers, find_location \
-        for location data, record_video_note or upload_video_note for video \
-        notes."""
+        :param message_thread_id: Unique identifier for the target message thread; for supergroups only.
+        :param action: Type of action to broadcast. Choose one, depending on what the user is aboutto receive: typing for text messages, upload_photo for photos, record_videoor upload_video for videos, record_voice or upload_voice for voice notes,upload_document for general files, choose_sticker for stickers, find_locationfor location data, record_video_note or upload_video_note for videonotes."""
 
         ...
 
@@ -1677,7 +1711,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_media_group(
         self,
         media: InputMediaType | list[InputMediaType],
-        chat_id: int | str | None = None,
+        chat_id: int | str,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         message_effect_id: str | None = None,
@@ -1694,33 +1728,17 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to send a group of photos, videos, documents or audios as
         an album. Documents and audio files can be only grouped in an album with messages
         of the same type. On success, an array of Messages that were sent is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param media: A JSON-serialized array describing messages to be sent, must include 2-10items.
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param media: A JSON-serialized array describing messages to be sent, must include 2-10 \
-        items.
-
-        :param caption: Audio caption, 0-1024 characters after entities parsing.
-
-        :param parse_mode: Mode for parsing entities in the audio caption. See formatting options \
-        for more details.
-
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
-
-        :param disable_notification: Sends messages silently. Users will receive a notification with no sound. \
-
-        :param protect_content: Protects the contents of the sent messages from forwarding and saving. \
+        :param disable_notification: Sends messages silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent messages from forwarding and saving.
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to."""
 
@@ -1767,49 +1785,40 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
 
         Use this method to send point on the map. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
         :param latitude: Latitude of the location.
 
         :param longitude: Longitude of the location.
 
-        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500. \
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param live_period: Period in seconds during which the location will be updated (see Live Locations,should be between 60 and 86400, or 0x7FFFFFFF for live locations that canbe edited indefinitely.
 
-        :param live_period: Period in seconds for which the location will be updated (see Live Locations, \
-        should be between 60 and 86400.
+        :param heading: For live locations, a direction in which the user is moving, in degrees.Must be between 1 and 360 if specified.
 
-        :param heading: For live locations, a direction in which the user is moving, in degrees. \
-        Must be between 1 and 360 if specified.
-
-        :param proximity_alert_radius: For live locations, a maximum distance for proximity alerts about approaching \
-        another chat member, in meters. Must be between 1 and 100000 if specified. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param proximity_alert_radius: For live locations, a maximum distance for proximity alerts about approachinganother chat member, in meters. Must be between 1 and 100000 if specified.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1831,24 +1840,21 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
 
         Use this method to send phone contacts. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
         :param phone_number: Contact's phone number.
 
@@ -1858,15 +1864,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1892,41 +1897,32 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
 
-        Use this method to send a reply to a message with audio files, if you want Telegram clients to display
+        Use this method to send audio files, if you want Telegram clients to display
         them in the music player. Your audio must be in the .MP3 or .M4A format. On
         success, the sent Message is returned. Bots can currently send audio files
         of up to 50 MB in size, this limit may be changed in the future. For sending
         voice messages, use the sendVoice method instead.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param audio: Audio file to send. Pass a file_id as String to send an audio file that exists \
-        on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
-        to get an audio file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
+        :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Audio caption, 0-1024 characters after entities parsing.
 
-        :param parse_mode: Mode for parsing entities in the audio caption. See formatting options \
-        for more details.
+        :param parse_mode: Mode for parsing entities in the audio caption. See formatting optionsfor more details.
 
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
         :param duration: Duration of the audio in seconds.
 
@@ -1934,23 +1930,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param title: Track name.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -1978,68 +1966,49 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
 
-        Use this method to send a reply to a message with animation files (GIF or H.264/MPEG-4 AVC video without
+        Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without
         sound). On success, the sent Message is returned. Bots can currently send
         animation files of up to 50 MB in size, this limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param animation: Animation to send. Pass a file_id as String to send an animation that exists \
-        on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
-        to get an animation from the Internet, or upload a new animation using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
+        :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent animation in seconds.
 
         :param width: Animation width.
 
         :param height: Animation height.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Animation caption (may also be used when resending animation by file_id),0-1024 characters after entities parsing.
 
-        :param caption: Animation caption (may also be used when resending animation by file_id), \
-        0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the animation caption. See formatting optionsfor more details.
 
-        :param parse_mode: Mode for parsing entities in the animation caption. See formatting options \
-        for more details.
-
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
-
-        :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
         :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
 
+        :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2064,63 +2033,42 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
 
-        Use this method to send a reply to a message with general files. On success, the sent Message is returned.
+        Use this method to send general files. On success, the sent Message is returned.
         Bots can currently send files of any type of up to 50 MB in size, this limit
         may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Document caption (may also be used when resending documents by file_id),0-1024 characters after entities parsing.
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param parse_mode: Mode for parsing entities in the document caption. See formatting optionsfor more details.
 
-        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegram \
-        servers (recommended), pass an HTTP URL as a String for Telegram to get a \
-        file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        :param disable_content_type_detection: Disables automatic server-side content type detection for files uploadedusing multipart/form-data.
 
-        :param caption: Document caption (may also be used when resending documents by file_id), \
-        0-1024 characters after entities parsing.
-
-        :param parse_mode: Mode for parsing entities in the document caption. See formatting options \
-        for more details.
-
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
-
-        :param disable_content_type_detection: Disables automatic server-side content type detection for files uploaded \
-        using multipart/form-data.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2144,54 +2092,41 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
 
-        Use this method to send a reply to a message with photos. On success, the sent Message is returned.
+        Use this method to send photos. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param parse_mode: Mode for parsing entities in the photo caption. See formatting optionsfor more details.
 
-        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegram \
-        servers (recommended), pass an HTTP URL as a String for Telegram to get a \
-        photo from the Internet, or upload a new photo using multipart/form-data. \
-        The photo must be at most 10 MB in size. The photo's width and height must not \
-        exceed 10000 in total. Width and height ratio must be at most 20. More information \
-        on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
-        :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024 \
-        characters after entities parsing.
-
-        :param parse_mode: Mode for parsing entities in the photo caption. See formatting options \
-        for more details.
-
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
-
-        :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
         :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
 
+        :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2211,44 +2146,35 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
 
-        Use this method to send a reply to a message with static .WEBP, animated .TGS, or video .WEBM stickers.
+        Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
         On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on the \
-        Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
-        to get a .WEBP sticker from the Internet, or upload a new .WEBP or .TGS sticker \
-        using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-        Video stickers can only be sent by a file_id. Animated stickers can't be \
-        sent via an HTTP URL.
+        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
 
         :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2260,6 +2186,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_video(
         self,
         sticker: InputFile | str,
+        video: InputFile | str,
         chat_id: int | str | None = None,
         emoji: str | None = None,
         message_thread_id: int | None = None,
@@ -2268,69 +2195,62 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
+        duration: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        thumbnail: InputFile | str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
+        has_spoiler: bool | None = None,
+        supports_streaming: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
 
-        Use this method to send a reply to a message with video files, Telegram clients support MPEG4 videos
+        Use this method to send video files, Telegram clients support MPEG4 videos
         (other formats may be sent as Document). On success, the sent Message is
         returned. Bots can currently send video files of up to 50 MB in size, this
         limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegram \
-        servers (recommended), pass an HTTP URL as a String for Telegram to get a \
-        video from the Internet, or upload a new video using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
+        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent video in seconds.
 
         :param width: Video width.
 
         :param height: Video height.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
 
-        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024 \
-        characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.
 
-        :param parse_mode: Mode for parsing entities in the video caption. See formatting options \
-        for more details.
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
 
         :param supports_streaming: Pass True if the uploaded video is suitable for streaming.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2352,53 +2272,39 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
         As of v.4.0, Telegram clients support rounded square MPEG4 videos of up
-        to 1 minute long. Use this method to send a reply to a message with video messages. On success, the
+        to 1 minute long. Use this method to send video messages. On success, the
         sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param video_note: Video note to send. Pass a file_id as String to send a video note that exists \
-        on the Telegram servers (recommended) or upload a new video using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-        Sending video notes by a URL is currently unsupported.
+        :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
 
         :param duration: Duration of sent video in seconds.
 
         :param length: Video width and height, i.e. diameter of the video message.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
-        file is supported server-side. The thumbnail should be in JPEG format and \
-        less than 200 kB in size. A thumbnail's width and height should not exceed \
-        320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
-        can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
-        if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2421,53 +2327,44 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
 
-        Use this method to send a reply to a message with audio files, if you want Telegram clients to display
+        Use this method to send audio files, if you want Telegram clients to display
         the file as a playable voice message. For this to work, your audio must be
-        in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document).
-        On success, the sent Message is returned. Bots can currently send voice
-        messages of up to 50 MB in size, this limit may be changed in the future.
+        in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other
+        formats may be sent as Audio or Document). On success, the sent Message is
+        returned. Bots can currently send voice messages of up to 50 MB in size, this
+        limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on the \
-        Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
-        to get a file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-
+        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
 
-        :param parse_mode: Mode for parsing entities in the voice message caption. See formatting \
-        options for more details.
+        :param parse_mode: Mode for parsing entities in the voice message caption. See formattingoptions for more details.
 
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
         :param duration: Duration of the voice message in seconds.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2500,32 +2397,27 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
 
-        Use this method to send a reply to a message with a native poll. On success, the sent Message is returned.
+        Use this method to send a native poll. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param question_parse_mode: Mode for parsing entities in the question. See formatting options for more \
-        details. Currently, only custom emoji entities are allowed.
-
-        :param question_entities: A JSON-serialized list of special entities that appear in the poll question. \
-        It can be specified instead of question_parse_mode.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
         :param question: Poll question, 1-300 characters.
+
+        :param question_parse_mode: Mode for parsing entities in the question. See formatting options for moredetails. Currently, only custom emoji entities are allowed.
+
+        :param question_entities: A JSON-serialized list of special entities that appear in the poll question.It can be specified instead of question_parse_mode.
 
         :param options: A JSON-serialized list of 2-10 answer options.
 
@@ -2533,43 +2425,30 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode, \
-        defaults to False.
+        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode,defaults to False.
 
-        :param correct_option_id: 0-based identifier of the correct answer option, required for polls in \
-        quiz mode.
+        :param correct_option_id: 0-based identifier of the correct answer option, required for polls inquiz mode.
 
-        :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lamp \
-        icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after \
-        entities parsing.
+        :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lampicon in a quiz-style poll, 0-200 characters with at most 2 line feeds afterentities parsing.
 
-        :param explanation_parse_mode: Mode for parsing entities in the explanation. See formatting options for \
-        more details.
+        :param explanation_parse_mode: Mode for parsing entities in the explanation. See formatting options formore details.
 
-        :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation, \
-        which can be specified instead of parse_mode.
+        :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation.It can be specified instead of explanation_parse_mode.
 
-        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600. \
-        Can't be used together with close_date.
+        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600.Can't be used together with close_date.
 
-        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed. \
-        Must be at least 5 and no more than 600 seconds in the future. Can't be used \
-        together with open_period.
+        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 600 seconds in the future. Can't be usedtogether with open_period.
 
-        :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful for \
-        poll preview.
+        :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful forpoll preview.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2595,25 +2474,22 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
 
-        Use this method to send a reply to a message with information about a venue. On success, the sent Message
+        Use this method to send information about a venue. On success, the sent Message
         is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
         :param latitude: Latitude of the venue.
 
@@ -2625,22 +2501,20 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param foursquare_id: Foursquare identifier of the venue.
 
-        :param foursquare_type: Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, \
-        `arts_entertainment/aquarium` or `food/icecream`.).
+        :param foursquare_type: Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,`arts_entertainment/aquarium` or `food/icecream`.).
 
         :param google_place_id: Google Places identifier of the venue.
 
         :param google_place_type: Google Places type of the venue. (See supported types.).
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2659,39 +2533,32 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
 
-        Use this method to send a reply to a message with an animated emoji that will display a random value.
+        Use this method to send an animated emoji that will display a random value.
         On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param emoji: Emoji on which the dice throw animation is based. Currently, must be one \
-        of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and \
-        `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param emoji: Emoji on which the dice throw animation is based. Currently, must be oneof `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and`🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -2710,35 +2577,28 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
 
-        Use this method to send a reply to a message with a game. On success, the sent Message is returned.
-
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        Use this method to send a game. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
         :param chat_id: Unique identifier for the target chat.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param game_short_name: Short name of the game, serves as the unique identifier for the game. Setup your games via @BotFather.
 
-        :param game_short_name: Short name of the game, serves as the unique identifier for the game. Set \
-        up your games via @BotFather.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' \
-        button will be shown. If not empty, the first button must launch the game."""
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title'button will be shown. If not empty, the first button must launch the game."""
 
         ...
 
@@ -2782,57 +2642,56 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
-        Use this method to send a reply to a message with invoices. On success, the sent Message is returned.
-
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        Use this method to send invoices. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message
         will be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        :param chat_id: Unique identifier for the target chat or username of the target channel
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for
         forum supergroups only.
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private
         chats only.
 
         :param title: Product name, 1-32 characters.
 
         :param description: Product description, 1-255 characters.
 
-        :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
+        :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to
         the user, use for your internal processes.
 
         :param provider_token: Payment provider token, obtained via @BotFather.
 
         :param currency: Three-letter ISO 4217 currency code, see more on currencies.
 
-        :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price, \
+        :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price,
         tax, discount, delivery cost, delivery tax, bonus, etc.).
 
-        :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
-        (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
-        pass max_tip_amount = 145. See the exp parameter in currencies.json, it \
-        shows the number of digits past the decimal point for each currency (2 for \
+        :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency
+        (integer, not float/double). For example, for a maximum tip of US$ 1.45
+        pass max_tip_amount = 145. See the exp parameter in currencies.json, it
+        shows the number of digits past the decimal point for each currency (2 for
         the majority of currencies). Defaults to 0.
 
-        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units \
-        of the currency (integer, not float/double). At most 4 suggested tip amounts \
-        can be specified. The suggested tip amounts must be positive, passed in \
+        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest units
+        of the currency (integer, not float/double). At most 4 suggested tip amounts
+        can be specified. The suggested tip amounts must be positive, passed in
         a strictly increased order and must not exceed max_tip_amount.
 
-        :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of the \
-        sent message will have a Pay button, allowing multiple users to pay directly \
-        from the forwarded message, using the same invoice. If non-empty, forwarded \
-        copies of the sent message will have a URL button with a deep link to the bot \
+        :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of the
+        sent message will have a Pay button, allowing multiple users to pay directly
+        from the forwarded message, using the same invoice. If non-empty, forwarded
+        copies of the sent message will have a URL button with a deep link to the bot
         (instead of a Pay button), with the value used as the start parameter.
 
-        :param provider_data: JSON-serialized data about the invoice, which will be shared with the payment \
-        provider. A detailed description of required fields should be provided \
+        :param provider_data: JSON-serialized data about the invoice, which will be shared with the payment
+        provider. A detailed description of required fields should be provided
         by the payment provider.
 
-        :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketing \
-        image for a service. People like it better when they see what they are paying \
+        :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketing
+        image for a service. People like it better when they see what they are paying
         for.
 
         :param photo_size: Photo size in bytes.
@@ -2845,23 +2704,20 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param need_phone_number: Pass True if you require the user's phone number to complete the order.
 
-        :param need_email: Pass True if you require the user's email address to complete the order. \
-
-        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order. \
-
+        :param need_email: Pass True if you require the user's email address to complete the order.
+        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order.
         :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to provider.
 
         :param send_email_to_provider: Pass True if the user's email address should be sent to provider.
 
         :param is_flexible: Pass True if the final price depends on the shipping method.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total \
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total
         price' button will be shown. If not empty, the first button must be a Pay button."""
 
         ...
@@ -2895,36 +2751,20 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[list[MessageCute], APIError]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
 
-        Use this method to send a reply to a message with a group of photos, videos, documents or audios as
+        Use this method to send a group of photos, videos, documents or audios as
         an album. Documents and audio files can be only grouped in an album with messages
         of the same type. On success, an array of Messages that were sent is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param media: A JSON-serialized array describing messages to be sent, must include 2-10items.
 
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
-
-        :param media: A JSON-serialized array describing messages to be sent, must include 2-10 \
-        items.
-
-        :param caption: Audio caption, 0-1024 characters after entities parsing.
-
-        :param parse_mode: Mode for parsing entities in the audio caption. See formatting options \
-        for more details.
-
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
-        which can be specified instead of parse_mode.
-
-        :param disable_notification: Sends messages silently. Users will receive a notification with no sound. \
-
-        :param protect_content: Protects the contents of the sent messages from forwarding and saving. \
+        :param disable_notification: Sends messages silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent messages from forwarding and saving.
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to."""
 
@@ -2952,49 +2792,40 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
 
-        Use this method to send a reply to a message with point on the map. On success, the sent Message is returned.
+        Use this method to send point on the map. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
         :param latitude: Latitude of the location.
 
         :param longitude: Longitude of the location.
 
-        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500. \
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param live_period: Period in seconds during which the location will be updated (see Live Locations,should be between 60 and 86400, or 0x7FFFFFFF for live locations that canbe edited indefinitely.
 
-        :param live_period: Period in seconds for which the location will be updated (see Live Locations, \
-        should be between 60 and 86400.
+        :param heading: For live locations, a direction in which the user is moving, in degrees.Must be between 1 and 360 if specified.
 
-        :param heading: For live locations, a direction in which the user is moving, in degrees. \
-        Must be between 1 and 360 if specified.
-
-        :param proximity_alert_radius: For live locations, a maximum distance for proximity alerts about approaching \
-        another chat member, in meters. Must be between 1 and 100000 if specified. \
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param proximity_alert_radius: For live locations, a maximum distance for proximity alerts about approachinganother chat member, in meters. Must be between 1 and 100000 if specified.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -3016,24 +2847,21 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
+        reply_markup: InlineKeyboardMarkup
+        | ReplyKeyboardMarkup
+        | ReplyKeyboardRemove
+        | ForceReply
+        | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
 
-        Use this method to send a reply to a message with phone contacts. On success, the sent Message is returned.
+        Use this method to send phone contacts. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
-        chats only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
         :param phone_number: Contact's phone number.
 
@@ -3043,15 +2871,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
-        keyboard, custom reply keyboard, instructions to remove reply keyboard \
-        or to force a reply from the user."""
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
 
         ...
 
@@ -3073,6 +2900,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         heading: int | None = None,
         proximity_alert_radius: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        business_connection_id: str | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_live_location()`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
@@ -3081,37 +2909,190 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         until its live_period expires or editing is explicitly disabled by a call
         to stopMessageLiveLocation. On success, if the edited message is not an
         inline message, the edited Message is returned, otherwise True is returned.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername). \
-
-        :param message_id: Required if inline_message_id is not specified. Identifier of the message \
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
         to edit.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for
         forum supergroups only.
 
-        :param live_period: New period in seconds during which the location can be updated, starting \
-        from the message send date. If 0x7FFFFFFF is specified, then the location \
-        can be updated forever. Otherwise, the new value must not exceed the current \
-        live_period by more than a day, and the live location expiration date must \
-        remain within the next 90 days. If not specified, then live_period remains \
+        :param live_period: New period in seconds during which the location can be updated, starting
+        from the message send date. If 0x7FFFFFFF is specified, then the location
+        can be updated forever. Otherwise, the new value must not exceed the current
+        live_period by more than a day, and the live location expiration date must
+        remain within the next 90 days. If not specified, then live_period remains
         unchanged.
 
-        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the
         inline message.
 
         :param latitude: Latitude of new location.
 
         :param longitude: Longitude of new location.
 
-        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500. \
-
-        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360 \
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360
         if specified.
 
-        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chat \
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chat
         member, in meters. Must be between 1 and 100000 if specified.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the message
+        to be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
+        to edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the
+        inline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, starting
+        from the message send date. If 0x7FFFFFFF is specified, then the location
+        can be updated forever. Otherwise, the new value must not exceed the current
+        live_period by more than a day, and the live location expiration date must
+        remain within the next 90 days. If not specified, then live_period remains
+        unchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360
+        if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chat
+        member, in meters. Must be between 1 and 100000 if specified.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
 
         :param reply_markup: A JSON-serialized object for a new inline keyboard."""
 
@@ -3124,7 +3105,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def edit_caption(
         self,
-        caption: str,
+        caption: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -3132,32 +3113,153 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         caption_entities: list[MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        business_connection_id: str | None = None,
+        inline_message_id: str | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
 
         Use this method to edit captions of messages. On success, if the edited message
         is not an inline message, the edited Message is returned, otherwise True
-        is returned.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername). \
-
-        :param message_id: Required if inline_message_id is not specified. Identifier of the message \
+        is returned. Note that business messages that were not sent by the bot and
+        do not contain an inline keyboard can only be edited within 48 hours from
+        the time they were sent.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
         to edit.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for
         forum supergroups only.
 
-        :param caption: New caption of the message, 0-1024 characters after entities parsing. \
-
-        :param parse_mode: Mode for parsing entities in the message caption. See formatting options \
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting options
         for more details.
 
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,
         which can be specified instead of parse_mode.
 
         :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the message
+        to be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
+        to edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the
+        inline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting options
+        for more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,
+        which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supported
+        only for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
 
@@ -3187,6 +3289,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_id: int | None = None,
         message_thread_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        business_connection_id: str | None = None,
+        inline_message_id: str | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
@@ -3197,29 +3301,106 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         a video otherwise. When an inline message is edited, a new file can't be uploaded;
         use a previously uploaded file via its file_id or specify a URL. On success,
         if the edited message is not an inline message, the edited Message is returned,
-        otherwise True is returned.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername). \
-
-        :param message_id: Required if inline_message_id is not specified. Identifier of the message \
+        otherwise True is returned. Note that business messages that were not sent
+        by the bot and do not contain an inline keyboard can only be edited within
+        48 hours from the time they were sent.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
         to edit.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for
         forum supergroups only.
 
         :param media: A JSON-serialized object for a new media content of the message.
 
         :param caption: Audio caption, 0-1024 characters after entities parsing.
 
-        :param parse_mode: Mode for parsing entities in the audio caption. See formatting options \
+        :param parse_mode: Mode for parsing entities in the audio caption. See formatting options
         for more details.
 
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,
         which can be specified instead of parse_mode.
 
-        :param type: Required if media is not an `str | InputMedia` object. Type of the media, \
+        :param type: Required if media is not an `str | InputMedia` object. Type of the media,
         must be one of `photo`, `video`, `animation`, `audio`, `document`.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the message
+        to be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
+        to edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the
+        inline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
 
         :param reply_markup: A JSON-serialized object for a new inline keyboard."""
 
@@ -3248,22 +3429,85 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_id: int | None = None,
         message_thread_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        business_connection_id: str | None = None,
+        inline_message_id: str | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)
 
         Use this method to edit only the reply markup of messages. On success, if
         the edited message is not an inline message, the edited Message is returned,
-        otherwise True is returned.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier for \
-        the target chat or username of the target channel (in the format @channelusername). \
-
-        :param message_id: Required if inline_message_id is not specified. Identifier of the message \
+        otherwise True is returned. Note that business messages that were not sent
+        by the bot and do not contain an inline keyboard can only be edited within
+        48 hours from the time they were sent.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
         to edit.
 
-        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the
         inline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the message
+        to be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier for
+        the target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the message
+        to edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the
+        inline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
 

@@ -9,7 +9,6 @@ from telegrinder.tools.functional import from_optional
 Event = typing.TypeVar("Event", bound=BaseCute)
 Data = typing.TypeVar("Data")
 
-
 ECHO = lambda x: x
 
 
@@ -38,10 +37,13 @@ class Hasher(typing.Generic[Event, Data]):
         return from_optional(self._get_data_from_event(event))
 
     def get_hash_from_data_from_event(self, event: Event) -> Option[typing.Hashable]:
-        return self.get_data_from_event(event).and_then(self.get_hash_from_data)
+        return self.get_data_from_event(event).and_then(self.get_hash_from_data)  # type: ignore
 
     def __hash__(self) -> int:
         return hash(self.get_name())
 
     def __repr__(self) -> str:
         return f"<Hasher {self.get_name()}>"
+
+
+__all__ = ("Hasher",)

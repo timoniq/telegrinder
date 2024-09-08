@@ -51,3 +51,10 @@ CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE = Hasher(
     get_hash_from_data=for_message_in_chat,
     get_data_from_event=get_chat_and_message_for_event,
 )
+
+
+__all__ = (
+    "CALLBACK_QUERY_FOR_MESSAGE",
+    "CALLBACK_QUERY_FROM_CHAT",
+    "CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE",
+)

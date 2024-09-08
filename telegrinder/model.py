@@ -16,6 +16,8 @@ if typing.TYPE_CHECKING:
 
 T = typing.TypeVar("T")
 
+UnionType: typing.TypeAlias = typing.Annotated[tuple[T, ...], ...]
+
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "omit_defaults": True,
     "dict": True,
@@ -33,15 +35,15 @@ def full_result(
 @typing.overload
 def full_result(
     result: Result[msgspec.Raw, "APIError"],
-    full_t: tuple[type[T], ...],
+    full_t: UnionType[T],
 ) -> Result[T, "APIError"]: ...
 
 
 def full_result(
     result: Result[msgspec.Raw, "APIError"],
-    full_t: type[T] | tuple[type[T], ...],
-) -> Result[T, "APIError"]:
-    return result.map(lambda v: decoder.decode(v, type=full_t))  # type: ignore
+    full_t: typing.Any,
+) -> Result[typing.Any, "APIError"]:
+    return result.map(lambda v: decoder.decode(v, type=full_t))
 
 
 def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:

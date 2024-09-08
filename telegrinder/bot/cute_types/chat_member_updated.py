@@ -27,7 +27,7 @@ async def chat_member_interaction(
 class ChatMemberShortcuts:
     """Shortcut methods for `ChatMemberUpdatedCute`, `ChatJoinRequestCute` objects."""
 
-    @shortcut("ban_chat_member", executor=chat_member_interaction)
+    @shortcut("ban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
     async def ban_chat_member(
         self,
         chat_id: int | str | None = None,
@@ -43,24 +43,17 @@ class ChatMemberShortcuts:
         on their own using invite links, etc., unless unbanned first. The bot must
         be an administrator in the chat for this to work and must have the appropriate
         administrator rights. Returns True on success.
-
-        :param chat_id: Unique identifier for the target group or username of the target supergroup \
-        or channel (in the format @channelusername).
+        :param chat_id: Unique identifier for the target group or username of the target supergroupor channel (in the format @channelusername).
 
         :param user_id: Unique identifier of the target user.
 
-        :param until_date: Date when the user will be unbanned; Unix time. If user is banned for more \
-        than 366 days or less than 30 seconds from the current time they are considered \
-        to be banned forever. Applied for supergroups and channels only.
+        :param until_date: Date when the user will be unbanned; Unix time. If user is banned for morethan 366 days or less than 30 seconds from the current time they are consideredto be banned forever. Applied for supergroups and channels only.
 
-        :param revoke_messages: Pass True to delete all messages from the chat for the user that is being removed. \
-        If False, the user will be able to see messages in the group that were sent \
-        before the user was removed. Always True for supergroups and channels. \
-        """
+        :param revoke_messages: Pass True to delete all messages from the chat for the user that is being removed.If False, the user will be able to see messages in the group that were sentbefore the user was removed. Always True for supergroups and channels."""
 
         ...
 
-    @shortcut("unban_chat_member", executor=chat_member_interaction)
+    @shortcut("unban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
     async def unban_chat_member(
         self,
         chat_id: int | str | None = None,
@@ -77,21 +70,18 @@ class ChatMemberShortcuts:
         not a member of the chat, but will be able to join it. So if the user is a member
         of the chat they will also be removed from the chat. If you don't want this,
         use the parameter only_if_banned. Returns True on success.
-
-        :param chat_id: Unique identifier for the target group or username of the target supergroup \
-        or channel (in the format @channelusername).
+        :param chat_id: Unique identifier for the target group or username of the target supergroupor channel (in the format @channelusername).
 
         :param user_id: Unique identifier of the target user.
 
-        :param only_if_banned: Do nothing if the user is not banned.
-        """
+        :param only_if_banned: Do nothing if the user is not banned."""
 
         ...
 
     @shortcut(
         "restrict_chat_member",
         executor=chat_member_interaction,
-        custom_params={"permissions"},
+        custom_params={"permissions", "chat_id", "user_id"},
     )
     async def restrict_chat_member(
         self,
@@ -108,28 +98,19 @@ class ChatMemberShortcuts:
         in the supergroup for this to work and must have the appropriate administrator
         rights. Pass True for all permissions to lift restrictions from a user.
         Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername).
+        :param chat_id: Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername).
 
         :param user_id: Unique identifier of the target user.
 
         :param permissions: A JSON-serialized object for new user permissions.
 
-        :param use_independent_chat_permissions: Pass True if chat permissions are set independently. Otherwise, the can_send_other_messages \
-        and can_add_web_page_previews permissions will imply the can_send_messages, \
-        can_send_audios, can_send_documents, can_send_photos, can_send_videos, \
-        can_send_video_notes, and can_send_voice_notes permissions; the can_send_polls \
-        permission will imply the can_send_messages permission.
+        :param use_independent_chat_permissions: Pass True if chat permissions are set independently. Otherwise, the can_send_other_messagesand can_add_web_page_previews permissions will imply the can_send_messages,can_send_audios, can_send_documents, can_send_photos, can_send_videos,can_send_video_notes, and can_send_voice_notes permissions; the can_send_pollspermission will imply the can_send_messages permission.
 
-        :param until_date: Date when restrictions will be lifted for the user; Unix time. If user is \
-        restricted for more than 366 days or less than 30 seconds from the current \
-        time, they are considered to be restricted forever.
-        """
+        :param until_date: Date when restrictions will be lifted for the user; Unix time. If user isrestricted for more than 366 days or less than 30 seconds from the currenttime, they are considered to be restricted forever."""
 
         ...
 
-    @shortcut("promote_chat_member", executor=chat_member_interaction)
+    @shortcut("promote_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
     async def promote_chat_member(
         self,
         chat_id: int | str | None = None,
@@ -157,55 +138,43 @@ class ChatMemberShortcuts:
         bot must be an administrator in the chat for this to work and must have the
         appropriate administrator rights. Pass False for all boolean parameters
         to demote a user. Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
         :param user_id: Unique identifier of the target user.
 
         :param is_anonymous: Pass True if the administrator's presence in the chat is hidden.
 
-        :param can_manage_chat: Pass True if the administrator can access the chat event log, get boost list, \
-        see hidden supergroup and channel members, report spam messages and ignore \
-        slow mode. Implied by any other administrator privilege.
+        :param can_manage_chat: Pass True if the administrator can access the chat event log, get boost list,see hidden supergroup and channel members, report spam messages and ignoreslow mode. Implied by any other administrator privilege.
 
         :param can_delete_messages: Pass True if the administrator can delete messages of other users.
 
         :param can_manage_video_chats: Pass True if the administrator can manage video chats.
 
-        :param can_restrict_members: Pass True if the administrator can restrict, ban or unban chat members, \
-        or access supergroup statistics.
+        :param can_restrict_members: Pass True if the administrator can restrict, ban or unban chat members,or access supergroup statistics.
 
-        :param can_promote_members: Pass True if the administrator can add new administrators with a subset \
-        of their own privileges or demote administrators that they have promoted, \
-        directly or indirectly (promoted by administrators that were appointed \
-        by him).
+        :param can_promote_members: Pass True if the administrator can add new administrators with a subsetof their own privileges or demote administrators that they have promoted,directly or indirectly (promoted by administrators that were appointedby him).
 
-        :param can_change_info: Pass True if the administrator can change chat title, photo and other settings. \
-
+        :param can_change_info: Pass True if the administrator can change chat title, photo and other settings.
         :param can_invite_users: Pass True if the administrator can invite new users to the chat.
 
         :param can_post_stories: Pass True if the administrator can post stories to the chat.
 
-        :param can_edit_stories: Pass True if the administrator can edit stories posted by other users.
+        :param can_edit_stories: Pass True if the administrator can edit stories posted by other users, poststories to the chat page, pin chat stories, and access the chat's story archive.
+        :param can_delete_stories: Pass True if the administrator can delete stories posted by other users.
+        :param can_post_messages: Pass True if the administrator can post messages in the channel, or accesschannel statistics; for channels only.
 
-        :param can_delete_stories: Pass True if the administrator can delete stories posted by other users. \
+        :param can_edit_messages: Pass True if the administrator can edit messages of other users and can pinmessages; for channels only.
 
-        :param can_post_messages: Pass True if the administrator can post messages in the channel, or access \
-        channel statistics; for channels only.
-
-        :param can_edit_messages: Pass True if the administrator can edit messages of other users and can pin \
-        messages; for channels only.
-
-        :param can_pin_messages: Pass True if the administrator can pin messages; for supergroups only. \
-
-        :param can_manage_topics: Pass True if the user is allowed to create, rename, close, and reopen forum \
-        topics; for supergroups only.
-        """
+        :param can_pin_messages: Pass True if the administrator can pin messages; for supergroups only.
+        :param can_manage_topics: Pass True if the user is allowed to create, rename, close, and reopen forumtopics; for supergroups only."""
 
         ...
 
-    @shortcut("set_chat_administrator_custom_title", executor=chat_member_interaction)
+    @shortcut(
+        "set_chat_administrator_custom_title",
+        executor=chat_member_interaction,
+        custom_params={"chat_id", "user_id"},
+    )
     async def set_chat_administrator_custom_title(
         self,
         custom_title: str,
@@ -217,15 +186,11 @@ class ChatMemberShortcuts:
 
         Use this method to set a custom title for an administrator in a supergroup
         promoted by the bot. Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @supergroupusername).
+        :param chat_id: Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername).
 
         :param user_id: Unique identifier of the target user.
 
-        :param custom_title: New custom title for the administrator; 0-16 characters, emoji are not \
-        allowed.
-        """
+        :param custom_title: New custom title for the administrator; 0-16 characters, emoji are notallowed."""
 
         ...
 

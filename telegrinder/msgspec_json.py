@@ -1,6 +1,6 @@
 import typing
 
-from .msgspec_utils import decoder, encoder
+from telegrinder.msgspec_utils import decoder, encoder
 
 
 def loads(s: str | bytes) -> typing.Any:

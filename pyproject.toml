@@ -82,7 +82,7 @@ asyncio_mode = "auto"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "F403"]
-"update_shortcuts.py" = ["N802"]
+"typegen/**.py" = ["N802"]
 
 [tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"

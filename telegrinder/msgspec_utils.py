@@ -1,5 +1,6 @@
 import dataclasses
 import typing
+from contextlib import contextmanager
 
 import fntypes.option
 import fntypes.result
@@ -201,6 +202,31 @@ class Decoder:
             self.dec_hooks,
         )
 
+    @typing.overload
+    def __call__(self, type: type[T]) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
+
+    @typing.overload
+    def __call__(self, type: typing.Any) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
+
+    @typing.overload
+    def __call__(
+        self, type: type[T], *, strict: bool = True
+    ) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
+
+    @typing.overload
+    def __call__(
+        self, type: typing.Any, *, strict: bool = True
+    ) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
+
+    @contextmanager
+    def __call__(self, type=object, *, strict=True):
+        """Context manager returns the `msgspec.json.Decoder` object with the `dec_hook`."""
+
+        dec_obj = msgspec.json.Decoder(
+            type=typing.Any if type is object else type, strict=strict, dec_hook=self.dec_hook
+        )
+        yield dec_obj
+
     def add_dec_hook(self, t: T):  # type: ignore
         def decorator(func: DecHook[T]) -> DecHook[T]:
             return self.dec_hooks.setdefault(get_origin(t), func)  # type: ignore
@@ -242,6 +268,9 @@ class Decoder:
     def decode(self, buf: str | bytes, *, type: type[T]) -> T: ...
 
     @typing.overload
+    def decode(self, buf: str | bytes, *, type: typing.Any) -> typing.Any: ...
+
+    @typing.overload
     def decode(
         self,
         buf: str | bytes,
@@ -249,6 +278,15 @@ class Decoder:
         type: type[T],
         strict: bool = True,
     ) -> T: ...
+
+    @typing.overload
+    def decode(
+        self,
+        buf: str | bytes,
+        *,
+        type: typing.Any,
+        strict: bool = True,
+    ) -> typing.Any: ...
 
     def decode(self, buf, *, type=object, strict=True):
         return msgspec.json.decode(
@@ -286,6 +324,19 @@ class Encoder:
             self.__class__.__name__,
             self.enc_hooks,
         )
+
+    @contextmanager
+    def __call__(
+        self,
+        *,
+        decimal_format: typing.Literal["string", "number"] = "string",
+        uuid_format: typing.Literal["canonical", "hex"] = "canonical",
+        order: typing.Literal[None, "deterministic", "sorted"] = None,
+    ) -> typing.Generator[msgspec.json.Encoder, typing.Any, None]:
+        """Context manager returns the `msgspec.json.Encoder` object with the `enc_hook`."""
+
+        enc_obj = msgspec.json.Encoder(enc_hook=self.enc_hook)
+        yield enc_obj
 
     def add_dec_hook(self, t: type[T]):
         def decorator(func: EncHook[T]) -> EncHook[T]:

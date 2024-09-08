@@ -45,3 +45,10 @@ MESSAGE_FROM_USER_IN_CHAT = Hasher(
     get_hash_from_data=from_user_in_chat_hash,
     get_data_from_event=get_user_in_chat_from_event,
 )
+
+
+__all__ = (
+    "MESSAGE_FROM_USER",
+    "MESSAGE_FROM_USER_IN_CHAT",
+    "MESSAGE_IN_CHAT",
+)
