@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API 7.9 methods, released `August 14, 2024`."""
+    """Telegram Bot API methods version 7.10, released `September 6, 2024`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -1054,6 +1054,7 @@ class APIMethods:
         star_count: int,
         media: list[InputPaidMedia],
         business_connection_id: str | None = None,
+        payload: str | None = None,
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -1080,9 +1081,13 @@ class APIMethods:
         Star proceeds from this media will be credited to the chat's balance. Otherwise, \
         they will be credited to the bot's balance.
 
-        :param star_count: The number of Telegram Stars that must be paid to buy access to the media. \
+        :param star_count: The number of Telegram Stars that must be paid to buy access to the media; \
+        1-2500.
 
         :param media: A JSON-serialized array describing the media to be sent; up to 10 items. \
+
+        :param payload: Bot-defined paid media payload, 0-128 bytes. This will not be displayed \
+        to the user, use it for your internal processes.
 
         :param caption: Media caption, 0-1024 characters after entities parsing.
 
@@ -4623,3 +4628,6 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(method_response, list[GameHighScore])
+
+
+__all__ = ("APIMethods",)

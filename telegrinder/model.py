@@ -16,17 +16,10 @@ if typing.TYPE_CHECKING:
 
 T = typing.TypeVar("T")
 
-
-def rename_field(name: str) -> str:
-    if name.endswith("_") and name.removesuffix("_") in keyword.kwlist:
-        return name.removesuffix("_")
-    return name if not keyword.iskeyword(name) else name + "_"
-
-
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "omit_defaults": True,
     "dict": True,
-    "rename": rename_field,
+    "rename": {kw + "_": kw for kw in keyword.kwlist},
 }
 
 

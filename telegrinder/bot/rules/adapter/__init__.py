@@ -7,8 +7,8 @@ from telegrinder.bot.rules.adapter.raw_update import RawUpdateAdapter
 __all__ = (
     "ABCAdapter",
     "AdapterError",
+    "Event",
     "EventAdapter",
     "NodeAdapter",
     "RawUpdateAdapter",
-    "Event",
 )

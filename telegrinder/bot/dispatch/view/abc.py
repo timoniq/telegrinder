@@ -37,7 +37,7 @@ class ABCStateView(ABCView, typing.Generic[Event]):
 
 
 __all__ = (
-    "ABCStateView",
     "ABCEventRawView",
+    "ABCStateView",
     "ABCView",
 )

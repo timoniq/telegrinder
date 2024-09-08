@@ -39,7 +39,9 @@ class Source(Polymorphic, DataNode):
         )
 
     @impl
-    async def compose_chat_join_request(cls, chat_join_request: EventNode[ChatJoinRequestCute]) -> typing.Self:
+    async def compose_chat_join_request(
+        cls, chat_join_request: EventNode[ChatJoinRequestCute]
+    ) -> typing.Self:
         return cls(
             api=chat_join_request.ctx_api,
             chat=chat_join_request.chat,
@@ -68,4 +70,4 @@ class UserSource(ScalarNode, User):
         return source.from_user
 
 
-__all__ = ("Source", "ChatSource", "UserSource")
+__all__ = ("ChatSource", "Source", "UserSource")

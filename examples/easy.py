@@ -1,8 +1,9 @@
 import pathlib
 import random
 
-from telegrinder import API, Message, MessageReplyHandler, Telegrinder, Token
+from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import MESSAGE_FROM_USER, WaiterMachine, clear_wm_storage_worker
+from telegrinder.bot.dispatch.handler import MessageReplyHandler, PhotoReplyHandler
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
 from telegrinder.rules import FuzzyText, HasText, Markup, Text

@@ -17,4 +17,4 @@ class IntegerInRange(ABCRule):
         return integer in self.rng
 
 
-__all__ = ("IsInteger", "IntegerInRange")
+__all__ = ("IntegerInRange", "IsInteger")

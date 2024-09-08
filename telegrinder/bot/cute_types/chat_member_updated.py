@@ -245,6 +245,6 @@ class ChatMemberUpdatedCute(
 
 
 __all__ = (
-    "ChatMemberUpdatedCute",
     "ChatMemberShortcuts",
+    "ChatMemberUpdatedCute",
 )
