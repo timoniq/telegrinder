@@ -31,7 +31,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         if self.hasher not in self.machine.storage:
             return True
 
-        key = self.hasher.create_hash_from_event(event)
+        key = self.hasher.get_hash_from_data_from_event(event)
         if key is None:
             logger.info(f"Unable to get hash from event with hasher {self.hasher}")
             return True

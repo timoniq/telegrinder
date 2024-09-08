@@ -13,7 +13,7 @@ def get_chat_from_event(event: Message) -> int:
 
 
 MESSAGE_IN_CHAT = Hasher(
-    view=MessageView, create_hash=from_chat_hash, get_data_from_event=get_chat_from_event
+    view=MessageView, get_hash_from_data=from_chat_hash, get_data_from_event=get_chat_from_event
 )
 
 
@@ -27,7 +27,7 @@ def get_user_from_event(event: Message) -> int:
 
 MESSAGE_FROM_USER = Hasher(
     view=MessageView,
-    create_hash=from_user_hash,
+    get_hash_from_data=from_user_hash,
     get_data_from_event=get_user_from_event,
 )
 
@@ -42,6 +42,6 @@ def get_user_in_chat_from_event(event: Message) -> tuple[int, int]:
 
 MESSAGE_FROM_USER_IN_CHAT = Hasher(
     view=MessageView,
-    create_hash=from_user_in_chat_hash,
+    get_hash_from_data=from_user_in_chat_hash,
     get_data_from_event=get_user_in_chat_from_event,
 )

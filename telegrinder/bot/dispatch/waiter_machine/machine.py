@@ -60,7 +60,7 @@ class WaiterMachine:
         if hasher not in self.storage:
             raise LookupError("No record of hasher {!r} found.".format(hasher))
 
-        waiter_id: typing.Hashable = hasher.create_hash(id).expect(
+        waiter_id: typing.Hashable = hasher.get_hash_from_data(id).expect(
             RuntimeError("Couldn't create hash from data")
         )
         short_state = self.storage[hasher].pop(waiter_id, None)
@@ -130,7 +130,7 @@ class WaiterMachine:
             lifetime=lifetime or self.base_state_lifetime,
             actions=actions,
         )
-        waiter_hash = hasher.create_hash(data).expect(RuntimeError("Hasher couldn't create hash."))
+        waiter_hash = hasher.get_hash_from_data(data).expect(RuntimeError("Hasher couldn't create hash."))
 
         if hasher not in self.storage:
             if self.dispatch:

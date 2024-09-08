@@ -10,7 +10,7 @@ class StateViewHasher(Hasher[Event, int]):
     view: BaseStateView
 
     def __init__(self, view: type[BaseStateView[Event]]):
-        super().__init__(view, create_hash=ECHO)
+        super().__init__(view, get_hash_from_data=ECHO)
 
     def get_data_from_event(self, event: Event) -> Option[int]:
         return from_optional(self.view.get_state_key(event))

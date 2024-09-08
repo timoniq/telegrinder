@@ -17,28 +17,28 @@ class Hasher(typing.Generic[Event, Data]):
     def __init__(
         self,
         view: type[BaseView[Event]],
-        create_hash: typing.Callable[[Data], typing.Hashable | None] | None = None,
+        get_hash_from_data: typing.Callable[[Data], typing.Hashable | None] | None = None,
         get_data_from_event: typing.Callable[[Event], Data | None] | None = None,
     ):
         self.view = view
-        self._create_hash = create_hash
+        self._get_hash_from_data = get_hash_from_data
         self._get_data_from_event = get_data_from_event
 
     def get_name(self) -> str:
         return f"{self.view.__class__.__name__}_{id(self)}"
 
-    def create_hash(self, data: Data) -> Option[typing.Hashable]:
-        if self._create_hash is None:
+    def get_hash_from_data(self, data: Data) -> Option[typing.Hashable]:
+        if self._get_hash_from_data is None:
             raise NotImplementedError
-        return from_optional(self._create_hash(data))
+        return from_optional(self._get_hash_from_data(data))
 
     def get_data_from_event(self, event: Event) -> Option[Data]:
         if not self._get_data_from_event:
             raise NotImplementedError
         return from_optional(self._get_data_from_event(event))
 
-    def create_hash_from_event(self, event: Event) -> Option[typing.Hashable]:
-        return self.get_data_from_event(event).and_then(self.create_hash)
+    def get_hash_from_data_from_event(self, event: Event) -> Option[typing.Hashable]:
+        return self.get_data_from_event(event).and_then(self.get_hash_from_data)
 
     def __hash__(self) -> int:
         return hash(self.get_name())
