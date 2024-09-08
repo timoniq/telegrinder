@@ -9,6 +9,12 @@ from telegrinder.bot.cute_types import (
     UpdateCute,
 )
 from telegrinder.bot.dispatch import (
+    CALLBACK_QUERY_FOR_MESSAGE,
+    CALLBACK_QUERY_FROM_CHAT,
+    CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
+    MESSAGE_FROM_USER,
+    MESSAGE_FROM_USER_IN_CHAT,
+    MESSAGE_IN_CHAT,
     ABCDispatch,
     ABCHandler,
     ABCMiddleware,
@@ -97,4 +103,10 @@ __all__ = (
     "clear_wm_storage_worker",
     "Hasher",
     "StateViewHasher",
+    "MESSAGE_FROM_USER",
+    "MESSAGE_IN_CHAT",
+    "MESSAGE_FROM_USER_IN_CHAT",
+    "CALLBACK_QUERY_FOR_MESSAGE",
+    "CALLBACK_QUERY_FROM_CHAT",
+    "CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE",
 )

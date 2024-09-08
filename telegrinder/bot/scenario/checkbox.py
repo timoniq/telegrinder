@@ -124,7 +124,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         ).unwrap()
 
         while True:
-            q, _ = await self.waiter_machine.wait(StateViewHasher(view), message.message_id)
+            q, _ = await self.waiter_machine.wait(StateViewHasher(view.__class__), message.message_id)
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
             if not should_continue:

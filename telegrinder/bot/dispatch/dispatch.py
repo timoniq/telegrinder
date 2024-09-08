@@ -1,6 +1,7 @@
 import dataclasses
 import typing
 
+from fntypes import Nothing, Option, Some
 from vbml.patcher import Patcher
 
 from telegrinder.api.api import API
@@ -187,6 +188,12 @@ class Dispatch(
             assert name in view_external, f"View {name!r} is undefined in external dispatch."
             view.load(view_external[name])
             setattr(external, name, view)
+
+    def get_view(self, of_type: type[T]) -> Option[T]:
+        for view in self.get_views().values():
+            if isinstance(view, of_type):
+                return Some(view)
+        return Nothing()
 
     __call__ = handle
 

@@ -2,7 +2,7 @@ import pathlib
 import random
 
 from telegrinder import API, Message, MessageReplyHandler, Telegrinder, Token
-from telegrinder.bot import WaiterMachine, clear_wm_storage_worker
+from telegrinder.bot import MESSAGE_FROM_USER, WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
 from telegrinder.rules import FuzzyText, HasText, Markup, Text
@@ -10,7 +10,7 @@ from telegrinder.types.objects import InputFile
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine()
+wm = WaiterMachine(bot.dispatch)
 kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
 logger.set_level("DEBUG")
 
@@ -23,9 +23,9 @@ async def start(message: Message):
     await message.answer(
         "Hello, {}! It's {}. How are you today?".format(message.from_user.first_name, me),
     )
-    m, _ = await wm.wait_from_event(
-        bot.dispatch.message,
-        message,
+    m, _ = await wm.wait(
+        MESSAGE_FROM_USER,
+        message.from_user.id,
         release=Text(["fine", "bad"], ignore_case=True),
         on_miss=MessageReplyHandler("Fine or bad", as_reply=True),
     )
@@ -43,9 +43,9 @@ async def start(message: Message):
 @bot.on.message(Text("/react"))
 async def react(message: Message):
     await message.reply("Send me any message...")
-    msg, _ = await wm.wait_from_event(
-        bot.dispatch.message,
-        message,
+    msg, _ = await wm.wait(
+        MESSAGE_FROM_USER,
+        message.from_user.id,
         release=HasText(),
         on_miss=MessageReplyHandler("Your message has no text!"),
     )

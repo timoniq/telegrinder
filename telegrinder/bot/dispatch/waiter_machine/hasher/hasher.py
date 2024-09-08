@@ -3,7 +3,7 @@ import typing
 from fntypes import Option
 
 from telegrinder.bot.cute_types import BaseCute
-from telegrinder.bot.dispatch.view.base import BaseStateView, BaseView
+from telegrinder.bot.dispatch.view.base import BaseView
 from telegrinder.tools.functional import from_optional
 
 Event = typing.TypeVar("Event", bound=BaseCute)
@@ -16,7 +16,7 @@ ECHO = lambda x: x
 class Hasher(typing.Generic[Event, Data]):
     def __init__(
         self,
-        view: BaseView[Event],
+        view: type[BaseView[Event]],
         create_hash: typing.Callable[[Data], typing.Hashable | None] | None = None,
         get_data_from_event: typing.Callable[[Event], Data | None] | None = None,
     ):
@@ -45,13 +45,3 @@ class Hasher(typing.Generic[Event, Data]):
 
     def __repr__(self) -> str:
         return f"<Hasher {self.get_name()}>"
-
-
-class StateViewHasher(Hasher[Event, int]):
-    view: BaseStateView
-
-    def __init__(self, view: BaseStateView[Event]):
-        super().__init__(view, create_hash=ECHO)
-
-    def get_data_from_event(self, event: Event) -> Option[int]:
-        return from_optional(self.view.get_state_key(event))

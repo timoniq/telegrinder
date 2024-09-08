@@ -4,6 +4,7 @@ import random
 
 from telegrinder import (
     API,
+    MESSAGE_FROM_USER,
     CallbackQuery,
     InlineKeyboard,
     Keyboard,
@@ -19,7 +20,7 @@ from telegrinder.rules import CallbackDataEq, CallbackDataJsonModel, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api=api)
-wm = WaiterMachine()
+wm = WaiterMachine(bot.dispatch)
 
 logger.set_level("INFO")
 
@@ -53,9 +54,9 @@ async def choose_handler(m: Message):
         text="Do you like making important decisions?",
         reply_markup=KeyboardSet.KEYBOARD_YES_NO.get_markup(),
     )
-    answer, _ = await wm.wait_from_event(
-        bot.dispatch.message,
-        m,
+    answer, _ = await wm.wait(
+        MESSAGE_FROM_USER,
+        m.from_user.id,
         release=Text(["yes", "no"], ignore_case=True),
         on_miss=MessageReplyHandler("Please make a decision: Yes or No. This is extremely important!"),
     )

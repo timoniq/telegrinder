@@ -1,12 +1,12 @@
 import random
 
 from telegrinder import (
+    MESSAGE_IN_CHAT,
     CallbackQuery,
     Checkbox,
     Dispatch,
     Message,
     MessageReplyHandler,
-    StateViewHasher,
     WaiterMachine,
 )
 from telegrinder.rules import (
@@ -21,8 +21,7 @@ from telegrinder.tools.formatting import HTMLFormatter, block_quote, link
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 dp = Dispatch()
-wm = WaiterMachine()
-message_hasher = StateViewHasher(dp.message)
+wm = WaiterMachine(dp)
 
 
 kb = (
@@ -90,7 +89,7 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        message_hasher,
+        MESSAGE_IN_CHAT,
         message.chat.id,
         release=HasText(),
         on_miss=MessageReplyHandler("Im still waiting for your message!"),
@@ -108,7 +107,7 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        message_hasher,
+        MESSAGE_IN_CHAT,
         message.chat.id,
         release=IntegerInRange(range(1, 11)),
         on_miss=MessageReplyHandler("Send a number between 1 and 10!"),

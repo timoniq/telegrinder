@@ -27,6 +27,12 @@ from telegrinder.bot.dispatch.view import (
     ViewBox,
 )
 from telegrinder.bot.dispatch.waiter_machine import (
+    CALLBACK_QUERY_FOR_MESSAGE,
+    CALLBACK_QUERY_FROM_CHAT,
+    CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
+    MESSAGE_FROM_USER,
+    MESSAGE_FROM_USER_IN_CHAT,
+    MESSAGE_IN_CHAT,
     Hasher,
     ShortState,
     StateViewHasher,
@@ -68,4 +74,10 @@ __all__ = (
     "clear_wm_storage_worker",
     "Hasher",
     "StateViewHasher",
+    "MESSAGE_FROM_USER",
+    "MESSAGE_IN_CHAT",
+    "MESSAGE_FROM_USER_IN_CHAT",
+    "CALLBACK_QUERY_FOR_MESSAGE",
+    "CALLBACK_QUERY_FROM_CHAT",
+    "CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE",
 )

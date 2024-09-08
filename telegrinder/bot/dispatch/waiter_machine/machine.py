@@ -2,7 +2,8 @@ import asyncio
 import datetime
 import typing
 
-from telegrinder.bot.dispatch.view.base import BaseStateView
+from telegrinder.bot.dispatch.abc import ABCDispatch
+from telegrinder.bot.dispatch.view.base import BaseStateView, BaseView
 from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
     EventModel,
@@ -29,10 +30,12 @@ WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
 class WaiterMachine:
     def __init__(
         self,
+        dispatch: ABCDispatch | None = None,
         *,
         max_storage_size: int = 1000,
         base_state_lifetime: datetime.timedelta = WEEK,
     ) -> None:
+        self.dispatch = dispatch
         self.max_storage_size = max_storage_size
         self.base_state_lifetime = base_state_lifetime
         self.storage: Storage = {}
@@ -94,7 +97,7 @@ class WaiterMachine:
         lifetime: datetime.timedelta | float | None = None,
         **actions: typing.Unpack[WaiterActions],
     ) -> ShortStateContext[EventModel]:
-        hasher = StateViewHasher(view)
+        hasher = StateViewHasher(view.__class__)
         return await self.wait(
             hasher=hasher,
             data=hasher.get_data_from_event(event).expect(
@@ -130,7 +133,11 @@ class WaiterMachine:
         waiter_hash = hasher.create_hash(data).expect(RuntimeError("Hasher couldn't create hash."))
 
         if hasher not in self.storage:
-            hasher.view.middlewares.insert(0, WaiterMiddleware(self, hasher))
+            if self.dispatch:
+                view: BaseView[EventModel] = self.dispatch.get_view(hasher.view).expect(
+                    RuntimeError(f"View {hasher.view.__name__} is not defined in dispatch")
+                )
+                view.middlewares.insert(0, WaiterMiddleware(self, hasher))
             self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)
 
         if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
