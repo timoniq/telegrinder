@@ -441,13 +441,13 @@ typing = ["typing-extensions (>=4.8)"]
 
 [[package]]
 name = "fntypes"
-version = "0.1.4.post2"
+version = "0.1.4.post3"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.11"
 files = [
-    {file = "fntypes-0.1.4.post2-py3-none-any.whl", hash = "sha256:eca098a93c0b75f2bd42cd09dd63e98c92f55d3cb3f4d0d701932880f629544e"},
-    {file = "fntypes-0.1.4.post2.tar.gz", hash = "sha256:2912a82853bbb21ae5db2d6de363f859b6e4eb5373787873ef3ddeae08e2a6ef"},
+    {file = "fntypes-0.1.4.post3-py3-none-any.whl", hash = "sha256:ea67b65d1f528de742f91cea433aaccb6f6dabfbe8ea2c579878388e7c1b3b3e"},
+    {file = "fntypes-0.1.4.post3.tar.gz", hash = "sha256:da0b40925039ac98bff11b3f902cb1380c32671737ebc42014e26a327bd96811"},
 ]
 
 [[package]]

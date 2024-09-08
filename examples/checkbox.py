@@ -4,7 +4,7 @@ from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine()
+wm = WaiterMachine(bot.dispatch)
 logger.set_level("INFO")
 
 

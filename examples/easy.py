@@ -2,7 +2,7 @@ import pathlib
 import random
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.bot import WaiterMachine, clear_wm_storage_worker
+from telegrinder.bot import MESSAGE_FROM_USER, WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler import MessageReplyHandler, PhotoReplyHandler
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
@@ -11,7 +11,7 @@ from telegrinder.types.objects import InputFile
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine()
+wm = WaiterMachine(bot.dispatch)
 kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
 logger.set_level("DEBUG")
 
@@ -25,13 +25,10 @@ async def start(message: Message):
         "Hello, {}! It's {}. How are you today?".format(message.from_user.first_name, me),
     )
     m, _ = await wm.wait(
-        bot.dispatch.message,
-        message,
-        Text(["fine", "bad"], ignore_case=True),
-        exit=MessageReplyHandler("Oh, ok, exiting state...", Text("/exit")),
-        default=PhotoReplyHandler(
-            InputFile.from_file("examples/assets/cat.jpg"), caption="Fine or bad", as_reply=True
-        ),
+        MESSAGE_FROM_USER,
+        message.from_user.id,
+        release=Text(["fine", "bad"], ignore_case=True),
+        on_miss=MessageReplyHandler("Fine or bad", as_reply=True),
     )
 
     match m.text.unwrap().lower():
@@ -48,10 +45,10 @@ async def start(message: Message):
 async def react(message: Message):
     await message.reply("Send me any message...")
     msg, _ = await wm.wait(
-        bot.dispatch.message,
-        message,
-        HasText(),
-        default=MessageReplyHandler("Your message has no text!"),
+        MESSAGE_FROM_USER,
+        message.from_user.id,
+        release=HasText(),
+        on_miss=MessageReplyHandler("Your message has no text!"),
     )
     await msg.react("💋")
 
@@ -81,5 +78,5 @@ async def hello(message: Message):
     await message.reply("Hi!")
 
 
-bot.loop_wrapper.add_task(clear_wm_storage_worker(wm, bot.dispatch))
+bot.loop_wrapper.add_task(clear_wm_storage_worker(wm))
 bot.run_forever(skip_updates=True)

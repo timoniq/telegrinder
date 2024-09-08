@@ -2,6 +2,7 @@ from fntypes.co import Some
 
 from telegrinder import (
     API,
+    MESSAGE_FROM_USER,
     Message,
     MessageReplyHandler,
     Telegrinder,
@@ -15,7 +16,7 @@ from telegrinder.rules import ABCRule, HasText, Text
 from telegrinder.types import MessageReactionUpdated, ReactionEmoji, UpdateType
 
 bot = Telegrinder(API(Token.from_env()))
-wm = WaiterMachine()
+wm = WaiterMachine(bot.dispatch)
 logger.set_level("INFO")
 
 
@@ -33,10 +34,10 @@ class ReactionRule(ABCRule[Update]):
 async def react_message(message: Message):
     await message.reply("Send me message with any text and i'll react it!")
     msg, _ = await wm.wait(
-        bot.dispatch.message,
-        message,
-        HasText(),
-        default=MessageReplyHandler("Im still waiting for the message with any text!"),
+        MESSAGE_FROM_USER,
+        message.from_user.id,
+        release=HasText(),
+        on_miss=MessageReplyHandler("Im still waiting for the message with any text!"),
     )
     await msg.react(ReactionEmoji.HEART_ON_FIRE)
     bot.dispatch.global_context[f"{msg.from_user.id}:{msg.chat.id}"] = msg.message_id

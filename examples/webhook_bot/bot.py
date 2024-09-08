@@ -1,6 +1,7 @@
 import random
 
 from telegrinder import (
+    MESSAGE_IN_CHAT,
     CallbackQuery,
     Checkbox,
     Dispatch,
@@ -20,7 +21,9 @@ from telegrinder.tools.formatting import HTMLFormatter, block_quote, link
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 dp = Dispatch()
-wm = WaiterMachine()
+wm = WaiterMachine(dp)
+
+
 kb = (
     InlineKeyboard()
     .add(InlineButton("✅ Confirm", callback_data="action/confirm"))
@@ -86,10 +89,10 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        dp.message,
-        (cb.ctx_api, message.chat_id),
-        HasText(),
-        default=MessageReplyHandler("Im still waiting for your message!"),
+        MESSAGE_IN_CHAT,
+        message.chat.id,
+        release=HasText(),
+        on_miss=MessageReplyHandler("Im still waiting for your message!"),
     )
     await msg.reply(HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE)
 
@@ -104,10 +107,10 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        dp.message,
-        (cb.ctx_api, message.chat_id),
-        IntegerInRange(range(1, 11)),
-        default=MessageReplyHandler("Send a number between 1 and 10!"),
+        MESSAGE_IN_CHAT,
+        message.chat.id,
+        release=IntegerInRange(range(1, 11)),
+        on_miss=MessageReplyHandler("Send a number between 1 and 10!"),
     )
     random_number = random.randint(1, 10)
     if int(msg.text.unwrap()) == random_number:
