@@ -5,7 +5,7 @@ Modern visionary telegram bot framework.
 * Type hinted
 * Customizable and extensible
 * Ready to use scenarios and rules
-* Fast models built on msgspec
+* Fast models built on [msgspec](https://github.com/jcrist/msgspec)
 * Both low-level and high-level API
 * Support [optional dependecies](https://github.com/timoniq/telegrinder/blob/dev/docs/guide/optional_dependencies.md)
 
@@ -162,6 +162,7 @@ __all__ = (
     "APIResponse",
     "AiohttpClient",
     "AnyMarkup",
+    "AudioReplyHandler",
     "BaseCute",
     "BaseReturnManager",
     "BaseStateView",
@@ -183,6 +184,7 @@ __all__ = (
     "ChatMemberUpdated",
     "ChatMemberUpdatedCute",
     "ChatMemberView",
+    "DocumentReplyHandler",
     "Checkbox",
     "Choice",
     "Context",

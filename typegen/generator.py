@@ -350,15 +350,46 @@ class ObjectGenerator(ABCGenerator):
         if self.config_literal_types:
             lines.append("from telegrinder.types.enums import *  # noqa: F403\n")
 
-        for object_schema in sorted(self.objects, key=lambda x: x.subtypes or [], reverse=True):
-            lines.append(self.make_object(object_schema) + "\n\n")
-            all_.append(camel_to_pascal(object_schema.name))
+        common_fields = {}
 
+        objs = []
+        for obj in filter(lambda x: not x.subtypes, self.objects):
+            objs.append(self.make_object(obj) + "\n\n")
+            all_.append(camel_to_pascal(obj.name))
+
+            if obj.subtype_of:
+                for subtype in obj.subtype_of:
+                    if subtype not in common_fields:
+                        common_fields[subtype] = {}
+
+                    if obj.fields:
+                        for f in obj.fields:
+                            field, count = common_fields[subtype].get(f.name, (f, 0))
+                            common_fields[subtype][f.name] = (field, count + 1)
+
+        for p in filter(lambda x: bool(x.subtypes), self.objects):
+            for f, count in common_fields.get(p.name, {}).values():
+                if count < 2:
+                    continue
+                if p.fields is None:
+                    p.fields = []
+                p.fields.append(f)
+
+        parents = []
+        for parent in sorted(
+            filter(lambda x: bool(x.subtypes), self.objects), key=lambda x: x.subtypes or []
+        ):
+            parents.append(self.make_object(parent) + "\n\n")
+            all_.append(camel_to_pascal(parent.name))
+
+        lines.extend(parents)
+        lines.extend(objs)
         lines.append(f"\n__all__ = {tuple(all_)!r}\n")
+
         with open(path + "/objects.py", mode="w", encoding="UTF-8") as f:
             f.writelines(lines)
 
-        exec(f"from {path.replace('/', '.') + '.enums'} import __all__", globals(), locals())
+        exec(f"from {'telegrinder/types'.replace('/', '.') + '.enums'} import __all__", globals(), locals())
         with open(path + "/__init__.py", "w", encoding="UTF-8") as f:
             f.writelines(
                 [

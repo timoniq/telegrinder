@@ -65,7 +65,9 @@ if typing.TYPE_CHECKING:
     EventNode: typing.TypeAlias = typing.Annotated["Dataclass", ...]
 
 else:
+
     class EventNode(_EventNode):
         pass
+
 
 __all__ = ("EventNode",)

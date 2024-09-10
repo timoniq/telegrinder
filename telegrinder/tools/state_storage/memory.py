@@ -1,7 +1,8 @@
 import typing
 
-from fntypes import Nothing, Option, Some
+from fntypes.option import Option
 
+from telegrinder.tools.functional import from_optional
 from telegrinder.tools.state_storage.abc import ABCStateStorage, StateData
 
 Payload: typing.TypeAlias = dict[str, typing.Any]
@@ -12,8 +13,7 @@ class MemoryStateStorage(ABCStateStorage[Payload]):
         self.storage: dict[int, StateData[Payload]] = {}
 
     async def get(self, user_id: int) -> Option[StateData[Payload]]:
-        state = self.storage.get(user_id)
-        return Some(state) if state is not None else Nothing()
+        return from_optional(self.storage.get(user_id))
 
     async def set(self, user_id: int, key: str, payload: Payload) -> None:
         self.storage[user_id] = StateData(key, payload)
