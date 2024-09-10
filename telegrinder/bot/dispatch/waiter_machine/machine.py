@@ -95,7 +95,7 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        **actions: typing.Unpack[WaiterActions],
+        **actions: typing.Unpack[WaiterActions[EventModel]],
     ) -> ShortStateContext[EventModel]:
         hasher = StateViewHasher(view.__class__)
         return await self.wait(
@@ -117,7 +117,7 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        **actions: typing.Unpack[WaiterActions],
+        **actions: typing.Unpack[WaiterActions[EventModel]],
     ) -> ShortStateContext[EventModel]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
