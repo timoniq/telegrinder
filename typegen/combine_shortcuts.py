@@ -59,8 +59,8 @@ def prepare_docstring(
     api_method_func: cst.FunctionDef,
     custom_params: set[str],
 ) -> str | None:
-    if (shortcut_doc := shortcut_func.get_docstring()) and (api_m_doc := api_method_func.get_docstring()):
-        _, shortcut_docstring_params = parse_docstring(shortcut_doc)
+    if shortcut_func.get_docstring() and (api_m_doc := api_method_func.get_docstring()):
+        shortcut_docstring_params = {}
         api_method_docstring, api_method_docstring_params = parse_docstring(api_m_doc)
         shortcut_docstring_s = re.sub(
             r"^Method `.+`",
@@ -202,17 +202,16 @@ class ShortcutsСompatibilityTransformer(cst.CSTTransformer):
     def visit_ClassDef_body(self, node: cst.ClassDef) -> bool | None:
         return is_cute_class(node)
 
-    def leave_ClassDef(self, original_node: cst.ClassDef, updated_node: cst.ClassDef) -> cst.ClassDef:
-        return updated_node
-
     def visit_FunctionDef_asynchronous(self, node: cst.FunctionDef) -> bool | None:
         return node in self.shortcuts
 
     def leave_FunctionDef(
-        self, original_node: cst.FunctionDef, updated_node: cst.FunctionDef
+        self,
+        original_node: cst.FunctionDef,
+        updated_node: cst.FunctionDef,
     ) -> cst.FunctionDef:
-        if original_node in self.shortcuts:
-            shortcut = self.shortcuts.pop(self.shortcuts.index(original_node))
+        if typing.cast(Shortcut, original_node) in self.shortcuts:
+            shortcut = self.shortcuts.pop(self.shortcuts.index(typing.cast(Shortcut, original_node)))
             shortcut_params = OrderedDict({"self": cst.Param(cst.Name("self"))}) | get_params(
                 shortcut.function
             )
@@ -231,7 +230,7 @@ class ShortcutsСompatibilityTransformer(cst.CSTTransformer):
                     star_kwarg=cst.Param(
                         cst.Name("other"),
                         annotation=ANNOTATION_TYPING_ANY,
-                        comma=cst.Comma(cst.TrailingWhitespace()),
+                        comma=cst.Comma(cst.TrailingWhitespace()),  # type: ignore
                     ),
                 ),
             )
@@ -239,7 +238,9 @@ class ShortcutsСompatibilityTransformer(cst.CSTTransformer):
         return updated_node
 
     def leave_SimpleString(
-        self, original_node: cst.SimpleString, updated_node: cst.SimpleString
+        self,
+        original_node: cst.SimpleString,
+        updated_node: cst.SimpleString,
     ) -> cst.SimpleString:
         for shortcut in self.shortcuts:
             if (
