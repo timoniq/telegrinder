@@ -395,6 +395,38 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
 
         :param link_preview_options: Link preview generation options for the message.
 
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
 
         ...
@@ -604,6 +636,44 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
 
         :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
 
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param latitude: Latitude of new location.
+
+        :param longitude: Longitude of new location.
+
+        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
+
+        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
+
         :param reply_markup: A JSON-serialized object for a new inline keyboard."""
 
         ...
@@ -744,6 +814,36 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
         :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
@@ -914,6 +1014,26 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
 
         :param media: A JSON-serialized object for a new media content of the message.
 
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
+
+        :param reply_markup: A JSON-serialized object for a new inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param media: A JSON-serialized object for a new media content of the message.
+
         :param reply_markup: A JSON-serialized object for a new inline keyboard."""
 
         return await MessageCute.edit_media(self, **get_params(locals()))  # type: ignore
@@ -998,6 +1118,22 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.:param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
         :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
