@@ -41,15 +41,24 @@ class WaiterMachine:
         self.storage: Storage = {}
 
     def __repr__(self) -> str:
-        return "<{}: max_storage_size={}, {}>".format(
+        return "<{}: max_storage_size={}, base_state_lifetime={!r}>".format(
             self.__class__.__name__,
             self.max_storage_size,
-            ", ".join(
-                f"{view_name}: {len(self.storage[view_name].values())} shortstates"
-                for view_name in self.storage
-            )
-            or "empty",
+            self.base_state_lifetime,
         )
+
+    async def drop_all(self) -> None:
+        """Drops all waiters in storage."""
+
+        for hasher in self.storage:
+            for ident, short_state in self.storage[hasher].items():
+                if short_state.context:
+                    await self.drop(
+                        hasher,
+                        ident,
+                    )
+                else:
+                    short_state.cancel()
 
     async def drop(
         self,
@@ -66,26 +75,13 @@ class WaiterMachine:
         short_state = self.storage[hasher].pop(waiter_id, None)
         if short_state is None:
             raise LookupError(
-                "Waiter with identificator {} is not found for hasher {!r}".format(waiter_id, hasher)
+                "Waiter with identificator {} is not found for hasher {!r}.".format(waiter_id, hasher)
             )
 
         if on_drop := short_state.actions.get("on_drop"):
             on_drop(short_state, **context)
 
         short_state.cancel()
-
-    async def drop_all(self) -> None:
-        """Drops all waiters in storage."""
-
-        for hasher in self.storage:
-            for ident, short_state in self.storage[hasher].items():
-                if short_state.context:
-                    await self.drop(
-                        hasher,
-                        ident,
-                    )
-                else:
-                    short_state.cancel()
 
     async def wait_from_event(
         self,
@@ -101,7 +97,7 @@ class WaiterMachine:
         return await self.wait(
             hasher=hasher,
             data=hasher.get_data_from_event(event).expect(
-                RuntimeError("Hasher couldn't create data from event.")
+                RuntimeError("Hasher couldn't create data from event."),
             ),
             filter=filter,
             release=release,
@@ -124,18 +120,18 @@ class WaiterMachine:
 
         event = asyncio.Event()
         short_state = ShortState[EventModel](
-            filter=filter,
+            event,
+            actions,
             release=release,
-            event=event,
+            filter=filter,
             lifetime=lifetime or self.base_state_lifetime,
-            actions=actions,
         )
         waiter_hash = hasher.get_hash_from_data(data).expect(RuntimeError("Hasher couldn't create hash."))
 
         if hasher not in self.storage:
             if self.dispatch:
                 view: BaseView[EventModel] = self.dispatch.get_view(hasher.view).expect(
-                    RuntimeError(f"View {hasher.view.__name__} is not defined in dispatch")
+                    RuntimeError(f"View {hasher.view.__name__!r} is not defined in dispatch.")
                 )
                 view.middlewares.insert(0, WaiterMiddleware(self, hasher))
             self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)
@@ -148,9 +144,7 @@ class WaiterMachine:
         assert short_state.context is not None
         return short_state.context
 
-    async def clear_storage(
-        self,
-    ) -> None:
+    async def clear_storage(self) -> None:
         """Clears storage."""
 
         for hasher in self.storage:

@@ -1,15 +1,14 @@
-from fntypes import Option
+from fntypes.option import Option
 
 from telegrinder.bot.dispatch.view import BaseStateView
+from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import ECHO, Event, Hasher
 from telegrinder.tools.functional import from_optional
-
-from .hasher import ECHO, Event, Hasher
 
 
 class StateViewHasher(Hasher[Event, int]):
-    view: BaseStateView
+    view: BaseStateView[Event]
 
-    def __init__(self, view: type[BaseStateView[Event]]):
+    def __init__(self, view: type[BaseStateView[Event]]) -> None:
         super().__init__(view, get_hash_from_data=ECHO)
 
     def get_data_from_event(self, event: Event) -> Option[int]:

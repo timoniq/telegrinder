@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
 
 
 class RuleChain(dict[str, typing.Any], Node):
-    dataclass = dict
+    dataclass: type[typing.Any] = dict
     rules: tuple["ABCRule", ...] = ()
 
     def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:

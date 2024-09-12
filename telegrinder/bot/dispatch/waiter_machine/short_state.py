@@ -27,10 +27,17 @@ class ShortStateContext(typing.Generic[EventModel], typing.NamedTuple):
 @dataclasses.dataclass(slots=True)
 class ShortState(typing.Generic[EventModel]):
     event: asyncio.Event
-    actions: "WaiterActions"
+    actions: "WaiterActions[EventModel]"
 
-    release: ABCRule | None = None
-    filter: ABCRule | None = None
+    release: ABCRule | None = dataclasses.field(
+        default=None,
+        kw_only=True,
+    )
+    filter: ABCRule | None = dataclasses.field(
+        default=None,
+        kw_only=True,
+    )
+
     lifetime: dataclasses.InitVar[datetime.timedelta | None] = dataclasses.field(
         default=None,
         kw_only=True,
@@ -38,7 +45,6 @@ class ShortState(typing.Generic[EventModel]):
 
     expiration_date: datetime.datetime | None = dataclasses.field(init=False, kw_only=True)
     creation_date: datetime.datetime = dataclasses.field(init=False)
-
     context: ShortStateContext[EventModel] | None = dataclasses.field(default=None, init=False, kw_only=True)
 
     def __post_init__(self, expiration: datetime.timedelta | None = None) -> None:
