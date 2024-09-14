@@ -3,21 +3,32 @@ import typing
 
 from fntypes.result import Error, Ok, Result
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
+from telegrinder.node.base import is_node
+from telegrinder.tools.error_handler.abc import ABCErrorHandler, Event, Handler
+from telegrinder.tools.error_handler.error import CatcherError
 from telegrinder.tools.magic import magic_bundle
-
-from .abc import ABCErrorHandler, EventT, Handler
-from .error import CatcherError
 
 F = typing.TypeVar("F", bound="FuncCatcher")
 ExceptionT = typing.TypeVar("ExceptionT", bound=BaseException, contravariant=True)
 FuncCatcher = typing.Callable[typing.Concatenate[ExceptionT, ...], typing.Awaitable[typing.Any]]
 
 
+async def run_handler(
+    handler: Handler,
+    event: typing.Any,
+    ctx: dict[str, typing.Any],
+) -> typing.Any:
+    first_annotation = tuple(handler.__annotations__.values())[0]
+    start_idx = 0 if is_node(first_annotation) else 1
+    context = magic_bundle(handler, ctx, start_idx=start_idx)
+    return await (handler(event, **context) if start_idx == 1 else handler(**context))
+
+
 @dataclasses.dataclass(frozen=True, repr=False, slots=True)
-class Catcher(typing.Generic[EventT]):
+class Catcher(typing.Generic[Event]):
     func: FuncCatcher[BaseException]
     exceptions: list[type[BaseException] | BaseException] = dataclasses.field(
         default_factory=lambda: [],
@@ -37,20 +48,29 @@ class Catcher(typing.Generic[EventT]):
 
     async def __call__(
         self,
-        handler: Handler[EventT],
-        event: EventT,
+        handler: Handler,
+        event: Event,
         api: API,
         ctx: Context,
     ) -> Result[typing.Any, BaseException]:
         try:
-            return Ok(await handler(event, **magic_bundle(handler, ctx)))  # type: ignore
+            return Ok(await run_handler(handler, event, ctx))
         except BaseException as exc:
-            return await self.process_exception(api, event, ctx, exc, handler.__name__)
+            return await self.run(api, event, ctx, exc, handler.__name__)
 
-    async def process_exception(
+    def match_exception(self, exception: BaseException) -> bool:
+        for exc in self.exceptions:
+            if isinstance(exc, type) and type(exception) is exc:
+                return True
+            if isinstance(exc, object) and type(exception) is type(exc):
+                return True if not exc.args else exc.args == exception.args
+
+        return False
+
+    async def run(
         self,
         api: API,
-        event: EventT,
+        event: Event,
         ctx: Context,
         exception: BaseException,
         handler_name: str,
@@ -61,26 +81,14 @@ class Catcher(typing.Generic[EventT]):
                     exception, handler_name, self.func.__name__
                 )
             )
-            return Ok(
-                await self.func(
-                    exception,
-                    **magic_bundle(self.func, {"event": event, "api": api} | ctx),  # type: ignore
-                )
-            )
+            return Ok(await run_handler(self.func, event, {"event": event, "api": api} | ctx))
+
         logger.debug("Failed to match exception {!r}.", exception.__class__.__name__)
         return Error(exception)
 
-    def match_exception(self, exception: BaseException) -> bool:
-        for exc in self.exceptions:
-            if isinstance(exc, type) and type(exception) is exc:
-                return True
-            if isinstance(exc, object) and type(exception) is type(exc):
-                return True if not exc.args else exc.args == exception.args
-        return False
 
-
-class ErrorHandler(ABCErrorHandler[EventT]):
-    def __init__(self, catcher: Catcher[EventT] | None = None, /) -> None:
+class ErrorHandler(ABCErrorHandler[Event]):
+    def __init__(self, catcher: Catcher[Event] | None = None, /) -> None:
         self.catcher = catcher
 
     def __repr__(self) -> str:
@@ -103,8 +111,8 @@ class ErrorHandler(ABCErrorHandler[EventT]):
     ):
         """Register the catcher.
 
-        :param logging: Logging the result of the catcher at the level 'DEBUG'.
-        :param raise_exception: Raise an exception if the catcher hasn't started.
+        :param logging: Logging the result of the catcher at the level `DEBUG`.
+        :param raise_exception: Raise an exception if the catcher has not started.
         :param ignore_errors: Ignore errors that may occur.
         """
 
@@ -121,10 +129,22 @@ class ErrorHandler(ABCErrorHandler[EventT]):
 
         return decorator
 
+    def _process_catcher_error(self, error: CatcherError) -> Result[None, BaseException]:
+        assert self.catcher is not None
+
+        if self.catcher.raise_exception:
+            raise error.exc from None
+        if self.catcher.logging:
+            logger.error(error.message)
+        if not self.catcher.ignore_errors:
+            return Error(error.exc)
+
+        return Ok(None)
+
     async def process(
         self,
-        handler: Handler[EventT],
-        event: EventT,
+        handler: Handler,
+        event: Event,
         api: API,
         ctx: Context,
     ) -> Result[typing.Any, BaseException]:
@@ -143,27 +163,15 @@ class ErrorHandler(ABCErrorHandler[EventT]):
                 )
             )
 
-    def process_catcher_error(self, error: CatcherError) -> Result[None, BaseException]:
-        assert self.catcher is not None
-
-        if self.catcher.raise_exception:
-            raise error.exc from None
-        if self.catcher.logging:
-            logger.error(error.message)
-        if not self.catcher.ignore_errors:
-            return Error(error.exc)
-
-        return Ok(None)
-
     async def run(
         self,
-        handler: Handler[EventT],
-        event: EventT,
+        handler: Handler,
+        event: Event,
         api: API,
         ctx: Context,
     ) -> Result[typing.Any, BaseException]:
         if not self.catcher:
-            return Ok(await handler(event, **magic_bundle(handler, ctx)))  # type: ignore
+            return Ok(await run_handler(handler, event, ctx))
 
         match await self.process(handler, event, api, ctx):
             case Ok(value) as ok:
@@ -176,7 +184,10 @@ class ErrorHandler(ABCErrorHandler[EventT]):
                 return ok
             case Error(exc) as err:
                 if isinstance(exc, CatcherError):
-                    return self.process_catcher_error(exc)
+                    return self._process_catcher_error(exc)
                 if self.catcher.ignore_errors:
                     return Ok(None)
                 return err
+
+
+__all__ = ("ErrorHandler", "Catcher")

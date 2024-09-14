@@ -21,10 +21,7 @@ from .abc import ABCHandler
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules import ABCRule
 
-F = typing.TypeVar(
-    "F",
-    bound=typing.Callable[typing.Concatenate[typing.Any, ...], typing.Awaitable[typing.Any]],
-)
+F = typing.TypeVar("F", bound=typing.Callable[..., typing.Awaitable[typing.Any]])
 Event = typing.TypeVar("Event", bound=Model)
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 

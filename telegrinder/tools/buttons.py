@@ -14,7 +14,7 @@ from telegrinder.types.objects import (
     WebAppInfo,
 )
 
-ButtonT = typing.TypeVar("ButtonT", bound="BaseButton")
+KeyboardButton = typing.TypeVar("KeyboardButton", bound="BaseButton")
 
 
 @dataclasses.dataclass
@@ -27,11 +27,11 @@ class BaseButton:
         }
 
 
-class RowButtons(typing.Generic[ButtonT]):
-    buttons: list[ButtonT]
+class RowButtons(typing.Generic[KeyboardButton]):
+    buttons: list[KeyboardButton]
     auto_row: bool
 
-    def __init__(self, *buttons: ButtonT, auto_row: bool = True) -> None:
+    def __init__(self, *buttons: KeyboardButton, auto_row: bool = True) -> None:
         self.buttons = list(buttons)
         self.auto_row = auto_row
 

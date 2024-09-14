@@ -11,10 +11,14 @@ from telegrinder.types.objects import (
     ReplyKeyboardRemove,
 )
 
-from .buttons import Button, ButtonT, InlineButton, RowButtons
+from .buttons import Button, InlineButton, KeyboardButton, RowButtons
 
 DictStrAny: typing.TypeAlias = dict[str, typing.Any]
 AnyMarkup: typing.TypeAlias = InlineKeyboardMarkup | ReplyKeyboardMarkup
+
+
+def copy_keyboard(keyboard: list[list[DictStrAny]]) -> list[list[DictStrAny]]:
+    return [row.copy() for row in keyboard]
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
@@ -26,13 +30,8 @@ class KeyboardModel:
     keyboard: list[list[DictStrAny]]
 
 
-
-def copy_keyboard(keyboard: list[list[DictStrAny]]) -> list[list[DictStrAny]]:
-    return [row.copy() for row in keyboard]
-
-
-class ABCMarkup(ABC, typing.Generic[ButtonT]):
-    BUTTON: type[ButtonT]
+class ABCMarkup(ABC, typing.Generic[KeyboardButton]):
+    BUTTON: type[KeyboardButton]
     keyboard: list[list[DictStrAny]]
 
     @abstractmethod
@@ -47,7 +46,7 @@ class ABCMarkup(ABC, typing.Generic[ButtonT]):
     def get_empty_markup(cls) -> AnyMarkup:
         return cls().get_markup()
 
-    def add(self, row_or_button: RowButtons[ButtonT] | ButtonT) -> typing.Self:
+    def add(self, row_or_button: RowButtons[KeyboardButton] | KeyboardButton) -> typing.Self:
         if not len(self.keyboard):
             self.row()
 
@@ -129,4 +128,5 @@ __all__ = (
     "InlineKeyboard",
     "Keyboard",
     "KeyboardModel",
+    "copy_keyboard",
 )
