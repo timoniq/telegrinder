@@ -21,8 +21,8 @@ async def run_handler(
     event: typing.Any,
     ctx: dict[str, typing.Any],
 ) -> typing.Any:
-    first_annotation = tuple(handler.__annotations__.values())[0]
-    start_idx = 0 if is_node(first_annotation) else 1
+    annotations = tuple(handler.__annotations__.values())
+    start_idx = 0 if is_node(None if not annotations else annotations[0]) else 1
     context = magic_bundle(handler, ctx, start_idx=start_idx)
     return await (handler(event, **context) if start_idx == 1 else handler(**context))
 
