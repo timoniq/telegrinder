@@ -1,10 +1,9 @@
 from telegrinder import Dispatch, Message
-from telegrinder.bot import Context
 from telegrinder.rules import MessageRule, Text
 
 
 class IsAdmin(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
+    async def check(self, message: Message) -> bool:
         return message.from_user.username.unwrap_or_none() == "timoniq"
 
 

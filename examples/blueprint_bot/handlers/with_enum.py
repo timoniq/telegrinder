@@ -1,8 +1,9 @@
 from telegrinder import MESSAGE_FROM_USER, Dispatch, Message, MessageReplyHandler
+from telegrinder.bot.rules.message import MessageRule
 from telegrinder.modules import logger
-from telegrinder.rules import ABCRule, HasText, Markup, RuleEnum, Text
+from telegrinder.rules import HasText, Markup, RuleEnum, Text
 
-from .client import wm
+from .client import wm  # type: ignore
 
 dp = Dispatch()
 
@@ -13,8 +14,8 @@ class Commands(RuleEnum):
     COMMIT_SUICIDE = Markup(["/suicide", "/suicide <reason>"])
 
 
-class WasNaughty(ABCRule, requires=[HasText()]):
-    async def check(self, message: Message, _: dict) -> bool:
+class WasNaughty(MessageRule, requires=[HasText()]):
+    async def check(self, message: Message) -> bool:
         await message.answer("Ok, but were you naughty this year?")
         m, _ = await wm.wait(
             MESSAGE_FROM_USER,
