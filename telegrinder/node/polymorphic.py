@@ -27,7 +27,10 @@ class Polymorphic(Node):
 
             # To determine whether this is a right morph, all subnodes must be resolved
             if scope is NodeScope.PER_EVENT and (cls, i) in node_ctx:
-                logger.debug("Morph is already cached as per_event node, using its value. Impl {!r} succeeded!", impl_.__name__)
+                logger.debug(
+                    "Morph is already cached as per_event node, using its value. Impl {!r} succeeded!",
+                    impl_.__name__,
+                )
                 res: NodeSession = node_ctx[(cls, i)]
                 await node_collection.close_all()
                 return res.value

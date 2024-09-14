@@ -28,7 +28,9 @@ def get_nodes(function: typing.Callable[..., typing.Any]) -> dict[str, type["Nod
 
 
 @cache_magic_value("__is_generator__")
-def is_generator(function: typing.Callable[..., typing.Any]) -> typing.TypeGuard[AsyncGeneratorType[typing.Any, None]]:
+def is_generator(
+    function: typing.Callable[..., typing.Any],
+) -> typing.TypeGuard[AsyncGeneratorType[typing.Any, None]]:
     return inspect.isasyncgenfunction(function)
 
 
@@ -103,6 +105,7 @@ if typing.TYPE_CHECKING:
         pass
 
 else:
+
     def __init_subclass__(cls, *args, **kwargs):  # noqa: N807
         if any(issubclass(base, ScalarNode) for base in cls.__bases__ if base is not ScalarNode):
             raise RuntimeError("Scalar nodes do not support inheritance.")

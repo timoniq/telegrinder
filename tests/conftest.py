@@ -1,4 +1,3 @@
-
 from .fixtures.api_instance import api_instance
 from .fixtures.callback_query_update import callback_query_update
 from .fixtures.message_update import message_update

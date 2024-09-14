@@ -34,7 +34,10 @@ def test_get_value_from_global_ctx():
     assert ctx.get("var") == Nothing()
     assert ctx.get_value("country", str) != Nothing()
 
-    with pytest.raises(AssertionError, match="Context variable value type of 'str' does not correspond to the expected type 'int'."):
+    with pytest.raises(
+        AssertionError,
+        match="Context variable value type of 'str' does not correspond to the expected type 'int'.",
+    ):
         ctx.get_value("first_name", int)
 
 

@@ -22,9 +22,7 @@ class RawUpdateAdapter(ABCAdapter[Update, UpdateCute]):
     ) -> Result[UpdateCute, AdapterError]:
         if self.ADAPTED_VALUE_KEY not in context:
             context[self.ADAPTED_VALUE_KEY] = (
-                UpdateCute.from_update(update, api)
-                if not isinstance(update, UpdateCute)
-                else update
+                UpdateCute.from_update(update, api) if not isinstance(update, UpdateCute) else update
             )
         return Ok(context[self.ADAPTED_VALUE_KEY])
 

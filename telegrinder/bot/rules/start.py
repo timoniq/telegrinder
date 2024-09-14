@@ -12,7 +12,7 @@ from .message_entities import MessageEntities
 class StartCommand(
     MessageRule,
     requires=[
-        IsPrivate(), 
+        IsPrivate(),
         MessageEntities(MessageEntityType.BOT_COMMAND),
         Markup(["/start <param>", "/start"]),
     ],

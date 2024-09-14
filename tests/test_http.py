@@ -22,8 +22,8 @@ RESPONSE_JSON = {
                 "deleted": "30.12.2023",
                 "from": "USA",
             }
-        ]
-    }
+        ],
+    },
 }
 
 

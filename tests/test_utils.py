@@ -6,9 +6,7 @@ from telegrinder.client.abc import ABCClient
 
 class MockedHttpClient(ABCClient):
     def __init__(
-        self,
-        return_value: typing.Any | None = None,
-        callback: typing.Callable | None = None
+        self, return_value: typing.Any | None = None, callback: typing.Callable | None = None
     ) -> None:
         super().__init__()
         self.return_value = return_value
