@@ -190,4 +190,4 @@ class ErrorHandler(ABCErrorHandler[Event]):
                 return err
 
 
-__all__ = ("ErrorHandler", "Catcher")
+__all__ = ("Catcher", "ErrorHandler")

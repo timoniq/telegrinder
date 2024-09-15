@@ -21,7 +21,7 @@ class Source(Polymorphic, DataNode):
     thread_id: Option[int] = dataclasses.field(default_factory=lambda: Nothing())
 
     @impl
-    async def compose_message(cls, message: MessageNode) -> typing.Self:
+    def compose_message(cls, message: MessageNode) -> typing.Self:
         return cls(
             api=message.ctx_api,
             chat=message.chat,
@@ -30,7 +30,7 @@ class Source(Polymorphic, DataNode):
         )
 
     @impl
-    async def compose_callback_query(cls, callback_query: CallbackQueryNode) -> typing.Self:
+    def compose_callback_query(cls, callback_query: CallbackQueryNode) -> typing.Self:
         return cls(
             api=callback_query.ctx_api,
             chat=callback_query.chat.expect(ComposeError("CallbackQueryNode has no chat")),
@@ -39,9 +39,7 @@ class Source(Polymorphic, DataNode):
         )
 
     @impl
-    async def compose_chat_join_request(
-        cls, chat_join_request: EventNode[ChatJoinRequestCute]
-    ) -> typing.Self:
+    def compose_chat_join_request(cls, chat_join_request: EventNode[ChatJoinRequestCute]) -> typing.Self:
         return cls(
             api=chat_join_request.ctx_api,
             chat=chat_join_request.chat,
@@ -60,13 +58,13 @@ class Source(Polymorphic, DataNode):
 
 class ChatSource(ScalarNode, Chat):
     @classmethod
-    async def compose(cls, source: Source) -> Chat:
+    def compose(cls, source: Source) -> Chat:
         return source.chat
 
 
 class UserSource(ScalarNode, User):
     @classmethod
-    async def compose(cls, source: Source) -> User:
+    def compose(cls, source: Source) -> User:
         return source.from_user
 
 

@@ -31,7 +31,7 @@ class Attachment(DataNode):
     )
 
     @classmethod
-    async def compose(cls, message: MessageNode) -> "Attachment":
+    def compose(cls, message: MessageNode) -> "Attachment":
         for attachment_type in ("audio", "document", "photo", "poll", "video"):
             match getattr(message, attachment_type, Nothing()):
                 case Some(attachment):
@@ -44,7 +44,7 @@ class Photo(DataNode):
     sizes: list[telegrinder.types.PhotoSize]
 
     @classmethod
-    async def compose(cls, attachment: Attachment) -> typing.Self:
+    def compose(cls, attachment: Attachment) -> typing.Self:
         if not attachment.photo:
             raise ComposeError("Attachment is not a photo.")
         return cls(attachment.photo.unwrap())
@@ -52,7 +52,7 @@ class Photo(DataNode):
 
 class Video(ScalarNode, telegrinder.types.Video):
     @classmethod
-    async def compose(cls, attachment: Attachment) -> telegrinder.types.Video:
+    def compose(cls, attachment: Attachment) -> telegrinder.types.Video:
         if not attachment.video:
             raise ComposeError("Attachment is not a video.")
         return attachment.video.unwrap()
@@ -60,7 +60,7 @@ class Video(ScalarNode, telegrinder.types.Video):
 
 class Audio(ScalarNode, telegrinder.types.Audio):
     @classmethod
-    async def compose(cls, attachment: Attachment) -> telegrinder.types.Audio:
+    def compose(cls, attachment: Attachment) -> telegrinder.types.Audio:
         if not attachment.audio:
             raise ComposeError("Attachment is not an audio.")
         return attachment.audio.unwrap()
@@ -68,7 +68,7 @@ class Audio(ScalarNode, telegrinder.types.Audio):
 
 class Document(ScalarNode, telegrinder.types.Document):
     @classmethod
-    async def compose(cls, attachment: Attachment) -> telegrinder.types.Document:
+    def compose(cls, attachment: Attachment) -> telegrinder.types.Document:
         if not attachment.document:
             raise ComposeError("Attachment is not a document.")
         return attachment.document.unwrap()
@@ -76,7 +76,7 @@ class Document(ScalarNode, telegrinder.types.Document):
 
 class Poll(ScalarNode, telegrinder.types.Poll):
     @classmethod
-    async def compose(cls, attachment: Attachment) -> telegrinder.types.Poll:
+    def compose(cls, attachment: Attachment) -> telegrinder.types.Poll:
         if not attachment.poll:
             raise ComposeError("Attachment is not a poll.")
         return attachment.poll.unwrap()

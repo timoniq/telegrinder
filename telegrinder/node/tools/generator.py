@@ -25,8 +25,7 @@ def generate_node(
     casts: tuple[typing.Callable[[typing.Any], typing.Any], ...] = (cast_false_to_none, error_on_none),
 ) -> type[Node]:
     async def compose(cls, **kw) -> typing.Any:
-        args = await ContainerNode.compose(**kw)
-        result = func(*args)  # type: ignore
+        result = func(*ContainerNode.compose(**kw))  # type: ignore
         if inspect.isawaitable(result):
             result = await result
         for cast in casts:

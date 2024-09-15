@@ -13,7 +13,7 @@ from telegrinder.tools.magic import get_impls, impl
 class Polymorphic(Node):
     @classmethod
     async def compose(cls, update: UpdateNode, context: Context) -> typing.Any:
-        logger.debug(f"Composing polimorphic node {cls.__name__!r}...")
+        logger.debug(f"Composing polymorphic node {cls.__name__!r}...")
         scope = getattr(cls, "scope", None)
         node_ctx = context.get_or_set(CONTEXT_STORE_NODES_KEY, {})
 
@@ -43,7 +43,7 @@ class Polymorphic(Node):
                 node_ctx[(cls, i)] = NodeSession(cls, result, {})
 
             await node_collection.close_all(with_value=result)
-            logger.debug("Impl {!r} succeeded with value: {}", impl_.__name__, result)
+            logger.debug("Impl {!r} succeeded with value: {!r}", impl_.__name__, result)
             return result
 
         raise ComposeError("No implementation found.")

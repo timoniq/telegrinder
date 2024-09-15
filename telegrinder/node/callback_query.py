@@ -5,7 +5,7 @@ from telegrinder.node.update import UpdateNode
 
 class CallbackQueryNode(ScalarNode, CallbackQueryCute):
     @classmethod
-    async def compose(cls, update: UpdateNode) -> CallbackQueryCute:
+    def compose(cls, update: UpdateNode) -> CallbackQueryCute:
         if not update.callback_query:
             raise ComposeError("Update is not a callback_query.")
         return update.callback_query.unwrap()

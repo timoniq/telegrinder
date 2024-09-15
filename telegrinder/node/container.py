@@ -7,7 +7,7 @@ class ContainerNode(Node):
     linked_nodes: typing.ClassVar[list[type[Node]]]
 
     @classmethod
-    async def compose(cls, **kw) -> tuple[Node, ...]:
+    def compose(cls, **kw) -> tuple[Node, ...]:
         return tuple(t[1] for t in sorted(kw.items(), key=lambda t: t[0]))
 
     @classmethod

@@ -11,7 +11,7 @@ from telegrinder.bot.cute_types.chat_member_updated import ChatMemberUpdatedCute
 from telegrinder.bot.cute_types.inline_query import InlineQueryCute
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.msgspec_utils import Option
-from telegrinder.types.objects import Model, Update
+from telegrinder.types.objects import *
 
 EventModel = typing.TypeVar("EventModel", bound=Model)
 

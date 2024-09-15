@@ -10,7 +10,7 @@ from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
 from telegrinder.bot.rules.adapter.node import Event
 from telegrinder.node.base import Node, get_nodes, is_node
-from telegrinder.tools.i18n.base import ABCTranslator
+from telegrinder.tools.i18n.abc import ABCTranslator
 from telegrinder.tools.magic import (
     cache_translation,
     get_annotations,
@@ -22,7 +22,7 @@ from telegrinder.types.objects import Update as UpdateObject
 if typing.TYPE_CHECKING:
     from telegrinder.node.composer import NodeCollection
 
-AdaptTo = typing.TypeVar("AdaptTo", default=typing.Any)
+AdaptTo = typing.TypeVar("AdaptTo", default=typing.Any, contravariant=True)
 
 Message: typing.TypeAlias = MessageCute
 Update: typing.TypeAlias = UpdateCute
@@ -45,12 +45,42 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
     adapter: ABCAdapter[UpdateObject, AdaptTo]
     requires: list["ABCRule"] = []
 
-    if not typing.TYPE_CHECKING:
+    if typing.TYPE_CHECKING:
+
+        @typing.overload
+        async def check(self) -> bool: ...
+
+        @typing.overload
+        async def check(self, event: AdaptTo, /) -> bool: ...
+
+        @typing.overload
+        async def check(self, event: AdaptTo, ctx: Context, /) -> bool: ...
+
+        @typing.overload
+        async def check(
+            self,
+            event: AdaptTo,
+            ctx: Context,
+            /,
+            *args: typing.Any,
+            **kwargs: typing.Any,
+        ) -> bool: ...
+
+        @typing.overload
+        async def check(self, event: AdaptTo, /, *args: typing.Any, **kwargs: typing.Any) -> bool: ...
+
+        @typing.overload
+        async def check(self, ctx: Context, /, *args: typing.Any, **kwargs: typing.Any) -> bool: ...
+
+        @abstractmethod
+        async def check(self, *args: typing.Any, **kwargs: typing.Any) -> bool:
+            pass
+    else:
         adapter = RawUpdateAdapter()
 
-    @abstractmethod
-    async def check(self, event: AdaptTo, *, ctx: Context) -> bool:
-        pass
+        @abstractmethod
+        async def check(self, *args, **kwargs):
+            pass
 
     def __init_subclass__(cls, requires: list["ABCRule"] | None = None) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
@@ -141,7 +171,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
                     "because it cannot be resolved."
                 )
 
-        return await bound_check_rule(**kw)
+        return await bound_check_rule(**kw)  # type: ignore
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
         return self

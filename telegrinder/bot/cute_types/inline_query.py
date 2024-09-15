@@ -5,12 +5,7 @@ from fntypes.result import Result
 from telegrinder.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.model import get_params
-from telegrinder.types import (
-    InlineQuery,
-    InlineQueryResult,
-    InlineQueryResultsButton,
-    User,
-)
+from telegrinder.types.objects import *
 
 
 class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):

@@ -10,7 +10,7 @@ from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.model import Model
 from telegrinder.modules import logger
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope, compose_nodes
-from telegrinder.tools.i18n.base import I18nEnum
+from telegrinder.tools.i18n.abc import I18nEnum
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:

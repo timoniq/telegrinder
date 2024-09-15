@@ -31,7 +31,7 @@ class _EventNode(Node):
         return cls(dataclass)
 
     @classmethod
-    async def compose(cls, raw_update: UpdateNode, ctx: Context, api: API) -> "DataclassType":
+    def compose(cls, raw_update: UpdateNode, ctx: Context, api: API) -> "DataclassType":
         dataclass_type = typing.get_origin(cls.dataclass) or cls.dataclass
 
         try:

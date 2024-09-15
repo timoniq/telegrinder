@@ -210,12 +210,18 @@ class Decoder:
 
     @typing.overload
     def __call__(
-        self, type: type[T], *, strict: bool = True
+        self,
+        type: type[T],
+        *,
+        strict: bool = True,
     ) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
 
     @typing.overload
     def __call__(
-        self, type: typing.Any, *, strict: bool = True
+        self,
+        type: typing.Any,
+        *,
+        strict: bool = True,
     ) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
 
     @contextmanager
@@ -223,7 +229,9 @@ class Decoder:
         """Context manager returns the `msgspec.json.Decoder` object with the `dec_hook`."""
 
         dec_obj = msgspec.json.Decoder(
-            type=typing.Any if type is object else type, strict=strict, dec_hook=self.dec_hook
+            type=typing.Any if type is object else type,
+            strict=strict,
+            dec_hook=self.dec_hook,
         )
         yield dec_obj
 

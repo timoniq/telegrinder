@@ -15,27 +15,7 @@ from telegrinder.bot.cute_types.utils import (
 )
 from telegrinder.model import get_params
 from telegrinder.msgspec_utils import Nothing, Option
-from telegrinder.types.objects import (
-    ChatAction,
-    DiceEmoji,
-    ForceReply,
-    InaccessibleMessage,
-    InlineKeyboardMarkup,
-    InputFile,
-    InputMedia,
-    InputPollOption,
-    LabeledPrice,
-    LinkPreviewOptions,
-    Message,
-    MessageEntity,
-    MessageId,
-    ReactionEmoji,
-    ReactionType,
-    ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
-    ReplyParameters,
-    User,
-)
+from telegrinder.types import *
 
 if typing.TYPE_CHECKING:
     from datetime import datetime

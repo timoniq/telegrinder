@@ -24,7 +24,7 @@ class CommandInfo(DataNode):
     mention: Option[str] = field(default_factory=Nothing)
 
     @classmethod
-    async def compose(cls, text: Text) -> typing.Self:
+    def compose(cls, text: Text) -> typing.Self:
         name, arguments = single_split(text, separator=" ")
         name, mention = cut_mention(name)
         return cls(name, arguments, mention)

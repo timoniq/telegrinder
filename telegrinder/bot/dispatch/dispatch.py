@@ -1,6 +1,6 @@
 import dataclasses
-import typing
 
+import typing_extensions as typing
 from fntypes import Nothing, Option, Some
 from vbml.patcher import Patcher
 
@@ -27,7 +27,7 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
 
-T = typing.TypeVar("T")
+T = typing.TypeVar("T", default=typing.Any)
 Handler = typing.Callable[typing.Concatenate[T, ...], typing.Coroutine[typing.Any, typing.Any, typing.Any]]
 Event = typing.TypeVar("Event", bound=BaseCute)
 
@@ -52,7 +52,7 @@ class Dispatch(
     )
 
     def __repr__(self) -> str:
-        return "Dispatch(%s)" % ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items())
+        return "Dispatch(%s)" % ", ".join(f"{k}={v!r}" for k, v in self.get_views().items())
 
     @property
     def global_context(self) -> TelegrinderContext:
@@ -97,7 +97,7 @@ class Dispatch(
     ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandler]]: ...
 
     @typing.overload
-    def handle(  # type: ignore
+    def handle(
         self,
         *rules: "ABCRule",
         error_handler: ErrorHandlerT,
@@ -105,7 +105,7 @@ class Dispatch(
     ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandlerT]]: ...
 
     @typing.overload
-    def handle(  # type: ignore
+    def handle(
         self,
         *rules: "ABCRule",
         update_type: UpdateType,
@@ -142,15 +142,15 @@ class Dispatch(
         is_blocking: bool = True,
     ) -> typing.Callable[[Handler[T]], FuncHandler[UpdateCute, Handler[T], ErrorHandler]]: ...
 
-    def handle(  # type: ignore
+    def handle(
         self,
         *rules: "ABCRule",
         update_type: UpdateType | None = None,
         dataclass: type[typing.Any] = DEFAULT_DATACLASS,
         error_handler: ErrorHandlerT | None = None,
         is_blocking: bool = True,
-    ):
-        def wrapper(func: typing.Callable):
+    ) -> typing.Callable[..., typing.Any]:
+        def wrapper(func):
             handler = FuncHandler(
                 func,
                 list(rules),

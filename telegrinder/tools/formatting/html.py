@@ -1,5 +1,3 @@
-# NOTE: NEED REFACTORING
-
 import html
 import string
 import typing

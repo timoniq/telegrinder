@@ -1,5 +1,7 @@
+import typing
+
 from telegrinder import node
-from telegrinder.tools.i18n.base import ABCTranslator
+from telegrinder.tools.i18n.abc import ABCTranslator
 
 from .abc import ABCRule, with_caching_translations
 from .node import NodeRule
@@ -21,8 +23,8 @@ class Text(ABCRule):
         return (text if not self.ignore_case else text.lower()) in self.texts
 
     @with_caching_translations
-    async def translate(self, translator: ABCTranslator) -> "Text":
-        return Text(
+    async def translate(self, translator: ABCTranslator) -> typing.Self:
+        return self.__class__(
             texts=[translator.get(text) for text in self.texts],
             ignore_case=self.ignore_case,
         )

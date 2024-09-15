@@ -9,19 +9,7 @@ from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, sho
 from telegrinder.bot.cute_types.message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
 from telegrinder.model import get_params
 from telegrinder.msgspec_utils import Option, decoder
-from telegrinder.types.objects import (
-    CallbackQuery,
-    Chat,
-    InaccessibleMessage,
-    InlineKeyboardMarkup,
-    InputFile,
-    InputMedia,
-    LinkPreviewOptions,
-    MessageEntity,
-    MessageId,
-    ReplyParameters,
-    User,
-)
+from telegrinder.types.objects import *
 
 
 class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):

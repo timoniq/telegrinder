@@ -5,7 +5,7 @@ from fntypes.result import Result
 from telegrinder.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, shortcut
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberShortcuts, chat_member_interaction
-from telegrinder.types.objects import ChatJoinRequest, User
+from telegrinder.types.objects import *
 
 
 class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMemberShortcuts, kw_only=True):

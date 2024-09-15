@@ -208,4 +208,4 @@ class BaseStateView(ABCStateView[Event], BaseView[Event], ABC, typing.Generic[Ev
         pass
 
 
-__all__ = ("ABCView", "ABCStateView", "BaseView", "BaseStateView")
+__all__ = ("ABCStateView", "ABCView", "BaseStateView", "BaseView")

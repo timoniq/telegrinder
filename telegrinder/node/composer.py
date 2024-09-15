@@ -1,8 +1,9 @@
 import dataclasses
+import inspect
 import typing
 
-from fntypes import Error, Ok, Result
 from fntypes.error import UnwrapError
+from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.update import Update, UpdateCute
@@ -33,7 +34,9 @@ async def compose_node(
         value = await generator.asend(None)
     else:
         generator = None
-        value = await typing.cast(typing.Awaitable[typing.Any], node.compose(**kwargs))
+        value = typing.cast(typing.Awaitable[typing.Any] | typing.Any, node.compose(**kwargs))
+        if inspect.isawaitable(value):
+            value = await value
 
     return NodeSession(_node, value, {}, generator)
 

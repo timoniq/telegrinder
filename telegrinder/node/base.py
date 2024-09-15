@@ -9,7 +9,9 @@ from telegrinder.tools.magic import (
     get_annotations,
 )
 
-ComposeResult: typing.TypeAlias = typing.Awaitable[typing.Any] | typing.AsyncGenerator[typing.Any, None]
+ComposeResult: typing.TypeAlias = (
+    typing.Awaitable[typing.Any] | typing.AsyncGenerator[typing.Any, None] | typing.Any
+)
 
 
 def is_node(maybe_node: typing.Any) -> typing.TypeGuard[type["Node"]]:

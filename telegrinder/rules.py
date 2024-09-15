@@ -56,5 +56,7 @@ __all__ = (
     "Regex",
     "RuleEnum",
     "StartCommand",
+    "State",
+    "StateMeta",
     "Text",
 )
