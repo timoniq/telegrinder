@@ -4,10 +4,7 @@ import typing
 from types import AsyncGeneratorType
 
 from telegrinder.node.scope import NodeScope
-from telegrinder.tools.magic import (
-    cache_magic_value,
-    get_annotations,
-)
+from telegrinder.tools.magic import cache_magic_value, get_annotations
 
 ComposeResult: typing.TypeAlias = (
     typing.Awaitable[typing.Any] | typing.AsyncGenerator[typing.Any, None] | typing.Any
@@ -109,19 +106,23 @@ if typing.TYPE_CHECKING:
 else:
 
     def __init_subclass__(cls, *args, **kwargs):  # noqa: N807
-        if any(issubclass(base, ScalarNode) for base in cls.__bases__ if base is not ScalarNode):
+        if any(issubclass(base, ScalarNodeProto) for base in cls.__bases__ if base is not ScalarNode):
             raise RuntimeError("Scalar nodes do not support inheritance.")
 
-    def create_node(cls, bases, dct):
-        dct.update(cls.__dict__)
-        return type(cls.__name__, bases, dct)
+    def _as_node(cls, bases, dct):
+        if not hasattr(cls, "_scalar_node_type"):
+            dct.update(cls.__dict__)
+            scalar_node_type = type(cls.__name__, bases, dct)
+            setattr(cls, "_scalar_node_type", scalar_node_type)
+            return scalar_node_type
+        return getattr(cls, "_scalar_node_type")
 
     def create_class(name, bases, dct):
         return type(
             "Scalar",
             (SCALAR_NODE,),
             {
-                "as_node": classmethod(lambda cls: create_node(cls, bases, dct)),
+                "as_node": classmethod(lambda cls: _as_node(cls, bases, dct)),
                 "scope": Node.scope,
                 "__init_subclass__": __init_subclass__,
             },
