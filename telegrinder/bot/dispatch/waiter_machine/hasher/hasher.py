@@ -22,11 +22,11 @@ ECHO = _echo
 class Hasher(typing.Generic[Event, Data]):
     def __init__(
         self,
-        view: type[BaseView[Event]],
+        view_class: type[BaseView[Event]],
         get_hash_from_data: typing.Callable[[Data], typing.Hashable | None] | None = None,
         get_data_from_event: typing.Callable[[Event], Data | None] | None = None,
     ) -> None:
-        self.view = view
+        self.view_class = view_class
         self._get_hash_from_data = get_hash_from_data
         self._get_data_from_event = get_data_from_event
 
@@ -38,7 +38,7 @@ class Hasher(typing.Generic[Event, Data]):
 
     @cached_property
     def name(self) -> str:
-        return f"{self.view.__class__.__name__}_{id(self)}"
+        return f"{self.view_class.__name__}_{id(self)}"
 
     def get_hash_from_data(self, data: Data) -> Option[typing.Hashable]:
         if self._get_hash_from_data is None:

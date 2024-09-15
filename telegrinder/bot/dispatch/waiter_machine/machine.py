@@ -93,7 +93,7 @@ class WaiterMachine:
         lifetime: datetime.timedelta | float | None = None,
         **actions: typing.Unpack[WaiterActions[EventModel]],
     ) -> ShortStateContext[EventModel]:
-        hasher = StateViewHasher(view.__class__)
+        hasher = StateViewHasher(view)
         return await self.wait(
             hasher=hasher,
             data=hasher.get_data_from_event(event).expect(
@@ -130,8 +130,8 @@ class WaiterMachine:
 
         if hasher not in self.storage:
             if self.dispatch:
-                view: BaseView[EventModel] = self.dispatch.get_view(hasher.view).expect(
-                    RuntimeError(f"View {hasher.view.__name__!r} is not defined in dispatch.")
+                view: BaseView[EventModel] = self.dispatch.get_view(hasher.view_class).expect(
+                    RuntimeError(f"View {hasher.view_class.__name__!r} is not defined in dispatch.")
                 )
                 view.middlewares.insert(0, WaiterMiddleware(self, hasher))
             self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)

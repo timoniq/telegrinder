@@ -32,19 +32,19 @@ def get_chat_and_message_for_event(event: CallbackQuery) -> tuple[int, int] | No
 
 
 CALLBACK_QUERY_FROM_CHAT = Hasher(
-    view=CallbackQueryView,
+    view_class=CallbackQueryView,
     get_hash_from_data=from_chat_hash,
     get_data_from_event=get_chat_from_event,
 )
 
 CALLBACK_QUERY_FOR_MESSAGE = Hasher(
-    view=CallbackQueryView,
+    view_class=CallbackQueryView,
     get_hash_from_data=for_message_hash,
     get_data_from_event=get_message_for_event,
 )
 
 CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE = Hasher(
-    view=CallbackQueryView,
+    view_class=CallbackQueryView,
     get_hash_from_data=for_message_in_chat,
     get_data_from_event=get_chat_and_message_for_event,
 )
