@@ -1,5 +1,4 @@
 import enum
-import inspect
 import types
 import typing
 from functools import wraps
@@ -40,10 +39,15 @@ def resolve_arg_names(func: FuncType, start_idx: int = 1) -> tuple[str, ...]:
 
 @cache_magic_value("__default_args__")
 def get_default_args(func: FuncType) -> dict[str, typing.Any]:
-    fspec = inspect.getfullargspec(func)
-    if not fspec.defaults:
+    kwdefaults = func.__kwdefaults__
+    if kwdefaults:
+        return kwdefaults
+
+    defaults = func.__defaults__
+    if not defaults:
         return {}
-    return dict(zip(fspec.args[-len(fspec.defaults) :], fspec.defaults))
+
+    return {k: defaults[i] for i, k in enumerate(resolve_arg_names(func, start_idx=0)[-len(defaults) :])}
 
 
 def get_annotations(func: FuncType, *, return_type: bool = False) -> dict[str, typing.Any]:
