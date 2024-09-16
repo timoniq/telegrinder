@@ -19,7 +19,7 @@ class Text(ABCRule):
         self.texts = texts if not ignore_case else list(map(str.lower, texts))
         self.ignore_case = ignore_case
 
-    async def check(self, text: node.text.Text) -> bool:
+    def check(self, text: node.text.Text) -> bool:
         return (text if not self.ignore_case else text.lower()) in self.texts
 
     @with_caching_translations

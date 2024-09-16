@@ -97,7 +97,7 @@ class Command(ABCRule):
 
         return None
 
-    async def check(self, command: CommandInfo, me: Me, src: Source, ctx: Context) -> bool:
+    def check(self, command: CommandInfo, me: Me, src: Source, ctx: Context) -> bool:
         name = self.remove_prefix(command.name)
         if name is None:
             return False

@@ -36,7 +36,7 @@ class Markup(ABCRule):
             for pattern in patterns
         ]
 
-    async def check(self, text: Text, ctx: Context) -> bool:
+    def check(self, text: Text, ctx: Context) -> bool:
         return check_string(self.patterns, text, ctx)
 
 

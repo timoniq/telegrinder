@@ -22,7 +22,7 @@ class Regex(ABCRule):
                     re.compile(regexp) if isinstance(regexp, str) else regexp for regexp in regexp
                 )
 
-    async def check(self, text: Text, ctx: Context) -> bool:
+    def check(self, text: Text, ctx: Context) -> bool:
         for regexp in self.regexp:
             response = re.match(regexp, text)
             if response is not None:

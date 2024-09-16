@@ -12,7 +12,7 @@ from telegrinder.model import decoder
 from telegrinder.tools.buttons import DataclassInstance
 from telegrinder.types.enums import UpdateType
 
-from .abc import ABCRule
+from .abc import ABCRule, CheckResult
 from .markup import Markup, PatternLike, check_string
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
@@ -26,12 +26,12 @@ class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
     adapter: EventAdapter[CallbackQuery] = EventAdapter(UpdateType.CALLBACK_QUERY, CallbackQuery)
 
     @abc.abstractmethod
-    async def check(self, event: CallbackQuery, context: Context) -> bool:
+    def check(self, event: CallbackQuery, context: Context) -> CheckResult:
         pass
 
 
 class HasData(CallbackQueryRule):
-    async def check(self, event: CallbackQuery) -> bool:
+    def check(self, event: CallbackQuery) -> bool:
         return bool(event.data.unwrap_or_none())
 
 
@@ -122,7 +122,7 @@ class CallbackDataEq(CallbackQueryDataRule):
     def __init__(self, value: str, /) -> None:
         self.value = value
 
-    async def check(self, event: CallbackQuery) -> bool:
+    def check(self, event: CallbackQuery) -> bool:
         return event.data.unwrap() == self.value
 
 
@@ -130,7 +130,7 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
     def __init__(self, d: dict[str, typing.Any], /) -> None:
         self.d = d
 
-    async def check(self, event: CallbackQuery) -> bool:
+    def check(self, event: CallbackQuery) -> bool:
         return event.decode_callback_data().unwrap_or_none() == self.d
 
 
@@ -144,7 +144,7 @@ class CallbackDataJsonModel(CallbackQueryDataRule):
         self.model = model
         self.alias = alias or "data"
 
-    async def check(self, event: CallbackQuery, ctx: Context) -> bool:
+    def check(self, event: CallbackQuery, ctx: Context) -> bool:
         with suppress(BaseException):
             ctx.set(self.alias, decoder.decode(event.data.unwrap().encode(), type=self.model))
             return True
@@ -155,7 +155,7 @@ class CallbackDataMarkup(CallbackQueryDataRule):
     def __init__(self, patterns: PatternLike | list[PatternLike], /) -> None:
         self.patterns = Markup(patterns).patterns
 
-    async def check(self, event: CallbackQuery, ctx: Context) -> bool:
+    def check(self, event: CallbackQuery, ctx: Context) -> bool:
         return check_string(self.patterns, event.data.unwrap(), ctx)
 
 

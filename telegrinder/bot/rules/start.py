@@ -28,7 +28,7 @@ class StartCommand(
         self.validator = validator
         self.alias = alias
 
-    async def check(self, ctx: Context) -> bool:
+    def check(self, ctx: Context) -> bool:
         param: str | None = ctx.pop("param", None)
         validated_param = self.validator(param) if self.validator and param is not None else param
 

@@ -24,6 +24,7 @@ if typing.TYPE_CHECKING:
 
 AdaptTo = typing.TypeVar("AdaptTo", default=typing.Any, contravariant=True)
 
+CheckResult: typing.TypeAlias = bool | typing.Coroutine[typing.Any, typing.Any, bool]
 Message: typing.TypeAlias = MessageCute
 Update: typing.TypeAlias = UpdateCute
 
@@ -48,38 +49,38 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
     if typing.TYPE_CHECKING:
 
         @typing.overload
-        async def check(self) -> bool: ...
+        def check(self) -> CheckResult: ...
 
         @typing.overload
-        async def check(self, event: AdaptTo, /) -> bool: ...
+        def check(self, event: AdaptTo, /) -> CheckResult: ...
 
         @typing.overload
-        async def check(self, event: AdaptTo, ctx: Context, /) -> bool: ...
+        def check(self, event: AdaptTo, ctx: Context, /) -> CheckResult: ...
 
         @typing.overload
-        async def check(
+        def check(
             self,
             event: AdaptTo,
             ctx: Context,
             /,
             *args: typing.Any,
             **kwargs: typing.Any,
-        ) -> bool: ...
+        ) -> CheckResult: ...
 
         @typing.overload
-        async def check(self, event: AdaptTo, /, *args: typing.Any, **kwargs: typing.Any) -> bool: ...
+        def check(self, event: AdaptTo, /, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 
         @typing.overload
-        async def check(self, ctx: Context, /, *args: typing.Any, **kwargs: typing.Any) -> bool: ...
+        def check(self, ctx: Context, /, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 
         @abstractmethod
-        async def check(self, *args: typing.Any, **kwargs: typing.Any) -> bool:
+        def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult:
             pass
     else:
         adapter = RawUpdateAdapter()
 
         @abstractmethod
-        async def check(self, *args, **kwargs):
+        def check(self, *args, **kwargs):
             pass
 
     def __init_subclass__(cls, requires: list["ABCRule"] | None = None) -> None:
@@ -171,7 +172,10 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
                     "because it cannot be resolved."
                 )
 
-        return await bound_check_rule(**kw)  # type: ignore
+        result = bound_check_rule(**kw)  # type: ignore
+        if inspect.isawaitable(result):
+            result = await result
+        return result
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
         return self
@@ -229,5 +233,6 @@ __all__ = (
     "Never",
     "NotRule",
     "OrRule",
+    "CheckResult",
     "with_caching_translations",
 )

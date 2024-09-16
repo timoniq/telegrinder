@@ -69,7 +69,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         if "cached_callback_data" in self.__dict__:
             return self.__dict__["cached_callback_data"]
         data = Nothing()
-        with suppress(msgspec.ValidationError):
+        with suppress(msgspec.ValidationError, msgspec.DecodeError):
             data = Some(decoder.decode(self.data.unwrap()))
         self.__dict__["cached_callback_data"] = data
         return data
