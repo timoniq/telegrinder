@@ -9,6 +9,7 @@ from telegrinder import (
     MessageReplyHandler,
     WaiterMachine,
 )
+from telegrinder.bot.dispatch.waiter_machine.hasher.callback import CALLBACK_QUERY_FOR_MESSAGE
 from telegrinder.rules import (
     CallbackDataEq,
     CallbackDataMarkup,
@@ -51,7 +52,7 @@ async def car_choice(message: Message) -> None:
         .add_option("bentley", "Bentley Continental", "Continental 🤍")
         .add_option("mazda", "Mazda rx 7", "Mazda rx 7 🩵")
         .add_option("toyota", "Toyota Supra mk5", "Supra mk5 💜")
-        .wait(message.ctx_api, dp.callback_query)
+        .wait(CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api, dp.callback_query)
     )
     await message.edit(
         "🚘 You picked: {}.".format(", ".join(c for c in picked if picked[c])),
