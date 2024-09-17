@@ -35,6 +35,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         message: str,
         *,
         ready_text: str = "Ready",
+        cancel_text: str | None = None,
         max_in_row: int = 3,
     ) -> None:
         self.chat_id = chat_id
@@ -44,6 +45,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         self.max_in_row = max_in_row
         self.random_code = secrets.token_hex(8)
         self.waiter_machine = waiter_machine
+        self.cancel_text = cancel_text
 
     def __repr__(self) -> str:
         return (
@@ -75,6 +77,9 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
             kb.row()
 
         kb.add(InlineButton(self.ready, callback_data=self.random_code + "/ready"))
+        if self.cancel_text is not None:
+            kb.row()
+            kb.add(InlineButton(self.cancel_text, callback_data=self.random_code + "/cancel"))
         return kb.get_markup()
 
     def add_option(
@@ -93,6 +98,9 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
     async def handle(self, cb: CallbackQueryCute) -> bool:
         code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
         if code == "ready":
+            return False
+        elif code == "cancel":
+            self.choices = []
             return False
 
         for i, choice in enumerate(self.choices):

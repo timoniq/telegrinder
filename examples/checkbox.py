@@ -11,7 +11,7 @@ logger.set_level("INFO")
 @bot.on.message(Text("/checkbox"))
 async def action(m: Message):
     picked, m_id = await (
-        Checkbox(wm, m.chat.id, "Check your checkbox", max_in_row=2)
+        Checkbox(wm, m.chat.id, "Check your checkbox", cancel_text="Cancel", max_in_row=2)
         .add_option("apple", "Apple", "Apple 🍏")
         .add_option("banana", "Banana", "Banana 🍌", is_picked=True)
         .add_option("pear", "Pear", "Pear 🍐")
