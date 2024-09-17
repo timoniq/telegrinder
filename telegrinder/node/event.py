@@ -3,7 +3,7 @@ import typing
 
 import msgspec
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.msgspec_utils import DataclassInstance, decoder

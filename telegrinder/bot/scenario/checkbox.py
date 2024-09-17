@@ -3,27 +3,31 @@ import secrets
 import typing
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
-from telegrinder.bot.dispatch.waiter_machine import StateViewHasher, WaiterMachine
+from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher
+from telegrinder.bot.dispatch.waiter_machine.machine import WaiterMachine
 from telegrinder.bot.scenario.abc import ABCScenario
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 from telegrinder.tools.parse_mode import ParseMode
 from telegrinder.types.objects import InlineKeyboardMarkup
 
 if typing.TYPE_CHECKING:
-    from telegrinder.api import API
+    from telegrinder.api.api import API
     from telegrinder.bot.dispatch.view.base import BaseStateView
+
+T = typing.TypeVar("T", bound=typing.Hashable)
+Key = typing.TypeVar("Key", bound=typing.Hashable)
 
 
 @dataclasses.dataclass(slots=True)
-class Choice:
-    name: str
+class Choice(typing.Generic[Key]):
+    key: Key
     is_picked: bool
     default_text: str
     picked_text: str
     code: str
 
 
-class Checkbox(ABCScenario[CallbackQueryCute]):
+class Checkbox(ABCScenario[CallbackQueryCute], typing.Generic[Key]):
     INVALID_CODE = "Invalid code"
     CALLBACK_ANSWER = "Done"
     PARSE_MODE = ParseMode.HTML
@@ -40,7 +44,7 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
     ) -> None:
         self.chat_id = chat_id
         self.message = message
-        self.choices: list[Choice] = []
+        self.choices: list[Choice[Key]] = []
         self.ready = ready_text
         self.max_in_row = max_in_row
         self.random_code = secrets.token_hex(8)
@@ -84,16 +88,16 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
 
     def add_option(
         self,
-        name: str,
+        key: T,
         default_text: str,
         picked_text: str,
         *,
         is_picked: bool = False,
-    ) -> typing.Self:
+    ) -> "Checkbox[T]":  # FIXME
         self.choices.append(
-            Choice(name, is_picked, default_text, picked_text, secrets.token_hex(8)),
+            Choice(key, is_picked, default_text, picked_text, secrets.token_hex(8)),  # type: ignore
         )
-        return self
+        return self  # type: ignore
 
     async def handle(self, cb: CallbackQueryCute) -> bool:
         code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
@@ -118,9 +122,10 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
 
     async def wait(
         self,
+        hasher: Hasher[CallbackQueryCute, int],
         api: "API",
         view: "BaseStateView[CallbackQueryCute]",
-    ) -> tuple[dict[str, bool], int]:
+    ) -> tuple[dict[Key, bool], int]:
         assert len(self.choices) > 0
         message = (
             await api.send_message(
@@ -132,14 +137,14 @@ class Checkbox(ABCScenario[CallbackQueryCute]):
         ).unwrap()
 
         while True:
-            q, _ = await self.waiter_machine.wait(StateViewHasher(view), message.message_id)
+            q, _ = await self.waiter_machine.wait(hasher, message.message_id)
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
             if not should_continue:
                 break
 
         return (
-            {choice.name: choice.is_picked for choice in self.choices},
+            {choice.key: choice.is_picked for choice in self.choices},
             message.message_id,
         )
 

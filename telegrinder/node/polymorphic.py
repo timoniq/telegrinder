@@ -1,4 +1,3 @@
-import inspect
 import typing
 
 from telegrinder.bot.dispatch.context import Context
@@ -35,10 +34,7 @@ class Polymorphic(Node):
                 await node_collection.close_all()
                 return res.value
 
-            result = composition.func(cls, **node_collection.values)
-            if inspect.isawaitable(result):
-                result = await result
-
+            result = await composition(cls, **node_collection.values)
             if scope is NodeScope.PER_EVENT:
                 node_ctx[(cls, i)] = NodeSession(cls, result, {})
 

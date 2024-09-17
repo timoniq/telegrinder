@@ -5,7 +5,7 @@ import typing
 import fntypes.option
 from fntypes.co import Result, Some, Variative
 
-from telegrinder.api import API, APIError
+from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import (
     compose_link_preview_options,

@@ -1,6 +1,7 @@
 import typing
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
+from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher
 from telegrinder.bot.scenario.checkbox import Checkbox
 
 if typing.TYPE_CHECKING:
@@ -32,12 +33,13 @@ class Choice(Checkbox):
 
     async def wait(
         self,
+        hasher: Hasher[CallbackQueryCute, int],
         api: "API",
         view: "BaseStateView[CallbackQueryCute]",
     ) -> tuple[str, int]:
         if len(tuple(choice for choice in self.choices if choice.is_picked)) != 1:
             raise ValueError("Exactly one choice must be picked")
-        choices, m_id = await super().wait(api, view)
+        choices, m_id = await super().wait(hasher, api, view)
         return tuple(choices.keys())[tuple(choices.values()).index(True)], m_id
 
 

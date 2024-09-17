@@ -35,13 +35,12 @@ def is_generator(
 
 def get_node_calc_lst(node: type["Node"]) -> list[type["Node"]]:
     """Returns flattened list of node types in ordering required to calculate given node.
-    Provides caching for passed node type"""
+    Provides caching for passed node type."""
 
     if calc_lst := getattr(node, "__nodes_calc_lst__", None):
         return calc_lst
-    nodes_lst: list[type["Node"]] = []
-    annotations = list(node.as_node().get_subnodes().values())
-    for node_type in annotations:
+    nodes_lst: list[type[Node]] = []
+    for node_type in node.as_node().get_subnodes().values():
         nodes_lst.extend(get_node_calc_lst(node_type))
     calc_lst = [*nodes_lst, node]
     setattr(node, "__nodes_calc_lst__", calc_lst)
