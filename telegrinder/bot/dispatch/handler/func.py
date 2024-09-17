@@ -62,9 +62,15 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         temp_ctx = ctx.copy()
         temp_ctx |= self.preset_context
 
+        update = event
+
+        for rule in self.rules:
+            if not await check_rule(api, rule, update, temp_ctx):
+                logger.debug("Rule {!r} failed!", rule)
+                return False
+
         nodes = self.required_nodes
         node_col = None
-        update = event
 
         if nodes:
             result = await compose_nodes(nodes, ctx, data={Update: event, API: api})
@@ -79,11 +85,6 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
                 for name, node in nodes.items():
                     if node is ctx[EVENT_NODE_KEY] and name in temp_ctx:
                         ctx[EVENT_NODE_KEY] = temp_ctx.pop(name)
-
-        for rule in self.rules:
-            if not await check_rule(api, rule, update, temp_ctx):
-                logger.debug("Rule {!r} failed!", rule)
-                return False
 
         logger.debug("All checks passed for handler.")
 
