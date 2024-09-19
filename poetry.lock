@@ -157,13 +157,13 @@ tests-mypy = ["mypy (>=1.11.1)", "pytest-mypy-plugins"]
 
 [[package]]
 name = "basedpyright"
-version = "1.17.4"
+version = "1.17.5"
 description = "static type checking for Python (but based)"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "basedpyright-1.17.4-py3-none-any.whl", hash = "sha256:7f898d6dfb1ce91ee4c63dbf786c7384c754a82efa134ad2297babdd98e01589"},
-    {file = "basedpyright-1.17.4.tar.gz", hash = "sha256:47735f632539002355efb8f8e8196fe631adf0d8377216c817e41aef7471091f"},
+    {file = "basedpyright-1.17.5-py3-none-any.whl", hash = "sha256:7ea23951be3620fe4638f6f51625a3d5a65a57ce004e836c608058610153362b"},
+    {file = "basedpyright-1.17.5.tar.gz", hash = "sha256:8315f5f2fddfdad162513ef9d9a0b24bb00cc862e8883819ae98a3e28472874d"},
 ]
 
 [package.dependencies]
