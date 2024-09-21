@@ -3,6 +3,7 @@ import inspect
 import typing
 from functools import wraps
 
+import msgspec
 import typing_extensions
 from fntypes.result import Result
 
@@ -55,9 +56,10 @@ if typing.TYPE_CHECKING:
             ...
 
 else:
+    import msgspec
     from fntypes.co import Nothing, Some, Variative
 
-    from telegrinder.msgspec_utils import Option, decoder
+    from telegrinder.msgspec_utils import Option, decoder, encoder
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
 
     def _get_cute_from_generic(generic_args):
@@ -130,13 +132,35 @@ else:
         def ctx_api(self):
             return self.api
 
+        def _to_dict(self, dct_name, exclude_fields, full):
+            if dct_name not in self.__dict__:
+                self.__dict__[dct_name] = (
+                    msgspec.structs.asdict(self)
+                    if not full
+                    else encoder.to_builtins(
+                        {
+                            k: field.to_dict(exclude_fields=exclude_fields)
+                            if isinstance(field := _get_value(getattr(self, k)), BaseCute)
+                            else field
+                            for k in self.__struct_fields__
+                            if k not in exclude_fields
+                        },
+                        order="deterministic",
+                    )
+                )
+
+            if not exclude_fields:
+                return self.__dict__[dct_name]
+
+            return {key: value for key, value in self.__dict__[dct_name].items() if key not in exclude_fields}
+
         def to_dict(self, *, exclude_fields=None):
             exclude_fields = exclude_fields or set()
-            return super().to_dict(exclude_fields={"api"} | exclude_fields)
+            return self._to_dict("model_as_dict", exclude_fields={"api"} | exclude_fields, full=False)
 
         def to_full_dict(self, *, exclude_fields=None):
             exclude_fields = exclude_fields or set()
-            return super().to_full_dict(exclude_fields={"api"} | exclude_fields)
+            return self._to_dict("model_as_full_dict", exclude_fields={"api"} | exclude_fields, full=True)
 
 
 def compose_method_params(
