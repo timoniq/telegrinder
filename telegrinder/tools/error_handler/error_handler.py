@@ -9,9 +9,9 @@ from telegrinder.modules import logger
 from telegrinder.node.base import is_node
 from telegrinder.tools.error_handler.abc import ABCErrorHandler, Event, Handler
 from telegrinder.tools.error_handler.error import CatcherError
-from telegrinder.tools.magic import magic_bundle
+from telegrinder.tools.magic import get_annotations, magic_bundle
 
-F = typing.TypeVar("F", bound="FuncCatcher")
+F = typing.TypeVar("F", bound="FuncCatcher[typing.Any]")
 ExceptionT = typing.TypeVar("ExceptionT", bound=BaseException, contravariant=True)
 FuncCatcher = typing.Callable[typing.Concatenate[ExceptionT, ...], typing.Awaitable[typing.Any]]
 
@@ -21,7 +21,7 @@ async def run_handler(
     event: typing.Any,
     ctx: dict[str, typing.Any],
 ) -> typing.Any:
-    annotations = tuple(handler.__annotations__.values())
+    annotations = tuple(get_annotations(handler).values())
     start_idx = 0 if is_node(None if not annotations else annotations[0]) else 1
     context = magic_bundle(handler, ctx, start_idx=start_idx)
     return await (handler(event, **context) if start_idx == 1 else handler(**context))
