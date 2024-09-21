@@ -7,7 +7,7 @@ from fntypes.option import Nothing, Some
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
-from telegrinder.bot.dispatch.handler.func import FuncHandler
+from telegrinder.bot.dispatch.handler.func import Func, FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
@@ -18,22 +18,11 @@ from telegrinder.msgspec_utils import Option
 from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.types.objects import Update
 
-if typing.TYPE_CHECKING:
-    from telegrinder.node.base import Node
-
-T = typing.TypeVar("T", contravariant=True, bound="BaseCute | Node")
+P = typing.ParamSpec("P")
+R = typing.TypeVar("R", covariant=True)
 Event = typing.TypeVar("Event", bound=BaseCute)
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler)
 MiddlewareT = typing.TypeVar("MiddlewareT", bound=ABCMiddleware)
-
-
-class Func(typing.Protocol[T]):
-    __name__: str
-
-    async def __call__(self, event_or_node: T, /, *args: typing.Any, **kwargs: typing.Any) -> typing.Any: ...
-
-
-FuncType: typing.TypeAlias = Func[Event] | Func[T]
 
 
 def get_event_model_class(view: "BaseView[Event]") -> Option[type[Event]]:
@@ -74,8 +63,8 @@ class BaseView(ABCView, typing.Generic[Event]):
         cls,
         *rules: ABCRule,
     ) -> typing.Callable[
-        [FuncType[Event, T]],
-        FuncHandler[Event, FuncType[Event, T], ErrorHandler[Event]],
+        [Func[P, R]],
+        FuncHandler[Event, Func[P, R], ErrorHandler[Event]],
     ]: ...
 
     @typing.overload
@@ -85,7 +74,7 @@ class BaseView(ABCView, typing.Generic[Event]):
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[FuncType[Event, T]], FuncHandler[Event, FuncType[Event, T], ErrorHandlerT]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler[Event, Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
     @classmethod
@@ -95,8 +84,8 @@ class BaseView(ABCView, typing.Generic[Event]):
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
     ) -> typing.Callable[
-        [FuncType[Event, T]],
-        FuncHandler[Event, FuncType[Event, T], ErrorHandler[Event]],
+        [Func[P, R]],
+        FuncHandler[Event, Func[P, R], ErrorHandler[Event]],
     ]: ...
 
     @classmethod
@@ -122,8 +111,8 @@ class BaseView(ABCView, typing.Generic[Event]):
         self,
         *rules: ABCRule,
     ) -> typing.Callable[
-        [FuncType[Event, T]],
-        FuncHandler[Event, FuncType[Event, T], ErrorHandler[Event]],
+        [Func[P, R]],
+        FuncHandler[Event, Func[P, R], ErrorHandler[Event]],
     ]: ...
 
     @typing.overload
@@ -132,7 +121,7 @@ class BaseView(ABCView, typing.Generic[Event]):
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[FuncType[Event, T]], FuncHandler[Event, FuncType[Event, T], ErrorHandlerT]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler[Event, Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
     def __call__(
@@ -141,8 +130,8 @@ class BaseView(ABCView, typing.Generic[Event]):
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
     ) -> typing.Callable[
-        [FuncType[Event, T]],
-        FuncHandler[Event, FuncType[Event, T], ErrorHandler[Event]],
+        [Func[P, R]],
+        FuncHandler[Event, Func[P, R], ErrorHandler[Event]],
     ]: ...
 
     def __call__(

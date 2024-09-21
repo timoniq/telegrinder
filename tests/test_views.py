@@ -72,7 +72,7 @@ async def test_register_func_handler():
     assert len(view.handlers) == 1
     assert isinstance(view.handlers[0], FuncHandler)
     assert view.handlers[0] == func_handler
-    assert view.handlers[0].func == func_handler.func
+    assert view.handlers[0].function == func_handler.function
 
 
 @pytest.mark.asyncio()

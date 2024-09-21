@@ -21,14 +21,18 @@ from .abc import ABCHandler
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules import ABCRule
 
-F = typing.TypeVar("F", bound=typing.Callable[..., typing.Awaitable[typing.Any]])
+Rest = typing.ParamSpec("Rest")
+Result = typing.TypeVar("Result")
+Function = typing.TypeVar("Function", bound="Func[..., typing.Any]")
 Event = typing.TypeVar("Event", bound=Model)
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
+Func: typing.TypeAlias = typing.Callable[Rest, typing.Coroutine[typing.Any, typing.Any, Result]]
+
 
 @dataclasses.dataclass(repr=False, slots=True)
-class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
-    func: F
+class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandlerT]):
+    function: Function
     rules: list["ABCRule"]
     is_blocking: bool = dataclasses.field(default=True, kw_only=True)
     dataclass: type[typing.Any] | None = dataclasses.field(default=dict, kw_only=True)
@@ -39,11 +43,18 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
     preset_context: Context = dataclasses.field(default_factory=lambda: Context(), kw_only=True)
     update_type: UpdateType | None = dataclasses.field(default=None, kw_only=True)
 
+    def __post_init__(self) -> None:
+        self.dataclass = typing.get_origin(self.dataclass) or self.dataclass
+
+    @property
+    def __call__(self) -> Function:
+        return self.function
+
     def __repr__(self) -> str:
         return "<{}: {}={!r} with rules={!r}, dataclass={!r}, error_handler={!r}>".format(
             self.__class__.__name__,
             "blocking function" if self.is_blocking else "function",
-            self.func.__name__,
+            self.function.__qualname__,
             self.rules,
             self.dataclass,
             self.error_handler,
@@ -51,7 +62,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
 
     @cached_property
     def required_nodes(self) -> dict[str, type[Node]]:
-        return get_nodes(self.func)
+        return get_nodes(self.function)
 
     async def check(self, api: API, event: Update, ctx: Context | None = None) -> bool:
         if self.update_type is not None and self.update_type != event.update_type:
@@ -61,7 +72,6 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         ctx = Context(raw_update=event) if ctx is None else ctx
         temp_ctx = ctx.copy()
         temp_ctx |= self.preset_context
-
         update = event
 
         for rule in self.rules:
@@ -71,7 +81,6 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
 
         nodes = self.required_nodes
         node_col = None
-
         if nodes:
             result = await compose_nodes(nodes, ctx, data={Update: event, API: api})
             if not result:
@@ -84,7 +93,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
             if EVENT_NODE_KEY in ctx:
                 for name, node in nodes.items():
                     if node is ctx[EVENT_NODE_KEY] and name in temp_ctx:
-                        ctx[EVENT_NODE_KEY] = temp_ctx.pop(name)
+                        ctx[name] = temp_ctx.pop(name)
 
         logger.debug("All checks passed for handler.")
 
@@ -93,28 +102,24 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, F, ErrorHandlerT]):
         return True
 
     async def run(self, api: API, event: Event, ctx: Context) -> typing.Any:
-        logger.debug(f"Running func handler {self.func.__qualname__!r}")
-        dataclass_type = typing.get_origin(self.dataclass) or self.dataclass
+        logger.debug(f"Running func handler {self.function.__qualname__!r}")
 
-        if dataclass_type is Update and (event_node := ctx.pop(EVENT_NODE_KEY, None)) is not None:
-            event = event_node
-
-        elif dataclass_type is not None:
+        if self.dataclass is not None and EVENT_NODE_KEY not in ctx:
             if self.update_type is not None and isinstance(event, Update):
-                update = event.to_dict()[self.update_type.value].unwrap()
+                update = getattr(event, event.update_type.value).unwrap()
                 event = (
-                    self.dataclass.from_update(update, bound_api=api)  # type: ignore
-                    if issubclass(dataclass_type, BaseCute)
+                    self.dataclass.from_update(update, bound_api=api)
+                    if issubclass(self.dataclass, BaseCute)
                     else self.dataclass(**update.to_dict())  # type: ignore
                 )
 
-            elif issubclass(dataclass_type, UpdateCute) and isinstance(event, Update):
-                event = self.dataclass.from_update(event, bound_api=api)  # type: ignore
+            elif issubclass(self.dataclass, UpdateCute) and isinstance(event, Update):
+                event = self.dataclass.from_update(event, bound_api=api)
 
             else:
                 event = self.dataclass(**event.to_dict())  # type: ignore
 
-        result = (await self.error_handler.run(self.func, event, api, ctx)).unwrap()
+        result = (await self.error_handler.run(self.function, event, api, ctx)).unwrap()
         if node_col := ctx.node_col:
             await node_col.close_all()
         return result
