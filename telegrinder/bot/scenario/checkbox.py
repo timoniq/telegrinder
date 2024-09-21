@@ -14,7 +14,6 @@ if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
     from telegrinder.bot.dispatch.view.base import BaseStateView
 
-T = typing.TypeVar("T", bound=typing.Hashable)
 Key = typing.TypeVar("Key", bound=typing.Hashable)
 
 
@@ -27,7 +26,7 @@ class Choice(typing.Generic[Key]):
     code: str
 
 
-class Checkbox(ABCScenario[CallbackQueryCute], typing.Generic[Key]):
+class _Checkbox(ABCScenario[CallbackQueryCute]):
     INVALID_CODE = "Invalid code"
     CALLBACK_ANSWER = "Done"
     PARSE_MODE = ParseMode.HTML
@@ -44,7 +43,7 @@ class Checkbox(ABCScenario[CallbackQueryCute], typing.Generic[Key]):
     ) -> None:
         self.chat_id = chat_id
         self.message = message
-        self.choices: list[Choice[Key]] = []
+        self.choices: list[Choice[typing.Hashable]] = []
         self.ready = ready_text
         self.max_in_row = max_in_row
         self.random_code = secrets.token_hex(8)
@@ -88,14 +87,14 @@ class Checkbox(ABCScenario[CallbackQueryCute], typing.Generic[Key]):
 
     def add_option(
         self,
-        key: T,
+        key: Key,
         default_text: str,
         picked_text: str,
         *,
         is_picked: bool = False,
-    ) -> "Checkbox[T]":  # FIXME
+    ) -> "Checkbox[Key]":
         self.choices.append(
-            Choice(key, is_picked, default_text, picked_text, secrets.token_hex(8)),  # type: ignore
+            Choice(key, is_picked, default_text, picked_text, secrets.token_hex(8)),
         )
         return self  # type: ignore
 
@@ -125,7 +124,7 @@ class Checkbox(ABCScenario[CallbackQueryCute], typing.Generic[Key]):
         hasher: Hasher[CallbackQueryCute, int],
         api: "API",
         view: "BaseStateView[CallbackQueryCute]",
-    ) -> tuple[dict[Key, bool], int]:
+    ) -> tuple[dict[typing.Hashable, bool], int]:
         assert len(self.choices) > 0
         message = (
             await api.send_message(
@@ -147,6 +146,22 @@ class Checkbox(ABCScenario[CallbackQueryCute], typing.Generic[Key]):
             {choice.key: choice.is_picked for choice in self.choices},
             message.message_id,
         )
+
+
+if typing.TYPE_CHECKING:
+
+    class Checkbox(_Checkbox, typing.Generic[Key]):
+        choices: list[Choice[Key]]
+
+        async def wait(
+            self,
+            hasher: Hasher[CallbackQueryCute, int],
+            api: "API",
+            view: "BaseStateView[CallbackQueryCute]",
+        ) -> tuple[dict[Key, bool], int]: ...
+
+else:
+    Checkbox = _Checkbox
 
 
 __all__ = ("Checkbox", "Choice")

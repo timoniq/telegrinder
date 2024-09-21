@@ -16,9 +16,7 @@ from telegrinder.tools.limited_dict import LimitedDict
 from .actions import WaiterActions
 from .hasher import Hasher, StateViewHasher
 
-T = typing.TypeVar("T")
 HasherData = typing.TypeVar("HasherData")
-
 
 Storage: typing.TypeAlias = dict[
     Hasher[EventModel, HasherData], LimitedDict[typing.Hashable, ShortState[EventModel]]
