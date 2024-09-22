@@ -77,20 +77,35 @@ class Node(abc.ABC):
         return is_generator(cls.compose)
 
 
+@typing.dataclass_transform(kw_only_default=True)
+class ContextNode(Node, abc.ABC):
+    node = "context"
+
+    @classmethod
+    @abc.abstractmethod
+    def compose(cls, *args, **kwargs) -> ComposeResult:
+        pass
+
+    def __new__(cls, **context: typing.Any) -> typing.Self:
+        namespace = dict(**cls.__dict__)
+        namespace.pop("__new__", None)
+        return type(cls.__name__, (cls,), context | namespace)  # type: ignore
+
+
 class DataNode(Node, abc.ABC):
     node = "data"
 
     @typing.dataclass_transform()
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> ComposeResult:
+    def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
 
 class ScalarNodeProto(Node, abc.ABC):
     @classmethod
     @abc.abstractmethod
-    async def compose(cls, *args, **kwargs) -> ComposeResult:
+    def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
 
@@ -131,9 +146,21 @@ else:
         pass
 
 
+class Name(ScalarNode, ContextNode, str):
+    name: str
+    node = "node_name"
+    scope = NodeScope.GLOBAL
+
+    @classmethod
+    def compose(cls) -> str:
+        return cls.name
+
+
 __all__ = (
     "ComposeError",
+    "ContextNode",
     "DataNode",
+    "Name",
     "Node",
     "SCALAR_NODE",
     "ScalarNode",

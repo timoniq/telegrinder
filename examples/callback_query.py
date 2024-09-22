@@ -10,6 +10,7 @@ from telegrinder import (
     Token,
 )
 from telegrinder.modules import logger
+from telegrinder.node.callback_query import Field
 from telegrinder.rules import (
     CallbackDataEq,
     CallbackDataJsonModel,
@@ -45,6 +46,11 @@ kb = (
 @bot.on.message(Text("/action"))
 async def action(m: Message):
     await m.answer("Please confirm doing action.", reply_markup=kb)
+
+
+@bot.on.callback_query(is_blocking=False)
+async def handle_fruit(name: Field[str]):
+    logger.info("Got {!r} fruit!", name)
 
 
 @bot.on.callback_query(CallbackDataEq("confirm/action"))

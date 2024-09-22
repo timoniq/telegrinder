@@ -1,6 +1,13 @@
+import typing
+
+from fntypes.result import Error, Ok
+
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
-from telegrinder.node.base import ComposeError, ScalarNode
+from telegrinder.msgspec_utils import msgspec_convert
+from telegrinder.node.base import ComposeError, ContextNode, Name, ScalarNode
 from telegrinder.node.update import UpdateNode
+
+FieldType = typing.TypeVar("FieldType")
 
 
 class CallbackQueryNode(ScalarNode, CallbackQueryCute):
@@ -11,4 +18,36 @@ class CallbackQueryNode(ScalarNode, CallbackQueryCute):
         return update.callback_query.unwrap()
 
 
-__all__ = ("CallbackQueryNode",)
+class CallbackQueryData(ScalarNode, dict[str, typing.Any]):
+    @classmethod
+    def compose(cls, callback_query: CallbackQueryNode) -> dict[str, typing.Any]:
+        return callback_query.decode_callback_data().expect(
+            ComposeError("Cannot complete decode callback query data.")
+        )
+
+
+class _Field(ContextNode):
+    field_type: type[typing.Any]
+
+    def __class_getitem__(cls, field_type: type[typing.Any], /) -> typing.Self:
+        return cls(field_type=field_type)
+
+    @classmethod
+    def compose(cls, callback_query_data: CallbackQueryData, data_name: Name) -> typing.Any:
+        if data := callback_query_data.get(data_name):
+            match msgspec_convert(data, cls.field_type):
+                case Ok(value):
+                    return value
+                case Error(err):
+                    raise ComposeError(err)
+
+        raise ComposeError(f"Cannot find callback data with name {data_name!r}.")
+
+
+if typing.TYPE_CHECKING:
+    Field = typing.Annotated[FieldType, ...]
+else:
+    Field = _Field
+
+
+__all__ = ("CallbackQueryData", "CallbackQueryNode", "Field")

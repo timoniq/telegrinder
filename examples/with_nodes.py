@@ -1,9 +1,11 @@
+import typing
+
 from examples.nodes import DB, create_tables
 from telegrinder import API, Message, Telegrinder, Token, node
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
 from telegrinder.modules import logger
-from telegrinder.node import MessageNode, ScalarNode
+from telegrinder.node import MessageNode, ScalarNode, TextLiteral
 
 MessageId = type("MessageId", (int,), {})
 
@@ -44,6 +46,21 @@ async def photo_in_chat_handler(message: Message, p: node.Photo) -> None:
 @bot.on.message(Text("/message_id"))
 async def reply_handler(_: Message, message_id: IncomingMessageId) -> str:
     return f"Your message id: {message_id}"
+
+
+@bot.on.message()
+async def handle_texts(
+    text: TextLiteral["hello", "hi", "hilo"],
+) -> typing.Literal["hilo", "hello", "hi", "hey!"]:
+    match text:
+        case "hello":
+            return "hilo"
+        case "hi":
+            return "hello"
+        case "hilo":
+            return "hi"
+
+    return "hey!"
 
 
 ### Two handlers below require DB node

@@ -11,6 +11,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 from telegrinder.node.base import (
     ComposeError,
+    Name,
     Node,
     NodeScope,
     get_node_calc_lst,
@@ -23,10 +24,11 @@ GLOBAL_VALUE_KEY = "_value"
 
 
 async def compose_node(
+    parent_node_name: str,
     _node: type[Node],
     linked: dict[type, typing.Any],
 ) -> "NodeSession":
-    node = _node.as_node()
+    node = Name(name=parent_node_name) if issubclass(_node, Name) else _node.as_node()
     kwargs = magic_bundle(node.compose, linked, typebundle=True)
 
     if node.is_generator():
@@ -53,11 +55,11 @@ async def compose_nodes(
     parent_nodes: dict[type[Node], NodeSession] = {}
     event_nodes: dict[type[Node], NodeSession] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
     # TODO: optimize flattened list calculation via caching key = tuple of node types
-    calculation_nodes: dict[type[Node], tuple[type[Node], ...]] = {
-        node_t: tuple(get_node_calc_lst(node_t)) for node_t in nodes.values()
+    calculation_nodes: dict[tuple[str, type[Node]], tuple[type[Node], ...]] = {
+        (node_name, node_t): tuple(get_node_calc_lst(node_t)) for node_name, node_t in nodes.items()
     }
 
-    for parent_node, linked_nodes in calculation_nodes.items():
+    for (parent_node_name, parent_node_t), linked_nodes in calculation_nodes.items():
         local_nodes = {}
         subnodes = {}
 
@@ -76,7 +78,7 @@ async def compose_nodes(
             }
 
             try:
-                local_nodes[node_t] = await compose_node(node_t, subnodes | data)
+                local_nodes[node_t] = await compose_node(parent_node_name, node_t, subnodes | data)
             except (ComposeError, UnwrapError) as exc:
                 for t, local_node in local_nodes.items():
                     if t.scope is NodeScope.PER_CALL:
@@ -88,7 +90,7 @@ async def compose_nodes(
             elif scope is NodeScope.GLOBAL:
                 setattr(node_t, GLOBAL_VALUE_KEY, local_nodes[node_t])
 
-        parent_nodes[parent_node] = local_nodes[parent_node]
+        parent_nodes[parent_node_t] = local_nodes[parent_node_t]
 
     node_sessions = {k: parent_nodes[t] for k, t in nodes.items()}
     return Ok(NodeCollection(node_sessions))

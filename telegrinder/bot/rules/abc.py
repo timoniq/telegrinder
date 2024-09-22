@@ -230,9 +230,9 @@ __all__ = (
     "ABCRule",
     "Always",
     "AndRule",
+    "CheckResult",
     "Never",
     "NotRule",
     "OrRule",
-    "CheckResult",
     "with_caching_translations",
 )
