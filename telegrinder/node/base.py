@@ -78,8 +78,8 @@ class Node(abc.ABC):
 
 
 @typing.dataclass_transform(kw_only_default=True)
-class ContextNode(Node, abc.ABC):
-    node = "context"
+class FactoryNode(Node, abc.ABC):
+    node = "factory"
 
     @classmethod
     @abc.abstractmethod
@@ -92,10 +92,10 @@ class ContextNode(Node, abc.ABC):
         return type(cls.__name__, (cls,), context | namespace)  # type: ignore
 
 
+@typing.dataclass_transform()
 class DataNode(Node, abc.ABC):
     node = "data"
 
-    @typing.dataclass_transform()
     @classmethod
     @abc.abstractmethod
     def compose(cls, *args, **kwargs) -> ComposeResult:
@@ -146,19 +146,14 @@ else:
         pass
 
 
-class Name(ScalarNode, ContextNode, str):
-    name: str
-    node = "node_name"
-    scope = NodeScope.GLOBAL
-
+class Name(ScalarNode, str):
     @classmethod
-    def compose(cls) -> str:
-        return cls.name
+    def compose(cls) -> str: ...
 
 
 __all__ = (
     "ComposeError",
-    "ContextNode",
+    "FactoryNode",
     "DataNode",
     "Name",
     "Node",

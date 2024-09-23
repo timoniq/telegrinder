@@ -24,7 +24,7 @@ if typing.TYPE_CHECKING:
 
 AdaptTo = typing.TypeVar("AdaptTo", default=typing.Any, contravariant=True)
 
-CheckResult: typing.TypeAlias = bool | typing.Coroutine[typing.Any, typing.Any, bool]
+CheckResult: typing.TypeAlias = bool | typing.Awaitable[bool]
 Message: typing.TypeAlias = MessageCute
 Update: typing.TypeAlias = UpdateCute
 
@@ -47,31 +47,6 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
     requires: list["ABCRule"] = []
 
     if typing.TYPE_CHECKING:
-
-        @typing.overload
-        def check(self) -> CheckResult: ...
-
-        @typing.overload
-        def check(self, event: AdaptTo, /) -> CheckResult: ...
-
-        @typing.overload
-        def check(self, event: AdaptTo, ctx: Context, /) -> CheckResult: ...
-
-        @typing.overload
-        def check(
-            self,
-            event: AdaptTo,
-            ctx: Context,
-            /,
-            *args: typing.Any,
-            **kwargs: typing.Any,
-        ) -> CheckResult: ...
-
-        @typing.overload
-        def check(self, event: AdaptTo, /, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
-
-        @typing.overload
-        def check(self, ctx: Context, /, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 
         @abstractmethod
         def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult:

@@ -10,7 +10,7 @@ from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.model import Model
 from telegrinder.modules import logger
 from telegrinder.node.base import Node, get_nodes
-from telegrinder.node.composer import compose_nodes
+from telegrinder.node.composer import NodeCollection, compose_nodes
 from telegrinder.node.event import EVENT_NODE_KEY
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.types.enums import UpdateType
@@ -19,7 +19,8 @@ from telegrinder.types.objects import Update
 from .abc import ABCHandler
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.rules import ABCRule
+    from telegrinder.bot.rules.abc import ABCRule
+    from telegrinder.node.composer import NodeCollection
 
 Rest = typing.ParamSpec("Rest")
 Result = typing.TypeVar("Result")
@@ -101,7 +102,13 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         ctx |= temp_ctx
         return True
 
-    async def run(self, api: API, event: Event, ctx: Context) -> typing.Any:
+    async def run(
+        self,
+        api: API,
+        event: Event,
+        ctx: Context,
+        node_col: "NodeCollection | None" = None,
+    ) -> typing.Any:
         logger.debug(f"Running func handler {self.function.__qualname__!r}")
 
         if self.dataclass is not None and EVENT_NODE_KEY not in ctx:

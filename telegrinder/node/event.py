@@ -7,7 +7,7 @@ from telegrinder.api.api import API
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.msgspec_utils import DataclassInstance, decoder
-from telegrinder.node.base import ComposeError, Node
+from telegrinder.node.base import ComposeError, FactoryNode
 from telegrinder.node.update import UpdateNode
 
 if typing.TYPE_CHECKING:
@@ -18,17 +18,11 @@ if typing.TYPE_CHECKING:
 EVENT_NODE_KEY = "_event_node"
 
 
-class _EventNode(Node):
+class _EventNode(FactoryNode):
     dataclass: type["DataclassType"]
 
-    def __new__(cls, dataclass: type["DataclassType"], /) -> type[typing.Self]:
-        namespace = dict(**cls.__dict__)
-        namespace.pop("__new__", None)
-        new_cls = type("EventNode", (cls,), {"dataclass": dataclass, **namespace})
-        return new_cls  # type: ignore
-
     def __class_getitem__(cls, dataclass: type["DataclassType"], /) -> typing.Self:
-        return cls(dataclass)
+        return cls(dataclass=dataclass)
 
     @classmethod
     def compose(cls, raw_update: UpdateNode, ctx: Context, api: API) -> "DataclassType":

@@ -24,11 +24,10 @@ GLOBAL_VALUE_KEY = "_value"
 
 
 async def compose_node(
-    parent_node_name: str,
     _node: type[Node],
     linked: dict[type, typing.Any],
 ) -> "NodeSession":
-    node = Name(name=parent_node_name) if issubclass(_node, Name) else _node.as_node()
+    node = _node.as_node()
     kwargs = magic_bundle(node.compose, linked, typebundle=True)
 
     if node.is_generator():
@@ -62,6 +61,7 @@ async def compose_nodes(
     for (parent_node_name, parent_node_t), linked_nodes in calculation_nodes.items():
         local_nodes = {}
         subnodes = {}
+        data[Name] = parent_node_name
 
         for node_t in linked_nodes:
             scope = getattr(node_t, "scope", None)
@@ -78,7 +78,7 @@ async def compose_nodes(
             }
 
             try:
-                local_nodes[node_t] = await compose_node(parent_node_name, node_t, subnodes | data)
+                local_nodes[node_t] = await compose_node(node_t, subnodes | data)
             except (ComposeError, UnwrapError) as exc:
                 for t, local_node in local_nodes.items():
                     if t.scope is NodeScope.PER_CALL:

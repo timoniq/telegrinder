@@ -49,18 +49,14 @@ async def reply_handler(_: Message, message_id: IncomingMessageId) -> str:
 
 
 @bot.on.message()
-async def handle_texts(
-    text: TextLiteral["hello", "hi", "hilo"],
-) -> typing.Literal["hilo", "hello", "hi", "hey!"]:
-    match text:
+async def handle_texts(texts: TextLiteral["hello", "hi", "hilo"]) -> typing.Literal["hilo", "hello", "hi"]:
+    match texts:
         case "hello":
             return "hilo"
         case "hi":
             return "hello"
         case "hilo":
             return "hi"
-
-    return "hey!"
 
 
 ### Two handlers below require DB node

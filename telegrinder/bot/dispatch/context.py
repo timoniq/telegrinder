@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 import enum
 import typing
 from reprlib import recursive_repr
 
 from telegrinder.types.objects import Update
+
+if typing.TYPE_CHECKING:
+    from telegrinder.node.composer import NodeCollection
 
 T = typing.TypeVar("T")
 
@@ -24,6 +29,7 @@ class Context(dict[str, AnyValue]):
     """
 
     raw_update: Update
+    node_col: NodeCollection | None = None
 
     def __init__(self, **kwargs: AnyValue) -> None:
         cls_vars = vars(self.__class__)

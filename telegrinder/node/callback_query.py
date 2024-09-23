@@ -4,7 +4,7 @@ from fntypes.result import Error, Ok
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.msgspec_utils import msgspec_convert
-from telegrinder.node.base import ComposeError, ContextNode, Name, ScalarNode
+from telegrinder.node.base import ComposeError, FactoryNode, Name, ScalarNode
 from telegrinder.node.update import UpdateNode
 
 FieldType = typing.TypeVar("FieldType")
@@ -26,7 +26,7 @@ class CallbackQueryData(ScalarNode, dict[str, typing.Any]):
         )
 
 
-class _Field(ContextNode):
+class _Field(FactoryNode):
     field_type: type[typing.Any]
 
     def __class_getitem__(cls, field_type: type[typing.Any], /) -> typing.Self:
