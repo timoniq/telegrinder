@@ -235,7 +235,7 @@ class Decoder:
         )
         yield dec_obj
 
-    def add_dec_hook(self, t: T):  # type: ignore
+    def add_dec_hook(self, t: type[T]):  # type: ignore
         def decorator(func: DecHook[T]) -> DecHook[T]:
             return self.dec_hooks.setdefault(get_origin(t), func)  # type: ignore
 
@@ -346,7 +346,7 @@ class Encoder:
         enc_obj = msgspec.json.Encoder(enc_hook=self.enc_hook)
         yield enc_obj
 
-    def add_dec_hook(self, t: type[T]):
+    def add_enc_hook(self, t: type[T]):
         def decorator(func: EncHook[T]) -> EncHook[T]:
             encode_hook = self.enc_hooks.setdefault(get_origin(t), func)
             return func if encode_hook is not func else encode_hook
