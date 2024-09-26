@@ -4,7 +4,7 @@ import typing
 
 from fntypes.result import Result
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.model import Model

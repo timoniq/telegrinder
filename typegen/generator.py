@@ -89,29 +89,42 @@ def sort_all(path: pathlib.Path) -> None:
     os.system(f"sort-all {' '.join(files)}")
 
 
+def to_optional(st: str) -> str:
+    if '"' in st:
+        return '"{} | None"'.format(st.replace('"', ""))
+    return st + " | None"
+
+
 def convert_to_python_type(
     tp: str,
     parent_types: dict[str, list[str]] | None = None,
-    as_forward_ref: bool = True,
+    as_forward_ref: bool = False,
+    as_union: bool = False,
 ) -> str:
     if tp.startswith("Array of"):
         return "list[{}]".format(
             " | ".join(
-                convert_to_python_type(t, parent_types, as_forward_ref=as_forward_ref)
+                convert_to_python_type(t, parent_types, as_forward_ref)
                 for t in tp.removeprefix("Array of ").split(", ")
             )
         )
+
     if tp.startswith("typing.Literal"):
         return tp
+
     parent_types = parent_types or {}
     hint = '"{}"' if as_forward_ref else "{}"
-    return TYPES.get(
-        tp,
-        (
-            hint.format(tp)
-            if tp not in parent_types
-            else "Variative[%s]" % ", ".join(hint.format(x) for x in parent_types[tp])
-        ),
+
+    if tp in TYPES:
+        return TYPES[tp]
+    return (
+        hint.format(tp)
+        if tp not in parent_types
+        else (
+            "Variative[%s]" % ", ".join(hint.format(x) for x in parent_types[tp])
+            if not as_union
+            else hint.format(" | ".join(x for x in parent_types[tp]))
+        )
     )
 
 
@@ -231,6 +244,11 @@ class ObjectGenerator(ABCGenerator):
     def make_object_field(self, field: ObjectField, literal_types: FieldLiteralTypes | None = None) -> str:
         code = makesafe(field.name) + ": "
         field_type = "typing.Any"
+        field_value = (
+            "field(default=Nothing, converter={converter},)"
+            if not field.required
+            else "field(converter={converter},)"
+        )
 
         if literal_types is not None and any((literal_types.enum, literal_types.literals)):
             literal_type_hint = literal_types.enum or "typing.Literal[%s]" % ", ".join(
@@ -238,16 +256,29 @@ class ObjectGenerator(ABCGenerator):
             )
             if len(literal_types.literals) > 3:
                 literal_type_hint = literal_type_hint.replace("]", ",]")
+
             field_type = (
                 f"list[{literal_type_hint}]"
                 if any("Array of" in x for x in field.types)
                 else literal_type_hint
+            )
+            field_value = (
+                "field(default={})".format(field.default)
+                if field.required and field.default is not None
+                else "field()"
+                if field.required
+                else "field(default=Nothing)"
             )
         else:
             if field.description:
                 if is_unixtime_type(field.name, field.types, field.description):
                     field.types.remove("Integer")
                     field_type = "datetime"
+                    field_value = (
+                        "field(default=Nothing, converter=From[datetime | None])"
+                        if not field.required
+                        else "field()"
+                    )
 
                 elif "InputFile" not in field.types and INPUTFILE_DOCSTRING in field.description:
                     field.types.insert(0, "InputFile")
@@ -256,14 +287,34 @@ class ObjectGenerator(ABCGenerator):
                 field_type = "Variative[%s]" % ", ".join(
                     convert_to_python_type(tp, self.parent_types) for tp in field.types
                 )
+                union_types = " | ".join(
+                    convert_to_python_type(tp, self.parent_types, as_union=True, as_forward_ref=True)
+                    for tp in field.types
+                )
+                if '"' in union_types:
+                    union_types = '"{}"'.format(union_types.replace('"', ""))
+                field_value = field_value.format(
+                    converter="From[%s]" % (to_optional(union_types) if not field.required else union_types)
+                )
 
             elif len(field.types) == 1:
                 field_type = convert_to_python_type(field.types[0], self.parent_types)
+                converted_type = convert_to_python_type(
+                    field.types[0], self.parent_types, as_forward_ref=True, as_union=True
+                )
+                field_value = (
+                    field_value.format(
+                        converter="From[%s]"
+                        % (to_optional(converted_type) if not field.required else converted_type),
+                    )
+                    if ("|" in converted_type or not field.required)
+                    else "field()"
+                )
 
-        if not field.required and field_type:
-            field_type = f"Option[{field_type}] = Nothing"
+        if not field.required:
+            field_type = f"Option[{field_type}]"
 
-        code += field_type
+        code += f"{field_type} = {field_value}"
         if field.description:
             description = field.description.replace('"', "`")
             sep = "\n" + TAB
@@ -312,9 +363,19 @@ class ObjectGenerator(ABCGenerator):
             return code
 
         if object_schema.fields:
+            for f in object_schema.fields:
+                literal_types = self.get_field_literal_types(object_name, f.name)
+                if literal_types is not None and literal_types.literals and f.required:
+                    f.default = (
+                        f'"{literal_types.literals[0]}"'
+                        if isinstance(literal_types.literals[0], str)
+                        else str(literal_types.literals[0])
+                    )
+
             code += TAB
             for field in (
-                *filter(lambda f: f.required, object_schema.fields),
+                *filter(lambda f: f.default is None and f.required, object_schema.fields),
+                *filter(lambda f: f.default is not None, object_schema.fields),
                 *filter(lambda f: not f.required, object_schema.fields),
             ):
                 literal_types = self.get_field_literal_types(object_name, field.name)
@@ -338,12 +399,13 @@ class ObjectGenerator(ABCGenerator):
 
         logger.debug("Generate objects...")
         lines = [
+            "from __future__ import annotations\n\n",
             "import pathlib\n",
             "import typing\n\n",
-            "from fntypes.co import Some, Variative\n",
-            "from telegrinder.model import Model\n",
+            "from fntypes.variative import Variative\n",
+            "from telegrinder.model import From, Model, field\n",
             "from functools import cached_property\n",
-            "from telegrinder.msgspec_utils import Option, Nothing, datetime\n\n",
+            "from telegrinder.msgspec_utils import Nothing, Option, datetime\n\n",
         ]
         all_ = ["Model"]
 
@@ -402,7 +464,7 @@ class MethodGenerator(ABCGenerator):
         if not types:
             return "typing.Any"
         if len(types) == 1:
-            return convert_to_python_type(types[0], parent_types, as_forward_ref=False)
+            return convert_to_python_type(types[0], parent_types)
         if len([x for x in types if x.startswith("Array of")]) > 1:
             array_of_types = [
                 types.remove(v) or v.removeprefix("Array of") for v in types[:] if v.startswith("Array of")
@@ -410,7 +472,7 @@ class MethodGenerator(ABCGenerator):
             types.append("Array of " + ", ".join(array_of_types))
         sep = ", " if is_return_type else " | "
         return ("Variative[%s]" if is_return_type else "%s") % sep.join(
-            convert_to_python_type(tp, parent_types, as_forward_ref=False) for tp in types
+            convert_to_python_type(tp, parent_types) for tp in types
         )
 
     def get_param_literal_types(

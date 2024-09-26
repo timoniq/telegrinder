@@ -5,16 +5,17 @@ import datetime
 import typing
 
 from telegrinder.modules import logger
-
-from .abc import ABCLoopWrapper
+from telegrinder.tools.loop_wrapper.abc import ABCLoopWrapper
 
 T = typing.TypeVar("T")
 P = typing.ParamSpec("P")
-CoroFunc = typing.TypeVar("CoroFunc", bound="CoroutineFunc")
+CoroFunc = typing.TypeVar("CoroFunc", bound="CoroutineFunc[..., typing.Any]")
 
 CoroutineTask: typing.TypeAlias = typing.Coroutine[typing.Any, typing.Any, T]
 CoroutineFunc: typing.TypeAlias = typing.Callable[P, CoroutineTask[T]]
-Task: typing.TypeAlias = typing.Union[CoroutineFunc, CoroutineTask, "DelayedTask"]
+Task: typing.TypeAlias = (
+    "CoroutineFunc[P, T] | CoroutineTask[T] | DelayedTask[typing.Callable[P, CoroutineTask[T]]]"
+)
 
 
 def run_tasks(
@@ -90,7 +91,12 @@ class LoopWrapper(ABCLoopWrapper):
     ) -> None:
         self.tasks: list[CoroutineTask[typing.Any]] = tasks or []
         self.lifespan = lifespan or Lifespan()
-        self._loop = event_loop or asyncio.new_event_loop()
+        self._loop = event_loop
+
+    @property
+    def loop(self) -> asyncio.AbstractEventLoop:
+        assert self._loop is not None
+        return self._loop
 
     def __repr__(self) -> str:
         return "<{}: loop={!r} with tasks={!r}, lifespan={!r}>".format(
@@ -104,11 +110,13 @@ class LoopWrapper(ABCLoopWrapper):
         if not self.tasks:
             logger.warning("You run loop with 0 tasks!")
 
+        self._loop = asyncio.new_event_loop() if self._loop is None else self._loop
         self.lifespan.start(self._loop)
+
         while self.tasks:
             self._loop.create_task(self.tasks.pop(0))
-        tasks = asyncio.all_tasks(self._loop)
 
+        tasks = asyncio.all_tasks(self._loop)
         try:
             while tasks:
                 tasks_results, _ = self._loop.run_until_complete(
@@ -132,17 +140,17 @@ class LoopWrapper(ABCLoopWrapper):
     def add_task(self, task: Task) -> None:
         task = to_coroutine_task(task)
 
-        if self._loop and self._loop.is_running():
+        if self._loop is not None and self._loop.is_running():
             self._loop.create_task(task)
         else:
             self.tasks.append(task)
 
     def complete_tasks(self, tasks: set[asyncio.Task[typing.Any]]) -> None:
-        tasks = tasks | asyncio.all_tasks(self._loop)
+        tasks = tasks | asyncio.all_tasks(self.loop)
         task_to_cancel = asyncio.gather(*tasks, return_exceptions=True)
         task_to_cancel.cancel()
         with contextlib.suppress(asyncio.CancelledError):
-            self._loop.run_until_complete(task_to_cancel)
+            self.loop.run_until_complete(task_to_cancel)
 
     @typing.overload
     def timer(self, *, seconds: datetime.timedelta) -> typing.Callable[..., typing.Any]: ...
