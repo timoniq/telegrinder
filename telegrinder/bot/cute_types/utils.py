@@ -41,9 +41,9 @@ def compose_reactions(
         reactions = [reactions]
     return [
         (
-            ReactionTypeEmoji("emoji", emoji)
+            ReactionTypeEmoji(emoji)
             if isinstance(emoji, ReactionEmoji)
-            else (ReactionTypeEmoji("emoji", ReactionEmoji(emoji)) if isinstance(emoji, str) else emoji)
+            else (ReactionTypeEmoji(ReactionEmoji(emoji)) if isinstance(emoji, str) else emoji)
         )
         for emoji in ([reactions] if isinstance(reactions, str) else reactions)  # type: ignore
     ]
