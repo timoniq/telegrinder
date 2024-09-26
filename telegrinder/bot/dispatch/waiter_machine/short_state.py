@@ -2,6 +2,7 @@ import asyncio
 import dataclasses
 import datetime
 import typing
+from contextlib import suppress
 
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
@@ -51,7 +52,7 @@ class ShortState(typing.Generic[EventModel]):
         self.creation_date = datetime.datetime.now()
         self.expiration_date = (self.creation_date + expiration) if expiration is not None else None
 
-    def cancel(self) -> None:
+    async def cancel(self) -> None:
         """Cancel schedule waiters."""
 
         waiters = typing.cast(
@@ -60,6 +61,8 @@ class ShortState(typing.Generic[EventModel]):
         )
         for future in waiters:
             future.cancel()
+            with suppress(asyncio.CancelledError):
+                await future
 
 
 __all__ = ("ShortState", "ShortStateContext")

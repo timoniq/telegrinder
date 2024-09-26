@@ -51,12 +51,11 @@ class WaiterMachine:
         for hasher in self.storage:
             for ident, short_state in self.storage[hasher].items():
                 if short_state.context:
-                    await self.drop(
-                        hasher,
-                        ident,
-                    )
+                    await self.drop(hasher, ident)
                 else:
-                    short_state.cancel()
+                    await short_state.cancel()
+
+            del self.storage[hasher]
 
     async def drop(
         self,
@@ -79,7 +78,7 @@ class WaiterMachine:
         if on_drop := short_state.actions.get("on_drop"):
             on_drop(short_state, **context)
 
-        short_state.cancel()
+        await short_state.cancel()
 
     async def wait_from_event(
         self,
@@ -135,7 +134,7 @@ class WaiterMachine:
             self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)
 
         if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
-            deleted_short_state.cancel()
+            await deleted_short_state.cancel()
 
         await event.wait()
         self.storage[hasher].pop(waiter_hash, None)
