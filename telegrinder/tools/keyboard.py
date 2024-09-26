@@ -106,7 +106,7 @@ class Keyboard(ABCMarkup[Button], KeyboardModel):
         return ReplyKeyboardMarkup(**self.dict())
 
     def keyboard_remove(self, *, selective: bool = False) -> ReplyKeyboardRemove:
-        return ReplyKeyboardRemove(remove_keyboard=True, selective=Some(selective))
+        return ReplyKeyboardRemove(remove_keyboard=True, selective=selective)
 
 
 class InlineKeyboard(ABCMarkup[InlineButton]):

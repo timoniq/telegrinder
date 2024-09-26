@@ -16,7 +16,7 @@ class InlineQueryRule(ABCRule[InlineQuery], abc.ABC):
     adapter: EventAdapter[InlineQuery] = EventAdapter(UpdateType.INLINE_QUERY, InlineQuery)
 
     @abc.abstractmethod
-    def check(self, query: InlineQuery, ctx: Context) -> CheckResult: ...
+    def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 
 
 class HasLocation(InlineQueryRule):

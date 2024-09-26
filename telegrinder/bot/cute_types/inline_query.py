@@ -15,11 +15,11 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
     def from_user(self) -> User:
         return self.from_
 
-    @shortcut("answer_inline_query", custom_params={"results"})
+    @shortcut("answer_inline_query", custom_params={"results", "inline_query_id"})
     async def answer(
         self,
         results: InlineQueryResult | list[InlineQueryResult],
-        inline_query_id: str,
+        inline_query_id: str | None = None,
         cache_time: int | None = None,
         is_personal: bool | None = None,
         next_offset: str | None = None,

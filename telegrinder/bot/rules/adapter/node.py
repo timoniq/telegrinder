@@ -1,7 +1,7 @@
 import typing_extensions as typing
 from fntypes.result import Error, Ok, Result
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter.abc import ABCAdapter, Event
 from telegrinder.bot.rules.adapter.errors import AdapterError

@@ -1,14 +1,15 @@
 import abc
 import inspect
-import typing
 from types import AsyncGeneratorType
+
+import typing_extensions as typing
 
 from telegrinder.node.scope import NodeScope
 from telegrinder.tools.magic import cache_magic_value, get_annotations
 
-ComposeResult: typing.TypeAlias = (
-    typing.Awaitable[typing.Any] | typing.AsyncGenerator[typing.Any, None] | typing.Any
-)
+T = typing.TypeVar("T", default=typing.Any)
+
+ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerator[T, None]
 
 
 def is_node(maybe_node: typing.Any) -> typing.TypeGuard[type["Node"]]:
@@ -98,7 +99,7 @@ class DataNode(Node, abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def compose(cls, *args, **kwargs) -> ComposeResult:
+    def compose(cls, *args, **kwargs) -> ComposeResult[typing.Self]:
         pass
 
 

@@ -2,12 +2,12 @@ import typing
 
 from fntypes.result import Error, Ok, Result
 
-from telegrinder.api import API
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter.abc import ABCAdapter
 from telegrinder.bot.rules.adapter.errors import AdapterError
-from telegrinder.msgspec_utils import Nothing
+from telegrinder.bot.rules.adapter.raw_update import RawUpdateAdapter
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Model, Update
 
@@ -42,35 +42,26 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
         if self.ADAPTED_VALUE_KEY in context:
             return Ok(context[self.ADAPTED_VALUE_KEY])
 
-        if isinstance(self.event, UpdateType):
-            if update.update_type != self.event:
-                return Error(
-                    AdapterError(f"Update is not of event type {self.event!r}."),
-                )
+        match await RawUpdateAdapter().adapt(api, update, context):
+            case Ok(update_cute):
+                incoming_update = None
+                if isinstance(self.event, UpdateType) and self.event == update_cute.update_type:
+                    incoming_update = update_cute.incoming_update
+                if not isinstance(self.event, UpdateType) and (event := update_cute.get_event(self.event)):
+                    incoming_update = update_cute.get_event(self.event).unwrap_or_none()
 
-            if isinstance(event := getattr(update, self.event.value, Nothing), type(Nothing)):
-                return Error(
-                    AdapterError(f"Update is not an {self.event!r}."),
-                )
+                if incoming_update is not None:
+                    adapted = (
+                        typing.cast(ToCute, incoming_update)
+                        if isinstance(incoming_update, BaseCute)
+                        else self.cute_model.from_update(incoming_update, bound_api=api)
+                    )
+                    context[self.ADAPTED_VALUE_KEY] = adapted
+                    return Ok(adapted)
 
-            event = event.unwrap()
-
-            if type(event) is self.cute_model:
-                adapted = event
-            else:
-                adapted = self.cute_model.from_update(event, bound_api=api)
-        else:
-            event = getattr(update, update.update_type.value).unwrap()
-            if not update.update_type or not issubclass(type(event), self.event):
-                return Error(AdapterError(f"Update is not an {self.event.__name__!r}."))
-
-            if type(event) is self.cute_model:
-                adapted = event
-            else:
-                adapted = self.cute_model.from_update(event, bound_api=api)
-
-        context[self.ADAPTED_VALUE_KEY] = adapted
-        return Ok(adapted)  # type: ignore
+                return Error(AdapterError(f"Update is not an {self.event!r}."))
+            case Error(_) as err:
+                return err
 
 
 __all__ = ("EventAdapter",)

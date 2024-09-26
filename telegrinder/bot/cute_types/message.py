@@ -13,7 +13,7 @@ from telegrinder.bot.cute_types.utils import (
     compose_reply_params,
     input_media,
 )
-from telegrinder.model import get_params
+from telegrinder.model import From, field, get_params
 from telegrinder.msgspec_utils import Nothing, Option
 from telegrinder.types import *
 
@@ -135,12 +135,18 @@ def get_entity_value(
 class MessageCute(BaseCute[Message], Message, kw_only=True):
     api: API
 
-    reply_to_message: Option[MessageCute] = Nothing
+    reply_to_message: Option[MessageCute] = field(
+        default=Nothing,
+        converter=From["MessageCute | None"],
+    )
     """Optional. For replies in the same chat and message thread, the original
     message. Note that the Message object in this field will not contain further
     reply_to_message fields even if it itself is a reply."""
 
-    pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = Nothing
+    pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
+        default=Nothing,
+        converter=From["MessageCute | InaccessibleMessage | None"],
+    )
     """Optional. Specified message was pinned. Note that the Message object in
     this field will not contain further reply_to_message fields even if it
     itself is a reply."""

@@ -26,8 +26,7 @@ class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
     adapter: EventAdapter[CallbackQuery] = EventAdapter(UpdateType.CALLBACK_QUERY, CallbackQuery)
 
     @abc.abstractmethod
-    def check(self, event: CallbackQuery, context: Context) -> CheckResult:
-        pass
+    def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 
 
 class HasData(CallbackQueryRule):

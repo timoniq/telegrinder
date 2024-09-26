@@ -183,4 +183,4 @@ class _ReplyKeyboardMarkup(ReplyKeyboardMarkup):
     def empty_markup(self) -> "ReplyKeyboardRemove":
         """Empty keyboard to remove the custom keyboard."""
 
-        return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective)
+        return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective.unwrap_or_none())

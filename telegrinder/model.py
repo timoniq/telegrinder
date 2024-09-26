@@ -60,6 +60,57 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     return validated_params
 
 
+class From(typing.Generic[T]):
+    def __new__(cls, _: T, /) -> typing.Any: ...
+
+
+if typing.TYPE_CHECKING:
+
+    @typing.overload
+    def field(*, name: str | None = ...) -> typing.Any: ...
+
+    @typing.overload
+    def field(*, default: typing.Any, name: str | None = ...) -> typing.Any: ...
+
+    @typing.overload
+    def field(
+        *,
+        converter: typing.Callable[[typing.Any], typing.Any],
+        name: str | None = ...,
+    ) -> typing.Any: ...
+
+    @typing.overload
+    def field(
+        *,
+        default: typing.Any,
+        converter: typing.Callable[[typing.Any], typing.Any],
+        name: str | None = ...,
+    ) -> typing.Any: ...
+
+    @typing.overload
+    def field(
+        *,
+        default_factory: typing.Callable[[], typing.Any],
+        converter: typing.Callable[[typing.Any], typing.Any],
+        name: str | None = None,
+    ) -> typing.Any: ...
+
+    def field(
+        *,
+        default=...,
+        default_factory=...,
+        name=...,
+        converter=...,
+    ) -> typing.Any: ...
+else:
+    from msgspec import field as _field
+
+    def field(**kwargs):
+        kwargs.pop("converter", None)
+        return _field(**kwargs)
+
+
+@typing.dataclass_transform(field_specifiers=(field,))
 class Model(msgspec.Struct, **MODEL_CONFIG):
     @classmethod
     def from_data(cls, data: dict[str, typing.Any]) -> typing.Self:
