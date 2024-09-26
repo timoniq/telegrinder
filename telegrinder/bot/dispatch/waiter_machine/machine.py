@@ -48,7 +48,7 @@ class WaiterMachine:
     async def drop_all(self) -> None:
         """Drops all waiters in storage."""
 
-        for hasher in self.storage:
+        for hasher in self.storage.copy():
             for ident, short_state in self.storage[hasher].items():
                 if short_state.context:
                     await self.drop(hasher, ident)
