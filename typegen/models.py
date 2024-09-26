@@ -72,6 +72,9 @@ class ObjectField(Model):
     description: str | None = None
     """Field description."""
 
+    default: str | None = None
+    """Default value."""
+
 
 class MethodParameter(Model):
     name: str

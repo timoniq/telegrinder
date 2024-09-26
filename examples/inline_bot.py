@@ -13,10 +13,9 @@ bot = Telegrinder(api)
 async def test_inline(q: InlineQuery):
     await q.answer(
         InlineQueryResultArticle(
-            type="article",
             id="1",
             title="Press me",
-            input_message_content=InputTextMessageContent(message_text="I tested inline query"),  # type: ignore
+            input_message_content=InputTextMessageContent(message_text="I tested inline query"),
         ),
     )
 
@@ -27,10 +26,9 @@ async def reverse_inline(q: InlineQuery):
         return
     await q.answer(
         InlineQueryResultArticle(
-            type="article",
             id="1",
             title="Send reversed",
-            input_message_content=InputTextMessageContent(message_text=q.query[::-1]),  # type: ignore
+            input_message_content=InputTextMessageContent(message_text=q.query[::-1]),
         ),
     )
 

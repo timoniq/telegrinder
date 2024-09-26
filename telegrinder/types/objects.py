@@ -432,7 +432,7 @@ class WebhookInfo(Model):
 
     ip_address: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Currently used webhook IP address."""
 
@@ -442,7 +442,7 @@ class WebhookInfo(Model):
 
     last_error_message: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Error message in human-readable format for the most recent error
     that happened when trying to deliver an update via webhook."""
@@ -455,14 +455,14 @@ class WebhookInfo(Model):
 
     max_connections: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The maximum allowed number of simultaneous HTTPS connections
     to the webhook for update delivery."""
 
     allowed_updates: Option[list[str]] = field(
         default=Nothing,
-        converter=From["list[str] | None"],
+        converter=From[list[str] | None],
     )
     """Optional. A list of update types the bot is subscribed to. Defaults to all
     update types except chat_member."""
@@ -488,63 +488,63 @@ class User(Model):
 
     last_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. User's or bot's last name."""
 
     username: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. User's or bot's username."""
 
     language_code: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. IETF language tag of the user's language."""
 
     is_premium: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if this user is a Telegram Premium user."""
 
     added_to_attachment_menu: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if this user added the bot to the attachment menu."""
 
     can_join_groups: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the bot can be invited to groups. Returned only in getMe."""
 
     can_read_all_group_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if privacy mode is disabled for the bot. Returned only in
     getMe."""
 
     supports_inline_queries: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the bot supports inline queries. Returned only in getMe."""
 
     can_connect_to_business: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the bot can be connected to a Telegram Business account
     to receive its messages. Returned only in getMe."""
 
     has_main_web_app: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the bot has a main Web App. Returned only in getMe."""
 
@@ -581,31 +581,31 @@ class Chat(Model):
 
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title, for supergroups, channels and group chats."""
 
     username: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Username, for private chats, supergroups and channels if available."""
 
     first_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. First name of the other party in a private chat."""
 
     last_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Last name of the other party in a private chat."""
 
     is_forum: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
 
@@ -644,31 +644,31 @@ class ChatFullInfo(Model):
 
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title, for supergroups, channels and group chats."""
 
     username: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Username, for private chats, supergroups and channels if available."""
 
     first_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. First name of the other party in a private chat."""
 
     last_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Last name of the other party in a private chat."""
 
     is_forum: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
 
@@ -680,7 +680,7 @@ class ChatFullInfo(Model):
 
     active_usernames: Option[list[str]] = field(
         default=Nothing,
-        converter=From["list[str] | None"],
+        converter=From[list[str] | None],
     )
     """Optional. If non-empty, the list of all active chat usernames; for private
     chats, supergroups and channels."""
@@ -730,28 +730,28 @@ class ChatFullInfo(Model):
 
     background_custom_emoji_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Custom emoji identifier of the emoji chosen by the chat for the
     reply header and link preview background."""
 
     profile_accent_color_id: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Identifier of the accent color for the chat's profile background.
     See profile accent colors for more details."""
 
     profile_background_custom_emoji_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Custom emoji identifier of the emoji chosen by the chat for its
     profile background."""
 
     emoji_status_custom_emoji_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Custom emoji identifier of the emoji status of the chat or the
     other party in a private chat."""
@@ -762,47 +762,47 @@ class ChatFullInfo(Model):
 
     bio: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Bio of the other party in a private chat."""
 
     has_private_forwards: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if privacy settings of the other party in the private chat
     allows to use tg://user?id=<user_id> links only in chats with the user."""
 
     has_restricted_voice_and_video_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the privacy settings of the other party restrict sending
     voice and video note messages in the private chat."""
 
     join_to_send_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if users need to join the supergroup before they can send
     messages."""
 
     join_by_request: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if all users directly joining the supergroup without using
     an invite link need to be approved by supergroup administrators."""
 
     description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Description, for groups, supergroups and channel chats."""
 
     invite_link: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Primary invite link, for groups, supergroups and channel chats."""
 
@@ -820,81 +820,81 @@ class ChatFullInfo(Model):
 
     can_send_paid_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if paid media messages can be sent or forwarded to the channel
     chat. The field is available only for channel chats."""
 
     slow_mode_delay: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. For supergroups, the minimum allowed delay between consecutive
     messages sent by each unprivileged user; in seconds."""
 
     unrestrict_boost_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. For supergroups, the minimum number of boosts that a non-administrator
     user needs to add in order to ignore slow mode and chat permissions."""
 
     message_auto_delete_time: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The time after which all messages sent to the chat will be automatically
     deleted; in seconds."""
 
     has_aggressive_anti_spam_enabled: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if aggressive anti-spam checks are enabled in the supergroup.
     The field is only available to chat administrators."""
 
     has_hidden_members: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if non-administrators can only get the list of bots and
     administrators in the chat."""
 
     has_protected_content: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if messages from the chat can't be forwarded to other chats."""
 
     has_visible_history: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if new chat members will have access to old messages; available
     only to chat administrators."""
 
     sticker_set_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. For supergroups, name of the group sticker set."""
 
     can_set_sticker_set: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the bot can change the group sticker set."""
 
     custom_emoji_sticker_set_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. For supergroups, the name of the group's custom emoji sticker
     set. Custom emoji from this set can be used by all users and bots in the group."""
 
     linked_chat_id: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Unique identifier for the linked chat, i.e. the discussion group
     identifier for a channel and vice versa; for supergroups and channel chats.
@@ -928,7 +928,7 @@ class Message(MaybeInaccessibleMessage):
 
     message_thread_id: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Unique identifier of a message thread to which the message belongs;
     for supergroups only."""
@@ -954,7 +954,7 @@ class Message(MaybeInaccessibleMessage):
 
     sender_boost_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. If the sender of the message boosted the chat, the number of boosts
     added by the user."""
@@ -969,7 +969,7 @@ class Message(MaybeInaccessibleMessage):
 
     business_connection_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Unique identifier of the business connection from which the
     message was received. If non-empty, the message belongs to a chat of the
@@ -988,13 +988,13 @@ class Message(MaybeInaccessibleMessage):
 
     is_topic_message: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the message is sent to a forum topic."""
 
     is_automatic_forward: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the message is a channel post that was automatically
     forwarded to the connected discussion group."""
@@ -1038,34 +1038,34 @@ class Message(MaybeInaccessibleMessage):
 
     has_protected_content: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the message can't be forwarded."""
 
     is_from_offline: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the message was sent by an implicit action, for example,
     as an away or a greeting business message, or as a scheduled message."""
 
     media_group_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. The unique identifier of a media message group this message belongs
     to."""
 
     author_signature: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Signature of the post author for messages in channels, or the
     custom title of an anonymous group administrator."""
 
     text: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. For text messages, the actual UTF-8 text of the message."""
 
@@ -1085,7 +1085,7 @@ class Message(MaybeInaccessibleMessage):
 
     effect_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Unique identifier of the message effect added to the message."""
 
@@ -1153,7 +1153,7 @@ class Message(MaybeInaccessibleMessage):
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption for the animation, audio, document, paid media, photo,
     video or voice."""
@@ -1167,13 +1167,13 @@ class Message(MaybeInaccessibleMessage):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the caption must be shown above the message media."""
 
     has_media_spoiler: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the message media is covered by a spoiler animation."""
 
@@ -1231,7 +1231,7 @@ class Message(MaybeInaccessibleMessage):
 
     new_chat_title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. A chat title was changed to this value."""
 
@@ -1243,19 +1243,19 @@ class Message(MaybeInaccessibleMessage):
 
     delete_chat_photo: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Service message: the chat photo was deleted."""
 
     group_chat_created: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Service message: the group has been created."""
 
     supergroup_chat_created: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Service message: the supergroup has been created. This field
     can't be received in a message coming through updates, because bot can't
@@ -1264,7 +1264,7 @@ class Message(MaybeInaccessibleMessage):
 
     channel_chat_created: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Service message: the channel has been created. This field can't
     be received in a message coming through updates, because bot can't be a member
@@ -1280,7 +1280,7 @@ class Message(MaybeInaccessibleMessage):
 
     migrate_to_chat_id: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The group has been migrated to a supergroup with the specified
     identifier. This number may have more than 32 significant bits and some
@@ -1290,7 +1290,7 @@ class Message(MaybeInaccessibleMessage):
 
     migrate_from_chat_id: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The supergroup has been migrated from a group with the specified
     identifier. This number may have more than 32 significant bits and some
@@ -1341,7 +1341,7 @@ class Message(MaybeInaccessibleMessage):
 
     connected_website: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. The domain name of the website on which the user has logged in.
     More about Telegram Login: https://core.telegram.org/widgets/login."""
@@ -1570,7 +1570,7 @@ class MessageEntity(Model):
 
     url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. For `text_link` only, URL that will be opened after user taps
     on the text."""
@@ -1583,13 +1583,13 @@ class MessageEntity(Model):
 
     language: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. For `pre` only, the programming language of the entity text."""
 
     custom_emoji_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. For `custom_emoji` only, unique identifier of the custom emoji.
     Use getCustomEmojiStickers to get full information about the sticker."""
@@ -1618,7 +1618,7 @@ class TextQuote(Model):
 
     is_manual: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the quote was chosen manually by the message sender.
     Otherwise, the quote was added automatically by the server."""
@@ -1631,7 +1631,11 @@ class ExternalReplyInfo(Model):
     """
 
     origin: Variative[MessageOriginUser, MessageOriginHiddenUser, MessageOriginChat, MessageOriginChannel] = (
-        field()
+        field(
+            converter=From[
+                "MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel"
+            ],
+        )
     )
     """Origin of the message replied to by the given message."""
 
@@ -1644,7 +1648,7 @@ class ExternalReplyInfo(Model):
 
     message_id: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Unique message identifier inside the original chat. Available
     only if the original chat is a supergroup or a channel."""
@@ -1718,7 +1722,7 @@ class ExternalReplyInfo(Model):
 
     has_media_spoiler: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the message media is covered by a spoiler animation."""
 
@@ -1791,7 +1795,7 @@ class ReplyParameters(Model):
 
     chat_id: Option[Variative[int, str]] = field(
         default=Nothing,
-        converter=From["int | str | None"],
+        converter=From[int | str | None],
     )
     """Optional. If the message to be replied to is from a different chat, unique
     identifier for the chat or username of the channel (in the format @channelusername).
@@ -1799,7 +1803,7 @@ class ReplyParameters(Model):
 
     allow_sending_without_reply: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if the message should be sent even if the specified message
     to be replied to is not found. Always False for replies in another chat or
@@ -1807,7 +1811,7 @@ class ReplyParameters(Model):
 
     quote: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Quoted part of the message to be replied to; 0-1024 characters
     after entities parsing. The quote must be an exact substring of the message
@@ -1817,7 +1821,7 @@ class ReplyParameters(Model):
 
     quote_parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the quote. See formatting options
     for more details."""
@@ -1831,7 +1835,7 @@ class ReplyParameters(Model):
 
     quote_position: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Position of the quote in the original message in UTF-16 code units."""
 
@@ -1842,14 +1846,14 @@ class MessageOriginUser(MessageOrigin):
     The message was originally sent by a known user.
     """
 
-    type: typing.Literal["user"] = field()
-    """Type of the message origin, always `user`."""
-
     date: datetime = field()
     """Date the message was sent originally in Unix time."""
 
     sender_user: User = field()
     """User that sent the message originally."""
+
+    type: typing.Literal["user"] = field(default="user")
+    """Type of the message origin, always `user`."""
 
 
 class MessageOriginHiddenUser(MessageOrigin):
@@ -1858,14 +1862,14 @@ class MessageOriginHiddenUser(MessageOrigin):
     The message was originally sent by an unknown user.
     """
 
-    type: typing.Literal["hidden_user"] = field()
-    """Type of the message origin, always `hidden_user`."""
-
     date: datetime = field()
     """Date the message was sent originally in Unix time."""
 
     sender_user_name: str = field()
     """Name of the user that sent the message originally."""
+
+    type: typing.Literal["hidden_user"] = field(default="hidden_user")
+    """Type of the message origin, always `hidden_user`."""
 
 
 class MessageOriginChat(MessageOrigin):
@@ -1874,18 +1878,18 @@ class MessageOriginChat(MessageOrigin):
     The message was originally sent on behalf of a chat to a group chat.
     """
 
-    type: typing.Literal["chat"] = field()
-    """Type of the message origin, always `chat`."""
-
     date: datetime = field()
     """Date the message was sent originally in Unix time."""
 
     sender_chat: Chat = field()
     """Chat that sent the message originally."""
 
+    type: typing.Literal["chat"] = field(default="chat")
+    """Type of the message origin, always `chat`."""
+
     author_signature: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. For messages originally sent by an anonymous chat administrator,
     original message author signature."""
@@ -1897,9 +1901,6 @@ class MessageOriginChannel(MessageOrigin):
     The message was originally sent to a channel chat.
     """
 
-    type: typing.Literal["channel"] = field()
-    """Type of the message origin, always `channel`."""
-
     date: datetime = field()
     """Date the message was sent originally in Unix time."""
 
@@ -1909,9 +1910,12 @@ class MessageOriginChannel(MessageOrigin):
     message_id: int = field()
     """Unique message identifier inside the chat."""
 
+    type: typing.Literal["channel"] = field(default="channel")
+    """Type of the message origin, always `channel`."""
+
     author_signature: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Signature of the original post author."""
 
@@ -1937,7 +1941,7 @@ class PhotoSize(Model):
 
     file_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. File size in bytes."""
 
@@ -1972,19 +1976,19 @@ class Animation(Model):
 
     file_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Original animation filename as defined by the sender."""
 
     mime_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
@@ -2010,31 +2014,31 @@ class Audio(Model):
 
     performer: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Performer of the audio as defined by the sender or by audio tags."""
 
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title of the audio as defined by the sender or by audio tags."""
 
     file_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Original filename as defined by the sender."""
 
     mime_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
@@ -2069,19 +2073,19 @@ class Document(Model):
 
     file_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Original filename as defined by the sender."""
 
     mime_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
@@ -2132,19 +2136,19 @@ class Video(Model):
 
     file_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Original filename as defined by the sender."""
 
     mime_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
@@ -2180,7 +2184,7 @@ class VideoNote(Model):
 
     file_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. File size in bytes."""
 
@@ -2203,13 +2207,13 @@ class Voice(Model):
 
     mime_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. MIME type of the file as defined by the sender."""
 
     file_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
@@ -2236,24 +2240,24 @@ class PaidMediaPreview(PaidMedia):
     The paid media isn't available before the payment.
     """
 
-    type: typing.Literal["preview"] = field()
+    type: typing.Literal["preview"] = field(default="preview")
     """Type of the paid media, always `preview`."""
 
     width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Media width as defined by the sender."""
 
     height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Media height as defined by the sender."""
 
     duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Duration of the media in seconds as defined by the sender."""
 
@@ -2264,11 +2268,11 @@ class PaidMediaPhoto(PaidMedia):
     The paid media is a photo.
     """
 
-    type: typing.Literal["photo"] = field()
-    """Type of the paid media, always `photo`."""
-
     photo: list[PhotoSize] = field()
     """The photo."""
+
+    type: typing.Literal["photo"] = field(default="photo")
+    """Type of the paid media, always `photo`."""
 
 
 class PaidMediaVideo(PaidMedia):
@@ -2277,11 +2281,11 @@ class PaidMediaVideo(PaidMedia):
     The paid media is a video.
     """
 
-    type: typing.Literal["video"] = field()
-    """Type of the paid media, always `video`."""
-
     video: Video = field()
     """The video."""
+
+    type: typing.Literal["video"] = field(default="video")
+    """Type of the paid media, always `video`."""
 
 
 class Contact(Model):
@@ -2298,13 +2302,13 @@ class Contact(Model):
 
     last_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Contact's last name."""
 
     user_id: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Contact's user identifier in Telegram. This number may have
     more than 32 significant bits and some programming languages may have difficulty/silent
@@ -2313,7 +2317,7 @@ class Contact(Model):
 
     vcard: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Additional data about the contact in the form of a vCard."""
 
@@ -2363,7 +2367,7 @@ class InputPollOption(Model):
 
     text_parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the text. See formatting options
     for more details. Currently, only custom emoji entities are allowed."""
@@ -2427,11 +2431,11 @@ class Poll(Model):
     is_anonymous: bool = field()
     """True, if the poll is anonymous."""
 
-    type: typing.Literal["regular", "quiz"] = field()
-    """Poll type, currently can be `regular` or `quiz`."""
-
     allows_multiple_answers: bool = field()
     """True, if the poll allows multiple answers."""
+
+    type: typing.Literal["regular", "quiz"] = field(default="regular")
+    """Poll type, currently can be `regular` or `quiz`."""
 
     question_entities: Option[list[MessageEntity]] = field(
         default=Nothing,
@@ -2442,7 +2446,7 @@ class Poll(Model):
 
     correct_option_id: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. 0-based identifier of the correct answer option. Available
     only for polls in the quiz mode, which are closed, or was sent (not forwarded)
@@ -2450,7 +2454,7 @@ class Poll(Model):
 
     explanation: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Text that is shown when a user chooses an incorrect answer or taps
     on the lamp icon in a quiz-style poll, 0-200 characters."""
@@ -2464,7 +2468,7 @@ class Poll(Model):
 
     open_period: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Amount of time in seconds the poll will be active after creation."""
 
@@ -2487,28 +2491,28 @@ class Location(Model):
 
     horizontal_accuracy: Option[float] = field(
         default=Nothing,
-        converter=From["float | None"],
+        converter=From[float | None],
     )
     """Optional. The radius of uncertainty for the location, measured in meters;
     0-1500."""
 
     live_period: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Time relative to the message sending date, during which the location
     can be updated; in seconds. For active live locations only."""
 
     heading: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The direction in which user is moving, in degrees; 1-360. For
     active live locations only."""
 
     proximity_alert_radius: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The maximum distance for proximity alerts about approaching
     another chat member, in meters. For sent live locations only."""
@@ -2531,26 +2535,26 @@ class Venue(Model):
 
     foursquare_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Foursquare identifier of the venue."""
 
     foursquare_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Foursquare type of the venue. (For example, `arts_entertainment/default`,
     `arts_entertainment/aquarium` or `food/icecream`.)."""
 
     google_place_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Google Places identifier of the venue."""
 
     google_place_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Google Places type of the venue. (See supported types.)."""
 
@@ -2611,11 +2615,11 @@ class BackgroundFillSolid(BackgroundFill):
     The background is filled using the selected color.
     """
 
-    type: typing.Literal["solid"] = field()
-    """Type of the background fill, always `solid`."""
-
     color: int = field()
     """The color of the background fill in the RGB24 format."""
+
+    type: typing.Literal["solid"] = field(default="solid")
+    """Type of the background fill, always `solid`."""
 
 
 class BackgroundFillGradient(BackgroundFill):
@@ -2623,9 +2627,6 @@ class BackgroundFillGradient(BackgroundFill):
 
     The background is a gradient fill.
     """
-
-    type: typing.Literal["gradient"] = field()
-    """Type of the background fill, always `gradient`."""
 
     top_color: int = field()
     """Top color of the gradient in the RGB24 format."""
@@ -2636,6 +2637,9 @@ class BackgroundFillGradient(BackgroundFill):
     rotation_angle: int = field()
     """Clockwise rotation angle of the background fill in degrees; 0-359."""
 
+    type: typing.Literal["gradient"] = field(default="gradient")
+    """Type of the background fill, always `gradient`."""
+
 
 class BackgroundFillFreeformGradient(BackgroundFill):
     """Object `BackgroundFillFreeformGradient`, see the [documentation](https://core.telegram.org/bots/api#backgroundfillfreeformgradient).
@@ -2643,12 +2647,12 @@ class BackgroundFillFreeformGradient(BackgroundFill):
     The background is a freeform gradient that rotates after every message in the chat.
     """
 
-    type: typing.Literal["freeform_gradient"] = field()
-    """Type of the background fill, always `freeform_gradient`."""
-
     colors: list[int] = field()
     """A list of the 3 or 4 base colors that are used to generate the freeform gradient
     in the RGB24 format."""
+
+    type: typing.Literal["freeform_gradient"] = field(default="freeform_gradient")
+    """Type of the background fill, always `freeform_gradient`."""
 
 
 class BackgroundTypeFill(BackgroundType):
@@ -2657,14 +2661,16 @@ class BackgroundTypeFill(BackgroundType):
     The background is automatically filled based on the selected colors.
     """
 
-    type: typing.Literal["fill"] = field()
-    """Type of the background, always `fill`."""
-
-    fill: Variative[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field()
+    fill: Variative[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field(
+        converter=From["BackgroundFillSolid | BackgroundFillGradient | BackgroundFillFreeformGradient"],
+    )
     """The background fill."""
 
     dark_theme_dimming: int = field()
     """Dimming of the background in dark themes, as a percentage; 0-100."""
+
+    type: typing.Literal["fill"] = field(default="fill")
+    """Type of the background, always `fill`."""
 
 
 class BackgroundTypeWallpaper(BackgroundType):
@@ -2673,25 +2679,25 @@ class BackgroundTypeWallpaper(BackgroundType):
     The background is a wallpaper in the JPEG format.
     """
 
-    type: typing.Literal["wallpaper"] = field()
-    """Type of the background, always `wallpaper`."""
-
     document: Document = field()
     """Document with the wallpaper."""
 
     dark_theme_dimming: int = field()
     """Dimming of the background in dark themes, as a percentage; 0-100."""
 
+    type: typing.Literal["wallpaper"] = field(default="wallpaper")
+    """Type of the background, always `wallpaper`."""
+
     is_blurred: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the wallpaper is downscaled to fit in a 450x450 square
     and then box-blurred with radius 12."""
 
     is_moving: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the background moves slightly when the device is tilted."""
 
@@ -2702,28 +2708,30 @@ class BackgroundTypePattern(BackgroundType):
     The background is a PNG or TGV (gzipped subset of SVG with MIME type "application/x-tgwallpattern") pattern to be combined with the background fill chosen by the user.
     """
 
-    type: typing.Literal["pattern"] = field()
-    """Type of the background, always `pattern`."""
-
     document: Document = field()
     """Document with the pattern."""
 
-    fill: Variative[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field()
+    fill: Variative[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field(
+        converter=From["BackgroundFillSolid | BackgroundFillGradient | BackgroundFillFreeformGradient"],
+    )
     """The background fill that is combined with the pattern."""
 
     intensity: int = field()
     """Intensity of the pattern when it is shown above the filled background; 0-100."""
 
+    type: typing.Literal["pattern"] = field(default="pattern")
+    """Type of the background, always `pattern`."""
+
     is_inverted: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the background fill must be applied only to the pattern
     itself. All other pixels are black in this case. For dark themes only."""
 
     is_moving: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the background moves slightly when the device is tilted."""
 
@@ -2734,11 +2742,11 @@ class BackgroundTypeChatTheme(BackgroundType):
     The background is taken directly from a built-in chat theme.
     """
 
-    type: typing.Literal["chat_theme"] = field()
-    """Type of the background, always `chat_theme`."""
-
     theme_name: str = field()
     """Name of the chat theme, which is usually an emoji."""
+
+    type: typing.Literal["chat_theme"] = field(default="chat_theme")
+    """Type of the background, always `chat_theme`."""
 
 
 class ChatBackground(Model):
@@ -2749,7 +2757,11 @@ class ChatBackground(Model):
 
     type: Variative[
         BackgroundTypeFill, BackgroundTypeWallpaper, BackgroundTypePattern, BackgroundTypeChatTheme
-    ] = field()
+    ] = field(
+        converter=From[
+            "BackgroundTypeFill | BackgroundTypeWallpaper | BackgroundTypePattern | BackgroundTypeChatTheme"
+        ],
+    )
     """Type of the background."""
 
 
@@ -2767,7 +2779,7 @@ class ForumTopicCreated(Model):
 
     icon_custom_emoji_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Unique identifier of the custom emoji shown as the topic icon."""
 
@@ -2787,13 +2799,13 @@ class ForumTopicEdited(Model):
 
     name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. New name of the topic, if it was edited."""
 
     icon_custom_emoji_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. New identifier of the custom emoji shown as the topic icon, if
     it was edited; an empty string if the icon was removed."""
@@ -2836,19 +2848,19 @@ class SharedUser(Model):
 
     first_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. First name of the user, if the name was requested by the bot."""
 
     last_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Last name of the user, if the name was requested by the bot."""
 
     username: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Username of the user, if the username was requested by the bot."""
 
@@ -2892,13 +2904,13 @@ class ChatShared(Model):
 
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title of the chat, if the title was requested by the bot."""
 
     username: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Username of the chat, if the username was requested by the bot
     and available."""
@@ -2919,21 +2931,21 @@ class WriteAccessAllowed(Model):
 
     from_request: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the access was granted after the user accepted an explicit
     request from a Web App sent by the method requestWriteAccess."""
 
     web_app_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Name of the Web App, if the access was granted when the Web App was
     launched from a link."""
 
     from_attachment_menu: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the access was granted when the bot was added to the attachment
     or side menu."""
@@ -2985,7 +2997,7 @@ class GiveawayCreated(Model):
 
     prize_star_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The number of Telegram Stars to be split between giveaway winners;
     for Telegram Star giveaways only."""
@@ -3008,26 +3020,26 @@ class Giveaway(Model):
 
     only_new_members: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if only users who join the chats after the giveaway started
     should be eligible to win."""
 
     has_public_winners: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the list of giveaway winners will be visible to everyone."""
 
     prize_description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Description of additional giveaway prize."""
 
     country_codes: Option[list[str]] = field(
         default=Nothing,
-        converter=From["list[str] | None"],
+        converter=From[list[str] | None],
     )
     """Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating
     the countries from which eligible users for the giveaway must come. If empty,
@@ -3036,14 +3048,14 @@ class Giveaway(Model):
 
     prize_star_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The number of Telegram Stars to be split between giveaway winners;
     for Telegram Star giveaways only."""
 
     premium_subscription_month_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The number of months the Telegram Premium subscription won from
     the giveaway will be active for; for Telegram Premium giveaways only."""
@@ -3072,48 +3084,48 @@ class GiveawayWinners(Model):
 
     additional_chat_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The number of other chats the user had to join in order to be eligible
     for the giveaway."""
 
     prize_star_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The number of Telegram Stars that were split between giveaway
     winners; for Telegram Star giveaways only."""
 
     premium_subscription_month_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The number of months the Telegram Premium subscription won from
     the giveaway will be active for; for Telegram Premium giveaways only."""
 
     unclaimed_prize_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Number of undistributed prizes."""
 
     only_new_members: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if only users who had joined the chats after the giveaway
     started were eligible to win."""
 
     was_refunded: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the giveaway was canceled because the payment for it
     was refunded."""
 
     prize_description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Description of additional giveaway prize."""
 
@@ -3129,7 +3141,7 @@ class GiveawayCompleted(Model):
 
     unclaimed_prize_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Number of undistributed prizes."""
 
@@ -3141,7 +3153,7 @@ class GiveawayCompleted(Model):
 
     is_star_giveaway: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the giveaway is a Telegram Star giveaway. Otherwise,
     currently, the giveaway is a Telegram Premium giveaway."""
@@ -3155,20 +3167,20 @@ class LinkPreviewOptions(Model):
 
     is_disabled: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the link preview is disabled."""
 
     url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. URL to use for the link preview. If empty, then the first URL found
     in the message text will be used."""
 
     prefer_small_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the media in the link preview is supposed to be shrunk;
     ignored if the URL isn't explicitly specified or media size change isn't
@@ -3176,7 +3188,7 @@ class LinkPreviewOptions(Model):
 
     prefer_large_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the media in the link preview is supposed to be enlarged;
     ignored if the URL isn't explicitly specified or media size change isn't
@@ -3184,7 +3196,7 @@ class LinkPreviewOptions(Model):
 
     show_above_text: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the link preview must be shown above the message text;
     otherwise, the link preview will be shown below the message text."""
@@ -3218,7 +3230,7 @@ class File(Model):
 
     file_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
@@ -3227,7 +3239,7 @@ class File(Model):
 
     file_path: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. File path. Use https://api.telegram.org/file/bot<token>/<file_path>
     to get the file."""
@@ -3255,7 +3267,7 @@ class ReplyKeyboardMarkup(Model):
 
     is_persistent: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Requests clients to always show the keyboard when the regular
     keyboard is hidden. Defaults to false, in which case the custom keyboard
@@ -3263,7 +3275,7 @@ class ReplyKeyboardMarkup(Model):
 
     resize_keyboard: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Requests clients to resize the keyboard vertically for optimal
     fit (e.g., make the keyboard smaller if there are just two rows of buttons).
@@ -3272,7 +3284,7 @@ class ReplyKeyboardMarkup(Model):
 
     one_time_keyboard: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Requests clients to hide the keyboard as soon as it's been used.
     The keyboard will still be available, but clients will automatically display
@@ -3281,14 +3293,14 @@ class ReplyKeyboardMarkup(Model):
 
     input_field_placeholder: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. The placeholder to be shown in the input field when the keyboard
     is active; 1-64 characters."""
 
     selective: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Use this parameter if you want to show the keyboard to specific
     users only. Targets: 1) users that are @mentioned in the text of the Message
@@ -3333,14 +3345,14 @@ class KeyboardButton(Model):
 
     request_contact: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. If True, the user's phone number will be sent as a contact when
     the button is pressed. Available in private chats only."""
 
     request_location: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. If True, the user's current location will be sent when the button
     is pressed. Available in private chats only."""
@@ -3373,40 +3385,40 @@ class KeyboardButtonRequestUsers(Model):
 
     user_is_bot: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request bots, pass False to request regular users.
     If not specified, no additional restrictions are applied."""
 
     user_is_premium: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request premium users, pass False to request non-premium
     users. If not specified, no additional restrictions are applied."""
 
     max_quantity: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The maximum number of users to be selected; 1-10. Defaults to
     1."""
 
     request_name: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request the users' first and last names."""
 
     request_username: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request the users' usernames."""
 
     request_photo: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request the users' photos."""
 
@@ -3427,14 +3439,14 @@ class KeyboardButtonRequestChat(Model):
 
     chat_is_forum: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request a forum supergroup, pass False to request
     a non-forum chat. If not specified, no additional restrictions are applied."""
 
     chat_has_username: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request a supergroup or a channel with a username,
     pass False to request a chat without a username. If not specified, no additional
@@ -3442,7 +3454,7 @@ class KeyboardButtonRequestChat(Model):
 
     chat_is_created: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request a chat owned by the user. Otherwise, no additional
     restrictions are applied."""
@@ -3465,26 +3477,26 @@ class KeyboardButtonRequestChat(Model):
 
     bot_is_member: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request a chat with the bot as a member. Otherwise,
     no additional restrictions are applied."""
 
     request_title: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request the chat's title."""
 
     request_username: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request the chat's username."""
 
     request_photo: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request the chat's photo."""
 
@@ -3514,7 +3526,7 @@ class ReplyKeyboardRemove(Model):
 
     selective: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Use this parameter if you want to remove the keyboard for specific
     users only. Targets: 1) users that are @mentioned in the text of the Message
@@ -3547,7 +3559,7 @@ class InlineKeyboardButton(Model):
 
     url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. HTTP or tg:// URL to be opened when the button is pressed. Links
     tg://user?id=<user_id> can be used to mention a user by their identifier
@@ -3555,7 +3567,7 @@ class InlineKeyboardButton(Model):
 
     callback_data: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Data to be sent in a callback query to the bot when the button is
     pressed, 1-64 bytes."""
@@ -3579,7 +3591,7 @@ class InlineKeyboardButton(Model):
 
     switch_inline_query: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. If set, pressing the button will prompt the user to select one
     of their chats, open that chat and insert the bot's username and the specified
@@ -3589,7 +3601,7 @@ class InlineKeyboardButton(Model):
 
     switch_inline_query_current_chat: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. If set, pressing the button will insert the bot's username and
     the specified inline query in the current chat's input field. May be empty,
@@ -3617,7 +3629,7 @@ class InlineKeyboardButton(Model):
 
     pay: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Specify True, to send a Pay button. Substrings `⭐` and `XTR` in
     the buttons's text will be replaced with a Telegram Star icon. NOTE: This
@@ -3642,13 +3654,13 @@ class LoginUrl(Model):
 
     forward_text: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. New text of the button in forwarded messages."""
 
     bot_username: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Username of a bot, which will be used for user authorization.
     See Setting up a bot for more details. If not specified, the current bot's
@@ -3657,7 +3669,7 @@ class LoginUrl(Model):
 
     request_write_access: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True to request the permission for your bot to send messages
     to the user."""
@@ -3671,32 +3683,32 @@ class SwitchInlineQueryChosenChat(Model):
 
     query: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. The default inline query to be inserted in the input field. If
     left empty, only the bot's username will be inserted."""
 
     allow_user_chats: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if private chats with users can be chosen."""
 
     allow_bot_chats: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if private chats with bots can be chosen."""
 
     allow_group_chats: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if group and supergroup chats can be chosen."""
 
     allow_channel_chats: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if channel chats can be chosen."""
 
@@ -3726,21 +3738,21 @@ class CallbackQuery(Model):
 
     inline_message_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Identifier of the message sent via the bot in inline mode, that
     originated the query."""
 
     data: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Data associated with the callback button. Be aware that the message
     originated the query can contain no callback buttons with this data."""
 
     game_short_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Short name of a Game to be returned, serves as the unique identifier
     for the game."""
@@ -3758,14 +3770,14 @@ class ForceReply(Model):
 
     input_field_placeholder: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. The placeholder to be shown in the input field when the reply is
     active; 1-64 characters."""
 
     selective: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Use this parameter if you want to force reply from specific users
     only. Targets: 1) users that are @mentioned in the text of the Message object;
@@ -3822,7 +3834,7 @@ class ChatInviteLink(Model):
 
     name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Invite link name."""
 
@@ -3832,27 +3844,27 @@ class ChatInviteLink(Model):
 
     member_limit: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The maximum number of users that can be members of the chat simultaneously
     after joining the chat via this invite link; 1-99999."""
 
     pending_join_request_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Number of pending join requests created using this link."""
 
     subscription_period: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The number of seconds the subscription will be active for before
     the next payment."""
 
     subscription_price: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The amount of Telegram Stars a user must pay initially and after
     each subsequent subscription period to be a member of the chat using the
@@ -3906,28 +3918,28 @@ class ChatAdministratorRights(Model):
 
     can_post_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the administrator can post messages in the channel,
     or access channel statistics; for channels only."""
 
     can_edit_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the administrator can edit messages of other users and
     can pin messages; for channels only."""
 
     can_pin_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to pin messages; for groups and supergroups
     only."""
 
     can_manage_topics: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to create, rename, close, and reopen
     forum topics; for supergroups only."""
@@ -3955,7 +3967,11 @@ class ChatMemberUpdated(Model):
         ChatMemberRestricted,
         ChatMemberLeft,
         ChatMemberBanned,
-    ] = field()
+    ] = field(
+        converter=From[
+            "ChatMemberOwner | ChatMemberAdministrator | ChatMemberMember | ChatMemberRestricted | ChatMemberLeft | ChatMemberBanned"
+        ],
+    )
     """Previous information about the chat member."""
 
     new_chat_member: Variative[
@@ -3965,7 +3981,11 @@ class ChatMemberUpdated(Model):
         ChatMemberRestricted,
         ChatMemberLeft,
         ChatMemberBanned,
-    ] = field()
+    ] = field(
+        converter=From[
+            "ChatMemberOwner | ChatMemberAdministrator | ChatMemberMember | ChatMemberRestricted | ChatMemberLeft | ChatMemberBanned"
+        ],
+    )
     """New information about the chat member."""
 
     invite_link: Option[ChatInviteLink] = field(
@@ -3977,14 +3997,14 @@ class ChatMemberUpdated(Model):
 
     via_join_request: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user joined the chat after sending a direct join request
     without using an invite link and being approved by an administrator."""
 
     via_chat_folder_invite_link: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user joined the chat via a chat folder invite link."""
 
@@ -4001,18 +4021,18 @@ class ChatMemberOwner(ChatMember):
     Represents a chat member that owns the chat and has all administrator privileges.
     """
 
-    status: typing.Literal["creator"] = field()
-    """The member's status in the chat, always `creator`."""
-
     user: User = field()
     """Information about the user."""
 
     is_anonymous: bool = field()
     """True, if the user's presence in the chat is hidden."""
 
+    status: typing.Literal["creator"] = field(default="creator")
+    """The member's status in the chat, always `creator`."""
+
     custom_title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Custom title for this user."""
 
@@ -4022,9 +4042,6 @@ class ChatMemberAdministrator(ChatMember):
 
     Represents a chat member that has some additional privileges.
     """
-
-    status: typing.Literal["administrator"] = field()
-    """The member's status in the chat, always `administrator`."""
 
     user: User = field()
     """Information about the user."""
@@ -4071,37 +4088,40 @@ class ChatMemberAdministrator(ChatMember):
     can_delete_stories: bool = field()
     """True, if the administrator can delete stories posted by other users."""
 
+    status: typing.Literal["administrator"] = field(default="administrator")
+    """The member's status in the chat, always `administrator`."""
+
     can_post_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the administrator can post messages in the channel,
     or access channel statistics; for channels only."""
 
     can_edit_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the administrator can edit messages of other users and
     can pin messages; for channels only."""
 
     can_pin_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to pin messages; for groups and supergroups
     only."""
 
     can_manage_topics: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to create, rename, close, and reopen
     forum topics; for supergroups only."""
 
     custom_title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Custom title for this user."""
 
@@ -4112,11 +4132,11 @@ class ChatMemberMember(ChatMember):
     Represents a chat member that has no additional privileges or restrictions.
     """
 
-    status: typing.Literal["member"] = field()
-    """The member's status in the chat, always `member`."""
-
     user: User = field()
     """Information about the user."""
+
+    status: typing.Literal["member"] = field(default="member")
+    """The member's status in the chat, always `member`."""
 
     until_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
     """Optional. Date when the user's subscription will expire; Unix time."""
@@ -4127,9 +4147,6 @@ class ChatMemberRestricted(ChatMember):
 
     Represents a chat member that is under certain restrictions in the chat. Supergroups only.
     """
-
-    status: typing.Literal["restricted"] = field()
-    """The member's status in the chat, always `restricted`."""
 
     user: User = field()
     """Information about the user."""
@@ -4185,6 +4202,9 @@ class ChatMemberRestricted(ChatMember):
     """Date when restrictions will be lifted for this user; Unix time. If 0, then
     the user is restricted forever."""
 
+    status: typing.Literal["restricted"] = field(default="restricted")
+    """The member's status in the chat, always `restricted`."""
+
 
 class ChatMemberLeft(ChatMember):
     """Object `ChatMemberLeft`, see the [documentation](https://core.telegram.org/bots/api#chatmemberleft).
@@ -4192,11 +4212,11 @@ class ChatMemberLeft(ChatMember):
     Represents a chat member that isn't currently a member of the chat, but may join it themselves.
     """
 
-    status: typing.Literal["left"] = field()
-    """The member's status in the chat, always `left`."""
-
     user: User = field()
     """Information about the user."""
+
+    status: typing.Literal["left"] = field(default="left")
+    """The member's status in the chat, always `left`."""
 
 
 class ChatMemberBanned(ChatMember):
@@ -4205,15 +4225,15 @@ class ChatMemberBanned(ChatMember):
     Represents a chat member that was banned in the chat and can't return to the chat or view chat messages.
     """
 
-    status: typing.Literal["kicked"] = field()
-    """The member's status in the chat, always `kicked`."""
-
     user: User = field()
     """Information about the user."""
 
     until_date: datetime = field()
     """Date when restrictions will be lifted for this user; Unix time. If 0, then
     the user is banned forever."""
+
+    status: typing.Literal["kicked"] = field(default="kicked")
+    """The member's status in the chat, always `kicked`."""
 
 
 class ChatJoinRequest(Model):
@@ -4242,7 +4262,7 @@ class ChatJoinRequest(Model):
 
     bio: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Bio of the user."""
 
@@ -4267,89 +4287,89 @@ class ChatPermissions(Model):
 
     can_send_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to send text messages, contacts,
     giveaways, giveaway winners, invoices, locations and venues."""
 
     can_send_audios: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to send audios."""
 
     can_send_documents: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to send documents."""
 
     can_send_photos: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to send photos."""
 
     can_send_videos: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to send videos."""
 
     can_send_video_notes: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to send video notes."""
 
     can_send_voice_notes: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to send voice notes."""
 
     can_send_polls: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to send polls."""
 
     can_send_other_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to send animations, games, stickers
     and use inline bots."""
 
     can_add_web_page_previews: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to add web page previews to their messages."""
 
     can_change_info: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to change the chat title, photo and
     other settings. Ignored in public supergroups."""
 
     can_invite_users: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to invite new users to the chat."""
 
     can_pin_messages: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to pin messages. Ignored in public
     supergroups."""
 
     can_manage_topics: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the user is allowed to create forum topics. If omitted
     defaults to the value of can_pin_messages."""
@@ -4369,7 +4389,7 @@ class Birthdate(Model):
 
     year: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Year of the user's birth."""
 
@@ -4397,13 +4417,13 @@ class BusinessIntro(Model):
 
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title text of the business intro."""
 
     message: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Message text of the business intro."""
 
@@ -4477,9 +4497,6 @@ class ReactionTypeEmoji(ReactionType):
     The reaction is based on an emoji.
     """
 
-    type: typing.Literal["emoji"] = field()
-    """Type of the reaction, always `emoji`."""
-
     emoji: ReactionEmoji = field()
     """Reaction emoji. Currently, it can be one of `👍`, `👎`, `❤`, `🔥`, `🥰`, `👏`,
     `😁`, `🤔`, `🤯`, `😱`, `🤬`, `😢`, `🎉`, `🤩`, `🤮`, `💩`, `🙏`, `👌`, `🕊`, `🤡`, `🥱`,
@@ -4488,6 +4505,9 @@ class ReactionTypeEmoji(ReactionType):
     `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`,
     `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`."""
 
+    type: typing.Literal["emoji"] = field(default="emoji")
+    """Type of the reaction, always `emoji`."""
+
 
 class ReactionTypeCustomEmoji(ReactionType):
     """Object `ReactionTypeCustomEmoji`, see the [documentation](https://core.telegram.org/bots/api#reactiontypecustomemoji).
@@ -4495,11 +4515,11 @@ class ReactionTypeCustomEmoji(ReactionType):
     The reaction is based on a custom emoji.
     """
 
-    type: typing.Literal["custom_emoji"] = field()
-    """Type of the reaction, always `custom_emoji`."""
-
     custom_emoji_id: str = field()
     """Custom emoji identifier."""
+
+    type: typing.Literal["custom_emoji"] = field(default="custom_emoji")
+    """Type of the reaction, always `custom_emoji`."""
 
 
 class ReactionTypePaid(ReactionType):
@@ -4508,7 +4528,7 @@ class ReactionTypePaid(ReactionType):
     The reaction is paid.
     """
 
-    type: typing.Literal["paid"] = field()
+    type: typing.Literal["paid"] = field(default="paid")
     """Type of the reaction, always `paid`."""
 
 
@@ -4518,7 +4538,9 @@ class ReactionCount(Model):
     Represents a reaction added to a message along with the number of times it was added.
     """
 
-    type: Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field()
+    type: Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field(
+        converter=From["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"],
+    )
     """Type of the reaction."""
 
     total_count: int = field()
@@ -4596,7 +4618,7 @@ class ForumTopic(Model):
 
     icon_custom_emoji_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Unique identifier of the custom emoji shown as the topic icon."""
 
@@ -4621,7 +4643,7 @@ class BotCommandScopeDefault(BotCommandScope):
     Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
     """
 
-    type: typing.Literal["default"] = field()
+    type: typing.Literal["default"] = field(default="default")
     """Scope type, must be default."""
 
 
@@ -4631,7 +4653,7 @@ class BotCommandScopeAllPrivateChats(BotCommandScope):
     Represents the scope of bot commands, covering all private chats.
     """
 
-    type: typing.Literal["all_private_chats"] = field()
+    type: typing.Literal["all_private_chats"] = field(default="all_private_chats")
     """Scope type, must be all_private_chats."""
 
 
@@ -4641,7 +4663,7 @@ class BotCommandScopeAllGroupChats(BotCommandScope):
     Represents the scope of bot commands, covering all group and supergroup chats.
     """
 
-    type: typing.Literal["all_group_chats"] = field()
+    type: typing.Literal["all_group_chats"] = field(default="all_group_chats")
     """Scope type, must be all_group_chats."""
 
 
@@ -4651,7 +4673,7 @@ class BotCommandScopeAllChatAdministrators(BotCommandScope):
     Represents the scope of bot commands, covering all group and supergroup chat administrators.
     """
 
-    type: typing.Literal["all_chat_administrators"] = field()
+    type: typing.Literal["all_chat_administrators"] = field(default="all_chat_administrators")
     """Scope type, must be all_chat_administrators."""
 
 
@@ -4661,14 +4683,14 @@ class BotCommandScopeChat(BotCommandScope):
     Represents the scope of bot commands, covering a specific chat.
     """
 
-    type: typing.Literal["chat"] = field()
-    """Scope type, must be chat."""
-
     chat_id: Variative[int, str] = field(
-        converter=From["int | str"],
+        converter=From[int | str],
     )
     """Unique identifier for the target chat or username of the target supergroup
     (in the format @supergroupusername)."""
+
+    type: typing.Literal["chat"] = field(default="chat")
+    """Scope type, must be chat."""
 
 
 class BotCommandScopeChatAdministrators(BotCommandScope):
@@ -4677,14 +4699,14 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
     Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
     """
 
-    type: typing.Literal["chat_administrators"] = field()
-    """Scope type, must be chat_administrators."""
-
     chat_id: Variative[int, str] = field(
-        converter=From["int | str"],
+        converter=From[int | str],
     )
     """Unique identifier for the target chat or username of the target supergroup
     (in the format @supergroupusername)."""
+
+    type: typing.Literal["chat_administrators"] = field(default="chat_administrators")
+    """Scope type, must be chat_administrators."""
 
 
 class BotCommandScopeChatMember(BotCommandScope):
@@ -4693,17 +4715,17 @@ class BotCommandScopeChatMember(BotCommandScope):
     Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
     """
 
-    type: typing.Literal["chat_member"] = field()
-    """Scope type, must be chat_member."""
-
     chat_id: Variative[int, str] = field(
-        converter=From["int | str"],
+        converter=From[int | str],
     )
     """Unique identifier for the target chat or username of the target supergroup
     (in the format @supergroupusername)."""
 
     user_id: int = field()
     """Unique identifier of the target user."""
+
+    type: typing.Literal["chat_member"] = field(default="chat_member")
+    """Scope type, must be chat_member."""
 
 
 class BotName(Model):
@@ -4742,7 +4764,7 @@ class MenuButtonCommands(MenuButton):
     Represents a menu button, which opens the bot's list of commands.
     """
 
-    type: typing.Literal["commands"] = field()
+    type: typing.Literal["commands"] = field(default="commands")
     """Type of the button, must be commands."""
 
 
@@ -4751,9 +4773,6 @@ class MenuButtonWebApp(MenuButton):
 
     Represents a menu button, which launches a Web App.
     """
-
-    type: typing.Literal["web_app"] = field()
-    """Type of the button, must be web_app."""
 
     text: str = field()
     """Text on the button."""
@@ -4765,6 +4784,9 @@ class MenuButtonWebApp(MenuButton):
     to a Web App of the bot can be specified in the object instead of the Web App's
     URL, in which case the Web App will be opened as if the user pressed the link."""
 
+    type: typing.Literal["web_app"] = field(default="web_app")
+    """Type of the button, must be web_app."""
+
 
 class MenuButtonDefault(MenuButton):
     """Object `MenuButtonDefault`, see the [documentation](https://core.telegram.org/bots/api#menubuttondefault).
@@ -4772,7 +4794,7 @@ class MenuButtonDefault(MenuButton):
     Describes that no specific value for the menu button was set.
     """
 
-    type: typing.Literal["default"] = field()
+    type: typing.Literal["default"] = field(default="default")
     """Type of the button, must be default."""
 
 
@@ -4782,11 +4804,11 @@ class ChatBoostSourcePremium(ChatBoostSource):
     The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user.
     """
 
-    source: typing.Literal["premium"] = field()
-    """Source of the boost, always `premium`."""
-
     user: User = field()
     """User that boosted the chat."""
+
+    source: typing.Literal["premium"] = field(default="premium")
+    """Source of the boost, always `premium`."""
 
 
 class ChatBoostSourceGiftCode(ChatBoostSource):
@@ -4795,11 +4817,11 @@ class ChatBoostSourceGiftCode(ChatBoostSource):
     The boost was obtained by the creation of Telegram Premium gift codes to boost a chat. Each such code boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
     """
 
-    source: typing.Literal["gift_code"] = field()
-    """Source of the boost, always `gift_code`."""
-
     user: User = field()
     """User for which the gift code was created."""
+
+    source: typing.Literal["gift_code"] = field(default="gift_code")
+    """Source of the boost, always `gift_code`."""
 
 
 class ChatBoostSourceGiveaway(ChatBoostSource):
@@ -4808,12 +4830,12 @@ class ChatBoostSourceGiveaway(ChatBoostSource):
     The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and prize_star_count / 500 times for one year for Telegram Star giveaways.
     """
 
-    source: typing.Literal["giveaway"] = field()
-    """Source of the boost, always `giveaway`."""
-
     giveaway_message_id: int = field()
     """Identifier of a message in the chat with the giveaway; the message could
     have been deleted already. May be 0 if the message isn't sent yet."""
+
+    source: typing.Literal["giveaway"] = field(default="giveaway")
+    """Source of the boost, always `giveaway`."""
 
     user: Option[User] = field(
         default=Nothing,
@@ -4824,14 +4846,14 @@ class ChatBoostSourceGiveaway(ChatBoostSource):
 
     prize_star_count: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The number of Telegram Stars to be split between giveaway winners;
     for Telegram Star giveaways only."""
 
     is_unclaimed: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the giveaway was completed, but there was no user to win
     the prize."""
@@ -4853,7 +4875,9 @@ class ChatBoost(Model):
     """Point in time (Unix timestamp) when the boost will automatically expire,
     unless the booster's Telegram Premium subscription is prolonged."""
 
-    source: Variative[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field()
+    source: Variative[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field(
+        converter=From["ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway"],
+    )
     """Source of the added boost."""
 
 
@@ -4885,7 +4909,9 @@ class ChatBoostRemoved(Model):
     remove_date: datetime = field()
     """Point in time (Unix timestamp) when the boost was removed."""
 
-    source: Variative[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field()
+    source: Variative[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field(
+        converter=From["ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway"],
+    )
     """Source of the removed boost."""
 
 
@@ -4954,7 +4980,7 @@ class ResponseParameters(Model):
 
     migrate_to_chat_id: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The group has been migrated to a supergroup with the specified
     identifier. This number may have more than 32 significant bits and some
@@ -4964,7 +4990,7 @@ class ResponseParameters(Model):
 
     retry_after: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. In case of exceeding flood control, the number of seconds left
     to wait before the request can be repeated."""
@@ -4976,9 +5002,6 @@ class InputMediaPhoto(InputMedia):
     Represents a photo to be sent.
     """
 
-    type: typing.Literal["photo"] = field()
-    """Type of the result, must be photo."""
-
     media: Variative[InputFile, str] = field(
         converter=From["InputFile | str"],
     )
@@ -4987,16 +5010,19 @@ class InputMediaPhoto(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
+    type: typing.Literal["photo"] = field(default="photo")
+    """Type of the result, must be photo."""
+
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
@@ -5010,13 +5036,13 @@ class InputMediaPhoto(InputMedia):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     has_spoiler: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if the photo needs to be covered with a spoiler animation."""
 
@@ -5027,9 +5053,6 @@ class InputMediaVideo(InputMedia):
     Represents a video to be sent.
     """
 
-    type: typing.Literal["video"] = field()
-    """Type of the result, must be video."""
-
     media: Variative[InputFile, str] = field(
         converter=From["InputFile | str"],
     )
@@ -5037,6 +5060,9 @@ class InputMediaVideo(InputMedia):
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: typing.Literal["video"] = field(default="video")
+    """Type of the result, must be video."""
 
     thumbnail: Option[Variative[InputFile, str]] = field(
         default=Nothing,
@@ -5052,14 +5078,14 @@ class InputMediaVideo(InputMedia):
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
@@ -5073,37 +5099,37 @@ class InputMediaVideo(InputMedia):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video width."""
 
     height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video height."""
 
     duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video duration in seconds."""
 
     supports_streaming: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if the uploaded video is suitable for streaming."""
 
     has_spoiler: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if the video needs to be covered with a spoiler animation."""
 
@@ -5114,9 +5140,6 @@ class InputMediaAnimation(InputMedia):
     Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
     """
 
-    type: typing.Literal["animation"] = field()
-    """Type of the result, must be animation."""
-
     media: Variative[InputFile, str] = field(
         converter=From["InputFile | str"],
     )
@@ -5124,6 +5147,9 @@ class InputMediaAnimation(InputMedia):
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: typing.Literal["animation"] = field(default="animation")
+    """Type of the result, must be animation."""
 
     thumbnail: Option[Variative[InputFile, str]] = field(
         default=Nothing,
@@ -5139,14 +5165,14 @@ class InputMediaAnimation(InputMedia):
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the animation to be sent, 0-1024 characters after
     entities parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the animation caption. See formatting
     options for more details."""
@@ -5160,31 +5186,31 @@ class InputMediaAnimation(InputMedia):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Animation width."""
 
     height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Animation height."""
 
     duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Animation duration in seconds."""
 
     has_spoiler: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if the animation needs to be covered with a spoiler animation."""
 
@@ -5195,9 +5221,6 @@ class InputMediaAudio(InputMedia):
     Represents an audio file to be treated as music to be sent.
     """
 
-    type: typing.Literal["audio"] = field()
-    """Type of the result, must be audio."""
-
     media: Variative[InputFile, str] = field(
         converter=From["InputFile | str"],
     )
@@ -5205,6 +5228,9 @@ class InputMediaAudio(InputMedia):
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: typing.Literal["audio"] = field(default="audio")
+    """Type of the result, must be audio."""
 
     thumbnail: Option[Variative[InputFile, str]] = field(
         default=Nothing,
@@ -5220,14 +5246,14 @@ class InputMediaAudio(InputMedia):
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the audio to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
@@ -5241,19 +5267,19 @@ class InputMediaAudio(InputMedia):
 
     duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Duration of the audio in seconds."""
 
     performer: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Performer of the audio."""
 
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title of the audio."""
 
@@ -5264,9 +5290,6 @@ class InputMediaDocument(InputMedia):
     Represents a general file to be sent.
     """
 
-    type: typing.Literal["document"] = field()
-    """Type of the result, must be document."""
-
     media: Variative[InputFile, str] = field(
         converter=From["InputFile | str"],
     )
@@ -5274,6 +5297,9 @@ class InputMediaDocument(InputMedia):
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: typing.Literal["document"] = field(default="document")
+    """Type of the result, must be document."""
 
     thumbnail: Option[Variative[InputFile, str]] = field(
         default=Nothing,
@@ -5289,14 +5315,14 @@ class InputMediaDocument(InputMedia):
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
@@ -5310,7 +5336,7 @@ class InputMediaDocument(InputMedia):
 
     disable_content_type_detection: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Disables automatic server-side content type detection for
     files uploaded using multipart/form-data. Always True, if the document
@@ -5344,9 +5370,6 @@ class InputPaidMediaPhoto(InputPaidMedia):
     The paid media to send is a photo.
     """
 
-    type: typing.Literal["photo"] = field()
-    """Type of the media, must be photo."""
-
     media: Variative[InputFile, str] = field(
         converter=From["InputFile | str"],
     )
@@ -5354,6 +5377,9 @@ class InputPaidMediaPhoto(InputPaidMedia):
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: typing.Literal["photo"] = field(default="photo")
+    """Type of the media, must be photo."""
 
 
 class InputPaidMediaVideo(InputPaidMedia):
@@ -5362,9 +5388,6 @@ class InputPaidMediaVideo(InputPaidMedia):
     The paid media to send is a video.
     """
 
-    type: typing.Literal["video"] = field()
-    """Type of the media, must be video."""
-
     media: Variative[InputFile, str] = field(
         converter=From["InputFile | str"],
     )
@@ -5372,6 +5395,9 @@ class InputPaidMediaVideo(InputPaidMedia):
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: typing.Literal["video"] = field(default="video")
+    """Type of the media, must be video."""
 
     thumbnail: Option[Variative[InputFile, str]] = field(
         default=Nothing,
@@ -5387,25 +5413,25 @@ class InputPaidMediaVideo(InputPaidMedia):
 
     width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video width."""
 
     height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video height."""
 
     duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video duration in seconds."""
 
     supports_streaming: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if the uploaded video is suitable for streaming."""
 
@@ -5423,11 +5449,6 @@ class Sticker(Model):
     """Unique identifier for this file, which is supposed to be the same over time
     and for different bots. Can't be used to download or reuse the file."""
 
-    type: typing.Literal["regular", "mask", "custom_emoji"] = field()
-    """Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`.
-    The type of the sticker is independent from its format, which is determined
-    by the fields is_animated and is_video."""
-
     width: int = field()
     """Sticker width."""
 
@@ -5440,6 +5461,11 @@ class Sticker(Model):
     is_video: bool = field()
     """True, if the sticker is a video sticker."""
 
+    type: typing.Literal["regular", "mask", "custom_emoji"] = field(default="regular")
+    """Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`.
+    The type of the sticker is independent from its format, which is determined
+    by the fields is_animated and is_video."""
+
     thumbnail: Option[PhotoSize] = field(
         default=Nothing,
         converter=From["PhotoSize | None"],
@@ -5448,13 +5474,13 @@ class Sticker(Model):
 
     emoji: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Emoji associated with the sticker."""
 
     set_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Name of the sticker set to which the sticker belongs."""
 
@@ -5472,13 +5498,13 @@ class Sticker(Model):
 
     custom_emoji_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. For custom emoji stickers, unique identifier of the custom emoji."""
 
     needs_repainting: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. True, if the sticker must be repainted to a text color in messages,
     the color of the Telegram Premium badge in emoji status, white color on chat
@@ -5486,7 +5512,7 @@ class Sticker(Model):
 
     file_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. File size in bytes."""
 
@@ -5503,11 +5529,11 @@ class StickerSet(Model):
     title: str = field()
     """Sticker set title."""
 
-    sticker_type: typing.Literal["regular", "mask", "custom_emoji"] = field()
-    """Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`."""
-
     stickers: list[Sticker] = field()
     """List of all set stickers."""
+
+    sticker_type: typing.Literal["regular", "mask", "custom_emoji"] = field(default="regular")
+    """Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`."""
 
     thumbnail: Option[PhotoSize] = field(
         default=Nothing,
@@ -5572,7 +5598,7 @@ class InputSticker(Model):
 
     keywords: Option[list[str]] = field(
         default=Nothing,
-        converter=From["list[str] | None"],
+        converter=From[list[str] | None],
     )
     """Optional. List of 0-20 search keywords for the sticker with total length
     of up to 64 characters. For `regular` and `custom_emoji` stickers only."""
@@ -5629,7 +5655,7 @@ class InlineQueryResultsButton(Model):
 
     start_parameter: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Deep-linking parameter for the /start message sent to the bot
     when a user presses the button. 1-64 characters, only A-Z, a-z, 0-9, _ and
@@ -5649,9 +5675,6 @@ class InlineQueryResultArticle(InlineQueryResult):
     Represents a link to an article or web page.
     """
 
-    type: typing.Literal["article"] = field()
-    """Type of the result, must be article."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 Bytes."""
 
@@ -5664,8 +5687,15 @@ class InlineQueryResultArticle(InlineQueryResult):
         InputVenueMessageContent,
         InputContactMessageContent,
         InputInvoiceMessageContent,
-    ] = field()
+    ] = field(
+        converter=From[
+            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent"
+        ],
+    )
     """Content of the message to be sent."""
+
+    type: typing.Literal["article"] = field(default="article")
+    """Type of the result, must be article."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
         default=Nothing,
@@ -5675,37 +5705,37 @@ class InlineQueryResultArticle(InlineQueryResult):
 
     url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. URL of the result."""
 
     hide_url: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if you don't want the URL to be shown in the message."""
 
     description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Short description of the result."""
 
     thumbnail_url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Url of the thumbnail for the result."""
 
     thumbnail_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail width."""
 
     thumbnail_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail height."""
 
@@ -5715,9 +5745,6 @@ class InlineQueryResultPhoto(InlineQueryResult):
 
     Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
     """
-
-    type: typing.Literal["photo"] = field()
-    """Type of the result, must be photo."""
 
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
@@ -5729,40 +5756,43 @@ class InlineQueryResultPhoto(InlineQueryResult):
     thumbnail_url: str = field()
     """URL of the thumbnail for the photo."""
 
+    type: typing.Literal["photo"] = field(default="photo")
+    """Type of the result, must be photo."""
+
     photo_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Width of the photo."""
 
     photo_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Height of the photo."""
 
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title for the result."""
 
     description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Short description of the result."""
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
@@ -5776,7 +5806,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
@@ -5809,9 +5839,6 @@ class InlineQueryResultGif(InlineQueryResult):
     Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
 
-    type: typing.Literal["gif"] = field()
-    """Type of the result, must be gif."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -5821,21 +5848,24 @@ class InlineQueryResultGif(InlineQueryResult):
     thumbnail_url: str = field()
     """URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result."""
 
+    type: typing.Literal["gif"] = field(default="gif")
+    """Type of the result, must be gif."""
+
     gif_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Width of the GIF."""
 
     gif_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Height of the GIF."""
 
     gif_duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Duration of the GIF in seconds."""
 
@@ -5847,20 +5877,20 @@ class InlineQueryResultGif(InlineQueryResult):
 
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title for the result."""
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
@@ -5874,7 +5904,7 @@ class InlineQueryResultGif(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
@@ -5907,9 +5937,6 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
 
-    type: typing.Literal["mpeg4_gif"] = field()
-    """Type of the result, must be mpeg4_gif."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -5919,21 +5946,24 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     thumbnail_url: str = field()
     """URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result."""
 
+    type: typing.Literal["mpeg4_gif"] = field(default="mpeg4_gif")
+    """Type of the result, must be mpeg4_gif."""
+
     mpeg4_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video width."""
 
     mpeg4_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video height."""
 
     mpeg4_duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video duration in seconds."""
 
@@ -5945,20 +5975,20 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
 
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title for the result."""
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after
     entities parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
@@ -5972,7 +6002,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
@@ -6005,9 +6035,6 @@ class InlineQueryResultVideo(InlineQueryResult):
     Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
     """
 
-    type: typing.Literal["video"] = field()
-    """Type of the result, must be video."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6023,16 +6050,19 @@ class InlineQueryResultVideo(InlineQueryResult):
     title: str = field()
     """Title for the result."""
 
+    type: typing.Literal["video"] = field(default="video")
+    """Type of the result, must be video."""
+
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
@@ -6046,31 +6076,31 @@ class InlineQueryResultVideo(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     video_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video width."""
 
     video_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video height."""
 
     video_duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Video duration in seconds."""
 
     description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Short description of the result."""
 
@@ -6105,9 +6135,6 @@ class InlineQueryResultAudio(InlineQueryResult):
     Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
     """
 
-    type: typing.Literal["audio"] = field()
-    """Type of the result, must be audio."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6117,15 +6144,18 @@ class InlineQueryResultAudio(InlineQueryResult):
     title: str = field()
     """Title."""
 
+    type: typing.Literal["audio"] = field(default="audio")
+    """Type of the result, must be audio."""
+
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
@@ -6139,13 +6169,13 @@ class InlineQueryResultAudio(InlineQueryResult):
 
     performer: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Performer."""
 
     audio_duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Audio duration in seconds."""
 
@@ -6178,9 +6208,6 @@ class InlineQueryResultVoice(InlineQueryResult):
     Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
     """
 
-    type: typing.Literal["voice"] = field()
-    """Type of the result, must be voice."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6190,15 +6217,18 @@ class InlineQueryResultVoice(InlineQueryResult):
     title: str = field()
     """Recording title."""
 
+    type: typing.Literal["voice"] = field(default="voice")
+    """Type of the result, must be voice."""
+
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
@@ -6212,7 +6242,7 @@ class InlineQueryResultVoice(InlineQueryResult):
 
     voice_duration: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Recording duration in seconds."""
 
@@ -6245,9 +6275,6 @@ class InlineQueryResultDocument(InlineQueryResult):
     Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.
     """
 
-    type: typing.Literal["document"] = field()
-    """Type of the result, must be document."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6257,19 +6284,22 @@ class InlineQueryResultDocument(InlineQueryResult):
     document_url: str = field()
     """A valid URL for the file."""
 
-    mime_type: typing.Literal["application/pdf", "application/zip"] = field()
+    type: typing.Literal["document"] = field(default="document")
+    """Type of the result, must be document."""
+
+    mime_type: typing.Literal["application/pdf", "application/zip"] = field(default="application/pdf")
     """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
@@ -6283,7 +6313,7 @@ class InlineQueryResultDocument(InlineQueryResult):
 
     description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Short description of the result."""
 
@@ -6311,19 +6341,19 @@ class InlineQueryResultDocument(InlineQueryResult):
 
     thumbnail_url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. URL of the thumbnail (JPEG only) for the file."""
 
     thumbnail_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail width."""
 
     thumbnail_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail height."""
 
@@ -6333,9 +6363,6 @@ class InlineQueryResultLocation(InlineQueryResult):
 
     Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
     """
-
-    type: typing.Literal["location"] = field()
-    """Type of the result, must be location."""
 
     id: str = field()
     """Unique identifier for this result, 1-64 Bytes."""
@@ -6349,16 +6376,19 @@ class InlineQueryResultLocation(InlineQueryResult):
     title: str = field()
     """Location title."""
 
+    type: typing.Literal["location"] = field(default="location")
+    """Type of the result, must be location."""
+
     horizontal_accuracy: Option[float] = field(
         default=Nothing,
-        converter=From["float | None"],
+        converter=From[float | None],
     )
     """Optional. The radius of uncertainty for the location, measured in meters;
     0-1500."""
 
     live_period: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Period in seconds during which the location can be updated, should
     be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited
@@ -6366,14 +6396,14 @@ class InlineQueryResultLocation(InlineQueryResult):
 
     heading: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. For live locations, a direction in which the user is moving, in
     degrees. Must be between 1 and 360 if specified."""
 
     proximity_alert_radius: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. For live locations, a maximum distance for proximity alerts
     about approaching another chat member, in meters. Must be between 1 and
@@ -6403,19 +6433,19 @@ class InlineQueryResultLocation(InlineQueryResult):
 
     thumbnail_url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Url of the thumbnail for the result."""
 
     thumbnail_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail width."""
 
     thumbnail_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail height."""
 
@@ -6425,9 +6455,6 @@ class InlineQueryResultVenue(InlineQueryResult):
 
     Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
     """
-
-    type: typing.Literal["venue"] = field()
-    """Type of the result, must be venue."""
 
     id: str = field()
     """Unique identifier for this result, 1-64 Bytes."""
@@ -6444,28 +6471,31 @@ class InlineQueryResultVenue(InlineQueryResult):
     address: str = field()
     """Address of the venue."""
 
+    type: typing.Literal["venue"] = field(default="venue")
+    """Type of the result, must be venue."""
+
     foursquare_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Foursquare identifier of the venue if known."""
 
     foursquare_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,
     `arts_entertainment/aquarium` or `food/icecream`.)."""
 
     google_place_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Google Places identifier of the venue."""
 
     google_place_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Google Places type of the venue. (See supported types.)."""
 
@@ -6493,19 +6523,19 @@ class InlineQueryResultVenue(InlineQueryResult):
 
     thumbnail_url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Url of the thumbnail for the result."""
 
     thumbnail_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail width."""
 
     thumbnail_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail height."""
 
@@ -6516,9 +6546,6 @@ class InlineQueryResultContact(InlineQueryResult):
     Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.
     """
 
-    type: typing.Literal["contact"] = field()
-    """Type of the result, must be contact."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 Bytes."""
 
@@ -6528,15 +6555,18 @@ class InlineQueryResultContact(InlineQueryResult):
     first_name: str = field()
     """Contact's first name."""
 
+    type: typing.Literal["contact"] = field(default="contact")
+    """Type of the result, must be contact."""
+
     last_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Contact's last name."""
 
     vcard: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Additional data about the contact in the form of a vCard, 0-2048
     bytes."""
@@ -6565,19 +6595,19 @@ class InlineQueryResultContact(InlineQueryResult):
 
     thumbnail_url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Url of the thumbnail for the result."""
 
     thumbnail_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail width."""
 
     thumbnail_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Thumbnail height."""
 
@@ -6588,14 +6618,14 @@ class InlineQueryResultGame(InlineQueryResult):
     Represents a Game.
     """
 
-    type: typing.Literal["game"] = field()
-    """Type of the result, must be game."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
     game_short_name: str = field()
     """Short name of the game."""
+
+    type: typing.Literal["game"] = field(default="game")
+    """Type of the result, must be game."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
         default=Nothing,
@@ -6610,37 +6640,37 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
     """
 
-    type: typing.Literal["photo"] = field()
-    """Type of the result, must be photo."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
     photo_file_id: str = field()
     """A valid file identifier of the photo."""
 
+    type: typing.Literal["photo"] = field(default="photo")
+    """Type of the result, must be photo."""
+
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title for the result."""
 
     description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Short description of the result."""
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
@@ -6654,7 +6684,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
@@ -6687,31 +6717,31 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
     """
 
-    type: typing.Literal["gif"] = field()
-    """Type of the result, must be gif."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
     gif_file_id: str = field()
     """A valid file identifier for the GIF file."""
 
+    type: typing.Literal["gif"] = field(default="gif")
+    """Type of the result, must be gif."""
+
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title for the result."""
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
@@ -6725,7 +6755,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
@@ -6758,31 +6788,31 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
 
-    type: typing.Literal["mpeg4_gif"] = field()
-    """Type of the result, must be mpeg4_gif."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
     mpeg4_file_id: str = field()
     """A valid file identifier for the MPEG4 file."""
 
+    type: typing.Literal["mpeg4_gif"] = field(default="mpeg4_gif")
+    """Type of the result, must be mpeg4_gif."""
+
     title: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Title for the result."""
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after
     entities parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
@@ -6796,7 +6826,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
@@ -6829,14 +6859,14 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.
     """
 
-    type: typing.Literal["sticker"] = field()
-    """Type of the result, must be sticker."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
     sticker_file_id: str = field()
     """A valid file identifier of the sticker."""
+
+    type: typing.Literal["sticker"] = field(default="sticker")
+    """Type of the result, must be sticker."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
         default=Nothing,
@@ -6867,9 +6897,6 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
     """
 
-    type: typing.Literal["document"] = field()
-    """Type of the result, must be document."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6879,22 +6906,25 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     document_file_id: str = field()
     """A valid file identifier for the file."""
 
+    type: typing.Literal["document"] = field(default="document")
+    """Type of the result, must be document."""
+
     description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Short description of the result."""
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
@@ -6935,9 +6965,6 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
     """
 
-    type: typing.Literal["video"] = field()
-    """Type of the result, must be video."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6947,22 +6974,25 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     title: str = field()
     """Title for the result."""
 
+    type: typing.Literal["video"] = field(default="video")
+    """Type of the result, must be video."""
+
     description: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Short description of the result."""
 
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
@@ -6976,7 +7006,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True, if the caption must be shown above the message media."""
 
@@ -7009,9 +7039,6 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
     """
 
-    type: typing.Literal["voice"] = field()
-    """Type of the result, must be voice."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -7021,15 +7048,18 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     title: str = field()
     """Voice message title."""
 
+    type: typing.Literal["voice"] = field(default="voice")
+    """Type of the result, must be voice."""
+
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
@@ -7070,24 +7100,24 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
     """
 
-    type: typing.Literal["audio"] = field()
-    """Type of the result, must be audio."""
-
     id: str = field()
     """Unique identifier for this result, 1-64 bytes."""
 
     audio_file_id: str = field()
     """A valid file identifier for the audio file."""
 
+    type: typing.Literal["audio"] = field(default="audio")
+    """Type of the result, must be audio."""
+
     caption: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
@@ -7133,7 +7163,7 @@ class InputTextMessageContent(InputMessageContent):
 
     parse_mode: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the message text. See formatting
     options for more details."""
@@ -7166,14 +7196,14 @@ class InputLocationMessageContent(InputMessageContent):
 
     horizontal_accuracy: Option[float] = field(
         default=Nothing,
-        converter=From["float | None"],
+        converter=From[float | None],
     )
     """Optional. The radius of uncertainty for the location, measured in meters;
     0-1500."""
 
     live_period: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Period in seconds during which the location can be updated, should
     be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited
@@ -7181,14 +7211,14 @@ class InputLocationMessageContent(InputMessageContent):
 
     heading: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. For live locations, a direction in which the user is moving, in
     degrees. Must be between 1 and 360 if specified."""
 
     proximity_alert_radius: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. For live locations, a maximum distance for proximity alerts
     about approaching another chat member, in meters. Must be between 1 and
@@ -7215,26 +7245,26 @@ class InputVenueMessageContent(InputMessageContent):
 
     foursquare_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Foursquare identifier of the venue, if known."""
 
     foursquare_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,
     `arts_entertainment/aquarium` or `food/icecream`.)."""
 
     google_place_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Google Places identifier of the venue."""
 
     google_place_type: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Google Places type of the venue. (See supported types.)."""
 
@@ -7253,13 +7283,13 @@ class InputContactMessageContent(InputMessageContent):
 
     last_name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Contact's last name."""
 
     vcard: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Additional data about the contact in the form of a vCard, 0-2048
     bytes."""
@@ -7292,14 +7322,14 @@ class InputInvoiceMessageContent(InputMessageContent):
 
     provider_token: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Payment provider token, obtained via @BotFather. Pass an empty
     string for payments in Telegram Stars."""
 
     max_tip_amount: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. The maximum accepted amount for tips in the smallest units of
     the currency (integer, not float/double). For example, for a maximum tip
@@ -7310,7 +7340,7 @@ class InputInvoiceMessageContent(InputMessageContent):
 
     suggested_tip_amounts: Option[list[int]] = field(
         default=Nothing,
-        converter=From["list[int] | None"],
+        converter=From[list[int] | None],
     )
     """Optional. A JSON-serialized array of suggested amounts of tip in the smallest
     units of the currency (integer, not float/double). At most 4 suggested
@@ -7319,7 +7349,7 @@ class InputInvoiceMessageContent(InputMessageContent):
 
     provider_data: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. A JSON-serialized object for data about the invoice, which will
     be shared with the payment provider. A detailed description of the required
@@ -7327,74 +7357,74 @@ class InputInvoiceMessageContent(InputMessageContent):
 
     photo_url: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. URL of the product photo for the invoice. Can be a photo of the goods
     or a marketing image for a service."""
 
     photo_size: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Photo size in bytes."""
 
     photo_width: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Photo width."""
 
     photo_height: Option[int] = field(
         default=Nothing,
-        converter=From["int | None"],
+        converter=From[int | None],
     )
     """Optional. Photo height."""
 
     need_name: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if you require the user's full name to complete the order.
     Ignored for payments in Telegram Stars."""
 
     need_phone_number: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if you require the user's phone number to complete the
     order. Ignored for payments in Telegram Stars."""
 
     need_email: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if you require the user's email address to complete
     the order. Ignored for payments in Telegram Stars."""
 
     need_shipping_address: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if you require the user's shipping address to complete
     the order. Ignored for payments in Telegram Stars."""
 
     send_phone_number_to_provider: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if the user's phone number should be sent to the provider.
     Ignored for payments in Telegram Stars."""
 
     send_email_to_provider: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if the user's email address should be sent to the provider.
     Ignored for payments in Telegram Stars."""
 
     is_flexible: Option[bool] = field(
         default=Nothing,
-        converter=From["bool | None"],
+        converter=From[bool | None],
     )
     """Optional. Pass True if the final price depends on the shipping method. Ignored
     for payments in Telegram Stars."""
@@ -7424,7 +7454,7 @@ class ChosenInlineResult(Model):
 
     inline_message_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Identifier of the sent inline message. Available only if there
     is an inline keyboard attached to the message. Will be also received in callback
@@ -7439,7 +7469,7 @@ class SentWebAppMessage(Model):
 
     inline_message_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Identifier of the sent inline message. Available only if there
     is an inline keyboard attached to the message."""
@@ -7520,19 +7550,19 @@ class OrderInfo(Model):
 
     name: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. User name."""
 
     phone_number: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. User's phone number."""
 
     email: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. User email."""
 
@@ -7586,7 +7616,7 @@ class SuccessfulPayment(Model):
 
     shipping_option_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Identifier of the shipping option chosen by the user."""
 
@@ -7603,10 +7633,6 @@ class RefundedPayment(Model):
     This object contains basic information about a refunded payment.
     """
 
-    currency: typing.Literal["XTR"] = field()
-    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
-    Stars. Currently, always `XTR`."""
-
     total_amount: int = field()
     """Total refunded price in the smallest units of the currency (integer, not
     float/double). For example, for a price of US$ 1.45, total_amount = 145.
@@ -7619,9 +7645,13 @@ class RefundedPayment(Model):
     telegram_payment_charge_id: str = field()
     """Telegram payment identifier."""
 
+    currency: typing.Literal["XTR"] = field(default="XTR")
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
+    Stars. Currently, always `XTR`."""
+
     provider_payment_charge_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Provider payment identifier."""
 
@@ -7672,7 +7702,7 @@ class PreCheckoutQuery(Model):
 
     shipping_option_id: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Identifier of the shipping option chosen by the user."""
 
@@ -7702,7 +7732,7 @@ class RevenueWithdrawalStatePending(RevenueWithdrawalState):
     The withdrawal is in progress.
     """
 
-    type: typing.Literal["pending"] = field()
+    type: typing.Literal["pending"] = field(default="pending")
     """Type of the state, always `pending`."""
 
 
@@ -7712,14 +7742,14 @@ class RevenueWithdrawalStateSucceeded(RevenueWithdrawalState):
     The withdrawal succeeded.
     """
 
-    type: typing.Literal["succeeded"] = field()
-    """Type of the state, always `succeeded`."""
-
     date: datetime = field()
     """Date the withdrawal was completed in Unix time."""
 
     url: str = field()
     """An HTTPS URL that can be used to see transaction details."""
+
+    type: typing.Literal["succeeded"] = field(default="succeeded")
+    """Type of the state, always `succeeded`."""
 
 
 class RevenueWithdrawalStateFailed(RevenueWithdrawalState):
@@ -7728,7 +7758,7 @@ class RevenueWithdrawalStateFailed(RevenueWithdrawalState):
     The withdrawal failed and the transaction was refunded.
     """
 
-    type: typing.Literal["failed"] = field()
+    type: typing.Literal["failed"] = field(default="failed")
     """Type of the state, always `failed`."""
 
 
@@ -7738,15 +7768,15 @@ class TransactionPartnerUser(TransactionPartner):
     Describes a transaction with a user.
     """
 
-    type: typing.Literal["user"] = field()
-    """Type of the transaction partner, always `user`."""
-
     user: User = field()
     """Information about the user."""
 
+    type: typing.Literal["user"] = field(default="user")
+    """Type of the transaction partner, always `user`."""
+
     invoice_payload: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Bot-specified invoice payload."""
 
@@ -7758,7 +7788,7 @@ class TransactionPartnerUser(TransactionPartner):
 
     paid_media_payload: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Bot-specified paid media payload."""
 
@@ -7769,7 +7799,7 @@ class TransactionPartnerFragment(TransactionPartner):
     Describes a withdrawal transaction with Fragment.
     """
 
-    type: typing.Literal["fragment"] = field()
+    type: typing.Literal["fragment"] = field(default="fragment")
     """Type of the transaction partner, always `fragment`."""
 
     withdrawal_state: Option[
@@ -7791,7 +7821,7 @@ class TransactionPartnerTelegramAds(TransactionPartner):
     Describes a withdrawal transaction to the Telegram Ads platform.
     """
 
-    type: typing.Literal["telegram_ads"] = field()
+    type: typing.Literal["telegram_ads"] = field(default="telegram_ads")
     """Type of the transaction partner, always `telegram_ads`."""
 
 
@@ -7801,7 +7831,7 @@ class TransactionPartnerOther(TransactionPartner):
     Describes a transaction with an unknown source or recipient.
     """
 
-    type: typing.Literal["other"] = field()
+    type: typing.Literal["other"] = field(default="other")
     """Type of the transaction partner, always `other`."""
 
 
@@ -7917,7 +7947,7 @@ class EncryptedPassportElement(Model):
 
     data: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Base64-encoded encrypted Telegram Passport element data provided
     by the user; available only for `personal_details`, `passport`, `driver_license`,
@@ -7926,14 +7956,14 @@ class EncryptedPassportElement(Model):
 
     phone_number: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. User's verified phone number; available only for `phone_number`
     type."""
 
     email: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. User's verified email address; available only for `email` type."""
 
@@ -8008,21 +8038,6 @@ class PassportElementErrorDataField(PassportElementError):
     Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
     """
 
-    source: typing.Literal["data"] = field()
-    """Error source, must be data."""
-
-    type: typing.Literal[
-        "personal_details",
-        "passport",
-        "driver_license",
-        "identity_card",
-        "internal_passport",
-        "address",
-    ] = field()
-    """The section of the user's Telegram Passport which has the error, one of `personal_details`,
-    `passport`, `driver_license`, `identity_card`, `internal_passport`,
-    `address`."""
-
     field_name: str = field()
     """Name of the data field which has the error."""
 
@@ -8032,6 +8047,21 @@ class PassportElementErrorDataField(PassportElementError):
     message: str = field()
     """Error message."""
 
+    source: typing.Literal["data"] = field(default="data")
+    """Error source, must be data."""
+
+    type: typing.Literal[
+        "personal_details",
+        "passport",
+        "driver_license",
+        "identity_card",
+        "internal_passport",
+        "address",
+    ] = field(default="personal_details")
+    """The section of the user's Telegram Passport which has the error, one of `personal_details`,
+    `passport`, `driver_license`, `identity_card`, `internal_passport`,
+    `address`."""
+
 
 class PassportElementErrorFrontSide(PassportElementError):
     """Object `PassportElementErrorFrontSide`, see the [documentation](https://core.telegram.org/bots/api#passportelementerrorfrontside).
@@ -8039,7 +8069,13 @@ class PassportElementErrorFrontSide(PassportElementError):
     Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes.
     """
 
-    source: typing.Literal["front_side"] = field()
+    file_hash: str = field()
+    """Base64-encoded hash of the file with the front side of the document."""
+
+    message: str = field()
+    """Error message."""
+
+    source: typing.Literal["front_side"] = field(default="front_side")
     """Error source, must be front_side."""
 
     type: typing.Literal[
@@ -8047,15 +8083,9 @@ class PassportElementErrorFrontSide(PassportElementError):
         "driver_license",
         "identity_card",
         "internal_passport",
-    ] = field()
+    ] = field(default="passport")
     """The section of the user's Telegram Passport which has the issue, one of `passport`,
     `driver_license`, `identity_card`, `internal_passport`."""
-
-    file_hash: str = field()
-    """Base64-encoded hash of the file with the front side of the document."""
-
-    message: str = field()
-    """Error message."""
 
 
 class PassportElementErrorReverseSide(PassportElementError):
@@ -8064,18 +8094,18 @@ class PassportElementErrorReverseSide(PassportElementError):
     Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes.
     """
 
-    source: typing.Literal["reverse_side"] = field()
-    """Error source, must be reverse_side."""
-
-    type: typing.Literal["driver_license", "identity_card"] = field()
-    """The section of the user's Telegram Passport which has the issue, one of `driver_license`,
-    `identity_card`."""
-
     file_hash: str = field()
     """Base64-encoded hash of the file with the reverse side of the document."""
 
     message: str = field()
     """Error message."""
+
+    source: typing.Literal["reverse_side"] = field(default="reverse_side")
+    """Error source, must be reverse_side."""
+
+    type: typing.Literal["driver_license", "identity_card"] = field(default="driver_license")
+    """The section of the user's Telegram Passport which has the issue, one of `driver_license`,
+    `identity_card`."""
 
 
 class PassportElementErrorSelfie(PassportElementError):
@@ -8084,7 +8114,13 @@ class PassportElementErrorSelfie(PassportElementError):
     Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes.
     """
 
-    source: typing.Literal["selfie"] = field()
+    file_hash: str = field()
+    """Base64-encoded hash of the file with the selfie."""
+
+    message: str = field()
+    """Error message."""
+
+    source: typing.Literal["selfie"] = field(default="selfie")
     """Error source, must be selfie."""
 
     type: typing.Literal[
@@ -8092,15 +8128,9 @@ class PassportElementErrorSelfie(PassportElementError):
         "driver_license",
         "identity_card",
         "internal_passport",
-    ] = field()
+    ] = field(default="passport")
     """The section of the user's Telegram Passport which has the issue, one of `passport`,
     `driver_license`, `identity_card`, `internal_passport`."""
-
-    file_hash: str = field()
-    """Base64-encoded hash of the file with the selfie."""
-
-    message: str = field()
-    """Error message."""
 
 
 class PassportElementErrorFile(PassportElementError):
@@ -8109,7 +8139,13 @@ class PassportElementErrorFile(PassportElementError):
     Represents an issue with a document scan. The error is considered resolved when the file with the document scan changes.
     """
 
-    source: typing.Literal["file"] = field()
+    file_hash: str = field()
+    """Base64-encoded file hash."""
+
+    message: str = field()
+    """Error message."""
+
+    source: typing.Literal["file"] = field(default="file")
     """Error source, must be file."""
 
     type: typing.Literal[
@@ -8118,16 +8154,10 @@ class PassportElementErrorFile(PassportElementError):
         "rental_agreement",
         "passport_registration",
         "temporary_registration",
-    ] = field()
+    ] = field(default="utility_bill")
     """The section of the user's Telegram Passport which has the issue, one of `utility_bill`,
     `bank_statement`, `rental_agreement`, `passport_registration`,
     `temporary_registration`."""
-
-    file_hash: str = field()
-    """Base64-encoded file hash."""
-
-    message: str = field()
-    """Error message."""
 
 
 class PassportElementErrorFiles(PassportElementError):
@@ -8136,7 +8166,13 @@ class PassportElementErrorFiles(PassportElementError):
     Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes.
     """
 
-    source: typing.Literal["files"] = field()
+    file_hashes: list[str] = field()
+    """List of base64-encoded file hashes."""
+
+    message: str = field()
+    """Error message."""
+
+    source: typing.Literal["files"] = field(default="files")
     """Error source, must be files."""
 
     type: typing.Literal[
@@ -8145,16 +8181,10 @@ class PassportElementErrorFiles(PassportElementError):
         "rental_agreement",
         "passport_registration",
         "temporary_registration",
-    ] = field()
+    ] = field(default="utility_bill")
     """The section of the user's Telegram Passport which has the issue, one of `utility_bill`,
     `bank_statement`, `rental_agreement`, `passport_registration`,
     `temporary_registration`."""
-
-    file_hashes: list[str] = field()
-    """List of base64-encoded file hashes."""
-
-    message: str = field()
-    """Error message."""
 
 
 class PassportElementErrorTranslationFile(PassportElementError):
@@ -8163,7 +8193,13 @@ class PassportElementErrorTranslationFile(PassportElementError):
     Represents an issue with one of the files that constitute the translation of a document. The error is considered resolved when the file changes.
     """
 
-    source: typing.Literal["translation_file"] = field()
+    file_hash: str = field()
+    """Base64-encoded file hash."""
+
+    message: str = field()
+    """Error message."""
+
+    source: typing.Literal["translation_file"] = field(default="translation_file")
     """Error source, must be translation_file."""
 
     type: typing.Literal[
@@ -8176,17 +8212,11 @@ class PassportElementErrorTranslationFile(PassportElementError):
         "rental_agreement",
         "passport_registration",
         "temporary_registration",
-    ] = field()
+    ] = field(default="passport")
     """Type of element of the user's Telegram Passport which has the issue, one
     of `passport`, `driver_license`, `identity_card`, `internal_passport`,
     `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`,
     `temporary_registration`."""
-
-    file_hash: str = field()
-    """Base64-encoded file hash."""
-
-    message: str = field()
-    """Error message."""
 
 
 class PassportElementErrorTranslationFiles(PassportElementError):
@@ -8195,7 +8225,13 @@ class PassportElementErrorTranslationFiles(PassportElementError):
     Represents an issue with the translated version of a document. The error is considered resolved when a file with the document translation change.
     """
 
-    source: typing.Literal["translation_files"] = field()
+    file_hashes: list[str] = field()
+    """List of base64-encoded file hashes."""
+
+    message: str = field()
+    """Error message."""
+
+    source: typing.Literal["translation_files"] = field(default="translation_files")
     """Error source, must be translation_files."""
 
     type: typing.Literal[
@@ -8208,17 +8244,11 @@ class PassportElementErrorTranslationFiles(PassportElementError):
         "rental_agreement",
         "passport_registration",
         "temporary_registration",
-    ] = field()
+    ] = field(default="passport")
     """Type of element of the user's Telegram Passport which has the issue, one
     of `passport`, `driver_license`, `identity_card`, `internal_passport`,
     `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`,
     `temporary_registration`."""
-
-    file_hashes: list[str] = field()
-    """List of base64-encoded file hashes."""
-
-    message: str = field()
-    """Error message."""
 
 
 class PassportElementErrorUnspecified(PassportElementError):
@@ -8226,9 +8256,6 @@ class PassportElementErrorUnspecified(PassportElementError):
 
     Represents an issue in an unspecified place. The error is considered resolved when new data is added.
     """
-
-    source: typing.Literal["unspecified"] = field()
-    """Error source, must be unspecified."""
 
     type: EncryptedPassportElementType = field()
     """Type of element of the user's Telegram Passport which has the issue."""
@@ -8238,6 +8265,9 @@ class PassportElementErrorUnspecified(PassportElementError):
 
     message: str = field()
     """Error message."""
+
+    source: typing.Literal["unspecified"] = field(default="unspecified")
+    """Error source, must be unspecified."""
 
 
 class Game(Model):
@@ -8257,7 +8287,7 @@ class Game(Model):
 
     text: Option[str] = field(
         default=Nothing,
-        converter=From["str | None"],
+        converter=From[str | None],
     )
     """Optional. Brief description of the game or high scores included in the game
     message. Can be automatically edited to include current high scores for
