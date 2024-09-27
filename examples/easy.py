@@ -2,7 +2,7 @@ import pathlib
 import random
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.bot import MESSAGE_FROM_USER, WaiterMachine, clear_wm_storage_worker
+from telegrinder.bot import MESSAGE_FROM_USER_IN_CHAT, WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
@@ -25,8 +25,8 @@ async def start(message: Message):
         "Hello, {}! It's {}. How are you today?".format(message.from_user.first_name, me),
     )
     m, _ = await wm.wait(
-        MESSAGE_FROM_USER,
-        message.from_user.id,
+        MESSAGE_FROM_USER_IN_CHAT,
+        (message.from_user.id, message.chat_id),
         release=Text(["fine", "bad"], ignore_case=True),
         on_miss=MessageReplyHandler("Fine or bad", as_reply=True),
     )
@@ -45,8 +45,8 @@ async def start(message: Message):
 async def react(message: Message):
     await message.reply("Send me any message...")
     msg, _ = await wm.wait(
-        MESSAGE_FROM_USER,
-        message.from_user.id,
+        MESSAGE_FROM_USER_IN_CHAT,
+        (message.from_user.id, message.chat_id),
         release=HasText(),
         on_miss=MessageReplyHandler("Your message has no text!"),
     )

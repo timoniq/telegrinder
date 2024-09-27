@@ -1,6 +1,8 @@
+import base64
 import dataclasses
 import enum
 import keyword
+import os
 import secrets
 import typing
 from datetime import datetime
@@ -46,6 +48,15 @@ def full_result(
     return result.map(lambda v: decoder.decode(v, type=full_t))
 
 
+def generate_random_id(length_bytes: int) -> str:
+    if length_bytes < 1 or length_bytes > 64:
+        raise ValueError("Length of bytes must be between 1 and 64.")
+
+    random_bytes = os.urandom(length_bytes)
+    random_id = base64.urlsafe_b64encode(random_bytes).rstrip(b"=").decode("utf-8")
+    return random_id
+
+
 def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     validated_params = {}
     for k, v in (
@@ -60,10 +71,6 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     return validated_params
 
 
-class From(typing.Generic[T]):
-    def __new__(cls, _: T, /) -> typing.Any: ...
-
-
 if typing.TYPE_CHECKING:
 
     @typing.overload
@@ -71,6 +78,13 @@ if typing.TYPE_CHECKING:
 
     @typing.overload
     def field(*, default: typing.Any, name: str | None = ...) -> typing.Any: ...
+
+    @typing.overload
+    def field(
+        *,
+        default_factory: typing.Callable[[], typing.Any],
+        name: str | None = None,
+    ) -> typing.Any: ...
 
     @typing.overload
     def field(
@@ -102,8 +116,13 @@ if typing.TYPE_CHECKING:
         name=...,
         converter=...,
     ) -> typing.Any: ...
+
+    class From(typing.Generic[T]):
+        def __new__(cls, _: T, /) -> typing.Any: ...
 else:
     from msgspec import field as _field
+
+    From = typing.Annotated[T, ...]
 
     def field(**kwargs):
         kwargs.pop("converter", None)
@@ -292,4 +311,5 @@ __all__ = (
     "Proxy",
     "full_result",
     "get_params",
+    "generate_random_id",
 )

@@ -146,6 +146,13 @@ def read_config_default_api_params(path: str | None = None) -> "ConfigDefaultAPI
     return msgspec.json.decode(pathlib.Path(path).read_text(encoding="UTF-8"), type=ConfigDefaultAPIParams)
 
 
+def read_config_generation_id_by_default(path: str | None = None) -> "ConfigGenerationIdByDefault":
+    path = path or MAIN_DIR + "/config_generation_id_by_default.json"
+    return msgspec.json.decode(
+        pathlib.Path(path).read_text(encoding="UTF-8"), type=ConfigGenerationIdByDefault
+    )
+
+
 def is_unixtime_type(name: str, types: list[str], description: str) -> bool:
     return (
         "date" in name
@@ -206,6 +213,17 @@ class ConfigMethodLiteralTypes:
     """Method params."""
 
 
+@dataclasses.dataclass(kw_only=True)
+class ConfigObjectsGenerationIdByDefault:
+    name: str
+    fields: dict[str, int]
+
+
+@dataclasses.dataclass(kw_only=True)
+class ConfigGenerationIdByDefault:
+    objects: list[ConfigObjectsGenerationIdByDefault] = dataclasses.field(default_factory=lambda: [])
+
+
 class DefaultAPIParam(typing.TypedDict):
     name: str
     type: str
@@ -226,11 +244,13 @@ class ObjectGenerator(ABCGenerator):
         self,
         objects: list[ObjectSchema],
         nicification_path: str | None = None,
+        config_generation_id_by_default: ConfigGenerationIdByDefault | None = None,
         config_literal_types: list[ConfigObjectLiteralTypes] | None = None,
     ) -> None:
         self.objects = objects
         self.nicification_path = nicification_path
         self.config_literal_types = config_literal_types or []
+        self.config_generation_id_by_default = config_generation_id_by_default
         self.parent_types: dict[str, list[str]] = {obj.name: obj.subtypes for obj in objects if obj.subtypes}
 
     def get_field_literal_types(self, object_name: str, field_name: str) -> FieldLiteralTypes | None:
@@ -241,13 +261,23 @@ class ObjectGenerator(ABCGenerator):
                         return ref_field
         return None
 
+    def get_field_generation_id_by_default(self, object_name: str, field_name: str) -> tuple[str, int] | None:
+        if self.config_generation_id_by_default is None:
+            return None
+
+        for obj in self.config_generation_id_by_default.objects:
+            if object_name == obj.name and field_name in obj.fields:
+                return (field_name, obj.fields[field_name])
+
+        return None
+
     def make_object_field(self, field: ObjectField, literal_types: FieldLiteralTypes | None = None) -> str:
         code = makesafe(field.name) + ": "
         field_type = "typing.Any"
         field_value = (
-            "field(default=Nothing, converter={converter},)"
+            "field(default=Nothing, converter={converter})"
             if not field.required
-            else "field(converter={converter},)"
+            else "field(converter={converter})"
         )
 
         if literal_types is not None and any((literal_types.enum, literal_types.literals)):
@@ -314,6 +344,9 @@ class ObjectGenerator(ABCGenerator):
         if not field.required:
             field_type = f"Option[{field_type}]"
 
+        if field.default_factory is not None:
+            field_value = field_value.replace(")", f"default_factory={field.default_factory},)")
+
         code += f"{field_type} = {field_value}"
         if field.description:
             description = field.description.replace('"', "`")
@@ -372,10 +405,20 @@ class ObjectGenerator(ABCGenerator):
                         else str(literal_types.literals[0])
                     )
 
+                generation_id_by_default = self.get_field_generation_id_by_default(object_name, f.name)
+                if generation_id_by_default is not None:
+                    f.default_factory = "lambda: generate_random_id({bytes})".format(
+                        bytes=generation_id_by_default[1]
+                    )
+
             code += TAB
             for field in (
-                *filter(lambda f: f.default is None and f.required, object_schema.fields),
+                *filter(
+                    lambda f: f.default is None and f.default_factory is None and f.required,
+                    object_schema.fields,
+                ),
                 *filter(lambda f: f.default is not None, object_schema.fields),
+                *filter(lambda f: f.default_factory is not None, object_schema.fields),
                 *filter(lambda f: not f.required, object_schema.fields),
             ):
                 literal_types = self.get_field_literal_types(object_name, field.name)
@@ -403,7 +446,7 @@ class ObjectGenerator(ABCGenerator):
             "import pathlib\n",
             "import typing\n\n",
             "from fntypes.variative import Variative\n",
-            "from telegrinder.model import From, Model, field\n",
+            "from telegrinder.model import From, Model, field, generate_random_id\n",
             "from functools import cached_property\n",
             "from telegrinder.msgspec_utils import Nothing, Option, datetime\n\n",
         ]
@@ -637,6 +680,7 @@ def generate(
     path_dir: str | None = None,
     path_config_literals: str | None = None,
     path_config_default_api_params: str | None = None,
+    path_config_generation_id_by_default: str | None = None,
     path_nicifications: str | None = None,
     object_generator: ABCGenerator | None = None,
     method_generator: ABCGenerator | None = None,
@@ -653,6 +697,9 @@ def generate(
             objects=schema.objects,
             nicification_path=MAIN_DIR + (path_nicifications or "/nicifications.py"),
             config_literal_types=cfg_literal_types.objects,
+            config_generation_id_by_default=read_config_generation_id_by_default(
+                path_config_generation_id_by_default
+            ),
         )
         method_generator = method_generator or MethodGenerator(
             methods=schema.methods,

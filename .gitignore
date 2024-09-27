@@ -144,3 +144,5 @@ dmypy.json
 local
 
 pyvenv.cfg
+
+.basedpyright
