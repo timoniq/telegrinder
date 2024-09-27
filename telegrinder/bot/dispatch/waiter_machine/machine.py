@@ -45,6 +45,11 @@ class WaiterMachine:
             self.base_state_lifetime,
         )
 
+    def create_middleware(self, view: BaseStateView[EventModel]) -> WaiterMiddleware[EventModel]:
+        hasher = StateViewHasher(view)
+        self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)
+        return WaiterMiddleware(self, hasher)
+
     async def drop_all(self) -> None:
         """Drops all waiters in storage."""
 
