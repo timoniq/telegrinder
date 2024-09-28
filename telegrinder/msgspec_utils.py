@@ -96,7 +96,7 @@ def msgspec_to_builtins(
 
 
 def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
-    if obj is None:
+    if obj is None or isinstance(obj, fntypes.Nothing):
         return Nothing
 
     (value_type,) = typing.get_args(tp) or (typing.Any,)

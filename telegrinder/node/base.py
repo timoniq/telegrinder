@@ -154,8 +154,8 @@ class Name(ScalarNode, str):
 
 __all__ = (
     "ComposeError",
-    "FactoryNode",
     "DataNode",
+    "FactoryNode",
     "Name",
     "Node",
     "SCALAR_NODE",

@@ -17,6 +17,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
 
 T = typing.TypeVar("T")
+P = typing.ParamSpec("P")
 
 UnionType: typing.TypeAlias = typing.Annotated[tuple[T, ...], ...]
 
@@ -132,12 +133,16 @@ else:
 @typing.dataclass_transform(field_specifiers=(field,))
 class Model(msgspec.Struct, **MODEL_CONFIG):
     @classmethod
-    def from_data(cls, data: dict[str, typing.Any]) -> typing.Self:
-        return decoder.convert(data, type=cls)
+    def from_data(cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
+        return decoder.convert(msgspec.structs.asdict(cls(*args, **kwargs)), type=cls)  # type: ignore
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> typing.Self:
-        return decoder.decode(data, type=cls)
+    def from_dict(cls, obj: dict[str, typing.Any], /) -> typing.Self:
+        return decoder.convert(obj, type=cls)
+
+    @classmethod
+    def from_bytes(cls, obj: bytes, /) -> typing.Self:
+        return decoder.decode(obj, type=cls)
 
     def _to_dict(
         self,
@@ -310,6 +315,6 @@ __all__ = (
     "ProxiedDict",
     "Proxy",
     "full_result",
-    "get_params",
     "generate_random_id",
+    "get_params",
 )

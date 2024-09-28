@@ -55,7 +55,7 @@ class Text(MessageRule):
 
 def test_rule_callback_data_eq(api_instance):
     cb_event_with_data["data"] = "test"
-    cb_update = CallbackQuery.from_data(cb_event_with_data)
+    cb_update = CallbackQuery.from_dict(cb_event_with_data)
     cb_event = CallbackQueryCute.from_update(cb_update, api_instance)
     assert CallbackDataEq("test").check(cb_event) is True
     assert CallbackDataEq("test1").check(cb_event) is False
@@ -63,7 +63,7 @@ def test_rule_callback_data_eq(api_instance):
 
 def test_rule_callback_data_json_eq(api_instance):
     cb_event_with_data["data"] = '{"a": 1}'
-    cb_update = CallbackQuery.from_data(cb_event_with_data)
+    cb_update = CallbackQuery.from_dict(cb_event_with_data)
     cb_event = CallbackQueryCute.from_update(cb_update, api_instance)
     assert CallbackDataJsonEq({"a": 1}).check(cb_event) is True
     assert CallbackDataJsonEq({"a": 2}).check(cb_event) is False
@@ -71,7 +71,7 @@ def test_rule_callback_data_json_eq(api_instance):
 
 def test_rule_text(api_instance):
     message_event_with_text["text"] = "hello!!!"
-    msg_update = Message.from_data(message_event_with_text)
+    msg_update = Message.from_dict(message_event_with_text)
     msg_event = MessageCute.from_update(msg_update, api_instance)
     assert Text("hello!!!").check(msg_event) is True
     assert Text("hello!!").check(msg_event) is False
