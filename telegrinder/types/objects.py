@@ -585,9 +585,7 @@ class ChatFullInfo(Model):
         list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]
     ] = field(
         default=Nothing,
-        converter=From[
-            "list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] | None"
-        ],
+        converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"],
     )
     """Optional. List of available reactions allowed in the chat. If omitted,
     then all emoji reactions are allowed."""
@@ -1654,7 +1652,9 @@ class PaidMediaInfo(Model):
     star_count: int = field()
     """The number of Telegram Stars that must be paid to buy access to the media."""
 
-    paid_media: list[Variative[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]] = field()
+    paid_media: list[Variative[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]] = field(
+        converter=From[list["PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo"]]
+    )
     """Information about the paid media."""
 
 
@@ -3546,10 +3546,14 @@ class MessageReactionUpdated(Model):
     date: datetime = field()
     """Date of the change in Unix time."""
 
-    old_reaction: list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field()
+    old_reaction: list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field(
+        converter=From[list["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]]
+    )
     """Previous list of reaction types that were set by the user."""
 
-    new_reaction: list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field()
+    new_reaction: list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field(
+        converter=From[list["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]]
+    )
     """New list of reaction types that have been set by the user."""
 
     user: Option[User] = field(default=Nothing, converter=From["User | None"])
@@ -6193,8 +6197,7 @@ class TransactionPartnerUser(TransactionPartner):
     """Optional. Bot-specified invoice payload."""
 
     paid_media: Option[list[Variative[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]]] = field(
-        default=Nothing,
-        converter=From["list[Variative[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]] | None"],
+        default=Nothing, converter=From["list[PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo] | None"]
     )
     """Optional. Information about the paid media bought by the user."""
 

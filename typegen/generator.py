@@ -104,7 +104,7 @@ def convert_to_python_type(
     if tp.startswith("Array of"):
         return "list[{}]".format(
             " | ".join(
-                convert_to_python_type(t, parent_types, as_forward_ref)
+                convert_to_python_type(t, parent_types, as_forward_ref, as_union)
                 for t in tp.removeprefix("Array of ").split(", ")
             )
         )
