@@ -1,4 +1,5 @@
 import dataclasses
+import enum
 import secrets
 import typing
 
@@ -15,6 +16,11 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.base import BaseStateView
 
 Key = typing.TypeVar("Key", bound=typing.Hashable)
+
+
+class ChoiceCode(enum.StrEnum):
+    READY = "ready"
+    CANCEL = "cancel"
 
 
 @dataclasses.dataclass(slots=True)
@@ -79,10 +85,11 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
                 )
             kb.row()
 
-        kb.add(InlineButton(self.ready, callback_data=self.random_code + "/ready"))
+        kb.add(InlineButton(self.ready, callback_data=self.random_code + "/" + ChoiceCode.READY))
         if self.cancel_text is not None:
             kb.row()
-            kb.add(InlineButton(self.cancel_text, callback_data=self.random_code + "/cancel"))
+            kb.add(InlineButton(self.cancel_text, callback_data=self.random_code + "/" + ChoiceCode.CANCEL))
+
         return kb.get_markup()
 
     def add_option(
@@ -100,11 +107,13 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
 
     async def handle(self, cb: CallbackQueryCute) -> bool:
         code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
-        if code == "ready":
-            return False
-        elif code == "cancel":
-            self.choices = []
-            return False
+
+        match code:
+            case ChoiceCode.READY:
+                return False
+            case ChoiceCode.CANCEL:
+                self.choices = []
+                return False
 
         for i, choice in enumerate(self.choices):
             if choice.code == code:

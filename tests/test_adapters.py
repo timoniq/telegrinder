@@ -14,7 +14,7 @@ async def test_event_adapter_with_event_message_cute(api_instance, message_updat
     adapter = EventAdapter(UpdateType.MESSAGE, MessageCute)
     context = Context(raw_update=message_update)
 
-    result = await adapter.adapt(api_instance, message_update, context)
+    result = adapter.adapt(api_instance, message_update, context)
 
     assert isinstance(result, Ok)
     assert isinstance(result.value, MessageCute)
@@ -28,7 +28,7 @@ async def test_event_adapter_with_event_callback_query_cute(api_instance, callba
     adapter = EventAdapter(UpdateType.CALLBACK_QUERY, CallbackQueryCute)
     context = Context(raw_update=callback_query_update)
 
-    result = await adapter.adapt(api_instance, callback_query_update, context)
+    result = adapter.adapt(api_instance, callback_query_update, context)
 
     assert isinstance(result, Ok)
     assert isinstance(result.value, CallbackQueryCute)
@@ -42,7 +42,7 @@ async def test_raw_update_adapter_with_message_update(api_instance, message_upda
     adapter = RawUpdateAdapter()
     context = Context(raw_update=message_update)
 
-    result = await adapter.adapt(api_instance, message_update, context)
+    result = adapter.adapt(api_instance, message_update, context)
 
     assert isinstance(result, Ok)
     assert isinstance(result.value, UpdateCute)
@@ -57,7 +57,7 @@ async def test_raw_update_adapter_with_callback_query_update(api_instance, callb
     adapter = RawUpdateAdapter()
     context = Context(raw_update=callback_query_update)
 
-    result = await adapter.adapt(api_instance, callback_query_update, context)
+    result = adapter.adapt(api_instance, callback_query_update, context)
 
     assert isinstance(result, Ok)
     assert isinstance(result.value, UpdateCute)

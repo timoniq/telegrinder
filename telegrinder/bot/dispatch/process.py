@@ -1,3 +1,4 @@
+import inspect
 import typing
 
 from fntypes.result import Error, Ok
@@ -83,7 +84,8 @@ async def check_rule(
     Returns check result."""
 
     # Running adapter
-    match await rule.adapter.adapt(api, update, ctx):
+    adapt_result = rule.adapter.adapt(api, update, ctx)
+    match await adapt_result if inspect.isawaitable(adapt_result) else adapt_result:
         case Ok(value):
             adapted_value = value
         case Error(err):

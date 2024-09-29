@@ -1,12 +1,12 @@
 import typing
 
-from fntypes.result import Error, Ok, Result
+from fntypes.result import Error, Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.rules.adapter.abc import ABCAdapter
+from telegrinder.bot.rules.adapter.abc import ABCAdapter, AdaptResult
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.bot.rules.adapter.raw_update import RawUpdateAdapter
 from telegrinder.types.enums import UpdateType
@@ -23,17 +23,12 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
         self.cute_model = cute_model
 
     def __repr__(self) -> str:
-        if isinstance(self.event, str):
-            raw_update_type = Update.__annotations__.get(self.event, "Unknown")
-            raw_update_type = (
-                typing.get_args(raw_update_type)[0].__forward_arg__
-                if typing.get_args(raw_update_type)
-                else raw_update_type
-            )
-        else:
-            raw_update_type = self.event.__name__
-
-        return "<{}: adapt Update -> {} -> {}>".format(
+        raw_update_type = (
+            f"Update -> {self.event.__name__}"
+            if isinstance(self.event, type)
+            else f"Update.{self.event.value}"
+        )
+        return "<{}: adapt {} -> {}>".format(
             self.__class__.__name__,
             raw_update_type,
             self.cute_model.__name__,
@@ -48,8 +43,8 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
 
         return None
 
-    async def adapt(self, api: API, update: Update, context: Context) -> Result[ToCute, AdapterError]:
-        match await RawUpdateAdapter().adapt(api, update, context):
+    def adapt(self, api: API, update: Update, context: Context) -> AdaptResult[ToCute]:
+        match RawUpdateAdapter().adapt(api, update, context):
             case Ok(update_cute) if event := self.get_event(update_cute):
                 if self.ADAPTED_VALUE_KEY in context:
                     return Ok(context[self.ADAPTED_VALUE_KEY])

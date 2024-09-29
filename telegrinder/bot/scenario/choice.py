@@ -5,7 +5,7 @@ from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher
 from telegrinder.bot.scenario.checkbox import Checkbox
 
 if typing.TYPE_CHECKING:
-    from telegrinder.api import API
+    from telegrinder.api.api import API
     from telegrinder.bot.dispatch.view.base import BaseStateView
 
 

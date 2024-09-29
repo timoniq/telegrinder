@@ -1,10 +1,9 @@
-from fntypes.result import Ok, Result
+from fntypes.result import Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.rules.adapter.abc import ABCAdapter
-from telegrinder.bot.rules.adapter.errors import AdapterError
+from telegrinder.bot.rules.adapter.abc import ABCAdapter, AdaptResult
 from telegrinder.types.objects import Update
 
 
@@ -14,12 +13,12 @@ class RawUpdateAdapter(ABCAdapter[Update, UpdateCute]):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: adapt Update -> UpdateCute>"
 
-    async def adapt(
+    def adapt(
         self,
         api: API,
         update: Update,
         context: Context,
-    ) -> Result[UpdateCute, AdapterError]:
+    ) -> AdaptResult[UpdateCute]:
         if self.ADAPTED_VALUE_KEY not in context:
             context[self.ADAPTED_VALUE_KEY] = (
                 UpdateCute.from_update(update, api) if not isinstance(update, UpdateCute) else update
