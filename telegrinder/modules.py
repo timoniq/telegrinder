@@ -36,8 +36,8 @@ class LoggerModule(typing.Protocol):
 
 logger: LoggerModule
 logging_level = os.getenv("LOGGER_LEVEL", default="DEBUG").upper()
-logging_module = choice_in_order(["loguru"], default="logging")
-asyncio_module = choice_in_order(["uvloop"], default="asyncio")
+logging_module = choice_in_order(["loguru"], default="logging", do_import=False)
+asyncio_module = choice_in_order(["uvloop"], default="asyncio", do_import=False)
 
 if logging_module == "loguru":
     import os
