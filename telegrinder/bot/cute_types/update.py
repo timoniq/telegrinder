@@ -1,5 +1,4 @@
 import typing
-from functools import cached_property
 
 from fntypes.co import Nothing, Some
 
@@ -95,10 +94,6 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
     )
     """Optional. A request to join the chat has been sent. The bot must have the can_invite_users
     administrator right in the chat to receive these updates."""
-
-    @cached_property
-    def incoming_update(self) -> Model:
-        return getattr(self, self.update_type.value).unwrap()
 
     def get_event(self, event_model: type[EventModel]) -> Option[EventModel]:
         if isinstance(self.incoming_update, event_model):

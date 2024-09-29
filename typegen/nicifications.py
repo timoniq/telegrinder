@@ -14,6 +14,7 @@ from functools import cached_property
 
 from fntypes.option import Option
 
+from telegrinder.model import Model
 from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import (
     Birthdate,
@@ -154,6 +155,12 @@ class _Update(Update):
                 )
             ),
         )
+
+    @cached_property
+    def incoming_update(self) -> Model:
+        """Incoming update."""
+
+        return getattr(self, self.update_type.value).unwrap()
 
 
 class _InputFile(typing.NamedTuple):

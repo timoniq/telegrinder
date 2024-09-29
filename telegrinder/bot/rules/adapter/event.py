@@ -1,12 +1,12 @@
 import typing
 
-from fntypes.result import Error, Ok
+from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.rules.adapter.abc import ABCAdapter, AdaptResult
+from telegrinder.bot.rules.adapter.abc import ABCAdapter
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.bot.rules.adapter.raw_update import RawUpdateAdapter
 from telegrinder.types.enums import UpdateType
@@ -43,7 +43,7 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
 
         return None
 
-    def adapt(self, api: API, update: Update, context: Context) -> AdaptResult[ToCute]:
+    def adapt(self, api: API, update: Update, context: Context) -> Result[ToCute, AdapterError]:
         match RawUpdateAdapter().adapt(api, update, context):
             case Ok(update_cute) if event := self.get_event(update_cute):
                 if self.ADAPTED_VALUE_KEY in context:

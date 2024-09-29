@@ -367,6 +367,12 @@ class Update(Model):
             ),
         )
 
+    @cached_property
+    def incoming_update(self) -> Model:
+        """Incoming update."""
+
+        return getattr(self, self.update_type.value).unwrap()
+
 
 class WebhookInfo(Model):
     """Object `WebhookInfo`, see the [documentation](https://core.telegram.org/bots/api#webhookinfo).
