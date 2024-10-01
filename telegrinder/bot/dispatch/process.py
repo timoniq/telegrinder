@@ -1,6 +1,7 @@
 import inspect
 import typing
 
+from fntypes.option import Nothing, Option, Some
 from fntypes.result import Error, Ok
 
 from telegrinder.api.api import API
@@ -17,8 +18,25 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.handler.abc import ABCHandler
     from telegrinder.bot.rules.abc import ABCRule
+    from telegrinder.bot.rules.adapter.abc import ABCAdapter
 
+T = typing.TypeVar("T")
 Event = typing.TypeVar("Event", bound=Model)
+
+
+async def run_adapter(
+    adapter: "ABCAdapter[Update, T]",
+    api: API,
+    update: Update,
+    context: Context,
+) -> Option[T]:
+    adapt_result = adapter.adapt(api, update, context)
+    match await adapt_result if inspect.isawaitable(adapt_result) else adapt_result:
+        case Ok(value):
+            return Some(value)
+        case Error(err):
+            logger.debug("Adapter failed with error message: {!r}", str(err))
+            return Nothing()
 
 
 async def process_inner(
@@ -35,6 +53,13 @@ async def process_inner(
 
     logger.debug("Run pre middlewares...")
     for middleware in middlewares:
+        if middleware.adapter is not None:
+            match await run_adapter(middleware.adapter, api, raw_event, ctx):
+                case Some(val):
+                    event = val
+                case Nothing():
+                    return False
+
         middleware_result = await middleware.pre(event, ctx)
         logger.debug("Middleware {!r} returned: {!r}", middleware.__class__.__qualname__, middleware_result)
         if middleware_result is False:
@@ -84,12 +109,10 @@ async def check_rule(
     Returns check result."""
 
     # Running adapter
-    adapt_result = rule.adapter.adapt(api, update, ctx)
-    match await adapt_result if inspect.isawaitable(adapt_result) else adapt_result:
-        case Ok(value):
-            adapted_value = value
-        case Error(err):
-            logger.debug("Adapter failed with error message: {!r}", str(err))
+    match await run_adapter(rule.adapter, api, update, ctx):
+        case Some(val):
+            adapted_value = val
+        case Nothing():
             return False
 
     # Preparing update
