@@ -61,7 +61,7 @@ class ABCMarkup(ABC, typing.Generic[KeyboardButton]):
 
     def row(self) -> typing.Self:
         if len(self.keyboard) and not len(self.keyboard[-1]):
-            raise RuntimeError("Last row is empty!")
+            return self
 
         self.keyboard.append([])
         return self
