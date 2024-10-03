@@ -65,7 +65,7 @@ def root_protection(func: F) -> F:
     return wrapper  # type: ignore
 
 
-def ctx_var(value: T, *, frozen: bool = False) -> T:
+def ctx_var(*, default: T, frozen: bool = False) -> T:
     """Example:
     ```
     class MyCtx(GlobalContext):
@@ -78,7 +78,7 @@ def ctx_var(value: T, *, frozen: bool = False) -> T:
     ```
     """
 
-    return typing.cast(T, CtxVar(value, const=frozen))
+    return typing.cast(T, CtxVar(default, const=frozen))
 
 
 @dataclasses.dataclass(frozen=True, eq=False, slots=True)

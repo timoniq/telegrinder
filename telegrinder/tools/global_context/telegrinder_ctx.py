@@ -20,7 +20,7 @@ class TelegrinderContext(GlobalContext):
     __ctx_name__ = "telegrinder"
 
     vbml_pattern_flags: re.RegexFlag | None = None
-    vbml_patcher: vbml.Patcher = ctx_var(vbml.Patcher(), frozen=True)
+    vbml_patcher: vbml.Patcher = ctx_var(default=vbml.Patcher(), frozen=True)
 
 
 __all__ = ("TelegrinderContext",)
