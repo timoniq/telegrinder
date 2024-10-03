@@ -134,7 +134,7 @@ def test_create_global_ctx_with_inheritance():
 
         flag: bool
         control_id: int
-        states: typing.Final[list[bool]] = ctx_var([], const=True)
+        states: typing.Final[list[bool]] = ctx_var([], frozen=True)
 
     ctx = LittleContext(flag=False, control_id=111, states=[True, True, False, True, False])
 

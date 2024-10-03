@@ -7,12 +7,7 @@ from fntypes.co import Result, Some, Variative
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
-from telegrinder.bot.cute_types.utils import (
-    compose_link_preview_options,
-    compose_reactions,
-    compose_reply_params,
-    input_media,
-)
+from telegrinder.bot.cute_types.utils import compose_reactions, input_media
 from telegrinder.model import From, field, get_params
 from telegrinder.msgspec_utils import Nothing, Option
 from telegrinder.types import *
@@ -50,10 +45,10 @@ async def execute_method_answer(
     if reply_parameters is not None and isinstance(reply_parameters, dict):
         reply_parameters.setdefault("message_id", params.get("message_id", message.message_id))
         reply_parameters.setdefault("chat_id", params.get("chat_id"))
-        params["reply_parameters"] = compose_reply_params(**reply_parameters)
+        params["reply_parameters"] = ReplyParameters(**reply_parameters)
 
     if link_preview_options is not None and isinstance(link_preview_options, dict):
-        params["link_preview_options"] = compose_link_preview_options(**link_preview_options)
+        params["link_preview_options"] = LinkPreviewOptions(**link_preview_options)
 
     result = await getattr(message.ctx_api, method_name)(**params)
     return result.map(
@@ -402,7 +397,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         if isinstance(reply_parameters, dict):
             reply_parameters.setdefault("message_id", params.get("message_id"))
             reply_parameters.setdefault("chat_id", params.get("chat_id"))
-            params["reply_parameters"] = compose_reply_params(**reply_parameters)
+            params["reply_parameters"] = ReplyParameters(**reply_parameters)
         return await self.ctx_api.copy_message(**params)
 
     @shortcut(

@@ -149,7 +149,8 @@ def read_config_default_api_params(path: str | None = None) -> "ConfigDefaultAPI
 def read_config_generation_id_by_default(path: str | None = None) -> "ConfigGenerationIdByDefault":
     path = path or MAIN_DIR + "/config_generation_id_by_default.json"
     return msgspec.json.decode(
-        pathlib.Path(path).read_text(encoding="UTF-8"), type=ConfigGenerationIdByDefault
+        pathlib.Path(path).read_text(encoding="UTF-8"),
+        type=ConfigGenerationIdByDefault,
     )
 
 

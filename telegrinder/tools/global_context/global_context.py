@@ -65,20 +65,20 @@ def root_protection(func: F) -> F:
     return wrapper  # type: ignore
 
 
-def ctx_var(value: T, *, const: bool = False) -> T:
+def ctx_var(value: T, *, frozen: bool = False) -> T:
     """Example:
     ```
     class MyCtx(GlobalContext):
-        name: typing.Final[str]
-        URL: typing.Final = ctx_var("https://google.com", const=True)
+        name: str
+        URL: str = ctx_var("https://google.com", frozen=True)
 
-    ctx = MyCtx(name=ctx_var("Alex", const=True))
+    ctx = MyCtx(name=ctx_var("Alex", frozen=True))
     ctx.URL  #: 'https://google.com'
     ctx.URL = '...'  #: type checking error & exception 'TypeError'
     ```
     """
 
-    return typing.cast(T, CtxVar(value, const=const))
+    return typing.cast(T, CtxVar(value, const=frozen))
 
 
 @dataclasses.dataclass(frozen=True, eq=False, slots=True)

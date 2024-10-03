@@ -5,7 +5,7 @@ from contextlib import contextmanager
 import fntypes.option
 import fntypes.result
 import msgspec
-from fntypes.co import Error, Ok, Result, Variative
+from fntypes.co import Error, Ok, Variative
 
 if typing.TYPE_CHECKING:
     from datetime import datetime
@@ -22,7 +22,6 @@ else:
     from msgspec._utils import get_class_annotations, get_type_hints
 
     Value = typing.TypeVar("Value")
-    Err = typing.TypeVar("Err")
 
     datetime = type("datetime", (dt,), {})
 
@@ -70,7 +69,7 @@ def type_check(obj: typing.Any, t: typing.Any) -> bool:
     )
 
 
-def msgspec_convert(obj: typing.Any, t: type[T]) -> Result[T, str]:
+def msgspec_convert(obj: typing.Any, t: type[T]) -> fntypes.result.Result[T, str]:
     try:
         return Ok(decoder.convert(obj, type=t, strict=True))
     except msgspec.ValidationError:
@@ -95,7 +94,7 @@ def msgspec_to_builtins(
         return Error(exc)
 
 
-def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> Option[typing.Any]:
+def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> fntypes.option.Option[typing.Any]:
     if obj is None or isinstance(obj, fntypes.Nothing):
         return Nothing
 
