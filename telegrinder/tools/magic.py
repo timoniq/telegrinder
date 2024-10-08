@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import enum
+import inspect
 import types
 import typing
 from functools import wraps
@@ -21,7 +24,7 @@ IMPL_MARK: typing.Final[str] = "_is_impl"
 
 
 def cache_magic_value(mark_key: str, /):
-    def inner(func: "F") -> "F":
+    def inner(func: F) -> F:
         @wraps(func)
         def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
             if mark_key not in args[0].__dict__:
@@ -50,10 +53,31 @@ def get_default_args(func: FuncType) -> dict[str, typing.Any]:
     return {k: defaults[i] for i, k in enumerate(resolve_arg_names(func, start_idx=0)[-len(defaults) :])}
 
 
+@cache_magic_value("__func_parameters__")
+def get_func_parameters(func: FuncType) -> FuncParams:
+    func_params: FuncParams = {"args": [], "kwargs": []}
+
+    for k, p in inspect.signature(func).parameters.items():
+        if k in ("self", "cls"):
+            continue
+
+        match p.kind:
+            case p.POSITIONAL_OR_KEYWORD | p.POSITIONAL_ONLY:
+                func_params["args"].append((k, p.default))
+            case p.KEYWORD_ONLY:
+                func_params["kwargs"].append((k, p.default))
+            case p.VAR_POSITIONAL:
+                func_params["var_args"] = k
+            case p.VAR_KEYWORD:
+                func_params["var_kwargs"] = k
+
+    return func_params
+
+
 def get_annotations(func: FuncType, *, return_type: bool = False) -> dict[str, typing.Any]:
     annotations = func.__annotations__
-    if not return_type and "return" in func.__annotations__:
-        annotations.pop("return")
+    if not return_type:
+        annotations.pop("return", None)
     return annotations
 
 
@@ -123,11 +147,11 @@ def magic_bundle(
     return args
 
 
-def get_cached_translation(rule: "T", locale: str) -> "T | None":
+def get_cached_translation(rule: T, locale: str) -> T | None:
     return getattr(rule, TRANSLATIONS_KEY, {}).get(locale)
 
 
-def cache_translation(base_rule: "T", locale: str, translated_rule: "T") -> None:
+def cache_translation(base_rule: T, locale: str, translated_rule: T) -> None:
     translations = getattr(base_rule, TRANSLATIONS_KEY, {})
     translations[locale] = translated_rule
     setattr(base_rule, TRANSLATIONS_KEY, translations)
@@ -139,7 +163,7 @@ def impl(method: typing.Callable[..., typing.Any]):
     return classmethod(method)
 
 
-def get_impls(cls: type["Polymorphic"]) -> list[typing.Callable[..., typing.Any]]:
+def get_impls(cls: type[Polymorphic]) -> list[typing.Callable[..., typing.Any]]:
     moprh_impls = getattr(cls, "__morph_impls__", None)
     if moprh_impls is not None:
         return moprh_impls
@@ -152,6 +176,13 @@ def get_impls(cls: type["Polymorphic"]) -> list[typing.Callable[..., typing.Any]
     return impls
 
 
+class FuncParams(typing.TypedDict, total=True):
+    args: list[tuple[str, typing.Any | inspect.Parameter.empty]]
+    kwargs: list[tuple[str, typing.Any | inspect.Parameter.empty]]
+    var_args: typing.NotRequired[str]
+    var_kwargs: typing.NotRequired[str]
+
+
 __all__ = (
     "TRANSLATIONS_KEY",
     "cache_magic_value",
@@ -160,6 +191,7 @@ __all__ = (
     "get_cached_translation",
     "get_default_args",
     "get_default_args",
+    "get_func_parameters",
     "get_impls",
     "impl",
     "magic_bundle",

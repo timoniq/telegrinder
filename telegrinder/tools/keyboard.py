@@ -1,10 +1,10 @@
 import dataclasses
 import typing
 from abc import ABC, abstractmethod
-from types import NoneType
 
-from fntypes.option import Nothing, Some
+from fntypes.option import Some
 
+from telegrinder.model import is_none
 from telegrinder.types.objects import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
@@ -99,7 +99,7 @@ class Keyboard(ABCMarkup[Button], KeyboardModel):
         return {
             k: v.unwrap() if v and isinstance(v, Some) else v
             for k, v in dataclasses.asdict(self).items()
-            if type(v) not in (NoneType, Nothing)
+            if not is_none(v)
         }
 
     def get_markup(self) -> ReplyKeyboardMarkup:

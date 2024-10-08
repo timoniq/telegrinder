@@ -35,7 +35,7 @@ else:
         def compose(cls, text: Text) -> str:
             if text in cls.texts:
                 return text
-            raise ComposeError("Text matching failed.")
+            raise ComposeError("Text mismatched literal.")
 
 
 __all__ = ("Text", "TextInteger", "TextLiteral")

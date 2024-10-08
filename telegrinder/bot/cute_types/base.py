@@ -1,6 +1,7 @@
 import dataclasses
 import inspect
 import typing
+from collections import OrderedDict
 from functools import wraps
 
 import msgspec
@@ -9,6 +10,7 @@ from fntypes.result import Result
 
 from telegrinder.api.api import API
 from telegrinder.model import Model, get_params
+from telegrinder.tools.magic import get_func_parameters
 
 F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
 Cute = typing.TypeVar("Cute", bound="BaseCute")
@@ -19,6 +21,7 @@ Executor: typing.TypeAlias = typing.Callable[
     [Cute, str, dict[str, typing.Any]],
     typing.Awaitable[Result[typing.Any, typing.Any]],
 ]
+
 
 if typing.TYPE_CHECKING:
 
@@ -170,20 +173,6 @@ def compose_method_params(
     default_params: set[str | tuple[str, str]] | None = None,
     validators: dict[str, typing.Callable[[Cute], bool]] | None = None,
 ) -> dict[str, typing.Any]:
-    """Compose method `params` from `update` by `default_params` and `validators`.
-
-    :param params: Method params.
-    :param update: Update object.
-    :param default_params: Default params. \
-    (`str`) - Attribute name to be get from `update` if param is undefined. \
-    (`tuple[str, str]`): tuple[0] - Parameter name to be set in `params`, \
-    tuple[1] - attribute name to be get from `update`.
-    :param validators: Validators mapping (`str, Callable`), key - `Parameter name` \
-    for which the validator will be applied, value - `Validator`, if returned `True` \
-    parameter will be set, otherwise will not.
-    :return: Composed params.
-    """
-
     default_params = default_params or set()
     validators = validators or {}
 
@@ -203,6 +192,8 @@ def shortcut(
     executor: Executor[Cute] | None = None,
     custom_params: set[str] | None = None,
 ):
+    """Decorate a cute method as a shortcut."""
+
     def wrapper(func: F) -> F:
         @wraps(func)
         async def inner(
@@ -213,28 +204,27 @@ def shortcut(
             if executor is None:
                 return await func(self, *args, **kwargs)
 
-            if not hasattr(func, "_signature_params"):
-                setattr(
-                    func,
-                    "_signature_params",
-                    {k: p for k, p in inspect.signature(func).parameters.items() if k != "self"},
+            params: dict[str, typing.Any] = OrderedDict()
+            func_params = get_func_parameters(func)
+
+            for index, (arg, default) in enumerate(func_params["args"]):
+                if len(args) > index:
+                    params[arg] = args[index]
+                elif default is not inspect.Parameter.empty:
+                    params[arg] = default
+
+            if var_args := func_params.get("var_args"):
+                params[var_args] = args[len(func_params["args"]) :]
+
+            for kwarg, default in func_params["kwargs"]:
+                params[kwarg] = (
+                    kwargs.pop(kwarg, default)
+                    if default is not inspect.Parameter.empty
+                    else kwargs.pop(kwarg)
                 )
 
-            signature_params: dict[str, inspect.Parameter] = getattr(func, "_signature_params")
-            params: dict[str, typing.Any] = {}
-            index = 0
-
-            for k, p in signature_params.items():
-                if p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY) and len(args) > index:
-                    params[k] = args[index]
-                    index += 1
-                    continue
-
-                if p.kind in (p.VAR_KEYWORD, p.VAR_POSITIONAL):
-                    params[k] = kwargs.copy() if p.kind is p.VAR_KEYWORD else args[index:]
-                    continue
-
-                params[k] = kwargs.pop(k, p.default) if p.default is not p.empty else kwargs.pop(k)
+            if var_kwargs := func_params.get("var_kwargs"):
+                params[var_kwargs] = kwargs.copy()
 
             return await executor(self, method_name, get_params(params))
 
@@ -249,9 +239,9 @@ def shortcut(
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
-class Shortcut:
+class Shortcut(typing.Generic[Cute]):
     method_name: str
-    executor: Executor | None = dataclasses.field(default=None, kw_only=True)
+    executor: Executor[Cute] | None = dataclasses.field(default=None, kw_only=True)
     custom_params: set[str] = dataclasses.field(default_factory=lambda: set(), kw_only=True)
 
 

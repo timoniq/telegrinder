@@ -6,7 +6,6 @@ import os
 import secrets
 import typing
 from datetime import datetime
-from types import NoneType
 
 import msgspec
 from fntypes.co import Nothing, Result, Some
@@ -58,6 +57,10 @@ def generate_random_id(length_bytes: int) -> str:
     return random_id
 
 
+def is_none(value: typing.Any, /) -> typing.TypeGuard[None | Nothing]:
+    return value is None or isinstance(value, Nothing)
+
+
 def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     validated_params = {}
     for k, v in (
@@ -66,7 +69,7 @@ def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
     ):
         if isinstance(v, Proxy):
             v = v.get()
-        if k == "self" or type(v) in (NoneType, Nothing):
+        if k == "self" or is_none(v):
             continue
         validated_params[k] = v.unwrap() if isinstance(v, Some) else v
     return validated_params
@@ -253,9 +256,7 @@ class DataConverter:
         data: dict[str, typing.Any],
         serialize: bool = True,
     ) -> dict[str, typing.Any]:
-        return {
-            k: self(v, serialize=serialize) for k, v in data.items() if type(v) not in (NoneType, Nothing)
-        }
+        return {k: self(v, serialize=serialize) for k, v in data.items() if not is_none(v)}
 
     def convert_lst(
         self,

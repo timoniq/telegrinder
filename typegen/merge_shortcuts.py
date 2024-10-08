@@ -82,7 +82,7 @@ def prepare_docstring(
     return None
 
 
-def combine(
+def merge(
     path_api_methods: str | pathlib.Path | None = None,
     path_cute_types: str | pathlib.Path | None = None,
     api_methods_class_name: str | None = None,
@@ -104,7 +104,7 @@ def combine(
         shortcuts_visitor = ShortcutsCollector(api_methods_visitor.api_methods)
         cute_source_tree.visit(shortcuts_visitor)
 
-        transformer = ShortcutsСompatibilityTransformer(
+        transformer = ShortcutsCompatibilityTransformer(
             shortcuts_visitor.shortcuts,
             api_methods_visitor.api_methods,
         )
@@ -194,7 +194,7 @@ class APIMethodsCollector(cst.CSTVisitor):
         return True
 
 
-class ShortcutsСompatibilityTransformer(cst.CSTTransformer):
+class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
     def __init__(self, shortcuts: list[Shortcut], api_methods: APIMethodsMapping) -> None:
         self.shortcuts = shortcuts
         self.api_methods = api_methods
@@ -253,7 +253,7 @@ class ShortcutsСompatibilityTransformer(cst.CSTTransformer):
 
 
 if __name__ == "__main__":
-    combine()
+    merge()
 
 
-__all__ = ("combine",)
+__all__ = ("merge",)

@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 import msgspec
 import requests
 
-from .combine_shortcuts import combine
+from .merge_shortcuts import merge
 from .models import (
     MethodParameter,
     MethodSchema,
@@ -735,7 +735,7 @@ def generate(
     else:
         logger.info("Ruff-isort successfully sorted imports.")
 
-    combine()
+    merge()
 
 
 __all__ = (
