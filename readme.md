@@ -71,3 +71,9 @@ Join our [telegram forum](https://t.me/botoforum).
 Telegrinder is [MIT licensed](./LICENSE)\
 Copyright © 2022-2024 [timoniq](https://github.com/timoniq)\
 Copyright © 2024 [luwqz1](https://github.com/luwqz1)
+
+# Contributors
+
+<a href="https://github.com/timoniq/telegrinder/graphs/contributors">
+ <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder" />
+</a>

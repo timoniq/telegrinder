@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import abc
 import inspect
 import typing
@@ -9,11 +11,13 @@ from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter import EventAdapter
 from telegrinder.model import decoder
-from telegrinder.tools.buttons import DataclassInstance
 from telegrinder.types.enums import UpdateType
 
 from .abc import ABCRule, CheckResult
 from .markup import Markup, PatternLike, check_string
+
+if typing.TYPE_CHECKING:
+    from _typeshed import DataclassInstance
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaitable[bool]]
@@ -108,7 +112,7 @@ class CallbackDataMap(CallbackQueryDataRule):
         return True
 
     async def check(self, event: CallbackQuery, ctx: Context) -> bool:
-        callback_data = event.decode_callback_data().unwrap_or_none()
+        callback_data = event.decode_data().unwrap_or_none()
         if callback_data is None:
             return False
         if await self.match(callback_data, self.mapping):
@@ -130,7 +134,7 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
         self.d = d
 
     def check(self, event: CallbackQuery) -> bool:
-        return event.decode_callback_data().unwrap_or_none() == self.d
+        return event.decode_data().unwrap_or_none() == self.d
 
 
 class CallbackDataJsonModel(CallbackQueryDataRule):

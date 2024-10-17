@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import dataclasses
 import typing
 
 import msgspec
 
-from telegrinder.msgspec_utils import DataclassInstance, encoder
+from telegrinder.msgspec_utils import encoder
 from telegrinder.types.objects import (
     CallbackGame,
     KeyboardButtonPollType,
@@ -14,6 +16,9 @@ from telegrinder.types.objects import (
     WebAppInfo,
 )
 
+if typing.TYPE_CHECKING:
+    from _typeshed import DataclassInstance
+
 KeyboardButton = typing.TypeVar("KeyboardButton", bound="BaseButton")
 
 
@@ -21,7 +26,7 @@ KeyboardButton = typing.TypeVar("KeyboardButton", bound="BaseButton")
 class BaseButton:
     def get_data(self) -> dict[str, typing.Any]:
         return {
-            k: v if k != "callback_data" or isinstance(v, str) else encoder.encode(v)
+            k: v if k != "callback_data" else encoder.encode(v) if not isinstance(v, str | bytes) else v
             for k, v in dataclasses.asdict(self).items()
             if v is not None
         }
@@ -62,7 +67,7 @@ class InlineButton(BaseButton):
     url: str | None = dataclasses.field(default=None, kw_only=True)
     login_url: dict[str, typing.Any] | LoginUrl | None = dataclasses.field(default=None, kw_only=True)
     pay: bool | None = dataclasses.field(default=None, kw_only=True)
-    callback_data: str | dict[str, typing.Any] | DataclassInstance | msgspec.Struct | None = (
+    callback_data: str | bytes | dict[str, typing.Any] | DataclassInstance | msgspec.Struct | None = (
         dataclasses.field(default=None, kw_only=True)
     )
     callback_game: dict[str, typing.Any] | CallbackGame | None = dataclasses.field(default=None, kw_only=True)
@@ -77,7 +82,6 @@ class InlineButton(BaseButton):
 __all__ = (
     "BaseButton",
     "Button",
-    "DataclassInstance",
     "InlineButton",
     "RowButtons",
 )

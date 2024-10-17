@@ -88,7 +88,7 @@ class AiohttpClient(ABCClient):
         response = await self.request_raw(url, method, data, **kwargs)  # type: ignore
         if response._body is None:
             await response.read()
-        return response._body
+        return response._body or bytes()
 
     async def request_content(
         self,
@@ -98,7 +98,7 @@ class AiohttpClient(ABCClient):
         **kwargs: typing.Any,
     ) -> bytes:
         response = await self.request_raw(url, method, data, **kwargs)
-        return response._body
+        return response._body or bytes()
 
     async def close(self) -> None:
         if self.session and not self.session.closed:

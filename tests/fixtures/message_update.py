@@ -2,7 +2,7 @@ import pytest
 
 from telegrinder.types.objects import Update
 
-UPDATE = Update.from_bytes(
+UPDATE = Update.from_raw(
     b"""
     {
         "update_id": 12345,

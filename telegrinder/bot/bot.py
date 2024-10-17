@@ -39,7 +39,7 @@ class Telegrinder(typing.Generic[DispatchT, PollingT, LoopWrapperT]):
 
     @property
     def on(self) -> DispatchT:
-        return self.dispatch
+        return self.dispatch  # type: ignore
 
     async def reset_webhook(self) -> None:
         if not (await self.api.get_webhook_info()).unwrap().url:

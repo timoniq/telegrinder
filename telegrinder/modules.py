@@ -3,6 +3,8 @@ import typing
 
 from choicelib import choice_in_order
 
+import telegrinder.msgspec_json as json
+
 
 @typing.runtime_checkable
 class LoggerModule(typing.Protocol):
@@ -234,4 +236,4 @@ def _set_logger_level(level, /):
 setattr(logger, "set_level", staticmethod(_set_logger_level))  # type: ignore
 
 
-__all__ = ("LoggerModule", "logger")
+__all__ = ("LoggerModule", "json", "logger")

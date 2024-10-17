@@ -32,7 +32,7 @@ class Polling(ABCPolling):
         self.reconnection_timeout = 5.0 if reconnection_timeout < 0 else reconnection_timeout
         self.max_reconnetions = 10 if max_reconnetions < 0 else max_reconnetions
         self.offset = offset
-        self._stop = False
+        self._stop = True
 
     def __repr__(self) -> str:
         return (
@@ -86,6 +86,7 @@ class Polling(ABCPolling):
     async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
         logger.debug("Listening polling")
         reconn_counter = 0
+        self._stop = False
 
         while not self._stop:
             try:

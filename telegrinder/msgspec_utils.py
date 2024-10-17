@@ -1,4 +1,3 @@
-import dataclasses
 import typing
 from contextlib import contextmanager
 
@@ -153,11 +152,6 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
             " | ".join(map(repr_type, union_types)),
         )
     )
-
-
-@typing.runtime_checkable
-class DataclassInstance(typing.Protocol):
-    __dataclass_fields__: typing.ClassVar[dict[str, dataclasses.Field[typing.Any]]]
 
 
 class Decoder:

@@ -1,3 +1,4 @@
+import base64
 import typing
 from contextlib import suppress
 
@@ -10,6 +11,8 @@ from telegrinder.bot.cute_types.message import MediaType, MessageCute, ReplyMark
 from telegrinder.model import From, field, get_params
 from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.types.objects import *
+
+T = typing.TypeVar("T")
 
 
 class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
@@ -68,12 +71,29 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
 
         return self.message.map(lambda m: m.v.chat)
 
-    def decode_callback_data(self) -> Option[dict[str, typing.Any]]:
+    @typing.overload
+    def decode_data(self) -> Option[dict[str, typing.Any]]: ...
+
+    @typing.overload
+    def decode_data(self, *, to: type[T]) -> Option[T]: ...
+
+    def decode_data(self, *, to: type[T] = dict) -> Option[T]:
+        if not self.data:
+            return Nothing()
+
         if "cached_callback_data" in self.__dict__:
             return self.__dict__["cached_callback_data"]
+
         data = Nothing()
         with suppress(msgspec.ValidationError, msgspec.DecodeError):
-            data = Some(decoder.decode(self.data.unwrap()))
+            data = (
+                Some(decoder.decode(self.data.unwrap(), type=to))
+                if not issubclass(to, str | bytes)
+                else self.data
+                if issubclass(to, str)
+                else Some(base64.urlsafe_b64decode(self.data.unwrap()))
+            )
+
         self.__dict__["cached_callback_data"] = data
         return data
 

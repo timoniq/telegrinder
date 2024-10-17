@@ -144,8 +144,8 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         return decoder.convert(obj, type=cls)
 
     @classmethod
-    def from_bytes(cls, obj: bytes, /) -> typing.Self:
-        return decoder.decode(obj, type=cls)
+    def from_raw(cls, raw: str | bytes, /) -> typing.Self:
+        return decoder.decode(raw, type=cls)
 
     def _to_dict(
         self,
@@ -164,6 +164,9 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
             return self.__dict__[dct_name]
 
         return {key: value for key, value in self.__dict__[dct_name].items() if key not in exclude_fields}
+
+    def to_raw(self) -> str:
+        return encoder.encode(self)
 
     def to_dict(
         self,

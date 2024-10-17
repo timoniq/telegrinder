@@ -19,8 +19,8 @@ class FuncRule(ABCRule, typing.Generic[AdaptTo]):
     async def check(self, event: AdaptTo, ctx: Context) -> bool:
         result = self.func(event, ctx)
         if inspect.isawaitable(result):
-            return await result
-        return result  # type: ignore
+            result = await result
+        return result
 
 
 __all__ = ("FuncRule",)

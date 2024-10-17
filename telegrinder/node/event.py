@@ -6,11 +6,13 @@ import msgspec
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.msgspec_utils import DataclassInstance, decoder
+from telegrinder.msgspec_utils import decoder
 from telegrinder.node.base import ComposeError, FactoryNode
 from telegrinder.node.update import UpdateNode
 
 if typing.TYPE_CHECKING:
+    from _typeshed import DataclassInstance
+
     Dataclass = typing.TypeVar("Dataclass", bound="DataclassType")
 
     DataclassType: typing.TypeAlias = DataclassInstance | msgspec.Struct | dict[str, typing.Any]

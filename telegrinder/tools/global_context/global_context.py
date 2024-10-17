@@ -180,9 +180,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         ctx_name: str | None = None,
         /,
         **variables: CtxValueT | CtxVariable[CtxValueT],
-    ):
-        """Initialization of `GlobalContext` with passed variables."""
-
+    ) -> None:
         if not hasattr(self, "__ctx_name__"):
             self.__ctx_name__ = ctx_name
 
@@ -210,7 +208,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         dict.__setitem__(self, __name, GlobalCtxVar.collect(__name, __value))
 
     def __getitem__(self, __name: str) -> CtxValueT:
-        return self.get(__name).unwrap().value
+        return self.get(__name).unwrap().value  # type: ignore
 
     def __delitem__(self, __name: str):
         var = self.get(__name).unwrap()
@@ -300,7 +298,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def dict(self) -> dict[str, GlobalCtxVar[CtxValueT]]:
         """Returns context as dict."""
 
-        return {name: deepcopy(var) for name, var in self.items()}
+        return {name: deepcopy(var) for name, var in self.items()}  # type: ignore
 
     @typing.overload
     def pop(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]: ...
