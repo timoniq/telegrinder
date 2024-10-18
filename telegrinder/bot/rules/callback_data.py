@@ -1,16 +1,15 @@
-from __future__ import annotations
-
 import abc
 import inspect
 import typing
 from contextlib import suppress
 
 import msgspec
+from fntypes.result import Error, Ok
 
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter import EventAdapter
-from telegrinder.model import decoder
+from telegrinder.tools.callback_data_serilization import ABCDataSerializer, JSONSerializer, MsgPackSerializer
 from telegrinder.types.enums import UpdateType
 
 from .abc import ABCRule, CheckResult
@@ -18,6 +17,8 @@ from .markup import Markup, PatternLike, check_string
 
 if typing.TYPE_CHECKING:
     from _typeshed import DataclassInstance
+
+T = typing.TypeVar("T")
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaitable[bool]]
@@ -137,21 +138,45 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
         return event.decode_data().unwrap_or_none() == self.d
 
 
-class CallbackDataJsonModel(CallbackQueryDataRule):
+class CallbackDataModel(CallbackQueryDataRule, typing.Generic[T]):
     def __init__(
         self,
-        model: type[msgspec.Struct] | type[DataclassInstance],
+        serializer: ABCDataSerializer[T],
         *,
         alias: str | None = None,
     ) -> None:
-        self.model = model
+        self.serializer = serializer
         self.alias = alias or "data"
 
     def check(self, event: CallbackQuery, ctx: Context) -> bool:
-        with suppress(BaseException):
-            ctx.set(self.alias, decoder.decode(event.data.unwrap().encode(), type=self.model))
-            return True
-        return False
+        match self.serializer.deserialize(event.data.unwrap()):
+            case Ok(data):
+                ctx.set(self.alias, data)
+                return True
+            case Error(_):
+                return False
+
+
+class CallbackDataJsonModel(CallbackDataModel):
+    def __init__(
+        self,
+        model: "type[msgspec.Struct] | type[DataclassInstance]",
+        *,
+        ident_key: str | None = None,
+        alias: str | None = None,
+    ) -> None:
+        super().__init__(JSONSerializer(model, ident_key=ident_key), alias=alias)
+
+
+class CallbackDataMsgPackModel(CallbackDataModel):
+    def __init__(
+        self,
+        model: "type[msgspec.Struct] | type[DataclassInstance]",
+        *,
+        ident_key: str | None = None,
+        alias: str | None = None,
+    ) -> None:
+        super().__init__(MsgPackSerializer(model, ident_key=ident_key), alias=alias)
 
 
 class CallbackDataMarkup(CallbackQueryDataRule):
@@ -166,8 +191,11 @@ __all__ = (
     "CallbackDataEq",
     "CallbackDataJsonEq",
     "CallbackDataJsonModel",
+    "CallbackDataJsonModel",
     "CallbackDataMap",
     "CallbackDataMarkup",
+    "CallbackDataModel",
+    "CallbackDataMsgPackModel",
     "CallbackQueryDataRule",
     "CallbackQueryRule",
     "HasData",

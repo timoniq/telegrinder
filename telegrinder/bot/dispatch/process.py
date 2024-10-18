@@ -116,10 +116,10 @@ async def check_rule(
             return False
 
     # Preparing update
-    if isinstance(adapted_val := ctx.get(rule.adapter.ADAPTED_VALUE_KEY or ""), UpdateCute):
-        update = adapted_val
-    elif isinstance(adapted_value, UpdateCute):
+    if isinstance(adapted_value, UpdateCute):
         update = adapted_value
+    elif isinstance(adapted_val := ctx.get(rule.adapter.ADAPTED_VALUE_KEY or ""), UpdateCute):
+        update = adapted_val
     else:
         update = UpdateCute.from_update(update, bound_api=api)
 

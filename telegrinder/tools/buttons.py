@@ -5,7 +5,6 @@ import typing
 
 import msgspec
 
-from telegrinder.msgspec_utils import encoder
 from telegrinder.types.objects import (
     CallbackGame,
     KeyboardButtonPollType,
@@ -16,20 +15,22 @@ from telegrinder.types.objects import (
     WebAppInfo,
 )
 
+from .callback_data_serilization import ABCDataSerializer, JSONSerializer, MsgPackSerializer
+
 if typing.TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
 KeyboardButton = typing.TypeVar("KeyboardButton", bound="BaseButton")
 
+CallbackData: typing.TypeAlias = (
+    "str | bytes | dict[str, typing.Any] | DataclassInstance | msgspec.Struct | ABCDataSerializer[typing.Any]"
+)
+
 
 @dataclasses.dataclass
 class BaseButton:
     def get_data(self) -> dict[str, typing.Any]:
-        return {
-            k: v if k != "callback_data" else encoder.encode(v) if not isinstance(v, str | bytes) else v
-            for k, v in dataclasses.asdict(self).items()
-            if v is not None
-        }
+        return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}
 
 
 class RowButtons(typing.Generic[KeyboardButton]):
@@ -44,7 +45,7 @@ class RowButtons(typing.Generic[KeyboardButton]):
         return [b.get_data() for b in self.buttons]
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class Button(BaseButton):
     text: str
     request_contact: bool = dataclasses.field(default=False, kw_only=True)
@@ -61,15 +62,13 @@ class Button(BaseButton):
     web_app: dict[str, typing.Any] | WebAppInfo | None = dataclasses.field(default=None, kw_only=True)
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class InlineButton(BaseButton):
     text: str
     url: str | None = dataclasses.field(default=None, kw_only=True)
     login_url: dict[str, typing.Any] | LoginUrl | None = dataclasses.field(default=None, kw_only=True)
     pay: bool | None = dataclasses.field(default=None, kw_only=True)
-    callback_data: str | bytes | dict[str, typing.Any] | DataclassInstance | msgspec.Struct | None = (
-        dataclasses.field(default=None, kw_only=True)
-    )
+    callback_data: CallbackData | None = dataclasses.field(default=None, kw_only=True)
     callback_game: dict[str, typing.Any] | CallbackGame | None = dataclasses.field(default=None, kw_only=True)
     switch_inline_query: str | None = dataclasses.field(default=None, kw_only=True)
     switch_inline_query_current_chat: str | None = dataclasses.field(default=None, kw_only=True)
@@ -77,6 +76,21 @@ class InlineButton(BaseButton):
         dataclasses.field(default=None, kw_only=True)
     )
     web_app: dict[str, typing.Any] | WebAppInfo | None = dataclasses.field(default=None, kw_only=True)
+
+    @staticmethod
+    def compose_callback_data(callback_data: CallbackData) -> str | bytes:
+        if isinstance(callback_data, dict):
+            return JSONSerializer.serialize_from_json(callback_data)
+        if isinstance(callback_data, msgspec.Struct) or dataclasses.is_dataclass(callback_data):
+            return MsgPackSerializer.serialize_from_model(callback_data)
+        if isinstance(callback_data, ABCDataSerializer):
+            return callback_data.serialize(callback_data)
+        return callback_data
+
+    def get_data(self) -> dict[str, typing.Any]:
+        if self.callback_data is not None:
+            self.callback_data = self.compose_callback_data(self.callback_data)
+        return super().get_data()
 
 
 __all__ = (

@@ -91,7 +91,7 @@ def merge(
     path_cute_types = pathlib.Path(path_cute_types or DEFAULT_PATH_CUTE_TYPES)
     api_methods_class_name = api_methods_class_name or DEFAULT_API_METHODS_CLASS_NAME
 
-    logger.info("Combining shortcuts with API methods...")
+    logger.info("Merge shortcuts with API methods...")
 
     api_methods_source_tree = cst.parse_module(path_api_methods.read_text(encoding="UTF-8"))
     api_methods_visitor = APIMethodsCollector(api_methods_class_name)

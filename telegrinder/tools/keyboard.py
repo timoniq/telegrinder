@@ -46,8 +46,8 @@ class ABCMarkup(ABC, typing.Generic[KeyboardButton]):
     def get_empty_markup(cls) -> AnyMarkup:
         return cls().get_markup()
 
-    def add(self, row_or_button: RowButtons[KeyboardButton] | KeyboardButton) -> typing.Self:
-        if not len(self.keyboard):
+    def add(self, row_or_button: RowButtons[KeyboardButton] | KeyboardButton, /) -> typing.Self:
+        if not self.keyboard:
             self.row()
 
         if isinstance(row_or_button, RowButtons):

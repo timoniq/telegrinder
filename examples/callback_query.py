@@ -10,11 +10,11 @@ from telegrinder import (
     Token,
 )
 from telegrinder.modules import logger
-from telegrinder.node.callback_query import Field
+from telegrinder.node import CallbackDataMsgPack
 from telegrinder.rules import (
     CallbackDataEq,
-    CallbackDataJsonModel,
     CallbackDataMarkup,
+    CallbackDataMsgPackModel,
     Text,
 )
 
@@ -25,8 +25,10 @@ logger.set_level("INFO")
 
 @dataclasses.dataclass(slots=True, frozen=True)
 class Item:
+    __key__ = "item"
+
     name: str
-    amount: int = dataclasses.field(default=0, kw_only=True)
+    amount: int = dataclasses.field(kw_only=True)
 
 
 kb = (
@@ -49,8 +51,8 @@ async def action(m: Message):
 
 
 @bot.on.callback_query(is_blocking=False)
-async def handle_fruit(name: Field[str]):
-    logger.info("Got {!r} fruit!", name)
+async def handle_fruit(item: CallbackDataMsgPack[Item]):
+    logger.info("Got item={!r}", item)
 
 
 @bot.on.callback_query(CallbackDataEq("confirm/action"))
@@ -65,7 +67,7 @@ async def callback_number_handler(cb: CallbackQuery, n: int):
     await cb.answer("{0} + (7 * 6) - {0} = 42🤯🤯🤯".format(n))
 
 
-@bot.on.callback_query(CallbackDataJsonModel(Item, alias="item"))
+@bot.on.callback_query(CallbackDataMsgPackModel(Item, alias="item"))
 async def select_item(cb: CallbackQuery, item: Item):
     await cb.answer(f"You ate an {item.name} for {item.amount} cents 😋")
 
