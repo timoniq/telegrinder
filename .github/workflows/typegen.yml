@@ -12,10 +12,10 @@ jobs:
     steps:
         - uses: actions/checkout@v4
 
-        - name: Set up CPython 3.11
+        - name: Set up CPython 3.12
           uses: actions/setup-python@v5
           with:
-            python-version: "3.11"
+            python-version: "3.12"
 
         - name: Install poetry
           run: pip install --upgrade pip setuptools wheel && pip install --user pipx && pipx install poetry
