@@ -5,6 +5,7 @@ import typing
 
 import msgspec
 
+from telegrinder.msgspec_utils import encoder
 from telegrinder.types.objects import (
     CallbackGame,
     KeyboardButtonPollType,
@@ -85,11 +86,13 @@ class InlineButton(BaseButton):
             or dataclasses.is_dataclass(self.callback_data)
         ):
             callback_data_serializer = callback_data_serializer or JSONSerializer(
-                self.callback_data.__class__
+                self.callback_data.__class__,
             )
 
         if callback_data_serializer is not None:
             self.callback_data = callback_data_serializer.serialize(self.callback_data)
+        elif not isinstance(self.callback_data, str | bytes):
+            self.callback_data = encoder.encode(self.callback_data)
 
 
 __all__ = (
