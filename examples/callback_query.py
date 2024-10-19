@@ -10,7 +10,7 @@ from telegrinder import (
     Token,
 )
 from telegrinder.modules import logger
-from telegrinder.node import CallbackDataMsgPack
+from telegrinder.node import CallbackDataModel
 from telegrinder.rules import (
     CallbackDataEq,
     CallbackDataMarkup,
@@ -55,7 +55,7 @@ async def action(m: Message):
 
 
 @bot.on.callback_query(is_blocking=False)
-async def handle_fruit(item: CallbackDataMsgPack[Item]):
+async def handle_fruit(item: CallbackDataModel[Item]):
     logger.info("Got item={!r}", item)
 
 
