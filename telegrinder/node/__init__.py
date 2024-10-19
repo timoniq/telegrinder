@@ -1,9 +1,9 @@
 from .attachment import Attachment, Audio, Photo, Video
-from .base import ComposeError, DataNode, Name, Node, ScalarNode, is_node
+from .base import ComposeError, DataNode, FactoryNode, Name, Node, ScalarNode, is_node
 from .callback_query import (
+    CallbackDataFactory,
     CallbackDataJson,
     CallbackDataMsgPack,
-    CallbackDataSerializer,
     CallbackQueryData,
     CallbackQueryDataJson,
     CallbackQueryNode,
@@ -26,9 +26,9 @@ from .update import UpdateNode
 __all__ = (
     "Attachment",
     "Audio",
+    "CallbackDataFactory",
     "CallbackDataJson",
     "CallbackDataMsgPack",
-    "CallbackDataSerializer",
     "CallbackQueryData",
     "CallbackQueryDataJson",
     "CallbackQueryNode",
@@ -39,6 +39,7 @@ __all__ = (
     "ContainerNode",
     "DataNode",
     "EventNode",
+    "FactoryNode",
     "Field",
     "Field",
     "GLOBAL",

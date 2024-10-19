@@ -14,6 +14,12 @@ Json: typing.TypeAlias = "dict[str, typing.Any] | ModelType"
 
 
 class JSONSerializer(ABCDataSerializer[JsonT]):
+    @typing.overload
+    def __init__(self, model_t: type[JsonT]) -> None: ...
+
+    @typing.overload
+    def __init__(self, model_t: type[JsonT], *, ident_key: str | None = ...) -> None: ...
+
     def __init__(
         self,
         model_t: type[JsonT] = dict[str, typing.Any],

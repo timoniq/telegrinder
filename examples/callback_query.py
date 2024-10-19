@@ -17,6 +17,7 @@ from telegrinder.rules import (
     CallbackDataMsgPackModel,
     Text,
 )
+from telegrinder.tools import MsgPackSerializer
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -31,6 +32,7 @@ class Item:
     amount: int = dataclasses.field(kw_only=True)
 
 
+item_serializer = MsgPackSerializer(Item)
 kb = (
     InlineKeyboard()
     .add(InlineButton("Confirm", callback_data="confirm/action"))
@@ -38,8 +40,10 @@ kb = (
     .add(InlineButton("One", callback_data="number/1"))
     .add(InlineButton("Two", callback_data="number/2"))
     .row()
-    .add(InlineButton("🍎", callback_data=Item("apple", amount=10)))
-    .add(InlineButton("🍌", callback_data=Item("banana", amount=20)))
+    .add(InlineButton("🍎", callback_data=Item("apple", amount=10), callback_data_serializer=item_serializer))
+    .add(
+        InlineButton("🍌", callback_data=Item("banana", amount=20), callback_data_serializer=item_serializer)
+    )
     .row()
     .add(InlineButton("Won't respond", callback_data="number/foobar"))
 ).get_markup()

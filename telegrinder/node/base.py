@@ -87,7 +87,7 @@ class FactoryNode(Node, abc.ABC):
     def compose(cls, *args, **kwargs) -> ComposeResult:
         pass
 
-    def __new__(cls, **context: typing.Any) -> typing.Self:
+    def __new__(cls, **context: typing.Any) -> type[typing.Self]:
         namespace = dict(**cls.__dict__)
         namespace.pop("__new__", None)
         return type(cls.__name__, (cls,), context | namespace)  # type: ignore

@@ -50,7 +50,7 @@ class _Field(FactoryNode):
         raise ComposeError(f"Cannot find callback data with name {data_name!r}.")
 
 
-class CallbackDataSerializer(FactoryNode):
+class CallbackDataFactory(FactoryNode):
     serializer: ABCDataSerializer[typing.Any]
 
     @classmethod
@@ -62,14 +62,14 @@ class CallbackDataSerializer(FactoryNode):
                 raise ComposeError(err)
 
 
-class _CallbackDataJson(CallbackDataSerializer):
+class _CallbackDataJson(CallbackDataFactory):
     serializer: JSONSerializer[typing.Any]
 
     def __class_getitem__(cls, json_model: type[typing.Any], /) -> typing.Self:
         return cls(serializer=JSONSerializer(json_model))
 
 
-class _CallbackDataMsgPack(CallbackDataSerializer):
+class _CallbackDataMsgPack(CallbackDataFactory):
     serializer: MsgPackSerializer[typing.Any]
 
     def __class_getitem__(cls, msgpack_model: type[typing.Any], /) -> typing.Self:
@@ -91,9 +91,9 @@ else:
 
 
 __all__ = (
+    "CallbackDataFactory",
     "CallbackDataJson",
     "CallbackDataMsgPack",
-    "CallbackDataSerializer",
     "CallbackQueryData",
     "CallbackQueryDataJson",
     "CallbackQueryNode",

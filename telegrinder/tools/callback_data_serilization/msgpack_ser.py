@@ -22,6 +22,12 @@ def is_model_type(obj: typing.Any, /) -> typing.TypeGuard[type[ModelType]]:
 
 
 class MsgPackSerializer(ABCDataSerializer[ModelT]):
+    @typing.overload
+    def __init__(self, model_t: type[ModelT]) -> None: ...
+
+    @typing.overload
+    def __init__(self, model_t: type[ModelT], *, ident_key: str | None = ...) -> None: ...
+
     def __init__(self, model_t: type[ModelT], *, ident_key: str | None = None) -> None:
         self.model_t = model_t
         self.ident_key: str | None = ident_key or getattr(model_t, "__key__", None)
@@ -113,7 +119,8 @@ class MsgPackSerializer(ABCDataSerializer[ModelT]):
                 return Error("Data is not corresponding to key.")
 
             data: list[typing.Any] = msgspec.msgpack.decode(
-                ser_data.removeprefix(self.key), dec_hook=decoder.dec_hook
+                ser_data.removeprefix(self.key),
+                dec_hook=decoder.dec_hook,
             )
             return Ok(decoder.convert(self.compose_data(data, self.model_t), type=self.model_t))
 
