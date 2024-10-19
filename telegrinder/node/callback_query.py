@@ -1,13 +1,14 @@
+import dataclasses
 import typing
 
 from fntypes.result import Error, Ok
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.msgspec_utils import msgspec_convert
-from telegrinder.node.base import ComposeError, FactoryNode, Name, ScalarNode
+from telegrinder.node.base import ComposeError, DataNode, FactoryNode, GlobalNode, Name, ScalarNode
 from telegrinder.node.update import UpdateNode
-from telegrinder.tools.callback_data_serilization import JSONSerializer, MsgPackSerializer
 from telegrinder.tools.callback_data_serilization.abc import ABCDataSerializer
+from telegrinder.tools.callback_data_serilization.json_ser import JSONSerializer
 
 
 class CallbackQueryNode(ScalarNode, CallbackQueryCute):
@@ -50,50 +51,56 @@ class _Field(FactoryNode):
         raise ComposeError(f"Cannot find callback data with name {data_name!r}.")
 
 
-class CallbackDataFactory(FactoryNode):
-    serializer: ABCDataSerializer[typing.Any]
+@dataclasses.dataclass(slots=True)
+class CallbackDataSerializer(DataNode, GlobalNode):
+    serializer: type[ABCDataSerializer[typing.Any]]
 
     @classmethod
-    def compose(cls, data: CallbackQueryData) -> typing.Any:
-        match cls.serializer.deserialize(data):
+    def compose(cls) -> typing.Self:
+        return cls(serializer=JSONSerializer)
+
+
+class _CallbackDataModel(FactoryNode):
+    data_type: type[typing.Any]
+    serializer: type[ABCDataSerializer[typing.Any]] | None = None
+
+    def __class_getitem__(
+        cls,
+        data_type: type[typing.Any] | tuple[type[typing.Any], type[ABCDataSerializer[typing.Any]]],
+        /,
+    ) -> typing.Self:
+        data_type, serializer = (data_type, None) if not isinstance(data_type, tuple) else data_type
+        return cls(data_type=data_type, serializer=serializer)
+
+    @classmethod
+    def compose(cls, data: CallbackQueryData, serializer_info: CallbackDataSerializer) -> typing.Any:
+        match serializer_info.serializer(cls.data_type).deserialize(data):
             case Ok(value):
                 return value
             case Error(err):
                 raise ComposeError(err)
 
 
-class _CallbackDataJson(CallbackDataFactory):
-    serializer: JSONSerializer[typing.Any]
-
-    def __class_getitem__(cls, json_model: type[typing.Any], /) -> typing.Self:
-        return cls(serializer=JSONSerializer(json_model))
-
-
-class _CallbackDataMsgPack(CallbackDataFactory):
-    serializer: MsgPackSerializer[typing.Any]
-
-    def __class_getitem__(cls, msgpack_model: type[typing.Any], /) -> typing.Self:
-        return cls(serializer=MsgPackSerializer(msgpack_model))
-
-
 if typing.TYPE_CHECKING:
-    FieldType = typing.TypeVar("FieldType")
-    Json = typing.TypeVar("Json")
-    Model = typing.TypeVar("Model")
+    import typing_extensions
 
-    Field = typing.Annotated[FieldType, ...]
-    CallbackDataJson = typing.Annotated[Json, ...]
-    CallbackDataMsgPack = typing.Annotated[Model, ...]
+    DataType = typing.TypeVar("DataType")
+    Serializer = typing_extensions.TypeVar(
+        "Serializer", bound=ABCDataSerializer, default=JSONSerializer[typing.Any]
+    )
+
+    type Field[FieldType] = typing.Annotated[FieldType, ...]
+    type CallbackDataModelType[DataType, Serializer] = typing.Annotated[DataType, Serializer]
+
+    CallbackDataModel: typing.TypeAlias = CallbackDataModelType[DataType, Serializer]
 else:
     Field = _Field
-    CallbackDataJson = _CallbackDataJson
-    CallbackDataMsgPack = _CallbackDataMsgPack
+    CallbackDataModel = _CallbackDataModel
 
 
 __all__ = (
-    "CallbackDataFactory",
-    "CallbackDataJson",
-    "CallbackDataMsgPack",
+    "CallbackDataModel",
+    "CallbackDataSerializer",
     "CallbackQueryData",
     "CallbackQueryDataJson",
     "CallbackQueryNode",

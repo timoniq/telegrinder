@@ -34,6 +34,10 @@ class ModelWithIdentKey(typing.Protocol):
 class ABCDataSerializer(abc.ABC, typing.Generic[Data]):
     ident_key: str | None = None
 
+    @abc.abstractmethod
+    def __init__(self, data_type: type[Data], /) -> None:
+        pass
+
     @cached_property
     def key(self) -> str:
         return self.ident_key + "_" if self.ident_key else ""

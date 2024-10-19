@@ -152,10 +152,24 @@ class Name(ScalarNode, str):
     def compose(cls) -> str: ...
 
 
+class GlobalNode(Node):
+    scope = NodeScope.GLOBAL
+
+    @classmethod
+    def set(cls, value: typing.Self, /) -> None:
+        setattr(cls, "_value", value)
+
+    @classmethod
+    def unset(cls) -> None:
+        if hasattr(cls, "_value"):
+            delattr(cls, "_value")
+
+
 __all__ = (
     "ComposeError",
     "DataNode",
     "FactoryNode",
+    "GlobalNode",
     "Name",
     "Node",
     "SCALAR_NODE",
