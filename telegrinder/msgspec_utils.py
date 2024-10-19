@@ -168,7 +168,7 @@ class Decoder:
         TWO = 2
         THREE = 3
 
-    decoder = Encoder()
+    decoder = Decoder()
     decoder.dec_hooks[dt] = lambda t, timestamp: t.fromtimestamp(timestamp)
 
     decoder.dec_hook(dt, 1713354732)  #> datetime.datetime(2024, 4, 17, 14, 52, 12)
@@ -219,7 +219,7 @@ class Decoder:
 
     @contextmanager
     def __call__(self, type=object, *, strict=True):
-        """Context manager returns the `msgspec.json.Decoder` object with the `dec_hook`."""
+        """Context manager returns an `msgspec.json.Decoder` object with the `dec_hook`."""
 
         dec_obj = msgspec.json.Decoder(
             type=typing.Any if type is object else type,
@@ -334,7 +334,7 @@ class Encoder:
         uuid_format: typing.Literal["canonical", "hex"] = "canonical",
         order: typing.Literal[None, "deterministic", "sorted"] = None,
     ) -> typing.Generator[msgspec.json.Encoder, typing.Any, None]:
-        """Context manager returns the `msgspec.json.Encoder` object with the `enc_hook`."""
+        """Context manager returns an `msgspec.json.Encoder` object with the `enc_hook`."""
 
         enc_obj = msgspec.json.Encoder(enc_hook=self.enc_hook)
         yield enc_obj
