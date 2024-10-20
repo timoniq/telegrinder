@@ -17,15 +17,15 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 
-MediaType: typing.TypeAlias = typing.Literal[
+type MediaType = typing.Literal[
     "animation",
     "audio",
     "document",
     "photo",
     "video",
 ]
-InputMediaType: typing.TypeAlias = InputMedia | tuple[MediaType, InputFile | str]
-ReplyMarkup: typing.TypeAlias = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
+type InputMediaType = str | InputMedia | InputFile
+type ReplyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 
 
 async def execute_method_answer(
@@ -39,17 +39,6 @@ async def execute_method_answer(
         default_params={"chat_id", "message_thread_id"},
         validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
     )
-    reply_parameters = params.get("reply_parameters")
-    link_preview_options = params.get("link_preview_options")
-
-    if reply_parameters is not None and isinstance(reply_parameters, dict):
-        reply_parameters.setdefault("message_id", params.get("message_id", message.message_id))
-        reply_parameters.setdefault("chat_id", params.get("chat_id"))
-        params["reply_parameters"] = ReplyParameters(**reply_parameters)
-
-    if link_preview_options is not None and isinstance(link_preview_options, dict):
-        params["link_preview_options"] = LinkPreviewOptions(**link_preview_options)
-
     result = await getattr(message.ctx_api, method_name)(**params)
     return result.map(
         lambda x: (
@@ -69,7 +58,13 @@ async def execute_method_reply(
     method_name: str,
     params: dict[str, typing.Any],
 ) -> Result[typing.Any, APIError]:
-    params.setdefault("reply_parameters", {})
+    params.setdefault(
+        "reply_parameters",
+        ReplyParameters(
+            params.get("message_id", message.message_id),
+            params.get("chat_id", message.chat_id),
+        ),
+    )
     return await execute_method_answer(message, method_name, params)
 
 
@@ -121,9 +116,11 @@ def get_entity_value(
     ents = entities.unwrap_or(caption_entities.unwrap_or_none())
     if not ents:
         return Nothing
+
     for entity in ents:
         if (obj := getattr(entity, entity_value, Nothing)) is not Nothing:
             return obj if isinstance(obj, Some) else Some(obj)
+
     return Nothing
 
 
@@ -173,7 +170,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_message",
         executor=execute_method_answer,
-        custom_params={"link_preview_options", "reply_parameters", "message_thread_id", "chat_id", "text"},
+        custom_params={"link_preview_options", "message_thread_id", "chat_id", "text"},
     )
     async def answer(
         self,
@@ -186,8 +183,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -225,7 +222,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_message",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id", "message_id"},
+        custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def reply(
         self,
@@ -240,7 +237,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         link_preview_options: LinkPreviewOptions | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -318,7 +315,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_thread_id: int | None = None,
         parse_mode: str | None = None,
         entities: list[MessageEntity] | None = None,
-        link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         business_connection_id: str | None = None,
         inline_message_id: str | None = None,
@@ -352,7 +349,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     @shortcut(
         "copy_message",
-        custom_params={"reply_parameters", "message_thread_id", "chat_id", "message_id", "from_chat_id"},
+        custom_params={"message_thread_id", "chat_id", "message_id", "from_chat_id"},
     )
     async def copy(
         self,
@@ -365,7 +362,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         caption_entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -540,7 +537,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_audio",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_audio(
         self,
@@ -558,7 +555,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -607,7 +604,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_animation",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_animation(
         self,
@@ -627,7 +624,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -677,7 +674,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_document",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_document(
         self,
@@ -694,7 +691,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -737,7 +734,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_photo",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_photo(
         self,
@@ -753,7 +750,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -795,7 +792,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_sticker",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_sticker(
         self,
@@ -807,7 +804,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         business_connection_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -843,7 +840,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_video",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_video(
         self,
@@ -855,7 +852,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         business_connection_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -918,7 +915,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_video_note",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_video_note(
         self,
@@ -932,7 +929,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -972,7 +969,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_voice",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_voice(
         self,
@@ -987,7 +984,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         duration: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1032,7 +1029,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_poll",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_poll(
         self,
@@ -1057,7 +1054,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         is_closed: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1116,7 +1113,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_venue",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_venue(
         self,
@@ -1134,7 +1131,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         google_place_type: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1182,7 +1179,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_dice",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_dice(
         self,
@@ -1193,7 +1190,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_effect_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1226,7 +1223,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_game",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_game(
         self,
@@ -1237,7 +1234,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_effect_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
@@ -1266,7 +1263,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_invoice",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_invoice(
         self,
@@ -1297,7 +1294,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         is_flexible: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
@@ -1310,7 +1307,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_chat_action",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_chat_action(
         self,
@@ -1338,21 +1335,19 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
     @shortcut(
         "send_media_group",
-        custom_params={"media", "reply_parameters", "message_thread_id"},
+        custom_params={"media", "chat_id", "message_thread_id"},
     )
     async def answer_media_group(
         self,
-        media: InputMediaType | list[InputMediaType],
-        chat_id: int | str,
+        media: InputMedia | list[InputMedia],
+        chat_id: int | str | None = None,
+        media_type: MediaType | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         message_effect_id: str | None = None,
-        caption: str | list[str] | None = None,
-        parse_mode: str | list[str] | None = None,
-        caption_entities: list[MessageEntity] | list[list[MessageEntity]] | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
     ) -> Result[list[MessageCute], APIError]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
@@ -1376,31 +1371,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         media = [media] if not isinstance(media, list) else media
         params = get_params(locals())
-        caption_entities_lst = typing.cast(
-            list[list[MessageEntity]],
-            [caption_entities]
-            if caption_entities and len(caption_entities) == 1 and not isinstance(caption_entities[0], list)
-            else caption_entities,
-        )
-
-        for i, m in enumerate(media[:]):
-            if isinstance(m, tuple):
-                media.insert(
-                    i,
-                    input_media(  # type: ignore
-                        *media.pop(i),  # type: ignore
-                        caption=caption if not isinstance(caption, list) else caption[i],
-                        caption_entities=caption_entities_lst[i] if caption_entities_lst else None,
-                        parse_mode=parse_mode if not isinstance(parse_mode, list) else parse_mode[i],
-                    ),
-                )
-
         return await execute_method_answer(self, "send_media_group", params)
 
     @shortcut(
         "send_location",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_location(
         self,
@@ -1416,7 +1392,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         proximity_alert_radius: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1457,7 +1433,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_contact",
         executor=execute_method_answer,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_contact(
         self,
@@ -1471,7 +1447,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_effect_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1510,7 +1486,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_audio",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_audio(
         self,
@@ -1528,7 +1504,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1577,7 +1553,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_animation",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_animation(
         self,
@@ -1597,7 +1573,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1647,7 +1623,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_document",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_document(
         self,
@@ -1664,7 +1640,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1707,7 +1683,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_photo",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_photo(
         self,
@@ -1723,7 +1699,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1765,7 +1741,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_sticker",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_sticker(
         self,
@@ -1777,7 +1753,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         business_connection_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1813,7 +1789,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_video",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_video(
         self,
@@ -1826,7 +1802,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         business_connection_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1889,7 +1865,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_video_note",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_video_note(
         self,
@@ -1903,7 +1879,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -1943,7 +1919,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_voice",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_voice(
         self,
@@ -1958,7 +1934,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         duration: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -2003,7 +1979,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_poll",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_poll(
         self,
@@ -2028,7 +2004,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         is_closed: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -2087,7 +2063,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_venue",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_venue(
         self,
@@ -2105,7 +2081,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         google_place_type: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -2153,7 +2129,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_dice",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_dice(
         self,
@@ -2164,7 +2140,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_effect_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -2197,7 +2173,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_game",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_game(
         self,
@@ -2208,7 +2184,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_effect_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
@@ -2237,7 +2213,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_invoice",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_invoice(
         self,
@@ -2268,7 +2244,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         is_flexible: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
@@ -2282,12 +2258,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         "send_media_group",
         custom_params={
             "media",
-            "reply_parameters",
             "chat_id",
             "message_thread_id",
-            "caption",
-            "caption_entities",
-            "parse_mode",
         },
     )
     async def reply_media_group(
@@ -2297,12 +2269,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         message_effect_id: str | None = None,
-        caption: str | list[str] | None = None,
-        parse_mode: str | list[str] | None = None,
-        caption_entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
     ) -> Result[list[MessageCute], APIError]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
@@ -2325,13 +2294,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param reply_parameters: Description of the message to reply to."""
 
         params = get_params(locals())
-        params.setdefault("reply_parameters", {})
+        params.setdefault("reply_parameters", ReplyParameters(params.get("message_id", self.message_id)))
         return await self.answer_media_group(**params)
 
     @shortcut(
         "send_location",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_location(
         self,
@@ -2347,7 +2316,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         proximity_alert_radius: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -2388,7 +2357,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut(
         "send_contact",
         executor=execute_method_reply,
-        custom_params={"reply_parameters", "message_thread_id", "chat_id"},
+        custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_contact(
         self,
@@ -2402,7 +2371,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_effect_id: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
         | ReplyKeyboardRemove
@@ -2582,9 +2551,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param reply_markup: A JSON-serialized object for a new inline keyboard."""
 
         params = get_params(locals())
-
         if not isinstance(media, InputMedia):
-            assert type, "parameter 'type' is required, because 'media' is not an 'InputMedia' object."
+            assert (
+                type
+            ), "Parameter 'type' is required, because 'media' is a file id or an 'InputFile' object."
             params["media"] = input_media(
                 params.pop("type"),
                 media,

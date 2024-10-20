@@ -14,8 +14,6 @@ async def chat_member_interaction(
     method_name: str,
     params: dict[str, typing.Any],
 ) -> Result[typing.Any, APIError]:
-    if isinstance(params.get("permissions"), dict):
-        params["permissions"] = ChatPermissions(**params["permissions"])
     params = compose_method_params(
         get_params(locals()),
         update,
@@ -69,11 +67,11 @@ class ChatMemberShortcuts:
     @shortcut(
         "restrict_chat_member",
         executor=chat_member_interaction,
-        custom_params={"permissions", "chat_id", "user_id"},
+        custom_params={"chat_id", "user_id"},
     )
     async def restrict_chat_member(
         self,
-        permissions: ChatPermissions | dict[str, typing.Any],
+        permissions: ChatPermissions,
         chat_id: int | str | None = None,
         user_id: int | None = None,
         use_independent_chat_permissions: bool | None = None,

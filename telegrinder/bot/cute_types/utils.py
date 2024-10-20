@@ -14,7 +14,7 @@ from telegrinder.types.objects import (
     ReactionTypeEmoji,
 )
 
-InputMedia: typing.TypeAlias = typing.Union[
+type InputMedia = typing.Union[
     InputMediaAnimation,
     InputMediaAudio,
     InputMediaDocument,
