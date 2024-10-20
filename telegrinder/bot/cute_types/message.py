@@ -2264,7 +2264,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_media_group(
         self,
-        media: InputMediaType | list[InputMediaType],
+        media: InputMedia | list[InputMedia],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,

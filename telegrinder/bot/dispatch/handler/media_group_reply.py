@@ -1,16 +1,17 @@
 import typing
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types.message import InputMediaType, MessageCute
+from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.base import BaseReplyHandler
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.types.objects import InputMedia
 
 
 class MediaGroupReplyHandler(BaseReplyHandler):
     def __init__(
         self,
-        media: InputMediaType | list[InputMediaType],
+        media: InputMedia | list[InputMedia],
         *rules: ABCRule,
         caption: str | list[str] | None = None,
         parse_mode: str | list[str] | None = None,
