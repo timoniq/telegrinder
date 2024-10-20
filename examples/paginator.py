@@ -34,7 +34,7 @@ class AdminPaginator(Paginator[Admin]):
             page_number=page_number,
         )
 
-    async def get_detail(self, id) -> Admin:
+    async def get_detail(self, id: int) -> Admin:
         member = (await self.api.get_chat_member(chat_id=self.chat_id, user_id=id)).unwrap()
         return Admin(id=member.v.user.id, full_name=member.v.user.full_name)
 

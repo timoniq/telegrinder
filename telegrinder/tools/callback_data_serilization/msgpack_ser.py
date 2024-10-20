@@ -1,5 +1,6 @@
 import base64
 import binascii
+import dataclasses
 import typing
 from collections import deque
 from contextlib import suppress
@@ -16,19 +17,17 @@ ModelT = typing.TypeVar("ModelT", bound=ModelType)
 
 
 def is_model_type(obj: typing.Any, /) -> typing.TypeGuard[type[ModelType]]:
-    return (
-        isinstance(obj, type) and issubclass(obj, msgspec.Struct) or msgspec.inspect._is_dataclass(obj)  # type: ignore
-    )
+    return isinstance(obj, type) and issubclass(obj, msgspec.Struct) or dataclasses.is_dataclass(obj)
 
 
 class MsgPackSerializer(ABCDataSerializer[ModelT]):
     @typing.overload
-    def __init__(self, model_t: type[ModelT]) -> None: ...
+    def __init__(self, model_t: type[ModelT], /) -> None: ...
 
     @typing.overload
-    def __init__(self, model_t: type[ModelT], *, ident_key: str | None = ...) -> None: ...
+    def __init__(self, model_t: type[ModelT], /, *, ident_key: str | None = ...) -> None: ...
 
-    def __init__(self, model_t: type[ModelT], *, ident_key: str | None = None) -> None:
+    def __init__(self, model_t: type[ModelT], /, *, ident_key: str | None = None) -> None:
         self.model_t = model_t
         self.ident_key: str | None = ident_key or getattr(model_t, "__key__", None)
 

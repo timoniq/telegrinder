@@ -29,6 +29,7 @@ class DataclassWithIdentKey(typing.Protocol):
 class ModelWithIdentKey(typing.Protocol):
     __key__: str
     __struct_fields__: typing.ClassVar[tuple[str, ...]]
+    __struct_config__: typing.ClassVar[msgspec.structs.StructConfig]
 
 
 class ABCDataSerializer(abc.ABC, typing.Generic[Data]):

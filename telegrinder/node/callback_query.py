@@ -86,7 +86,9 @@ if typing.TYPE_CHECKING:
 
     DataType = typing.TypeVar("DataType")
     Serializer = typing_extensions.TypeVar(
-        "Serializer", bound=ABCDataSerializer, default=JSONSerializer[typing.Any]
+        "Serializer",
+        bound=ABCDataSerializer,
+        default=JSONSerializer[typing.Any],
     )
 
     type Field[FieldType] = typing.Annotated[FieldType, ...]
