@@ -1,7 +1,7 @@
 import dataclasses
 import typing
 
-type PaginatorButton = OpenIdButton | SwitchPageButton
+type PageAction = OpenId | SwitchPage
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
@@ -11,24 +11,29 @@ class Page[T]:
     items: list[T]
 
 
+@dataclasses.dataclass
+class Filter:
+    name: str
+    value: str | bool = True
+
+
 @dataclasses.dataclass(slots=True, frozen=True)
-class OpenIdButton:
-    paginator: str
+class OpenId:
+    pg_key: str
     open_id: int
+    filters: dict[str, typing.Any]
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
-class SwitchPageButton:
-    paginator: str
+class SwitchPage:
+    pg_key: str
     page_number: int
+    filters: dict[str, typing.Any]
 
 
 @typing.runtime_checkable
-class PaginatedDataProtocol(typing.Protocol):
+class PaginatedData(typing.Protocol):
     id: typing.Any
 
-    @classmethod
-    async def fetch(cls, id: typing.Any) -> typing.Self: ...
 
-
-__all__ = ("OpenIdButton", "Page", "PaginatedDataProtocol", "SwitchPageButton")
+__all__ = ("OpenId", "Page", "PaginatedData", "SwitchPage", "PageAction")

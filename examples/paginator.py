@@ -1,63 +1,56 @@
 import dataclasses
-import datetime
 import math
 
 from telegrinder import API, CallbackQuery, Message, Telegrinder, Token
 from telegrinder.rules import Text
-from telegrinder.tools import Fetcher, Page, Paginator, PaginatorData
+from telegrinder.tools import Page, Paginator, PaginatorItem
 
 bot = Telegrinder(API(Token.from_env()))
 
 
 @dataclasses.dataclass
-class Transaction:
+class Admin:
     id: int
-    amount: int
-    date: datetime.datetime
-    comment: str
+    full_name: str
 
     def __repr__(self) -> str:
-        datefmt = self.date.strftime("%d.%m")
-        return f"🍙 {self.id} {self.amount}💰 ({datefmt})"
-
-    @classmethod
-    async def fetch(cls, id: int) -> "Transaction":
-        return transactions_db[id - 1]
+        return f"🍙 ({self.id}) {self.full_name}"
 
 
-transactions_db = [
-    Transaction(
-        id=i + 1,
-        amount=int((i + 2) * 5 / 2),
-        date=datetime.datetime.now(),
-        comment=f"Transaction number {i + 1}",
-    )
-    for i in range(16)
-]
+class AdminPaginator(Paginator[Admin]):
+    chat_id: int
+
+    async def get_page(self, page_number: int) -> Page[Admin]:
+        limit = 3
+        admins = (await self.api.get_chat_administrators(self.chat_id)).unwrap()
+        max_page = math.ceil(len(admins) / limit)
+
+        return Page(
+            items=[
+                Admin(id=admin.v.user.id, full_name=admin.v.user.full_name)
+                for admin in admins[(page_number - 1) * max_page : page_number * max_page]
+            ],
+            max_page=max_page,
+            page_number=page_number,
+        )
+
+    async def get_detail(self, id) -> Admin:
+        member = (await self.api.get_chat_member(chat_id=self.chat_id, user_id=id)).unwrap()
+        return Admin(id=member.v.user.id, full_name=member.v.user.full_name)
 
 
-class TransactionFetcher(Fetcher[Transaction]):
-    limit = 3
-
-    async def get_page(self, n: int) -> Page[Transaction]:
-        items = transactions_db[(n - 1) * self.limit : n * self.limit]
-        return Page(math.ceil(len(transactions_db) / self.limit), n, items)
-
-
-@bot.on.message(Text("/transactions"))
+@bot.on.message(Text("/admins"))
 async def message_handler(message: Message) -> None:
-    kb = await Paginator[Transaction, TransactionFetcher].get_keyboard()
-    await message.answer("Shimi shimi yay transactions 💖", reply_markup=kb)
+    kb = await AdminPaginator(message.api, message.chat_id).get_keyboard()
+    await message.answer("Admins:", reply_markup=kb)
 
 
 @bot.on.callback_query()
 async def transaction_handler(
     cb: CallbackQuery,
-    transaction: PaginatorData[Transaction, TransactionFetcher],
+    admin: PaginatorItem[Admin, AdminPaginator],
 ) -> None:
-    await cb.edit_text(
-        f"Transaction info: {transaction.id=}, {transaction.amount=}, {transaction.date=}, {transaction.comment=}",
-    )
+    await cb.edit_text(f"Admin: {admin.full_name} 🍙")
 
 
 bot.run_forever()

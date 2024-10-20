@@ -1,13 +1,13 @@
-from .data import OpenIdButton, Page, PaginatedDataProtocol, SwitchPageButton
-from .fetcher import Fetcher
-from .paginator import Paginator, PaginatorData
+from .data import OpenId, Page, PaginatedData, SwitchPage
+from .pagination_item import PaginatorItem
+from .paginator import Paginator
 
 __all__ = (
-    "Fetcher",
-    "OpenIdButton",
-    "Page",
-    "PaginatedDataProtocol",
     "Paginator",
-    "PaginatorData",
-    "SwitchPageButton",
+    "OpenId",
+    "Page",
+    "PaginatedData",
+    "Paginator",
+    "SwitchPage",
+    "PaginatorItem",
 )

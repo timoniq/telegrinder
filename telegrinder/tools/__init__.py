@@ -78,13 +78,10 @@ from .magic import (
     resolve_arg_names,
 )
 from .paginator import (
-    Fetcher,
-    OpenIdButton,
     Page,
-    PaginatedDataProtocol,
+    PaginatedData,
     Paginator,
-    PaginatorData,
-    SwitchPageButton,
+    PaginatorItem,
 )
 from .parse_mode import ParseMode
 from .state_storage import ABCStateStorage, MemoryStateStorage, StateData
@@ -108,7 +105,8 @@ __all__ = (
     "CtxVar",
     "DelayedTask",
     "ErrorHandler",
-    "Fetcher",
+    "Paginator",
+    "PaginatorItem",
     "FormatString",
     "GlobalContext",
     "GlobalCtxVar",
@@ -128,11 +126,9 @@ __all__ = (
     "MemoryStateStorage",
     "Mention",
     "MsgPackSerializer",
-    "OpenIdButton",
     "Page",
-    "PaginatedDataProtocol",
+    "PaginatedData",
     "Paginator",
-    "PaginatorData",
     "ParseMode",
     "PreCode",
     "ResolveDomain",
@@ -143,7 +139,6 @@ __all__ = (
     "StartBotLink",
     "StartGroupLink",
     "StateData",
-    "SwitchPageButton",
     "TelegrinderContext",
     "TgEmoji",
     "block_quote",
