@@ -28,7 +28,7 @@ SECRET_TOKEN = secrets.token_urlsafe(64)  # > random secret token
 
 @asynccontextmanager
 async def lifespan(_):
-    await api.set_webhook(WEBHOOK_URL, secret_token=SECRET_TOKEN)
+    await api.set_webhook(url=WEBHOOK_URL, secret_token=SECRET_TOKEN)
     yield
     await api.delete_webhook(drop_pending_updates=True)
 

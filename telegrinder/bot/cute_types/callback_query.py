@@ -101,6 +101,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def answer(
         self,
         text: str | None = None,
+        *,
         callback_query_id: str | None = None,
         show_alert: bool | None = None,
         url: str | None = None,
@@ -132,6 +133,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def copy(
         self,
         chat_id: int | str | None = None,
+        *,
         from_chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -159,6 +161,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def delete(
         self,
+        *,
         chat_id: int | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -188,6 +191,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def edit_text(
         self,
         text: str,
+        *,
         inline_message_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
@@ -232,6 +236,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     )
     async def edit_live_location(
         self,
+        *,
         latitude: float,
         longitude: float,
         inline_message_id: str | None = None,
@@ -282,6 +287,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def edit_caption(
         self,
         caption: str | None = None,
+        *,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -332,6 +338,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def edit_media(
         self,
         media: str | InputFile | InputMedia,
+        *,
         type: MediaType | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -375,6 +382,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     )
     async def edit_reply_markup(
         self,
+        *,
         inline_message_id: str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,

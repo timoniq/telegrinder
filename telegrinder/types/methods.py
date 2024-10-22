@@ -26,6 +26,7 @@ class APIMethods:
 
     async def get_updates(
         self,
+        *,
         offset: int | None = None,
         limit: int | None = None,
         timeout: int | None = None,
@@ -70,6 +71,7 @@ class APIMethods:
 
     async def set_webhook(
         self,
+        *,
         url: str,
         certificate: InputFile | None = None,
         ip_address: str | None = None,
@@ -128,6 +130,7 @@ class APIMethods:
 
     async def delete_webhook(
         self,
+        *,
         drop_pending_updates: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -208,6 +211,7 @@ class APIMethods:
 
     async def send_message(
         self,
+        *,
         chat_id: int | str,
         text: str,
         business_connection_id: str | None = None,
@@ -271,6 +275,7 @@ class APIMethods:
 
     async def forward_message(
         self,
+        *,
         chat_id: int | str,
         from_chat_id: int | str,
         message_id: int,
@@ -309,6 +314,7 @@ class APIMethods:
 
     async def forward_messages(
         self,
+        *,
         chat_id: int | str,
         from_chat_id: int | str,
         message_ids: list[int],
@@ -352,6 +358,7 @@ class APIMethods:
 
     async def copy_message(
         self,
+        *,
         chat_id: int | str,
         from_chat_id: int | str,
         message_id: int,
@@ -421,6 +428,7 @@ class APIMethods:
 
     async def copy_messages(
         self,
+        *,
         chat_id: int | str,
         from_chat_id: int | str,
         message_ids: list[int],
@@ -469,6 +477,7 @@ class APIMethods:
 
     async def send_photo(
         self,
+        *,
         chat_id: int | str,
         photo: InputFile | str,
         business_connection_id: str | None = None,
@@ -544,6 +553,7 @@ class APIMethods:
 
     async def send_audio(
         self,
+        *,
         chat_id: int | str,
         audio: InputFile | str,
         business_connection_id: str | None = None,
@@ -632,6 +642,7 @@ class APIMethods:
 
     async def send_document(
         self,
+        *,
         chat_id: int | str,
         document: InputFile | str,
         business_connection_id: str | None = None,
@@ -714,6 +725,7 @@ class APIMethods:
 
     async def send_video(
         self,
+        *,
         chat_id: int | str,
         video: InputFile | str,
         business_connection_id: str | None = None,
@@ -811,6 +823,7 @@ class APIMethods:
 
     async def send_animation(
         self,
+        *,
         chat_id: int | str,
         animation: InputFile | str,
         business_connection_id: str | None = None,
@@ -904,6 +917,7 @@ class APIMethods:
 
     async def send_voice(
         self,
+        *,
         chat_id: int | str,
         voice: InputFile | str,
         business_connection_id: str | None = None,
@@ -978,6 +992,7 @@ class APIMethods:
 
     async def send_video_note(
         self,
+        *,
         chat_id: int | str,
         video_note: InputFile | str,
         business_connection_id: str | None = None,
@@ -1050,6 +1065,7 @@ class APIMethods:
 
     async def send_paid_media(
         self,
+        *,
         chat_id: int | str,
         star_count: int,
         media: list[InputPaidMedia],
@@ -1118,6 +1134,7 @@ class APIMethods:
 
     async def send_media_group(
         self,
+        *,
         chat_id: int | str,
         media: list[InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo],
         business_connection_id: str | None = None,
@@ -1164,6 +1181,7 @@ class APIMethods:
 
     async def send_location(
         self,
+        *,
         chat_id: int | str,
         latitude: float,
         longitude: float,
@@ -1235,6 +1253,7 @@ class APIMethods:
 
     async def send_venue(
         self,
+        *,
         chat_id: int | str,
         latitude: float,
         longitude: float,
@@ -1310,6 +1329,7 @@ class APIMethods:
 
     async def send_contact(
         self,
+        *,
         chat_id: int | str,
         phone_number: str,
         first_name: str,
@@ -1371,6 +1391,7 @@ class APIMethods:
 
     async def send_poll(
         self,
+        *,
         chat_id: int | str,
         question: str,
         options: list[InputPollOption],
@@ -1474,6 +1495,7 @@ class APIMethods:
 
     async def send_dice(
         self,
+        *,
         chat_id: int | str,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -1529,6 +1551,7 @@ class APIMethods:
 
     async def send_chat_action(
         self,
+        *,
         chat_id: int | str,
         action: ChatAction,
         business_connection_id: str | None = None,
@@ -1567,6 +1590,7 @@ class APIMethods:
 
     async def set_message_reaction(
         self,
+        *,
         chat_id: int | str,
         message_id: int,
         reaction: list[ReactionType] | None = None,
@@ -1603,6 +1627,7 @@ class APIMethods:
 
     async def get_user_profile_photos(
         self,
+        *,
         user_id: int,
         offset: int | None = None,
         limit: int | None = None,
@@ -1630,6 +1655,7 @@ class APIMethods:
 
     async def get_file(
         self,
+        *,
         file_id: str,
         **other: typing.Any,
     ) -> Result[File, APIError]:
@@ -1655,6 +1681,7 @@ class APIMethods:
 
     async def ban_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         until_date: datetime | int | None = None,
@@ -1691,6 +1718,7 @@ class APIMethods:
 
     async def unban_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         only_if_banned: bool | None = None,
@@ -1722,6 +1750,7 @@ class APIMethods:
 
     async def restrict_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         permissions: ChatPermissions,
@@ -1762,6 +1791,7 @@ class APIMethods:
 
     async def promote_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         is_anonymous: bool | None = None,
@@ -1842,6 +1872,7 @@ class APIMethods:
 
     async def set_chat_administrator_custom_title(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         custom_title: str,
@@ -1869,6 +1900,7 @@ class APIMethods:
 
     async def ban_chat_sender_chat(
         self,
+        *,
         chat_id: int | str,
         sender_chat_id: int,
         **other: typing.Any,
@@ -1895,6 +1927,7 @@ class APIMethods:
 
     async def unban_chat_sender_chat(
         self,
+        *,
         chat_id: int | str,
         sender_chat_id: int,
         **other: typing.Any,
@@ -1919,6 +1952,7 @@ class APIMethods:
 
     async def set_chat_permissions(
         self,
+        *,
         chat_id: int | str,
         permissions: ChatPermissions,
         use_independent_chat_permissions: bool | None = None,
@@ -1951,6 +1985,7 @@ class APIMethods:
 
     async def export_chat_invite_link(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[str, APIError]:
@@ -1973,6 +2008,7 @@ class APIMethods:
 
     async def create_chat_invite_link(
         self,
+        *,
         chat_id: int | str,
         name: str | None = None,
         expire_date: datetime | int | None = None,
@@ -2009,6 +2045,7 @@ class APIMethods:
 
     async def edit_chat_invite_link(
         self,
+        *,
         chat_id: int | str,
         invite_link: str,
         name: str | None = None,
@@ -2048,6 +2085,7 @@ class APIMethods:
 
     async def create_chat_subscription_invite_link(
         self,
+        *,
         chat_id: int | str,
         subscription_period: int,
         subscription_price: int,
@@ -2082,6 +2120,7 @@ class APIMethods:
 
     async def edit_chat_subscription_invite_link(
         self,
+        *,
         chat_id: int | str,
         invite_link: str,
         name: str | None = None,
@@ -2109,6 +2148,7 @@ class APIMethods:
 
     async def revoke_chat_invite_link(
         self,
+        *,
         chat_id: int | str,
         invite_link: str,
         **other: typing.Any,
@@ -2135,6 +2175,7 @@ class APIMethods:
 
     async def approve_chat_join_request(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
@@ -2159,6 +2200,7 @@ class APIMethods:
 
     async def decline_chat_join_request(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
@@ -2183,6 +2225,7 @@ class APIMethods:
 
     async def set_chat_photo(
         self,
+        *,
         chat_id: int | str,
         photo: InputFile,
         **other: typing.Any,
@@ -2208,6 +2251,7 @@ class APIMethods:
 
     async def delete_chat_photo(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2229,6 +2273,7 @@ class APIMethods:
 
     async def set_chat_title(
         self,
+        *,
         chat_id: int | str,
         title: str,
         **other: typing.Any,
@@ -2253,6 +2298,7 @@ class APIMethods:
 
     async def set_chat_description(
         self,
+        *,
         chat_id: int | str,
         description: str | None = None,
         **other: typing.Any,
@@ -2277,6 +2323,7 @@ class APIMethods:
 
     async def pin_chat_message(
         self,
+        *,
         chat_id: int | str,
         message_id: int,
         business_connection_id: str | None = None,
@@ -2312,6 +2359,7 @@ class APIMethods:
 
     async def unpin_chat_message(
         self,
+        *,
         chat_id: int | str,
         business_connection_id: str | None = None,
         message_id: int | None = None,
@@ -2344,6 +2392,7 @@ class APIMethods:
 
     async def unpin_all_chat_messages(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2367,6 +2416,7 @@ class APIMethods:
 
     async def leave_chat(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2387,6 +2437,7 @@ class APIMethods:
 
     async def get_chat(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[ChatFullInfo, APIError]:
@@ -2407,6 +2458,7 @@ class APIMethods:
 
     async def get_chat_administrators(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[
@@ -2451,6 +2503,7 @@ class APIMethods:
 
     async def get_chat_member_count(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[int, APIError]:
@@ -2470,6 +2523,7 @@ class APIMethods:
 
     async def get_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
@@ -2514,6 +2568,7 @@ class APIMethods:
 
     async def set_chat_sticker_set(
         self,
+        *,
         chat_id: int | str,
         sticker_set_name: str,
         **other: typing.Any,
@@ -2540,6 +2595,7 @@ class APIMethods:
 
     async def delete_chat_sticker_set(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2577,6 +2633,7 @@ class APIMethods:
 
     async def create_forum_topic(
         self,
+        *,
         chat_id: int | str,
         name: str,
         icon_color: TopicIconColor | None = None,
@@ -2611,6 +2668,7 @@ class APIMethods:
 
     async def edit_forum_topic(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         name: str | None = None,
@@ -2645,6 +2703,7 @@ class APIMethods:
 
     async def close_forum_topic(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
@@ -2670,6 +2729,7 @@ class APIMethods:
 
     async def reopen_forum_topic(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
@@ -2695,6 +2755,7 @@ class APIMethods:
 
     async def delete_forum_topic(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
@@ -2720,6 +2781,7 @@ class APIMethods:
 
     async def unpin_all_forum_topic_messages(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
@@ -2745,6 +2807,7 @@ class APIMethods:
 
     async def edit_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         name: str,
         **other: typing.Any,
@@ -2769,6 +2832,7 @@ class APIMethods:
 
     async def close_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2790,6 +2854,7 @@ class APIMethods:
 
     async def reopen_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2812,6 +2877,7 @@ class APIMethods:
 
     async def hide_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2834,6 +2900,7 @@ class APIMethods:
 
     async def unhide_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2855,6 +2922,7 @@ class APIMethods:
 
     async def unpin_all_general_forum_topic_messages(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2877,6 +2945,7 @@ class APIMethods:
 
     async def answer_callback_query(
         self,
+        *,
         callback_query_id: str,
         text: str | None = None,
         show_alert: bool | None = None,
@@ -2917,6 +2986,7 @@ class APIMethods:
 
     async def get_user_chat_boosts(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
@@ -2940,6 +3010,7 @@ class APIMethods:
 
     async def get_business_connection(
         self,
+        *,
         business_connection_id: str,
         **other: typing.Any,
     ) -> Result[BusinessConnection, APIError]:
@@ -2959,6 +3030,7 @@ class APIMethods:
 
     async def set_my_commands(
         self,
+        *,
         commands: list[BotCommand],
         scope: BotCommandScope | None = None,
         language_code: str | None = None,
@@ -2988,6 +3060,7 @@ class APIMethods:
 
     async def delete_my_commands(
         self,
+        *,
         scope: BotCommandScope | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -3014,6 +3087,7 @@ class APIMethods:
 
     async def get_my_commands(
         self,
+        *,
         scope: BotCommandScope | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -3037,6 +3111,7 @@ class APIMethods:
 
     async def set_my_name(
         self,
+        *,
         name: str | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -3060,6 +3135,7 @@ class APIMethods:
 
     async def get_my_name(
         self,
+        *,
         language_code: str | None = None,
         **other: typing.Any,
     ) -> Result[BotName, APIError]:
@@ -3079,6 +3155,7 @@ class APIMethods:
 
     async def set_my_description(
         self,
+        *,
         description: str | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -3103,6 +3180,7 @@ class APIMethods:
 
     async def get_my_description(
         self,
+        *,
         language_code: str | None = None,
         **other: typing.Any,
     ) -> Result[BotDescription, APIError]:
@@ -3122,6 +3200,7 @@ class APIMethods:
 
     async def set_my_short_description(
         self,
+        *,
         short_description: str | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -3147,6 +3226,7 @@ class APIMethods:
 
     async def get_my_short_description(
         self,
+        *,
         language_code: str | None = None,
         **other: typing.Any,
     ) -> Result[BotShortDescription, APIError]:
@@ -3166,6 +3246,7 @@ class APIMethods:
 
     async def set_chat_menu_button(
         self,
+        *,
         chat_id: int | None = None,
         menu_button: MenuButton | None = None,
         **other: typing.Any,
@@ -3189,6 +3270,7 @@ class APIMethods:
 
     async def get_chat_menu_button(
         self,
+        *,
         chat_id: int | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], APIError]:
@@ -3211,6 +3293,7 @@ class APIMethods:
 
     async def set_my_default_administrator_rights(
         self,
+        *,
         rights: ChatAdministratorRights | None = None,
         for_channels: bool | None = None,
         **other: typing.Any,
@@ -3238,6 +3321,7 @@ class APIMethods:
 
     async def get_my_default_administrator_rights(
         self,
+        *,
         for_channels: bool | None = None,
         **other: typing.Any,
     ) -> Result[ChatAdministratorRights, APIError]:
@@ -3259,6 +3343,7 @@ class APIMethods:
 
     async def edit_message_text(
         self,
+        *,
         text: str,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
@@ -3311,6 +3396,7 @@ class APIMethods:
 
     async def edit_message_caption(
         self,
+        *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
@@ -3364,6 +3450,7 @@ class APIMethods:
 
     async def edit_message_media(
         self,
+        *,
         media: InputMedia,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
@@ -3409,6 +3496,7 @@ class APIMethods:
 
     async def edit_message_live_location(
         self,
+        *,
         latitude: float,
         longitude: float,
         business_connection_id: str | None = None,
@@ -3471,6 +3559,7 @@ class APIMethods:
 
     async def stop_message_live_location(
         self,
+        *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
@@ -3507,6 +3596,7 @@ class APIMethods:
 
     async def edit_message_reply_markup(
         self,
+        *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
@@ -3545,6 +3635,7 @@ class APIMethods:
 
     async def stop_poll(
         self,
+        *,
         chat_id: int | str,
         message_id: int,
         business_connection_id: str | None = None,
@@ -3575,6 +3666,7 @@ class APIMethods:
 
     async def delete_message(
         self,
+        *,
         chat_id: int | str,
         message_id: int,
         **other: typing.Any,
@@ -3607,6 +3699,7 @@ class APIMethods:
 
     async def delete_messages(
         self,
+        *,
         chat_id: int | str,
         message_ids: list[int],
         **other: typing.Any,
@@ -3632,6 +3725,7 @@ class APIMethods:
 
     async def send_sticker(
         self,
+        *,
         chat_id: int | str,
         sticker: InputFile | str,
         business_connection_id: str | None = None,
@@ -3693,6 +3787,7 @@ class APIMethods:
 
     async def get_sticker_set(
         self,
+        *,
         name: str,
         **other: typing.Any,
     ) -> Result[StickerSet, APIError]:
@@ -3711,6 +3806,7 @@ class APIMethods:
 
     async def get_custom_emoji_stickers(
         self,
+        *,
         custom_emoji_ids: list[str],
         **other: typing.Any,
     ) -> Result[list[Sticker], APIError]:
@@ -3731,6 +3827,7 @@ class APIMethods:
 
     async def upload_sticker_file(
         self,
+        *,
         user_id: int,
         sticker: InputFile,
         sticker_format: typing.Literal["static", "animated", "video"],
@@ -3758,6 +3855,7 @@ class APIMethods:
 
     async def create_new_sticker_set(
         self,
+        *,
         user_id: int,
         name: str,
         title: str,
@@ -3800,6 +3898,7 @@ class APIMethods:
 
     async def add_sticker_to_set(
         self,
+        *,
         user_id: int,
         name: str,
         sticker: InputSticker,
@@ -3828,6 +3927,7 @@ class APIMethods:
 
     async def set_sticker_position_in_set(
         self,
+        *,
         sticker: str,
         position: int,
         **other: typing.Any,
@@ -3850,6 +3950,7 @@ class APIMethods:
 
     async def delete_sticker_from_set(
         self,
+        *,
         sticker: str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -3869,6 +3970,7 @@ class APIMethods:
 
     async def replace_sticker_in_set(
         self,
+        *,
         user_id: int,
         name: str,
         old_sticker: str,
@@ -3900,6 +4002,7 @@ class APIMethods:
 
     async def set_sticker_emoji_list(
         self,
+        *,
         sticker: str,
         emoji_list: list[str],
         **other: typing.Any,
@@ -3923,6 +4026,7 @@ class APIMethods:
 
     async def set_sticker_keywords(
         self,
+        *,
         sticker: str,
         keywords: list[str] | None = None,
         **other: typing.Any,
@@ -3947,6 +4051,7 @@ class APIMethods:
 
     async def set_sticker_mask_position(
         self,
+        *,
         sticker: str,
         mask_position: MaskPosition | None = None,
         **other: typing.Any,
@@ -3970,6 +4075,7 @@ class APIMethods:
 
     async def set_sticker_set_title(
         self,
+        *,
         name: str,
         title: str,
         **other: typing.Any,
@@ -3992,6 +4098,7 @@ class APIMethods:
 
     async def set_sticker_set_thumbnail(
         self,
+        *,
         name: str,
         user_id: int,
         format: str,
@@ -4033,6 +4140,7 @@ class APIMethods:
 
     async def set_custom_emoji_sticker_set_thumbnail(
         self,
+        *,
         name: str,
         custom_emoji_id: str | None = None,
         **other: typing.Any,
@@ -4056,6 +4164,7 @@ class APIMethods:
 
     async def delete_sticker_set(
         self,
+        *,
         name: str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -4075,6 +4184,7 @@ class APIMethods:
 
     async def answer_inline_query(
         self,
+        *,
         inline_query_id: str,
         results: list[InlineQueryResult],
         cache_time: int | None = None,
@@ -4115,6 +4225,7 @@ class APIMethods:
 
     async def answer_web_app_query(
         self,
+        *,
         web_app_query_id: str,
         result: InlineQueryResult,
         **other: typing.Any,
@@ -4138,6 +4249,7 @@ class APIMethods:
 
     async def send_invoice(
         self,
+        *,
         chat_id: int | str,
         title: str,
         description: str,
@@ -4269,6 +4381,7 @@ class APIMethods:
 
     async def create_invoice_link(
         self,
+        *,
         title: str,
         description: str,
         payload: str,
@@ -4368,6 +4481,7 @@ class APIMethods:
 
     async def answer_shipping_query(
         self,
+        *,
         shipping_query_id: str,
         ok: bool,
         shipping_options: list[ShippingOption] | None = None,
@@ -4403,6 +4517,7 @@ class APIMethods:
 
     async def answer_pre_checkout_query(
         self,
+        *,
         pre_checkout_query_id: str,
         ok: bool,
         error_message: str | None = None,
@@ -4436,6 +4551,7 @@ class APIMethods:
 
     async def get_star_transactions(
         self,
+        *,
         offset: int | None = None,
         limit: int | None = None,
         **other: typing.Any,
@@ -4459,6 +4575,7 @@ class APIMethods:
 
     async def refund_star_payment(
         self,
+        *,
         user_id: int,
         telegram_payment_charge_id: str,
         **other: typing.Any,
@@ -4480,6 +4597,7 @@ class APIMethods:
 
     async def set_passport_data_errors(
         self,
+        *,
         user_id: int,
         errors: list[PassportElementError],
         **other: typing.Any,
@@ -4508,6 +4626,7 @@ class APIMethods:
 
     async def send_game(
         self,
+        *,
         chat_id: int,
         game_short_name: str,
         business_connection_id: str | None = None,
@@ -4555,6 +4674,7 @@ class APIMethods:
 
     async def set_game_score(
         self,
+        *,
         user_id: int,
         score: int,
         force: bool | None = None,
@@ -4599,6 +4719,7 @@ class APIMethods:
 
     async def get_game_high_scores(
         self,
+        *,
         user_id: int,
         chat_id: int | None = None,
         message_id: int | None = None,

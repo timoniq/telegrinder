@@ -28,6 +28,7 @@ class ChatMemberShortcuts:
     @shortcut("ban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
     async def ban_chat_member(
         self,
+        *,
         chat_id: int | str | None = None,
         user_id: int | None = None,
         until_date: datetime | int | None = None,
@@ -47,6 +48,7 @@ class ChatMemberShortcuts:
     @shortcut("unban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
     async def unban_chat_member(
         self,
+        *,
         chat_id: int | str | None = None,
         user_id: int | None = None,
         only_if_banned: bool | None = None,
@@ -71,6 +73,7 @@ class ChatMemberShortcuts:
     )
     async def restrict_chat_member(
         self,
+        *,
         permissions: ChatPermissions,
         chat_id: int | str | None = None,
         user_id: int | None = None,
@@ -90,6 +93,7 @@ class ChatMemberShortcuts:
     @shortcut("promote_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
     async def promote_chat_member(
         self,
+        *,
         chat_id: int | str | None = None,
         user_id: int | None = None,
         is_anonymous: bool | None = None,
@@ -125,6 +129,7 @@ class ChatMemberShortcuts:
     )
     async def set_chat_administrator_custom_title(
         self,
+        *,
         custom_title: str,
         chat_id: int | str | None = None,
         user_id: int | None = None,

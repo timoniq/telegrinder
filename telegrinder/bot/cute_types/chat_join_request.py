@@ -26,6 +26,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     )
     async def approve(
         self,
+        *,
         chat_id: int | str | None = None,
         user_id: int | None = None,
         **other: typing.Any,
@@ -45,6 +46,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     )
     async def decline(
         self,
+        *,
         chat_id: int | str | None = None,
         user_id: int | None = None,
         **other: typing.Any,

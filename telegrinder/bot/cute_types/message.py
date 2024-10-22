@@ -175,6 +175,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer(
         self,
         text: str | None = None,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -227,6 +228,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply(
         self,
         text: str,
+        *,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -275,6 +277,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def delete(
         self,
+        *,
         chat_id: int | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -310,6 +313,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def edit(
         self,
         text: str,
+        *,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -354,6 +358,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def copy(
         self,
         chat_id: int | str | None = None,
+        *,
         from_chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -406,6 +411,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reaction: (
             str | ReactionEmoji | ReactionType | list[str | ReactionEmoji | ReactionType] | None
         ) = None,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         message_id: int | None = None,
@@ -435,6 +441,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def forward(
         self,
         chat_id: int | str,
+        *,
         message_id: int | None = None,
         from_chat_id: int | str | None = None,
         message_thread_id: int | None = None,
@@ -474,6 +481,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut("pin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def pin(
         self,
+        *,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -507,6 +515,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     @shortcut("unpin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def unpin(
         self,
+        *,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -542,6 +551,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_audio(
         self,
         audio: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -609,6 +619,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_animation(
         self,
         animation: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -679,6 +690,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_document(
         self,
         document: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -739,6 +751,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_photo(
         self,
         photo: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -797,6 +810,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_sticker(
         self,
         sticker: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         emoji: str | None = None,
         message_thread_id: int | None = None,
@@ -845,6 +859,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_video(
         self,
         video: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         emoji: str | None = None,
         message_thread_id: int | None = None,
@@ -920,6 +935,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_video_note(
         self,
         video_note: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_effect_id: str | None = None,
@@ -974,6 +990,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_voice(
         self,
         voice: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -1034,6 +1051,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_poll(
         self,
         question: str,
+        *,
         options: list[InputPollOption],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
@@ -1117,6 +1135,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_venue(
         self,
+        *,
         latitude: float,
         longitude: float,
         title: str,
@@ -1184,6 +1203,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_dice(
         self,
         emoji: DiceEmoji | None = None,
+        *,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -1228,6 +1248,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_game(
         self,
         game_short_name: str,
+        *,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -1267,6 +1288,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_invoice(
         self,
+        *,
         title: str,
         description: str,
         payload: str,
@@ -1312,6 +1334,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_chat_action(
         self,
         action: ChatAction,
+        *,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -1340,6 +1363,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_media_group(
         self,
         media: InputMedia | list[InputMedia],
+        *,
         chat_id: int | str | None = None,
         media_type: MediaType | None = None,
         business_connection_id: str | None = None,
@@ -1380,6 +1404,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_location(
         self,
+        *,
         latitude: float,
         longitude: float,
         chat_id: int | str | None = None,
@@ -1437,6 +1462,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def answer_contact(
         self,
+        *,
         phone_number: str,
         first_name: str,
         last_name: str | None = None,
@@ -1491,6 +1517,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_audio(
         self,
         audio: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -1558,6 +1585,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_animation(
         self,
         animation: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -1628,6 +1656,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_document(
         self,
         document: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -1688,6 +1717,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_photo(
         self,
         photo: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -1746,6 +1776,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_sticker(
         self,
         sticker: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         emoji: str | None = None,
         message_thread_id: int | None = None,
@@ -1793,8 +1824,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_video(
         self,
-        sticker: InputFile | str,
         video: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         emoji: str | None = None,
         message_thread_id: int | None = None,
@@ -1870,6 +1901,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_video_note(
         self,
         video_note: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_effect_id: str | None = None,
@@ -1924,6 +1956,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_voice(
         self,
         voice: InputFile | str,
+        *,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -1984,6 +2017,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_poll(
         self,
         question: str,
+        *,
         options: list[InputPollOption],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
@@ -2067,6 +2101,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_venue(
         self,
+        *,
         latitude: float,
         longitude: float,
         title: str,
@@ -2134,6 +2169,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_dice(
         self,
         emoji: DiceEmoji | None = None,
+        *,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -2178,6 +2214,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_game(
         self,
         game_short_name: str,
+        *,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -2217,6 +2254,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_invoice(
         self,
+        *,
         title: str,
         description: str,
         payload: str,
@@ -2265,6 +2303,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_media_group(
         self,
         media: InputMedia | list[InputMedia],
+        *,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -2294,7 +2333,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param reply_parameters: Description of the message to reply to."""
 
         params = get_params(locals())
-        params.setdefault("reply_parameters", ReplyParameters(params.get("message_id", self.message_id)))
+        params.setdefault("reply_parameters", ReplyParameters(self.message_id))
         return await self.answer_media_group(**params)
 
     @shortcut(
@@ -2304,6 +2343,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_location(
         self,
+        *,
         latitude: float,
         longitude: float,
         chat_id: int | str | None = None,
@@ -2361,6 +2401,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def reply_contact(
         self,
+        *,
         phone_number: str,
         first_name: str,
         last_name: str | None = None,
@@ -2414,6 +2455,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def edit_live_location(
         self,
+        *,
         latitude: float,
         longitude: float,
         chat_id: int | str | None = None,
@@ -2464,6 +2506,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def edit_caption(
         self,
         caption: str | None = None,
+        *,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
@@ -2516,6 +2559,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def edit_media(
         self,
         media: InputFile | InputMedia | str,
+        *,
         type: MediaType | None = None,
         caption: str | None = None,
         parse_mode: str | None = None,
@@ -2572,6 +2616,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     )
     async def edit_reply_markup(
         self,
+        *,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,

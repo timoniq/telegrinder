@@ -614,6 +614,7 @@ class MethodGenerator(ABCGenerator):
     def make_method(self, method_schema: MethodSchema) -> str:
         code = (
             f"{TAB}async def {camel_to_snake(method_schema.name)}(self,"
+            + ("*,\n" if method_schema.params else "")
             + ",\n".join(self.make_method_params(method_schema.name, method_schema.params))
             + ("," if method_schema.params else "")
             + f"**other: typing.Any{',' if method_schema.params else ''}) -> "

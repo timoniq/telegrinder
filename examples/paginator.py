@@ -22,7 +22,7 @@ class AdminPaginator(Paginator[Admin]):
 
     async def get_page(self, page_number: int) -> Page[Admin]:
         limit = 3
-        admins = (await self.api.get_chat_administrators(self.chat_id)).unwrap()
+        admins = (await self.api.get_chat_administrators(chat_id=self.chat_id)).unwrap()
         max_page = math.ceil(len(admins) / limit)
 
         return Page(

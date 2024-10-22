@@ -36,4 +36,4 @@ class PaginatedData(typing.Protocol):
     id: typing.Any
 
 
-__all__ = ("OpenId", "Page", "PaginatedData", "SwitchPage", "PageAction")
+__all__ = ("OpenId", "Page", "PageAction", "PaginatedData", "SwitchPage")
