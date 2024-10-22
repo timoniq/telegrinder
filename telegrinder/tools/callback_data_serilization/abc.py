@@ -12,11 +12,7 @@ if typing.TYPE_CHECKING:
 
     from _typeshed import DataclassInstance
 
-P = typing.ParamSpec("P")
-T = typing.TypeVar("T")
-Data = typing.TypeVar("Data")
-
-ModelType: typing.TypeAlias = "DataclassWithIdentKey | ModelWithIdentKey | msgspec.Struct | DataclassInstance"
+type ModelType = DataclassWithIdentKey | ModelWithIdentKey | msgspec.Struct | DataclassInstance
 
 
 @typing.runtime_checkable
@@ -32,7 +28,7 @@ class ModelWithIdentKey(typing.Protocol):
     __struct_config__: typing.ClassVar[msgspec.structs.StructConfig]
 
 
-class ABCDataSerializer(abc.ABC, typing.Generic[Data]):
+class ABCDataSerializer[Data](abc.ABC):
     ident_key: str | None = None
 
     @abc.abstractmethod

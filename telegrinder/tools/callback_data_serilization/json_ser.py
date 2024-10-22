@@ -8,12 +8,10 @@ from telegrinder.msgspec_utils import decoder
 
 from .abc import ABCDataSerializer, ModelType
 
-JsonT = typing.TypeVar("JsonT", bound="Json")
-
-Json: typing.TypeAlias = "dict[str, typing.Any] | ModelType"
+type Json = dict[str, typing.Any] | ModelType
 
 
-class JSONSerializer(ABCDataSerializer[JsonT]):
+class JSONSerializer[JsonT: Json](ABCDataSerializer[JsonT]):
     @typing.overload
     def __init__(self, model_t: type[JsonT]) -> None: ...
 

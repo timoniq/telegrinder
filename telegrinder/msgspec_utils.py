@@ -20,27 +20,23 @@ else:
 
     from msgspec._utils import get_class_annotations, get_type_hints
 
-    Value = typing.TypeVar("Value")
-
     datetime = type("datetime", (dt,), {})
 
     class OptionMeta(type):
         def __instancecheck__(cls, __instance: typing.Any) -> bool:
             return isinstance(__instance, fntypes.option.Some | fntypes.option.Nothing)
 
-    class Option(typing.Generic[Value], metaclass=OptionMeta):
+    class Option[Value](metaclass=OptionMeta):
         pass
 
 
-T = typing.TypeVar("T")
-
-DecHook: typing.TypeAlias = typing.Callable[[type[T], typing.Any], typing.Any]
-EncHook: typing.TypeAlias = typing.Callable[[T], typing.Any]
+type DecHook[T] = typing.Callable[[type[T], typing.Any], typing.Any]
+type EncHook[T] = typing.Callable[[T], typing.Any]
 
 Nothing: typing.Final[fntypes.option.Nothing] = fntypes.option.Nothing()
 
 
-def get_origin(t: type[T]) -> type[T]:
+def get_origin[T](t: type[T]) -> type[T]:
     return typing.cast(T, typing.get_origin(t)) or t
 
 
@@ -68,7 +64,7 @@ def type_check(obj: typing.Any, t: typing.Any) -> bool:
     )
 
 
-def msgspec_convert(obj: typing.Any, t: type[T]) -> fntypes.result.Result[T, str]:
+def msgspec_convert[T](obj: typing.Any, t: type[T]) -> fntypes.result.Result[T, str]:
     try:
         return Ok(decoder.convert(obj, type=t, strict=True))
     except msgspec.ValidationError:
@@ -196,13 +192,13 @@ class Decoder:
         )
 
     @typing.overload
-    def __call__(self, type: type[T]) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
+    def __call__[T](self, type: type[T]) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
 
     @typing.overload
     def __call__(self, type: typing.Any) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
 
     @typing.overload
-    def __call__(
+    def __call__[T](
         self,
         type: type[T],
         *,
@@ -228,9 +224,9 @@ class Decoder:
         )
         yield dec_obj
 
-    def add_dec_hook(self, t: type[T]):  # type: ignore
+    def add_dec_hook[T](self, t: type[T]):
         def decorator(func: DecHook[T]) -> DecHook[T]:
-            return self.dec_hooks.setdefault(get_origin(t), func)  # type: ignore
+            return self.dec_hooks.setdefault(get_origin(t), func)
 
         return decorator
 
@@ -242,7 +238,7 @@ class Decoder:
             )
         return self.dec_hooks[origin_type](tp, obj)
 
-    def convert(
+    def convert[T](
         self,
         obj: object,
         *,
@@ -266,13 +262,13 @@ class Decoder:
     def decode(self, buf: str | bytes) -> typing.Any: ...
 
     @typing.overload
-    def decode(self, buf: str | bytes, *, type: type[T]) -> T: ...
+    def decode[T](self, buf: str | bytes, *, type: type[T]) -> T: ...
 
     @typing.overload
     def decode(self, buf: str | bytes, *, type: typing.Any) -> typing.Any: ...
 
     @typing.overload
-    def decode(
+    def decode[T](
         self,
         buf: str | bytes,
         *,
@@ -339,7 +335,7 @@ class Encoder:
         enc_obj = msgspec.json.Encoder(enc_hook=self.enc_hook)
         yield enc_obj
 
-    def add_enc_hook(self, t: type[T]):
+    def add_enc_hook[T](self, t: type[T]):
         def decorator(func: EncHook[T]) -> EncHook[T]:
             encode_hook = self.enc_hooks.setdefault(get_origin(t), func)
             return func if encode_hook is not func else encode_hook
@@ -350,7 +346,7 @@ class Encoder:
         origin_type = get_origin(obj.__class__)
         if origin_type not in self.enc_hooks:
             raise NotImplementedError(
-                f"Not implemented encode hook for object of type `{repr_type(origin_type)}`."
+                f"Not implemented encode hook for object of type `{repr_type(origin_type)}`.",
             )
         return self.enc_hooks[origin_type](obj)
 

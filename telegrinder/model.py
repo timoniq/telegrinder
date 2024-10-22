@@ -15,11 +15,6 @@ from telegrinder.msgspec_utils import decoder, encoder, get_origin
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
 
-T = typing.TypeVar("T")
-P = typing.ParamSpec("P")
-
-UnionType: typing.TypeAlias = typing.Annotated[tuple[T, ...], ...]
-
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "omit_defaults": True,
     "dict": True,
@@ -27,24 +22,10 @@ MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
 }
 
 
-@typing.overload
-def full_result(
+def full_result[T](
     result: Result[msgspec.Raw, "APIError"],
     full_t: type[T],
-) -> Result[T, "APIError"]: ...
-
-
-@typing.overload
-def full_result(
-    result: Result[msgspec.Raw, "APIError"],
-    full_t: UnionType[T],
-) -> Result[T, "APIError"]: ...
-
-
-def full_result(
-    result: Result[msgspec.Raw, "APIError"],
-    full_t: typing.Any,
-) -> Result[typing.Any, "APIError"]:
+) -> Result[T, "APIError"]:
     return result.map(lambda v: decoder.decode(v, type=full_t))
 
 
@@ -121,12 +102,12 @@ if typing.TYPE_CHECKING:
         converter=...,
     ) -> typing.Any: ...
 
-    class From(typing.Generic[T]):
+    class From[T]:
         def __new__(cls, _: T, /) -> typing.Any: ...
 else:
     from msgspec import field as _field
 
-    From = typing.Annotated[T, ...]
+    type From[T] = typing.Annotated[T, ...]
 
     def field(**kwargs):
         kwargs.pop("converter", None)
@@ -136,7 +117,7 @@ else:
 @typing.dataclass_transform(field_specifiers=(field,))
 class Model(msgspec.Struct, **MODEL_CONFIG):
     @classmethod
-    def from_data(cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
+    def from_data[**P, T](cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
         return decoder.convert(msgspec.structs.asdict(cls(*args, **kwargs)), type=cls)  # type: ignore
 
     @classmethod
@@ -279,8 +260,8 @@ class DataConverter:
         return data
 
 
-class Proxy:
-    def __init__(self, cfg: "_ProxiedDict", key: str) -> None:
+class Proxy[T]:
+    def __init__(self, cfg: "_ProxiedDict[T]", key: str) -> None:
         self.key = key
         self.cfg = cfg
 
@@ -288,7 +269,7 @@ class Proxy:
         return self.cfg._defaults.get(self.key)
 
 
-class _ProxiedDict(typing.Generic[T]):
+class _ProxiedDict[T]:
     def __init__(self, tp: type[T]) -> None:
         self.type = tp
         self._defaults = {}
@@ -305,7 +286,7 @@ class _ProxiedDict(typing.Generic[T]):
 
 if typing.TYPE_CHECKING:
 
-    def ProxiedDict(typed_dct: type[T]) -> T | _ProxiedDict[T]:  # noqa: N802
+    def ProxiedDict[T](typed_dct: type[T]) -> T | _ProxiedDict[T]:  # noqa: N802
         ...
 
 else:
