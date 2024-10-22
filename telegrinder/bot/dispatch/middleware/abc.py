@@ -8,10 +8,8 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.adapter.abc import ABCAdapter
 
-Event = typing.TypeVar("Event", bound=Model)
 
-
-class ABCMiddleware(ABC, typing.Generic[Event]):
+class ABCMiddleware[Event: Model](ABC):
     adapter: "ABCAdapter[Update, Event] | None" = None
 
     async def pre(self, event: Event, ctx: Context) -> bool: ...

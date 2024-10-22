@@ -1,11 +1,12 @@
 from fntypes.option import Option
 
+from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.view import BaseStateView
-from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import ECHO, Event, Hasher
+from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import ECHO, Hasher
 from telegrinder.tools.functional import from_optional
 
 
-class StateViewHasher(Hasher[Event, int]):
+class StateViewHasher[Event: BaseCute](Hasher[Event, int]):
     view: BaseStateView[Event]
 
     def __init__(self, view: BaseStateView[Event]) -> None:

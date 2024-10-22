@@ -7,9 +7,8 @@ from telegrinder.bot.scenario.checkbox import Checkbox, ChoiceCode
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
     from telegrinder.bot.dispatch.view.base import BaseStateView
-    from telegrinder.bot.scenario.checkbox import Key
 
-    class Choice(Checkbox[Key], typing.Generic[Key]):
+    class Choice[Key: typing.Hashable](Checkbox[Key]):
         async def wait(
             self,
             hasher: Hasher[CallbackQueryCute, int],

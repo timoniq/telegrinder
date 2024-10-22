@@ -13,7 +13,7 @@ from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.modules import logger
 from telegrinder.types.objects import Update
 
-APIMethod: typing.TypeAlias = typing.Callable[
+type APIMethod = typing.Callable[
     typing.Concatenate[MessageCute, ...], typing.Awaitable[Result[typing.Any, APIError]]
 ]
 

@@ -4,8 +4,6 @@ import typing
 if typing.TYPE_CHECKING:
     from .base import Node
 
-T = typing.TypeVar("T", bound=type["Node"])
-
 
 class NodeScope(enum.Enum):
     GLOBAL = enum.auto()
@@ -18,17 +16,17 @@ PER_CALL = NodeScope.PER_CALL
 GLOBAL = NodeScope.GLOBAL
 
 
-def per_call(node: T) -> T:
+def per_call[T: Node](node: T) -> T:
     setattr(node, "scope", PER_CALL)
     return node
 
 
-def per_event(node: T) -> T:
+def per_event[T: Node](node: T) -> T:
     setattr(node, "scope", PER_EVENT)
     return node
 
 
-def global_node(node: T) -> T:
+def global_node[T: Node](node: T) -> T:
     setattr(node, "scope", GLOBAL)
     return node
 

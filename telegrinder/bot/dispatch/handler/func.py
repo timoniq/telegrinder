@@ -22,13 +22,11 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
     from telegrinder.node.composer import NodeCollection
 
-Rest = typing.ParamSpec("Rest")
-Result = typing.TypeVar("Result")
 Function = typing.TypeVar("Function", bound="Func[..., typing.Any]")
 Event = typing.TypeVar("Event", bound=Model)
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
-Func: typing.TypeAlias = typing.Callable[Rest, typing.Coroutine[typing.Any, typing.Any, Result]]
+type Func[**Rest, Result] = typing.Callable[Rest, typing.Coroutine[typing.Any, typing.Any, Result]]
 
 
 @dataclasses.dataclass(repr=False, slots=True)

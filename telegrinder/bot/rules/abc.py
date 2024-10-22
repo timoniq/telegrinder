@@ -24,7 +24,8 @@ if typing.TYPE_CHECKING:
 
 AdaptTo = typing.TypeVar("AdaptTo", default=typing.Any, contravariant=True)
 
-CheckResult: typing.TypeAlias = bool | typing.Awaitable[bool]
+type CheckResult = bool | typing.Awaitable[bool]
+
 Message: typing.TypeAlias = MessageCute
 Update: typing.TypeAlias = UpdateCute
 

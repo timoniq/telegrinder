@@ -9,7 +9,7 @@ from telegrinder.types.enums import ChatType
 
 from .abc import ABCRule
 
-Validator: typing.TypeAlias = typing.Callable[[str], typing.Any | None]
+type Validator = typing.Callable[[str], typing.Any | None]
 
 
 @dataclasses.dataclass(frozen=True, slots=True)

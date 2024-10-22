@@ -1,12 +1,10 @@
-import typing
-
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity
 
 from .message import Message, MessageRule
 
-Entity: typing.TypeAlias = str | MessageEntityType
+type Entity = str | MessageEntityType
 
 
 class HasEntities(MessageRule):

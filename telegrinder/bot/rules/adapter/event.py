@@ -12,13 +12,11 @@ from telegrinder.bot.rules.adapter.raw_update import RawUpdateAdapter
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Model, Update
 
-ToCute = typing.TypeVar("ToCute", bound=BaseCute)
 
-
-class EventAdapter(ABCAdapter[Update, ToCute]):
+class EventAdapter[ToEvent: BaseCute](ABCAdapter[Update, ToEvent]):
     ADAPTED_VALUE_KEY: str = "_adapted_cute_event"
 
-    def __init__(self, event: UpdateType | type[Model], cute_model: type[ToCute]) -> None:
+    def __init__(self, event: UpdateType | type[Model], cute_model: type[ToEvent]) -> None:
         self.event = event
         self.cute_model = cute_model
 
@@ -43,14 +41,14 @@ class EventAdapter(ABCAdapter[Update, ToCute]):
 
         return None
 
-    def adapt(self, api: API, update: Update, context: Context) -> Result[ToCute, AdapterError]:
+    def adapt(self, api: API, update: Update, context: Context) -> Result[ToEvent, AdapterError]:
         match RawUpdateAdapter().adapt(api, update, context):
             case Ok(update_cute) if event := self.get_event(update_cute):
                 if self.ADAPTED_VALUE_KEY in context:
                     return Ok(context[self.ADAPTED_VALUE_KEY])
 
                 adapted = (
-                    typing.cast(ToCute, event)
+                    typing.cast(ToEvent, event)
                     if isinstance(event, BaseCute)
                     else self.cute_model.from_update(event, bound_api=api)
                 )

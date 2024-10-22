@@ -9,13 +9,10 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.model import Model
 
-From = typing.TypeVar("From", bound=Model)
-To = typing.TypeVar("To")
-
-AdaptResult: typing.TypeAlias = Result[To, AdapterError] | typing.Awaitable[Result[To, AdapterError]]
+type AdaptResult[To] = Result[To, AdapterError] | typing.Awaitable[Result[To, AdapterError]]
 
 
-class ABCAdapter(abc.ABC, typing.Generic[From, To]):
+class ABCAdapter[From: Model, To](abc.ABC):
     ADAPTED_VALUE_KEY: str | None = None
 
     @abc.abstractmethod
@@ -24,7 +21,7 @@ class ABCAdapter(abc.ABC, typing.Generic[From, To]):
 
 
 @dataclasses.dataclass(slots=True)
-class Event(typing.Generic[To]):
+class Event[To]:
     obj: To
 
 

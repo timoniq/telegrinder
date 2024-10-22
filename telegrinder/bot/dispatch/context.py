@@ -9,10 +9,8 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.node.composer import NodeCollection
 
-T = typing.TypeVar("T")
-
-Key: typing.TypeAlias = str | enum.Enum
-AnyValue: typing.TypeAlias = typing.Any
+type Key = str | enum.Enum
+type AnyValue = typing.Any
 
 
 class Context(dict[str, AnyValue]):
@@ -78,15 +76,15 @@ class Context(dict[str, AnyValue]):
     def get(self, key: Key) -> AnyValue | None: ...
 
     @typing.overload
-    def get(self, key: Key, default: T) -> T | AnyValue: ...
+    def get[T](self, key: Key, default: T) -> T | AnyValue: ...
 
     @typing.overload
     def get(self, key: Key, default: None = None) -> AnyValue | None: ...
 
-    def get(self, key: Key, default: T | None = None) -> T | AnyValue | None:
+    def get[T](self, key: Key, default: T | None = None) -> T | AnyValue | None:
         return dict.get(self, key, default)
 
-    def get_or_set(self, key: Key, default: T) -> T:
+    def get_or_set[T](self, key: Key, default: T) -> T:
         if key not in self:
             self.set(key, default)
         return self.get(key, default)

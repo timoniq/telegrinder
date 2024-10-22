@@ -2,11 +2,11 @@ import asyncio
 import datetime
 import typing
 
+from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.view.base import BaseStateView, BaseView
 from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
-    EventModel,
     ShortState,
     ShortStateContext,
 )
@@ -16,10 +16,8 @@ from telegrinder.tools.limited_dict import LimitedDict
 from .actions import WaiterActions
 from .hasher import Hasher, StateViewHasher
 
-HasherData = typing.TypeVar("HasherData")
-
-Storage: typing.TypeAlias = dict[
-    Hasher[EventModel, HasherData], LimitedDict[typing.Hashable, ShortState[EventModel]]
+type Storage[Event: BaseCute, HasherData] = dict[
+    Hasher[Event, HasherData], LimitedDict[typing.Hashable, ShortState[Event]]
 ]
 
 WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
@@ -45,7 +43,7 @@ class WaiterMachine:
             self.base_state_lifetime,
         )
 
-    def create_middleware(self, view: BaseStateView[EventModel]) -> WaiterMiddleware[EventModel]:
+    def create_middleware[Event: BaseCute](self, view: BaseStateView[Event]) -> WaiterMiddleware[Event]:
         hasher = StateViewHasher(view)
         self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)
         return WaiterMiddleware(self, hasher)
@@ -62,9 +60,9 @@ class WaiterMachine:
 
             del self.storage[hasher]
 
-    async def drop(
+    async def drop[Event: BaseCute, HasherData](
         self,
-        hasher: Hasher[EventModel, HasherData],
+        hasher: Hasher[Event, HasherData],
         id: HasherData,
         **context: typing.Any,
     ) -> None:
@@ -85,16 +83,16 @@ class WaiterMachine:
 
         await short_state.cancel()
 
-    async def wait_from_event(
+    async def wait_from_event[Event: BaseCute](
         self,
-        view: BaseStateView[EventModel],
-        event: EventModel,
+        view: BaseStateView[Event],
+        event: Event,
         *,
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        **actions: typing.Unpack[WaiterActions[EventModel]],
-    ) -> ShortStateContext[EventModel]:
+        **actions: typing.Unpack[WaiterActions[Event]],
+    ) -> ShortStateContext[Event]:
         hasher = StateViewHasher(view)
         return await self.wait(
             hasher=hasher,
@@ -107,21 +105,21 @@ class WaiterMachine:
             **actions,
         )
 
-    async def wait(
+    async def wait[Event: BaseCute, HasherData](
         self,
-        hasher: Hasher[EventModel, HasherData],
+        hasher: Hasher[Event, HasherData],
         data: HasherData,
         *,
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        **actions: typing.Unpack[WaiterActions[EventModel]],
-    ) -> ShortStateContext[EventModel]:
+        **actions: typing.Unpack[WaiterActions[Event]],
+    ) -> ShortStateContext[Event]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
 
         event = asyncio.Event()
-        short_state = ShortState[EventModel](
+        short_state = ShortState[Event](
             event,
             actions,
             release=release,
@@ -132,7 +130,7 @@ class WaiterMachine:
 
         if hasher not in self.storage:
             if self.dispatch:
-                view: BaseView[EventModel] = self.dispatch.get_view(hasher.view_class).expect(
+                view: BaseView[Event] = self.dispatch.get_view(hasher.view_class).expect(
                     RuntimeError(f"View {hasher.view_class.__name__!r} is not defined in dispatch.")
                 )
                 view.middlewares.insert(0, WaiterMiddleware(self, hasher))

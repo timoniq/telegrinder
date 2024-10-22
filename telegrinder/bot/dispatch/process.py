@@ -20,11 +20,8 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
     from telegrinder.bot.rules.adapter.abc import ABCAdapter
 
-T = typing.TypeVar("T")
-Event = typing.TypeVar("Event", bound=Model)
 
-
-async def run_adapter(
+async def run_adapter[T](
     adapter: "ABCAdapter[Update, T]",
     api: API,
     update: Update,
@@ -39,7 +36,7 @@ async def run_adapter(
             return Nothing()
 
 
-async def process_inner(
+async def process_inner[Event: Model](
     api: API,
     event: Event,
     raw_event: Update,

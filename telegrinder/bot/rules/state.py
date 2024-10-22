@@ -9,8 +9,6 @@ from telegrinder.node.source import Source
 if typing.TYPE_CHECKING:
     from telegrinder.tools.state_storage.abc import ABCStateStorage
 
-Payload = typing.TypeVar("Payload")
-
 
 class StateMeta(enum.Enum):
     NO_STATE = enum.auto()
@@ -18,7 +16,7 @@ class StateMeta(enum.Enum):
 
 
 @dataclasses.dataclass(frozen=True, slots=True, repr=False)
-class State(ABCRule, typing.Generic[Payload]):
+class State[Payload](ABCRule):
     storage: "ABCStateStorage[Payload]"
     key: str | StateMeta | enum.Enum
 

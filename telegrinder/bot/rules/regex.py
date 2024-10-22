@@ -6,7 +6,7 @@ from telegrinder.node.text import Text
 
 from .abc import ABCRule
 
-PatternLike: typing.TypeAlias = str | typing.Pattern[str]
+type PatternLike = str | typing.Pattern[str]
 
 
 class Regex(ABCRule):

@@ -6,8 +6,6 @@ from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.types.objects import Update
 
-Event = typing.TypeVar("Event", bound=BaseCute)
-
 
 class ABCView(ABC):
     def __repr__(self) -> str:
@@ -26,11 +24,11 @@ class ABCView(ABC):
         pass
 
 
-class ABCEventRawView(ABCView, ABC, typing.Generic[Event]):
+class ABCEventRawView[Event: BaseCute](ABCView, ABC):
     handlers: list[ABCHandler[Event]]
 
 
-class ABCStateView(ABCView, typing.Generic[Event]):
+class ABCStateView[Event: BaseCute](ABCView):
     @abstractmethod
     def get_state_key(self, event: Event) -> int | None:
         pass

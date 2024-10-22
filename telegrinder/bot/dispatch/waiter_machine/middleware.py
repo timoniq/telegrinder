@@ -15,10 +15,8 @@ if typing.TYPE_CHECKING:
     from .machine import WaiterMachine
     from .short_state import ShortState
 
-EventType = typing.TypeVar("EventType", bound=BaseCute)
 
-
-class WaiterMiddleware(ABCMiddleware[EventType]):
+class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
     def __init__(
         self,
         machine: "WaiterMachine",
@@ -27,7 +25,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
         self.machine = machine
         self.hasher = hasher
 
-    async def pre(self, event: EventType, ctx: Context) -> bool:
+    async def pre(self, event: Event, ctx: Context) -> bool:
         if self.hasher not in self.machine.storage:
             return True
 
@@ -36,7 +34,7 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
             logger.info(f"Unable to get hash from event with hasher {self.hasher}")
             return True
 
-        short_state: "ShortState[EventType] | None" = self.machine.storage[self.hasher].get(key.unwrap())
+        short_state: "ShortState[Event] | None" = self.machine.storage[self.hasher].get(key.unwrap())
         if not short_state:
             return True
 
@@ -78,8 +76,8 @@ class WaiterMiddleware(ABCMiddleware[EventType]):
 
     async def pass_runtime(
         self,
-        event: EventType,
-        short_state: "ShortState[EventType]",
+        event: Event,
+        short_state: "ShortState[Event]",
         ctx: Context,
     ) -> None:
         short_state.context = ShortStateContext(event, ctx)

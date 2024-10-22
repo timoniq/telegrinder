@@ -8,7 +8,7 @@ from telegrinder.tools.global_context.telegrinder_ctx import TelegrinderContext
 
 from .abc import ABCRule
 
-PatternLike: typing.TypeAlias = str | vbml.Pattern
+type PatternLike = str | vbml.Pattern
 global_ctx: typing.Final[TelegrinderContext] = TelegrinderContext()
 
 

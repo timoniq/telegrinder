@@ -18,14 +18,8 @@ from telegrinder.msgspec_utils import Option
 from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.types.objects import Update
 
-P = typing.ParamSpec("P")
-R = typing.TypeVar("R", covariant=True)
-Event = typing.TypeVar("Event", bound=BaseCute)
-ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler)
-MiddlewareT = typing.TypeVar("MiddlewareT", bound=ABCMiddleware)
 
-
-def get_event_model_class(view: "BaseView[Event]") -> Option[type[Event]]:
+def get_event_model_class[Event: BaseCute](view: "BaseView[Event]") -> Option[type[Event]]:
     for base in view.__class__.__bases__ + (view.__class__,):
         if "__orig_bases__" not in base.__dict__:
             continue
@@ -43,7 +37,7 @@ def get_event_model_class(view: "BaseView[Event]") -> Option[type[Event]]:
     return Nothing()
 
 
-class BaseView(ABCView, typing.Generic[Event]):
+class BaseView[Event: BaseCute](ABCView):
     auto_rules: list[ABCRule]
     handlers: list[ABCHandler[Event]]
     middlewares: list[ABCMiddleware[Event]]
@@ -59,7 +53,7 @@ class BaseView(ABCView, typing.Generic[Event]):
 
     @typing.overload
     @classmethod
-    def to_handler(
+    def to_handler[**P, R](
         cls,
         *rules: ABCRule,
     ) -> typing.Callable[
@@ -69,7 +63,7 @@ class BaseView(ABCView, typing.Generic[Event]):
 
     @typing.overload
     @classmethod
-    def to_handler(
+    def to_handler[**P, ErrorHandlerT: ABCErrorHandler, R](
         cls,
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
@@ -78,7 +72,7 @@ class BaseView(ABCView, typing.Generic[Event]):
 
     @typing.overload
     @classmethod
-    def to_handler(
+    def to_handler[**P, ErrorHandlerT: ABCErrorHandler, R](
         cls,
         *rules: ABCRule,
         error_handler: typing.Literal[None] = None,
@@ -107,7 +101,7 @@ class BaseView(ABCView, typing.Generic[Event]):
         return wrapper
 
     @typing.overload
-    def __call__(
+    def __call__[**P, R](
         self,
         *rules: ABCRule,
     ) -> typing.Callable[
@@ -116,7 +110,7 @@ class BaseView(ABCView, typing.Generic[Event]):
     ]: ...
 
     @typing.overload
-    def __call__(  # type: ignore
+    def __call__[**P, ErrorHandlerT: ABCErrorHandler, R](
         self,
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
@@ -124,7 +118,7 @@ class BaseView(ABCView, typing.Generic[Event]):
     ) -> typing.Callable[[Func[P, R]], FuncHandler[Event, Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
-    def __call__(
+    def __call__[**P, R](
         self,
         *rules: ABCRule,
         error_handler: typing.Literal[None] = None,
@@ -134,7 +128,7 @@ class BaseView(ABCView, typing.Generic[Event]):
         FuncHandler[Event, Func[P, R], ErrorHandler[Event]],
     ]: ...
 
-    def __call__(
+    def __call__[**P, R](
         self,
         *rules: ABCRule,
         error_handler: ABCErrorHandler | None = None,
@@ -153,8 +147,8 @@ class BaseView(ABCView, typing.Generic[Event]):
 
         return wrapper
 
-    def register_middleware(self, *args: typing.Any, **kwargs: typing.Any):
-        def wrapper(cls: type[MiddlewareT]) -> type[MiddlewareT]:
+    def register_middleware[Middleware: ABCMiddleware](self, *args: typing.Any, **kwargs: typing.Any):
+        def wrapper(cls: type[Middleware]) -> type[Middleware]:
             self.middlewares.append(cls(*args, **kwargs))
             return cls
 
@@ -191,7 +185,7 @@ class BaseView(ABCView, typing.Generic[Event]):
         self.middlewares.extend(external.middlewares)
 
 
-class BaseStateView(ABCStateView[Event], BaseView[Event], ABC, typing.Generic[Event]):
+class BaseStateView[Event: BaseCute](ABCStateView[Event], BaseView[Event], ABC):
     @abstractmethod
     def get_state_key(self, event: Event) -> int | None:
         pass

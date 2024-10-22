@@ -11,8 +11,6 @@ from telegrinder.api.api import API
 from telegrinder.tools.global_context.abc import ABCGlobalContext
 from telegrinder.types.objects import Update
 
-T = typing.TypeVar("T")
-
 
 class PathExistsError(BaseException):
     pass
@@ -33,7 +31,7 @@ class ABCDispatch(ABC):
         pass
 
     @abstractmethod
-    def get_view(self, of_type: type[T]) -> Option[T]:
+    def get_view[T](self, of_type: type[T]) -> Option[T]:
         pass
 
     def load_many(self, *externals: typing.Self) -> None:

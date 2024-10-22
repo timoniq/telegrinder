@@ -18,8 +18,6 @@ from .markup import Markup, PatternLike, check_string
 if typing.TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
-T = typing.TypeVar("T")
-
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaitable[bool]]
 MapDict: typing.TypeAlias = dict[str, "typing.Any | type[typing.Any] | Validator | list[MapDict] | MapDict"]
@@ -138,10 +136,10 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
         return event.decode_data().unwrap_or_none() == self.d
 
 
-class CallbackDataModel(CallbackQueryDataRule, typing.Generic[T]):
+class CallbackDataModel[Data](CallbackQueryDataRule):
     def __init__(
         self,
-        serializer: ABCDataSerializer[T],
+        serializer: ABCDataSerializer[Data],
         *,
         alias: str | None = None,
     ) -> None:

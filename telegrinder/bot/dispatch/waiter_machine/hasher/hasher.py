@@ -7,19 +7,15 @@ from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.view.base import BaseView
 from telegrinder.tools.functional import from_optional
 
-T = typing.TypeVar("T")
-Event = typing.TypeVar("Event", bound=BaseCute)
-Data = typing.TypeVar("Data")
 
-
-def _echo(__x: T) -> T:
+def _echo[T](__x: T) -> T:
     return __x
 
 
 ECHO = _echo
 
 
-class Hasher(typing.Generic[Event, Data]):
+class Hasher[Event: BaseCute, Data]:
     def __init__(
         self,
         view_class: type[BaseView[Event]],

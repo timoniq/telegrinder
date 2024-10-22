@@ -15,8 +15,6 @@ if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
     from telegrinder.bot.dispatch.view.base import BaseStateView
 
-Key = typing.TypeVar("Key", bound=typing.Hashable)
-
 
 class ChoiceCode(enum.StrEnum):
     READY = "ready"
@@ -24,7 +22,7 @@ class ChoiceCode(enum.StrEnum):
 
 
 @dataclasses.dataclass(slots=True)
-class Choice(typing.Generic[Key]):
+class Choice[Key: typing.Hashable]:
     key: Key
     is_picked: bool
     default_text: str
@@ -92,7 +90,7 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
 
         return kb.get_markup()
 
-    def add_option(
+    def add_option[Key: typing.Hashable](
         self,
         key: Key,
         default_text: str,
@@ -159,7 +157,7 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
 
 if typing.TYPE_CHECKING:
 
-    class Checkbox(_Checkbox, typing.Generic[Key]):
+    class Checkbox[Key: typing.Hashable](_Checkbox):
         choices: list[Choice[Key]]
 
         async def wait(

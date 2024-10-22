@@ -6,10 +6,8 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.model import Model
 from telegrinder.types.objects import Update
 
-T = typing.TypeVar("T", bound=Model)
 
-
-class ABCHandler(ABC, typing.Generic[T]):
+class ABCHandler[Event: Model](ABC):
     is_blocking: bool
 
     @abstractmethod
@@ -17,7 +15,7 @@ class ABCHandler(ABC, typing.Generic[T]):
         pass
 
     @abstractmethod
-    async def run(self, api: API, event: T, ctx: Context) -> typing.Any:
+    async def run(self, api: API, event: Event, ctx: Context) -> typing.Any:
         pass
 
 
