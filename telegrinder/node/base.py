@@ -90,7 +90,7 @@ class FactoryNode(Node, abc.ABC):
     def __new__(cls, **context: typing.Any) -> type[typing.Self]:
         namespace = dict(**cls.__dict__)
         namespace.pop("__new__", None)
-        return type(cls.__name__, (cls,), context | namespace)  # type: ignore
+        return type(cls.__name__, (cls,), namespace | context)  # type: ignore
 
 
 @typing.dataclass_transform()
