@@ -74,7 +74,8 @@ class _CallbackDataModel(FactoryNode):
 
     @classmethod
     def compose(cls, data: CallbackQueryData, serializer_info: CallbackDataSerializer) -> typing.Any:
-        match serializer_info.serializer(cls.data_type).deserialize(data):
+        serializer = cls.serializer or serializer_info.serializer
+        match serializer(cls.data_type).deserialize(data):
             case Ok(value):
                 return value
             case Error(err):

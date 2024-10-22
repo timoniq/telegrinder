@@ -55,8 +55,8 @@ async def action(m: Message):
 
 
 @bot.on.callback_query(is_blocking=False)
-async def handle_fruit(item: CallbackDataModel[Item, MsgPackSerializer]):  # type: ignore
-    logger.info("Got item={!r}", item)
+async def handle_fruit_item(item: CallbackDataModel[Item, MsgPackSerializer]):  # type: ignore
+    logger.info("Got fruit item={!r}", item)
 
 
 @bot.on.callback_query(CallbackDataEq("confirm/action"))
@@ -73,7 +73,7 @@ async def callback_number_handler(cb: CallbackQuery, n: int):
 
 @bot.on.callback_query(CallbackDataMsgPackModel(Item, alias="item"))
 async def select_item(cb: CallbackQuery, item: Item):
-    await cb.answer(f"You ate an {item.name} for {item.amount} cents 😋")
+    await cb.answer(f"You ate an {item.name!r} for {item.amount} cents 😋")
 
 
 bot.run_forever()
