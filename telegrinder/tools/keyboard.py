@@ -11,10 +11,10 @@ from telegrinder.types.objects import (
     ReplyKeyboardRemove,
 )
 
-from .buttons import Button, InlineButton, KeyboardButton, RowButtons
+from .buttons import BaseButton, Button, InlineButton, RowButtons
 
-DictStrAny: typing.TypeAlias = dict[str, typing.Any]
-AnyMarkup: typing.TypeAlias = InlineKeyboardMarkup | ReplyKeyboardMarkup
+type DictStrAny = dict[str, typing.Any]
+type AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
 
 def copy_keyboard(keyboard: list[list[DictStrAny]]) -> list[list[DictStrAny]]:
@@ -30,7 +30,7 @@ class KeyboardModel:
     keyboard: list[list[DictStrAny]]
 
 
-class ABCMarkup(ABC, typing.Generic[KeyboardButton]):
+class ABCMarkup[KeyboardButton: BaseButton](ABC):
     BUTTON: type[KeyboardButton]
     keyboard: list[list[DictStrAny]]
 

@@ -7,15 +7,9 @@ import typing
 from telegrinder.modules import logger
 from telegrinder.tools.loop_wrapper.abc import ABCLoopWrapper
 
-T = typing.TypeVar("T")
-P = typing.ParamSpec("P")
-CoroFunc = typing.TypeVar("CoroFunc", bound="CoroutineFunc[..., typing.Any]")
-
-CoroutineTask: typing.TypeAlias = typing.Coroutine[typing.Any, typing.Any, T]
-CoroutineFunc: typing.TypeAlias = typing.Callable[P, CoroutineTask[T]]
-Task: typing.TypeAlias = (
-    "CoroutineFunc[P, T] | CoroutineTask[T] | DelayedTask[typing.Callable[P, CoroutineTask[T]]]"
-)
+type CoroutineTask[T] = typing.Coroutine[typing.Any, typing.Any, T]
+type CoroutineFunc[**P, T] = typing.Callable[P, CoroutineTask[T]]
+type Task[**P, T] = CoroutineFunc[P, T] | CoroutineTask[T] | DelayedTask[typing.Callable[P, CoroutineTask[T]]]
 
 
 def run_tasks(
@@ -35,7 +29,7 @@ def to_coroutine_task(task: Task) -> CoroutineTask[typing.Any]:
 
 
 @dataclasses.dataclass(slots=True)
-class DelayedTask(typing.Generic[CoroFunc]):
+class DelayedTask[CoroFunc: CoroutineFunc[..., typing.Any]]:
     handler: CoroFunc
     seconds: float
     repeat: bool = dataclasses.field(default=False, kw_only=True)
@@ -180,7 +174,7 @@ class LoopWrapper(ABCLoopWrapper):
         seconds += hours * 60 * 60
         seconds += days * 24 * 60 * 60
 
-        def decorator(func: CoroFunc) -> CoroFunc:
+        def decorator[CoroFunc: CoroutineFunc[..., typing.Any]](func: CoroFunc) -> CoroFunc:
             self.add_task(DelayedTask(func, seconds, repeat=False))
             return func
 
@@ -214,7 +208,7 @@ class LoopWrapper(ABCLoopWrapper):
         seconds += hours * 60 * 60
         seconds += days * 24 * 60 * 60
 
-        def decorator(func: CoroFunc) -> CoroFunc:
+        def decorator[CoroFunc: CoroutineFunc[..., typing.Any]](func: CoroFunc) -> CoroFunc:
             self.add_task(DelayedTask(func, seconds, repeat=True))
             return func
 

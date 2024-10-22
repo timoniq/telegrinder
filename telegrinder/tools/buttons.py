@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import dataclasses
 import typing
 
@@ -21,9 +19,7 @@ from .callback_data_serilization import ABCDataSerializer, JSONSerializer
 if typing.TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
-KeyboardButton = typing.TypeVar("KeyboardButton", bound="BaseButton")
-
-CallbackData: typing.TypeAlias = "str | bytes | dict[str, typing.Any] | DataclassInstance | msgspec.Struct"
+type CallbackData = str | bytes | dict[str, typing.Any] | DataclassInstance | msgspec.Struct
 
 
 @dataclasses.dataclass
@@ -32,7 +28,7 @@ class BaseButton:
         return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}
 
 
-class RowButtons(typing.Generic[KeyboardButton]):
+class RowButtons[KeyboardButton: BaseButton]:
     buttons: list[KeyboardButton]
     auto_row: bool
 
@@ -91,7 +87,7 @@ class InlineButton(BaseButton):
 
         if callback_data_serializer is not None:
             self.callback_data = callback_data_serializer.serialize(self.callback_data)
-        elif not isinstance(self.callback_data, str | bytes):
+        elif isinstance(self.callback_data, str):
             self.callback_data = encoder.encode(self.callback_data)
 
 

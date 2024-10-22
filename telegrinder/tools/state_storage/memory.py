@@ -5,7 +5,7 @@ from fntypes.option import Option
 from telegrinder.tools.functional import from_optional
 from telegrinder.tools.state_storage.abc import ABCStateStorage, StateData
 
-Payload: typing.TypeAlias = dict[str, typing.Any]
+type Payload = dict[str, typing.Any]
 
 
 class MemoryStateStorage(ABCStateStorage[Payload]):

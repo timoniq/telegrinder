@@ -1,3 +1,4 @@
+import secrets
 import typing
 from functools import cached_property
 
@@ -8,8 +9,9 @@ from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
 from telegrinder.api.token import Token
 from telegrinder.client import ABCClient, AiohttpClient
-from telegrinder.model import DataConverter, decoder
+from telegrinder.model import decoder, is_none
 from telegrinder.types.methods import APIMethods
+from telegrinder.types.objects import InputFile
 
 
 def compose_data(
@@ -17,11 +19,35 @@ def compose_data(
     data: dict[str, typing.Any],
     files: dict[str, tuple[str, bytes]],
 ) -> typing.Any:
-    converter = DataConverter(_files=files.copy())
-    return client.get_form(
-        data={k: converter(v) for k, v in data.items()},
-        files=converter.files,
-    )
+    if not data:
+        return client.get_form(data=data, files=files)
+
+    composed_data: dict[str, typing.Any] = {}
+    stack = [(data, composed_data)]
+
+    while stack:
+        current_data, current_composed_data = stack.pop()
+
+        for k, v in current_data.items():
+            match v:
+                case InputFile(filename, content):
+                    attach_name = secrets.token_urlsafe(16)
+                    files[attach_name] = (filename, content)
+                    current_composed_data[k] = f"attach://{attach_name}"
+                case msgspec.Struct() as struct:
+                    new_composed_data = {}
+                    current_composed_data[k] = new_composed_data
+                    stack.append((msgspec.structs.asdict(struct), new_composed_data))
+                case [msgspec.Struct(), *_] as seq:
+                    current_composed_data[k] = []
+                    for l in seq:
+                        new_composed_data = {}
+                        current_composed_data[k].append(new_composed_data)
+                        stack.append((msgspec.structs.asdict(l), new_composed_data))
+                case _ as value if not is_none(value):
+                    current_composed_data[k] = value
+
+    return client.get_form(data=composed_data, files=files)
 
 
 class API(APIMethods):
@@ -29,6 +55,9 @@ class API(APIMethods):
 
     API_URL = "https://api.telegram.org/"
     API_FILE_URL = "https://api.telegram.org/file/"
+
+    token: Token
+    http: ABCClient
 
     def __init__(self, token: Token, *, http: ABCClient | None = None) -> None:
         self.token = token

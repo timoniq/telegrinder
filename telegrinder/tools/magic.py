@@ -10,21 +10,15 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
     from telegrinder.node.polymorphic import Polymorphic
 
-    T = typing.TypeVar("T", bound=ABCRule)
-    F = typing.TypeVar(
-        "F",
-        bound=typing.Callable[typing.Concatenate[typing.Callable[..., typing.Any], ...], typing.Any],
-    )
-
-Impl: typing.TypeAlias = type[classmethod]
-FuncType: typing.TypeAlias = types.FunctionType | typing.Callable[..., typing.Any]
+type Impl = type[classmethod]
+type FuncType = types.FunctionType | typing.Callable[..., typing.Any]
 
 TRANSLATIONS_KEY: typing.Final[str] = "_translations"
 IMPL_MARK: typing.Final[str] = "_is_impl"
 
 
 def cache_magic_value(mark_key: str, /):
-    def inner(func: F) -> F:
+    def inner[Func: typing.Callable[..., typing.Any]](func: Func) -> Func:
         @wraps(func)
         def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
             if mark_key not in args[0].__dict__:
@@ -147,11 +141,15 @@ def magic_bundle(
     return args
 
 
-def get_cached_translation(rule: T, locale: str) -> T | None:
+def get_cached_translation[Rule: ABCRule](rule: Rule, locale: str) -> Rule | None:
     return getattr(rule, TRANSLATIONS_KEY, {}).get(locale)
 
 
-def cache_translation(base_rule: T, locale: str, translated_rule: T) -> None:
+def cache_translation[Rule: ABCRule](
+    base_rule: Rule,
+    locale: str,
+    translated_rule: Rule,
+) -> None:
     translations = getattr(base_rule, TRANSLATIONS_KEY, {})
     translations[locale] = translated_rule
     setattr(base_rule, TRANSLATIONS_KEY, translations)

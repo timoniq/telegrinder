@@ -6,11 +6,10 @@ from fntypes.result import Result
 from telegrinder.api import API
 from telegrinder.bot.dispatch.context import Context
 
-Event = typing.TypeVar("Event")
-Handler = typing.Callable[..., typing.Awaitable[typing.Any]]
+type Handler = typing.Callable[..., typing.Awaitable[typing.Any]]
 
 
-class ABCErrorHandler(ABC, typing.Generic[Event]):
+class ABCErrorHandler[Event](ABC):
     @abstractmethod
     def __call__(
         self,

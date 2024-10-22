@@ -1,16 +1,12 @@
 import base64
-import dataclasses
-import enum
 import keyword
 import os
-import secrets
 import typing
-from datetime import datetime
 
 import msgspec
 from fntypes.co import Nothing, Result, Some
 
-from telegrinder.msgspec_utils import decoder, encoder, get_origin
+from telegrinder.msgspec_utils import decoder, encoder
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
@@ -174,92 +170,6 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         return self._to_dict("model_as_full_dict", exclude_fields or set(), full=True)
 
 
-@dataclasses.dataclass(kw_only=True, frozen=True, slots=True, repr=False)
-class DataConverter:
-    _converters: dict[type[typing.Any], typing.Callable[..., typing.Any]] = dataclasses.field(
-        init=False,
-        default_factory=lambda: {},
-    )
-    _files: dict[str, tuple[str, bytes]] = dataclasses.field(default_factory=lambda: {})
-
-    def __repr__(self) -> str:
-        return "<{}: {}>".format(
-            self.__class__.__name__,
-            ", ".join(f"{k}={v.__name__!r}" for k, v in self._converters.items()),
-        )
-
-    def __post_init__(self) -> None:
-        self._converters.update(
-            {
-                get_origin(value.__annotations__["data"]): value
-                for key, value in vars(self.__class__).items()
-                if key.startswith("convert_") and callable(value)
-            }
-        )
-
-    def __call__(self, data: typing.Any, *, serialize: bool = True) -> typing.Any:
-        converter = self.get_converter(get_origin(type(data)))
-        if converter is not None:
-            if isinstance(converter, staticmethod):
-                return converter(data, serialize)
-            return converter(self, data, serialize)
-        return data
-
-    @property
-    def converters(self) -> dict[type[typing.Any], typing.Callable[..., typing.Any]]:
-        return self._converters.copy()
-
-    @property
-    def files(self) -> dict[str, tuple[str, bytes]]:
-        return self._files.copy()
-
-    @staticmethod
-    def convert_enum(data: enum.Enum, _: bool = False) -> typing.Any:
-        return data.value
-
-    @staticmethod
-    def convert_datetime(data: datetime, _: bool = False) -> int:
-        return int(data.timestamp())
-
-    def get_converter(self, t: type[typing.Any]):
-        for type_, converter in self._converters.items():
-            if issubclass(t, type_):
-                return converter
-        return None
-
-    def convert_model(
-        self,
-        data: Model,
-        serialize: bool = True,
-    ) -> str | dict[str, typing.Any]:
-        converted_dct = self(data.to_dict(), serialize=False)
-        return encoder.encode(converted_dct) if serialize is True else converted_dct
-
-    def convert_dct(
-        self,
-        data: dict[str, typing.Any],
-        serialize: bool = True,
-    ) -> dict[str, typing.Any]:
-        return {k: self(v, serialize=serialize) for k, v in data.items() if not is_none(v)}
-
-    def convert_lst(
-        self,
-        data: list[typing.Any],
-        serialize: bool = True,
-    ) -> str | list[typing.Any]:
-        converted_lst = [self(x, serialize=False) for x in data]
-        return encoder.encode(converted_lst) if serialize is True else converted_lst
-
-    def convert_tpl(self, data: tuple[typing.Any, ...], _: bool = False) -> str | tuple[typing.Any, ...]:
-        match data:
-            case (str(filename), bytes(content)):
-                attach_name = secrets.token_urlsafe(16)
-                self._files[attach_name] = (filename, content)
-                return "attach://{}".format(attach_name)
-
-        return data
-
-
 class Proxy[T]:
     def __init__(self, cfg: "_ProxiedDict[T]", key: str) -> None:
         self.key = key
@@ -294,7 +204,6 @@ else:
 
 
 __all__ = (
-    "DataConverter",
     "MODEL_CONFIG",
     "Model",
     "ProxiedDict",

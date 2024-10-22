@@ -1,22 +1,19 @@
 import abc
+import dataclasses
 import enum
-import typing
-from dataclasses import dataclass
 
-from fntypes import Option
+from fntypes.option import Option
 
 from telegrinder.bot.rules.state import State, StateMeta
 
-Payload = typing.TypeVar("Payload")
 
-
-@dataclass(frozen=True, slots=True)
-class StateData(typing.Generic[Payload]):
+@dataclasses.dataclass(frozen=True, slots=True)
+class StateData[Payload]:
     key: str | enum.Enum
     payload: Payload
 
 
-class ABCStateStorage(abc.ABC, typing.Generic[Payload]):
+class ABCStateStorage[Payload](abc.ABC):
     @abc.abstractmethod
     async def get(self, user_id: int) -> Option[StateData[Payload]]: ...
 

@@ -7,13 +7,13 @@ from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 from telegrinder.node.base import is_node
-from telegrinder.tools.error_handler.abc import ABCErrorHandler, Event, Handler
+from telegrinder.tools.error_handler.abc import ABCErrorHandler, Handler
 from telegrinder.tools.error_handler.error import CatcherError
 from telegrinder.tools.magic import get_annotations, magic_bundle
 
-F = typing.TypeVar("F", bound="FuncCatcher[typing.Any]")
-ExceptionT = typing.TypeVar("ExceptionT", bound=BaseException, contravariant=True)
-FuncCatcher = typing.Callable[typing.Concatenate[ExceptionT, ...], typing.Awaitable[typing.Any]]
+type FuncCatcher[Exc: BaseException] = typing.Callable[
+    typing.Concatenate[Exc, ...], typing.Awaitable[typing.Any]
+]
 
 
 async def run_handler(
@@ -28,7 +28,7 @@ async def run_handler(
 
 
 @dataclasses.dataclass(frozen=True, repr=False, slots=True)
-class Catcher(typing.Generic[Event]):
+class Catcher[Event]:
     func: FuncCatcher[BaseException]
     exceptions: list[type[BaseException] | BaseException] = dataclasses.field(
         default_factory=lambda: [],
@@ -87,7 +87,7 @@ class Catcher(typing.Generic[Event]):
         return Error(exception)
 
 
-class ErrorHandler(ABCErrorHandler[Event]):
+class ErrorHandler[Event](ABCErrorHandler[Event]):
     def __init__(self, catcher: Catcher[Event] | None = None, /) -> None:
         self.catcher = catcher
 
@@ -116,16 +116,16 @@ class ErrorHandler(ABCErrorHandler[Event]):
         :param ignore_errors: Ignore errors that may occur.
         """
 
-        def decorator(func: F) -> F:
+        def decorator[Func: FuncCatcher](catcher: Func, /) -> Func:
             if not self.catcher:
                 self.catcher = Catcher(
-                    func,
+                    catcher,
                     exceptions=list(exceptions),
                     logging=logging,
                     raise_exception=raise_exception,
                     ignore_errors=ignore_errors,
                 )
-            return func
+            return catcher
 
         return decorator
 

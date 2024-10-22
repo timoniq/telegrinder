@@ -7,6 +7,7 @@ from aiohttp import ClientSession, TCPConnector
 
 import telegrinder.msgspec_json as json
 from telegrinder.client.abc import ABCClient
+from telegrinder.msgspec_utils import encoder
 
 if typing.TYPE_CHECKING:
     from aiohttp import ClientResponse
@@ -112,11 +113,12 @@ class AiohttpClient(ABCClient):
     ) -> aiohttp.formdata.FormData:
         files = files or {}
         form = aiohttp.formdata.FormData(quote_fields=False)
-        for k, v in data.items():
-            form.add_field(k, str(v))
 
-        for n, f in files.items():
-            form.add_field(n, f[1], filename=f[0])
+        for k, v in data.items():
+            form.add_field(k, encoder.encode(v) if not isinstance(v, str) else v)
+
+        for n, (filename, content) in files.items():
+            form.add_field(n, content, filename=filename)
 
         return form
 
