@@ -19,12 +19,6 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
     async def answer(
         self,
         results: InlineQueryResult | list[InlineQueryResult],
-        *,
-        inline_query_id: str | None = None,
-        cache_time: int | None = None,
-        is_personal: bool | None = None,
-        next_offset: str | None = None,
-        button: InlineQueryResultsButton | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.answer_inline_query()`, see the [documentation](https://core.telegram.org/bots/api#answerinlinequery)

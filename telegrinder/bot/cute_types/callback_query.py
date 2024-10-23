@@ -101,11 +101,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def answer(
         self,
         text: str | None = None,
-        *,
-        callback_query_id: str | None = None,
-        show_alert: bool | None = None,
-        url: str | None = None,
-        cache_time: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.answer_callback_query()`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)
@@ -133,18 +128,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def copy(
         self,
         chat_id: int | str | None = None,
-        *,
-        from_chat_id: int | str | None = None,
-        message_id: int | None = None,
-        message_thread_id: int | None = None,
-        caption: str | None = None,
-        parse_mode: str | None = None,
-        caption_entities: list[MessageEntity] | None = None,
-        disable_notification: bool | None = None,
-        protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
-        reply_markup: ReplyMarkup | None = None,
-        show_caption_above_media: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
@@ -161,10 +144,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def delete(
         self,
-        *,
-        chat_id: int | None = None,
-        message_id: int | None = None,
-        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
@@ -191,16 +170,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def edit_text(
         self,
         text: str,
-        *,
-        inline_message_id: str | None = None,
-        chat_id: int | str | None = None,
-        message_id: int | None = None,
-        message_thread_id: int | None = None,
-        parse_mode: str | None = None,
-        entities: list[MessageEntity] | None = None,
-        link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        business_connection_id: str | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
@@ -236,19 +205,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     )
     async def edit_live_location(
         self,
-        *,
-        latitude: float,
-        longitude: float,
-        inline_message_id: str | None = None,
-        message_thread_id: int | None = None,
-        chat_id: int | str | None = None,
-        message_id: int | None = None,
-        horizontal_accuracy: float | None = None,
-        heading: int | None = None,
-        proximity_alert_radius: int | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        business_connection_id: str | None = None,
-        live_period: int | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_live_location()`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
@@ -287,16 +243,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def edit_caption(
         self,
         caption: str | None = None,
-        *,
-        chat_id: int | str | None = None,
-        message_id: int | None = None,
-        message_thread_id: int | None = None,
-        inline_message_id: str | None = None,
-        parse_mode: str | None = None,
-        caption_entities: list[MessageEntity] | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        business_connection_id: str | None = None,
-        show_caption_above_media: bool | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
@@ -338,17 +284,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def edit_media(
         self,
         media: str | InputFile | InputMedia,
-        *,
-        type: MediaType | None = None,
-        caption: str | None = None,
-        parse_mode: str | None = None,
-        caption_entities: list[MessageEntity] | None = None,
-        inline_message_id: str | None = None,
-        chat_id: int | str | None = None,
-        message_id: int | None = None,
-        message_thread_id: int | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        business_connection_id: str | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
@@ -382,13 +317,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     )
     async def edit_reply_markup(
         self,
-        *,
-        inline_message_id: str | None = None,
-        message_id: int | None = None,
-        message_thread_id: int | None = None,
-        chat_id: int | str | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        business_connection_id: str | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)

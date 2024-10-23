@@ -28,11 +28,6 @@ class ChatMemberShortcuts:
     @shortcut("ban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
     async def ban_chat_member(
         self,
-        *,
-        chat_id: int | str | None = None,
-        user_id: int | None = None,
-        until_date: datetime | int | None = None,
-        revoke_messages: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.ban_chat_member()`, see the [documentation](https://core.telegram.org/bots/api#banchatmember)
@@ -48,10 +43,6 @@ class ChatMemberShortcuts:
     @shortcut("unban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
     async def unban_chat_member(
         self,
-        *,
-        chat_id: int | str | None = None,
-        user_id: int | None = None,
-        only_if_banned: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.unban_chat_member()`, see the [documentation](https://core.telegram.org/bots/api#unbanchatmember)
@@ -73,12 +64,6 @@ class ChatMemberShortcuts:
     )
     async def restrict_chat_member(
         self,
-        *,
-        permissions: ChatPermissions,
-        chat_id: int | str | None = None,
-        user_id: int | None = None,
-        use_independent_chat_permissions: bool | None = None,
-        until_date: datetime | int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.restrict_chat_member()`, see the [documentation](https://core.telegram.org/bots/api#restrictchatmember)
@@ -93,24 +78,6 @@ class ChatMemberShortcuts:
     @shortcut("promote_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
     async def promote_chat_member(
         self,
-        *,
-        chat_id: int | str | None = None,
-        user_id: int | None = None,
-        is_anonymous: bool | None = None,
-        can_manage_chat: bool | None = None,
-        can_delete_messages: bool | None = None,
-        can_manage_video_chats: bool | None = None,
-        can_restrict_members: bool | None = None,
-        can_promote_members: bool | None = None,
-        can_change_info: bool | None = None,
-        can_invite_users: bool | None = None,
-        can_post_stories: bool | None = None,
-        can_edit_stories: bool | None = None,
-        can_delete_stories: bool | None = None,
-        can_post_messages: bool | None = None,
-        can_edit_messages: bool | None = None,
-        can_pin_messages: bool | None = None,
-        can_manage_topics: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.promote_chat_member()`, see the [documentation](https://core.telegram.org/bots/api#promotechatmember)
@@ -129,10 +96,6 @@ class ChatMemberShortcuts:
     )
     async def set_chat_administrator_custom_title(
         self,
-        *,
-        custom_title: str,
-        chat_id: int | str | None = None,
-        user_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.set_chat_administrator_custom_title()`, see the [documentation](https://core.telegram.org/bots/api#setchatadministratorcustomtitle)

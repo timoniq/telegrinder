@@ -26,9 +26,6 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     )
     async def approve(
         self,
-        *,
-        chat_id: int | str | None = None,
-        user_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.approve_chat_join_request()`, see the [documentation](https://core.telegram.org/bots/api#approvechatjoinrequest)
@@ -46,9 +43,6 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     )
     async def decline(
         self,
-        *,
-        chat_id: int | str | None = None,
-        user_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.decline_chat_join_request()`, see the [documentation](https://core.telegram.org/bots/api#declinechatjoinrequest)
