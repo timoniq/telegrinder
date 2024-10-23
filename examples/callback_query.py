@@ -42,7 +42,7 @@ kb = (
     .row()
     .add(InlineButton("🍎", callback_data=Item("apple", amount=10), callback_data_serializer=item_serializer))
     .add(
-        InlineButton("🍌", callback_data=Item("banana", amount=20), callback_data_serializer=item_serializer)
+        InlineButton("🍌", callback_data=Item("banana", amount=20), callback_data_serializer=item_serializer),
     )
     .row()
     .add(InlineButton("Won't respond", callback_data="number/foobar"))
@@ -55,7 +55,7 @@ async def action(m: Message):
 
 
 @bot.on.callback_query(is_blocking=False)
-async def handle_fruit_item(item: CallbackDataModel[Item, MsgPackSerializer]):  # type: ignore
+async def handle_fruit_item(item: CallbackDataModel[Item, MsgPackSerializer[Item]]):
     logger.info("Got fruit item={!r}", item)
 
 

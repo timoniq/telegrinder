@@ -5,8 +5,6 @@ import typing
 from fntypes.error import UnwrapError
 from fntypes.result import Error, Ok, Result
 
-from telegrinder.api.api import API
-from telegrinder.bot.cute_types.update import Update, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 from telegrinder.node.base import (
@@ -15,7 +13,6 @@ from telegrinder.node.base import (
     Node,
     NodeScope,
     get_node_calc_lst,
-    get_nodes,
 )
 from telegrinder.tools.magic import magic_bundle
 
@@ -25,7 +22,7 @@ GLOBAL_VALUE_KEY = "_value"
 
 async def compose_node(
     _node: type[Node],
-    linked: dict[type, typing.Any],
+    linked: dict[type[typing.Any], typing.Any],
 ) -> "NodeSession":
     node = _node.as_node()
     kwargs = magic_bundle(node.compose, linked, typebundle=True)
@@ -156,43 +153,4 @@ class NodeCollection:
             await session.close(with_value, scopes=scopes)
 
 
-@dataclasses.dataclass(slots=True, repr=False)
-class Composition:
-    func: typing.Callable[..., typing.Any]
-    is_blocking: bool
-    nodes: dict[str, type[Node]] = dataclasses.field(init=False)
-
-    def __post_init__(self) -> None:
-        self.nodes = get_nodes(self.func)
-
-    def __repr__(self) -> str:
-        return "<{}: for function={!r} with nodes={!r}>".format(
-            ("blocking " if self.is_blocking else "") + self.__class__.__name__,
-            self.func.__qualname__,
-            self.nodes,
-        )
-
-    async def compose_nodes(
-        self,
-        update: UpdateCute,
-        context: Context,
-    ) -> NodeCollection | None:
-        match await compose_nodes(
-            nodes=self.nodes,
-            ctx=context,
-            data={Update: update, API: update.api},
-        ):
-            case Ok(col):
-                return col
-            case Error(err):
-                logger.debug(f"Composition failed with error: {err!r}")
-                return None
-
-    async def __call__(self, node_cls: type[Node], **kwargs: typing.Any) -> typing.Any:
-        result = self.func(node_cls, **magic_bundle(self.func, kwargs, start_idx=0, bundle_ctx=False))
-        if inspect.isawaitable(result):
-            result = await result
-        return result
-
-
-__all__ = ("Composition", "NodeCollection", "NodeSession", "compose_node", "compose_nodes")
+__all__ = ("NodeCollection", "NodeSession", "compose_node", "compose_nodes")

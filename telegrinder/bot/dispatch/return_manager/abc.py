@@ -56,7 +56,7 @@ class BaseReturnManager[Event: Model](ABCReturnManager[Event]):
         self.__dict__["managers"] = managers_lst
         return managers_lst
 
-    @register_manager(Context)  # type: ignore
+    @register_manager(Context)
     @staticmethod
     async def ctx_manager(value: Context, event: Event, ctx: Context) -> None:
         """Basic manager for returning context from handler."""

@@ -112,7 +112,7 @@ def magic_bundle(
 @typing.overload
 def magic_bundle(
     handler: FuncType,
-    kw: dict[type, typing.Any],
+    kw: dict[type[typing.Any], typing.Any],
     *,
     typebundle: typing.Literal[True] = True,
 ) -> dict[str, typing.Any]: ...
@@ -127,11 +127,7 @@ def magic_bundle(
     typebundle: bool = False,
 ) -> dict[str, typing.Any]:
     if typebundle:
-        types = get_annotations(handler, return_type=False)
-        bundle: dict[str, typing.Any] = {}
-        for name, type in types.items():
-            bundle[name] = kw[type]
-        return bundle
+        return {name: kw[t] for name, t in get_annotations(handler, return_type=False).items() if t in kw}
 
     names = resolve_arg_names(handler, start_idx=start_idx)
     args = get_default_args(handler)

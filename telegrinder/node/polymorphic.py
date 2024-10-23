@@ -1,12 +1,16 @@
+import inspect
 import typing
 
+from fntypes.result import Error, Ok
+
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
-from telegrinder.node.base import ComposeError, Node
-from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, Composition, NodeSession
+from telegrinder.node.base import ComposeError, Node, get_nodes
+from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeSession, compose_nodes
 from telegrinder.node.scope import NodeScope
 from telegrinder.node.update import UpdateNode
-from telegrinder.tools.magic import get_impls, impl
+from telegrinder.tools.magic import get_impls, impl, magic_bundle
 
 
 class Polymorphic(Node):
@@ -15,11 +19,18 @@ class Polymorphic(Node):
         logger.debug(f"Composing polymorphic node {cls.__name__!r}...")
         scope = getattr(cls, "scope", None)
         node_ctx = context.get_or_set(CONTEXT_STORE_NODES_KEY, {})
+        data = {API: update.ctx_api}
 
         for i, impl_ in enumerate(get_impls(cls)):
             logger.debug("Checking impl {!r}...", impl_.__name__)
-            composition = Composition(impl_, True)
-            node_collection = await composition.compose_nodes(update, context)
+            node_collection = None
+
+            match await compose_nodes(get_nodes(impl_), context, data=data):
+                case Ok(col):
+                    node_collection = col
+                case Error(err):
+                    logger.debug(f"Composition failed with error: {err!r}")
+
             if node_collection is None:
                 logger.debug("Impl {!r} composition failed!", impl_.__name__)
                 continue
@@ -34,7 +45,10 @@ class Polymorphic(Node):
                 await node_collection.close_all()
                 return res.value
 
-            result = await composition(cls, **node_collection.values)
+            result = impl_(cls, **node_collection.values | magic_bundle(impl_, data, typebundle=True))
+            if inspect.isawaitable(result):
+                result = await result
+
             if scope is NodeScope.PER_EVENT:
                 node_ctx[(cls, i)] = NodeSession(cls, result, {})
 
