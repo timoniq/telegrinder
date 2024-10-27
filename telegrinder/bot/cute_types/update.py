@@ -9,6 +9,7 @@ from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberUpdatedCute
 from telegrinder.bot.cute_types.inline_query import InlineQueryCute
 from telegrinder.bot.cute_types.message import MessageCute
+from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.model import From, field
 from telegrinder.msgspec_utils import Option
 from telegrinder.types.objects import *
@@ -94,6 +95,13 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
     )
     """Optional. A request to join the chat has been sent. The bot must have the can_invite_users
     administrator right in the chat to receive these updates."""
+
+    pre_checkout_query: Option[PreCheckoutQueryCute] = field(
+        default=Nothing,
+        converter=From[PreCheckoutQueryCute | None],
+    )
+    """Optional. New incoming pre-checkout query. Contains full information
+    about checkout."""
 
     def get_event(self, event_model: type[EventModel]) -> Option[EventModel]:
         if isinstance(self.incoming_update, event_model):

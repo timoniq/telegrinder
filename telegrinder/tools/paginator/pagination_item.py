@@ -1,7 +1,7 @@
 import typing
 
 from telegrinder.api.api import API
-from telegrinder.node import CallbackDataModel, CallbackQueryNode, ComposeError, Polymorphic, impl
+from telegrinder.node import CallbackQueryNode, ComposeError, PayloadData, Polymorphic, impl
 from telegrinder.node.base import FactoryNode
 
 from .data import OpenId, PaginatedData, SwitchPage
@@ -20,26 +20,26 @@ class _PaginatorItem[T: PaginatedData, F](Polymorphic, FactoryNode):
     async def compose_open_id(
         cls,
         api: API,
-        callback_data: CallbackDataModel[OpenId],
+        payload: PayloadData[OpenId],
     ) -> T:
-        if not cls.paginator.validate_action(callback_data):
+        if not cls.paginator.validate_action(payload):
             raise ComposeError("Paginator action does not belong to this paginator")
-        return await cls.paginator.from_action(api, callback_data).get_detail(callback_data.open_id)
+        return await cls.paginator.from_action(api, payload).get_detail(payload.open_id)
 
     @impl
     async def compose_switch_page(
         cls,
         event: CallbackQueryNode,
         api: API,
-        callback_data: CallbackDataModel[SwitchPage],
+        payload: PayloadData[SwitchPage],
     ) -> typing.NoReturn:
-        if not cls.paginator.validate_action(callback_data):
+        if not cls.paginator.validate_action(payload):
             raise ComposeError("Paginator action does not belong to this paginator")
 
         await event.edit_reply_markup(
             reply_markup=(
-                await cls.paginator.from_action(api, callback_data).get_keyboard(
-                    page=callback_data.page_number,
+                await cls.paginator.from_action(api, payload).get_keyboard(
+                    page=payload.page_number,
                 )
             ),
         )

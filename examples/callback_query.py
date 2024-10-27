@@ -10,18 +10,18 @@ from telegrinder import (
     Token,
 )
 from telegrinder.modules import logger
-from telegrinder.node.callback_query import CallbackDataModel
+from telegrinder.node.payload import PayloadData
 from telegrinder.rules import (
     CallbackDataEq,
     CallbackDataMarkup,
-    CallbackDataMsgPackModel,
+    PayloadModelRule,
     Text,
 )
 from telegrinder.tools import MsgPackSerializer
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logger.set_level("INFO")
+logger.set_level("DEBUG")
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
@@ -55,7 +55,7 @@ async def action(m: Message):
 
 
 @bot.on.callback_query(is_blocking=False)
-async def handle_fruit_item(item: CallbackDataModel[Item, MsgPackSerializer[Item]]):
+async def handle_fruit_item(item: PayloadData[Item, MsgPackSerializer[Item]]):
     logger.info("Got fruit item={!r}", item)
 
 
@@ -71,7 +71,7 @@ async def callback_number_handler(cb: CallbackQuery, n: int):
     await cb.answer("{0} + (7 * 6) - {0} = 42🤯🤯🤯".format(n))
 
 
-@bot.on.callback_query(CallbackDataMsgPackModel(Item, alias="item"))
+@bot.on.callback_query(PayloadModelRule(Item, serializer=MsgPackSerializer, alias="item"))
 async def select_item(cb: CallbackQuery, item: Item):
     await cb.answer(f"You ate an {item.name!r} for {item.amount} cents 😋")
 

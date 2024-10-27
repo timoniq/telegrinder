@@ -82,6 +82,9 @@ from .bot import (
     MessageView,
     PhotoReplyHandler,
     Polling,
+    PreCheckoutQueryCute,
+    PreCheckoutQueryManager,
+    PreCheckoutQueryView,
     RawEventView,
     ShortState,
     StateViewHasher,
@@ -132,6 +135,7 @@ from .tools import (
 
 Update: typing.TypeAlias = UpdateCute
 Message: typing.TypeAlias = MessageCute
+PreCheckoutQuery: typing.TypeAlias = PreCheckoutQueryCute
 ChatJoinRequest: typing.TypeAlias = ChatJoinRequestCute
 ChatMemberUpdated: typing.TypeAlias = ChatMemberUpdatedCute
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
@@ -226,6 +230,10 @@ __all__ = (
     "ParseMode",
     "PhotoReplyHandler",
     "Polling",
+    "PreCheckoutQuery",
+    "PreCheckoutQueryCute",
+    "PreCheckoutQueryManager",
+    "PreCheckoutQueryView",
     "RawEventView",
     "RowButtons",
     "ShortState",

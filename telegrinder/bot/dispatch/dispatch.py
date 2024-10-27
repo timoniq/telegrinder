@@ -15,6 +15,7 @@ from telegrinder.bot.dispatch.view.box import (
     ChatMemberView,
     InlineQueryView,
     MessageView,
+    PreCheckoutQueryView,
     RawEventView,
     ViewBox,
 )
@@ -44,6 +45,7 @@ class Dispatch(
         ChatMemberView,
         InlineQueryView,
         MessageView,
+        PreCheckoutQueryView,
         RawEventView,
     ],
 ):

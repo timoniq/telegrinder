@@ -3,20 +3,13 @@ import inspect
 import typing
 from contextlib import suppress
 
-import msgspec
-from fntypes.result import Error, Ok
-
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.adapter import EventAdapter
-from telegrinder.tools.callback_data_serilization import ABCDataSerializer, JSONSerializer, MsgPackSerializer
 from telegrinder.types.enums import UpdateType
 
 from .abc import ABCRule, CheckResult
 from .markup import Markup, PatternLike, check_string
-
-if typing.TYPE_CHECKING:
-    from _typeshed import DataclassInstance
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaitable[bool]]
@@ -136,47 +129,6 @@ class CallbackDataJsonEq(CallbackQueryDataRule):
         return event.decode_data().unwrap_or_none() == self.d
 
 
-class CallbackDataModel[Data](CallbackQueryDataRule):
-    def __init__(
-        self,
-        serializer: ABCDataSerializer[Data],
-        *,
-        alias: str | None = None,
-    ) -> None:
-        self.serializer = serializer
-        self.alias = alias or "data"
-
-    def check(self, event: CallbackQuery, ctx: Context) -> bool:
-        match self.serializer.deserialize(event.data.unwrap()):
-            case Ok(data):
-                ctx.set(self.alias, data)
-                return True
-            case Error(_):
-                return False
-
-
-class CallbackDataJsonModel(CallbackDataModel):
-    def __init__(
-        self,
-        model: "type[msgspec.Struct] | type[DataclassInstance]",
-        *,
-        ident_key: str | None = None,
-        alias: str | None = None,
-    ) -> None:
-        super().__init__(JSONSerializer(model, ident_key=ident_key), alias=alias)
-
-
-class CallbackDataMsgPackModel(CallbackDataModel):
-    def __init__(
-        self,
-        model: "type[msgspec.Struct] | type[DataclassInstance]",
-        *,
-        ident_key: str | None = None,
-        alias: str | None = None,
-    ) -> None:
-        super().__init__(MsgPackSerializer(model, ident_key=ident_key), alias=alias)
-
-
 class CallbackDataMarkup(CallbackQueryDataRule):
     def __init__(self, patterns: PatternLike | list[PatternLike], /) -> None:
         self.patterns = Markup(patterns).patterns
@@ -188,12 +140,8 @@ class CallbackDataMarkup(CallbackQueryDataRule):
 __all__ = (
     "CallbackDataEq",
     "CallbackDataJsonEq",
-    "CallbackDataJsonModel",
-    "CallbackDataJsonModel",
     "CallbackDataMap",
     "CallbackDataMarkup",
-    "CallbackDataModel",
-    "CallbackDataMsgPackModel",
     "CallbackQueryDataRule",
     "CallbackQueryRule",
     "HasData",

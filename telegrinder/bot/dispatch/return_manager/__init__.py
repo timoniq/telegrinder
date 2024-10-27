@@ -7,6 +7,7 @@ from telegrinder.bot.dispatch.return_manager.abc import (
 from telegrinder.bot.dispatch.return_manager.callback_query import CallbackQueryReturnManager
 from telegrinder.bot.dispatch.return_manager.inline_query import InlineQueryReturnManager
 from telegrinder.bot.dispatch.return_manager.message import MessageReturnManager
+from telegrinder.bot.dispatch.return_manager.pre_checkout_query import PreCheckoutQueryManager
 
 __all__ = (
     "ABCReturnManager",
@@ -15,5 +16,6 @@ __all__ = (
     "InlineQueryReturnManager",
     "Manager",
     "MessageReturnManager",
+    "PreCheckoutQueryManager",
     "register_manager",
 )

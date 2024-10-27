@@ -6,6 +6,7 @@ from telegrinder.bot.cute_types import (
     ChatMemberUpdatedCute,
     InlineQueryCute,
     MessageCute,
+    PreCheckoutQueryCute,
     UpdateCute,
 )
 from telegrinder.bot.dispatch import (
@@ -41,6 +42,8 @@ from telegrinder.bot.dispatch import (
     MessageReturnManager,
     MessageView,
     PhotoReplyHandler,
+    PreCheckoutQueryManager,
+    PreCheckoutQueryView,
     RawEventView,
     ShortState,
     StateViewHasher,
@@ -110,6 +113,9 @@ __all__ = (
     "MessageView",
     "PhotoReplyHandler",
     "Polling",
+    "PreCheckoutQueryCute",
+    "PreCheckoutQueryManager",
+    "PreCheckoutQueryView",
     "RawEventView",
     "ShortState",
     "StateViewHasher",

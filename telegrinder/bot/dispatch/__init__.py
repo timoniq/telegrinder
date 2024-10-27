@@ -21,6 +21,7 @@ from telegrinder.bot.dispatch.return_manager import (
     InlineQueryReturnManager,
     Manager,
     MessageReturnManager,
+    PreCheckoutQueryManager,
     register_manager,
 )
 from telegrinder.bot.dispatch.view import (
@@ -33,6 +34,7 @@ from telegrinder.bot.dispatch.view import (
     ChatMemberView,
     InlineQueryView,
     MessageView,
+    PreCheckoutQueryView,
     RawEventView,
     ViewBox,
 )
@@ -84,6 +86,8 @@ __all__ = (
     "MessageReturnManager",
     "MessageView",
     "PhotoReplyHandler",
+    "PreCheckoutQueryManager",
+    "PreCheckoutQueryView",
     "RawEventView",
     "ShortState",
     "StateViewHasher",
