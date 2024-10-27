@@ -32,7 +32,7 @@ class PayloadDataRule[Data](PayloadRule[Data]):
 
     @cached_property
     def required_nodes(self) -> dict[str, type[Node]]:
-        return {"payload": PayloadModel[self.model_t, self.serializer]}  # type: ignore 
+        return {"payload": PayloadModel[self.model_t, self.serializer]}  # type: ignore
 
 
 class PayloadModelRule[Model: ModelType](PayloadRule[Model]):
@@ -46,10 +46,10 @@ class PayloadModelRule[Model: ModelType](PayloadRule[Model]):
         self.model_t = model_t
         self.serializer = serializer or JSONSerializer[Model]
         super().__init__(alias=alias or "model")
-    
+
     @cached_property
     def required_nodes(self) -> dict[str, type[Node]]:
         return {"payload": PayloadData[self.model_t, self.serializer]}  # type: ignore
-    
+
 
 __all__ = ("PayloadDataRule", "PayloadModelRule", "PayloadRule")

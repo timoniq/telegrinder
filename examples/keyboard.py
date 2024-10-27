@@ -10,7 +10,7 @@ from telegrinder import (
     Token,
 )
 from telegrinder.modules import logger
-from telegrinder.rules import CallbackDataMsgPackModel, Text
+from telegrinder.rules import PayloadModelRule, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -28,7 +28,8 @@ kb = (
     InlineKeyboard()
     .add(
         InlineButton(
-            text="buy a doughnut", callback_data=ItemModel(item="doughnut", amount=100, action="buy")
+            text="buy a doughnut",
+            callback_data=ItemModel(item="doughnut", amount=100, action="buy"),
         )
     )
     .add(InlineButton(text="buy a cake", callback_data=ItemModel(item="cake", amount=1000, action="buy")))
@@ -43,7 +44,7 @@ async def start(message: Message):
     )
 
 
-@bot.on.callback_query(CallbackDataMsgPackModel(ItemModel))
+@bot.on.callback_query(PayloadModelRule(ItemModel))
 async def buy(cb: CallbackQuery, data: ItemModel):
     await cb.edit_text(f"You bought a {data.item} for {data.amount}")
 

@@ -16,7 +16,7 @@ from telegrinder import (
     WaiterMachine,
 )
 from telegrinder.modules import logger
-from telegrinder.rules import CallbackDataEq, CallbackDataJsonModel, Text
+from telegrinder.rules import CallbackDataEq, PayloadModelRule, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api=api)
@@ -84,7 +84,7 @@ async def edit_callback_handler(cb: CallbackQuery):
     await cb.edit_text("".join(chars), reply_markup=KeyboardSet.KEYBOARD_EDIT.get_markup())
 
 
-@bot.on.callback_query(CallbackDataJsonModel(Item))
+@bot.on.callback_query(PayloadModelRule(Item))
 async def buy_item(cb: CallbackQuery, data: Item):
     await cb.answer(f"Congratulations! You bought {data.name!r} for {data.cost}$")
 
