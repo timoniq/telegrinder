@@ -1,8 +1,7 @@
 import dataclasses
 import typing
 
-from fntypes.co import Option, Some
-from fntypes.option import Nothing
+from fntypes.option import Nothing, Option, Some
 
 import telegrinder.types
 from telegrinder.node.base import ComposeError, DataNode, ScalarNode
@@ -11,28 +10,37 @@ from telegrinder.node.message import MessageNode
 
 @dataclasses.dataclass(slots=True)
 class Attachment(DataNode):
-    attachment_type: typing.Literal["audio", "document", "photo", "poll", "video"]
+    attachment_type: typing.Literal["audio", "document", "photo", "poll", "video", "successful_payment"]
+
     audio: Option[telegrinder.types.Audio] = dataclasses.field(
-        default_factory=lambda: Nothing(),
+        default_factory=Nothing,
         kw_only=True,
     )
     document: Option[telegrinder.types.Document] = dataclasses.field(
-        default_factory=lambda: Nothing(),
+        default_factory=Nothing,
         kw_only=True,
     )
     photo: Option[list[telegrinder.types.PhotoSize]] = dataclasses.field(
-        default_factory=lambda: Nothing(),
+        default_factory=Nothing,
         kw_only=True,
     )
     poll: Option[telegrinder.types.Poll] = dataclasses.field(default_factory=lambda: Nothing(), kw_only=True)
     video: Option[telegrinder.types.Video] = dataclasses.field(
-        default_factory=lambda: Nothing(),
+        default_factory=Nothing,
+        kw_only=True,
+    )
+    successful_payment: Option[telegrinder.types.SuccessfulPayment] = dataclasses.field(
+        default_factory=Nothing,
         kw_only=True,
     )
 
     @classmethod
+    def get_attachment_types(cls) -> tuple[typing.Any, ...]:
+        return typing.get_args(cls.__annotations__["attachment_type"])
+
+    @classmethod
     def compose(cls, message: MessageNode) -> "Attachment":
-        for attachment_type in ("audio", "document", "photo", "poll", "video"):
+        for attachment_type in cls.get_attachment_types():
             match getattr(message, attachment_type, Nothing()):
                 case Some(attachment):
                     return cls(attachment_type, **{attachment_type: Some(attachment)})
@@ -82,11 +90,20 @@ class Poll(ScalarNode, telegrinder.types.Poll):
         return attachment.poll.unwrap()
 
 
+class SuccessfulPayment(ScalarNode, telegrinder.types.SuccessfulPayment):
+    @classmethod
+    def compose(cls, attachment: Attachment) -> telegrinder.types.SuccessfulPayment:
+        if not attachment.successful_payment:
+            raise ComposeError("Attachment is not a successful payment.")
+        return attachment.successful_payment.unwrap()
+
+
 __all__ = (
     "Attachment",
     "Audio",
     "Document",
     "Photo",
     "Poll",
+    "SuccessfulPayment",
     "Video",
 )

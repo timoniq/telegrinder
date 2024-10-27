@@ -5,6 +5,7 @@ from fntypes.result import Result
 from telegrinder.api.api import API
 from telegrinder.api.error import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.model import get_params
 from telegrinder.types.objects import PreCheckoutQuery, User
 
 
@@ -44,7 +45,7 @@ class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only
         Telegram will display this message to the user.
         """
 
-        params = compose_method_params(locals(), self, default_params={("pre_checkout_query_id", "id")})
+        params = compose_method_params(get_params(locals()), self, default_params={("pre_checkout_query_id", "id")})
         return await self.ctx_api.answer_pre_checkout_query(**params)
 
 

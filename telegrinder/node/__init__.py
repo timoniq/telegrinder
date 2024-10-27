@@ -1,4 +1,4 @@
-from .attachment import Attachment, Audio, Photo, Video
+from .attachment import Attachment, Audio, Document, Photo, SuccessfulPayment, Video
 from .base import ComposeError, DataNode, FactoryNode, GlobalNode, Name, Node, ScalarNode, is_node
 from .callback_query import (
     CallbackQueryData,
@@ -33,6 +33,7 @@ __all__ = (
     "ComposeError",
     "ContainerNode",
     "DataNode",
+    "Document",
     "EventNode",
     "FactoryNode",
     "Field",
@@ -57,6 +58,7 @@ __all__ = (
     "RuleChain",
     "ScalarNode",
     "Source",
+    "SuccessfulPayment",
     "Text",
     "TextInteger",
     "TextLiteral",
