@@ -15,7 +15,11 @@ class Paginator[T: PaginatedData](Model):
     api: API
 
     @classmethod
-    def from_action(cls, api: API, action: PageAction) -> typing.Self:
+    def from_action(
+        cls,
+        api: API,
+        action: PageAction,
+    ) -> typing.Self:
         return cls(api=api, **action.filters)
 
     @classmethod
@@ -30,7 +34,7 @@ class Paginator[T: PaginatedData](Model):
     async def get_page(self, page_number: int) -> Page[T]: ...
 
     @abc.abstractmethod
-    async def get_detail(self, id) -> T: ...
+    async def get_detail(self, id: typing.Any) -> T: ...
 
     async def get_keyboard(self, page: int = 1) -> InlineKeyboardMarkup:
         first_page = await self.get_page(page)
