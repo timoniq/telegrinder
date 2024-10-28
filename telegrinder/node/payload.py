@@ -5,6 +5,7 @@ from fntypes.result import Error, Ok
 
 from telegrinder.node.base import ComposeError, DataNode, FactoryNode, GlobalNode, ScalarNode
 from telegrinder.node.callback_query import CallbackQueryNode
+from telegrinder.node.message import MessageNode
 from telegrinder.node.polymorphic import Polymorphic, impl
 from telegrinder.node.pre_checkout_query import PreCheckoutQueryNode
 from telegrinder.tools.callback_data_serilization import ABCDataSerializer, JSONSerializer
@@ -18,6 +19,12 @@ class Payload(Polymorphic, ScalarNode, str):
     @impl
     def compose_callback_query(cls, event: CallbackQueryNode) -> str:
         return event.data.expect("CallbackQuery has no data.")
+
+    @impl
+    def compose_message(cls, event: MessageNode) -> str:
+        return event.successful_payment.map(
+            lambda payment: payment.invoice_payload,
+        ).expect("Message has no successful payment.")
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
