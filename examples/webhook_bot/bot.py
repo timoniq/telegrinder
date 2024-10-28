@@ -11,11 +11,11 @@ from telegrinder import (
 )
 from telegrinder.bot.dispatch.waiter_machine.hasher.callback import CALLBACK_QUERY_FOR_MESSAGE
 from telegrinder.rules import (
-    CallbackDataEq,
-    CallbackDataMarkup,
     FuzzyText,
     HasText,
     IntegerInRange,
+    PayloadEqRule,
+    PayloadMarkupRule,
     Text,
 )
 from telegrinder.tools.formatting import HTMLFormatter, block_quote, link
@@ -65,7 +65,7 @@ async def handle_menu_command(message: Message) -> None:
     await message.answer("📋 Menu:", reply_markup=kb)
 
 
-@dp.callback_query(CallbackDataEq("action/webhook"))
+@dp.callback_query(PayloadEqRule("action/webhook"))
 async def handle_query_webhook(cb: CallbackQuery) -> None:
     await cb.answer()
     await cb.ctx_api.send_message(
@@ -80,7 +80,7 @@ async def handle_query_webhook(cb: CallbackQuery) -> None:
     )
 
 
-@dp.callback_query(CallbackDataEq("action/quote"))
+@dp.callback_query(PayloadEqRule("action/quote"))
 async def handle_query_quote(cb: CallbackQuery) -> None:
     await cb.answer()
     message = (
@@ -98,7 +98,7 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
     await msg.reply(HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE)
 
 
-@dp.callback_query(CallbackDataEq("action/guess"))
+@dp.callback_query(PayloadEqRule("action/guess"))
 async def handle_query_guess(cb: CallbackQuery) -> None:
     await cb.answer()
     message = (
@@ -120,7 +120,7 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
     await msg.answer(f"🎲 Ohh noooo...  i guessed the number {random_number} :-(")
 
 
-@dp.callback_query(CallbackDataMarkup("action/<action>"))
+@dp.callback_query(PayloadMarkupRule("action/<action>"))
 async def handle_query_action(cb: CallbackQuery, action: str) -> None:
     await cb.answer("✅" if action == "confirm" else "❌")
     match action:

@@ -5,11 +5,9 @@ from contextlib import suppress
 
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.rules.abc import ABCRule, CheckResult
 from telegrinder.bot.rules.adapter import EventAdapter
 from telegrinder.types.enums import UpdateType
-
-from .abc import ABCRule, CheckResult
-from .markup import Markup, PatternLike, check_string
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaitable[bool]]
@@ -113,35 +111,8 @@ class CallbackDataMap(CallbackQueryDataRule):
         return False
 
 
-class CallbackDataEq(CallbackQueryDataRule):
-    def __init__(self, value: str, /) -> None:
-        self.value = value
-
-    def check(self, event: CallbackQuery) -> bool:
-        return event.data.unwrap() == self.value
-
-
-class CallbackDataJsonEq(CallbackQueryDataRule):
-    def __init__(self, d: dict[str, typing.Any], /) -> None:
-        self.d = d
-
-    def check(self, event: CallbackQuery) -> bool:
-        return event.decode_data().unwrap_or_none() == self.d
-
-
-class CallbackDataMarkup(CallbackQueryDataRule):
-    def __init__(self, patterns: PatternLike | list[PatternLike], /) -> None:
-        self.patterns = Markup(patterns).patterns
-
-    def check(self, event: CallbackQuery, ctx: Context) -> bool:
-        return check_string(self.patterns, event.data.unwrap(), ctx)
-
-
 __all__ = (
-    "CallbackDataEq",
-    "CallbackDataJsonEq",
     "CallbackDataMap",
-    "CallbackDataMarkup",
     "CallbackQueryDataRule",
     "CallbackQueryRule",
     "HasData",

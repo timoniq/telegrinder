@@ -12,8 +12,8 @@ from telegrinder import (
 from telegrinder.modules import logger
 from telegrinder.node.payload import PayloadData
 from telegrinder.rules import (
-    CallbackDataEq,
-    CallbackDataMarkup,
+    PayloadEqRule,
+    PayloadMarkupRule,
     PayloadModelRule,
     Text,
 )
@@ -59,14 +59,14 @@ async def handle_fruit_item(item: PayloadData[Item, MsgPackSerializer[Item]]):
     logger.info("Got fruit item={!r}", item)
 
 
-@bot.on.callback_query(CallbackDataEq("confirm/action"))
+@bot.on.callback_query(PayloadEqRule("confirm/action"))
 async def callback_confirm_handler(cb: CallbackQuery):
     await cb.answer("Okay! Confirmed.")
     await cb.edit_text(text="Action happens.")
     # *some action happens*
 
 
-@bot.on.callback_query(CallbackDataMarkup("number/<n:int>"))
+@bot.on.callback_query(PayloadMarkupRule("number/<n:int>"))
 async def callback_number_handler(cb: CallbackQuery, n: int):
     await cb.answer("{0} + (7 * 6) - {0} = 42🤯🤯🤯".format(n))
 

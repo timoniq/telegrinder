@@ -16,17 +16,17 @@ PER_CALL = NodeScope.PER_CALL
 GLOBAL = NodeScope.GLOBAL
 
 
-def per_call[T: Node](node: T) -> T:
+def per_call[T: Node](node: type[T]) -> type[T]:
     setattr(node, "scope", PER_CALL)
     return node
 
 
-def per_event[T: Node](node: T) -> T:
+def per_event[T: Node](node: type[T]) -> type[T]:
     setattr(node, "scope", PER_EVENT)
     return node
 
 
-def global_node[T: Node](node: T) -> T:
+def global_node[T: Node](node: type[T]) -> type[T]:
     setattr(node, "scope", GLOBAL)
     return node
 

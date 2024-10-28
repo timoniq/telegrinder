@@ -56,7 +56,6 @@ from .i18n import (
     SimpleI18n,
     SimpleTranslator,
 )
-from .kb_set import KeyboardSetBase, KeyboardSetYAML
 from .keyboard import (
     AnyMarkup,
     Button,
@@ -115,8 +114,6 @@ __all__ = (
     "InviteChatLink",
     "JSONSerializer",
     "Keyboard",
-    "KeyboardSetBase",
-    "KeyboardSetYAML",
     "Lifespan",
     "LimitedDict",
     "Link",

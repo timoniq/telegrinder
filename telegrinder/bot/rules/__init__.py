@@ -1,9 +1,6 @@
 from telegrinder.bot.rules.abc import ABCRule, AndRule, NotRule, OrRule
 from telegrinder.bot.rules.callback_data import (
-    CallbackDataEq,
-    CallbackDataJsonEq,
     CallbackDataMap,
-    CallbackDataMarkup,
     CallbackQueryDataRule,
     CallbackQueryRule,
     HasData,
@@ -49,11 +46,15 @@ from telegrinder.bot.rules.mention import HasMention
 from telegrinder.bot.rules.message import MessageRule
 from telegrinder.bot.rules.message_entities import HasEntities, MessageEntities
 from telegrinder.bot.rules.node import NodeRule
-from telegrinder.bot.rules.payload import PayloadDataRule, PayloadModelRule
+from telegrinder.bot.rules.payload import (
+    PayloadEqRule,
+    PayloadJsonEqRule,
+    PayloadMarkupRule,
+    PayloadModelRule,
+    PayloadRule,
+)
 from telegrinder.bot.rules.payment_invoice import (
     PaymentInvoiceCurrency,
-    PaymentInvoicePayloadEq,
-    PaymentInvoicePayloadMarkup,
     PaymentInvoiceRule,
 )
 from telegrinder.bot.rules.regex import Regex
@@ -67,10 +68,7 @@ __all__ = (
     "ABCRule",
     "AndRule",
     "Argument",
-    "CallbackDataEq",
-    "CallbackDataJsonEq",
     "CallbackDataMap",
-    "CallbackDataMarkup",
     "CallbackQueryDataRule",
     "CallbackQueryRule",
     "ChatJoinRequestRule",
@@ -115,11 +113,12 @@ __all__ = (
     "NodeRule",
     "NotRule",
     "OrRule",
-    "PayloadDataRule",
+    "PayloadEqRule",
+    "PayloadJsonEqRule",
+    "PayloadMarkupRule",
     "PayloadModelRule",
+    "PayloadRule",
     "PaymentInvoiceCurrency",
-    "PaymentInvoicePayloadEq",
-    "PaymentInvoicePayloadMarkup",
     "PaymentInvoiceRule",
     "Regex",
     "RuleEnum",
