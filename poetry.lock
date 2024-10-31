@@ -1158,13 +1158,13 @@ files = [
 
 [[package]]
 name = "sort-all"
-version = "1.2.0"
+version = "1.3.0"
 description = "Automatically Sort __all__ records alphabetically"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "sort_all-1.2.0-py3-none-any.whl", hash = "sha256:ccc0fc7191a486ff826cb4d21c2b67d93f9d9cb5eb72e8d572d017d50d4eca88"},
-    {file = "sort_all-1.2.0.tar.gz", hash = "sha256:1eb6a91cc61f36bd48d697f687377c6eb67b4ef98e2850fc65130502bae945d8"},
+    {file = "sort_all-1.3.0-py3-none-any.whl", hash = "sha256:1e452564993c1084a85b0d4600d00e638492d2fd9db7443c38627e9899f8e06a"},
+    {file = "sort_all-1.3.0.tar.gz", hash = "sha256:41fd883a4dcba38fef30e4dfc2c8ecf75dc6f450baa6c8bb2e6d30c7189fc148"},
 ]
 
 [package.dependencies]
