@@ -28,7 +28,7 @@ class PayloadRule[Data](ABCRule):
 
     @cached_property
     def required_nodes(self) -> dict[str, type[Node]]:
-        return {"payload": PayloadModel[self.data_type, self.serializer]}  # type: ignore
+        return {"payload": PayloadData[self.data_type, self.serializer]}  # type: ignore
 
     def check(self, payload: PayloadData[Data], context: Context) -> typing.Literal[True]:
         context.set(self.alias, payload)
@@ -46,15 +46,15 @@ class PayloadModelRule[Model: ModelType](PayloadRule[Model]):
         super().__init__(model_t, serializer or JSONSerializer, alias=alias or "model")
 
 
-class PayloadEqRule(PayloadRule):
+class PayloadEqRule(ABCRule):
     def __init__(self, payload: str, /) -> None:
         self.payload = payload
-    
+
     def check(self, payload: Payload) -> bool:
         return self.payload == payload
 
 
-class PayloadMarkupRule(PayloadRule):
+class PayloadMarkupRule(ABCRule):
     def __init__(self, pattern: PatternLike | list[PatternLike], /) -> None:
         self.patterns = Markup(pattern).patterns
 
@@ -62,7 +62,7 @@ class PayloadMarkupRule(PayloadRule):
         return check_string(self.patterns, payload, context)
 
 
-class PayloadJsonEqRule(PayloadRule):
+class PayloadJsonEqRule(ABCRule):
     def __init__(self, payload: dict[str, typing.Any], /) -> None:
         self.payload = payload
 
