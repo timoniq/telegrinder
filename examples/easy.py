@@ -79,4 +79,4 @@ async def hello(message: Message):
 
 
 bot.loop_wrapper.add_task(clear_wm_storage_worker(wm))
-bot.run_forever()
+bot.run_forever(skip_updates=True)

@@ -9,12 +9,11 @@ from telegrinder.types.enums import Currency, UpdateType
 PreCheckoutQuery: typing.TypeAlias = PreCheckoutQueryCute
 
 
-class PaymentInvoiceRule(ABCRule[PreCheckoutQuery], abc.ABC):
-    adapter: EventAdapter[PreCheckoutQuery] = EventAdapter(
-        UpdateType.PRE_CHECKOUT_QUERY,
-        PreCheckoutQuery,
-    )
-
+class PaymentInvoiceRule(
+    ABCRule[PreCheckoutQuery],
+    abc.ABC,
+    adapter=EventAdapter(UpdateType.PRE_CHECKOUT_QUERY, PreCheckoutQuery),
+):
     @abc.abstractmethod
     def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 

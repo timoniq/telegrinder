@@ -7,8 +7,9 @@ import typing_extensions as typing
 from telegrinder.bot.cute_types import MessageCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.bot.rules.adapter import ABCAdapter, RawUpdateAdapter
+from telegrinder.bot.rules.adapter import ABCAdapter
 from telegrinder.bot.rules.adapter.node import Event
+from telegrinder.bot.rules.adapter.raw_update import RawUpdateAdapter
 from telegrinder.node.base import Node, get_nodes, is_node
 from telegrinder.tools.i18n.abc import ABCTranslator
 from telegrinder.tools.magic import (
@@ -59,8 +60,16 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         def check(self, *args, **kwargs):
             pass
 
-    def __init_subclass__(cls, requires: list["ABCRule"] | None = None) -> None:
+    def __init_subclass__(
+        cls,
+        *,
+        requires: list["ABCRule"] | None = None,
+        adapter: ABCAdapter[UpdateObject, AdaptTo] | None = None,
+    ) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
+
+        if adapter is not None:
+            cls.adapter = adapter
 
         requirements = []
         for base in inspect.getmro(cls):
@@ -121,9 +130,10 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
 
     async def bounding_check(
         self,
-        adapted_value: AdaptTo,
         ctx: Context,
-        node_col: "NodeCollection | None" = None,
+        *,
+        node_col: "NodeCollection | None",
+        adapted_value: AdaptTo,
     ) -> bool:
         bound_check_rule = self.check
         kw = {}

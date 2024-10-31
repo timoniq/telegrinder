@@ -2,9 +2,10 @@ import inspect
 import typing
 
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.rules.adapter.raw_update import RawUpdateAdapter
 from telegrinder.types.objects import Update
 
-from .abc import ABCAdapter, ABCRule, AdaptTo, RawUpdateAdapter
+from .abc import ABCAdapter, ABCRule, AdaptTo
 
 
 class FuncRule(ABCRule, typing.Generic[AdaptTo]):

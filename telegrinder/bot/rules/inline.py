@@ -12,9 +12,11 @@ from .markup import Markup, PatternLike, check_string
 InlineQuery: typing.TypeAlias = InlineQueryCute
 
 
-class InlineQueryRule(ABCRule[InlineQuery], abc.ABC):
-    adapter: EventAdapter[InlineQuery] = EventAdapter(UpdateType.INLINE_QUERY, InlineQuery)
-
+class InlineQueryRule(
+    ABCRule[InlineQuery],
+    abc.ABC,
+    adapter=EventAdapter(UpdateType.INLINE_QUERY, InlineQuery),
+):
     @abc.abstractmethod
     def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 

@@ -10,9 +10,11 @@ from .abc import ABCRule, CheckResult
 ChatJoinRequest: typing.TypeAlias = ChatJoinRequestCute
 
 
-class ChatJoinRequestRule(ABCRule[ChatJoinRequest], requires=[]):
-    adapter: EventAdapter[ChatJoinRequest] = EventAdapter(UpdateType.CHAT_JOIN_REQUEST, ChatJoinRequest)
-
+class ChatJoinRequestRule(
+    ABCRule[ChatJoinRequest],
+    abc.ABC,
+    adapter=EventAdapter(UpdateType.CHAT_JOIN_REQUEST, ChatJoinRequest),
+):
     @abc.abstractmethod
     def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 

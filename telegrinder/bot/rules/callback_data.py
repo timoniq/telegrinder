@@ -16,9 +16,11 @@ CallbackMap: typing.TypeAlias = list[tuple[str, "typing.Any | type[typing.Any] |
 CallbackMapStrict: typing.TypeAlias = list[tuple[str, "Validator | CallbackMapStrict"]]
 
 
-class CallbackQueryRule(ABCRule[CallbackQuery], abc.ABC):
-    adapter: EventAdapter[CallbackQuery] = EventAdapter(UpdateType.CALLBACK_QUERY, CallbackQuery)
-
+class CallbackQueryRule(
+    ABCRule[CallbackQuery],
+    abc.ABC,
+    adapter=EventAdapter(UpdateType.CALLBACK_QUERY, CallbackQuery),
+):
     @abc.abstractmethod
     def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 

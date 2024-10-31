@@ -105,6 +105,8 @@ async def check_rule(
     """Checks requirements, adapts update.
     Returns check result."""
 
+    update_cute = None if not isinstance(update, UpdateCute) else update
+
     # Running adapter
     match await run_adapter(rule.adapter, api, update, ctx):
         case Some(val):
@@ -114,16 +116,16 @@ async def check_rule(
 
     # Preparing update
     if isinstance(adapted_value, UpdateCute):
-        update = adapted_value
+        update_cute = adapted_value
     elif isinstance(adapted_val := ctx.get(rule.adapter.ADAPTED_VALUE_KEY or ""), UpdateCute):
-        update = adapted_val
+        update_cute = adapted_val
     else:
-        update = UpdateCute.from_update(update, bound_api=api)
+        update_cute = UpdateCute.from_update(update, bound_api=api)
 
     # Running subrules to fetch requirements
     ctx_copy = ctx.copy()
     for requirement in rule.requires:
-        if not await check_rule(api, requirement, update, ctx_copy):
+        if not await check_rule(api, requirement, update_cute, ctx_copy):
             return False
 
     # Translating translatable rules
@@ -136,13 +138,13 @@ async def check_rule(
     nodes = rule.required_nodes
     node_col = None
     if nodes:
-        result = await compose_nodes(nodes, ctx, data={Update: update, API: api})
+        result = await compose_nodes(nodes, ctx, data={Update: update, API: api, UpdateCute: update_cute})
         if not result:
             return False
         node_col = result.value
 
     # Running check
-    result = await rule.bounding_check(adapted_value, ctx, node_col=node_col)
+    result = await rule.bounding_check(ctx, adapted_value=adapted_value, node_col=node_col)
 
     # Closing node sessions if there are any
     if node_col is not None:
