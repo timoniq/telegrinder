@@ -161,11 +161,15 @@ def get_impls(cls: type[Polymorphic]) -> list[typing.Callable[..., typing.Any]]:
     moprh_impls = getattr(cls, "__morph_impls__", None)
     if moprh_impls is not None:
         return moprh_impls
-    impls = [
-        func.__func__
-        for func in vars(cls).values()
-        if isinstance(func, classmethod) and getattr(func.__func__, IMPL_MARK, False)
-    ]
+
+    impls = []
+    for cls_ in cls.mro():
+        impls += [
+            func.__func__
+            for func in vars(cls_).values()
+            if isinstance(func, classmethod) and getattr(func.__func__, IMPL_MARK, False)
+        ]
+
     setattr(cls, "__morph_impls__", impls)
     return impls
 
