@@ -4,7 +4,7 @@ import typing
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.command import CommandInfo, single_split
 from telegrinder.node.me import Me
-from telegrinder.node.source import Source
+from telegrinder.node.source import ChatSource
 from telegrinder.types.enums import ChatType
 
 from .abc import ABCRule
@@ -97,7 +97,7 @@ class Command(ABCRule):
 
         return None
 
-    def check(self, command: CommandInfo, me: Me, src: Source, ctx: Context) -> bool:
+    def check(self, command: CommandInfo, me: Me, chat: ChatSource, ctx: Context) -> bool:
         name = self.remove_prefix(command.name)
         if name is None:
             return False
@@ -105,7 +105,7 @@ class Command(ABCRule):
         if name not in self.names:
             return False
 
-        if not command.mention and self.mention_needed_in_chat and src.chat.type is not ChatType.PRIVATE:
+        if not command.mention and self.mention_needed_in_chat and chat.type is not ChatType.PRIVATE:
             return False
 
         if command.mention and self.validate_mention:  # noqa

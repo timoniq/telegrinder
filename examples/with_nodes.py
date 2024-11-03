@@ -5,7 +5,7 @@ from telegrinder import API, Message, Telegrinder, Token, node
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
 from telegrinder.modules import logger
-from telegrinder.node import MessageNode, ScalarNode, TextLiteral
+from telegrinder.node import ChatSource, MessageNode, ScalarNode, TextLiteral
 
 MessageId = type("MessageId", (int,), {})
 
@@ -15,8 +15,8 @@ logger.set_level("DEBUG")
 
 
 class IsChat(ABCRule):
-    async def check(self, source: node.Source) -> bool:
-        return source.chat.id < 0
+    async def check(self, chat: ChatSource) -> bool:
+        return chat.id < 0
 
 
 class IsAdmin(ABCRule):
