@@ -18,6 +18,7 @@ class TransactionPartner(Model):
     - TransactionPartnerUser
     - TransactionPartnerFragment
     - TransactionPartnerTelegramAds
+    - TransactionPartnerTelegramApi
     - TransactionPartnerOther
     """
 
@@ -709,7 +710,11 @@ class Message(MaybeInaccessibleMessage):
     """
 
     message_id: int = field()
-    """Unique message identifier inside this chat."""
+    """Unique message identifier inside this chat. In specific instances (e.g.,
+    message containing a video sent to a big chat), the server might automatically
+    schedule a message instead of sending it immediately. In such cases, this
+    field will be 0 and the relevant message will be unusable until it is actually
+    sent."""
 
     date: datetime = field()
     """Date the message was sent in Unix time. It is always a positive number, representing
@@ -1124,7 +1129,10 @@ class MessageId(Model):
     """
 
     message_id: int = field()
-    """Unique message identifier."""
+    """Unique message identifier. In specific instances (e.g., message containing
+    a video sent to a big chat), the server might automatically schedule a message
+    instead of sending it immediately. In such cases, this field will be 0 and
+    the relevant message will be unusable until it is actually sent."""
 
 
 class InaccessibleMessage(MaybeInaccessibleMessage):
@@ -1139,7 +1147,7 @@ class InaccessibleMessage(MaybeInaccessibleMessage):
     message_id: int = field()
     """Unique message identifier inside the chat."""
 
-    date: typing.Literal[0]
+    date: typing.Literal[0] = field(default=0)
     """Always 0. The field can be used to differentiate regular and inaccessible
     messages."""
 
@@ -1152,15 +1160,15 @@ class MessageEntity(Model):
 
     type: MessageEntityType = field()
     """Type of the entity. Currently, can be `mention` (@username), `hashtag`
-    (#hashtag), `cashtag` ($USD), `bot_command` (/start@jobs_bot), `url`
-    (https://telegram.org), `email` (do-not-reply@telegram.org), `phone_number`
-    (+1-212-555-0123), `bold` (bold text), `italic` (italic text), `underline`
-    (underlined text), `strikethrough` (strikethrough text), `spoiler`
-    (spoiler message), `blockquote` (block quotation), `expandable_blockquote`
-    (collapsed-by-default block quotation), `code` (monowidth string),
-    `pre` (monowidth block), `text_link` (for clickable text URLs), `text_mention`
-    (for users without usernames), `custom_emoji` (for inline custom emoji
-    stickers)."""
+    (#hashtag or #hashtag@chatusername), `cashtag` ($USD or $USD@chatusername),
+    `bot_command` (/start@jobs_bot), `url` (https://telegram.org), `email`
+    (do-not-reply@telegram.org), `phone_number` (+1-212-555-0123),
+    `bold` (bold text), `italic` (italic text), `underline` (underlined
+    text), `strikethrough` (strikethrough text), `spoiler` (spoiler message),
+    `blockquote` (block quotation), `expandable_blockquote` (collapsed-by-default
+    block quotation), `code` (monowidth string), `pre` (monowidth block),
+    `text_link` (for clickable text URLs), `text_mention` (for users without
+    usernames), `custom_emoji` (for inline custom emoji stickers)."""
 
     offset: int = field()
     """Offset in UTF-16 code units to the start of the entity."""
@@ -2772,6 +2780,10 @@ class InlineKeyboardButton(Model):
     username and the specified inline query in the input field. Not supported
     for messages sent on behalf of a Telegram Business account."""
 
+    copy_text: Option[CopyTextButton] = field(default=Nothing, converter=From["CopyTextButton | None"])
+    """Optional. Description of the button that copies the specified text to the
+    clipboard."""
+
     callback_game: Option[CallbackGame] = field(default=Nothing, converter=From["CallbackGame | None"])
     """Optional. Description of the game that will be launched when the user presses
     the button. NOTE: This type of button must always be the first button in the
@@ -2834,6 +2846,16 @@ class SwitchInlineQueryChosenChat(Model):
 
     allow_channel_chats: Option[bool] = field(default=Nothing, converter=From[bool | None])
     """Optional. True, if channel chats can be chosen."""
+
+
+class CopyTextButton(Model):
+    """Object `CopyTextButton`, see the [documentation](https://core.telegram.org/bots/api#copytextbutton).
+
+    This object represents an inline keyboard button that copies specified text to the clipboard.
+    """
+
+    text: str = field()
+    """The text to be copied to the clipboard; 1-256 characters."""
 
 
 class CallbackQuery(Model):
@@ -6243,6 +6265,20 @@ class TransactionPartnerTelegramAds(TransactionPartner):
     """Type of the transaction partner, always `telegram_ads`."""
 
 
+class TransactionPartnerTelegramApi(TransactionPartner):
+    """Object `TransactionPartnerTelegramApi`, see the [documentation](https://core.telegram.org/bots/api#transactionpartnertelegramapi).
+
+    Describes a transaction with payment for paid broadcasting.
+    """
+
+    type: str = field()
+    """Type of the transaction partner, always `telegram_api`."""
+
+    request_count: int = field()
+    """The number of successful requests that exceeded regular limits and were
+    therefore billed."""
+
+
 class TransactionPartnerOther(TransactionPartner):
     """Object `TransactionPartnerOther`, see the [documentation](https://core.telegram.org/bots/api#transactionpartnerother).
 
@@ -6260,7 +6296,7 @@ class StarTransaction(Model):
     """
 
     id: str = field()
-    """Unique identifier of the transaction. Coincides with the identifer of
+    """Unique identifier of the transaction. Coincides with the identifier of
     the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id
     for successful incoming payments from users."""
 
@@ -6275,12 +6311,13 @@ class StarTransaction(Model):
             TransactionPartnerUser,
             TransactionPartnerFragment,
             TransactionPartnerTelegramAds,
+            TransactionPartnerTelegramApi,
             TransactionPartnerOther,
         ]
     ] = field(
         default=Nothing,
         converter=From[
-            "TransactionPartnerUser | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerOther | None"
+            "TransactionPartnerUser | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
         ],
     )
     """Optional. Source of an incoming transaction (e.g., a user purchasing goods
@@ -6292,12 +6329,13 @@ class StarTransaction(Model):
             TransactionPartnerUser,
             TransactionPartnerFragment,
             TransactionPartnerTelegramAds,
+            TransactionPartnerTelegramApi,
             TransactionPartnerOther,
         ]
     ] = field(
         default=Nothing,
         converter=From[
-            "TransactionPartnerUser | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerOther | None"
+            "TransactionPartnerUser | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
         ],
     )
     """Optional. Receiver of an outgoing transaction (e.g., a user for a purchase
@@ -6782,6 +6820,7 @@ __all__ = (
     "ChatShared",
     "ChosenInlineResult",
     "Contact",
+    "CopyTextButton",
     "Dice",
     "Document",
     "EncryptedCredentials",
@@ -6929,6 +6968,7 @@ __all__ = (
     "TransactionPartnerFragment",
     "TransactionPartnerOther",
     "TransactionPartnerTelegramAds",
+    "TransactionPartnerTelegramApi",
     "TransactionPartnerUser",
     "Update",
     "User",

@@ -12,8 +12,6 @@ from telegrinder.model import From, field, get_params
 from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.types.objects import *
 
-T = typing.TypeVar("T")
-
 
 class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     api: API
@@ -75,9 +73,9 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     def decode_data(self) -> Option[dict[str, typing.Any]]: ...
 
     @typing.overload
-    def decode_data(self, *, to: type[T]) -> Option[T]: ...
+    def decode_data[T](self, *, to: type[T]) -> Option[T]: ...
 
-    def decode_data(self, *, to: type[T] = dict) -> Option[T]:
+    def decode_data[T](self, *, to: type[T] = dict) -> Option[T]:
         if not self.data:
             return Nothing()
 
@@ -122,7 +120,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     @shortcut(
         "copy_message",
         custom_params={
-            "reply_parameters",
             "message_thread_id",
             "chat_id",
             "message_id",
@@ -142,9 +139,10 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         caption_entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
-        reply_parameters: ReplyParameters | dict[str, typing.Any] | None = None,
+        reply_parameters: ReplyParameters | None = None,
         reply_markup: ReplyMarkup | None = None,
         show_caption_above_media: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
@@ -186,7 +184,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     @shortcut(
         "edit_message_text",
         executor=execute_method_edit,
-        custom_params={"message_thread_id", "link_preview_options"},
+        custom_params={"message_thread_id"},
     )
     async def edit_text(
         self,
@@ -198,7 +196,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         message_thread_id: int | None = None,
         parse_mode: str | None = None,
         entities: list[MessageEntity] | None = None,
-        link_preview_options: LinkPreviewOptions | dict[str, typing.Any] | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         business_connection_id: str | None = None,
         **other: typing.Any,
@@ -237,7 +235,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     async def edit_live_location(
         self,
         *,
-        latitude: float,
         longitude: float,
         inline_message_id: str | None = None,
         message_thread_id: int | None = None,
@@ -353,15 +350,15 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
-        Use this method to edit animation, audio, document, photo, or video messages.
-        If a message is part of a message album, then it can be edited only to an audio
-        for audio albums, only to a document for document albums and to a photo or
-        a video otherwise. When an inline message is edited, a new file can't be uploaded;
-        use a previously uploaded file via its file_id or specify a URL. On success,
-        if the edited message is not an inline message, the edited Message is returned,
-        otherwise True is returned. Note that business messages that were not sent
-        by the bot and do not contain an inline keyboard can only be edited within
-        48 hours from the time they were sent.
+        Use this method to edit animation, audio, document, photo, or video messages,
+        or to add media to text messages. If a message is part of a message album, then
+        it can be edited only to an audio for audio albums, only to a document for document
+        albums and to a photo or a video otherwise. When an inline message is edited,
+        a new file can't be uploaded; use a previously uploaded file via its file_id
+        or specify a URL. On success, if the edited message is not an inline message,
+        the edited Message is returned, otherwise True is returned. Note that business
+        messages that were not sent by the bot and do not contain an inline keyboard
+        can only be edited within 48 hours from the time they were sent.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).

@@ -9,11 +9,11 @@ from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.objects import *  # noqa: F403
 
 if typing.TYPE_CHECKING:
-    from telegrinder.api import API
+    from telegrinder.api.api import API
 
 
 class APIMethods:
-    """Telegram Bot API methods version 7.10, released `September 6, 2024`."""
+    """Telegram Bot API methods version 7.11, released `October 31, 2024`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -221,6 +221,7 @@ class APIMethods:
         link_preview_options: LinkPreviewOptions | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -256,6 +257,10 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
@@ -369,6 +374,7 @@ class APIMethods:
         show_caption_above_media: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
@@ -412,6 +418,10 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -489,6 +499,7 @@ class APIMethods:
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -535,6 +546,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -567,6 +582,7 @@ class APIMethods:
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -624,6 +640,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -654,6 +674,7 @@ class APIMethods:
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -707,6 +728,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -742,6 +767,7 @@ class APIMethods:
         supports_streaming: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -805,6 +831,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -839,6 +869,7 @@ class APIMethods:
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -899,6 +930,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -928,6 +963,7 @@ class APIMethods:
         duration: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -974,6 +1010,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1002,6 +1042,7 @@ class APIMethods:
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -1047,6 +1088,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1077,6 +1122,7 @@ class APIMethods:
         show_caption_above_media: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
         | ReplyKeyboardMarkup
@@ -1119,6 +1165,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -1141,6 +1191,7 @@ class APIMethods:
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
@@ -1166,6 +1217,10 @@ class APIMethods:
         :param disable_notification: Sends messages silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent messages from forwarding and saving. \
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
@@ -1193,6 +1248,7 @@ class APIMethods:
         proximity_alert_radius: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -1235,6 +1291,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1267,6 +1327,7 @@ class APIMethods:
         google_place_type: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -1311,6 +1372,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1339,6 +1404,7 @@ class APIMethods:
         vcard: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -1372,6 +1438,10 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
@@ -1411,6 +1481,7 @@ class APIMethods:
         is_closed: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -1477,6 +1548,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1502,6 +1577,7 @@ class APIMethods:
         emoji: DiceEmoji | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -1532,6 +1608,10 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
@@ -3461,15 +3541,15 @@ class APIMethods:
     ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageMedia`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
-        Use this method to edit animation, audio, document, photo, or video messages.
-        If a message is part of a message album, then it can be edited only to an audio
-        for audio albums, only to a document for document albums and to a photo or
-        a video otherwise. When an inline message is edited, a new file can't be uploaded;
-        use a previously uploaded file via its file_id or specify a URL. On success,
-        if the edited message is not an inline message, the edited Message is returned,
-        otherwise True is returned. Note that business messages that were not sent
-        by the bot and do not contain an inline keyboard can only be edited within
-        48 hours from the time they were sent.
+        Use this method to edit animation, audio, document, photo, or video messages,
+        or to add media to text messages. If a message is part of a message album, then
+        it can be edited only to an audio for audio albums, only to a document for document
+        albums and to a photo or a video otherwise. When an inline message is edited,
+        a new file can't be uploaded; use a previously uploaded file via its file_id
+        or specify a URL. On success, if the edited message is not an inline message,
+        the edited Message is returned, otherwise True is returned. Note that business
+        messages that were not sent by the bot and do not contain an inline keyboard
+        can only be edited within 48 hours from the time they were sent.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
         to be edited was sent.
@@ -3733,6 +3813,7 @@ class APIMethods:
         emoji: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup
@@ -3768,6 +3849,10 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
@@ -4254,7 +4339,7 @@ class APIMethods:
         title: str,
         description: str,
         payload: str,
-        currency: str,
+        currency: Currency,
         prices: list[LabeledPrice],
         message_thread_id: int | None = None,
         provider_token: str | None = None,
@@ -4275,6 +4360,7 @@ class APIMethods:
         is_flexible: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
@@ -4364,6 +4450,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -4385,7 +4475,7 @@ class APIMethods:
         title: str,
         description: str,
         payload: str,
-        currency: str,
+        currency: Currency,
         prices: list[LabeledPrice],
         provider_token: str | None = None,
         max_tip_amount: int | None = None,
@@ -4633,6 +4723,7 @@ class APIMethods:
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
@@ -4656,6 +4747,10 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.

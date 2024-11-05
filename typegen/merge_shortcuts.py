@@ -9,7 +9,7 @@ import libcst as cst
 
 from telegrinder.modules import logger
 
-APIMethodsMapping: typing.TypeAlias = dict[str, cst.FunctionDef]
+type APIMethodsMapping = dict[str, cst.FunctionDef]
 
 ANNOTATION_TYPING_ANY: typing.Final[cst.Annotation] = cst.parse_statement("x: typing.Any").body[0].annotation  # type: ignore
 DEFAULT_API_METHODS_CLASS_NAME: typing.Final[str] = "APIMethods"
@@ -35,15 +35,25 @@ def is_cute_class(node: cst.ClassDef) -> bool:
     return False
 
 
-def get_params(node: cst.FunctionDef) -> dict[str, cst.Param]:
-    params_dct = OrderedDict()
-    optional_params = list(node.params.params)[-sum(1 for x in node.params.params if x.default is not None) :]
-    required_params = [param for param in list(node.params.params)[1 : -len(optional_params)]]
+def get_func_params(node: cst.FunctionDef) -> tuple[dict[str, cst.Param], dict[str, cst.Param]]:
+    result: tuple[dict[str, cst.Param], dict[str, cst.Param]] = tuple()
 
-    for param in required_params + optional_params:
-        params_dct[param.name.value] = param
+    for params in (node.params.params, node.params.kwonly_params):
+        params = tuple(params)
+        params_dct = OrderedDict()
+        optional_params = params[-sum(1 for x in params if x.default is not None) :]
+        required_params = tuple(param for param in params[1 : -len(optional_params)])
 
-    return params_dct
+        for param in required_params + optional_params:
+            params_dct[param.name.value] = param
+
+        result += (params_dct,)  # type: ignore
+
+    return result
+
+
+def sort_params(params: typing.Iterable[cst.Param]) -> list[cst.Param]:
+    return sorted(params, key=lambda x: x.default is not None)
 
 
 def parse_docstring(docstring: str) -> tuple[str, dict[str, str]]:
@@ -112,7 +122,7 @@ def merge(
         modified_cute_tree_code = modified_cute_tree.code
 
         if cute_source_tree.code != modified_cute_tree_code:
-            print("Rewritting file '{}'...".format(path))
+            print("Rewritting file {!r}...".format(str(path)))
             path.write_text(modified_cute_tree_code, encoding="UTF-8")
 
     os.system("ruff format {}".format(path_cute_types))
@@ -212,21 +222,26 @@ class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
     ) -> cst.FunctionDef:
         if typing.cast(Shortcut, original_node) in self.shortcuts:
             shortcut = self.shortcuts.pop(self.shortcuts.index(typing.cast(Shortcut, original_node)))
-            shortcut_params = OrderedDict({"self": cst.Param(cst.Name("self"))}) | get_params(
-                shortcut.function
-            )
-            api_method_params = get_params(self.api_methods[shortcut.method_name])
+            shortcut_args, shortcut_kwargs = get_func_params(shortcut.function)
+            shortcut_args = OrderedDict({"self": cst.Param(cst.Name("self"))}) | shortcut_args
+            api_method_args, api_method_kwargs = get_func_params(self.api_methods[shortcut.method_name])
 
-            for name, param in api_method_params.items():
-                if name in shortcut.custom_params or param.annotation is None:
-                    continue
-                if param.default is not None and not isinstance(param.default, cst.Name):
-                    continue
-                shortcut_params[name] = param
+            for apiargs, shortcutargs in (
+                (api_method_args, shortcut_args),
+                (api_method_kwargs, shortcut_kwargs),
+            ):
+                for name, param in apiargs.items():
+                    if name in shortcut.custom_params or param.annotation is None or name in shortcut_args:
+                        continue
+                    if param.default is not None and not isinstance(param.default, cst.Name):
+                        continue
+                    shortcutargs[name] = param
 
             return updated_node.with_changes(
                 params=cst.Parameters(
-                    sorted(list(shortcut_params.values()), key=lambda x: x.default is not None),
+                    params=sort_params(shortcut_args.values()),
+                    kwonly_params=sort_params(shortcut_kwargs.values()),
+                    star_arg=cst.ParamStar() if shortcut_kwargs else cst.MaybeSentinel.DEFAULT,
                     star_kwarg=cst.Param(
                         cst.Name("other"),
                         annotation=ANNOTATION_TYPING_ANY,
@@ -253,7 +268,7 @@ class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
 
 
 if __name__ == "__main__":
-    merge()
+    merge(path_cute_types="telegrinder/bot/cute_types")
 
 
 __all__ = ("merge",)

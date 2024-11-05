@@ -195,6 +195,17 @@
             ]
         },
         {
+            "name": "InaccessibleMessage",
+            "fields": [
+                {
+                    "name": "date",
+                    "literals": [
+                        0
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Dice",
             "fields": [
                 {
@@ -1230,6 +1241,24 @@
                         "mask",
                         "custom_emoji"
                     ]
+                }
+            ]
+        },
+        {
+            "name": "sendInvoice",
+            "params": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
+            "name": "createInvoiceLink",
+            "params": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
                 }
             ]
         }

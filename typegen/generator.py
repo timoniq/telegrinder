@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 import msgspec
 import requests
 
-from .merge_shortcuts import merge  # noqa
+from .merge_shortcuts import merge
 from .models import (
     MethodParameter,
     MethodSchema,
@@ -656,7 +656,7 @@ class MethodGenerator(ABCGenerator):
             "from telegrinder.types.enums import *  # noqa: F403\n"
             "from telegrinder.types.objects import *  # noqa: F403\n\n"
             "if typing.TYPE_CHECKING:\n",
-            "    from telegrinder.api import API\n\n\n",
+            "    from telegrinder.api.api import API\n\n\n",
             "class APIMethods:\n" + docstring,
             f"\n\n    default_params = ProxiedDict({default_params_typeddict})\n\n",
             '    def __init__(self, api: "API") -> None:\n',
@@ -736,7 +736,7 @@ def generate(
     else:
         logger.info("Ruff-isort successfully sorted imports.")
 
-    # merge()
+    merge()
 
 
 __all__ = (

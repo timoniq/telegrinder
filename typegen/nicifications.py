@@ -24,7 +24,6 @@ from telegrinder.types import (
     ChatType,
     ContentType,
     DefaultAccentColor,
-    InaccessibleMessage,
     Message,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
@@ -177,12 +176,6 @@ class _InputFile(typing.NamedTuple):
             filename=path.name,
             data=path.read_bytes(),
         )
-
-
-class _InaccessibleMessage(InaccessibleMessage):
-    date: typing.Literal[0]
-    """Always 0. The field can be used to differentiate regular and inaccessible
-    messages."""
 
 
 class _ReplyKeyboardMarkup(ReplyKeyboardMarkup):

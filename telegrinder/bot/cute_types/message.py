@@ -191,6 +191,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
@@ -211,6 +212,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -245,6 +248,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
@@ -265,6 +269,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -374,6 +380,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ForceReply
         | None = None,
         show_caption_above_media: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
@@ -571,6 +578,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
@@ -602,6 +610,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -641,6 +651,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
@@ -673,6 +684,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -709,6 +722,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
@@ -734,6 +748,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -769,6 +785,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
@@ -793,6 +810,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -824,6 +843,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
@@ -842,6 +862,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -882,6 +904,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
         supports_streaming: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
@@ -919,6 +942,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
@@ -951,6 +976,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
@@ -973,6 +999,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1007,6 +1035,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
@@ -1034,6 +1063,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1078,6 +1109,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
@@ -1120,6 +1152,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
@@ -1136,10 +1170,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_venue(
         self,
         *,
+        address: str,
         latitude: float,
         longitude: float,
         title: str,
-        address: str,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -1156,6 +1190,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
@@ -1187,6 +1222,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
@@ -1216,6 +1253,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
@@ -1231,6 +1269,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param emoji: Emoji on which the dice throw animation is based. Currently, must be oneof `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and`🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1257,6 +1297,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
@@ -1272,6 +1313,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1289,11 +1332,11 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_invoice(
         self,
         *,
+        currency: Currency,
+        prices: list[LabeledPrice],
         title: str,
         description: str,
         payload: str,
-        currency: str,
-        prices: list[LabeledPrice],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         provider_token: str | None = None,
@@ -1318,6 +1361,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
@@ -1372,6 +1416,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[list[MessageCute], APIError]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
@@ -1389,6 +1434,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends messages silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent messages from forwarding and saving.
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to."""
@@ -1405,8 +1452,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_location(
         self,
         *,
-        latitude: float,
         longitude: float,
+        latitude: float,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -1423,6 +1470,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
@@ -1447,6 +1495,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
@@ -1463,8 +1513,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def answer_contact(
         self,
         *,
-        phone_number: str,
         first_name: str,
+        phone_number: str,
         last_name: str | None = None,
         vcard: str | None = None,
         chat_id: int | str | None = None,
@@ -1479,6 +1529,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
@@ -1500,6 +1551,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1537,6 +1590,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
@@ -1568,6 +1622,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1607,6 +1663,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
@@ -1639,6 +1696,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1675,6 +1734,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
@@ -1700,6 +1760,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1735,6 +1797,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
@@ -1759,6 +1822,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1790,6 +1855,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
@@ -1808,6 +1874,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1848,6 +1916,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         show_caption_above_media: bool | None = None,
         has_spoiler: bool | None = None,
         supports_streaming: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
@@ -1885,6 +1954,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
@@ -1917,6 +1988,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
@@ -1939,6 +2011,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -1973,6 +2047,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
@@ -2000,6 +2075,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -2044,6 +2121,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
@@ -2086,6 +2164,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
@@ -2102,10 +2182,10 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_venue(
         self,
         *,
+        address: str,
         latitude: float,
         longitude: float,
         title: str,
-        address: str,
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -2122,6 +2202,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
@@ -2153,6 +2234,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
@@ -2182,6 +2265,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
@@ -2197,6 +2281,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param emoji: Emoji on which the dice throw animation is based. Currently, must be oneof `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and`🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -2223,6 +2309,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
@@ -2238,6 +2325,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
@@ -2255,11 +2344,11 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_invoice(
         self,
         *,
+        currency: Currency,
+        prices: list[LabeledPrice],
         title: str,
         description: str,
         payload: str,
-        currency: str,
-        prices: list[LabeledPrice],
         chat_id: int | str | None = None,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
@@ -2284,6 +2373,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
@@ -2311,6 +2401,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[list[MessageCute], APIError]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
@@ -2328,6 +2419,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends messages silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent messages from forwarding and saving.
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to."""
@@ -2344,8 +2437,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_location(
         self,
         *,
-        latitude: float,
         longitude: float,
+        latitude: float,
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         business_connection_id: str | None = None,
@@ -2362,6 +2455,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
@@ -2386,6 +2480,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
@@ -2402,8 +2498,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def reply_contact(
         self,
         *,
-        phone_number: str,
         first_name: str,
+        phone_number: str,
         last_name: str | None = None,
         vcard: str | None = None,
         chat_id: int | str | None = None,
@@ -2418,6 +2514,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         | ReplyKeyboardRemove
         | ForceReply
         | None = None,
+        allow_paid_broadcast: bool | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
@@ -2440,6 +2537,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
         :param reply_parameters: Description of the message to reply to.
@@ -2456,7 +2555,6 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def edit_live_location(
         self,
         *,
-        latitude: float,
         longitude: float,
         chat_id: int | str | None = None,
         message_id: int | None = None,
@@ -2574,15 +2672,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
-        Use this method to edit animation, audio, document, photo, or video messages.
-        If a message is part of a message album, then it can be edited only to an audio
-        for audio albums, only to a document for document albums and to a photo or
-        a video otherwise. When an inline message is edited, a new file can't be uploaded;
-        use a previously uploaded file via its file_id or specify a URL. On success,
-        if the edited message is not an inline message, the edited Message is returned,
-        otherwise True is returned. Note that business messages that were not sent
-        by the bot and do not contain an inline keyboard can only be edited within
-        48 hours from the time they were sent.
+        Use this method to edit animation, audio, document, photo, or video messages,
+        or to add media to text messages. If a message is part of a message album, then
+        it can be edited only to an audio for audio albums, only to a document for document
+        albums and to a photo or a video otherwise. When an inline message is edited,
+        a new file can't be uploaded; use a previously uploaded file via its file_id
+        or specify a URL. On success, if the edited message is not an inline message,
+        the edited Message is returned, otherwise True is returned. Note that business
+        messages that were not sent by the bot and do not contain an inline keyboard
+        can only be edited within 48 hours from the time they were sent.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
