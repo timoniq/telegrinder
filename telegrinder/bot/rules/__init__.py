@@ -1,6 +1,10 @@
 from telegrinder.bot.rules.abc import ABCRule, AndRule, NotRule, OrRule
 from telegrinder.bot.rules.callback_data import (
+    CallbackDataEq,
+    CallbackDataJsonEq,
+    CallbackDataJsonModel,
     CallbackDataMap,
+    CallbackDataMarkup,
     CallbackQueryDataRule,
     CallbackQueryRule,
     HasData,
@@ -72,6 +76,10 @@ __all__ = (
     "CallbackQueryDataRule",
     "CallbackQueryRule",
     "ChatJoinRequestRule",
+    "CallbackDataEq",
+    "CallbackDataJsonEq",
+    "CallbackDataJsonModel",
+    "CallbackDataMarkup",
     "Command",
     "EnumTextRule",
     "FuncRule",

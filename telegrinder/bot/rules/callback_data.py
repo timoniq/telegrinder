@@ -7,6 +7,12 @@ from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule, CheckResult
 from telegrinder.bot.rules.adapter import EventAdapter
+from telegrinder.bot.rules.payload import (
+    PayloadEqRule,
+    PayloadJsonEqRule,
+    PayloadMarkupRule,
+    PayloadModelRule,
+)
 from telegrinder.types.enums import UpdateType
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
@@ -14,6 +20,10 @@ Validator: typing.TypeAlias = typing.Callable[[typing.Any], bool | typing.Awaita
 MapDict: typing.TypeAlias = dict[str, "typing.Any | type[typing.Any] | Validator | list[MapDict] | MapDict"]
 CallbackMap: typing.TypeAlias = list[tuple[str, "typing.Any | type[typing.Any] | Validator | CallbackMap"]]
 CallbackMapStrict: typing.TypeAlias = list[tuple[str, "Validator | CallbackMapStrict"]]
+CallbackDataEq: typing.TypeAlias = PayloadEqRule
+CallbackDataJsonEq: typing.TypeAlias = PayloadJsonEqRule
+CallbackDataMarkup: typing.TypeAlias = PayloadMarkupRule
+CallbackDataJsonModel: typing.TypeAlias = PayloadModelRule
 
 
 class CallbackQueryRule(
@@ -27,7 +37,7 @@ class CallbackQueryRule(
 
 class HasData(CallbackQueryRule):
     def check(self, event: CallbackQuery) -> bool:
-        return bool(event.data.unwrap_or_none())
+        return bool(event.data)
 
 
 class CallbackQueryDataRule(CallbackQueryRule, abc.ABC, requires=[HasData()]):
@@ -114,7 +124,11 @@ class CallbackDataMap(CallbackQueryDataRule):
 
 
 __all__ = (
+    "CallbackDataEq",
+    "CallbackDataJsonEq",
+    "CallbackDataJsonModel",
     "CallbackDataMap",
+    "CallbackDataMarkup",
     "CallbackQueryDataRule",
     "CallbackQueryRule",
     "HasData",
