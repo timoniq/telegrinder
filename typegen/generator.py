@@ -408,7 +408,7 @@ class ObjectGenerator(ABCGenerator):
 
                 generation_id_by_default = self.get_field_generation_id_by_default(object_name, f.name)
                 if generation_id_by_default is not None:
-                    f.default_factory = "lambda: generate_random_id({bytes})".format(
+                    f.default_factory = "lambda: secrets.token_urlsafe({bytes})".format(
                         bytes=generation_id_by_default[1]
                     )
 
@@ -445,6 +445,7 @@ class ObjectGenerator(ABCGenerator):
         lines = [
             "from __future__ import annotations\n\n",
             "import pathlib\n",
+            "import secrets\n",
             "import typing\n\n",
             "from fntypes.variative import Variative\n",
             "from telegrinder.model import From, Model, field, generate_random_id\n",

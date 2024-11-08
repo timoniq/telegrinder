@@ -1,6 +1,4 @@
-import base64
 import keyword
-import os
 import typing
 
 import msgspec
@@ -23,15 +21,6 @@ def full_result[T](
     full_t: type[T],
 ) -> Result[T, "APIError"]:
     return result.map(lambda v: decoder.decode(v, type=full_t))
-
-
-def generate_random_id(length_bytes: int) -> str:
-    if length_bytes < 1 or length_bytes > 64:
-        raise ValueError("Length of bytes must be between 1 and 64.")
-
-    random_bytes = os.urandom(length_bytes)
-    random_id = base64.urlsafe_b64encode(random_bytes).rstrip(b"=").decode("utf-8")
-    return random_id
 
 
 def is_none(value: typing.Any, /) -> typing.TypeGuard[None | Nothing]:
@@ -209,6 +198,5 @@ __all__ = (
     "ProxiedDict",
     "Proxy",
     "full_result",
-    "generate_random_id",
     "get_params",
 )
