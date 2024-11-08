@@ -130,8 +130,7 @@ def magic_bundle(
         return {name: kw[t] for name, t in get_annotations(handler, return_type=False).items() if t in kw}
 
     names = resolve_arg_names(handler, start_idx=start_idx)
-    args = get_default_args(handler)
-    args.update({to_str(k): v for k, v in kw.items() if to_str(k) in names})
+    args = get_default_args(handler) | {to_str(k): v for k, v in kw.items() if to_str(k) in names}
     if "ctx" in names and bundle_ctx:
         args["ctx"] = kw
     return args

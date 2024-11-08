@@ -70,7 +70,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         logger.debug("Checking handler {!r}...", self)
         ctx = Context(raw_update=event) if ctx is None else ctx
         temp_ctx = ctx.copy()
-        temp_ctx |= self.preset_context
+        temp_ctx |= self.preset_context.copy()
         update = event
 
         for rule in self.rules:
