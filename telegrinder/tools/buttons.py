@@ -91,7 +91,7 @@ class InlineButton(BaseButton):
 
         if callback_data_serializer is not None:
             self.callback_data = callback_data_serializer.serialize(self.callback_data)
-        elif not isinstance(self.callback_data, str | bytes):
+        elif self.callback_data is not None and not isinstance(self.callback_data, str | bytes):
             self.callback_data = encoder.encode(self.callback_data)
 
         if isinstance(self.copy_text, str):
