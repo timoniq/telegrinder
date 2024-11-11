@@ -12,7 +12,7 @@ from telegrinder.bot.dispatch.handler import (
     StickerReplyHandler,
     VideoReplyHandler,
 )
-from telegrinder.bot.dispatch.middleware import ABCMiddleware
+from telegrinder.bot.dispatch.middleware import ABCGlobalMiddleware, ABCMiddleware
 from telegrinder.bot.dispatch.process import check_rule, process_inner
 from telegrinder.bot.dispatch.return_manager import (
     ABCReturnManager,
@@ -55,6 +55,7 @@ from telegrinder.bot.dispatch.waiter_machine import (
 __all__ = (
     "ABCDispatch",
     "ABCHandler",
+    "ABCGlobalMiddleware",
     "ABCMiddleware",
     "ABCReturnManager",
     "ABCStateView",

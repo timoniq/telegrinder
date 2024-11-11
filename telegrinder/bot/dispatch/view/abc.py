@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.types.objects import Update
 
@@ -16,7 +17,7 @@ class ABCView(ABC):
         pass
 
     @abstractmethod
-    async def process(self, event: Update, api: API) -> bool:
+    async def process(self, event: Update, api: API, context: Context) -> bool:
         pass
 
     @abstractmethod

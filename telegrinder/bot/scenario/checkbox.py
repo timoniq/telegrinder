@@ -131,6 +131,7 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
         hasher: Hasher[CallbackQueryCute, int],
         api: "API",
         view: "BaseStateView[CallbackQueryCute]",
+        isolate: bool = False,
     ) -> tuple[dict[typing.Hashable, bool], int]:
         assert len(self.choices) > 0
         message = (
@@ -143,7 +144,12 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
         ).unwrap()
 
         while True:
-            q, _ = await self.waiter_machine.wait(hasher, message.message_id)
+            q, _ = await self.waiter_machine.wait(
+                hasher,
+                data=message.message_id,
+                isolate=isolate,
+                event_key=None if not isolate else message.event_key,
+            )
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
             if not should_continue:
@@ -165,6 +171,7 @@ if typing.TYPE_CHECKING:
             hasher: Hasher[CallbackQueryCute, int],
             api: "API",
             view: "BaseStateView[CallbackQueryCute]",
+            isolate: bool = False,
         ) -> tuple[dict[Key, bool], int]: ...
 
 else:

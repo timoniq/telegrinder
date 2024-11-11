@@ -1,3 +1,3 @@
-from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
+from telegrinder.bot.dispatch.middleware.abc import ABCGlobalMiddleware, ABCMiddleware
 
-__all__ = ("ABCMiddleware",)
+__all__ = ("ABCGlobalMiddleware", "ABCMiddleware")

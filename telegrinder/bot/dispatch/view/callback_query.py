@@ -10,7 +10,8 @@ class CallbackQueryView(BaseStateView[CallbackQueryCute]):
         self.middlewares = []
         self.return_manager = CallbackQueryReturnManager()
 
-    def get_state_key(self, event: CallbackQueryCute) -> int | None:
+    @classmethod
+    def get_state_key(cls, event: CallbackQueryCute) -> int | None:
         return event.message_id.unwrap_or_none()
 
 

@@ -2,6 +2,7 @@ import typing
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import Func, FuncHandler
 from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.bot.dispatch.view.abc import ABCEventRawView
@@ -96,11 +97,12 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
     async def check(self, event: Update) -> bool:
         return bool(self.handlers) or bool(self.middlewares)
 
-    async def process(self, event: Update, api: API) -> bool:
+    async def process(self, event: Update, api: API, context: Context) -> bool:
         return await process_inner(
             api,
             UpdateCute.from_update(event, bound_api=api),
             event,
+            context,
             self.middlewares,
             self.handlers,
             self.return_manager,

@@ -6,6 +6,7 @@ from fntypes.option import Nothing, Some
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import Func, FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
@@ -19,8 +20,11 @@ from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, Error
 from telegrinder.types.objects import Update
 
 
-def get_event_model_class[Event: BaseCute](view: "BaseView[Event]") -> Option[type[Event]]:
-    for base in view.__class__.__bases__ + (view.__class__,):
+def get_event_model_class[Event: BaseCute](
+    view: "BaseView[Event] | type[BaseView[Event]]",
+) -> Option[type[Event]]:
+    view_class = view if isinstance(view, typing.Type) else view.__class__
+    for base in view.__class__.__bases__ + (view_class,):
         if "__orig_bases__" not in base.__dict__:
             continue
 
@@ -166,7 +170,7 @@ class BaseView[Event: BaseCute](ABCView):
             case _:
                 return False
 
-    async def process(self, event: Update, api: API) -> bool:
+    async def process(self, event: Update, api: API, context: Context) -> bool:
         return await process_inner(
             api,
             self.event_model_class.unwrap().from_update(
@@ -174,6 +178,7 @@ class BaseView[Event: BaseCute](ABCView):
                 bound_api=api,
             ),
             event,
+            context,
             self.middlewares,
             self.handlers,
             self.return_manager,
@@ -186,8 +191,9 @@ class BaseView[Event: BaseCute](ABCView):
 
 
 class BaseStateView[Event: BaseCute](ABCStateView[Event], BaseView[Event], ABC):
+    @classmethod
     @abstractmethod
-    def get_state_key(self, event: Event) -> int | None:
+    def get_state_key(cls, event: Event) -> int | None:
         pass
 
 

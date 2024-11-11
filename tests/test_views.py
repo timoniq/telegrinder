@@ -38,7 +38,7 @@ class PreMiddleware(ABCMiddleware[MessageCute]):
 
 
 class PostMiddleware(ABCMiddleware[MessageCute]):
-    async def post(self, event: MessageCute, responses: list[typing.Any], ctx: Context) -> None:
+    async def post(self, event: MessageCute, ctx: Context, responses: list[typing.Any]) -> None:
         assert responses == [b"123data"]
 
 
@@ -107,7 +107,7 @@ async def test_view_check_and_process(api_instance, message_update):
         assert isinstance(message, MessageCute) is True
 
     assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance) is True
+    assert await view.process(message_update, api_instance, Context()) is True
 
 
 @pytest.mark.asyncio()
@@ -120,7 +120,7 @@ async def test_process_pre_middleware(api_instance, message_update):
         return None
 
     assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance) is True
+    assert await view.process(message_update, api_instance, Context()) is True
 
 
 @pytest.mark.asyncio()
@@ -133,7 +133,7 @@ async def test_process_post_middleware(api_instance, message_update):
         return b"123data"
 
     assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance) is True
+    assert await view.process(message_update, api_instance, Context()) is True
 
 
 @pytest.mark.asyncio()
@@ -145,7 +145,7 @@ async def test_process_with_rule(api_instance, message_update):
         return None
 
     assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance) is True
+    assert await view.process(message_update, api_instance, Context()) is True
 
 
 @pytest.mark.asyncio()
@@ -157,4 +157,4 @@ async def test_process_with_return_manager(api_instance, message_update):
         return 123
 
     assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance) is True
+    assert await view.process(message_update, api_instance, Context()) is True

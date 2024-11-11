@@ -53,7 +53,10 @@ def get_func_params(node: cst.FunctionDef) -> tuple[dict[str, cst.Param], dict[s
 
 
 def sort_params(params: typing.Iterable[cst.Param]) -> list[cst.Param]:
-    return sorted(params, key=lambda x: x.default is not None)
+    by_name = lambda param: param.name.value
+    without_defaults = filter(lambda x: x.default is None, params)
+    with_defaults = filter(lambda x: x.default is not None, params)
+    return sorted(without_defaults, key=by_name) + sorted(with_defaults, key=by_name)
 
 
 def parse_docstring(docstring: str) -> tuple[str, dict[str, str]]:
@@ -223,7 +226,6 @@ class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
         if typing.cast(Shortcut, original_node) in self.shortcuts:
             shortcut = self.shortcuts.pop(self.shortcuts.index(typing.cast(Shortcut, original_node)))
             shortcut_args, shortcut_kwargs = get_func_params(shortcut.function)
-            shortcut_args = OrderedDict({"self": cst.Param(cst.Name("self"))}) | shortcut_args
             api_method_args, api_method_kwargs = get_func_params(self.api_methods[shortcut.method_name])
 
             for apiargs, shortcutargs in (
@@ -231,15 +233,21 @@ class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
                 (api_method_kwargs, shortcut_kwargs),
             ):
                 for name, param in apiargs.items():
-                    if name in shortcut.custom_params or param.annotation is None or name in shortcut_args:
+                    if (
+                        name in ("cls", "self")
+                        or name in shortcut.custom_params
+                        or param.annotation is None
+                        or name in shortcut_args
+                    ):
                         continue
                     if param.default is not None and not isinstance(param.default, cst.Name):
                         continue
                     shortcutargs[name] = param
 
+            shortcut_args.pop("self", None)
             return updated_node.with_changes(
                 params=cst.Parameters(
-                    params=sort_params(shortcut_args.values()),
+                    params=[cst.Param(cst.Name("self"))] + sort_params(shortcut_args.values()),
                     kwonly_params=sort_params(shortcut_kwargs.values()),
                     star_arg=cst.ParamStar() if shortcut_kwargs else cst.MaybeSentinel.DEFAULT,
                     star_kwarg=cst.Param(

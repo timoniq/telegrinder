@@ -18,19 +18,31 @@ from telegrinder.model import Model
 from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import (
     Birthdate,
+    BusinessConnection,
+    BusinessMessagesDeleted,
     Chat,
+    ChatBoostRemoved,
+    ChatBoostUpdated,
     ChatJoinRequest,
     ChatMemberUpdated,
     ChatType,
+    ChosenInlineResult,
     ContentType,
     DefaultAccentColor,
+    InlineQuery,
     Message,
+    MessageReactionCountUpdated,
+    MessageReactionUpdated,
+    PaidMediaPurchased,
+    PreCheckoutQuery,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
+    ShippingQuery,
     Update,
     UpdateType,
     User,
 )
+from telegrinder.types.objects import CallbackQuery, Poll, PollAnswer
 
 
 class _Birthdate(Birthdate):
@@ -69,12 +81,56 @@ class _ChatJoinRequest(ChatJoinRequest):
 
         return self.chat.id
 
+    @property
+    def event_key(self) -> int:
+        return self.chat.id
+
+
+class _MessageReactionUpdated(MessageReactionUpdated):
+    @property
+    def event_key(self) -> int:
+        return self.chat.id
+
+
+class _MessageReactionCountUpdated(MessageReactionCountUpdated):
+    @property
+    def event_key(self) -> int:
+        return self.chat.id
+
+
+class _ChatBoostUpdated(ChatBoostUpdated):
+    @property
+    def event_key(self) -> int:
+        return self.chat.id
+
+
+class _ChatBoostRemoved(ChatBoostRemoved):
+    @property
+    def event_key(self) -> int:
+        return self.chat.id
+
+
+class _BusinessConnection(BusinessConnection):
+    @property
+    def event_key(self) -> int:
+        return self.user_chat_id
+
+
+class _BusinessMessagesDeleted(BusinessMessagesDeleted):
+    @property
+    def event_key(self) -> int:
+        return self.chat.id
+
 
 class _ChatMemberUpdated(ChatMemberUpdated):
     @property
     def chat_id(self) -> int:
         """Alias `.chat_id` instead of `.chat.id`"""
 
+        return self.chat.id
+
+    @property
+    def event_key(self) -> int:
         return self.chat.id
 
 
@@ -118,6 +174,61 @@ class _Message(Message):
         return (
             self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
         )
+
+    @property
+    def event_key(self) -> int:
+        return self.chat.id
+
+
+class _PollAnswer(PollAnswer):
+    @property
+    def event_key(self) -> int:
+        return self.user.map_or_else(
+            lambda _: self.voter_chat.unwrap().id,
+            lambda user: user.id,
+        ).unwrap()
+
+
+class _Poll(Poll):
+    @property
+    def event_key(self) -> str:
+        return self.id
+
+
+class _CallbackQuery(CallbackQuery):
+    @property
+    def event_key(self) -> int:
+        return self.message.map_or(self.from_.id, lambda message: message.v.chat.id).unwrap()
+
+
+class _PaidMediaPurchased(PaidMediaPurchased):
+    @property
+    def event_key(self) -> int:
+        return self.from_.id
+
+
+class _PreCheckoutQuery(PreCheckoutQuery):
+    @property
+    def event_key(self) -> int:
+        return self.from_.id
+
+
+class _InlineQuery(InlineQuery):
+    @property
+    def event_key(self) -> int:
+        return self.from_.id
+
+
+class _ChosenInlineResult(ChosenInlineResult):
+    @property
+    def event_key(self) -> int:
+        return self.from_.id
+
+
+class _ShippingQuery(ShippingQuery):
+    @property
+    def event_key(self) -> int:
+        return self.from_.id
 
 
 class _User(User):

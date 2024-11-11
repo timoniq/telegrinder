@@ -36,30 +36,43 @@ async def run_adapter[T](
             return Nothing()
 
 
+async def run_middleware[Event: Model, R: bool | None](
+    method: typing.Callable[typing.Concatenate[Event, Context, ...], typing.Awaitable[R]],
+    api: API,
+    event: Event,
+    raw_event: Update,
+    ctx: Context,
+    adapter: "ABCAdapter[Update, Event] | None" = None,
+    *args: typing.Any,
+    **kwargs: typing.Any,
+) -> R:
+    if adapter is not None:
+        match await run_adapter(adapter, api, raw_event, ctx):
+            case Some(val):
+                event = val
+            case Nothing():
+                return False  # type: ignore
+
+    return await method(event, ctx, *args, **kwargs)  # type: ignore
+
+
 async def process_inner[Event: Model](
     api: API,
     event: Event,
     raw_event: Update,
+    ctx: Context,
     middlewares: list[ABCMiddleware[Event]],
     handlers: list["ABCHandler[Event]"],
     return_manager: ABCReturnManager[Event] | None = None,
 ) -> bool:
     logger.debug("Processing {!r}...", event.__class__.__name__)
-    ctx = Context(raw_update=raw_event)
     ctx[CONTEXT_STORE_NODES_KEY] = {}  # For per-event shared nodes
 
     logger.debug("Run pre middlewares...")
     for middleware in middlewares:
-        if middleware.adapter is not None:
-            match await run_adapter(middleware.adapter, api, raw_event, ctx):
-                case Some(val):
-                    event = val
-                case Nothing():
-                    return False
-
-        middleware_result = await middleware.pre(event, ctx)
-        logger.debug("Middleware {!r} returned: {!r}", middleware.__class__.__qualname__, middleware_result)
-        if middleware_result is False:
+        result = await run_middleware(middleware.pre, api, event, raw_event, ctx, middleware.adapter)
+        logger.debug("Middleware {!r} returned: {!r}", middleware.__class__.__qualname__, result)
+        if result is False:
             return False
 
     found = False
@@ -83,7 +96,9 @@ async def process_inner[Event: Model](
     logger.debug("Run post middlewares...")
     for middleware in middlewares:
         logger.debug("Run post middleware {!r}", middleware.__class__.__qualname__)
-        await middleware.post(event, responses, ctx)
+        await run_middleware(
+            middleware.post, api, event, raw_event, ctx, middleware.adapter, responses=responses
+        )
 
     for session in ctx.get(CONTEXT_STORE_NODES_KEY, {}).values():
         await session.close(scopes=(NodeScope.PER_EVENT,))

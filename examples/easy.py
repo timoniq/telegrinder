@@ -29,6 +29,8 @@ async def start(message: Message):
         (message.from_user.id, message.chat_id),
         release=Text(["fine", "bad"], ignore_case=True),
         on_miss=MessageReplyHandler("Fine or bad", as_reply=True),
+        isolate=True,
+        event_key=message.event_key,
     )
 
     match m.text.unwrap().lower():
@@ -49,6 +51,8 @@ async def react(message: Message):
         (message.from_user.id, message.chat_id),
         release=HasText(),
         on_miss=MessageReplyHandler("Your message has no text!"),
+        isolate=True,
+        event_key=message.event_key,
     )
     await msg.react("💋")
 

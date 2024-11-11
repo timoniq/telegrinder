@@ -8,7 +8,9 @@ from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, Func, FuncHandler
+from telegrinder.bot.dispatch.process import run_middleware
 from telegrinder.bot.dispatch.view.box import (
     CallbackQueryView,
     ChatJoinRequestView,
@@ -26,6 +28,7 @@ from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
+    from telegrinder.bot.dispatch.middleware.abc import ABCGlobalMiddleware
     from telegrinder.bot.rules.abc import ABCRule
 
 T = typing.TypeVar("T", default=typing.Any)
@@ -38,7 +41,6 @@ DEFAULT_DATACLASS: typing.Final[type[Update]] = Update
 
 @dataclasses.dataclass(repr=False, kw_only=True)
 class Dispatch(
-    ABCDispatch,
     ViewBox[
         CallbackQueryView,
         ChatJoinRequestView,
@@ -48,10 +50,14 @@ class Dispatch(
         PreCheckoutQueryView,
         RawEventView,
     ],
+    ABCDispatch,
 ):
     _global_context: TelegrinderContext = dataclasses.field(
         init=False,
         default_factory=lambda: TelegrinderContext(),
+    )
+    global_middlewares: list["ABCGlobalMiddleware"] = dataclasses.field(
+        default_factory=list,
     )
 
     def __repr__(self) -> str:
@@ -173,6 +179,22 @@ class Dispatch(
             event.update_id,
             event.update_type.name,
         )
+        context = Context(raw_update=event)
+
+        for global_middleware in self.global_middlewares:
+            if (
+                await run_middleware(
+                    global_middleware.pre,
+                    api,
+                    event.incoming_update,
+                    event,
+                    context,
+                    global_middleware.adapter,
+                )
+                is False
+            ):
+                return False
+
         for view in self.get_views().values():
             if await view.check(event):
                 logger.debug(
@@ -181,8 +203,19 @@ class Dispatch(
                     event.update_type.name,
                     view,
                 )
-                if await view.process(event, api):
+                if await view.process(event, api, context):
                     return True
+
+        for global_middleware in self.global_middlewares:
+            await run_middleware(
+                global_middleware.post,
+                api,
+                event.incoming_update,
+                event,
+                context,
+                global_middleware.adapter,
+            )
+
         return False
 
     def load(self, external: typing.Self) -> None:

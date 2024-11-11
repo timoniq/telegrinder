@@ -25,7 +25,8 @@ class ChatMemberView(BaseStateView[ChatMemberUpdatedCute]):
             "chat_member_updated" if self.update_type is None else self.update_type.value,
         )
 
-    def get_state_key(self, event: ChatMemberUpdatedCute) -> int | None:
+    @classmethod
+    def get_state_key(cls, event: ChatMemberUpdatedCute) -> int | None:
         return event.chat_id
 
     async def check(self, event: Update) -> bool:

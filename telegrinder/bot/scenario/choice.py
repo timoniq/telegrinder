@@ -14,6 +14,7 @@ if typing.TYPE_CHECKING:
             hasher: Hasher[CallbackQueryCute, int],
             api: API,
             view: BaseStateView[CallbackQueryCute],
+            isolate: bool = False,
         ) -> tuple[Key, int]: ...
 
 else:
@@ -40,10 +41,10 @@ else:
 
             return True
 
-        async def wait(self, hasher, api, view):
+        async def wait(self, hasher, api, view, isolate):
             if len(tuple(choice for choice in self.choices if choice.is_picked)) != 1:
                 raise ValueError("Exactly one choice must be picked")
-            choices, m_id = await super().wait(hasher, api, view)
+            choices, m_id = await super().wait(hasher, api, view, isolate)
             return tuple(choices.keys())[tuple(choices.values()).index(True)], m_id
 
 

@@ -30,7 +30,8 @@ class MessageView(BaseStateView[MessageCute]):
             "any message update" if self.update_type is None else self.update_type.value,
         )
 
-    def get_state_key(self, event: MessageCute) -> int | None:
+    @classmethod
+    def get_state_key(cls, event: MessageCute) -> int | None:
         return event.chat_id
 
     async def check(self, event: Update) -> bool:

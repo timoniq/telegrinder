@@ -21,8 +21,8 @@ class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only
         self,
         ok: bool,
         *,
-        pre_checkout_query_id: str | None = None,
         error_message: str | None = None,
+        pre_checkout_query_id: str | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.answer_pre_checkout_query()`, see the [documentation](https://core.telegram.org/bots/api#answerprecheckoutquery)
