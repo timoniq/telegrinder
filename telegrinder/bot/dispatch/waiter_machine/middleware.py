@@ -9,9 +9,9 @@ from telegrinder.bot.dispatch.middleware.abc import ABCGlobalMiddleware, ABCMidd
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.dispatch.view.base import ABCView
 from telegrinder.bot.dispatch.waiter_machine.short_state import ShortStateContext
-from telegrinder.bot.rules.adapter.raw_update import RawUpdateAdapter
 from telegrinder.model import get_event_key
 from telegrinder.modules import logger
+from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
 
 from .hasher import Hasher
 
@@ -97,7 +97,7 @@ class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
         handler = FuncHandler(
             self.pass_runtime,
             [short_state.release] if short_state.release else [],
-            dataclass=None,
+            dataclass=BaseCute,
             preset_context=preset_context,
         )
         result = await handler.check(event.ctx_api, ctx.raw_update, ctx)
@@ -113,11 +113,11 @@ class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
 
     async def pass_runtime(
         self,
-        event: Event,
+        event: BaseCute[Event],
         short_state: "ShortState[Event]",
         ctx: Context,
     ) -> None:
-        short_state.context = ShortStateContext(event, ctx)
+        short_state.context = ShortStateContext(typing.cast(Event, event), ctx)
         short_state.event.set()
 
 

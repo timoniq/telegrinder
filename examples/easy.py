@@ -6,6 +6,7 @@ from telegrinder.bot import MESSAGE_FROM_USER_IN_CHAT, WaiterMachine, clear_wm_s
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
+from telegrinder.node import Me
 from telegrinder.rules import FuzzyText, HasText, Markup, Text
 from telegrinder.types.objects import InputFile
 
@@ -18,11 +19,18 @@ logger.set_level("DEBUG")
 bot.dispatch.message.auto_rules.append(IsUser())
 
 
+@bot.on.message(is_blocking=False)
+async def handle_message() -> str:
+    return "Hello, World!"
+
+
 @bot.on.message(Text("/start"))
-async def start(message: Message):
-    me = (await api.get_me()).unwrap().first_name
+async def start(message: Message, me: Me):
     await message.answer(
-        "Hello, {}! It's {}. How are you today?".format(message.from_user.first_name, me),
+        "Hello, {}! It's {}. How are you today?".format(
+            message.from_user.first_name,
+            me.first_name,
+        ),
     )
     m, _ = await wm.wait(
         MESSAGE_FROM_USER_IN_CHAT,

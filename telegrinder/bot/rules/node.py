@@ -2,9 +2,9 @@ import typing
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import Node
+from telegrinder.tools.adapter.node import NodeAdapter
 
 from .abc import ABCRule
-from .adapter.node import NodeAdapter
 
 
 class NodeRule(ABCRule[tuple[Node, ...]]):

@@ -1,6 +1,7 @@
 import typing
 
 from telegrinder.api.api import API
+from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import Func, FuncHandler
@@ -25,9 +26,10 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
         self,
         update_type: UpdateType,
         *rules: ABCRule,
+        is_blocking: bool = True,
     ) -> typing.Callable[
         [Func[P, R]],
-        FuncHandler[UpdateCute, Func[P, R], ErrorHandler[UpdateCute]],
+        FuncHandler[BaseCute[typing.Any], Func[P, R], ErrorHandler[BaseCute[typing.Any]]],
     ]: ...
 
     @typing.overload
@@ -36,7 +38,7 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
         update_type: UpdateType,
         *rules: ABCRule,
         dataclass: type[Dataclass],
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandler[Dataclass]]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler[Dataclass, Func[P, R], ErrorHandler[Dataclass]]]: ...
 
     @typing.overload
     def __call__[**P, ErrorHandlerT: ABCErrorHandler, R](
@@ -46,31 +48,18 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
         error_handler: ErrorHandlerT,
     ) -> typing.Callable[
         [Func[P, R]],
-        FuncHandler[UpdateCute, Func[P, R], ErrorHandlerT],
+        FuncHandler[BaseCute[typing.Any], Func[P, R], ErrorHandlerT],
     ]: ...
 
     @typing.overload
-    def __call__[**P, ErrorHandlerT: ABCErrorHandler, R](
+    def __call__[**P, Dataclass, ErrorHandlerT: ABCErrorHandler, R](
         self,
         update_type: UpdateType,
         *rules: ABCRule,
-        dataclass: type[typing.Any],
+        dataclass: type[Dataclass],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandlerT]]: ...
-
-    @typing.overload
-    def __call__[**P, R](
-        self,
-        update_type: UpdateType,
-        *rules: ABCRule,
-        dataclass: None = None,
-        error_handler: None = None,
-        is_blocking: bool = True,
-    ) -> typing.Callable[
-        [Func[P, R]],
-        FuncHandler[UpdateCute, Func[P, R], ErrorHandler[UpdateCute]],
-    ]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler[Dataclass, Func[P, R], ErrorHandlerT]]: ...
 
     def __call__(
         self,

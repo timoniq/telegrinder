@@ -126,20 +126,20 @@ class Dispatch(
     def handle(
         self,
         *rules: "ABCRule",
-        dataclass: type[typing.Any],
+        dataclass: type[T],
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandlerT]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler[T, Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
     def handle(
         self,
         *rules: "ABCRule",
-        dataclass: type[typing.Any],
+        dataclass: type[T],
         update_type: UpdateType,
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandlerT]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler[T, Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
     def handle(
@@ -149,7 +149,7 @@ class Dispatch(
         dataclass: type[T] = DEFAULT_DATACLASS,
         error_handler: typing.Literal[None] = None,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandler[T]]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler[T, Func[P, R], ErrorHandler[T]]]: ...
 
     def handle(
         self,
@@ -186,7 +186,7 @@ class Dispatch(
                 await run_middleware(
                     global_middleware.pre,
                     api,
-                    event.incoming_update,
+                    event,
                     event,
                     context,
                     global_middleware.adapter,
@@ -210,7 +210,7 @@ class Dispatch(
             await run_middleware(
                 global_middleware.post,
                 api,
-                event.incoming_update,
+                event,
                 event,
                 context,
                 global_middleware.adapter,

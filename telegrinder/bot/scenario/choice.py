@@ -41,7 +41,7 @@ else:
 
             return True
 
-        async def wait(self, hasher, api, view, isolate):
+        async def wait(self, hasher, api, view, isolate=False):
             if len(tuple(choice for choice in self.choices if choice.is_picked)) != 1:
                 raise ValueError("Exactly one choice must be picked")
             choices, m_id = await super().wait(hasher, api, view, isolate)

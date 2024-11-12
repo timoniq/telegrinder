@@ -4,7 +4,7 @@ import typing
 from telegrinder.bot.cute_types import InlineQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule, CheckResult
-from telegrinder.bot.rules.adapter import EventAdapter
+from telegrinder.tools.adapter import EventAdapter
 from telegrinder.types.enums import ChatType, UpdateType
 
 from .markup import Markup, PatternLike, check_string

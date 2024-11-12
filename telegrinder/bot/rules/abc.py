@@ -7,10 +7,10 @@ import typing_extensions as typing
 from telegrinder.bot.cute_types import MessageCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.bot.rules.adapter import ABCAdapter
-from telegrinder.bot.rules.adapter.node import Event
-from telegrinder.bot.rules.adapter.raw_update import RawUpdateAdapter
 from telegrinder.node.base import Node, get_nodes, is_node
+from telegrinder.tools.adapter import ABCAdapter
+from telegrinder.tools.adapter.node import Event
+from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
 from telegrinder.tools.i18n.abc import ABCTranslator
 from telegrinder.tools.magic import (
     cache_translation,
@@ -132,8 +132,8 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         self,
         ctx: Context,
         *,
-        node_col: "NodeCollection | None",
         adapted_value: AdaptTo,
+        node_col: "NodeCollection | None" = None,
     ) -> bool:
         bound_check_rule = self.check
         kw = {}

@@ -1123,8 +1123,8 @@ class Message(MaybeInaccessibleMessage):
         )
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class MessageId(Model):
@@ -1821,10 +1821,10 @@ class PollAnswer(Model):
     anonymous."""
 
     @property
-    def event_key(self) -> int:
+    def event_key(self) -> str:
         return self.user.map_or_else(
-            lambda _: self.voter_chat.unwrap().id,
-            lambda user: user.id,
+            lambda _: f"chat_{self.voter_chat.unwrap().id}",
+            lambda user: f"user_{user.id}",
         ).unwrap()
 
 
@@ -2909,8 +2909,11 @@ class CallbackQuery(Model):
     for the game."""
 
     @property
-    def event_key(self) -> int:
-        return self.message.map_or(self.from_.id, lambda message: message.v.chat.id).unwrap()
+    def event_key(self) -> str:
+        return self.message.map_or(
+            f"user_{self.from_.id}",
+            lambda message: f"chat_{message.v.chat.id}",
+        ).unwrap()
 
 
 class ForceReply(Model):
@@ -3128,8 +3131,8 @@ class ChatMemberUpdated(Model):
         return self.chat.id
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class ChatMemberOwner(ChatMember):
@@ -3372,8 +3375,8 @@ class ChatJoinRequest(Model):
         return self.chat.id
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class ChatPermissions(Model):
@@ -3620,8 +3623,8 @@ class MessageReactionUpdated(Model):
     is anonymous."""
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class MessageReactionCountUpdated(Model):
@@ -3643,8 +3646,8 @@ class MessageReactionCountUpdated(Model):
     """List of reactions that are present on the message."""
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class ForumTopic(Model):
@@ -3922,8 +3925,8 @@ class ChatBoostUpdated(Model):
     """Information about the chat boost."""
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class ChatBoostRemoved(Model):
@@ -3947,8 +3950,8 @@ class ChatBoostRemoved(Model):
     """Source of the removed boost."""
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class UserChatBoosts(Model):
@@ -3991,8 +3994,8 @@ class BusinessConnection(Model):
     """True, if the connection is active."""
 
     @property
-    def event_key(self) -> int:
-        return self.user_chat_id
+    def event_key(self) -> str:
+        return f"chat_{self.user_chat_id}"
 
 
 class BusinessMessagesDeleted(Model):
@@ -4012,8 +4015,8 @@ class BusinessMessagesDeleted(Model):
     """The list of identifiers of deleted messages in the chat of the business account."""
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class ResponseParameters(Model):
@@ -4519,8 +4522,8 @@ class InlineQuery(Model):
     """Optional. Sender location, only for bots that request user location."""
 
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class InlineQueryResultsButton(Model):
@@ -5992,8 +5995,8 @@ class ChosenInlineResult(Model):
     queries and can be used to edit the message."""
 
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class SentWebAppMessage(Model):
@@ -6188,8 +6191,8 @@ class ShippingQuery(Model):
     """User specified shipping address."""
 
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class PreCheckoutQuery(Model):
@@ -6224,8 +6227,8 @@ class PreCheckoutQuery(Model):
     """Optional. Order information provided by the user."""
 
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class PaidMediaPurchased(Model):
@@ -6241,8 +6244,8 @@ class PaidMediaPurchased(Model):
     """Bot-specified paid media payload."""
 
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class RevenueWithdrawalStatePending(RevenueWithdrawalState):

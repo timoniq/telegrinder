@@ -2,7 +2,7 @@ import abc
 import typing
 
 from telegrinder.bot.cute_types import ChatJoinRequestCute
-from telegrinder.bot.rules.adapter import EventAdapter
+from telegrinder.tools.adapter import EventAdapter
 from telegrinder.types.enums import UpdateType
 
 from .abc import ABCRule, CheckResult

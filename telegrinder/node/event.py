@@ -5,7 +5,6 @@ import msgspec
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types import BaseCute
-from telegrinder.bot.dispatch.context import Context
 from telegrinder.msgspec_utils import decoder
 from telegrinder.node.base import ComposeError, FactoryNode
 from telegrinder.node.update import UpdateNode
@@ -17,8 +16,6 @@ if typing.TYPE_CHECKING:
 
     DataclassType: typing.TypeAlias = DataclassInstance | msgspec.Struct | dict[str, typing.Any]
 
-EVENT_NODE_KEY = "_event_node"
-
 
 class _EventNode(FactoryNode):
     dataclass: type["DataclassType"]
@@ -27,7 +24,7 @@ class _EventNode(FactoryNode):
         return cls(dataclass=dataclass)
 
     @classmethod
-    def compose(cls, raw_update: UpdateNode, ctx: Context, api: API) -> "DataclassType":
+    def compose(cls, raw_update: UpdateNode, api: API) -> "DataclassType":
         dataclass_type = typing.get_origin(cls.dataclass) or cls.dataclass
 
         try:
@@ -38,7 +35,7 @@ class _EventNode(FactoryNode):
                     dataclass = dataclass_type.from_update(raw_update.incoming_update, bound_api=api)
 
             elif issubclass(dataclass_type, msgspec.Struct | dict) or dataclasses.is_dataclass(
-                dataclass_type
+                dataclass_type,
             ):
                 dataclass = decoder.convert(
                     raw_update.incoming_update.to_full_dict(),
@@ -49,7 +46,6 @@ class _EventNode(FactoryNode):
             else:
                 dataclass = cls.dataclass(**raw_update.incoming_update.to_dict())
 
-            ctx[EVENT_NODE_KEY] = cls
             return dataclass
         except Exception as exc:
             raise ComposeError(f"Cannot parse update into {cls.dataclass.__name__!r}, error: {str(exc)!r}")
@@ -59,9 +55,7 @@ if typing.TYPE_CHECKING:
     EventNode: typing.TypeAlias = typing.Annotated["Dataclass", ...]
 
 else:
-
-    class EventNode(_EventNode):
-        pass
+    EventNode = _EventNode
 
 
 __all__ = ("EventNode",)

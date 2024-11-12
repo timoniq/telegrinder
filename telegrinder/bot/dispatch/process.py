@@ -18,13 +18,13 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.handler.abc import ABCHandler
     from telegrinder.bot.rules.abc import ABCRule
-    from telegrinder.bot.rules.adapter.abc import ABCAdapter
+    from telegrinder.tools.adapter.abc import ABCAdapter
 
 
-async def run_adapter[T](
-    adapter: "ABCAdapter[Update, T]",
+async def run_adapter[T, U: Model](
+    adapter: "ABCAdapter[U, T]",
     api: API,
-    update: Update,
+    update: U,
     context: Context,
 ) -> Option[T]:
     adapt_result = adapter.adapt(api, update, context)
@@ -32,7 +32,7 @@ async def run_adapter[T](
         case Ok(value):
             return Some(value)
         case Error(err):
-            logger.debug("Adapter failed with error message: {!r}", str(err))
+            logger.debug("Adapter {!r} failed with error message: {!r}", adapter, str(err))
             return Nothing()
 
 
@@ -53,6 +53,7 @@ async def run_middleware[Event: Model, R: bool | None](
             case Nothing():
                 return False  # type: ignore
 
+    logger.debug("Running {}-middleware {!r}...", method.__name__, method.__qualname__.split(".")[0])
     return await method(event, ctx, *args, **kwargs)  # type: ignore
 
 
@@ -69,9 +70,9 @@ async def process_inner[Event: Model](
     ctx[CONTEXT_STORE_NODES_KEY] = {}  # For per-event shared nodes
 
     logger.debug("Run pre middlewares...")
-    for middleware in middlewares:
-        result = await run_middleware(middleware.pre, api, event, raw_event, ctx, middleware.adapter)
-        logger.debug("Middleware {!r} returned: {!r}", middleware.__class__.__qualname__, result)
+    for m in middlewares:
+        result = await run_middleware(m.pre, api, event, raw_event, ctx, m.adapter)
+        logger.debug("Middleware {!r} returned: {!r}", m, result)
         if result is False:
             return False
 
@@ -80,12 +81,22 @@ async def process_inner[Event: Model](
     ctx_copy = ctx.copy()
 
     for handler in handlers:
+        adapted_event = event
+
         if await handler.check(api, raw_event, ctx):
-            logger.debug("Handler {!r} matched, run...", handler)
+            if handler.adapter is not None:
+                match await run_adapter(handler.adapter, api, raw_event, ctx):
+                    case Some(value):
+                        adapted_event = value
+                    case Nothing():
+                        continue
+
             found = True
-            response = await handler.run(api, event, ctx)
+            logger.debug("Handler {!r} matched, run...", handler)
+            response = await handler.run(api, adapted_event, ctx)
             logger.debug("Handler {!r} returned: {!r}", handler, response)
             responses.append(response)
+
             if return_manager is not None:
                 await return_manager.run(response, event, ctx)
             if handler.is_blocking:
@@ -94,11 +105,8 @@ async def process_inner[Event: Model](
         ctx = ctx_copy
 
     logger.debug("Run post middlewares...")
-    for middleware in middlewares:
-        logger.debug("Run post middleware {!r}", middleware.__class__.__qualname__)
-        await run_middleware(
-            middleware.post, api, event, raw_event, ctx, middleware.adapter, responses=responses
-        )
+    for m in middlewares:
+        await run_middleware(m.post, api, event, raw_event, ctx, m.adapter, responses=responses)
 
     for session in ctx.get(CONTEXT_STORE_NODES_KEY, {}).values():
         await session.close(scopes=(NodeScope.PER_EVENT,))

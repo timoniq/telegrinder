@@ -1,8 +1,6 @@
 import typing
 from abc import ABC, abstractmethod
 
-from fntypes.result import Result
-
 from telegrinder.api import API
 from telegrinder.bot.dispatch.context import Context
 
@@ -21,11 +19,11 @@ class ABCErrorHandler[Event](ABC):
     @abstractmethod
     async def run(
         self,
-        handler: Handler,
+        exception: BaseException,
         event: Event,
         api: API,
         ctx: Context,
-    ) -> Result[typing.Any, typing.Any]:
+    ) -> typing.Any:
         """Run the error handler."""
 
 

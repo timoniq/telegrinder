@@ -67,6 +67,18 @@ class BaseView[Event: BaseCute](ABCView):
 
     @typing.overload
     @classmethod
+    def to_handler[**P, Dataclass, R](
+        cls,
+        *rules: ABCRule,
+        dataclass: type[Dataclass],
+        is_blocking: bool = True,
+    ) -> typing.Callable[
+        [Func[P, R]],
+        FuncHandler[Dataclass, Func[P, R], ErrorHandler[Dataclass]],
+    ]: ...
+
+    @typing.overload
+    @classmethod
     def to_handler[**P, ErrorHandlerT: ABCErrorHandler, R](
         cls,
         *rules: ABCRule,
@@ -76,20 +88,19 @@ class BaseView[Event: BaseCute](ABCView):
 
     @typing.overload
     @classmethod
-    def to_handler[**P, ErrorHandlerT: ABCErrorHandler, R](
+    def to_handler[**P, Dataclass, ErrorHandlerT: ABCErrorHandler, R](
         cls,
         *rules: ABCRule,
-        error_handler: typing.Literal[None] = None,
+        dataclass: type[Dataclass],
+        error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[
-        [Func[P, R]],
-        FuncHandler[Event, Func[P, R], ErrorHandler[Event]],
-    ]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler[Dataclass, Func[P, R], ErrorHandlerT]]: ...
 
     @classmethod
     def to_handler(
         cls,
         *rules: ABCRule,
+        dataclass: type[typing.Any] | None = None,
         error_handler: ABCErrorHandler | None = None,
         is_blocking: bool = True,
     ) -> typing.Callable[..., typing.Any]:
@@ -98,7 +109,7 @@ class BaseView[Event: BaseCute](ABCView):
                 func,
                 list(rules),
                 is_blocking=is_blocking,
-                dataclass=None,
+                dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),
             )
 
@@ -108,9 +119,21 @@ class BaseView[Event: BaseCute](ABCView):
     def __call__[**P, R](
         self,
         *rules: ABCRule,
+        is_blocking: bool = True,
     ) -> typing.Callable[
         [Func[P, R]],
         FuncHandler[Event, Func[P, R], ErrorHandler[Event]],
+    ]: ...
+
+    @typing.overload
+    def __call__[**P, Dataclass, R](
+        self,
+        *rules: ABCRule,
+        dataclass: type[Dataclass],
+        is_blocking: bool = True,
+    ) -> typing.Callable[
+        [Func[P, R]],
+        FuncHandler[Dataclass, Func[P, R], ErrorHandler[Dataclass]],
     ]: ...
 
     @typing.overload
@@ -121,20 +144,10 @@ class BaseView[Event: BaseCute](ABCView):
         is_blocking: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler[Event, Func[P, R], ErrorHandlerT]]: ...
 
-    @typing.overload
     def __call__[**P, R](
         self,
         *rules: ABCRule,
-        error_handler: typing.Literal[None] = None,
-        is_blocking: bool = True,
-    ) -> typing.Callable[
-        [Func[P, R]],
-        FuncHandler[Event, Func[P, R], ErrorHandler[Event]],
-    ]: ...
-
-    def __call__[**P, R](
-        self,
-        *rules: ABCRule,
+        dataclass: type[typing.Any] | None = None,
         error_handler: ABCErrorHandler | None = None,
         is_blocking: bool = True,
     ) -> typing.Callable[..., typing.Any]:
@@ -143,7 +156,7 @@ class BaseView[Event: BaseCute](ABCView):
                 func,
                 [*self.auto_rules, *rules],
                 is_blocking=is_blocking,
-                dataclass=None,
+                dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),
             )
             self.handlers.append(func_handler)

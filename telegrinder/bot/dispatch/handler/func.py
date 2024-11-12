@@ -4,15 +4,15 @@ from functools import cached_property
 import typing_extensions as typing
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types import BaseCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.model import Model
 from telegrinder.modules import logger
 from telegrinder.node.base import Node, get_nodes
 from telegrinder.node.composer import NodeCollection, compose_nodes
-from telegrinder.node.event import EVENT_NODE_KEY
+from telegrinder.tools.adapter.abc import ABCAdapter
+from telegrinder.tools.adapter.dataclass import DataclassAdapter
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
+from telegrinder.tools.magic import get_annotations, magic_bundle
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
 
@@ -23,7 +23,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.node.composer import NodeCollection
 
 Function = typing.TypeVar("Function", bound="Func[..., typing.Any]")
-Event = typing.TypeVar("Event", bound=Model)
+Event = typing.TypeVar("Event")
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
 type Func[**Rest, Result] = typing.Callable[Rest, typing.Coroutine[typing.Any, typing.Any, Result]]
@@ -33,8 +33,9 @@ type Func[**Rest, Result] = typing.Callable[Rest, typing.Coroutine[typing.Any, t
 class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandlerT]):
     function: Function
     rules: list["ABCRule"]
+    adapter: ABCAdapter[Update, Event] | None = dataclasses.field(default=None, kw_only=True)
     is_blocking: bool = dataclasses.field(default=True, kw_only=True)
-    dataclass: type[typing.Any] | None = dataclasses.field(default=dict, kw_only=True)
+    dataclass: type[typing.Any] | None = dataclasses.field(default=dict[str, typing.Any], kw_only=True)
     error_handler: ErrorHandlerT = dataclasses.field(
         default_factory=lambda: typing.cast(ErrorHandlerT, ErrorHandler()),
         kw_only=True,
@@ -44,6 +45,9 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
 
     def __post_init__(self) -> None:
         self.dataclass = typing.get_origin(self.dataclass) or self.dataclass
+
+        if self.dataclass is not None and self.adapter is None:
+            self.adapter = DataclassAdapter(self.dataclass, self.update_type)
 
     @property
     def __call__(self) -> Function:
@@ -62,6 +66,14 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
     @cached_property
     def required_nodes(self) -> dict[str, type[Node]]:
         return get_nodes(self.function)
+
+    def get_func_event_param(self, event: Event) -> str | None:
+        event_class = self.dataclass or event.__class__
+        for k, v in get_annotations(self.function).items():
+            if isinstance(v := typing.get_origin(v) or v, type) and v is event_class:
+                self.func_event_param = k
+                return k
+        return None
 
     async def check(self, api: API, event: Update, ctx: Context | None = None) -> bool:
         if self.update_type is not None and self.update_type != event.update_type:
@@ -89,13 +101,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
             node_col = result.value
             temp_ctx |= node_col.values
 
-            if EVENT_NODE_KEY in ctx:
-                for name, node in nodes.items():
-                    if node is ctx[EVENT_NODE_KEY] and name in temp_ctx:
-                        ctx[name] = temp_ctx.pop(name)
-
         logger.debug("All checks passed for handler.")
-
         temp_ctx["node_col"] = node_col
         ctx |= temp_ctx
         return True
@@ -107,27 +113,17 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         ctx: Context,
         node_col: "NodeCollection | None" = None,
     ) -> typing.Any:
-        logger.debug(f"Running func handler {self.function.__qualname__!r}")
+        logger.debug(f"Running handler {self!r}...")
 
-        if self.dataclass is not None and EVENT_NODE_KEY not in ctx:
-            if self.update_type is not None and isinstance(event, Update):
-                update = getattr(event, event.update_type.value).unwrap()
-                event = (
-                    self.dataclass.from_update(update, bound_api=api)
-                    if issubclass(self.dataclass, BaseCute)
-                    else self.dataclass(**update.to_dict())  # type: ignore
-                )
-
-            elif issubclass(self.dataclass, UpdateCute) and isinstance(event, Update):
-                event = self.dataclass.from_update(event, bound_api=api)
-
-            else:
-                event = self.dataclass(**event.to_dict())  # type: ignore
-
-        result = (await self.error_handler.run(self.function, event, api, ctx)).unwrap()
-        if node_col := ctx.node_col:
-            await node_col.close_all()
-        return result
+        try:
+            if event_param := self.get_func_event_param(event):
+                ctx = Context(**{event_param: event, **ctx})
+            return await self(**magic_bundle(self.function, ctx, start_idx=0))
+        except BaseException as exception:
+            return await self.error_handler.run(exception, event, api, ctx)
+        finally:
+            if node_col := ctx.node_col:
+                await node_col.close_all()
 
 
 __all__ = ("FuncHandler",)

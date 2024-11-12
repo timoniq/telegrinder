@@ -3,12 +3,13 @@ from abc import ABC, abstractmethod
 
 from telegrinder.api import API
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.model import Model
+from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.types.objects import Update
 
 
-class ABCHandler[Event: Model](ABC):
+class ABCHandler[Event](ABC):
     is_blocking: bool
+    adapter: ABCAdapter[Update, Event] | None = None
 
     @abstractmethod
     async def check(self, api: API, event: Update, ctx: Context | None = None) -> bool:

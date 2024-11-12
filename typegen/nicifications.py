@@ -82,44 +82,44 @@ class _ChatJoinRequest(ChatJoinRequest):
         return self.chat.id
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class _MessageReactionUpdated(MessageReactionUpdated):
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class _MessageReactionCountUpdated(MessageReactionCountUpdated):
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class _ChatBoostUpdated(ChatBoostUpdated):
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class _ChatBoostRemoved(ChatBoostRemoved):
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class _BusinessConnection(BusinessConnection):
     @property
-    def event_key(self) -> int:
-        return self.user_chat_id
+    def event_key(self) -> str:
+        return f"chat_{self.user_chat_id}"
 
 
 class _BusinessMessagesDeleted(BusinessMessagesDeleted):
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class _ChatMemberUpdated(ChatMemberUpdated):
@@ -130,8 +130,8 @@ class _ChatMemberUpdated(ChatMemberUpdated):
         return self.chat.id
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class _Message(Message):
@@ -176,16 +176,16 @@ class _Message(Message):
         )
 
     @property
-    def event_key(self) -> int:
-        return self.chat.id
+    def event_key(self) -> str:
+        return f"chat_{self.chat.id}"
 
 
 class _PollAnswer(PollAnswer):
     @property
-    def event_key(self) -> int:
+    def event_key(self) -> str:
         return self.user.map_or_else(
-            lambda _: self.voter_chat.unwrap().id,
-            lambda user: user.id,
+            lambda _: f"chat_{self.voter_chat.unwrap().id}",
+            lambda user: f"user_{user.id}",
         ).unwrap()
 
 
@@ -197,38 +197,41 @@ class _Poll(Poll):
 
 class _CallbackQuery(CallbackQuery):
     @property
-    def event_key(self) -> int:
-        return self.message.map_or(self.from_.id, lambda message: message.v.chat.id).unwrap()
+    def event_key(self) -> str:
+        return self.message.map_or(
+            f"user_{self.from_.id}",
+            lambda message: f"chat_{message.v.chat.id}",
+        ).unwrap()
 
 
 class _PaidMediaPurchased(PaidMediaPurchased):
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class _PreCheckoutQuery(PreCheckoutQuery):
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class _InlineQuery(InlineQuery):
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class _ChosenInlineResult(ChosenInlineResult):
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class _ShippingQuery(ShippingQuery):
     @property
-    def event_key(self) -> int:
-        return self.from_.id
+    def event_key(self) -> str:
+        return f"user_{self.from_.id}"
 
 
 class _User(User):

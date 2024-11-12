@@ -27,7 +27,7 @@ def is_none(value: typing.Any, /) -> typing.TypeGuard[None | Nothing]:
     return value is None or isinstance(value, Nothing)
 
 
-def get_event_key(event_model: "Model", /) -> typing.Hashable:
+def get_event_key(event_model: "Model", /) -> str:
     if not isinstance(event_model, HasEventKey):
         raise TypeError(f"Event model of type {type(event_model)!r} has no event key.")
     return event_model.event_key
@@ -168,7 +168,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
 @typing.runtime_checkable
 class HasEventKey(typing.Protocol):
     @property
-    def event_key(self) -> typing.Hashable: ...
+    def event_key(self) -> str: ...
 
 
 class Proxy[T]:
@@ -209,6 +209,7 @@ __all__ = (
     "Model",
     "ProxiedDict",
     "Proxy",
+    "get_event_key",
     "full_result",
     "get_params",
 )

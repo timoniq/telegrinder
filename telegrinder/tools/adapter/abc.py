@@ -6,8 +6,8 @@ from fntypes.result import Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.rules.adapter.errors import AdapterError
 from telegrinder.model import Model
+from telegrinder.tools.adapter.errors import AdapterError
 
 type AdaptResult[To] = Result[To, AdapterError] | typing.Awaitable[Result[To, AdapterError]]
 

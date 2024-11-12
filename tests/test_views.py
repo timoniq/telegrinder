@@ -103,7 +103,7 @@ async def test_view_check_and_process(api_instance, message_update):
     view = CustomMessageView()
 
     @view()
-    async def handler(message):
+    async def handler(message: MessageCute):
         assert isinstance(message, MessageCute) is True
 
     assert await view.check(message_update) is True
@@ -116,7 +116,7 @@ async def test_process_pre_middleware(api_instance, message_update):
     view.middlewares.append(PreMiddleware())
 
     @view()
-    async def handler(message):
+    async def handler(message: MessageCute):
         return None
 
     assert await view.check(message_update) is True
@@ -129,7 +129,7 @@ async def test_process_post_middleware(api_instance, message_update):
     view.middlewares.append(PostMiddleware())
 
     @view()
-    async def handler(message):
+    async def handler(message: MessageCute):
         return b"123data"
 
     assert await view.check(message_update) is True
@@ -141,7 +141,7 @@ async def test_process_with_rule(api_instance, message_update):
     view = CustomMessageView()
 
     @view(Text("Hello, Telegrinder! btw, laurelang - nice pure logical programming launguage ^_^"))
-    async def handler(message):
+    async def handler(message: MessageCute):
         return None
 
     assert await view.check(message_update) is True
@@ -153,7 +153,7 @@ async def test_process_with_return_manager(api_instance, message_update):
     view = CustomMessageView()
 
     @view()
-    async def handler(message):
+    async def handler(message: MessageCute):
         return 123
 
     assert await view.check(message_update) is True
