@@ -64,6 +64,7 @@ from .i18n import (
     SimpleI18n,
     SimpleTranslator,
 )
+from .input_file_manager import InputFileManager
 from .keyboard import (
     AnyMarkup,
     Button,
@@ -125,6 +126,7 @@ __all__ = (
     "I18nEnum",
     "InlineButton",
     "InlineKeyboard",
+    "InputFileManager",
     "InviteChatLink",
     "JSONSerializer",
     "Keyboard",
