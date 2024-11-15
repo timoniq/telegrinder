@@ -3,17 +3,16 @@ from __future__ import annotations
 from abc import ABC
 
 import typing_extensions as typing
-
-from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.api import API
-from telegrinder.model import Model
-from telegrinder.types.objects import Update
-from telegrinder.tools.adapter.abc import run_adapter
-from telegrinder.tools.lifespan import Lifespan
-from telegrinder.modules import logger
 from fntypes import Some
 
+from telegrinder.api import API
+from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.bot.dispatch.context import Context
+from telegrinder.model import Model
+from telegrinder.modules import logger
+from telegrinder.tools.adapter.abc import run_adapter
+from telegrinder.tools.lifespan import Lifespan
+from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
     from telegrinder.tools.adapter.abc import ABCAdapter
@@ -23,8 +22,7 @@ ToEvent = typing.TypeVar("ToEvent", bound=Model, default=typing.Any)
 
 def repr_middleware(middleware: ABCMiddleware[ToEvent]) -> str:
     return "<{} with adapter={!r}>".format(
-        "middleware "
-        + middleware.__class__.__name__,
+        "middleware " + middleware.__class__.__name__,
         middleware.adapter,
     )
 
@@ -63,15 +61,13 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
     async def post(self, event: Event, ctx: Context, responses: list[typing.Any]) -> None: ...
 
     @typing.overload
-    def to_lifespan(self, event: Event, ctx: Context | None = None, *, api: API) -> Lifespan:
-        ...
+    def to_lifespan(self, event: Event, ctx: Context | None = None, *, api: API) -> Lifespan: ...
 
     @typing.overload
-    def to_lifespan(self, event: Event, ctx: Context | None = None) -> Lifespan:
-        ...
+    def to_lifespan(self, event: Event, ctx: Context | None = None) -> Lifespan: ...
 
     def to_lifespan(
-        self, 
+        self,
         event: Event,
         ctx: Context | None = None,
         api: API | None = None,
@@ -82,10 +78,12 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
             api = event.api
 
         ctx = ctx or Context()
-        
+
         return Lifespan(
-            startup_tasks=[run_middleware(self.pre, api, event, raw_event=None, ctx=ctx, adapter=None)], 
-            shutdown_tasks=[run_middleware(self.post, api, event, raw_event=None, ctx=ctx, adapter=None, responses=[])],
+            startup_tasks=[run_middleware(self.pre, api, event, raw_event=None, ctx=ctx, adapter=None)],
+            shutdown_tasks=[
+                run_middleware(self.post, api, event, raw_event=None, ctx=ctx, adapter=None, responses=[])
+            ],
         )
 
 

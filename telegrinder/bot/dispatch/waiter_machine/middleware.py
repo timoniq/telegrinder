@@ -2,12 +2,10 @@ import datetime
 import typing
 
 from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.bot.dispatch.view.base import ABCView
 from telegrinder.bot.dispatch.waiter_machine.short_state import ShortStateContext
 from telegrinder.modules import logger
 

@@ -1,4 +1,3 @@
-import inspect
 import typing
 
 from fntypes.option import Nothing, Some
@@ -10,15 +9,14 @@ from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware, run_middlewar
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.model import Model
 from telegrinder.modules import logger
-from telegrinder.tools.adapter.abc import run_adapter
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope, compose_nodes
+from telegrinder.tools.adapter.abc import run_adapter
 from telegrinder.tools.i18n.abc import I18nEnum
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.handler.abc import ABCHandler
     from telegrinder.bot.rules.abc import ABCRule
-    from telegrinder.tools.adapter.abc import ABCAdapter
 
 
 async def process_inner[Event: Model](
@@ -70,7 +68,9 @@ async def process_inner[Event: Model](
 
     logger.debug("Run post middlewares...")
     for m in middlewares:
-        await run_middleware(m.post, api, event, raw_event=raw_event, ctx=ctx, adapter=m.adapter, responses=responses)
+        await run_middleware(
+            m.post, api, event, raw_event=raw_event, ctx=ctx, adapter=m.adapter, responses=responses
+        )
 
     for session in ctx.get(CONTEXT_STORE_NODES_KEY, {}).values():
         await session.close(scopes=(NodeScope.PER_EVENT,))

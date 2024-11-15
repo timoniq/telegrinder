@@ -10,6 +10,7 @@ from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, Func, FuncHandler
+from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
 from telegrinder.bot.dispatch.process import run_middleware
 from telegrinder.bot.dispatch.view.box import (
     CallbackQueryView,
@@ -26,7 +27,6 @@ from telegrinder.tools.error_handler.error_handler import ErrorHandler
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
-from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
@@ -205,7 +205,7 @@ class Dispatch(
                 )
                 if await view.process(event, api, context):
                     return True
-        
+
         await run_middleware(
             self.global_middleware.post,
             api,

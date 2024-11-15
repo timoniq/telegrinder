@@ -59,7 +59,7 @@ class LolikMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: Context) -> bool:
         print("lolik enter", event)
         return True
-    
+
     async def post(self, event: Message, ctx: Context, responses: list[object]) -> None:
         print("lolik continue event", event)
 
@@ -72,7 +72,7 @@ async def react(message: Message):
         (message.from_user.id, message.chat_id),
         release=HasText(),
         on_miss=MessageReplyHandler("Your message has no text!"),
-        lifespan=LolikMiddleware().to_lifespan(message)
+        lifespan=LolikMiddleware().to_lifespan(message),
     )
     await msg.react("💋")
 

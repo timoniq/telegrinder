@@ -1,12 +1,18 @@
 import asyncio
 import contextlib
-import dataclasses
 import datetime
 import typing
 
 from telegrinder.modules import logger
+from telegrinder.tools.lifespan import (
+    CoroutineFunc,
+    CoroutineTask,
+    DelayedTask,
+    Lifespan,
+    Task,
+    to_coroutine_task,
+)
 from telegrinder.tools.loop_wrapper.abc import ABCLoopWrapper
-from telegrinder.tools.lifespan import Lifespan, to_coroutine_task, DelayedTask, CoroutineFunc, CoroutineTask, Task
 
 
 class LoopWrapper(ABCLoopWrapper):

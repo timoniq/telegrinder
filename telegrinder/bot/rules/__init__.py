@@ -19,6 +19,7 @@ from telegrinder.bot.rules.command import Argument, Command
 from telegrinder.bot.rules.enum_text import EnumTextRule
 from telegrinder.bot.rules.func import FuncRule
 from telegrinder.bot.rules.fuzzy import FuzzyText
+from telegrinder.bot.rules.id import IdRule
 from telegrinder.bot.rules.inline import (
     HasLocation,
     InlineQueryChatType,
@@ -67,7 +68,6 @@ from telegrinder.bot.rules.start import StartCommand
 from telegrinder.bot.rules.state import State, StateMeta
 from telegrinder.bot.rules.text import HasText, Text
 from telegrinder.bot.rules.update import IsUpdateType
-from telegrinder.bot.rules.id import IdRule
 
 __all__ = (
     "ABCRule",

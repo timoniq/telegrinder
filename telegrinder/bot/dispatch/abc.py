@@ -8,7 +8,6 @@ from abc import ABC, abstractmethod
 from fntypes.option import Option
 
 from telegrinder.api.api import API
-from telegrinder.tools.global_context.abc import ABCGlobalContext
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
@@ -20,7 +19,6 @@ class PathExistsError(BaseException):
 
 
 class ABCDispatch(ABC):
-
     @abstractmethod
     async def feed(self, event: Update, api: API) -> bool:
         pass

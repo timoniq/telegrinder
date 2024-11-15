@@ -1,16 +1,16 @@
 import abc
-import inspect
-from fntypes import Option, Ok, Error, Some, Nothing
 import dataclasses
+import inspect
 import typing
 
+from fntypes import Error, Nothing, Ok, Option, Some
 from fntypes.result import Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.model import Model
-from telegrinder.tools.adapter.errors import AdapterError
 from telegrinder.modules import logger
+from telegrinder.tools.adapter.errors import AdapterError
 
 type AdaptResult[To] = Result[To, AdapterError] | typing.Awaitable[Result[To, AdapterError]]
 
@@ -26,7 +26,6 @@ class ABCAdapter[From: Model, To](abc.ABC):
 @dataclasses.dataclass(slots=True)
 class Event[To]:
     obj: To
-
 
 
 async def run_adapter[T, U: Model](

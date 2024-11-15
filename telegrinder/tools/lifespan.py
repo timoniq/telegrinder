@@ -1,7 +1,6 @@
+import asyncio
 import dataclasses
 import typing
-import asyncio
-
 
 type CoroutineTask[T] = typing.Coroutine[typing.Any, typing.Any, T]
 type CoroutineFunc[**P, T] = typing.Callable[P, CoroutineTask[T]]
@@ -72,20 +71,20 @@ class Lifespan:
 
     def __enter__(self) -> None:
         self.start()
-    
+
     def __exit__(self) -> None:
         self.shutdown()
-    
+
     async def __aenter__(self) -> None:
         for task in self.startup_tasks:
             await task
-    
+
     async def __aexit__(self, *args) -> None:
         for task in self.shutdown_tasks:
             await task
 
     def __add__(self, other: "Lifespan") -> "Lifespan":
         return Lifespan(
-            startup_tasks=self.startup_tasks + other.startup_tasks, 
+            startup_tasks=self.startup_tasks + other.startup_tasks,
             shutdown_tasks=self.shutdown_tasks + other.shutdown_tasks,
         )

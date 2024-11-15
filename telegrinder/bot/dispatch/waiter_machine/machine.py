@@ -6,13 +6,12 @@ from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.view.base import BaseStateView, BaseView
 from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
-from telegrinder.tools import Lifespan
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
     ShortState,
     ShortStateContext,
 )
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.model import get_event_key
+from telegrinder.tools import Lifespan
 from telegrinder.tools.limited_dict import LimitedDict
 
 from .actions import WaiterActions
@@ -143,10 +142,10 @@ class WaiterMachine:
 
         if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
             await deleted_short_state.cancel()
-        
+
         async with lifespan:
             await event.wait()
-        
+
         self.storage[hasher].pop(waiter_hash, None)
 
         assert short_state.context is not None
