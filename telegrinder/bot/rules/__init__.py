@@ -67,6 +67,7 @@ from telegrinder.bot.rules.start import StartCommand
 from telegrinder.bot.rules.state import State, StateMeta
 from telegrinder.bot.rules.text import HasText, Text
 from telegrinder.bot.rules.update import IsUpdateType
+from telegrinder.bot.rules.id import IdRule
 
 __all__ = (
     "ABCRule",
@@ -134,4 +135,5 @@ __all__ = (
     "State",
     "StateMeta",
     "Text",
+    "IdRule",
 )

@@ -6,73 +6,7 @@ import typing
 
 from telegrinder.modules import logger
 from telegrinder.tools.loop_wrapper.abc import ABCLoopWrapper
-
-type CoroutineTask[T] = typing.Coroutine[typing.Any, typing.Any, T]
-type CoroutineFunc[**P, T] = typing.Callable[P, CoroutineTask[T]]
-type Task[**P, T] = CoroutineFunc[P, T] | CoroutineTask[T] | DelayedTask[typing.Callable[P, CoroutineTask[T]]]
-
-
-def run_tasks(
-    tasks: list[CoroutineTask[typing.Any]],
-    loop: asyncio.AbstractEventLoop,
-) -> None:
-    while tasks:
-        loop.run_until_complete(tasks.pop(0))
-
-
-def to_coroutine_task(task: Task) -> CoroutineTask[typing.Any]:
-    if asyncio.iscoroutinefunction(task) or isinstance(task, DelayedTask):
-        task = task()
-    elif not asyncio.iscoroutine(task):
-        raise TypeError("Task should be coroutine or coroutine function.")
-    return task
-
-
-@dataclasses.dataclass(slots=True)
-class DelayedTask[CoroFunc: CoroutineFunc[..., typing.Any]]:
-    handler: CoroFunc
-    seconds: float
-    repeat: bool = dataclasses.field(default=False, kw_only=True)
-    _cancelled: bool = dataclasses.field(default=False, init=False, repr=False)
-
-    @property
-    def is_cancelled(self) -> bool:
-        return self._cancelled
-
-    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-        while not self.is_cancelled:
-            await asyncio.sleep(self.seconds)
-            if self.is_cancelled:
-                break
-            try:
-                await self.handler(*args, **kwargs)
-            finally:
-                if not self.repeat:
-                    break
-
-    def cancel(self) -> None:
-        if not self._cancelled:
-            self._cancelled = True
-
-
-@dataclasses.dataclass(kw_only=True, slots=True, frozen=True)
-class Lifespan:
-    startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
-    shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
-
-    def on_startup(self, task: Task, /) -> Task:
-        self.startup_tasks.append(to_coroutine_task(task))
-        return task
-
-    def on_shutdown(self, task: Task, /) -> Task:
-        self.shutdown_tasks.append(to_coroutine_task(task))
-        return task
-
-    def start(self, loop: asyncio.AbstractEventLoop, /) -> None:
-        run_tasks(self.startup_tasks, loop)
-
-    def shutdown(self, loop: asyncio.AbstractEventLoop, /) -> None:
-        run_tasks(self.shutdown_tasks, loop)
+from telegrinder.tools.lifespan import Lifespan, to_coroutine_task, DelayedTask, CoroutineFunc, CoroutineTask, Task
 
 
 class LoopWrapper(ABCLoopWrapper):
@@ -105,7 +39,7 @@ class LoopWrapper(ABCLoopWrapper):
             logger.warning("You run loop with 0 tasks!")
 
         self._loop = asyncio.new_event_loop() if self._loop is None else self._loop
-        self.lifespan.start(self._loop)
+        self.lifespan.start()
 
         while self.tasks:
             self._loop.create_task(self.tasks.pop(0))
@@ -127,7 +61,7 @@ class LoopWrapper(ABCLoopWrapper):
             logger.info("Caught KeyboardInterrupt, cancellation...")
             self.complete_tasks(tasks)
         finally:
-            self.lifespan.shutdown(self._loop)
+            self.lifespan.shutdown()
             if self._loop.is_running():
                 self._loop.close()
 
@@ -215,4 +149,4 @@ class LoopWrapper(ABCLoopWrapper):
         return decorator
 
 
-__all__ = ("DelayedTask", "Lifespan", "LoopWrapper", "to_coroutine_task")
+__all__ = ("DelayedTask", "LoopWrapper", "to_coroutine_task")

@@ -26,9 +26,10 @@ from telegrinder.tools.error_handler.error_handler import ErrorHandler
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
+from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.dispatch.middleware.abc import ABCGlobalMiddleware
+    from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
     from telegrinder.bot.rules.abc import ABCRule
 
 T = typing.TypeVar("T", default=typing.Any)
@@ -54,10 +55,10 @@ class Dispatch(
 ):
     _global_context: TelegrinderContext = dataclasses.field(
         init=False,
-        default_factory=lambda: TelegrinderContext(),
+        default_factory=TelegrinderContext,
     )
-    global_middlewares: list["ABCGlobalMiddleware"] = dataclasses.field(
-        default_factory=list,
+    global_middleware: "ABCMiddleware" = dataclasses.field(
+        default_factory=lambda: GlobalMiddleware(),
     )
 
     def __repr__(self) -> str:
@@ -181,19 +182,18 @@ class Dispatch(
         )
         context = Context(raw_update=event)
 
-        for global_middleware in self.global_middlewares:
-            if (
-                await run_middleware(
-                    global_middleware.pre,
-                    api,
-                    event,
-                    event,
-                    context,
-                    global_middleware.adapter,
-                )
-                is False
-            ):
-                return False
+        if (
+            await run_middleware(
+                self.global_middleware.pre,
+                api,
+                event,
+                raw_event=event,
+                ctx=context,
+                adapter=self.global_middleware.adapter,
+            )
+            is False
+        ):
+            return False
 
         for view in self.get_views().values():
             if await view.check(event):
@@ -205,16 +205,15 @@ class Dispatch(
                 )
                 if await view.process(event, api, context):
                     return True
-
-        for global_middleware in self.global_middlewares:
-            await run_middleware(
-                global_middleware.post,
-                api,
-                event,
-                event,
-                context,
-                global_middleware.adapter,
-            )
+        
+        await run_middleware(
+            self.global_middleware.post,
+            api,
+            event,
+            raw_event=event,
+            ctx=context,
+            adapter=self.global_middleware.adapter,
+        )
 
         return False
 

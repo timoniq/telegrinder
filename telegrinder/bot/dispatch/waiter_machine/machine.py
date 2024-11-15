@@ -5,7 +5,8 @@ import typing
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.view.base import BaseStateView, BaseView
-from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterIsolationMiddleware, WaiterMiddleware
+from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
+from telegrinder.tools import Lifespan
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
     ShortState,
     ShortStateContext,
@@ -36,9 +37,6 @@ class WaiterMachine:
         self.max_storage_size = max_storage_size
         self.base_state_lifetime = base_state_lifetime
         self.storage: Storage = {}
-        self.isolation_middleware = (
-            None if self.dispatch is None else self.create_isolation_middleware(self.dispatch)
-        )
 
     def __repr__(self) -> str:
         return "<{}: max_storage_size={}, base_state_lifetime={!r}>".format(
@@ -51,11 +49,6 @@ class WaiterMachine:
         hasher = StateViewHasher(view)
         self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)
         return WaiterMiddleware(self, hasher)
-
-    def create_isolation_middleware(self, dispatch: ABCDispatch) -> WaiterIsolationMiddleware:
-        isolation_middleware = WaiterIsolationMiddleware(self)
-        dispatch.global_middlewares.insert(0, isolation_middleware)
-        return isolation_middleware
 
     async def drop_all(self) -> None:
         """Drops all waiters in storage."""
@@ -100,7 +93,7 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        isolate: bool = False,
+        lifespan: Lifespan = Lifespan(),
         **actions: typing.Unpack[WaiterActions[Event]],
     ) -> ShortStateContext[Event]:
         hasher = StateViewHasher(view)
@@ -109,11 +102,10 @@ class WaiterMachine:
             data=hasher.get_data_from_event(event).expect(
                 RuntimeError("Hasher couldn't create data from event."),
             ),
-            event_key=get_event_key(event),
             filter=filter,
             release=release,
             lifetime=lifetime,
-            isolate=isolate,
+            lifespan=lifespan,
             **actions,
         )
 
@@ -125,8 +117,7 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        isolate: bool = False,
-        event_key: typing.Hashable | None = None,
+        lifespan: Lifespan = Lifespan(),
         **actions: typing.Unpack[WaiterActions[Event]],
     ) -> ShortStateContext[Event]:
         if isinstance(lifetime, int | float):
@@ -138,14 +129,9 @@ class WaiterMachine:
             actions,
             release=release,
             filter=filter,
-            isolate=isolate,
             lifetime=lifetime or self.base_state_lifetime,
         )
         waiter_hash = hasher.get_hash_from_data(data).expect(RuntimeError("Hasher couldn't create hash."))
-
-        if isolate and self.isolation_middleware is not None:
-            assert event_key is not None
-            self.isolation_middleware.add_isolated_hasher(event_key, hasher)
 
         if hasher not in self.storage:
             if self.dispatch:
@@ -157,12 +143,11 @@ class WaiterMachine:
 
         if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
             await deleted_short_state.cancel()
-
-        await event.wait()
+        
+        async with lifespan:
+            await event.wait()
+        
         self.storage[hasher].pop(waiter_hash, None)
-
-        if isolate and self.isolation_middleware is not None:
-            self.isolation_middleware.remove_isolated_hasher(event_key)
 
         assert short_state.context is not None
         return short_state.context

@@ -1,16 +1,16 @@
 import inspect
 import typing
 
-from fntypes.option import Nothing, Option, Some
-from fntypes.result import Error, Ok
+from fntypes.option import Nothing, Some
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
+from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware, run_middleware
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.model import Model
 from telegrinder.modules import logger
+from telegrinder.tools.adapter.abc import run_adapter
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope, compose_nodes
 from telegrinder.tools.i18n.abc import I18nEnum
 from telegrinder.types.objects import Update
@@ -19,42 +19,6 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.handler.abc import ABCHandler
     from telegrinder.bot.rules.abc import ABCRule
     from telegrinder.tools.adapter.abc import ABCAdapter
-
-
-async def run_adapter[T, U: Model](
-    adapter: "ABCAdapter[U, T]",
-    api: API,
-    update: U,
-    context: Context,
-) -> Option[T]:
-    adapt_result = adapter.adapt(api, update, context)
-    match await adapt_result if inspect.isawaitable(adapt_result) else adapt_result:
-        case Ok(value):
-            return Some(value)
-        case Error(err):
-            logger.debug("Adapter {!r} failed with error message: {!r}", adapter, str(err))
-            return Nothing()
-
-
-async def run_middleware[Event: Model, R: bool | None](
-    method: typing.Callable[typing.Concatenate[Event, Context, ...], typing.Awaitable[R]],
-    api: API,
-    event: Event,
-    raw_event: Update,
-    ctx: Context,
-    adapter: "ABCAdapter[Update, Event] | None" = None,
-    *args: typing.Any,
-    **kwargs: typing.Any,
-) -> R:
-    if adapter is not None:
-        match await run_adapter(adapter, api, raw_event, ctx):
-            case Some(val):
-                event = val
-            case Nothing():
-                return False  # type: ignore
-
-    logger.debug("Running {}-middleware {!r}...", method.__name__, method.__qualname__.split(".")[0])
-    return await method(event, ctx, *args, **kwargs)  # type: ignore
 
 
 async def process_inner[Event: Model](
@@ -71,7 +35,7 @@ async def process_inner[Event: Model](
 
     logger.debug("Run pre middlewares...")
     for m in middlewares:
-        result = await run_middleware(m.pre, api, event, raw_event, ctx, m.adapter)
+        result = await run_middleware(m.pre, api, event, raw_event=raw_event, ctx=ctx, adapter=m.adapter)
         logger.debug("Middleware {!r} returned: {!r}", m, result)
         if result is False:
             return False
@@ -106,7 +70,7 @@ async def process_inner[Event: Model](
 
     logger.debug("Run post middlewares...")
     for m in middlewares:
-        await run_middleware(m.post, api, event, raw_event, ctx, m.adapter, responses=responses)
+        await run_middleware(m.post, api, event, raw_event=raw_event, ctx=ctx, adapter=m.adapter, responses=responses)
 
     for session in ctx.get(CONTEXT_STORE_NODES_KEY, {}).values():
         await session.close(scopes=(NodeScope.PER_EVENT,))
