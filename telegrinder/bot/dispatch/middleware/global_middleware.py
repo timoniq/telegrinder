@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.bot.cute_types import UpdateCute
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.rules.abc import ABCRule, check_rule
@@ -22,3 +22,6 @@ class GlobalMiddleware(ABCMiddleware):
             if not await check_rule(event.api, filter, event, ctx):
                 return False
         return True
+
+
+__all__ = ("GlobalMiddleware",)

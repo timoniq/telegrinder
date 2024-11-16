@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 
 import typing_extensions as typing
@@ -5,13 +7,11 @@ from fntypes import Nothing, Option, Some
 from vbml.patcher import Patcher
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, Func, FuncHandler
+from telegrinder.bot.dispatch.middleware.abc import run_middleware
 from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
-from telegrinder.bot.dispatch.process import run_middleware
 from telegrinder.bot.dispatch.view.box import (
     CallbackQueryView,
     ChatJoinRequestView,
@@ -29,12 +29,14 @@ from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
+    from telegrinder.bot.cute_types.base import BaseCute
+    from telegrinder.bot.cute_types.update import UpdateCute
     from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
     from telegrinder.bot.rules.abc import ABCRule
 
 T = typing.TypeVar("T", default=typing.Any)
 R = typing.TypeVar("R", covariant=True, default=typing.Any)
-Event = typing.TypeVar("Event", bound=BaseCute)
+Event = typing.TypeVar("Event", bound="BaseCute")
 P = typing.ParamSpec("P", default=...)
 
 DEFAULT_DATACLASS: typing.Final[type[Update]] = Update

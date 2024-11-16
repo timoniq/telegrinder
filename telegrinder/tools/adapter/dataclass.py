@@ -2,7 +2,8 @@ from fntypes.option import Nothing, Some
 from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types import BaseCute, UpdateCute
+from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.tools.adapter.errors import AdapterError
