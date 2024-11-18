@@ -4493,6 +4493,40 @@ class InputSticker(Model):
     of up to 64 characters. For `regular` and `custom_emoji` stickers only."""
 
 
+class Gift(Model):
+    """Object `Gift`, see the [documentation](https://core.telegram.org/bots/api#gift).
+
+    This object represents a gift that can be sent by the bot.
+    """
+
+    id: str = field()
+    """Unique identifier of the gift."""
+
+    sticker: Sticker = field()
+    """The sticker that represents the gift."""
+
+    star_count: int = field()
+    """The number of Telegram Stars that must be paid to send the sticker."""
+
+    total_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    """Optional. The total number of the gifts of this type that can be sent; for
+    limited gifts only."""
+
+    remaining_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    """Optional. The number of remaining gifts of this type that can be sent; for
+    limited gifts only."""
+
+
+class Gifts(Model):
+    """Object `Gifts`, see the [documentation](https://core.telegram.org/bots/api#gifts).
+
+    This object represent a list of gifts.
+    """
+
+    gifts: list[Gift] = field()
+    """The list of gifts."""
+
+
 class InlineQuery(Model):
     """Object `InlineQuery`, see the [documentation](https://core.telegram.org/bots/api#inlinequery).
 
@@ -6010,6 +6044,20 @@ class SentWebAppMessage(Model):
     is an inline keyboard attached to the message."""
 
 
+class PreparedInlineMessage(Model):
+    """Object `PreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#preparedinlinemessage).
+
+    Describes an inline message to be sent by a user of a Mini App.
+    """
+
+    id: str = field()
+    """Unique identifier of the prepared message."""
+
+    expiration_date: datetime = field()
+    """Expiration date of the prepared message, in Unix time. Expired prepared
+    messages can no longer be used."""
+
+
 class LabeledPrice(Model):
     """Object `LabeledPrice`, see the [documentation](https://core.telegram.org/bots/api#labeledprice).
 
@@ -6138,6 +6186,16 @@ class SuccessfulPayment(Model):
 
     provider_payment_charge_id: str = field()
     """Provider payment identifier."""
+
+    subscription_expiration_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
+    """Optional. Expiration date of the subscription, in Unix time; for recurring
+    payments only."""
+
+    is_recurring: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    """Optional. True, if the payment is a recurring payment for a subscription."""
+
+    is_first_recurring: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    """Optional. True, if the payment is the first payment for a subscription."""
 
     shipping_option_id: Option[str] = field(default=Nothing, converter=From[str | None])
     """Optional. Identifier of the shipping option chosen by the user."""
@@ -6299,6 +6357,9 @@ class TransactionPartnerUser(TransactionPartner):
     invoice_payload: Option[str] = field(default=Nothing, converter=From[str | None])
     """Optional. Bot-specified invoice payload."""
 
+    subscription_period: Option[int] = field(default=Nothing, converter=From[int | None])
+    """Optional. The duration of the paid subscription."""
+
     paid_media: Option[list[Variative[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]]] = field(
         default=Nothing, converter=From["list[PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo] | None"]
     )
@@ -6306,6 +6367,9 @@ class TransactionPartnerUser(TransactionPartner):
 
     paid_media_payload: Option[str] = field(default=Nothing, converter=From[str | None])
     """Optional. Bot-specified paid media payload."""
+
+    gift: Option[str] = field(default=Nothing, converter=From[str | None])
+    """Optional. The gift sent to the user by the bot."""
 
 
 class TransactionPartnerFragment(TransactionPartner):
@@ -6912,6 +6976,8 @@ __all__ = (
     "GameHighScore",
     "GeneralForumTopicHidden",
     "GeneralForumTopicUnhidden",
+    "Gift",
+    "Gifts",
     "Giveaway",
     "GiveawayCompleted",
     "GiveawayCreated",
@@ -7011,6 +7077,7 @@ __all__ = (
     "PollAnswer",
     "PollOption",
     "PreCheckoutQuery",
+    "PreparedInlineMessage",
     "ProximityAlertTriggered",
     "ReactionCount",
     "ReactionType",
