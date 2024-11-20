@@ -11,7 +11,7 @@ from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, Func, FuncHandler
 from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
-from telegrinder.bot.dispatch.process import run_middleware
+from telegrinder.bot.dispatch.middleware.abc import run_middleware
 from telegrinder.bot.dispatch.view.box import (
     CallbackQueryView,
     ChatJoinRequestView,
@@ -57,7 +57,7 @@ class Dispatch(
         init=False,
         default_factory=TelegrinderContext,
     )
-    global_middleware: "ABCMiddleware" = dataclasses.field(
+    global_middleware: "GlobalMiddleware" = dataclasses.field(
         default_factory=lambda: GlobalMiddleware(),
     )
 
@@ -186,7 +186,7 @@ class Dispatch(
             await run_middleware(
                 self.global_middleware.pre,
                 api,
-                event,
+                event,  # type: ignore
                 raw_event=event,
                 ctx=context,
                 adapter=self.global_middleware.adapter,

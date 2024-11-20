@@ -6,7 +6,8 @@ import msgspec
 from fntypes.co import Nothing, Result, Some, Variative, unwrapping
 
 from telegrinder.api import API, APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
+from telegrinder.tools.magic import shortcut
 from telegrinder.bot.cute_types.message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
 from telegrinder.model import From, field, get_params
 from telegrinder.msgspec_utils import Option, decoder

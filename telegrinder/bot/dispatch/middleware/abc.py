@@ -58,7 +58,7 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
 
     async def pre(self, event: Event, ctx: Context) -> bool: ...
 
-    async def post(self, event: Event, ctx: Context, responses: list[typing.Any]) -> None: ...
+    async def post(self, event: Event, ctx: Context) -> None: ...
 
     @typing.overload
     def to_lifespan(self, event: Event, ctx: Context | None = None, *, api: API) -> Lifespan: ...
@@ -82,7 +82,7 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
         return Lifespan(
             startup_tasks=[run_middleware(self.pre, api, event, raw_event=None, ctx=ctx, adapter=None)],
             shutdown_tasks=[
-                run_middleware(self.post, api, event, raw_event=None, ctx=ctx, adapter=None, responses=[])
+                run_middleware(self.post, api, event, raw_event=None, ctx=ctx, adapter=None,)
             ],
         )
 

@@ -16,7 +16,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.base import BaseStateView
 
 
-class ChoiceCode(enum.StrEnum):
+class ChoiceAction(enum.StrEnum):
     READY = "ready"
     CANCEL = "cancel"
 
@@ -83,10 +83,10 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
                 )
             kb.row()
 
-        kb.add(InlineButton(self.ready, callback_data=self.random_code + "/" + ChoiceCode.READY))
+        kb.add(InlineButton(self.ready, callback_data=self.random_code + "/" + ChoiceAction.READY))
         if self.cancel_text is not None:
             kb.row()
-            kb.add(InlineButton(self.cancel_text, callback_data=self.random_code + "/" + ChoiceCode.CANCEL))
+            kb.add(InlineButton(self.cancel_text, callback_data=self.random_code + "/" + ChoiceAction.CANCEL))
 
         return kb.get_markup()
 
@@ -107,9 +107,9 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
         code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
 
         match code:
-            case ChoiceCode.READY:
+            case ChoiceAction.READY:
                 return False
-            case ChoiceCode.CANCEL:
+            case ChoiceAction.CANCEL:
                 self.choices = []
                 return False
 
@@ -130,8 +130,6 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
         self,
         hasher: Hasher[CallbackQueryCute, int],
         api: "API",
-        view: "BaseStateView[CallbackQueryCute]",
-        isolate: bool = False,
     ) -> tuple[dict[typing.Hashable, bool], int]:
         assert len(self.choices) > 0
         message = (
@@ -147,8 +145,6 @@ class _Checkbox(ABCScenario[CallbackQueryCute]):
             q, _ = await self.waiter_machine.wait(
                 hasher,
                 data=message.message_id,
-                isolate=isolate,
-                event_key=None if not isolate else message.event_key,
             )
             should_continue = await self.handle(q)
             await q.answer(self.CALLBACK_ANSWER)
@@ -170,8 +166,6 @@ if typing.TYPE_CHECKING:
             self,
             hasher: Hasher[CallbackQueryCute, int],
             api: "API",
-            view: "BaseStateView[CallbackQueryCute]",
-            isolate: bool = False,
         ) -> tuple[dict[Key, bool], int]: ...
 
 else:

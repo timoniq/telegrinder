@@ -38,8 +38,6 @@ async def start(message: Message, me: Me):
         (message.from_user.id, message.chat_id),
         release=Text(["fine", "bad"], ignore_case=True),
         on_miss=MessageReplyHandler("Fine or bad", as_reply=True),
-        isolate=True,
-        event_key=message.event_key,
     )
 
     match m.text.unwrap().lower():
@@ -52,18 +50,6 @@ async def start(message: Message, me: Me):
             )
 
 
-from telegrinder.bot.dispatch.middleware import ABCMiddleware
-
-
-class LolikMiddleware(ABCMiddleware[Message]):
-    async def pre(self, event: Message, ctx: Context) -> bool:
-        print("lolik enter", event)
-        return True
-
-    async def post(self, event: Message, ctx: Context, responses: list[object]) -> None:
-        print("lolik continue event", event)
-
-
 @bot.on.message(Text("/react"))
 async def react(message: Message):
     await message.reply("Send me any message...")
@@ -72,7 +58,6 @@ async def react(message: Message):
         (message.from_user.id, message.chat_id),
         release=HasText(),
         on_miss=MessageReplyHandler("Your message has no text!"),
-        lifespan=LolikMiddleware().to_lifespan(message),
     )
     await msg.react("💋")
 
