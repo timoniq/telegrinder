@@ -3,7 +3,6 @@ import random
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import MESSAGE_FROM_USER_IN_CHAT, WaiterMachine, clear_wm_storage_worker
-from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
@@ -85,6 +84,35 @@ async def predict(message: Message, thing: str | None = None):
 @bot.on.message(FuzzyText("hello"))
 async def hello(message: Message):
     await message.reply("Hi!")
+
+
+from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, InlineButton, InlineKeyboard
+from telegrinder.node import UserId
+from telegrinder.rules import CallbackDataEq, IsUpdateType
+from telegrinder.types import UpdateType
+
+
+@bot.on.message(FuzzyText("freeze"))
+async def freeze_handler(message: Message):
+    msg = (
+        await message.answer(
+            "well ok freezing",
+            reply_markup=InlineKeyboard()
+            .add(InlineButton("Unfreeze", callback_data="unfreeze"))
+            .get_markup(),
+        )
+    ).unwrap()
+
+    with bot.on.global_middleware.apply_filters(
+        source_filter=(UserId, message.from_user.id, IsUpdateType(UpdateType.CALLBACK_QUERY)),
+    ):
+        await wm.wait(
+            CALLBACK_QUERY_FOR_MESSAGE,
+            msg.message_id,
+            release=CallbackDataEq("unfreeze"),
+        )
+
+        await message.answer("Wow heated")
 
 
 bot.loop_wrapper.add_task(clear_wm_storage_worker(wm))

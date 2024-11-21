@@ -71,6 +71,7 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
         event: Event,
         ctx: Context | None = None,
         api: API | None = None,
+        **add_context: typing.Any,
     ) -> Lifespan:
         if api is None:
             if not isinstance(event, BaseCute):
@@ -78,6 +79,7 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
             api = event.api
 
         ctx = ctx or Context()
+        ctx |= add_context
 
         return Lifespan(
             startup_tasks=[run_middleware(self.pre, api, event, raw_event=None, ctx=ctx, adapter=None)],

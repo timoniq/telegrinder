@@ -17,7 +17,7 @@ from .polymorphic import Polymorphic, impl
 from .pre_checkout_query import PreCheckoutQueryNode
 from .rule import RuleChain
 from .scope import GLOBAL, PER_CALL, PER_EVENT, NodeScope, global_node, per_call, per_event
-from .source import ChatSource, Source, UserSource
+from .source import ChatSource, Source, UserId, UserSource
 from .text import Text, TextInteger, TextLiteral
 from .tools import generate_node
 from .update import UpdateNode
@@ -73,4 +73,5 @@ __all__ = (
     "is_node",
     "per_call",
     "per_event",
+    "UserId",
 )
