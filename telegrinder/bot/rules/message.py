@@ -1,7 +1,7 @@
 import abc
 import typing
 
-from telegrinder.tools.adapter.event import EventAdapter
+from telegrinder.bot.adapter.event import EventAdapter
 from telegrinder.types.objects import Message as MessageEvent
 
 from .abc import ABCRule, CheckResult, Message

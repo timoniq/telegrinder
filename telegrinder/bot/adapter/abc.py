@@ -6,16 +6,17 @@ import typing
 from fntypes import Error, Nothing, Ok, Option, Some
 from fntypes.result import Result
 
+from telegrinder.bot.adapter.errors import AdapterError
 from telegrinder.modules import logger
-from telegrinder.tools.adapter.errors import AdapterError
 
 type AdaptResult[To] = Result[To, AdapterError] | typing.Awaitable[Result[To, AdapterError]]
 
 
 if typing.TYPE_CHECKING:
-    from telegrinder.model import Model
     from telegrinder.api.api import API
     from telegrinder.bot.dispatch.context import Context
+    from telegrinder.model import Model
+
 
 class ABCAdapter[From: "Model", To](abc.ABC):
     ADAPTED_VALUE_KEY: str | None = None

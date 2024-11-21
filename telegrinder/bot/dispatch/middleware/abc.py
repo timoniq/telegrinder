@@ -6,16 +6,16 @@ import typing_extensions as typing
 from fntypes import Some
 
 from telegrinder.api import API
+from telegrinder.bot.adapter.abc import run_adapter
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.model import Model
 from telegrinder.modules import logger
-from telegrinder.tools.adapter.abc import run_adapter
 from telegrinder.tools.lifespan import Lifespan
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
-    from telegrinder.tools.adapter.abc import ABCAdapter
+    from telegrinder.bot.adapter.abc import ABCAdapter
 
 ToEvent = typing.TypeVar("ToEvent", bound=Model, default=typing.Any)
 
@@ -82,7 +82,14 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
         return Lifespan(
             startup_tasks=[run_middleware(self.pre, api, event, raw_event=None, ctx=ctx, adapter=None)],
             shutdown_tasks=[
-                run_middleware(self.post, api, event, raw_event=None, ctx=ctx, adapter=None,)
+                run_middleware(
+                    self.post,
+                    api,
+                    event,
+                    raw_event=None,
+                    ctx=ctx,
+                    adapter=None,
+                )
             ],
         )
 

@@ -11,7 +11,7 @@ from telegrinder.bot.dispatch.waiter_machine.short_state import (
     ShortStateContext,
 )
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.tools import Lifespan
+from telegrinder.tools.lifespan import Lifespan
 from telegrinder.tools.limited_dict import LimitedDict
 
 from .actions import WaiterActions

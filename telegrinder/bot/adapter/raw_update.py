@@ -1,10 +1,10 @@
 from fntypes.result import Ok, Result
 
 from telegrinder.api.api import API
+from telegrinder.bot.adapter.abc import ABCAdapter
+from telegrinder.bot.adapter.errors import AdapterError
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.tools.adapter.abc import ABCAdapter
-from telegrinder.tools.adapter.errors import AdapterError
 from telegrinder.types.objects import Update
 
 

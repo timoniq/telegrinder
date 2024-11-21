@@ -17,7 +17,7 @@ async def action(m: Message):
         .add_option("apple", "Apple 🔴", "Apple 🟢")
         .add_option("banana", "Banana 🔴", "Banana 🟢", is_picked=True)
         .add_option("pear", "Pear 🔴", "Pear 🟢")
-        .wait(CALLBACK_QUERY_FOR_MESSAGE, m.ctx_api, bot.dispatch.callback_query)
+        .wait(CALLBACK_QUERY_FOR_MESSAGE, m.ctx_api)
     )
     await m.edit(text=f"You chose - {chosen}", message_id=m_id)
 

@@ -5,13 +5,12 @@ from fntypes import Nothing, Option, Some
 from vbml.patcher import Patcher
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, Func, FuncHandler
-from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
 from telegrinder.bot.dispatch.middleware.abc import run_middleware
+from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
 from telegrinder.bot.dispatch.view.box import (
     CallbackQueryView,
     ChatJoinRequestView,
@@ -29,12 +28,12 @@ from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
+    from telegrinder.bot.cute_types.base import BaseCute
     from telegrinder.bot.rules.abc import ABCRule
 
 T = typing.TypeVar("T", default=typing.Any)
 R = typing.TypeVar("R", covariant=True, default=typing.Any)
-Event = typing.TypeVar("Event", bound=BaseCute)
+Event = typing.TypeVar("Event", bound="BaseCute")
 P = typing.ParamSpec("P", default=...)
 
 DEFAULT_DATACLASS: typing.Final[type[Update]] = Update
@@ -79,7 +78,7 @@ class Dispatch(
         self,
         *rules: "ABCRule",
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandler[UpdateCute]]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandler[UpdateCute]]]: ...
 
     @typing.overload
     def handle(
@@ -87,7 +86,7 @@ class Dispatch(
         *rules: "ABCRule",
         dataclass: type[T],
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandler[T]]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandler[T]]]: ...
 
     @typing.overload
     def handle(
@@ -95,7 +94,7 @@ class Dispatch(
         *rules: "ABCRule",
         update_type: UpdateType,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandler[UpdateCute]]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandler[UpdateCute]]]: ...
 
     @typing.overload
     def handle(
@@ -104,7 +103,7 @@ class Dispatch(
         dataclass: type[T],
         update_type: UpdateType,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandler[T]]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandler[T]]]: ...
 
     @typing.overload
     def handle(
@@ -112,7 +111,7 @@ class Dispatch(
         *rules: "ABCRule",
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandlerT]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
     def handle(
@@ -121,7 +120,7 @@ class Dispatch(
         update_type: UpdateType,
         error_handler: ErrorHandlerT,
         is_blocking: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[UpdateCute, Func[P, R], ErrorHandlerT]]: ...
+    ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
     def handle(

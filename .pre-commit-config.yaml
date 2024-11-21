@@ -17,7 +17,7 @@ repos:
         name: basedpyright
         description: "Run 'basedpyright' for Python type checking"
         entry: poetry run basedpyright --level ERROR
-        pass_filenames: false
+        pass_filenames: true
         language: system
         types: [ python ]
         stages: [ pre-commit ]

@@ -4,9 +4,9 @@ from telegrinder.types.objects import Update
 
 from .abc import ABCRule
 
-
 if typing.TYPE_CHECKING:
-    from telegrinder.tools.adapter import ABCAdapter
+    from telegrinder.bot.adapter import ABCAdapter
+
 
 class IdRule[Identifier](ABCRule[Identifier]):
     def __init__(
