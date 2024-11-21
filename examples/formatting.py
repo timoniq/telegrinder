@@ -1,7 +1,7 @@
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.rules import Text
-from telegrinder.tools import HTMLFormatter, bold, italic, mention
+from telegrinder.tools.formatting import HTMLFormatter, bold, italic, mention
 
 api = API(token=Token.from_env())
 api.default_params["parse_mode"] = HTMLFormatter.PARSE_MODE
