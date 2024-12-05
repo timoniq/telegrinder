@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API methods version 8.0, released `November 17, 2024`."""
+    """Telegram Bot API methods version 8.1, released `December 4, 2024`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -4615,7 +4615,7 @@ class APIMethods:
         link as String on success.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the link \
-        will be created.
+        will be created. For payments in Telegram Stars only.
 
         :param title: Product name, 1-32 characters.
 
@@ -4636,7 +4636,10 @@ class APIMethods:
 
         :param subscription_period: The number of seconds the subscription will be active for before the next \
         payment. The currency must be set to `XTR` (Telegram Stars) if the parameter \
-        is used. Currently, it must always be 2592000 (30 days) if specified.
+        is used. Currently, it must always be 2592000 (30 days) if specified. Any \
+        number of subscriptions can be active for a given bot at the same time, including \
+        multiple concurrent subscriptions from the same user. Subscription price \
+        must no exceed 2500 Telegram Stars.
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
         (integer, not float/double). For example, for a maximum tip of US$ 1.45 \

@@ -2,6 +2,7 @@ from telegrinder.types.enums import *
 from telegrinder.types.objects import *
 
 __all__ = (
+    "AffiliateInfo",
     "Animation",
     "Audio",
     "BackgroundFill",
@@ -239,6 +240,7 @@ __all__ = (
     "TextQuote",
     "TopicIconColor",
     "TransactionPartner",
+    "TransactionPartnerAffiliateProgram",
     "TransactionPartnerFragment",
     "TransactionPartnerOther",
     "TransactionPartnerTelegramAds",

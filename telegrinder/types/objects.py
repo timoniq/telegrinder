@@ -17,6 +17,7 @@ class TransactionPartner(Model):
 
     This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
     - TransactionPartnerUser
+    - TransactionPartnerAffiliateProgram
     - TransactionPartnerFragment
     - TransactionPartnerTelegramAds
     - TransactionPartnerTelegramApi
@@ -6342,6 +6343,33 @@ class RevenueWithdrawalStateFailed(RevenueWithdrawalState):
     """Type of the state, always `failed`."""
 
 
+class AffiliateInfo(Model):
+    """Object `AffiliateInfo`, see the [documentation](https://core.telegram.org/bots/api#affiliateinfo).
+
+    Contains information about the affiliate that received a commission via this transaction.
+    """
+
+    commission_per_mille: int = field()
+    """The number of Telegram Stars received by the affiliate for each 1000 Telegram
+    Stars received by the bot from referred users."""
+
+    amount: int = field()
+    """Integer amount of Telegram Stars received by the affiliate from the transaction,
+    rounded to 0; can be negative for refunds."""
+
+    affiliate_user: Option[User] = field(default=Nothing, converter=From["User | None"])
+    """Optional. The bot or the user that received an affiliate commission if it
+    was received by a bot or a user."""
+
+    affiliate_chat: Option[Chat] = field(default=Nothing, converter=From["Chat | None"])
+    """Optional. The chat that received an affiliate commission if it was received
+    by a chat."""
+
+    nanostar_amount: Option[int] = field(default=Nothing, converter=From[int | None])
+    """Optional. The number of 1/1000000000 shares of Telegram Stars received
+    by the affiliate; from -999999999 to 999999999; can be negative for refunds."""
+
+
 class TransactionPartnerUser(TransactionPartner):
     """Object `TransactionPartnerUser`, see the [documentation](https://core.telegram.org/bots/api#transactionpartneruser).
 
@@ -6353,6 +6381,10 @@ class TransactionPartnerUser(TransactionPartner):
 
     type: typing.Literal["user"] = field(default="user")
     """Type of the transaction partner, always `user`."""
+
+    affiliate: Option[AffiliateInfo] = field(default=Nothing, converter=From["AffiliateInfo | None"])
+    """Optional. Information about the affiliate that received a commission
+    via this transaction."""
 
     invoice_payload: Option[str] = field(default=Nothing, converter=From[str | None])
     """Optional. Bot-specified invoice payload."""
@@ -6368,8 +6400,25 @@ class TransactionPartnerUser(TransactionPartner):
     paid_media_payload: Option[str] = field(default=Nothing, converter=From[str | None])
     """Optional. Bot-specified paid media payload."""
 
-    gift: Option[str] = field(default=Nothing, converter=From[str | None])
+    gift: Option[Gift] = field(default=Nothing, converter=From["Gift | None"])
     """Optional. The gift sent to the user by the bot."""
+
+
+class TransactionPartnerAffiliateProgram(TransactionPartner):
+    """Object `TransactionPartnerAffiliateProgram`, see the [documentation](https://core.telegram.org/bots/api#transactionpartneraffiliateprogram).
+
+    Describes the affiliate program that issued the affiliate commission received via this transaction.
+    """
+
+    commission_per_mille: int = field()
+    """The number of Telegram Stars received by the bot for each 1000 Telegram Stars
+    received by the affiliate program sponsor from referred users."""
+
+    type: typing.Literal["affiliate_program"] = field(default="affiliate_program")
+    """Type of the transaction partner, always `affiliate_program`."""
+
+    sponsor_user: Option[User] = field(default=Nothing, converter=From["User | None"])
+    """Optional. Information about the bot that sponsored the affiliate program."""
 
 
 class TransactionPartnerFragment(TransactionPartner):
@@ -6440,14 +6489,19 @@ class StarTransaction(Model):
     for successful incoming payments from users."""
 
     amount: int = field()
-    """Number of Telegram Stars transferred by the transaction."""
+    """Integer amount of Telegram Stars transferred by the transaction."""
 
     date: datetime = field()
     """Date the transaction was created in Unix time."""
 
+    nanostar_amount: Option[int] = field(default=Nothing, converter=From[int | None])
+    """Optional. The number of 1/1000000000 shares of Telegram Stars transferred
+    by the transaction; from 0 to 999999999."""
+
     source: Option[
         Variative[
             TransactionPartnerUser,
+            TransactionPartnerAffiliateProgram,
             TransactionPartnerFragment,
             TransactionPartnerTelegramAds,
             TransactionPartnerTelegramApi,
@@ -6456,7 +6510,7 @@ class StarTransaction(Model):
     ] = field(
         default=Nothing,
         converter=From[
-            "TransactionPartnerUser | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
+            "TransactionPartnerUser | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
         ],
     )
     """Optional. Source of an incoming transaction (e.g., a user purchasing goods
@@ -6466,6 +6520,7 @@ class StarTransaction(Model):
     receiver: Option[
         Variative[
             TransactionPartnerUser,
+            TransactionPartnerAffiliateProgram,
             TransactionPartnerFragment,
             TransactionPartnerTelegramAds,
             TransactionPartnerTelegramApi,
@@ -6474,7 +6529,7 @@ class StarTransaction(Model):
     ] = field(
         default=Nothing,
         converter=From[
-            "TransactionPartnerUser | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
+            "TransactionPartnerUser | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
         ],
     )
     """Optional. Receiver of an outgoing transaction (e.g., a user for a purchase
@@ -6899,6 +6954,7 @@ class GameHighScore(Model):
 
 
 __all__ = (
+    "AffiliateInfo",
     "Animation",
     "Audio",
     "BackgroundFill",
@@ -7107,6 +7163,7 @@ __all__ = (
     "SwitchInlineQueryChosenChat",
     "TextQuote",
     "TransactionPartner",
+    "TransactionPartnerAffiliateProgram",
     "TransactionPartnerFragment",
     "TransactionPartnerOther",
     "TransactionPartnerTelegramAds",

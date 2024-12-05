@@ -317,6 +317,17 @@
             ]
         },
         {
+            "name": "TransactionPartnerAffiliateProgram",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "affiliate_program"
+                    ]
+                }
+            ]
+        },
+        {
             "name": "RevenueWithdrawalStatePending",
             "fields": [
                 {
