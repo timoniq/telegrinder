@@ -215,6 +215,7 @@ class Dispatch(
             raw_event=event,
             ctx=context,
             adapter=self.global_middleware.adapter,
+            responses=[],
         )
 
         return False
