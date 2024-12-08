@@ -67,7 +67,7 @@ async def compose_nodes(
                 local_nodes[node_t] = event_nodes[node_t]
                 continue
             elif scope is NodeScope.GLOBAL and hasattr(node_t, GLOBAL_VALUE_KEY):
-                local_nodes[node_t] = getattr(node_t, GLOBAL_VALUE_KEY)
+                local_nodes[node_t] = NodeSession(node_t, getattr(node_t, GLOBAL_VALUE_KEY), {})
                 continue
 
             subnodes |= {
@@ -85,7 +85,7 @@ async def compose_nodes(
             if scope is NodeScope.PER_EVENT:
                 event_nodes[node_t] = local_nodes[node_t]
             elif scope is NodeScope.GLOBAL:
-                setattr(node_t, GLOBAL_VALUE_KEY, local_nodes[node_t])
+                setattr(node_t, GLOBAL_VALUE_KEY, local_nodes[node_t].value)
 
         parent_nodes[parent_node_t] = local_nodes[parent_node_t]
 
