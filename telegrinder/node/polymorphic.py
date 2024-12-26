@@ -19,7 +19,7 @@ class Polymorphic(Node):
         logger.debug(f"Composing polymorphic node {cls.__name__!r}...")
         scope = getattr(cls, "scope", None)
         node_ctx = context.get_or_set(CONTEXT_STORE_NODES_KEY, {})
-        data = {API: update.ctx_api}
+        data = {API: update.ctx_api, Context: context}
 
         for i, impl_ in enumerate(get_impls(cls)):
             logger.debug("Checking impl {!r}...", impl_.__name__)
