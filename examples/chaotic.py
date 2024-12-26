@@ -2,7 +2,7 @@ import pathlib
 import random
 import typing
 
-from telegrinder import API, Message, Telegrinder, Token
+from telegrinder import API, Message, Telegrinder, Token, Context
 from telegrinder.bot import MESSAGE_FROM_USER_IN_CHAT, WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
