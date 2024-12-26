@@ -20,13 +20,6 @@ if typing.TYPE_CHECKING:
 ToEvent = typing.TypeVar("ToEvent", bound=Model, default=typing.Any)
 
 
-def repr_middleware(middleware: ABCMiddleware[ToEvent]) -> str:
-    return "<{} with adapter={!r}>".format(
-        "middleware " + middleware.__class__.__name__,
-        middleware.adapter,
-    )
-
-
 async def run_middleware[Event: Model, R: bool | None](
     method: typing.Callable[typing.Concatenate[Event, Context, ...], typing.Awaitable[R]],
     api: API,
@@ -54,7 +47,16 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
     adapter: ABCAdapter[Update, Event] | None = None
 
     def __repr__(self) -> str:
-        return repr_middleware(self)
+        name = f"middleware {self.__class__.__name__!r}:"
+        has_pre = self.pre.__qualname__.split(".")[0] != "ABCMiddleware"
+        has_post = self.post.__qualname__.split(".")[0] != "ABCMiddleware"
+
+        if has_post:
+            name = "post-" + name
+        if has_pre:
+            name = "pre-" + name
+
+        return "<{} with adapter={!r}>".format(name, self.adapter)
 
     async def pre(self, event: Event, ctx: Context) -> bool: ...
 

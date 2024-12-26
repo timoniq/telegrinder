@@ -65,3 +65,6 @@ class GlobalMiddleware(ABCMiddleware):
         if source_filter is not None:  # noqa: SIM102
             if identifiers := self.source_filters.get(source_filter[0]):
                 identifiers.pop(source_filter[1], None)
+
+
+__all__ = ("GlobalMiddleware",)

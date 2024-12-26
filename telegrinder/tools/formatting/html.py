@@ -1,3 +1,4 @@
+import dataclasses
 import html
 import string
 import typing
@@ -87,7 +88,7 @@ class StringFormatter(string.Formatter):
                         value.formatting()
                         if isinstance(value, TagFormat)
                         else (
-                            self.get_spec_formatter(value)(**value.__dict__).formatting()
+                            self.get_spec_formatter(value)(**dataclasses.asdict(value)).formatting()
                             if is_spec_format(value)
                             else value
                         )
@@ -95,6 +96,7 @@ class StringFormatter(string.Formatter):
                     fmt,
                 )
             )
+
         return self.format_raw_value(value, fmt)
 
     def format_raw_value(self, value: typing.Any, fmt: str) -> "HTMLFormatter":
@@ -103,7 +105,7 @@ class StringFormatter(string.Formatter):
 
         if is_spec_format(value):
             value.string = tag_format
-            tag_format = self.get_spec_formatter(value)(**value.__dict__)
+            tag_format = self.get_spec_formatter(value)(**dataclasses.asdict(value))
 
         return tag_format.formatting()
 

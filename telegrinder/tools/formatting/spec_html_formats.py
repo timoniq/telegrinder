@@ -24,7 +24,7 @@ def is_spec_format(obj: typing.Any) -> typing.TypeGuard[SpecialFormat]:
     )
 
 
-@dataclasses.dataclass(repr=False, slots=True)
+@dataclasses.dataclass(repr=False)
 class BaseSpecFormat:
     __formatter_name__: typing.ClassVar[str] = dataclasses.field(init=False, repr=False)
 

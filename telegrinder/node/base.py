@@ -13,7 +13,11 @@ ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerato
 
 
 def is_node(maybe_node: typing.Any) -> typing.TypeGuard[type["Node"]]:
-    maybe_node = maybe_node if isinstance(maybe_node, type) else typing.get_origin(maybe_node)
+    if isinstance(maybe_node, typing.TypeAliasType):
+        maybe_node = maybe_node.__value__
+    if not isinstance(maybe_node, type):
+        maybe_node = typing.get_origin(maybe_node) or maybe_node
+
     return (
         isinstance(maybe_node, type)
         and issubclass(maybe_node, Node)

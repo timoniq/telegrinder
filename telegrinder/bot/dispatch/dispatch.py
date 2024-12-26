@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 
 import typing_extensions as typing
@@ -5,7 +7,10 @@ from fntypes import Nothing, Option, Some
 from vbml.patcher import Patcher
 
 from telegrinder.api.api import API
+<<<<<<< HEAD
 from telegrinder.bot.cute_types.update import UpdateCute
+=======
+>>>>>>> dev
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, Func, FuncHandler
@@ -29,6 +34,11 @@ from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.cute_types.base import BaseCute
+<<<<<<< HEAD
+=======
+    from telegrinder.bot.cute_types.update import UpdateCute
+    from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
+>>>>>>> dev
     from telegrinder.bot.rules.abc import ABCRule
 
 T = typing.TypeVar("T", default=typing.Any)
@@ -212,6 +222,7 @@ class Dispatch(
             raw_event=event,
             ctx=context,
             adapter=self.global_middleware.adapter,
+            responses=[],
         )
 
         return False

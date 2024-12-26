@@ -1,9 +1,11 @@
 import pathlib
 import random
+import typing
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot import MESSAGE_FROM_USER_IN_CHAT, WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
+from telegrinder.bot.dispatch.middleware import ABCMiddleware
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
 from telegrinder.node import Me
@@ -19,8 +21,17 @@ logger.set_level("DEBUG")
 bot.dispatch.message.auto_rules.append(IsUser())
 
 
+class DummyMiddleware(ABCMiddleware[Message]):
+    async def pre(self, event: Message, ctx: Context) -> bool:
+        print("enter:", event)
+        return True
+
+    async def post(self, event: Message, ctx: Context, responses: list[typing.Any]) -> None:
+        print("continue:", event)
+
+
 @bot.on.message(is_blocking=False)
-async def handle_message() -> str:
+async def handle_message() -> typing.Literal["Hello, World!"]:
     return "Hello, World!"
 
 
@@ -57,6 +68,7 @@ async def react(message: Message):
         (message.from_user.id, message.chat_id),
         release=HasText(),
         on_miss=MessageReplyHandler("Your message has no text!"),
+        lifespan=DummyMiddleware().to_lifespan(message),
     )
     await msg.react("💋")
 
