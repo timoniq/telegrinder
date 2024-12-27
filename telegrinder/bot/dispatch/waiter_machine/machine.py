@@ -4,8 +4,9 @@ import typing
 
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.view.base import BaseStateView, BaseView
-from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware
+from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware, INITIATOR_CONTEXT_KEY
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
     ShortState,
     ShortStateContext,
@@ -22,6 +23,7 @@ type Storage[Event: BaseCute, HasherData] = dict[
 ]
 
 WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
+type HasherWithData[Event: BaseCute, T] = tuple[Hasher[Event, T], T]
 
 
 class WaiterMachine:
@@ -64,13 +66,13 @@ class WaiterMachine:
     async def drop[Event: BaseCute, HasherData](
         self,
         hasher: Hasher[Event, HasherData],
-        id: HasherData,
+        data: HasherData,
         **context: typing.Any,
     ) -> None:
         if hasher not in self.storage:
             raise LookupError("No record of hasher {!r} found.".format(hasher))
 
-        waiter_id: typing.Hashable = hasher.get_hash_from_data(id).expect(
+        waiter_id: typing.Hashable = hasher.get_hash_from_data(data).expect(
             RuntimeError("Couldn't create hash from data")
         )
         short_state = self.storage[hasher].pop(waiter_id, None)
@@ -150,6 +152,61 @@ class WaiterMachine:
 
         assert short_state.context is not None
         return short_state.context
+    
+    # TODO: покрыть типами
+    async def wait_many[Event: BaseCute, T](
+        self,
+        *hashers: HasherWithData[Event, T],
+        filter: ABCRule | None = None,
+        release: ABCRule | None = None,
+        lifetime: datetime.timedelta | float | None = None,
+        lifespan: Lifespan = Lifespan(),
+        **actions: typing.Unpack[WaiterActions[Event]],
+    ) -> tuple[Hasher, Event, Context]:
+        if isinstance(lifetime, int | float):
+            lifetime = datetime.timedelta(seconds=lifetime)
+        
+        event = asyncio.Event()
+
+        short_state = ShortState(
+            event,
+            actions,
+            release=release,
+            filter=filter,
+            lifetime=lifetime or self.base_state_lifetime,
+        )
+        
+        for hasher, data in hashers:
+            waiter_hash = hasher.get_hash_from_data(data)
+
+            if hasher not in self.storage:
+                if self.dispatch:
+                    view: BaseView[Event] = self.dispatch.get_view(hasher.view_class).expect(
+                        RuntimeError(f"View {hasher.view_class.__name__!r} is not defined in dispatch."),
+                    )
+                    view.middlewares.insert(0, WaiterMiddleware(self, hasher))
+                self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)
+
+                if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
+                    await deleted_short_state.cancel()
+        
+        async with lifespan:
+            await event.wait()
+
+        # FIXME: убрать ассерты из всего кода
+        # проблема в контексте. ассерты удаляются из аст с -O
+        assert short_state.context is not None
+
+        initiator = short_state.context.context.get(INITIATOR_CONTEXT_KEY)
+
+        assert initiator in [hasher[0] for hasher in hashers]
+        
+        for hasher, data in hashers:
+            if hasher != initiator:
+                await self.drop(hasher, data)
+        
+        return initiator, short_state.context.event, short_state.context.context
+
 
     async def clear_storage(self) -> None:
         """Clears storage."""

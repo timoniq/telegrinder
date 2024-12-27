@@ -16,6 +16,9 @@ if typing.TYPE_CHECKING:
     from .short_state import ShortState
 
 
+INITIATOR_CONTEXT_KEY = "initiator"
+
+
 class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
     def __init__(
         self,
@@ -83,6 +86,7 @@ class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
         short_state: "ShortState[Event]",
         ctx: Context,
     ) -> None:
+        ctx.set("initiator", self.hasher)
         short_state.context = ShortStateContext(typing.cast(Event, event), ctx)
         short_state.event.set()
 
