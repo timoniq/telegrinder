@@ -2,6 +2,7 @@ from telegrinder.types.enums import *
 from telegrinder.types.objects import *
 
 __all__ = (
+    "AffiliateInfo",
     "Animation",
     "Audio",
     "BackgroundFill",
@@ -89,6 +90,8 @@ __all__ = (
     "GameHighScore",
     "GeneralForumTopicHidden",
     "GeneralForumTopicUnhidden",
+    "Gift",
+    "Gifts",
     "Giveaway",
     "GiveawayCompleted",
     "GiveawayCreated",
@@ -200,6 +203,7 @@ __all__ = (
     "PollOption",
     "PollType",
     "PreCheckoutQuery",
+    "PreparedInlineMessage",
     "ProgrammingLanguage",
     "ProximityAlertTriggered",
     "ReactionCount",
@@ -236,6 +240,7 @@ __all__ = (
     "TextQuote",
     "TopicIconColor",
     "TransactionPartner",
+    "TransactionPartnerAffiliateProgram",
     "TransactionPartnerFragment",
     "TransactionPartnerOther",
     "TransactionPartnerTelegramAds",
