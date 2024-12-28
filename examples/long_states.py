@@ -1,8 +1,8 @@
 import enum
 
-from telegrinder import API, MemoryStateStorage, Message, StateData, StateMeta, Telegrinder, Token
+from telegrinder import API, MemoryStateStorage, Message, StateData, Telegrinder, Token
 from telegrinder.modules import logger
-from telegrinder.rules import Text
+from telegrinder.rules import StateMeta, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
