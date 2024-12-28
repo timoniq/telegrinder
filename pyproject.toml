@@ -70,7 +70,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 110
 target-version = "py312"
-lint.select = ["I", "N", "ANN", "COM", "YTT", "TC", "SIM"]
+lint.select = ["I", "N", "ANN", "COM", "YTT", "SIM"]
 lint.ignore = [
   "ANN003", "ANN101", "ANN102", "ANN201", "ANN202",
   "ANN204", "ANN206", "ANN401", "COM812", "N805", "N818", "TC001", "TC002",
