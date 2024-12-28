@@ -55,7 +55,7 @@ async def action(m: Message):
 
 
 @bot.on.callback_query(is_blocking=False)
-async def handle_fruit_item(item: PayloadData[Item, MsgPackSerializer[Item]]):  # type: ignore
+async def handle_fruit_item(item: PayloadData[Item, MsgPackSerializer[Item]]):
     logger.info("Got fruit item={!r}", item)
 
 

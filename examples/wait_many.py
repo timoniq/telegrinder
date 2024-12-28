@@ -11,21 +11,19 @@ from telegrinder import (
 )
 from telegrinder.rules import Text
 
+CANCEL_MARKUP = InlineKeyboard().add(InlineButton("Cancel", callback_data="cancel")).get_markup()
+
 api = API(Token.from_env())
 bot = Telegrinder(api)
-
 wm = WaiterMachine(bot.dispatch)
-
-CANCEL_MARKUP = InlineKeyboard().add(InlineButton("Cancel", callback_data="cancel")).get_markup()
 
 
 @bot.on.message(Text("/start"))
 async def start_handler(message: Message) -> None:
     input_message = (await message.answer("Input or cancel", reply_markup=CANCEL_MARKUP)).unwrap()
-
-    hasher, event, _ = await wm.wait_many(
-        (CALLBACK_QUERY_FOR_MESSAGE, input_message.message_id),  # type: ignore
-        (MESSAGE_FROM_USER, message.from_user.id),  # type: ignore
+    hasher, event, context = await wm.wait_many(
+        (CALLBACK_QUERY_FOR_MESSAGE, input_message.message_id),
+        (MESSAGE_FROM_USER, message.from_user.id),
     )
 
     if hasher == CALLBACK_QUERY_FOR_MESSAGE:

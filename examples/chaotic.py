@@ -2,7 +2,7 @@ import pathlib
 import random
 import typing
 
-from telegrinder import API, Message, Telegrinder, Token, Context
+from telegrinder import API, Context, Message, Telegrinder, Token
 from telegrinder.bot import MESSAGE_FROM_USER_IN_CHAT, WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
@@ -23,11 +23,10 @@ bot.dispatch.message.auto_rules.append(IsUser())
 
 class DummyMiddleware(ABCMiddleware[Message]):
     async def pre(self, event: Message, ctx: Context) -> bool:
-        print("enter:", event)
         return True
 
-    async def post(self, event: Message, ctx: Context, responses: list[typing.Any]) -> None:
-        print("continue:", event)
+    async def post(self, event: Message, ctx: Context) -> None:
+        return None
 
 
 @bot.on.message(is_blocking=False)
@@ -123,7 +122,6 @@ async def freeze_handler(message: Message):
             msg.message_id,
             release=CallbackDataEq("unfreeze"),
         )
-
         await message.answer("Wow heated")
 
 
