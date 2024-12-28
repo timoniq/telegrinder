@@ -13,7 +13,6 @@ from telegrinder.types.objects import InlineKeyboardMarkup
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
-    from telegrinder.bot.dispatch.view.base import BaseStateView
 
 
 class ChoiceAction(enum.StrEnum):

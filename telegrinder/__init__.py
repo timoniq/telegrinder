@@ -96,7 +96,6 @@ from .bot import (
     WaiterMachine,
     register_manager,
 )
-from .bot.rules import StateMeta
 from .client import ABCClient, AiohttpClient
 from .model import Model
 from .modules import logger
@@ -217,8 +216,6 @@ __all__ = (
     "SimpleTranslator",
     "StateData",
     "StateData",
-    "StateMeta",
-    "StateMeta",
     "StateViewHasher",
     "StickerReplyHandler",
     "Telegrinder",

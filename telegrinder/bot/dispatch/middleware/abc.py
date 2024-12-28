@@ -6,16 +6,13 @@ import typing_extensions as typing
 from fntypes import Some
 
 from telegrinder.api import API
-from telegrinder.bot.adapter.abc import run_adapter
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.model import Model
 from telegrinder.modules import logger
+from telegrinder.tools.adapter.abc import ABCAdapter, run_adapter
 from telegrinder.tools.lifespan import Lifespan
 from telegrinder.types.objects import Update
-
-if typing.TYPE_CHECKING:
-    from telegrinder.bot.adapter.abc import ABCAdapter
 
 ToEvent = typing.TypeVar("ToEvent", bound=Model, default=typing.Any)
 

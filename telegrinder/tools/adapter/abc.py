@@ -6,8 +6,8 @@ import typing
 from fntypes import Error, Nothing, Ok, Option, Some
 from fntypes.result import Result
 
-from telegrinder.bot.adapter.errors import AdapterError
 from telegrinder.modules import logger
+from telegrinder.tools.adapter.errors import AdapterError
 
 type AdaptResult[To] = Result[To, AdapterError] | typing.Awaitable[Result[To, AdapterError]]
 

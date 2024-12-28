@@ -1,5 +1,3 @@
-import typing
-
 import pytest
 
 from telegrinder.bot.cute_types.message import MessageCute

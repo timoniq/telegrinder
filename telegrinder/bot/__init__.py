@@ -64,15 +64,6 @@ from telegrinder.bot.rules import (
 )
 from telegrinder.bot.scenario import ABCScenario, Checkbox, Choice
 
-from .adapter import (
-    ABCAdapter,
-    DataclassAdapter,
-    EventAdapter,
-    NodeAdapter,
-    RawEventAdapter,
-    RawUpdateAdapter,
-)
-
 __all__ = (
     "ABCDispatch",
     "ABCHandler",
@@ -136,10 +127,4 @@ __all__ = (
     "WaiterMachine",
     "clear_wm_storage_worker",
     "register_manager",
-    "ABCAdapter",
-    "DataclassAdapter",
-    "EventAdapter",
-    "NodeAdapter",
-    "RawEventAdapter",
-    "RawUpdateAdapter",
 )

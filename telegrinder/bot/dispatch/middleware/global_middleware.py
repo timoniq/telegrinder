@@ -3,13 +3,13 @@ import typing
 from contextlib import contextmanager
 
 from telegrinder.api import API
-from telegrinder.bot.adapter.abc import ABCAdapter
-from telegrinder.bot.adapter.raw_update import RawUpdateAdapter
-from telegrinder.bot.cute_types import UpdateCute
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.rules.abc import ABCRule, check_rule
 from telegrinder.node import ScalarNode, compose_nodes
+from telegrinder.tools.adapter.abc import ABCAdapter
+from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
 from telegrinder.types import Update
 
 

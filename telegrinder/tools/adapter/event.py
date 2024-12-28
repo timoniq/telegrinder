@@ -3,12 +3,12 @@ import typing
 from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.api import API
-from telegrinder.bot.adapter.abc import ABCAdapter
-from telegrinder.bot.adapter.errors import AdapterError
-from telegrinder.bot.adapter.raw_update import RawUpdateAdapter
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.tools.adapter.abc import ABCAdapter
+from telegrinder.tools.adapter.errors import AdapterError
+from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Model, Update
 

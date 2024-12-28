@@ -4,8 +4,8 @@ from fntypes.result import Result
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.tools.magic import shortcut
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberShortcuts, chat_member_interaction
+from telegrinder.tools.magic import shortcut
 from telegrinder.types.objects import *
 
 

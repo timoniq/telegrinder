@@ -1,9 +1,9 @@
 import abc
 import typing
 
-from telegrinder.bot.adapter import EventAdapter
 from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.bot.rules.abc import ABCRule, CheckResult
+from telegrinder.tools.adapter.event import EventAdapter
 from telegrinder.types.enums import Currency, UpdateType
 
 PreCheckoutQuery: typing.TypeAlias = PreCheckoutQueryCute

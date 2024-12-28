@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import dataclasses
 import enum
 import inspect
 import types
 import typing
-import dataclasses
-from functools import wraps
-from fntypes import Result
 from collections import OrderedDict
+from functools import wraps
+
+from fntypes import Result
+
 from telegrinder.model import get_params
 
 if typing.TYPE_CHECKING:
@@ -246,7 +248,6 @@ class Shortcut[T]:
     method_name: str
     executor: Executor[T] | None = dataclasses.field(default=None, kw_only=True)
     custom_params: set[str] = dataclasses.field(default_factory=lambda: set(), kw_only=True)
-
 
 
 __all__ = (

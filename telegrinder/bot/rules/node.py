@@ -1,8 +1,8 @@
 import typing
 
-from telegrinder.bot.adapter.node import NodeAdapter
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import Node
+from telegrinder.tools.adapter.node import NodeAdapter
 
 from .abc import ABCRule
 

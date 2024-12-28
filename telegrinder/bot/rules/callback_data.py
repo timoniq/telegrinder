@@ -3,7 +3,6 @@ import inspect
 import typing
 from contextlib import suppress
 
-from telegrinder.bot.adapter import EventAdapter
 from telegrinder.bot.cute_types import CallbackQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule, CheckResult
@@ -13,6 +12,7 @@ from telegrinder.bot.rules.payload import (
     PayloadMarkupRule,
     PayloadModelRule,
 )
+from telegrinder.tools.adapter.event import EventAdapter
 from telegrinder.types.enums import UpdateType
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
