@@ -6,7 +6,8 @@ import fntypes.option
 from fntypes.co import Result, Some, Variative
 
 from telegrinder.api.api import API, APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
+from telegrinder.tools.magic import shortcut
 from telegrinder.bot.cute_types.utils import compose_reactions, input_media
 from telegrinder.model import From, field, get_params
 from telegrinder.msgspec_utils import Nothing, Option

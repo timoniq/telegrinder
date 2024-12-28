@@ -3,7 +3,7 @@ import math
 
 from telegrinder import API, CallbackQuery, Message, Telegrinder, Token
 from telegrinder.rules import Text
-from telegrinder.tools import Page, Paginator, PaginatorItem
+from telegrinder.tools.paginator import Page, Paginator, PaginatorItem
 
 bot = Telegrinder(API(Token.from_env()))
 

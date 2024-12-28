@@ -117,5 +117,5 @@ And you can import `ParseMode` which has two properties:
 * `HTML`
 
 ```python
-from telegrinder.tools import ParseMode
+from telegrinder import ParseMode
 ```

@@ -17,7 +17,7 @@ from telegrinder.rules import (
     PayloadModelRule,
     Text,
 )
-from telegrinder.tools import MsgPackSerializer
+from telegrinder.tools.callback_data_serilization import MsgPackSerializer
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -55,7 +55,7 @@ async def action(m: Message):
 
 
 @bot.on.callback_query(is_blocking=False)
-async def handle_fruit_item(item: PayloadData[Item, MsgPackSerializer[Item]]):
+async def handle_fruit_item(item: PayloadData[Item, MsgPackSerializer[Item]]):  # type: ignore
     logger.info("Got fruit item={!r}", item)
 
 

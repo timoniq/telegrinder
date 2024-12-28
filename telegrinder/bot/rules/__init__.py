@@ -19,6 +19,7 @@ from telegrinder.bot.rules.command import Argument, Command
 from telegrinder.bot.rules.enum_text import EnumTextRule
 from telegrinder.bot.rules.func import FuncRule
 from telegrinder.bot.rules.fuzzy import FuzzyText
+from telegrinder.bot.rules.id import IdRule
 from telegrinder.bot.rules.inline import (
     HasLocation,
     InlineQueryChatType,
@@ -45,6 +46,7 @@ from telegrinder.bot.rules.is_from import (
     IsUser,
     IsUserId,
 )
+from telegrinder.bot.rules.logic import If
 from telegrinder.bot.rules.markup import Markup
 from telegrinder.bot.rules.mention import HasMention
 from telegrinder.bot.rules.message import MessageRule
@@ -134,4 +136,6 @@ __all__ = (
     "State",
     "StateMeta",
     "Text",
+    "IdRule",
+    "If",
 )

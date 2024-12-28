@@ -2,16 +2,12 @@ import datetime
 import typing
 
 from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import FuncHandler
-from telegrinder.bot.dispatch.middleware.abc import ABCGlobalMiddleware, ABCMiddleware
+from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.bot.dispatch.view.base import ABCView
 from telegrinder.bot.dispatch.waiter_machine.short_state import ShortStateContext
-from telegrinder.model import get_event_key
 from telegrinder.modules import logger
-from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
 
 from .hasher import Hasher
 
@@ -20,34 +16,7 @@ if typing.TYPE_CHECKING:
     from .short_state import ShortState
 
 
-class WaiterIsolationMiddleware(ABCGlobalMiddleware[UpdateCute]):
-    adapter = RawUpdateAdapter()
-
-    def __init__(self, machine: "WaiterMachine") -> None:
-        assert machine.dispatch is not None, "WaiterMachine must have a Dispatch."
-
-        self.machine = machine
-        self.isolated_hashers: dict[typing.Hashable, Hasher] = {}
-        self.views = machine.dispatch.get_views()
-
-    def add_isolated_hasher(self, key: typing.Hashable, hasher: Hasher) -> None:
-        self.isolated_hashers[key] = hasher
-
-    def remove_isolated_hasher(self, key: typing.Hashable) -> None:
-        self.isolated_hashers.pop(key, None)
-
-    async def get_view(self, event: UpdateCute) -> ABCView | None:
-        for view in self.views.values():
-            if await view.check(event):
-                return view
-
-        return None
-
-    async def pre(self, event: UpdateCute, ctx: Context) -> bool:
-        key = get_event_key(event.incoming_update)
-        if key not in self.isolated_hashers:
-            return True
-        return isinstance(await self.get_view(event), self.isolated_hashers[key].view_class)
+INITIATOR_CONTEXT_KEY = "initiator"
 
 
 class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
@@ -117,8 +86,9 @@ class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
         short_state: "ShortState[Event]",
         ctx: Context,
     ) -> None:
+        ctx.set("initiator", self.hasher)
         short_state.context = ShortStateContext(typing.cast(Event, event), ctx)
         short_state.event.set()
 
 
-__all__ = ("WaiterMiddleware", "WaiterIsolationMiddleware")
+__all__ = ("WaiterMiddleware",)

@@ -4,13 +4,13 @@ from functools import cached_property
 import typing_extensions as typing
 
 from telegrinder.api.api import API
+from telegrinder.bot.adapter.abc import ABCAdapter
+from telegrinder.bot.adapter.dataclass import DataclassAdapter
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import logger
 from telegrinder.node.base import Node, get_nodes
 from telegrinder.node.composer import NodeCollection, compose_nodes
-from telegrinder.tools.adapter.abc import ABCAdapter
-from telegrinder.tools.adapter.dataclass import DataclassAdapter
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.tools.magic import get_annotations, magic_bundle
 from telegrinder.types.enums import UpdateType
