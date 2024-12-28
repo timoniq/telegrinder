@@ -1,27 +1,70 @@
+import inspect
 import typing
+from contextlib import contextmanager
 
-from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.api import API
+from telegrinder.bot.adapter.abc import ABCAdapter
+from telegrinder.bot.adapter.raw_update import RawUpdateAdapter
+from telegrinder.bot.cute_types import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.rules.abc import ABCRule, check_rule
+from telegrinder.node import ScalarNode, compose_nodes
+from telegrinder.types import Update
 
 
 class GlobalMiddleware(ABCMiddleware):
+    adapter = RawUpdateAdapter()
+
     def __init__(self):
-        self._filters: list[ABCRule] = []
-
-    @property
-    def filters(self) -> typing.Generator[ABCRule, None, None]:
-        yield from self._filters
-
-    def add_filter(self, filter_rule: ABCRule) -> None:
-        self._filters.append(filter_rule)
+        self.filters: set[ABCRule] = set()
+        self.source_filters: dict[ABCAdapter | type[ScalarNode], dict[typing.Any, ABCRule]] = {}
 
     async def pre(self, event: UpdateCute, ctx: Context) -> bool:
         for filter in self.filters:
             if not await check_rule(event.api, filter, event, ctx):
                 return False
+
+        # Simple implication.... Grouped by source categories
+        for source, identifiers in self.source_filters.items():
+            if isinstance(source, ABCAdapter):
+                result = source.adapt(event.api, event, ctx)
+                if inspect.isawaitable(result):
+                    result = await result
+
+                result = result.unwrap_or_none()
+                if result is None:
+                    return True
+
+            else:
+                result = await compose_nodes({"value": source}, ctx, {Update: event, API: event.api})
+                if result := result.unwrap():
+                    result = result.values["value"]
+                else:
+                    return True
+
+            if result in identifiers:
+                return await check_rule(event.api, identifiers[result], event, ctx)
+
         return True
+
+    @contextmanager
+    def apply_filters(
+        self,
+        *filters: ABCRule,
+        source_filter: tuple[ABCAdapter | type[ScalarNode], typing.Any, ABCRule] | None = None,
+    ):
+        if source_filter is not None:
+            self.source_filters.setdefault(source_filter[0], {})
+            self.source_filters[source_filter[0]].update({source_filter[1]: source_filter[2]})
+
+        self.filters |= set(filters)
+        yield
+        self.filters.difference_update(filters)
+
+        if source_filter is not None:  # noqa: SIM102
+            if identifiers := self.source_filters.get(source_filter[0]):
+                identifiers.pop(source_filter[1], None)
 
 
 __all__ = ("GlobalMiddleware",)

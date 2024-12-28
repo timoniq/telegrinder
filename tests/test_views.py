@@ -38,8 +38,8 @@ class PreMiddleware(ABCMiddleware[MessageCute]):
 
 
 class PostMiddleware(ABCMiddleware[MessageCute]):
-    async def post(self, event: MessageCute, ctx: Context, responses: list[typing.Any]) -> None:
-        assert responses == [b"123data"]
+    async def post(self, event: MessageCute, ctx: Context) -> None:
+        assert ctx.responses == [b"123data"]
 
 
 @pytest.mark.asyncio()

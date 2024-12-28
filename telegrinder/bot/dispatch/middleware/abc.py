@@ -6,16 +6,16 @@ import typing_extensions as typing
 from fntypes import Some
 
 from telegrinder.api import API
+from telegrinder.bot.adapter.abc import run_adapter
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.model import Model
 from telegrinder.modules import logger
-from telegrinder.tools.adapter.abc import run_adapter
 from telegrinder.tools.lifespan import Lifespan
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
-    from telegrinder.tools.adapter.abc import ABCAdapter
+    from telegrinder.bot.adapter.abc import ABCAdapter
 
 ToEvent = typing.TypeVar("ToEvent", bound=Model, default=typing.Any)
 
@@ -60,7 +60,7 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
 
     async def pre(self, event: Event, ctx: Context) -> bool: ...
 
-    async def post(self, event: Event, ctx: Context, responses: list[typing.Any]) -> None: ...
+    async def post(self, event: Event, ctx: Context) -> None: ...
 
     @typing.overload
     def to_lifespan(self, event: Event, ctx: Context | None = None, *, api: API) -> Lifespan: ...
@@ -73,6 +73,7 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
         event: Event,
         ctx: Context | None = None,
         api: API | None = None,
+        **add_context: typing.Any,
     ) -> Lifespan:
         if api is None:
             if not isinstance(event, BaseCute):
@@ -80,10 +81,19 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
             api = event.api
 
         ctx = ctx or Context()
+        ctx |= add_context
+
         return Lifespan(
             startup_tasks=[run_middleware(self.pre, api, event, raw_event=None, ctx=ctx, adapter=None)],
             shutdown_tasks=[
-                run_middleware(self.post, api, event, raw_event=None, ctx=ctx, adapter=None, responses=[]),
+                run_middleware(
+                    self.post,
+                    api,
+                    event,
+                    raw_event=None,
+                    ctx=ctx,
+                    adapter=None,
+                )
             ],
         )
 

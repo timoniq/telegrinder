@@ -1,6 +1,5 @@
-from telegrinder import API, CallbackQuery, Message, Telegrinder, Token
+from telegrinder import API, CallbackQuery, InlineButton, InlineKeyboard, Message, Telegrinder, Token
 from telegrinder.rules import CallbackDataMap, Text
-from telegrinder.tools import InlineButton, InlineKeyboard
 
 bot = Telegrinder(API(Token.from_env()))
 kb = (

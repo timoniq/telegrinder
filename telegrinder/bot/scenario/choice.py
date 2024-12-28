@@ -2,7 +2,7 @@ import typing
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher
-from telegrinder.bot.scenario.checkbox import Checkbox, ChoiceCode
+from telegrinder.bot.scenario.checkbox import Checkbox, ChoiceAction
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
@@ -21,7 +21,7 @@ else:
     class Choice(Checkbox):
         async def handle(self, cb):
             code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
-            if code == ChoiceCode.READY:
+            if code == ChoiceAction.READY:
                 return False
 
             for choice in self.choices:

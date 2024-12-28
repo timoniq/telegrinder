@@ -3,6 +3,7 @@ import typing
 from fntypes.option import Nothing, Some
 
 from telegrinder.api.api import API
+from telegrinder.bot.adapter.abc import run_adapter
 from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware, run_middleware
@@ -10,7 +11,6 @@ from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.model import Model
 from telegrinder.modules import logger
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope, compose_nodes
-from telegrinder.tools.adapter.abc import run_adapter
 from telegrinder.tools.i18n.abc import I18nEnum
 from telegrinder.types.objects import Update
 
@@ -67,9 +67,16 @@ async def process_inner[Event: Model](
         ctx = ctx_copy
 
     logger.debug("Run post middlewares...")
+    ctx.set("responses", responses)
+
     for m in middlewares:
         await run_middleware(
-            m.post, api, event, raw_event=raw_event, ctx=ctx, adapter=m.adapter, responses=responses
+            m.post,
+            api,
+            event,
+            raw_event=raw_event,
+            ctx=ctx,
+            adapter=m.adapter,
         )
 
     for session in ctx.get(CONTEXT_STORE_NODES_KEY, {}).values():

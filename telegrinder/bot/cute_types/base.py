@@ -1,26 +1,15 @@
-import dataclasses
-import inspect
 import typing
-from collections import OrderedDict
-from functools import wraps
 
 import msgspec
 import typing_extensions
-from fntypes.result import Result
 
 from telegrinder.api.api import API
-from telegrinder.model import Model, get_params
-from telegrinder.tools.magic import get_func_parameters
+from telegrinder.model import Model
 
 F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
 Cute = typing.TypeVar("Cute", bound="BaseCute")
 Update = typing_extensions.TypeVar("Update", bound=Model)
 CtxAPI = typing_extensions.TypeVar("CtxAPI", bound=API, default=API)
-
-Executor: typing.TypeAlias = typing.Callable[
-    [Cute, str, dict[str, typing.Any]],
-    typing.Awaitable[Result[typing.Any, typing.Any]],
-]
 
 
 if typing.TYPE_CHECKING:
@@ -186,63 +175,4 @@ def compose_method_params(
     return params
 
 
-def shortcut(
-    method_name: str,
-    *,
-    executor: Executor[Cute] | None = None,
-    custom_params: set[str] | None = None,
-):
-    """Decorate a cute method as a shortcut."""
-
-    def wrapper(func: F) -> F:
-        @wraps(func)
-        async def inner(
-            self: Cute,
-            *args: typing.Any,
-            **kwargs: typing.Any,
-        ) -> typing.Any:
-            if executor is None:
-                return await func(self, *args, **kwargs)
-
-            params: dict[str, typing.Any] = OrderedDict()
-            func_params = get_func_parameters(func)
-
-            for index, (arg, default) in enumerate(func_params["args"]):
-                if len(args) > index:
-                    params[arg] = args[index]
-                elif default is not inspect.Parameter.empty:
-                    params[arg] = default
-
-            if var_args := func_params.get("var_args"):
-                params[var_args] = args[len(func_params["args"]) :]
-
-            for kwarg, default in func_params["kwargs"]:
-                params[kwarg] = (
-                    kwargs.pop(kwarg, default)
-                    if default is not inspect.Parameter.empty
-                    else kwargs.pop(kwarg)
-                )
-
-            if var_kwargs := func_params.get("var_kwargs"):
-                params[var_kwargs] = kwargs.copy()
-
-            return await executor(self, method_name, get_params(params))
-
-        inner.__shortcut__ = Shortcut(  # type: ignore
-            method_name=method_name,
-            executor=executor,
-            custom_params=custom_params or set(),
-        )
-        return inner  # type: ignore
-
-    return wrapper
-
-
-@dataclasses.dataclass(slots=True, frozen=True)
-class Shortcut(typing.Generic[Cute]):
-    method_name: str
-    executor: Executor[Cute] | None = dataclasses.field(default=None, kw_only=True)
-    custom_params: set[str] = dataclasses.field(default_factory=lambda: set(), kw_only=True)
-
-
-__all__ = ("BaseCute", "Shortcut", "compose_method_params", "shortcut")
+__all__ = ("BaseCute", "compose_method_params")

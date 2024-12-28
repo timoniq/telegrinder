@@ -46,6 +46,7 @@ from telegrinder.bot.rules.is_from import (
     IsUser,
     IsUserId,
 )
+from telegrinder.bot.rules.logic import If
 from telegrinder.bot.rules.markup import Markup
 from telegrinder.bot.rules.mention import HasMention
 from telegrinder.bot.rules.message import MessageRule
@@ -136,4 +137,5 @@ __all__ = (
     "StateMeta",
     "Text",
     "IdRule",
+    "If",
 )
