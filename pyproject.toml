@@ -70,11 +70,11 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 110
 target-version = "py312"
-lint.select = ["I", "N", "ANN", "COM", "YTT", "TCH", "SIM"]
+lint.select = ["I", "N", "ANN", "COM", "YTT", "SIM"]
 lint.ignore = [
-  "ANN001", "ANN002", "ANN003", "ANN101", "ANN102", "ANN201", "ANN202",
-  "ANN204", "ANN206", "ANN401", "COM812", "N805", "N818", "TCH001", "TCH002",
-  "TCH003", "TCH004"
+  "ANN003", "ANN101", "ANN102", "ANN201", "ANN202",
+  "ANN204", "ANN206", "ANN401", "COM812", "N805", "N818", "TC001", "TC002",
+  "TC003", "TC004"
 ]
 
 [tool.pytest.ini_options]
