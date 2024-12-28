@@ -88,3 +88,12 @@ class Lifespan:
             startup_tasks=self.startup_tasks + other.startup_tasks,
             shutdown_tasks=self.shutdown_tasks + other.shutdown_tasks,
         )
+
+
+__all__ = (
+    "run_tasks",
+    "to_coroutine_task",
+    "DelayedTask",
+    "Lifespan",
+    "CoroutineTask",
+)

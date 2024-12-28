@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import dataclasses
 import enum
 import inspect
@@ -26,6 +27,13 @@ type Executor[T] = typing.Callable[
 
 TRANSLATIONS_KEY: typing.Final[str] = "_translations"
 IMPL_MARK: typing.Final[str] = "_is_impl"
+
+
+@dataclasses.dataclass(slots=True, frozen=True)
+class Shortcut[T]:
+    method_name: str
+    executor: Executor[T] | None = dataclasses.field(default=None, kw_only=True)
+    custom_params: set[str] = dataclasses.field(default_factory=lambda: set(), kw_only=True)
 
 
 def cache_magic_value(mark_key: str, /):
@@ -243,15 +251,46 @@ def shortcut[T](
     return wrapper
 
 
-@dataclasses.dataclass(slots=True, frozen=True)
-class Shortcut[T]:
-    method_name: str
-    executor: Executor[T] | None = dataclasses.field(default=None, kw_only=True)
-    custom_params: set[str] = dataclasses.field(default_factory=lambda: set(), kw_only=True)
+# Source code: https://github.com/facebookincubator/later/blob/main/later/task.py#L75
+async def cancel_future(fut: asyncio.Future[typing.Any], /) -> None:
+    if fut.done():
+        return
+
+    fut.cancel()
+    exc: asyncio.CancelledError | None = None
+    while not fut.done():
+        shielded = asyncio.shield(fut)
+        try:
+            await asyncio.wait([shielded])
+        except asyncio.CancelledError as ex:
+            exc = ex
+        finally:
+            # Insure we handle the exception/value that may exist on the shielded task
+            # This will prevent errors logged to the asyncio logger
+            if (
+                shielded.done()
+                and not shielded.cancelled()
+                and not shielded.exception()
+            ):
+                shielded.result()
+
+    if fut.cancelled():
+        if exc is None:
+            return
+        raise exc from None
+
+    ex = fut.exception()
+    if ex is not None:
+        raise ex from None
+
+    raise asyncio.InvalidStateError(
+        f"Task did not raise CancelledError on cancel: {fut!r} had result {fut.result()!r}",
+    )
 
 
 __all__ = (
     "TRANSLATIONS_KEY",
+    "cancel_future",
     "cache_magic_value",
     "cache_translation",
     "get_annotations",

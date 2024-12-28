@@ -7,6 +7,7 @@ from contextlib import suppress
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.tools.magic import cancel_future
 
 if typing.TYPE_CHECKING:
     from .actions import WaiterActions
@@ -52,9 +53,7 @@ class ShortState[Event: BaseCute]:
             self.event._waiters,  # type: ignore
         )
         for future in waiters:
-            future.cancel()
-            with suppress(asyncio.CancelledError):
-                await future
+            await cancel_future(future)
 
 
 __all__ = ("ShortState", "ShortStateContext")

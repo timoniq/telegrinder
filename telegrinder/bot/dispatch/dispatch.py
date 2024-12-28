@@ -214,17 +214,19 @@ class Dispatch(
             raw_event=event,
             ctx=context,
             adapter=self.global_middleware.adapter,
-            responses=[],
         )
 
         return False
 
     def load(self, external: typing.Self) -> None:
-        view_external = external.get_views()
+        views_external = external.get_views()
+
         for name, view in self.get_views().items():
-            assert name in view_external, f"View {name!r} is undefined in external dispatch."
-            view.load(view_external[name])
+            assert name in views_external, f"View {name!r} is undefined in external dispatch."
+            view.load(views_external[name])
             setattr(external, name, view)
+
+        self.global_middleware.filters.difference_update(external.global_middleware.filters)
 
     def get_view(self, of_type: type[T]) -> Option[T]:
         for view in self.get_views().values():

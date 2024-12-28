@@ -79,7 +79,6 @@ class ABCMiddleware[Event: Model | BaseCute](ABC):
 
         ctx = ctx or Context()
         ctx |= add_context
-
         return Lifespan(
             startup_tasks=[run_middleware(self.pre, api, event, raw_event=None, ctx=ctx, adapter=None)],
             shutdown_tasks=[
