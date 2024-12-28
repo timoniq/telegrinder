@@ -32,7 +32,6 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.cute_types.base import BaseCute
     from telegrinder.bot.cute_types.update import UpdateCute
-    from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
     from telegrinder.bot.rules.abc import ABCRule
 
 T = typing.TypeVar("T", default=typing.Any)
@@ -216,7 +215,6 @@ class Dispatch(
             raw_event=event,
             ctx=context,
             adapter=self.global_middleware.adapter,
-            responses=[],
         )
 
         return False

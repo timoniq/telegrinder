@@ -6,7 +6,7 @@ from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.view.base import BaseStateView, BaseView
-from telegrinder.bot.dispatch.waiter_machine.middleware import WaiterMiddleware, INITIATOR_CONTEXT_KEY
+from telegrinder.bot.dispatch.waiter_machine.middleware import INITIATOR_CONTEXT_KEY, WaiterMiddleware
 from telegrinder.bot.dispatch.waiter_machine.short_state import (
     ShortState,
     ShortStateContext,
@@ -152,7 +152,7 @@ class WaiterMachine:
 
         assert short_state.context is not None
         return short_state.context
-    
+
     # TODO: покрыть типами
     async def wait_many[Event: BaseCute, T](
         self,
@@ -165,7 +165,7 @@ class WaiterMachine:
     ) -> tuple[Hasher, Event, Context]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
-        
+
         event = asyncio.Event()
 
         short_state = ShortState(
@@ -175,9 +175,11 @@ class WaiterMachine:
             filter=filter,
             lifetime=lifetime or self.base_state_lifetime,
         )
-        
+
+        waiter_hashes = []
+
         for hasher, data in hashers:
-            waiter_hash = hasher.get_hash_from_data(data)
+            waiter_hash = hasher.get_hash_from_data(data).expect(RuntimeError("Hasher couldn't create hash."))
 
             if hasher not in self.storage:
                 if self.dispatch:
@@ -189,24 +191,23 @@ class WaiterMachine:
 
                 if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
                     await deleted_short_state.cancel()
-        
+
+            waiter_hashes.append(waiter_hash)
+
         async with lifespan:
             await event.wait()
 
-        # FIXME: убрать ассерты из всего кода
-        # проблема в контексте. ассерты удаляются из аст с -O
+        # FIXME: убрать ассерты из всего кода wm
         assert short_state.context is not None
 
         initiator = short_state.context.context.get(INITIATOR_CONTEXT_KEY)
 
-        assert initiator in [hasher[0] for hasher in hashers]
-        
-        for hasher, data in hashers:
-            if hasher != initiator:
-                await self.drop(hasher, data)
-        
-        return initiator, short_state.context.event, short_state.context.context
+        assert isinstance(initiator, Hasher)
 
+        for waiter_hash in waiter_hashes:
+            self.storage[hasher].pop(waiter_hash, None)
+
+        return initiator, short_state.context.event, short_state.context.context
 
     async def clear_storage(self) -> None:
         """Clears storage."""
