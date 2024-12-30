@@ -59,7 +59,7 @@ requests = "^2.28.1"
 sort-all = "^1.2.0"
 libcst = "^1.4.0"
 pytest = "^8.0.0"
-pytest-asyncio = ">=0.23.5,<0.25.0"
+pytest-asyncio = ">=0.23.5,<0.26.0"
 pytest-cov = ">=5,<7"
 pytest-mock = "^3.10.0"
 
