@@ -27,6 +27,19 @@ type HasherWithData[Event: BaseCute, Data] = tuple[Hasher[Event, Data], Data]
 WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
 
 
+class ContextUnpackProto[Ts: tuple[typing.Any, ...]](typing.Protocol):
+    def __call__(self, context: Context) -> Ts:
+        ...
+
+
+def unpack_to_context(context: Context) -> tuple[Context]:
+    return (context,)
+
+
+def no_unpack(_: Context) -> tuple[()]:
+    return ()
+
+
 class WaiterMachine:
     def __init__(
         self,
@@ -155,15 +168,16 @@ class WaiterMachine:
             raise LookupError("No context in short_state.")
         return short_state.context
 
-    async def wait_many[RestEvent: BaseCute, Data](
+    async def wait_many[RestEvent: BaseCute, Data, Ts: tuple[typing.Any, ...]](
         self,
         *hashers: HasherWithData[RestEvent, Data],
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
         lifespan: Lifespan = Lifespan(),
+        unpack: ContextUnpackProto[Ts] = unpack_to_context,
         **actions: typing.Unpack[WaiterActions[BaseCute]],
-    ) -> tuple[HasherWithData[RestEvent, Data], RestEvent, Context]:
+    ) -> tuple[HasherWithData[RestEvent, Data], RestEvent, typing.Unpack[Ts]]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
 
@@ -209,7 +223,7 @@ class WaiterMachine:
         return (
             initiator,
             short_state.context.event,  # type: ignore
-            short_state.context.context,
+            *unpack(short_state.context.context),
         )
 
     async def clear_storage(self) -> None:
