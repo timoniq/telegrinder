@@ -59,8 +59,8 @@ class APIMethods:
         except chat_member, message_reaction, and message_reaction_count \
         (default). If not specified, the previous setting will be used. Please \
         note that this parameter doesn't affect updates created before the call \
-        to the getUpdates, so unwanted updates may be received for a short period \
-        of time.
+        to getUpdates, so unwanted updates may be received for a short period of \
+        time.
         """
 
         method_response = await self.api.request_raw(
