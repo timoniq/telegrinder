@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API methods version 8.1, released `December 4, 2024`."""
+    """Telegram Bot API methods version 8.2, released `January 1, 2025`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -86,9 +86,10 @@ class APIMethods:
         Use this method to specify a URL and receive incoming updates via an outgoing
         webhook. Whenever there is an update for the bot, we will send an HTTPS POST
         request to the specified URL, containing a JSON-serialized Update. In
-        case of an unsuccessful request, we will give up after a reasonable amount
-        of attempts. Returns True on success. If you'd like to make sure that the
-        webhook was set by you, you can specify secret data in the parameter secret_token.
+        case of an unsuccessful request (a request with response HTTP status code
+        different from 2XY), we will repeat the request and give up after a reasonable
+        amount of attempts. Returns True on success. If you'd like to make sure that
+        the webhook was set by you, you can specify secret data in the parameter secret_token.
         If specified, the request will contain a header "X-Telegram-Bot-Api-Secret-Token"
         with the secret token as content.
 
@@ -4231,7 +4232,7 @@ class APIMethods:
         :param thumbnail: A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size \
         and have a width and height of exactly 100px, or a .TGS animation with a thumbnail \
         up to 32 kilobytes in size (see https://core.telegram.org/stickers#animation-requirements \
-        for animated sticker technical requirements), or a WEBM video with the \
+        for animated sticker technical requirements), or a .WEBM video with the \
         thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-requirements \
         for video sticker technical requirements. Pass a file_id as a String to \
         send a file that already exists on the Telegram servers, pass an HTTP URL \
@@ -4242,7 +4243,7 @@ class APIMethods:
         the thumbnail.
 
         :param format: Format of the thumbnail, must be one of `static` for a .WEBP or .PNG image, \
-        `animated` for a .TGS animation, or `video` for a WEBM video.
+        `animated` for a .TGS animation, or `video` for a .WEBM video.
         """
 
         method_response = await self.api.request_raw(
@@ -4313,6 +4314,7 @@ class APIMethods:
         *,
         user_id: int,
         gift_id: str,
+        pay_for_upgrade: bool | None = None,
         text: str | None = None,
         text_parse_mode: str | None = None,
         text_entities: list[MessageEntity] | None = None,
@@ -4326,6 +4328,9 @@ class APIMethods:
         :param user_id: Unique identifier of the target user that will receive the gift.
 
         :param gift_id: Identifier of the gift.
+
+        :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby making \
+        the upgrade free for the receiver.
 
         :param text: Text that will be shown along with the gift; 0-255 characters.
 
@@ -4341,6 +4346,96 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "sendGift",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def verify_user(
+        self,
+        *,
+        user_id: int,
+        custom_description: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `verifyUser`, see the [documentation](https://core.telegram.org/bots/api#verifyuser)
+
+        Verifies a user on behalf of the organization which is represented by the
+        bot. Returns True on success.
+
+        :param user_id: Unique identifier of the target user.
+
+        :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
+        if the organization isn't allowed to provide a custom verification description. \
+        """
+
+        method_response = await self.api.request_raw(
+            "verifyUser",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def verify_chat(
+        self,
+        *,
+        chat_id: int | str,
+        custom_description: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `verifyChat`, see the [documentation](https://core.telegram.org/bots/api#verifychat)
+
+        Verifies a chat on behalf of the organization which is represented by the
+        bot. Returns True on success.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+
+        :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
+        if the organization isn't allowed to provide a custom verification description. \
+        """
+
+        method_response = await self.api.request_raw(
+            "verifyChat",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def remove_user_verification(
+        self,
+        *,
+        user_id: int,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `removeUserVerification`, see the [documentation](https://core.telegram.org/bots/api#removeuserverification)
+
+        Removes verification from a user who is currently verified on behalf of
+        the organization represented by the bot. Returns True on success.
+
+        :param user_id: Unique identifier of the target user.
+        """
+
+        method_response = await self.api.request_raw(
+            "removeUserVerification",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def remove_chat_verification(
+        self,
+        *,
+        chat_id: int | str,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `removeChatVerification`, see the [documentation](https://core.telegram.org/bots/api#removechatverification)
+
+        Removes verification from a chat that is currently verified on behalf of
+        the organization represented by the bot. Returns True on success.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+        """
+
+        method_response = await self.api.request_raw(
+            "removeChatVerification",
             get_params(locals()),
         )
         return full_result(method_response, bool)

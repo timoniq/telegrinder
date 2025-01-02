@@ -2090,7 +2090,7 @@ class BackgroundTypeWallpaper(BackgroundType):
 class BackgroundTypePattern(BackgroundType):
     """Object `BackgroundTypePattern`, see the [documentation](https://core.telegram.org/bots/api#backgroundtypepattern).
 
-    The background is a PNG or TGV (gzipped subset of SVG with MIME type "application/x-tgwallpattern") pattern to be combined with the background fill chosen by the user.
+    The background is a .PNG or .TGV (gzipped subset of SVG with MIME type "application/x-tgwallpattern") pattern to be combined with the background fill chosen by the user.
     """
 
     document: Document = field()
@@ -4480,7 +4480,7 @@ class InputSticker(Model):
 
     format: str = field()
     """Format of the added sticker, must be one of `static` for a .WEBP or .PNG image,
-    `animated` for a .TGS animation, `video` for a WEBM video."""
+    `animated` for a .TGS animation, `video` for a .WEBM video."""
 
     emoji_list: list[str] = field()
     """List of 1-20 emoji associated with the sticker."""
@@ -4508,6 +4508,10 @@ class Gift(Model):
 
     star_count: int = field()
     """The number of Telegram Stars that must be paid to send the sticker."""
+
+    upgrade_star_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    """Optional. The number of Telegram Stars that must be paid to upgrade the gift
+    to a unique one."""
 
     total_count: Option[int] = field(default=Nothing, converter=From[int | None])
     """Optional. The total number of the gifts of this type that can be sent; for
@@ -4626,9 +4630,6 @@ class InlineQueryResultArticle(InlineQueryResult):
     url: Option[str] = field(default=Nothing, converter=From[str | None])
     """Optional. URL of the result."""
 
-    hide_url: Option[bool] = field(default=Nothing, converter=From[bool | None])
-    """Optional. Pass True if you don't want the URL to be shown in the message."""
-
     description: Option[str] = field(default=Nothing, converter=From[str | None])
     """Optional. Short description of the result."""
 
@@ -4721,7 +4722,7 @@ class InlineQueryResultGif(InlineQueryResult):
     """
 
     gif_url: str = field()
-    """A valid URL for the GIF file. File size must not exceed 1MB."""
+    """A valid URL for the GIF file."""
 
     thumbnail_url: str = field()
     """URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result."""
@@ -4798,7 +4799,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """
 
     mpeg4_url: str = field()
-    """A valid URL for the MPEG4 file. File size must not exceed 1MB."""
+    """A valid URL for the MPEG4 file."""
 
     thumbnail_url: str = field()
     """URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result."""
