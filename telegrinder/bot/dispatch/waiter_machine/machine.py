@@ -168,7 +168,7 @@ class WaiterMachine:
             raise LookupError("No context in short_state.")
         return short_state.context
 
-    async def wait_many[RestEvent: BaseCute, Data, Ts: tuple[typing.Any, ...]](
+    async def wait_many[RestEvent: BaseCute[typing.Any], Data, Ts: tuple[typing.Any, ...]](
         self,
         *hashers: HasherWithData[RestEvent, Data],
         filter: ABCRule | None = None,
@@ -176,7 +176,7 @@ class WaiterMachine:
         lifetime: datetime.timedelta | float | None = None,
         lifespan: Lifespan = Lifespan(),
         unpack: ContextUnpackProto[Ts] = unpack_to_context,
-        **actions: typing.Unpack[WaiterActions[BaseCute]],
+        **actions: typing.Unpack[WaiterActions[BaseCute[typing.Any]]],
     ) -> tuple[HasherWithData[RestEvent, Data], RestEvent, typing.Unpack[Ts]]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
@@ -189,7 +189,7 @@ class WaiterMachine:
             filter=filter,
             lifetime=lifetime or self.base_state_lifetime,
         )
-        waiter_hashes = []
+        waiter_hashes: dict[Hasher[RestEvent, Data], typing.Hashable] = {}
 
         for hasher, data in hashers:
             waiter_hash = hasher.get_hash_from_data(data).expect(RuntimeError("Hasher couldn't create hash."))
@@ -205,7 +205,7 @@ class WaiterMachine:
             if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
                 await deleted_short_state.cancel()
 
-            waiter_hashes.append(waiter_hash)
+            waiter_hashes[hasher] = waiter_hash
 
         async with lifespan:
             await event.wait()
@@ -217,7 +217,7 @@ class WaiterMachine:
         if initiator is None:
             raise LookupError("Initiator not found in short_state context.")
 
-        for waiter_hash in waiter_hashes:
+        for hasher, waiter_hash in waiter_hashes.items():
             self.storage[hasher].pop(waiter_hash, None)
 
         return (
