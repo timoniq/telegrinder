@@ -149,12 +149,10 @@ class ShortcutsCollector(cst.CSTVisitor):
 
     def visit_ClassDef_body(self, node: cst.ClassDef) -> bool | None:
         """Visit the definition of a class that inherits the `BaseCute` class and the name ends with `Cute`."""
-
         return is_cute_class(node)
 
     def visit_FunctionDef_asynchronous(self, node: cst.FunctionDef) -> bool | None:
         """Visit the definition of an async function that are decorated with the `shortcut` decorator."""
-
         found = False
         for decorator in node.decorators:
             if (
@@ -196,7 +194,6 @@ class APIMethodsCollector(cst.CSTVisitor):
 
     def visit_ClassDef_body(self, node: cst.ClassDef) -> bool | None:
         """Visit the definition of a class that the name == `self.api_class_methods_name` and find definitions of an async function."""
-
         if node.name.value != self.api_class_methods_name:
             return False
 

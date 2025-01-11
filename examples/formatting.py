@@ -18,7 +18,9 @@ async def formatting(m: Message):
     await m.answer(
         "python library 'telegrinder' - "
         + HTMLFormatter("{:bold} for effective and reliable telegram {:bold+italic} {:underline}!").format(
-            "Framework", "bot", "building"
+            "Framework",
+            "bot",
+            "building",
         ),
     )
     await m.answer(

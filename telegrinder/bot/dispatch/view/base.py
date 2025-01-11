@@ -71,7 +71,7 @@ class BaseView[Event: BaseCute](ABCView):
         cls,
         *rules: ABCRule,
         dataclass: type[Dataclass],
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[
         [Func[P, R]],
         FuncHandler[Dataclass, Func[P, R], ErrorHandler[Dataclass]],
@@ -83,7 +83,7 @@ class BaseView[Event: BaseCute](ABCView):
         cls,
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler[Event, Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
@@ -93,7 +93,7 @@ class BaseView[Event: BaseCute](ABCView):
         *rules: ABCRule,
         dataclass: type[Dataclass],
         error_handler: ErrorHandlerT,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler[Dataclass, Func[P, R], ErrorHandlerT]]: ...
 
     @classmethod
@@ -102,13 +102,13 @@ class BaseView[Event: BaseCute](ABCView):
         *rules: ABCRule,
         dataclass: type[typing.Any] | None = None,
         error_handler: ABCErrorHandler | None = None,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[..., typing.Any]:
         def wrapper(func):
             return FuncHandler(
                 func,
                 list(rules),
-                is_blocking=is_blocking,
+                final=final,
                 dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),
             )
@@ -119,7 +119,7 @@ class BaseView[Event: BaseCute](ABCView):
     def __call__[**P, R](
         self,
         *rules: ABCRule,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[
         [Func[P, R]],
         FuncHandler[Event, Func[P, R], ErrorHandler[Event]],
@@ -130,7 +130,7 @@ class BaseView[Event: BaseCute](ABCView):
         self,
         *rules: ABCRule,
         dataclass: type[Dataclass],
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[
         [Func[P, R]],
         FuncHandler[Dataclass, Func[P, R], ErrorHandler[Dataclass]],
@@ -141,7 +141,7 @@ class BaseView[Event: BaseCute](ABCView):
         self,
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler[Event, Func[P, R], ErrorHandlerT]]: ...
 
     def __call__[**P, R](
@@ -149,13 +149,13 @@ class BaseView[Event: BaseCute](ABCView):
         *rules: ABCRule,
         dataclass: type[typing.Any] | None = None,
         error_handler: ABCErrorHandler | None = None,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[..., typing.Any]:
-        def wrapper(func):
+        def wrapper(func: typing.Callable[..., typing.Any]):
             func_handler = FuncHandler(
                 func,
                 [*self.auto_rules, *rules],
-                is_blocking=is_blocking,
+                final=final,
                 dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),
             )

@@ -4,6 +4,7 @@ import keyword
 import os
 import pathlib
 import re
+import sys
 import typing
 from abc import ABC, abstractmethod
 
@@ -289,9 +290,7 @@ class ObjectGenerator(ABCGenerator):
                 literal_type_hint = literal_type_hint.replace("]", ",]")
 
             field_type = (
-                f"list[{literal_type_hint}]"
-                if any("Array of" in x for x in field.types)
-                else literal_type_hint
+                f"list[{literal_type_hint}]" if any("Array of" in x for x in field.types) else literal_type_hint
             )
             field_value = (
                 "field(default={})".format(field.default)
@@ -353,8 +352,7 @@ class ObjectGenerator(ABCGenerator):
             description = field.description.replace('"', "`")
             sep = "\n" + TAB
             code += (
-                f'{sep}"""{chunks_str(description, sep=sep)}'
-                f'{"." if not description.endswith(".") else ""}"""\n'
+                f'{sep}"""{chunks_str(description, sep=sep)}{"." if not description.endswith(".") else ""}"""\n'
             )
 
         return code
@@ -382,11 +380,7 @@ class ObjectGenerator(ABCGenerator):
         ) + f" `{object_name}`, see the [documentation]({object_schema.href})."
         code += '"""%s\n\n%s\n"""' % (
             description,
-            (
-                "No description yet."
-                if not object_schema.description
-                else "\n".join(object_schema.description)
-            ),
+            ("No description yet." if not object_schema.description else "\n".join(object_schema.description)),
         )
 
         code += f"\n"
@@ -439,7 +433,7 @@ class ObjectGenerator(ABCGenerator):
     def generate(self, path: str) -> None:
         if not self.objects:
             logger.error("Objects is empty.")
-            exit(-1)
+            sys.exit(-1)
 
         logger.debug("Generate objects...")
         lines = [
@@ -599,7 +593,9 @@ class MethodGenerator(ABCGenerator):
             code = f"{TAB * 2}{param_name}: "
 
             if not p.required or default_param_value:
-                code += f"{self.make_type_hint(p.types)} {'| None ' if not p.required else ''}= {default_param_value}"
+                code += (
+                    f"{self.make_type_hint(p.types)} {'| None ' if not p.required else ''}= {default_param_value}"
+                )
             else:
                 code += self.make_type_hint(p.types)
 
@@ -628,7 +624,7 @@ class MethodGenerator(ABCGenerator):
     def generate(self, path: str) -> None:
         if not self.methods:
             logger.error("Methods is empty.")
-            exit(-1)
+            sys.exit(-1)
 
         logger.debug("Generate methods...")
         docstring = (
@@ -644,7 +640,7 @@ class MethodGenerator(ABCGenerator):
         default_params_typeddict = 'typing.TypedDict("DefaultParams", {})'.format(
             "{%s}"
             % ", ".join(
-                f""""{x['name']}": {convert_to_python_type(x['type'], parent_types=self.parent_types)}"""
+                f""""{x["name"]}": {convert_to_python_type(x["type"], parent_types=self.parent_types)}"""
                 for x in self.config_default_api_params
             )
         )
@@ -706,9 +702,7 @@ def generate(
         )
         method_generator = method_generator or MethodGenerator(
             methods=schema.methods,
-            parent_types=(
-                object_generator.parent_types if isinstance(object_generator, ObjectGenerator) else {}
-            ),
+            parent_types=(object_generator.parent_types if isinstance(object_generator, ObjectGenerator) else {}),
             config_literal_types=cfg_literal_types.methods,
             config_default_api_params=read_config_default_api_params(path_config_default_api_params)[
                 "default_params"

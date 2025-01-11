@@ -2,7 +2,6 @@ import asyncio
 import dataclasses
 import datetime
 import typing
-from contextlib import suppress
 
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
@@ -47,7 +46,6 @@ class ShortState[Event: BaseCute]:
 
     async def cancel(self) -> None:
         """Cancel schedule waiters."""
-
         waiters = typing.cast(
             typing.Iterable[asyncio.Future[typing.Any]],
             self.event._waiters,  # type: ignore

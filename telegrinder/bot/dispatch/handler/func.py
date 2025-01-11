@@ -34,7 +34,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
     function: Function
     rules: list["ABCRule"]
     adapter: ABCAdapter[Update, Event] | None = dataclasses.field(default=None, kw_only=True)
-    is_blocking: bool = dataclasses.field(default=True, kw_only=True)
+    final: bool = dataclasses.field(default=True, kw_only=True)
     dataclass: type[typing.Any] | None = dataclasses.field(default=dict[str, typing.Any], kw_only=True)
     error_handler: ErrorHandlerT = dataclasses.field(
         default_factory=lambda: typing.cast(ErrorHandlerT, ErrorHandler()),
@@ -56,7 +56,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
     def __repr__(self) -> str:
         return "<{}: {}={!r} with rules={!r}, dataclass={!r}, error_handler={!r}>".format(
             self.__class__.__name__,
-            "blocking function" if self.is_blocking else "function",
+            "final function" if self.final else "function",
             self.function.__qualname__,
             self.rules,
             self.dataclass,

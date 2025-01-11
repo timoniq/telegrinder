@@ -2,14 +2,24 @@ import pathlib
 import random
 import typing
 
-from telegrinder import API, Context, Message, Telegrinder, Token
+from telegrinder import (
+    API,
+    CALLBACK_QUERY_FOR_MESSAGE,
+    Context,
+    InlineButton,
+    InlineKeyboard,
+    Message,
+    Telegrinder,
+    Token,
+)
 from telegrinder.bot import MESSAGE_FROM_USER_IN_CHAT, WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
 from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.modules import logger
-from telegrinder.node import Me
-from telegrinder.rules import FuzzyText, HasText, Markup, Text
+from telegrinder.node import Me, UserId
+from telegrinder.rules import CallbackDataEq, FuzzyText, HasText, IsUpdateType, Markup, Text
+from telegrinder.types import UpdateType
 from telegrinder.types.objects import InputFile
 
 api = API(token=Token.from_env())
@@ -29,7 +39,7 @@ class DummyMiddleware(ABCMiddleware[Message]):
         return None
 
 
-@bot.on.message(is_blocking=False)
+@bot.on.message(final=False)
 async def handle_message() -> typing.Literal["Hello, World!"]:
     return "Hello, World!"
 
@@ -97,20 +107,12 @@ async def hello(message: Message):
     await message.reply("Hi!")
 
 
-from telegrinder import CALLBACK_QUERY_FOR_MESSAGE, InlineButton, InlineKeyboard
-from telegrinder.node import UserId
-from telegrinder.rules import CallbackDataEq, IsUpdateType
-from telegrinder.types import UpdateType
-
-
 @bot.on.message(FuzzyText("freeze"))
 async def freeze_handler(message: Message):
     msg = (
         await message.answer(
             "well ok freezing",
-            reply_markup=InlineKeyboard()
-            .add(InlineButton("Unfreeze", callback_data="unfreeze"))
-            .get_markup(),
+            reply_markup=InlineKeyboard().add(InlineButton("Unfreeze", callback_data="unfreeze")).get_markup(),
         )
     ).unwrap()
 

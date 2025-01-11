@@ -216,7 +216,6 @@ class Decoder:
     @contextmanager
     def __call__(self, type=object, *, strict=True):
         """Context manager returns an `msgspec.json.Decoder` object with the `dec_hook`."""
-
         dec_obj = msgspec.json.Decoder(
             type=typing.Any if type is object else type,
             strict=strict,
@@ -331,7 +330,6 @@ class Encoder:
         order: typing.Literal[None, "deterministic", "sorted"] = None,
     ) -> typing.Generator[msgspec.json.Encoder, typing.Any, None]:
         """Context manager returns an `msgspec.json.Encoder` object with the `enc_hook`."""
-
         enc_obj = msgspec.json.Encoder(enc_hook=self.enc_hook)
         yield enc_obj
 

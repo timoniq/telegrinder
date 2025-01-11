@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import typing
 
 import aiohttp
@@ -59,9 +60,7 @@ class Polling(ABCPolling):
             return allowed_updates
 
         if include_updates and exclude_updates:
-            allowed_updates = [
-                x for x in allowed_updates if x in include_updates and x not in exclude_updates
-            ]
+            allowed_updates = [x for x in allowed_updates if x in include_updates and x not in exclude_updates]
         elif exclude_updates:
             allowed_updates = [x for x in allowed_updates if x not in exclude_updates]
         elif include_updates:
@@ -101,7 +100,7 @@ class Polling(ABCPolling):
             except InvalidTokenError as e:
                 logger.error(e)
                 self.stop()
-                exit(3)
+                sys.exit(3)
             except asyncio.CancelledError:
                 logger.info("Caught cancel, polling stopping...")
                 self.stop()
@@ -112,7 +111,7 @@ class Polling(ABCPolling):
                         self.max_reconnetions,
                     )
                     self.stop()
-                    exit(6)
+                    sys.exit(6)
                 else:
                     logger.warning(
                         "Server disconnected, waiting 5 seconds to reconnect...",

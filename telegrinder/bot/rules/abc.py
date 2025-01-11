@@ -67,7 +67,6 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         adapter: ABCAdapter[UpdateObject, AdaptTo] | None = None,
     ) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
-
         if adapter is not None:
             cls.adapter = adapter
 
@@ -87,7 +86,6 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         rule #> AndRule(HasText(), HasCaption()) -> True if all rules in an AndRule are True, otherwise False.
         ```
         """
-
         return AndRule(self, other)
 
     def __or__(self, other: "ABCRule") -> "OrRule":
@@ -98,7 +96,6 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         rule #> OrRule(HasText(), HasCaption()) -> True if any rule in an OrRule are True, otherwise False.
         ```
         """
-
         return OrRule(self, other)
 
     def __invert__(self) -> "NotRule":
@@ -109,7 +106,6 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         rule # NotRule(HasText()) -> True if rule returned False, otherwise False.
         ```
         """
-
         return NotRule(self)
 
     def __repr__(self) -> str:

@@ -52,8 +52,7 @@ class _EventNode(FactoryNode):
 
 
 if typing.TYPE_CHECKING:
-    EventNode: typing.TypeAlias = typing.Annotated["Dataclass", ...]
-
+    type EventNode[Dataclass: DataclassType] = Dataclass
 else:
     EventNode = _EventNode
 

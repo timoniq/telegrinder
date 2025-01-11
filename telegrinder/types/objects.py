@@ -323,23 +323,17 @@ class Update(Model):
     """Optional. A user changed their answer in a non-anonymous poll. Bots receive
     new votes only in polls that were sent by the bot itself."""
 
-    my_chat_member: Option[ChatMemberUpdated] = field(
-        default=Nothing, converter=From["ChatMemberUpdated | None"]
-    )
+    my_chat_member: Option[ChatMemberUpdated] = field(default=Nothing, converter=From["ChatMemberUpdated | None"])
     """Optional. The bot's chat member status was updated in a chat. For private
     chats, this update is received only when the bot is blocked or unblocked
     by the user."""
 
-    chat_member: Option[ChatMemberUpdated] = field(
-        default=Nothing, converter=From["ChatMemberUpdated | None"]
-    )
+    chat_member: Option[ChatMemberUpdated] = field(default=Nothing, converter=From["ChatMemberUpdated | None"])
     """Optional. A chat member's status was updated in a chat. The bot must be an
     administrator in the chat and must explicitly specify `chat_member` in
     the list of allowed_updates to receive these updates."""
 
-    chat_join_request: Option[ChatJoinRequest] = field(
-        default=Nothing, converter=From["ChatJoinRequest | None"]
-    )
+    chat_join_request: Option[ChatJoinRequest] = field(default=Nothing, converter=From["ChatJoinRequest | None"])
     """Optional. A request to join the chat has been sent. The bot must have the can_invite_users
     administrator right in the chat to receive these updates."""
 
@@ -359,7 +353,6 @@ class Update(Model):
     @cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
-
         return UpdateType(
             next(
                 (
@@ -373,7 +366,6 @@ class Update(Model):
     @cached_property
     def incoming_update(self) -> Model:
         """Incoming update."""
-
         return getattr(self, self.update_type.value).unwrap()
 
 
@@ -403,9 +395,7 @@ class WebhookInfo(Model):
     """Optional. Error message in human-readable format for the most recent error
     that happened when trying to deliver an update via webhook."""
 
-    last_synchronization_error_date: Option[datetime] = field(
-        default=Nothing, converter=From[datetime | None]
-    )
+    last_synchronization_error_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
     """Optional. Unix time of the most recent error that happened when trying to
     synchronize available updates with Telegram datacenters."""
 
@@ -474,13 +464,11 @@ class User(Model):
     @property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
-
         return DefaultAccentColor(self.id % 7)
 
     @property
     def full_name(self) -> str:
         """User's or bot's full name (`first_name` + `last_name`)."""
-
         return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
 
 
@@ -520,8 +508,8 @@ class Chat(Model):
     @property
     def full_name(self) -> Option[str]:
         """Optional. Full name (`first_name` + `last_name`) of the
-        other party in a `private` chat."""
-
+        other party in a `private` chat.
+        """
         return self.first_name.map(lambda x: x + " " + self.last_name.unwrap_or(""))
 
 
@@ -575,9 +563,7 @@ class ChatFullInfo(Model):
     business_intro: Option[BusinessIntro] = field(default=Nothing, converter=From["BusinessIntro | None"])
     """Optional. For private chats with business accounts, the intro of the business."""
 
-    business_location: Option[BusinessLocation] = field(
-        default=Nothing, converter=From["BusinessLocation | None"]
-    )
+    business_location: Option[BusinessLocation] = field(default=Nothing, converter=From["BusinessLocation | None"])
     """Optional. For private chats with business accounts, the location of the
     business."""
 
@@ -590,11 +576,11 @@ class ChatFullInfo(Model):
     personal_chat: Option[Chat] = field(default=Nothing, converter=From["Chat | None"])
     """Optional. For private chats, the personal channel of the user."""
 
-    available_reactions: Option[
-        list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]
-    ] = field(
-        default=Nothing,
-        converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"],
+    available_reactions: Option[list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]] = (
+        field(
+            default=Nothing,
+            converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"],
+        )
     )
     """Optional. List of available reactions allowed in the chat. If omitted,
     then all emoji reactions are allowed."""
@@ -626,9 +612,7 @@ class ChatFullInfo(Model):
     """Optional. True, if privacy settings of the other party in the private chat
     allows to use tg://user?id=<user_id> links only in chats with the user."""
 
-    has_restricted_voice_and_video_messages: Option[bool] = field(
-        default=Nothing, converter=From[bool | None]
-    )
+    has_restricted_voice_and_video_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
     """Optional. True, if the privacy settings of the other party restrict sending
     voice and video note messages in the private chat."""
 
@@ -779,9 +763,7 @@ class Message(MaybeInaccessibleMessage):
     message. Note that the Message object in this field will not contain further
     reply_to_message fields even if it itself is a reply."""
 
-    external_reply: Option[ExternalReplyInfo] = field(
-        default=Nothing, converter=From["ExternalReplyInfo | None"]
-    )
+    external_reply: Option[ExternalReplyInfo] = field(default=Nothing, converter=From["ExternalReplyInfo | None"])
     """Optional. Information about the message that is being replied to, which
     may come from another chat or forum topic."""
 
@@ -816,9 +798,7 @@ class Message(MaybeInaccessibleMessage):
     text: Option[str] = field(default=Nothing, converter=From[str | None])
     """Optional. For text messages, the actual UTF-8 text of the message."""
 
-    entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
-    )
+    entities: Option[list[MessageEntity]] = field(default=Nothing, converter=From["list[MessageEntity] | None"])
     """Optional. For text messages, special entities like usernames, URLs, bot
     commands, etc. that appear in the text."""
 
@@ -968,9 +948,7 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Message is a service message about a successful payment, information
     about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
 
-    refunded_payment: Option[RefundedPayment] = field(
-        default=Nothing, converter=From["RefundedPayment | None"]
-    )
+    refunded_payment: Option[RefundedPayment] = field(default=Nothing, converter=From["RefundedPayment | None"])
     """Optional. Message is a service message about a refunded payment, information
     about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
 
@@ -1003,9 +981,7 @@ class Message(MaybeInaccessibleMessage):
     boost_added: Option[ChatBoostAdded] = field(default=Nothing, converter=From["ChatBoostAdded | None"])
     """Optional. Service message: user boosted the chat."""
 
-    chat_background_set: Option[ChatBackground] = field(
-        default=Nothing, converter=From["ChatBackground | None"]
-    )
+    chat_background_set: Option[ChatBackground] = field(default=Nothing, converter=From["ChatBackground | None"])
     """Optional. Service message: chat background set."""
 
     forum_topic_created: Option[ForumTopicCreated] = field(
@@ -1038,17 +1014,13 @@ class Message(MaybeInaccessibleMessage):
     )
     """Optional. Service message: the 'General' forum topic unhidden."""
 
-    giveaway_created: Option[GiveawayCreated] = field(
-        default=Nothing, converter=From["GiveawayCreated | None"]
-    )
+    giveaway_created: Option[GiveawayCreated] = field(default=Nothing, converter=From["GiveawayCreated | None"])
     """Optional. Service message: a scheduled giveaway was created."""
 
     giveaway: Option[Giveaway] = field(default=Nothing, converter=From["Giveaway | None"])
     """Optional. The message is a scheduled giveaway message."""
 
-    giveaway_winners: Option[GiveawayWinners] = field(
-        default=Nothing, converter=From["GiveawayWinners | None"]
-    )
+    giveaway_winners: Option[GiveawayWinners] = field(default=Nothing, converter=From["GiveawayWinners | None"])
     """Optional. A giveaway with public winners was completed."""
 
     giveaway_completed: Option[GiveawayCompleted] = field(
@@ -1093,35 +1065,27 @@ class Message(MaybeInaccessibleMessage):
     @cached_property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
-
         for content in ContentType:
-            if (
-                content.value in self.__struct_fields__
-                and getattr(self, content.value, Nothing) is not Nothing
-            ):
+            if content.value in self.__struct_fields__ and getattr(self, content.value, Nothing) is not Nothing:
                 return content
         return ContentType.UNKNOWN
 
     @property
     def from_user(self) -> "User":
         """`from_user` instead of `from_.unwrap()`."""
-
         return self.from_.unwrap()
 
     @property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
-
         return self.chat.id
 
     @property
     def chat_title(self) -> str:
         """Chat title, for `supergroups`, `channels` and `group` chats.
-        Full name, for `private` chat."""
-
-        return (
-            self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
-        )
+        Full name, for `private` chat.
+        """
+        return self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
 
     @property
     def event_key(self) -> str:
@@ -1210,9 +1174,7 @@ class TextQuote(Model):
     """Approximate quote position in the original message in UTF-16 code units
     as specified by the sender."""
 
-    entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
-    )
+    entities: Option[list[MessageEntity]] = field(default=Nothing, converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the quote. Currently, only bold,
     italic, underline, strikethrough, spoiler, and custom_emoji entities
     are kept in quotes."""
@@ -1228,12 +1190,8 @@ class ExternalReplyInfo(Model):
     This object contains information about a message that is being replied to, which may come from another chat or forum topic.
     """
 
-    origin: Variative[MessageOriginUser, MessageOriginHiddenUser, MessageOriginChat, MessageOriginChannel] = (
-        field(
-            converter=From[
-                "MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel"
-            ]
-        )
+    origin: Variative[MessageOriginUser, MessageOriginHiddenUser, MessageOriginChat, MessageOriginChannel] = field(
+        converter=From["MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel"]
     )
     """Origin of the message replied to by the given message."""
 
@@ -1297,9 +1255,7 @@ class ExternalReplyInfo(Model):
     giveaway: Option[Giveaway] = field(default=Nothing, converter=From["Giveaway | None"])
     """Optional. Message is a scheduled giveaway, information about the giveaway."""
 
-    giveaway_winners: Option[GiveawayWinners] = field(
-        default=Nothing, converter=From["GiveawayWinners | None"]
-    )
+    giveaway_winners: Option[GiveawayWinners] = field(default=Nothing, converter=From["GiveawayWinners | None"])
     """Optional. A giveaway with public winners was completed."""
 
     invoice: Option[Invoice] = field(default=Nothing, converter=From["Invoice | None"])
@@ -2565,7 +2521,6 @@ class ReplyKeyboardMarkup(Model):
     @property
     def empty_markup(self) -> "ReplyKeyboardRemove":
         """Empty keyboard to remove the custom keyboard."""
-
         return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective.unwrap_or_none())
 
 
@@ -3128,7 +3083,6 @@ class ChatMemberUpdated(Model):
     @property
     def chat_id(self) -> int:
         """Alias `.chat_id` instead of `.chat.id`"""
-
         return self.chat.id
 
     @property
@@ -3372,7 +3326,6 @@ class ChatJoinRequest(Model):
     @property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
-
         return self.chat.id
 
     @property
@@ -3452,17 +3405,13 @@ class Birthdate(Model):
     @property
     def is_birthday(self) -> bool:
         """True, if today is a user's birthday."""
-
         now = datetime.now()
         return now.month == self.month and now.day == self.day
 
     @property
     def age(self) -> Option[int]:
         """Optional. Contains the user's age, if the user has a birth year specified."""
-
-        return self.year.map(
-            lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days
-        )
+        return self.year.map(lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days)
 
 
 class BusinessIntro(Model):
@@ -4089,9 +4038,7 @@ class InputMediaVideo(InputMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(
-        default=Nothing, converter=From["InputFile | str | None"]
-    )
+    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4148,9 +4095,7 @@ class InputMediaAnimation(InputMedia):
     type: typing.Literal["animation"] = field(default="animation")
     """Type of the result, must be animation."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(
-        default=Nothing, converter=From["InputFile | str | None"]
-    )
+    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4204,9 +4149,7 @@ class InputMediaAudio(InputMedia):
     type: typing.Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(
-        default=Nothing, converter=From["InputFile | str | None"]
-    )
+    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4254,9 +4197,7 @@ class InputMediaDocument(InputMedia):
     type: typing.Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(
-        default=Nothing, converter=From["InputFile | str | None"]
-    )
+    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4337,9 +4278,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the media, must be video."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(
-        default=Nothing, converter=From["InputFile | str | None"]
-    )
+    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4744,9 +4683,7 @@ class InlineQueryResultGif(InlineQueryResult):
     gif_duration: Option[int] = field(default=Nothing, converter=From[int | None])
     """Optional. Duration of the GIF in seconds."""
 
-    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(
-        default=Nothing
-    )
+    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(default=Nothing)
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`."""
 
@@ -4821,9 +4758,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     mpeg4_duration: Option[int] = field(default=Nothing, converter=From[int | None])
     """Optional. Video duration in seconds."""
 
-    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(
-        default=Nothing
-    )
+    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(default=Nothing)
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`."""
 
@@ -5821,9 +5756,7 @@ class InputTextMessageContent(InputMessageContent):
     """Optional. Mode for parsing entities in the message text. See formatting
     options for more details."""
 
-    entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
-    )
+    entities: Option[list[MessageEntity]] = field(default=Nothing, converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in message text, which can
     be specified instead of parse_mode."""
 
@@ -6142,9 +6075,7 @@ class OrderInfo(Model):
     email: Option[str] = field(default=Nothing, converter=From[str | None])
     """Optional. User email."""
 
-    shipping_address: Option[ShippingAddress] = field(
-        default=Nothing, converter=From["ShippingAddress | None"]
-    )
+    shipping_address: Option[ShippingAddress] = field(default=Nothing, converter=From["ShippingAddress | None"])
     """Optional. User shipping address."""
 
 
@@ -6432,9 +6363,7 @@ class TransactionPartnerFragment(TransactionPartner):
     """Type of the transaction partner, always `fragment`."""
 
     withdrawal_state: Option[
-        Variative[
-            RevenueWithdrawalStatePending, RevenueWithdrawalStateSucceeded, RevenueWithdrawalStateFailed
-        ]
+        Variative[RevenueWithdrawalStatePending, RevenueWithdrawalStateSucceeded, RevenueWithdrawalStateFailed]
     ] = field(
         default=Nothing,
         converter=From[
@@ -6632,9 +6561,7 @@ class EncryptedPassportElement(Model):
     `identity_card` and `internal_passport`. The file can be decrypted and
     verified using the accompanying EncryptedCredentials."""
 
-    translation: Option[list[PassportFile]] = field(
-        default=Nothing, converter=From["list[PassportFile] | None"]
-    )
+    translation: Option[list[PassportFile]] = field(default=Nothing, converter=From["list[PassportFile] | None"])
     """Optional. Array of encrypted files with translated versions of documents
     provided by the user; available if requested for `passport`, `driver_license`,
     `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`,

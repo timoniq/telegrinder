@@ -28,11 +28,9 @@ if typing.TYPE_CHECKING:
             *,
             exclude_fields: set[str] | None = None,
         ) -> dict[str, typing.Any]:
-            """
-            :param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
+            """:param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
             :return: A dictionary representation of this cute model.
             """
-
             ...
 
         def to_full_dict(
@@ -40,11 +38,9 @@ if typing.TYPE_CHECKING:
             *,
             exclude_fields: set[str] | None = None,
         ) -> dict[str, typing.Any]:
-            """
-            :param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
+            """:param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
             :return: A dictionary representation of this model including all models, structs, custom types.
             """
-
             ...
 
 else:

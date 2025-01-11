@@ -72,14 +72,13 @@ class Dispatch(
     @property
     def patcher(self) -> Patcher:
         """Alias `patcher` to get `vbml.Patcher` from the global context."""
-
         return self.global_context.vbml_patcher
 
     @typing.overload
     def handle(
         self,
         *rules: "ABCRule",
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandler[UpdateCute]]]: ...
 
     @typing.overload
@@ -87,7 +86,7 @@ class Dispatch(
         self,
         *rules: "ABCRule",
         dataclass: type[T],
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandler[T]]]: ...
 
     @typing.overload
@@ -95,7 +94,7 @@ class Dispatch(
         self,
         *rules: "ABCRule",
         update_type: UpdateType,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandler[UpdateCute]]]: ...
 
     @typing.overload
@@ -104,7 +103,7 @@ class Dispatch(
         *rules: "ABCRule",
         dataclass: type[T],
         update_type: UpdateType,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandler[T]]]: ...
 
     @typing.overload
@@ -112,7 +111,7 @@ class Dispatch(
         self,
         *rules: "ABCRule",
         error_handler: ErrorHandlerT,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
@@ -121,7 +120,7 @@ class Dispatch(
         *rules: "ABCRule",
         update_type: UpdateType,
         error_handler: ErrorHandlerT,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler["UpdateCute", Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
@@ -130,7 +129,7 @@ class Dispatch(
         *rules: "ABCRule",
         dataclass: type[T],
         error_handler: ErrorHandlerT,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler[T, Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
@@ -140,7 +139,7 @@ class Dispatch(
         dataclass: type[T],
         update_type: UpdateType,
         error_handler: ErrorHandlerT,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler[T, Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
@@ -150,7 +149,7 @@ class Dispatch(
         update_type: UpdateType | None = None,
         dataclass: type[T] = DEFAULT_DATACLASS,
         error_handler: typing.Literal[None] = None,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler[T, Func[P, R], ErrorHandler[T]]]: ...
 
     def handle(
@@ -159,13 +158,13 @@ class Dispatch(
         update_type: UpdateType | None = None,
         dataclass: type[typing.Any] = DEFAULT_DATACLASS,
         error_handler: ErrorHandlerT | None = None,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[..., typing.Any]:
         def wrapper(func):
             handler = FuncHandler(
                 func,
                 list(rules),
-                is_blocking=is_blocking,
+                final=final,
                 dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),
                 update_type=update_type,

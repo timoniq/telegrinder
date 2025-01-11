@@ -2,7 +2,8 @@ import re
 import typing
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node.text import Text
+from telegrinder.node.either import Either
+from telegrinder.node.text import Caption, Text
 
 from .abc import ABCRule
 
@@ -18,11 +19,9 @@ class Regex(ABCRule):
             case str(regex):
                 self.regexp.append(re.compile(regex))
             case _:
-                self.regexp.extend(
-                    re.compile(regexp) if isinstance(regexp, str) else regexp for regexp in regexp
-                )
+                self.regexp.extend(re.compile(regexp) if isinstance(regexp, str) else regexp for regexp in regexp)
 
-    def check(self, text: Text, ctx: Context) -> bool:
+    def check(self, text: Either[Text, Caption], ctx: Context) -> bool:
         for regexp in self.regexp:
             response = re.match(regexp, text)
             if response is not None:

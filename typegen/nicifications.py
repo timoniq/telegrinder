@@ -1,5 +1,4 @@
-"""
-Code in this file is automatically parsed.
+"""Code in this file is automatically parsed.
 ---
 Nicifications are basically nice features for models which are included in auto-generate_noded models
 The difference between nicifications and cure types is: cute types can borrow view runtime properties and have context api
@@ -49,17 +48,13 @@ class _Birthdate(Birthdate):
     @property
     def is_birthday(self) -> bool:
         """True, if today is a user's birthday."""
-
         now = datetime.now()
         return now.month == self.month and now.day == self.day
 
     @property
     def age(self) -> Option[int]:
         """Optional. Contains the user's age, if the user has a birth year specified."""
-
-        return self.year.map(
-            lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days
-        )
+        return self.year.map(lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days)
 
 
 class _Chat(Chat):
@@ -69,8 +64,8 @@ class _Chat(Chat):
     @property
     def full_name(self) -> Option[str]:
         """Optional. Full name (`first_name` + `last_name`) of the
-        other party in a `private` chat."""
-
+        other party in a `private` chat.
+        """
         return self.first_name.map(lambda x: x + " " + self.last_name.unwrap_or(""))
 
 
@@ -78,7 +73,6 @@ class _ChatJoinRequest(ChatJoinRequest):
     @property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
-
         return self.chat.id
 
     @property
@@ -126,7 +120,6 @@ class _ChatMemberUpdated(ChatMemberUpdated):
     @property
     def chat_id(self) -> int:
         """Alias `.chat_id` instead of `.chat.id`"""
-
         return self.chat.id
 
     @property
@@ -145,35 +138,27 @@ class _Message(Message):
     @cached_property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
-
         for content in ContentType:
-            if (
-                content.value in self.__struct_fields__
-                and getattr(self, content.value, Nothing) is not Nothing
-            ):
+            if content.value in self.__struct_fields__ and getattr(self, content.value, Nothing) is not Nothing:
                 return content
         return ContentType.UNKNOWN
 
     @property
     def from_user(self) -> "User":
         """`from_user` instead of `from_.unwrap()`."""
-
         return self.from_.unwrap()
 
     @property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
-
         return self.chat.id
 
     @property
     def chat_title(self) -> str:
         """Chat title, for `supergroups`, `channels` and `group` chats.
-        Full name, for `private` chat."""
-
-        return (
-            self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
-        )
+        Full name, for `private` chat.
+        """
+        return self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
 
     @property
     def event_key(self) -> str:
@@ -241,13 +226,11 @@ class _User(User):
     @property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
-
         return DefaultAccentColor(self.id % 7)
 
     @property
     def full_name(self) -> str:
         """User's or bot's full name (`first_name` + `last_name`)."""
-
         return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
 
 
@@ -258,7 +241,6 @@ class _Update(Update):
     @cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
-
         return UpdateType(
             next(
                 (
@@ -272,7 +254,6 @@ class _Update(Update):
     @cached_property
     def incoming_update(self) -> Model:
         """Incoming update."""
-
         return getattr(self, self.update_type.value).unwrap()
 
 
@@ -296,5 +277,4 @@ class _ReplyKeyboardMarkup(ReplyKeyboardMarkup):
     @property
     def empty_markup(self) -> "ReplyKeyboardRemove":
         """Empty keyboard to remove the custom keyboard."""
-
         return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective.unwrap_or_none())

@@ -26,7 +26,7 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
         self,
         update_type: UpdateType,
         *rules: ABCRule,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[
         [Func[P, R]],
         FuncHandler[BaseCute[typing.Any], Func[P, R], ErrorHandler[BaseCute[typing.Any]]],
@@ -58,7 +58,7 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
         *rules: ABCRule,
         dataclass: type[Dataclass],
         error_handler: ErrorHandlerT,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler[Dataclass, Func[P, R], ErrorHandlerT]]: ...
 
     def __call__(
@@ -67,13 +67,13 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
         *rules: ABCRule,
         dataclass: type[typing.Any] | None = None,
         error_handler: ABCErrorHandler | None = None,
-        is_blocking: bool = True,
+        final: bool = True,
     ) -> typing.Callable[..., typing.Any]:
         def wrapper(func):
             func_handler = FuncHandler(
                 func,
                 rules=[*self.auto_rules, *rules],
-                is_blocking=is_blocking,
+                final=final,
                 dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),
                 update_type=update_type,

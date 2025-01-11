@@ -22,14 +22,14 @@ class BaseReplyHandler(ABCHandler[MessageCute], abc.ABC):
     def __init__(
         self,
         *rules: ABCRule,
-        is_blocking: bool = True,
+        final: bool = True,
         as_reply: bool = False,
         preset_context: Context | None = None,
         **default_params: typing.Any,
     ) -> None:
         self.rules = list(rules)
         self.as_reply = as_reply
-        self.is_blocking = is_blocking
+        self.final = final
         self.default_params = default_params
         self.preset_context = preset_context or Context()
 

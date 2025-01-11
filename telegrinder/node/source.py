@@ -85,4 +85,4 @@ class UserId(ScalarNode, int):
         return user.id
 
 
-__all__ = ("ChatSource", "Source", "UserSource", "UserId")
+__all__ = ("ChatSource", "Source", "UserId", "UserSource")

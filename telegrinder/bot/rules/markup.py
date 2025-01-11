@@ -3,7 +3,8 @@ import typing
 import vbml
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node.text import Text
+from telegrinder.node.either import Either
+from telegrinder.node.text import Caption, Text
 from telegrinder.tools.global_context.telegrinder_ctx import TelegrinderContext
 
 from .abc import ABCRule
@@ -30,13 +31,11 @@ class Markup(ABCRule):
         if not isinstance(patterns, list):
             patterns = [patterns]
         self.patterns = [
-            vbml.Pattern(pattern, flags=global_ctx.vbml_pattern_flags)
-            if isinstance(pattern, str)
-            else pattern
+            vbml.Pattern(pattern, flags=global_ctx.vbml_pattern_flags) if isinstance(pattern, str) else pattern
             for pattern in patterns
         ]
 
-    def check(self, text: Text, ctx: Context) -> bool:
+    def check(self, text: Either[Text, Caption], ctx: Context) -> bool:
         return check_string(self.patterns, text, ctx)
 
 

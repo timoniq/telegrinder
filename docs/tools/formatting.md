@@ -1,7 +1,6 @@
 # Formatting
 
 Telegrinder has builtin formatter `HTMLFormatter`.
-It can be imported as follows:
 
 ```python
 from telegrinder.tools.formatting import HTMLFormatter
@@ -9,19 +8,15 @@ from telegrinder.tools.formatting import HTMLFormatter
 
 Formatter is derived from `FormatString` to work string formatting with the following formats:
 
-* `block_quote(string: str) -> TagFormat` | `quote text`
 * `bold(string: str) -> TagFormat` | **bold text**
-* `channel_boost_link(channel_id: str | int, string: str | None = None) -> TagFormat` | tg://resolve?domain=channel123&boost
-* `code_inline` | `inline text`
-* `escape(string: str) -> EscapedString` | escaping string
+* `block_quote(string: str, expandable: bool = False) -> TagFormat` | quoted text
+* `code_inline(string: str) -> TagFormat` | `inline text`
+* `escape(string: str) -> EscapedString` | escaped string for HTML
 * `italic(string: str) -> TagFormat` | __italic text__
 * `link(href: str, string: str | None = None) -> TagFormat` | https://link
-* `mention(string: str, user_id: int) -> TagFormat` | mention entity
+* `mention(string: str, user_id: int) -> TagFormat` | text url `tg://user?id=user_id` by `string`
 * `pre_code(string: str, lang: str | ProgrammingLanguage | None = None) -> TagFormat` | ```pre code```
-* `resolve_domain(username: str, string: str | None = None) -> TagFormat` | tg://resolve?domain=username
 * `spoiler(string: str) -> TagFormat` -> ||spoiler text||
-* `start_bot_link(bot_id: str | int, data: str, string: str | None = None) -> TagFormat` | tg://resolve?domain=bot123&start=data
-* `start_group_link(bot_id: str | int, data: str, string: str | None = None) -> TagFormat` | tg://resolve?domain=bot123&startgroup=data
 * `strike(string: str) -> TagFormat` -> ~~strikethrough text~~
 * `tg_emoji(string: str, emoji_id: int) -> TagFormat` | telegram emoji by emoji id
 * `underline(string: str) -> TagFormat` -> <u>underline text</u>
@@ -41,7 +36,7 @@ from telegrinder.tools.formatting import HTMLFormatter
 HTMLFormatter("Hello, {:bold}!").format("world")
 ```
 
-Union formats:
+Union formats by `+` separator:
 
 ```python
 from telegrinder.tools.formatting import HTMLFormatter, bold, italic
@@ -50,16 +45,12 @@ HTMLFormatter("Hello, {:bold+underline}!").format("world")
 HTMLFormatter("Hello, {}!").format(bold(italic("world")))
 ```
 
-To use special formats, you have to use special dataclasses:
-* `BaseSpecFormat` -> This class is inherited into other dataclasses to implement special formats.
-* `ChannelBoostLink(channel_id: str | int, string: str | None = None)` -> `channel_boost_link`
-* `InviteChatLink(invite_link: str, string: str | None = None)` -> `invite_chat_link`
+Special formats:
+* `Base` -> This class is inherited into other dataclasses to implement special formats.
 * `Link(href: str, string: str | None = None)` -> `link`
 * `Mention(string: str, user_id: int)` -> `mention`
 * `PreCode(string: str, lang: str | ProgrammingLanguage | None = None)` -> `pre_code`
-* `ResolveDomain(username: str, string: str | None = None)` -> `resolve_domain`
-* `StartBotLink(bot_id: str | int, data: str, string: str | None = None)` -> `start_bot_link`
-* `StartGroupLink(bot_id: str | int, data: str, string: str | None = None)` -> `start_group_link`
+* `BlockQuote(string: str, expandable: bool = False)` -> `block_quote`
 * `TgEmoji(string: str, emoji_id: int)` -> `tg_emoji`
 
 ```python
@@ -91,31 +82,19 @@ HTMLFormatter("{:italic} very nice framework!").format(Link("https://github.com/
 HTMLFormatter("Echo bot on python framework telegrinder:\n{}").format(PreCode(PYTHON_CODE_ECHO_BOT, ProgrammingLanguage.PYTHON))
 
 HTMLFormatter("I {} telegrinder!").format(TgEmoji("👍", 5368324170671202286))
-
-HTMLFormatter("Cool telegram chat: {:bold+underline}").format(ResolveDomain("botoforum", "botoforum chat"))
-
-HTMLFormatter("Please, boost {:bold+italic+underline} ^_^").format(ChannelBoostLink("hurricaneivykiosk", "Arseny's channel"))
-
-HTMLFormatter("start game in the {:spoiler}").format(StartBotLink("telegrinder_bot", "game", "bot ^_^"))
-
-HTMLFormatter("Get a bonus from the {:italic} in the chosen group").format(StartGroupLink("nice123_bot", "get_bonus", "nice cool bot"))
-
-HTMLFormatter("Join our {:bold+underline}").format(InviteChatLink("+kMj2234KklsSka2-", "chat"))
 ```
 
-HTMLFormatter also has a property of parse mode string.
-
-It can be accessed like this:
+`HTMLFormatter` also has a property of parse mode string:
 
 ```python
 HTMLFormatter.PARSE_MODE
 #> 'HTML'
 ```
 
-And you can import `ParseMode` which has two properties:
+`ParseMode` which has two properties:
 * `MARKDOWNV2`
 * `HTML`
 
 ```python
-from telegrinder import ParseMode
+from telegrinder.tools.parse_mode import ParseMode
 ```

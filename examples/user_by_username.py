@@ -1,5 +1,4 @@
-"""
-The example uses the aiosqlite driver. It is recommended to use asynchronous drivers
+"""The example uses the aiosqlite driver. It is recommended to use asynchronous drivers
 to work with databases.
 """
 
@@ -47,9 +46,7 @@ def get_result_with_names(
     resulting_row = {}
     for index, column_name in enumerate(column_names):
         value = row[index]
-        resulting_row[column_name] = (
-            bool(value) if column_name in (as_bool or ()) and value in (0, 1) else value
-        )
+        resulting_row[column_name] = bool(value) if column_name in (as_bool or ()) and value in (0, 1) else value
     return resulting_row
 
 
@@ -129,9 +126,9 @@ class MentionRule(
         user = None
 
         match ctx:
-            case {"message_entities": message_entities} if message_entities[
-                0
-            ].type == MessageEntityType.TEXT_MENTION:
+            case {"message_entities": message_entities} if (
+                message_entities[0].type == MessageEntityType.TEXT_MENTION
+            ):
                 user = await db.get_or_set_user(message_entities[0].user.unwrap())
             case {"username": username}:
                 user = (await db.get_user_by_username(username)).unwrap_or_none()
@@ -150,11 +147,11 @@ class MentionRule(
 async def get_user(_: Message, mentioned_user: User) -> str:
     return f"""
     Id -> {mentioned_user.id}
-    Is bot -> {'✅' if mentioned_user.is_bot else '❌'}
+    Is bot -> {"✅" if mentioned_user.is_bot else "❌"}
     First name -> {mentioned_user.first_name}
-    Last name -> {mentioned_user.last_name.unwrap_or(repr('UNKNOWN'))}
-    Is premium -> {'✅' if mentioned_user.is_premium.unwrap_or(False) else '❌'}
-    Language code -> {mentioned_user.language_code.unwrap_or(repr('UNKNOWN'))}
+    Last name -> {mentioned_user.last_name.unwrap_or(repr("UNKNOWN"))}
+    Is premium -> {"✅" if mentioned_user.is_premium.unwrap_or(False) else "❌"}
+    Language code -> {mentioned_user.language_code.unwrap_or(repr("UNKNOWN"))}
     """.replace("    ", "")
 
 

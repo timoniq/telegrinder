@@ -15,7 +15,8 @@ class TelegrinderContext(GlobalContext):
     ctx1 = TelegrinderContext()
     ctx2 = GlobalContext("telegrinder")  # same, but without the type-hints
     assert ctx1 == ctx2  # ok
-    ```"""
+    ```
+    """
 
     __ctx_name__ = "telegrinder"
 

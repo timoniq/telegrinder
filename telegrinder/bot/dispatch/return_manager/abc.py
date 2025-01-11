@@ -60,7 +60,6 @@ class BaseReturnManager[Event: Model](ABCReturnManager[Event]):
     @staticmethod
     async def ctx_manager(value: Context, event: Event, ctx: Context) -> None:
         """Basic manager for returning context from handler."""
-
         ctx.update(value)
 
     async def run(self, response: typing.Any, event: Event, ctx: Context) -> None:

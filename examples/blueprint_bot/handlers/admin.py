@@ -1,3 +1,5 @@
+import sys
+
 from telegrinder import Dispatch, Message
 from telegrinder.rules import MessageRule, Text
 
@@ -14,4 +16,4 @@ dp.message.auto_rules = [IsAdmin()]
 @dp.message(Text("/explode"))
 async def explode_handler(message: Message):
     await message.answer("Oops bot exploded =(")
-    exit()
+    sys.exit()

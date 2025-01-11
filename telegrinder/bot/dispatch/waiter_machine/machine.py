@@ -28,8 +28,7 @@ WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
 
 
 class ContextUnpackProto[Ts: tuple[typing.Any, ...]](typing.Protocol):
-    def __call__(self, context: Context) -> Ts:
-        ...
+    def __call__(self, context: Context) -> Ts: ...
 
 
 def unpack_to_context(context: Context) -> tuple[Context]:
@@ -67,7 +66,6 @@ class WaiterMachine:
 
     async def drop_all(self) -> None:
         """Drops all waiters in storage."""
-
         for hasher in self.storage.copy():
             for ident, short_state in self.storage[hasher].items():
                 if short_state.context:
@@ -228,7 +226,6 @@ class WaiterMachine:
 
     async def clear_storage(self) -> None:
         """Clears storage."""
-
         for hasher in self.storage:
             now = datetime.datetime.now()
             for ident, short_state in self.storage.get(hasher, {}).copy().items():

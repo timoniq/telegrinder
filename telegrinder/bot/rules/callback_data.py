@@ -53,7 +53,6 @@ class CallbackDataMap(CallbackQueryDataRule):
     @classmethod
     def transform_to_map(cls, mapping: MapDict) -> CallbackMap:
         """Transforms MapDict to CallbackMap."""
-
         callback_map = []
 
         for k, v in mapping.items():
@@ -66,7 +65,6 @@ class CallbackDataMap(CallbackQueryDataRule):
     @classmethod
     def transform_to_callbacks(cls, callback_map: CallbackMap) -> CallbackMapStrict:
         """Transforms `CallbackMap` to `CallbackMapStrict`."""
-
         callback_map_result = []
 
         for key, value in callback_map:
@@ -85,7 +83,6 @@ class CallbackDataMap(CallbackQueryDataRule):
     @staticmethod
     async def run_validator(value: typing.Any, validator: Validator) -> bool:
         """Run async or sync validator."""
-
         with suppress(BaseException):
             result = validator(value)
             if inspect.isawaitable(result):
@@ -97,15 +94,12 @@ class CallbackDataMap(CallbackQueryDataRule):
     @classmethod
     async def match(cls, callback_data: dict[str, typing.Any], callback_map: CallbackMapStrict) -> bool:
         """Matches callback_data with callback_map recursively."""
-
         for key, validator in callback_map:
             if key not in callback_data:
                 return False
 
             if isinstance(validator, list):
-                if not (
-                    isinstance(callback_data[key], dict) and await cls.match(callback_data[key], validator)
-                ):
+                if not (isinstance(callback_data[key], dict) and await cls.match(callback_data[key], validator)):
                     return False
 
             elif not await cls.run_validator(callback_data[key], validator):

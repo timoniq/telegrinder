@@ -98,7 +98,7 @@ if typing.TYPE_CHECKING:
 else:
     from msgspec import field as _field
 
-    type From[T] = typing.Annotated[T, ...]
+    type From[T] = T
 
     def field(**kwargs):
         kwargs.pop("converter", None)
@@ -145,11 +145,9 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         *,
         exclude_fields: set[str] | None = None,
     ) -> dict[str, typing.Any]:
-        """
-        :param exclude_fields: Model field names to exclude from the dictionary representation of this model.
+        """:param exclude_fields: Model field names to exclude from the dictionary representation of this model.
         :return: A dictionary representation of this model.
         """
-
         return self._to_dict("model_as_dict", exclude_fields or set(), full=False)
 
     def to_full_dict(
@@ -157,11 +155,9 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         *,
         exclude_fields: set[str] | None = None,
     ) -> dict[str, typing.Any]:
-        """
-        :param exclude_fields: Model field names to exclude from the dictionary representation of this model.
+        """:param exclude_fields: Model field names to exclude from the dictionary representation of this model.
         :return: A dictionary representation of this model including all models, structs, custom types.
         """
-
         return self._to_dict("model_as_full_dict", exclude_fields or set(), full=True)
 
 
@@ -209,7 +205,7 @@ __all__ = (
     "Model",
     "ProxiedDict",
     "Proxy",
-    "get_event_key",
     "full_result",
+    "get_event_key",
     "get_params",
 )

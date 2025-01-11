@@ -61,7 +61,7 @@ async def process_inner[Event: Model](
 
             if return_manager is not None:
                 await return_manager.run(response, event, ctx)
-            if handler.is_blocking:
+            if handler.final:
                 break
 
         ctx = ctx_copy
@@ -97,8 +97,8 @@ async def check_rule(
     ctx: Context,
 ) -> bool:
     """Checks requirements, adapts update.
-    Returns check result."""
-
+    Returns check result.
+    """
     update_cute = None if not isinstance(update, UpdateCute) else update
 
     # Running adapter

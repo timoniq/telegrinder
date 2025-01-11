@@ -8,7 +8,6 @@ def verify_webapp_request(
     request_headers: typing.Mapping[str, typing.Any],
 ) -> bool:
     """Verifies update request is from telegram."""
-
     return request_headers.get("X-Telegram-Bot-Api-Secret-Token") == secret_token
 
 
@@ -17,7 +16,6 @@ def webapp_validate_request(
     request_query_params: typing.Mapping[str, typing.Any],
 ) -> bool:
     """Verifies authentity of webapp request by counting hash of its parameters."""
-
     items = sorted(request_query_params.items(), key=lambda kv: kv[0])
     data_check_string = "\n".join(f"{k}={param}" for k, param in items if k != "hash")
     secret = hmac.new(

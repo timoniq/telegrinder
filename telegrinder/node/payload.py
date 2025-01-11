@@ -28,16 +28,12 @@ class Payload(Polymorphic, ScalarNode, str):
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
-class PayloadSerializer(DataNode, GlobalNode):
+class PayloadSerializer[T: type[ABCDataSerializer[typing.Any]]](DataNode, GlobalNode[T]):
     serializer: type[ABCDataSerializer[typing.Any]]
 
     @classmethod
-    def set(cls, serializer: type[ABCDataSerializer[typing.Any]], /) -> None:
-        super().set(cls(serializer=serializer))
-
-    @classmethod
     def compose(cls) -> typing.Self:
-        return cls(serializer=JSONSerializer)
+        return cls(serializer=cls.get(default=JSONSerializer))
 
 
 class _PayloadData(FactoryNode):

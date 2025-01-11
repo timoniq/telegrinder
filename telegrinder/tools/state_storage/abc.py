@@ -25,7 +25,6 @@ class ABCStateStorage[Payload](abc.ABC):
 
     def State(self, key: str | StateMeta | enum.Enum = StateMeta.ANY, /) -> State[Payload]:  # noqa: N802
         """Can be used as a shortcut to get a state rule dependant on current storage."""
-
         return State(storage=self, key=key)
 
 

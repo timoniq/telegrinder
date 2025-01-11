@@ -42,8 +42,8 @@ class ABCDispatch(ABC):
     def load_from_dir(self, directory: str | pathlib.Path) -> bool:
         """Loads dispatchers from a directory containing Python modules where global variables
         are declared with instances of dispatch.
-        Returns True if dispatchers were found, otherwise False."""
-
+        Returns True if dispatchers were found, otherwise False.
+        """
         directory = pathlib.Path(directory)
 
         if not directory.exists():

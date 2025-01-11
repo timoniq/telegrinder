@@ -12,7 +12,6 @@ class LimitedDict[Key, Value](UserDict[Key, Value]):
         Returns a value that was deleted when the limit in the dictionary
         was reached, otherwise None.
         """
-
         deleted_item = None
         if len(self.queue) >= self.maxlimit:
             deleted_item = self.pop(self.queue.popleft(), None)

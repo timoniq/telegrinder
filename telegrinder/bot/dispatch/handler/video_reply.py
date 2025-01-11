@@ -15,7 +15,7 @@ class VideoReplyHandler(BaseReplyHandler):
         *rules: ABCRule,
         caption: str | None = None,
         parse_mode: str | None = None,
-        is_blocking: bool = True,
+        final: bool = True,
         as_reply: bool = False,
         preset_context: Context | None = None,
         **default_params: typing.Any,
@@ -25,7 +25,7 @@ class VideoReplyHandler(BaseReplyHandler):
         self.caption = caption
         super().__init__(
             *rules,
-            is_blocking=is_blocking,
+            final=final,
             as_reply=as_reply,
             preset_context=preset_context,
             **default_params,

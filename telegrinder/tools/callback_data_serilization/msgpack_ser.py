@@ -26,9 +26,7 @@ class ModelParser[Model: ModelType]:
             return dataclasses.asdict(model)
         return msgspec.structs.asdict(model)  # type: ignore
 
-    def _is_union(
-        self, inspected_type: msgspec.inspect.Type, /
-    ) -> typing.TypeGuard[msgspec.inspect.UnionType]:
+    def _is_union(self, inspected_type: msgspec.inspect.Type, /) -> typing.TypeGuard[msgspec.inspect.UnionType]:
         return isinstance(inspected_type, msgspec.inspect.UnionType)
 
     def _is_model_type(
@@ -72,7 +70,6 @@ class ModelParser[Model: ModelType]:
 
     def parse(self, model: Model) -> list[typing.Any]:
         """Returns a parsed model as linked list."""
-
         linked: list[typing.Any] = []
         stack: list[typing.Any] = [(list(self._model_to_dict(model).values()), linked)]
 
@@ -97,7 +94,6 @@ class ModelParser[Model: ModelType]:
 
     def compose(self, linked: list[typing.Any]) -> dict[str, typing.Any]:
         """Compose linked list to dictionary based on the model class annotations `(without validation)`."""
-
         root_converted_data: dict[str, typing.Any] = {}
         stack: deque[typing.Any] = deque([(linked, self.model_type, root_converted_data)])
 

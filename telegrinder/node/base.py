@@ -40,8 +40,8 @@ def is_generator(
 
 def get_node_calc_lst(node: type["Node"]) -> list[type["Node"]]:
     """Returns flattened list of node types in ordering required to calculate given node.
-    Provides caching for passed node type."""
-
+    Provides caching for passed node type.
+    """
     if calc_lst := getattr(node, "__nodes_calc_lst__", None):
         return calc_lst
     nodes_lst: list[type[Node]] = []
@@ -114,14 +114,13 @@ class ScalarNodeProto(Node, abc.ABC):
         pass
 
 
-SCALAR_NODE = type("ScalarNode", (), {"node": "scalar"})
+SCALAR_NODE = type("Scalar", (), {"node": "scalar"})
 
 
 if typing.TYPE_CHECKING:
 
     class ScalarNode(ScalarNodeProto, abc.ABC):
         pass
-
 else:
 
     def __init_subclass__(cls, *args, **kwargs):  # noqa: N807
@@ -138,7 +137,7 @@ else:
 
     def create_class(name, bases, dct):
         return type(
-            "Scalar",
+            "ScalarNode",
             (SCALAR_NODE,),
             {
                 "as_node": classmethod(lambda cls: _as_node(cls, bases, dct)),
@@ -156,12 +155,26 @@ class Name(ScalarNode, str):
     def compose(cls) -> str: ...
 
 
-class GlobalNode(Node):
+class GlobalNode[Value](Node):
     scope = NodeScope.GLOBAL
 
     @classmethod
-    def set(cls, value: typing.Self, /) -> None:
+    def set(cls, value: Value, /) -> None:
         setattr(cls, "_value", value)
+
+    @typing.overload
+    @classmethod
+    def get(cls) -> Value: ...
+
+    @typing.overload
+    @classmethod
+    def get[Default](cls, *, default: Default) -> Value | Default: ...
+
+    @classmethod
+    def get(cls, **kwargs: typing.Any) -> typing.Any:
+        sentinel = object()
+        default = kwargs.pop("default", sentinel)
+        return getattr(cls, "_value") if default is sentinel else getattr(cls, "_value", default)
 
     @classmethod
     def unset(cls) -> None:

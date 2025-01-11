@@ -91,9 +91,9 @@ class Lifespan:
 
 
 __all__ = (
-    "run_tasks",
-    "to_coroutine_task",
+    "CoroutineTask",
     "DelayedTask",
     "Lifespan",
-    "CoroutineTask",
+    "run_tasks",
+    "to_coroutine_task",
 )

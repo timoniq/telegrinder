@@ -231,9 +231,7 @@ def shortcut[T](
 
             for kwarg, default in func_params["kwargs"]:
                 params[kwarg] = (
-                    kwargs.pop(kwarg, default)
-                    if default is not inspect.Parameter.empty
-                    else kwargs.pop(kwarg)
+                    kwargs.pop(kwarg, default) if default is not inspect.Parameter.empty else kwargs.pop(kwarg)
                 )
 
             if var_kwargs := func_params.get("var_kwargs"):
@@ -267,11 +265,7 @@ async def cancel_future(fut: asyncio.Future[typing.Any], /) -> None:
         finally:
             # Insure we handle the exception/value that may exist on the shielded task
             # This will prevent errors logged to the asyncio logger
-            if (
-                shielded.done()
-                and not shielded.cancelled()
-                and not shielded.exception()
-            ):
+            if shielded.done() and not shielded.cancelled() and not shielded.exception():
                 shielded.result()
 
     if fut.cancelled():
@@ -289,10 +283,11 @@ async def cancel_future(fut: asyncio.Future[typing.Any], /) -> None:
 
 
 __all__ = (
+    "Shortcut",
     "TRANSLATIONS_KEY",
-    "cancel_future",
     "cache_magic_value",
     "cache_translation",
+    "cancel_future",
     "get_annotations",
     "get_cached_translation",
     "get_default_args",
@@ -302,7 +297,6 @@ __all__ = (
     "impl",
     "magic_bundle",
     "resolve_arg_names",
-    "to_str",
     "shortcut",
-    "Shortcut",
+    "to_str",
 )

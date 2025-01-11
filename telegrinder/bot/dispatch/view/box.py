@@ -119,8 +119,7 @@ class ViewBox(
         )
         self.edited_business_message = typing.cast(
             MessageView,
-            edited_business_message_view
-            or message.MessageView(update_type=UpdateType.EDITED_BUSINESS_MESSAGE),
+            edited_business_message_view or message.MessageView(update_type=UpdateType.EDITED_BUSINESS_MESSAGE),
         )
         self.edited_channel_post = typing.cast(
             MessageView,
@@ -139,7 +138,6 @@ class ViewBox(
 
     def get_views(self) -> dict[str, ABCView]:
         """Get all views."""
-
         return {name: view for name, view in self.__dict__.items() if isinstance(view, ABCView)}
 
 

@@ -9,6 +9,7 @@ from .callback_query import (
 from .command import CommandInfo
 from .composer import NodeCollection, NodeSession, compose_node, compose_nodes
 from .container import ContainerNode
+from .either import Either, Optional
 from .event import EventNode
 from .me import Me
 from .message import MessageNode
@@ -34,6 +35,7 @@ __all__ = (
     "ContainerNode",
     "DataNode",
     "Document",
+    "Either",
     "EventNode",
     "FactoryNode",
     "Field",
@@ -47,6 +49,7 @@ __all__ = (
     "NodeCollection",
     "NodeScope",
     "NodeSession",
+    "Optional",
     "PER_CALL",
     "PER_EVENT",
     "Payload",
@@ -63,6 +66,7 @@ __all__ = (
     "TextInteger",
     "TextLiteral",
     "UpdateNode",
+    "UserId",
     "UserSource",
     "Video",
     "compose_node",
@@ -73,5 +77,4 @@ __all__ = (
     "is_node",
     "per_call",
     "per_event",
-    "UserId",
 )
