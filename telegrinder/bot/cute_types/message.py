@@ -212,8 +212,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -265,8 +264,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
@@ -290,8 +288,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         can delete outgoing messages in channels. - If the bot is an administrator
         of a group, it can delete any message there. - If the bot has can_delete_messages
         permission in a supergroup or a channel, it can delete any message there.
-        Returns True on success.
-        """
+        Returns True on success."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -342,8 +339,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param link_preview_options: Link preview generation options for the message.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard.
-        """
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
 
     @shortcut(
@@ -375,8 +371,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         messages can't be copied. A quiz poll can be copied only if the value of the
         field correct_option_id is known to the bot. The method is analogous to
         the method forwardMessage, but the copied message doesn't have a link to
-        the original message. Returns the MessageId of the sent message on success.
-        """
+        the original message. Returns the MessageId of the sent message on success."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -413,8 +408,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         Use this method to change the chosen reactions on a message. Service messages
         can't be reacted to. Automatically forwarded messages from a channel to
         its discussion group have the same available reactions as messages in the
-        channel. Bots can't use paid reactions. Returns True on success.
-        """
+        channel. Bots can't use paid reactions. Returns True on success."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -452,8 +446,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the forwarded message from forwarding and saving.
-        :param message_id: Message identifier in the chat specified in from_chat_id.
-        """
+        :param message_id: Message identifier in the chat specified in from_chat_id."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -492,8 +485,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param message_id: Identifier of a message to pin.
 
-        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats.
-        """
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -523,8 +515,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned.
-        """
+        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -596,8 +587,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -666,8 +656,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -726,8 +715,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -784,8 +772,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -832,8 +819,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -907,8 +893,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -961,8 +946,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1021,8 +1005,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1105,8 +1088,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1171,8 +1153,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1215,8 +1196,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1259,8 +1239,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title'button will be shown. If not empty, the first button must launch the game.
-        """
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title'button will be shown. If not empty, the first button must launch the game."""
         ...
 
     @shortcut(
@@ -1305,8 +1284,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
-        Use this method to send invoices. On success, the sent Message is returned.
-        """
+        Use this method to send invoices. On success, the sent Message is returned."""
         ...
 
     @shortcut(
@@ -1335,8 +1313,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
         :param message_thread_id: Unique identifier for the target message thread; for supergroups only.
-        :param action: Type of action to broadcast. Choose one, depending on what the user is aboutto receive: typing for text messages, upload_photo for photos, record_videoor upload_video for videos, record_voice or upload_voice for voice notes,upload_document for general files, choose_sticker for stickers, find_locationfor location data, record_video_note or upload_video_note for videonotes.
-        """
+        :param action: Type of action to broadcast. Choose one, depending on what the user is aboutto receive: typing for text messages, upload_photo for photos, record_videoor upload_video for videos, record_voice or upload_voice for voice notes,upload_document for general files, choose_sticker for stickers, find_locationfor location data, record_video_note or upload_video_note for videonotes."""
         ...
 
     @shortcut(
@@ -1377,8 +1354,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
-        :param reply_parameters: Description of the message to reply to.
-        """
+        :param reply_parameters: Description of the message to reply to."""
         media = [media] if not isinstance(media, list) else media
         params = get_params(locals())
         return await execute_method_answer(self, "send_media_group", params)
@@ -1436,8 +1412,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1489,8 +1464,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1556,8 +1530,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1626,8 +1599,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1686,8 +1658,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1744,8 +1715,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1792,8 +1762,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1867,8 +1836,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1921,8 +1889,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -1981,8 +1948,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -2065,8 +2031,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -2131,8 +2096,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -2175,8 +2139,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -2219,8 +2182,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title'button will be shown. If not empty, the first button must launch the game.
-        """
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title'button will be shown. If not empty, the first button must launch the game."""
         ...
 
     @shortcut(
@@ -2265,8 +2227,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
-        Use this method to send invoices. On success, the sent Message is returned.
-        """
+        Use this method to send invoices. On success, the sent Message is returned."""
         ...
 
     @shortcut(
@@ -2310,8 +2271,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
 
-        :param reply_parameters: Description of the message to reply to.
-        """
+        :param reply_parameters: Description of the message to reply to."""
         params = get_params(locals())
         params.setdefault("reply_parameters", ReplyParameters(self.message_id))
         return await self.answer_media_group(**params)
@@ -2369,8 +2329,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -2422,8 +2381,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to.
 
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user.
-        """
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
     @shortcut(
@@ -2471,8 +2429,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
 
-        :param reply_markup: A JSON-serialized object for a new inline keyboard.
-        """
+        :param reply_markup: A JSON-serialized object for a new inline keyboard."""
         ...
 
     @shortcut(
@@ -2516,8 +2473,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard.
-        """
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
 
     @shortcut(
@@ -2569,8 +2525,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param media: A JSON-serialized object for a new media content of the message.
 
-        :param reply_markup: A JSON-serialized object for a new inline keyboard.
-        """
+        :param reply_markup: A JSON-serialized object for a new inline keyboard."""
         params = get_params(locals())
         if not isinstance(media, InputMedia):
             assert type, "Parameter 'type' is required, because 'media' is a file id or an 'InputFile' object."
@@ -2614,8 +2569,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard.
-        """
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
 
 
