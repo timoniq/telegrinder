@@ -42,8 +42,7 @@ class ChatMemberShortcuts:
         of supergroups and channels, the user will not be able to return to the chat
         on their own using invite links, etc., unless unbanned first. The bot must
         be an administrator in the chat for this to work and must have the appropriate
-        administrator rights. Returns True on success.
-        """
+        administrator rights. Returns True on success."""
         ...
 
     @shortcut("unban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
@@ -63,8 +62,7 @@ class ChatMemberShortcuts:
         work. By default, this method guarantees that after the call the user is
         not a member of the chat, but will be able to join it. So if the user is a member
         of the chat they will also be removed from the chat. If you don't want this,
-        use the parameter only_if_banned. Returns True on success.
-        """
+        use the parameter only_if_banned. Returns True on success."""
         ...
 
     @shortcut(
@@ -87,8 +85,7 @@ class ChatMemberShortcuts:
         Use this method to restrict a user in a supergroup. The bot must be an administrator
         in the supergroup for this to work and must have the appropriate administrator
         rights. Pass True for all permissions to lift restrictions from a user.
-        Returns True on success.
-        """
+        Returns True on success."""
         ...
 
     @shortcut("promote_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
@@ -119,8 +116,7 @@ class ChatMemberShortcuts:
         Use this method to promote or demote a user in a supergroup or a channel. The
         bot must be an administrator in the chat for this to work and must have the
         appropriate administrator rights. Pass False for all boolean parameters
-        to demote a user. Returns True on success.
-        """
+        to demote a user. Returns True on success."""
         ...
 
     @shortcut(
@@ -139,8 +135,7 @@ class ChatMemberShortcuts:
         """Shortcut `API.set_chat_administrator_custom_title()`, see the [documentation](https://core.telegram.org/bots/api#setchatadministratorcustomtitle)
 
         Use this method to set a custom title for an administrator in a supergroup
-        promoted by the bot. Returns True on success.
-        """
+        promoted by the bot. Returns True on success."""
         ...
 
 

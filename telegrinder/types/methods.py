@@ -62,6 +62,7 @@ class APIMethods:
         to getUpdates, so unwanted updates may be received for a short period of \
         time.
         """
+
         method_response = await self.api.request_raw(
             "getUpdates",
             get_params(locals()),
@@ -121,6 +122,7 @@ class APIMethods:
         0-9, _ and - are allowed. The header is useful to ensure that the request comes \
         from a webhook set by you.
         """
+
         method_response = await self.api.request_raw(
             "setWebhook",
             get_params(locals()),
@@ -140,6 +142,7 @@ class APIMethods:
 
         :param drop_pending_updates: Pass True to drop all pending updates.
         """
+
         method_response = await self.api.request_raw(
             "deleteWebhook",
             get_params(locals()),
@@ -153,6 +156,7 @@ class APIMethods:
         On success, returns a WebhookInfo object. If the bot is using getUpdates,
         will return an object with the url field empty.
         """
+
         method_response = await self.api.request_raw(
             "getWebhookInfo",
             get_params(locals()),
@@ -166,6 +170,7 @@ class APIMethods:
         no parameters. Returns basic information about the bot in form of a User
         object.
         """
+
         method_response = await self.api.request_raw(
             "getMe",
             get_params(locals()),
@@ -182,6 +187,7 @@ class APIMethods:
         log in back to the cloud Bot API server for 10 minutes. Returns True on success.
         Requires no parameters.
         """
+
         method_response = await self.api.request_raw(
             "logOut",
             get_params(locals()),
@@ -197,6 +203,7 @@ class APIMethods:
         will return error 429 in the first 10 minutes after the bot is launched. Returns
         True on success. Requires no parameters.
         """
+
         method_response = await self.api.request_raw(
             "close",
             get_params(locals()),
@@ -261,6 +268,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendMessage",
             get_params(locals()),
@@ -299,6 +307,7 @@ class APIMethods:
 
         :param message_id: Message identifier in the chat specified in from_chat_id.
         """
+
         method_response = await self.api.request_raw(
             "forwardMessage",
             get_params(locals()),
@@ -342,6 +351,7 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the forwarded messages from forwarding and saving. \
         """
+
         method_response = await self.api.request_raw(
             "forwardMessages",
             get_params(locals()),
@@ -412,6 +422,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "copyMessage",
             get_params(locals()),
@@ -460,6 +471,7 @@ class APIMethods:
 
         :param remove_caption: Pass True to copy the messages without their captions.
         """
+
         method_response = await self.api.request_raw(
             "copyMessages",
             get_params(locals()),
@@ -536,6 +548,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendPhoto",
             get_params(locals()),
@@ -625,6 +638,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendAudio",
             get_params(locals()),
@@ -708,6 +722,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendDocument",
             get_params(locals()),
@@ -806,6 +821,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendVideo",
             get_params(locals()),
@@ -900,6 +916,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendAnimation",
             get_params(locals()),
@@ -975,6 +992,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendVoice",
             get_params(locals()),
@@ -1048,6 +1066,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendVideoNote",
             get_params(locals()),
@@ -1117,6 +1136,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendPaidMedia",
             get_params(locals()),
@@ -1168,6 +1188,7 @@ class APIMethods:
 
         :param reply_parameters: Description of the message to reply to.
         """
+
         method_response = await self.api.request_raw(
             "sendMediaGroup",
             get_params(locals()),
@@ -1240,6 +1261,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendLocation",
             get_params(locals()),
@@ -1316,6 +1338,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendVenue",
             get_params(locals()),
@@ -1378,6 +1401,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendContact",
             get_params(locals()),
@@ -1482,6 +1506,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendPoll",
             get_params(locals()),
@@ -1538,6 +1563,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendDice",
             get_params(locals()),
@@ -1576,6 +1602,7 @@ class APIMethods:
         for location data, record_video_note or upload_video_note for video \
         notes.
         """
+
         method_response = await self.api.request_raw(
             "sendChatAction",
             get_params(locals()),
@@ -1612,6 +1639,7 @@ class APIMethods:
 
         :param is_big: Pass True to set the reaction with a big animation.
         """
+
         method_response = await self.api.request_raw(
             "setMessageReaction",
             get_params(locals()),
@@ -1639,6 +1667,7 @@ class APIMethods:
         :param limit: Limits the number of photos to be retrieved. Values between 1-100 are accepted. \
         Defaults to 100.
         """
+
         method_response = await self.api.request_raw(
             "getUserProfilePhotos",
             get_params(locals()),
@@ -1666,6 +1695,7 @@ class APIMethods:
 
         :param emoji_status_expiration_date: Expiration date of the emoji status, if any.
         """
+
         method_response = await self.api.request_raw(
             "setUserEmojiStatus",
             get_params(locals()),
@@ -1691,6 +1721,7 @@ class APIMethods:
 
         :param file_id: File identifier to get information about.
         """
+
         method_response = await self.api.request_raw(
             "getFile",
             get_params(locals()),
@@ -1727,6 +1758,7 @@ class APIMethods:
         If False, the user will be able to see messages in the group that were sent \
         before the user was removed. Always True for supergroups and channels. \
         """
+
         method_response = await self.api.request_raw(
             "banChatMember",
             get_params(locals()),
@@ -1758,6 +1790,7 @@ class APIMethods:
 
         :param only_if_banned: Do nothing if the user is not banned.
         """
+
         method_response = await self.api.request_raw(
             "unbanChatMember",
             get_params(locals()),
@@ -1798,6 +1831,7 @@ class APIMethods:
         restricted for more than 366 days or less than 30 seconds from the current \
         time, they are considered to be restricted forever.
         """
+
         method_response = await self.api.request_raw(
             "restrictChatMember",
             get_params(locals()),
@@ -1878,6 +1912,7 @@ class APIMethods:
         :param can_manage_topics: Pass True if the user is allowed to create, rename, close, and reopen forum \
         topics; for supergroups only.
         """
+
         method_response = await self.api.request_raw(
             "promoteChatMember",
             get_params(locals()),
@@ -1905,6 +1940,7 @@ class APIMethods:
         :param custom_title: New custom title for the administrator; 0-16 characters, emoji are not \
         allowed.
         """
+
         method_response = await self.api.request_raw(
             "setChatAdministratorCustomTitle",
             get_params(locals()),
@@ -1931,6 +1967,7 @@ class APIMethods:
 
         :param sender_chat_id: Unique identifier of the target sender chat.
         """
+
         method_response = await self.api.request_raw(
             "banChatSenderChat",
             get_params(locals()),
@@ -1955,6 +1992,7 @@ class APIMethods:
 
         :param sender_chat_id: Unique identifier of the target sender chat.
         """
+
         method_response = await self.api.request_raw(
             "unbanChatSenderChat",
             get_params(locals()),
@@ -1987,6 +2025,7 @@ class APIMethods:
         can_send_video_notes, and can_send_voice_notes permissions; the can_send_polls \
         permission will imply the can_send_messages permission.
         """
+
         method_response = await self.api.request_raw(
             "setChatPermissions",
             get_params(locals()),
@@ -2009,6 +2048,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
         """
+
         method_response = await self.api.request_raw(
             "exportChatInviteLink",
             get_params(locals()),
@@ -2045,6 +2085,7 @@ class APIMethods:
         :param creates_join_request: True, if users joining the chat via the link need to be approved by chat administrators. \
         If True, member_limit can't be specified.
         """
+
         method_response = await self.api.request_raw(
             "createChatInviteLink",
             get_params(locals()),
@@ -2084,6 +2125,7 @@ class APIMethods:
         :param creates_join_request: True, if users joining the chat via the link need to be approved by chat administrators. \
         If True, member_limit can't be specified.
         """
+
         method_response = await self.api.request_raw(
             "editChatInviteLink",
             get_params(locals()),
@@ -2118,6 +2160,7 @@ class APIMethods:
         :param subscription_price: The amount of Telegram Stars a user must pay initially and after each subsequent \
         subscription period to be a member of the chat; 1-2500.
         """
+
         method_response = await self.api.request_raw(
             "createChatSubscriptionInviteLink",
             get_params(locals()),
@@ -2145,6 +2188,7 @@ class APIMethods:
 
         :param name: Invite link name; 0-32 characters.
         """
+
         method_response = await self.api.request_raw(
             "editChatSubscriptionInviteLink",
             get_params(locals()),
@@ -2171,6 +2215,7 @@ class APIMethods:
 
         :param invite_link: The invite link to revoke.
         """
+
         method_response = await self.api.request_raw(
             "revokeChatInviteLink",
             get_params(locals()),
@@ -2195,6 +2240,7 @@ class APIMethods:
 
         :param user_id: Unique identifier of the target user.
         """
+
         method_response = await self.api.request_raw(
             "approveChatJoinRequest",
             get_params(locals()),
@@ -2219,6 +2265,7 @@ class APIMethods:
 
         :param user_id: Unique identifier of the target user.
         """
+
         method_response = await self.api.request_raw(
             "declineChatJoinRequest",
             get_params(locals()),
@@ -2244,6 +2291,7 @@ class APIMethods:
 
         :param photo: New chat photo, uploaded using multipart/form-data.
         """
+
         method_response = await self.api.request_raw(
             "setChatPhoto",
             get_params(locals()),
@@ -2265,6 +2313,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
         """
+
         method_response = await self.api.request_raw(
             "deleteChatPhoto",
             get_params(locals()),
@@ -2289,6 +2338,7 @@ class APIMethods:
 
         :param title: New chat title, 1-128 characters.
         """
+
         method_response = await self.api.request_raw(
             "setChatTitle",
             get_params(locals()),
@@ -2313,6 +2363,7 @@ class APIMethods:
 
         :param description: New chat description, 0-255 characters.
         """
+
         method_response = await self.api.request_raw(
             "setChatDescription",
             get_params(locals()),
@@ -2348,6 +2399,7 @@ class APIMethods:
         about the new pinned message. Notifications are always disabled in channels \
         and private chats.
         """
+
         method_response = await self.api.request_raw(
             "pinChatMessage",
             get_params(locals()),
@@ -2380,6 +2432,7 @@ class APIMethods:
         is specified. If not specified, the most recent pinned message (by sending \
         date) will be unpinned.
         """
+
         method_response = await self.api.request_raw(
             "unpinChatMessage",
             get_params(locals()),
@@ -2403,6 +2456,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
         """
+
         method_response = await self.api.request_raw(
             "unpinAllChatMessages",
             get_params(locals()),
@@ -2423,6 +2477,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         or channel (in the format @channelusername).
         """
+
         method_response = await self.api.request_raw(
             "leaveChat",
             get_params(locals()),
@@ -2443,6 +2498,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         or channel (in the format @channelusername).
         """
+
         method_response = await self.api.request_raw(
             "getChat",
             get_params(locals()),
@@ -2475,6 +2531,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         or channel (in the format @channelusername).
         """
+
         method_response = await self.api.request_raw(
             "getChatAdministrators",
             get_params(locals()),
@@ -2506,6 +2563,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         or channel (in the format @channelusername).
         """
+
         method_response = await self.api.request_raw(
             "getChatMemberCount",
             get_params(locals()),
@@ -2540,6 +2598,7 @@ class APIMethods:
 
         :param user_id: Unique identifier of the target user.
         """
+
         method_response = await self.api.request_raw(
             "getChatMember",
             get_params(locals()),
@@ -2576,6 +2635,7 @@ class APIMethods:
 
         :param sticker_set_name: Name of the sticker set to be set as the group sticker set.
         """
+
         method_response = await self.api.request_raw(
             "setChatStickerSet",
             get_params(locals()),
@@ -2599,6 +2659,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
         """
+
         method_response = await self.api.request_raw(
             "deleteChatStickerSet",
             get_params(locals()),
@@ -2612,6 +2673,7 @@ class APIMethods:
         topic icon by any user. Requires no parameters. Returns an Array of Sticker
         objects.
         """
+
         method_response = await self.api.request_raw(
             "getForumTopicIconStickers",
             get_params(locals()),
@@ -2646,6 +2708,7 @@ class APIMethods:
         :param icon_custom_emoji_id: Unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers \
         to get all allowed custom emoji identifiers.
         """
+
         method_response = await self.api.request_raw(
             "createForumTopic",
             get_params(locals()),
@@ -2680,6 +2743,7 @@ class APIMethods:
         to get all allowed custom emoji identifiers. Pass an empty string to remove \
         the icon. If not specified, the current icon will be kept.
         """
+
         method_response = await self.api.request_raw(
             "editForumTopic",
             get_params(locals()),
@@ -2705,6 +2769,7 @@ class APIMethods:
 
         :param message_thread_id: Unique identifier for the target message thread of the forum topic.
         """
+
         method_response = await self.api.request_raw(
             "closeForumTopic",
             get_params(locals()),
@@ -2730,6 +2795,7 @@ class APIMethods:
 
         :param message_thread_id: Unique identifier for the target message thread of the forum topic.
         """
+
         method_response = await self.api.request_raw(
             "reopenForumTopic",
             get_params(locals()),
@@ -2755,6 +2821,7 @@ class APIMethods:
 
         :param message_thread_id: Unique identifier for the target message thread of the forum topic.
         """
+
         method_response = await self.api.request_raw(
             "deleteForumTopic",
             get_params(locals()),
@@ -2780,6 +2847,7 @@ class APIMethods:
 
         :param message_thread_id: Unique identifier for the target message thread of the forum topic.
         """
+
         method_response = await self.api.request_raw(
             "unpinAllForumTopicMessages",
             get_params(locals()),
@@ -2804,6 +2872,7 @@ class APIMethods:
 
         :param name: New topic name, 1-128 characters.
         """
+
         method_response = await self.api.request_raw(
             "editGeneralForumTopic",
             get_params(locals()),
@@ -2825,6 +2894,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
         """
+
         method_response = await self.api.request_raw(
             "closeGeneralForumTopic",
             get_params(locals()),
@@ -2847,6 +2917,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
         """
+
         method_response = await self.api.request_raw(
             "reopenGeneralForumTopic",
             get_params(locals()),
@@ -2869,6 +2940,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
         """
+
         method_response = await self.api.request_raw(
             "hideGeneralForumTopic",
             get_params(locals()),
@@ -2890,6 +2962,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
         """
+
         method_response = await self.api.request_raw(
             "unhideGeneralForumTopic",
             get_params(locals()),
@@ -2912,6 +2985,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
         """
+
         method_response = await self.api.request_raw(
             "unpinAllGeneralForumTopicMessages",
             get_params(locals()),
@@ -2952,6 +3026,7 @@ class APIMethods:
         may be cached client-side. Telegram apps will support caching starting \
         in version 3.14. Defaults to 0.
         """
+
         method_response = await self.api.request_raw(
             "answerCallbackQuery",
             get_params(locals()),
@@ -2975,6 +3050,7 @@ class APIMethods:
 
         :param user_id: Unique identifier of the target user.
         """
+
         method_response = await self.api.request_raw(
             "getUserChatBoosts",
             get_params(locals()),
@@ -2994,6 +3070,7 @@ class APIMethods:
 
         :param business_connection_id: Unique identifier of the business connection.
         """
+
         method_response = await self.api.request_raw(
             "getBusinessConnection",
             get_params(locals()),
@@ -3023,6 +3100,7 @@ class APIMethods:
         to all users from the given scope, for whose language there are no dedicated \
         commands.
         """
+
         method_response = await self.api.request_raw(
             "setMyCommands",
             get_params(locals()),
@@ -3049,6 +3127,7 @@ class APIMethods:
         to all users from the given scope, for whose language there are no dedicated \
         commands.
         """
+
         method_response = await self.api.request_raw(
             "deleteMyCommands",
             get_params(locals()),
@@ -3072,6 +3151,7 @@ class APIMethods:
 
         :param language_code: A two-letter ISO 639-1 language code or an empty string.
         """
+
         method_response = await self.api.request_raw(
             "getMyCommands",
             get_params(locals()),
@@ -3095,6 +3175,7 @@ class APIMethods:
         :param language_code: A two-letter ISO 639-1 language code. If empty, the name will be shown to \
         all users for whose language there is no dedicated name.
         """
+
         method_response = await self.api.request_raw(
             "setMyName",
             get_params(locals()),
@@ -3114,6 +3195,7 @@ class APIMethods:
 
         :param language_code: A two-letter ISO 639-1 language code or an empty string.
         """
+
         method_response = await self.api.request_raw(
             "getMyName",
             get_params(locals()),
@@ -3138,6 +3220,7 @@ class APIMethods:
         :param language_code: A two-letter ISO 639-1 language code. If empty, the description will be \
         applied to all users for whose language there is no dedicated description. \
         """
+
         method_response = await self.api.request_raw(
             "setMyDescription",
             get_params(locals()),
@@ -3157,6 +3240,7 @@ class APIMethods:
 
         :param language_code: A two-letter ISO 639-1 language code or an empty string.
         """
+
         method_response = await self.api.request_raw(
             "getMyDescription",
             get_params(locals()),
@@ -3182,6 +3266,7 @@ class APIMethods:
         :param language_code: A two-letter ISO 639-1 language code. If empty, the short description will \
         be applied to all users for whose language there is no dedicated short description. \
         """
+
         method_response = await self.api.request_raw(
             "setMyShortDescription",
             get_params(locals()),
@@ -3201,6 +3286,7 @@ class APIMethods:
 
         :param language_code: A two-letter ISO 639-1 language code or an empty string.
         """
+
         method_response = await self.api.request_raw(
             "getMyShortDescription",
             get_params(locals()),
@@ -3224,6 +3310,7 @@ class APIMethods:
 
         :param menu_button: A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault. \
         """
+
         method_response = await self.api.request_raw(
             "setChatMenuButton",
             get_params(locals()),
@@ -3244,6 +3331,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target private chat. If not specified, default \
         bot's menu button will be returned.
         """
+
         method_response = await self.api.request_raw(
             "getChatMenuButton",
             get_params(locals()),
@@ -3271,6 +3359,7 @@ class APIMethods:
         Otherwise, the default administrator rights of the bot for groups and supergroups \
         will be changed.
         """
+
         method_response = await self.api.request_raw(
             "setMyDefaultAdministratorRights",
             get_params(locals()),
@@ -3292,6 +3381,7 @@ class APIMethods:
         default administrator rights of the bot for groups and supergroups will \
         be returned.
         """
+
         method_response = await self.api.request_raw(
             "getMyDefaultAdministratorRights",
             get_params(locals()),
@@ -3344,6 +3434,7 @@ class APIMethods:
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
+
         method_response = await self.api.request_raw(
             "editMessageText",
             get_params(locals()),
@@ -3397,6 +3488,7 @@ class APIMethods:
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
+
         method_response = await self.api.request_raw(
             "editMessageCaption",
             get_params(locals()),
@@ -3442,6 +3534,7 @@ class APIMethods:
 
         :param reply_markup: A JSON-serialized object for a new inline keyboard.
         """
+
         method_response = await self.api.request_raw(
             "editMessageMedia",
             get_params(locals()),
@@ -3504,6 +3597,7 @@ class APIMethods:
 
         :param reply_markup: A JSON-serialized object for a new inline keyboard.
         """
+
         method_response = await self.api.request_raw(
             "editMessageLiveLocation",
             get_params(locals()),
@@ -3540,6 +3634,7 @@ class APIMethods:
 
         :param reply_markup: A JSON-serialized object for a new inline keyboard.
         """
+
         method_response = await self.api.request_raw(
             "stopMessageLiveLocation",
             get_params(locals()),
@@ -3578,6 +3673,7 @@ class APIMethods:
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
+
         method_response = await self.api.request_raw(
             "editMessageReplyMarkup",
             get_params(locals()),
@@ -3608,6 +3704,7 @@ class APIMethods:
 
         :param reply_markup: A JSON-serialized object for a new message inline keyboard.
         """
+
         method_response = await self.api.request_raw(
             "stopPoll",
             get_params(locals()),
@@ -3640,6 +3737,7 @@ class APIMethods:
 
         :param message_id: Identifier of the message to delete.
         """
+
         method_response = await self.api.request_raw(
             "deleteMessage",
             get_params(locals()),
@@ -3665,6 +3763,7 @@ class APIMethods:
         :param message_ids: A JSON-serialized list of 1-100 identifiers of messages to delete. See \
         deleteMessage for limitations on which messages can be deleted.
         """
+
         method_response = await self.api.request_raw(
             "deleteMessages",
             get_params(locals()),
@@ -3727,6 +3826,7 @@ class APIMethods:
         keyboard, custom reply keyboard, instructions to remove a reply keyboard \
         or to force a reply from the user.
         """
+
         method_response = await self.api.request_raw(
             "sendSticker",
             get_params(locals()),
@@ -3745,6 +3845,7 @@ class APIMethods:
 
         :param name: Name of the sticker set.
         """
+
         method_response = await self.api.request_raw(
             "getStickerSet",
             get_params(locals()),
@@ -3765,6 +3866,7 @@ class APIMethods:
         :param custom_emoji_ids: A JSON-serialized list of custom emoji identifiers. At most 200 custom \
         emoji identifiers can be specified.
         """
+
         method_response = await self.api.request_raw(
             "getCustomEmojiStickers",
             get_params(locals()),
@@ -3792,6 +3894,7 @@ class APIMethods:
 
         :param sticker_format: Format of the sticker, must be one of `static`, `animated`, `video`.
         """
+
         method_response = await self.api.request_raw(
             "uploadStickerFile",
             get_params(locals()),
@@ -3834,6 +3937,7 @@ class APIMethods:
         on chat photos, or another appropriate color based on context; for custom \
         emoji sticker sets only.
         """
+
         method_response = await self.api.request_raw(
             "createNewStickerSet",
             get_params(locals()),
@@ -3862,6 +3966,7 @@ class APIMethods:
         exactly the same sticker had already been added to the set, then the set isn't \
         changed.
         """
+
         method_response = await self.api.request_raw(
             "addStickerToSet",
             get_params(locals()),
@@ -3884,6 +3989,7 @@ class APIMethods:
 
         :param position: New sticker position in the set, zero-based.
         """
+
         method_response = await self.api.request_raw(
             "setStickerPositionInSet",
             get_params(locals()),
@@ -3903,6 +4009,7 @@ class APIMethods:
 
         :param sticker: File identifier of the sticker.
         """
+
         method_response = await self.api.request_raw(
             "deleteStickerFromSet",
             get_params(locals()),
@@ -3934,6 +4041,7 @@ class APIMethods:
         exactly the same sticker had already been added to the set, then the set remains \
         unchanged.
         """
+
         method_response = await self.api.request_raw(
             "replaceStickerInSet",
             get_params(locals()),
@@ -3957,6 +4065,7 @@ class APIMethods:
 
         :param emoji_list: A JSON-serialized list of 1-20 emoji associated with the sticker.
         """
+
         method_response = await self.api.request_raw(
             "setStickerEmojiList",
             get_params(locals()),
@@ -3981,6 +4090,7 @@ class APIMethods:
         :param keywords: A JSON-serialized list of 0-20 search keywords for the sticker with total \
         length of up to 64 characters.
         """
+
         method_response = await self.api.request_raw(
             "setStickerKeywords",
             get_params(locals()),
@@ -4004,6 +4114,7 @@ class APIMethods:
         :param mask_position: A JSON-serialized object with the position where the mask should be placed \
         on faces. Omit the parameter to remove the mask position.
         """
+
         method_response = await self.api.request_raw(
             "setStickerMaskPosition",
             get_params(locals()),
@@ -4026,6 +4137,7 @@ class APIMethods:
 
         :param title: Sticker set title, 1-64 characters.
         """
+
         method_response = await self.api.request_raw(
             "setStickerSetTitle",
             get_params(locals()),
@@ -4067,6 +4179,7 @@ class APIMethods:
         :param format: Format of the thumbnail, must be one of `static` for a .WEBP or .PNG image, \
         `animated` for a .TGS animation, or `video` for a .WEBM video.
         """
+
         method_response = await self.api.request_raw(
             "setStickerSetThumbnail",
             get_params(locals()),
@@ -4090,6 +4203,7 @@ class APIMethods:
         :param custom_emoji_id: Custom emoji identifier of a sticker from the sticker set; pass an empty \
         string to drop the thumbnail and use the first sticker as the thumbnail. \
         """
+
         method_response = await self.api.request_raw(
             "setCustomEmojiStickerSetThumbnail",
             get_params(locals()),
@@ -4109,6 +4223,7 @@ class APIMethods:
 
         :param name: Sticker set name.
         """
+
         method_response = await self.api.request_raw(
             "deleteStickerSet",
             get_params(locals()),
@@ -4121,6 +4236,7 @@ class APIMethods:
         Returns the list of gifts that can be sent by the bot to users. Requires no
         parameters. Returns a Gifts object.
         """
+
         method_response = await self.api.request_raw(
             "getAvailableGifts",
             get_params(locals()),
@@ -4161,6 +4277,7 @@ class APIMethods:
         `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` \
         are ignored.
         """
+
         method_response = await self.api.request_raw(
             "sendGift",
             get_params(locals()),
@@ -4184,6 +4301,7 @@ class APIMethods:
         :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
         if the organization isn't allowed to provide a custom verification description. \
         """
+
         method_response = await self.api.request_raw(
             "verifyUser",
             get_params(locals()),
@@ -4208,6 +4326,7 @@ class APIMethods:
         :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
         if the organization isn't allowed to provide a custom verification description. \
         """
+
         method_response = await self.api.request_raw(
             "verifyChat",
             get_params(locals()),
@@ -4227,6 +4346,7 @@ class APIMethods:
 
         :param user_id: Unique identifier of the target user.
         """
+
         method_response = await self.api.request_raw(
             "removeUserVerification",
             get_params(locals()),
@@ -4247,6 +4367,7 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
         """
+
         method_response = await self.api.request_raw(
             "removeChatVerification",
             get_params(locals()),
@@ -4287,6 +4408,7 @@ class APIMethods:
         :param button: A JSON-serialized object describing a button to be shown above inline query \
         results.
         """
+
         method_response = await self.api.request_raw(
             "answerInlineQuery",
             get_params(locals()),
@@ -4310,6 +4432,7 @@ class APIMethods:
 
         :param result: A JSON-serialized object describing the message to be sent.
         """
+
         method_response = await self.api.request_raw(
             "answerWebAppQuery",
             get_params(locals()),
@@ -4344,6 +4467,7 @@ class APIMethods:
 
         :param allow_channel_chats: Pass True if the message can be sent to channel chats.
         """
+
         method_response = await self.api.request_raw(
             "savePreparedInlineMessage",
             get_params(locals()),
@@ -4480,6 +4604,7 @@ class APIMethods:
         :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total \
         price' button will be shown. If not empty, the first button must be a Pay button. \
         """
+
         method_response = await self.api.request_raw(
             "sendInvoice",
             get_params(locals()),
@@ -4591,6 +4716,7 @@ class APIMethods:
         :param is_flexible: Pass True if the final price depends on the shipping method. Ignored for \
         payments in Telegram Stars.
         """
+
         method_response = await self.api.request_raw(
             "createInvoiceLink",
             get_params(locals()),
@@ -4626,6 +4752,7 @@ class APIMethods:
         desired address is unavailable`). Telegram will display this message \
         to the user.
         """
+
         method_response = await self.api.request_raw(
             "answerShippingQuery",
             get_params(locals()),
@@ -4659,6 +4786,7 @@ class APIMethods:
         out your payment details. Please choose a different color or garment!`). \
         Telegram will display this message to the user.
         """
+
         method_response = await self.api.request_raw(
             "answerPreCheckoutQuery",
             get_params(locals()),
@@ -4682,6 +4810,7 @@ class APIMethods:
         :param limit: The maximum number of transactions to be retrieved. Values between 1-100 \
         are accepted. Defaults to 100.
         """
+
         method_response = await self.api.request_raw(
             "getStarTransactions",
             get_params(locals()),
@@ -4703,6 +4832,7 @@ class APIMethods:
 
         :param telegram_payment_charge_id: Telegram payment identifier.
         """
+
         method_response = await self.api.request_raw(
             "refundStarPayment",
             get_params(locals()),
@@ -4731,6 +4861,7 @@ class APIMethods:
         to allow the user to re-enable a subscription that was previously canceled \
         by the bot.
         """
+
         method_response = await self.api.request_raw(
             "editUserStarSubscription",
             get_params(locals()),
@@ -4759,6 +4890,7 @@ class APIMethods:
 
         :param errors: A JSON-serialized array describing the errors.
         """
+
         method_response = await self.api.request_raw(
             "setPassportDataErrors",
             get_params(locals()),
@@ -4811,6 +4943,7 @@ class APIMethods:
         :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' \
         button will be shown. If not empty, the first button must launch the game. \
         """
+
         method_response = await self.api.request_raw(
             "sendGame",
             get_params(locals()),
@@ -4855,6 +4988,7 @@ class APIMethods:
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
         inline message.
         """
+
         method_response = await self.api.request_raw(
             "setGameScore",
             get_params(locals()),
@@ -4887,6 +5021,7 @@ class APIMethods:
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
         inline message.
         """
+
         method_response = await self.api.request_raw(
             "getGameHighScores",
             get_params(locals()),
