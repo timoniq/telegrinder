@@ -347,7 +347,7 @@ class Update(Model):
     """Optional. A boost was removed from a chat. The bot must be an administrator
     in the chat to receive these updates."""
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return isinstance(other, self.__class__) and self.update_type == other.update_type
 
     @cached_property
@@ -458,7 +458,7 @@ class User(Model):
     has_main_web_app: Option[bool] = field(default=Nothing, converter=From[bool | None])
     """Optional. True, if the bot has a main Web App. Returned only in getMe."""
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
@@ -502,7 +502,7 @@ class Chat(Model):
     is_forum: Option[bool] = field(default=Nothing, converter=From[bool | None])
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
@@ -1055,7 +1055,7 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Inline keyboard attached to the message. login_url buttons
     are represented as ordinary url buttons."""
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return (
             isinstance(other, self.__class__)
             and self.message_id == other.message_id
@@ -1086,10 +1086,6 @@ class Message(MaybeInaccessibleMessage):
         Full name, for `private` chat.
         """
         return self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
-
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
 
 
 class MessageId(Model):
@@ -1777,13 +1773,6 @@ class PollAnswer(Model):
     """Optional. The user that changed the answer to the poll, if the voter isn't
     anonymous."""
 
-    @property
-    def event_key(self) -> str:
-        return self.user.map_or_else(
-            lambda _: f"chat_{self.voter_chat.unwrap().id}",
-            lambda user: f"user_{user.id}",
-        ).unwrap()
-
 
 class Poll(Model):
     """Object `Poll`, see the [documentation](https://core.telegram.org/bots/api#poll).
@@ -1842,10 +1831,6 @@ class Poll(Model):
     close_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
     """Optional. Point in time (Unix timestamp) when the poll will be automatically
     closed."""
-
-    @property
-    def event_key(self) -> str:
-        return self.id
 
 
 class Location(Model):
@@ -2519,7 +2504,7 @@ class ReplyKeyboardMarkup(Model):
     select the new language. Other users in the group don't see the keyboard."""
 
     @property
-    def empty_markup(self) -> "ReplyKeyboardRemove":
+    def empty_markup(self) -> ReplyKeyboardRemove:
         """Empty keyboard to remove the custom keyboard."""
         return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective.unwrap_or_none())
 
@@ -2864,13 +2849,6 @@ class CallbackQuery(Model):
     """Optional. Short name of a Game to be returned, serves as the unique identifier
     for the game."""
 
-    @property
-    def event_key(self) -> str:
-        return self.message.map_or(
-            f"user_{self.from_.id}",
-            lambda message: f"chat_{message.v.chat.id}",
-        ).unwrap()
-
 
 class ForceReply(Model):
     """Object `ForceReply`, see the [documentation](https://core.telegram.org/bots/api#forcereply).
@@ -3084,10 +3062,6 @@ class ChatMemberUpdated(Model):
     def chat_id(self) -> int:
         """Alias `.chat_id` instead of `.chat.id`"""
         return self.chat.id
-
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
 
 
 class ChatMemberOwner(ChatMember):
@@ -3327,10 +3301,6 @@ class ChatJoinRequest(Model):
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
         return self.chat.id
-
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
 
 
 class ChatPermissions(Model):
@@ -3572,10 +3542,6 @@ class MessageReactionUpdated(Model):
     """Optional. The chat on behalf of which the reaction was changed, if the user
     is anonymous."""
 
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
 
 class MessageReactionCountUpdated(Model):
     """Object `MessageReactionCountUpdated`, see the [documentation](https://core.telegram.org/bots/api#messagereactioncountupdated).
@@ -3594,10 +3560,6 @@ class MessageReactionCountUpdated(Model):
 
     reactions: list[ReactionCount] = field()
     """List of reactions that are present on the message."""
-
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
 
 
 class ForumTopic(Model):
@@ -3874,10 +3836,6 @@ class ChatBoostUpdated(Model):
     boost: ChatBoost = field()
     """Information about the chat boost."""
 
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
 
 class ChatBoostRemoved(Model):
     """Object `ChatBoostRemoved`, see the [documentation](https://core.telegram.org/bots/api#chatboostremoved).
@@ -3898,10 +3856,6 @@ class ChatBoostRemoved(Model):
         converter=From["ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway"]
     )
     """Source of the removed boost."""
-
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
 
 
 class UserChatBoosts(Model):
@@ -3943,10 +3897,6 @@ class BusinessConnection(Model):
     is_enabled: bool = field()
     """True, if the connection is active."""
 
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.user_chat_id}"
-
 
 class BusinessMessagesDeleted(Model):
     """Object `BusinessMessagesDeleted`, see the [documentation](https://core.telegram.org/bots/api#businessmessagesdeleted).
@@ -3963,10 +3913,6 @@ class BusinessMessagesDeleted(Model):
 
     message_ids: list[int] = field()
     """The list of identifiers of deleted messages in the chat of the business account."""
-
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
 
 
 class ResponseParameters(Model):
@@ -4498,10 +4444,6 @@ class InlineQuery(Model):
 
     location: Option[Location] = field(default=Nothing, converter=From["Location | None"])
     """Optional. Sender location, only for bots that request user location."""
-
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
 
 
 class InlineQueryResultsButton(Model):
@@ -5963,10 +5905,6 @@ class ChosenInlineResult(Model):
     is an inline keyboard attached to the message. Will be also received in callback
     queries and can be used to edit the message."""
 
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
-
 
 class SentWebAppMessage(Model):
     """Object `SentWebAppMessage`, see the [documentation](https://core.telegram.org/bots/api#sentwebappmessage).
@@ -6181,10 +6119,6 @@ class ShippingQuery(Model):
     shipping_address: ShippingAddress = field()
     """User specified shipping address."""
 
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
-
 
 class PreCheckoutQuery(Model):
     """Object `PreCheckoutQuery`, see the [documentation](https://core.telegram.org/bots/api#precheckoutquery).
@@ -6217,10 +6151,6 @@ class PreCheckoutQuery(Model):
     order_info: Option[OrderInfo] = field(default=Nothing, converter=From["OrderInfo | None"])
     """Optional. Order information provided by the user."""
 
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
-
 
 class PaidMediaPurchased(Model):
     """Object `PaidMediaPurchased`, see the [documentation](https://core.telegram.org/bots/api#paidmediapurchased).
@@ -6233,10 +6163,6 @@ class PaidMediaPurchased(Model):
 
     paid_media_payload: str = field()
     """Bot-specified paid media payload."""
-
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
 
 
 class RevenueWithdrawalStatePending(RevenueWithdrawalState):

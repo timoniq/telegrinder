@@ -6,6 +6,8 @@ The difference between nicifications and cure types is: cute types can borrow vi
 Nicifications can only implement fields/methods/properties working only with model fields.
 """
 
+from __future__ import annotations
+
 import pathlib
 import typing
 from datetime import datetime
@@ -17,31 +19,19 @@ from telegrinder.model import Model
 from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import (
     Birthdate,
-    BusinessConnection,
-    BusinessMessagesDeleted,
     Chat,
-    ChatBoostRemoved,
-    ChatBoostUpdated,
     ChatJoinRequest,
     ChatMemberUpdated,
     ChatType,
-    ChosenInlineResult,
     ContentType,
     DefaultAccentColor,
-    InlineQuery,
     Message,
-    MessageReactionCountUpdated,
-    MessageReactionUpdated,
-    PaidMediaPurchased,
-    PreCheckoutQuery,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
-    ShippingQuery,
     Update,
     UpdateType,
     User,
 )
-from telegrinder.types.objects import CallbackQuery, Poll, PollAnswer
 
 
 class _Birthdate(Birthdate):
@@ -58,7 +48,7 @@ class _Birthdate(Birthdate):
 
 
 class _Chat(Chat):
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
@@ -75,46 +65,6 @@ class _ChatJoinRequest(ChatJoinRequest):
         """`chat_id` instead of `chat.id`."""
         return self.chat.id
 
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
-
-class _MessageReactionUpdated(MessageReactionUpdated):
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
-
-class _MessageReactionCountUpdated(MessageReactionCountUpdated):
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
-
-class _ChatBoostUpdated(ChatBoostUpdated):
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
-
-class _ChatBoostRemoved(ChatBoostRemoved):
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
-
-class _BusinessConnection(BusinessConnection):
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.user_chat_id}"
-
-
-class _BusinessMessagesDeleted(BusinessMessagesDeleted):
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
 
 class _ChatMemberUpdated(ChatMemberUpdated):
     @property
@@ -122,13 +72,9 @@ class _ChatMemberUpdated(ChatMemberUpdated):
         """Alias `.chat_id` instead of `.chat.id`"""
         return self.chat.id
 
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
 
 class _Message(Message):
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return (
             isinstance(other, self.__class__)
             and self.message_id == other.message_id
@@ -160,67 +106,9 @@ class _Message(Message):
         """
         return self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
 
-    @property
-    def event_key(self) -> str:
-        return f"chat_{self.chat.id}"
-
-
-class _PollAnswer(PollAnswer):
-    @property
-    def event_key(self) -> str:
-        return self.user.map_or_else(
-            lambda _: f"chat_{self.voter_chat.unwrap().id}",
-            lambda user: f"user_{user.id}",
-        ).unwrap()
-
-
-class _Poll(Poll):
-    @property
-    def event_key(self) -> str:
-        return self.id
-
-
-class _CallbackQuery(CallbackQuery):
-    @property
-    def event_key(self) -> str:
-        return self.message.map_or(
-            f"user_{self.from_.id}",
-            lambda message: f"chat_{message.v.chat.id}",
-        ).unwrap()
-
-
-class _PaidMediaPurchased(PaidMediaPurchased):
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
-
-
-class _PreCheckoutQuery(PreCheckoutQuery):
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
-
-
-class _InlineQuery(InlineQuery):
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
-
-
-class _ChosenInlineResult(ChosenInlineResult):
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
-
-
-class _ShippingQuery(ShippingQuery):
-    @property
-    def event_key(self) -> str:
-        return f"user_{self.from_.id}"
-
 
 class _User(User):
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
@@ -235,7 +123,7 @@ class _User(User):
 
 
 class _Update(Update):
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return isinstance(other, self.__class__) and self.update_type == other.update_type
 
     @cached_property
@@ -275,6 +163,6 @@ class _InputFile(typing.NamedTuple):
 
 class _ReplyKeyboardMarkup(ReplyKeyboardMarkup):
     @property
-    def empty_markup(self) -> "ReplyKeyboardRemove":
+    def empty_markup(self) -> ReplyKeyboardRemove:
         """Empty keyboard to remove the custom keyboard."""
         return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective.unwrap_or_none())
