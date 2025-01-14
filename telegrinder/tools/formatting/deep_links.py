@@ -309,10 +309,13 @@ def tg_invoice_link(*, slug: str) -> str:
 
 
 @deep_link("tg://setlanguage")
-def tg_language_pack_link(*, lang_pack: Parameter[str, "lang"]) -> str:
+def tg_language_pack_link(
+    *,
+    lang_pack: Parameter[str | None, "lang"] = None,
+) -> str:
     """Used to import custom language packs using `langpack.getLangPack`.
 
-    :param lang_pack: Name of language pack.
+    :param lang_pack: Optional. Name of language pack.
     """
     ...
 
@@ -331,10 +334,10 @@ def tg_premium_multigift_link(*, ref: str) -> str:
 
 
 @deep_link("tg://premium_offer")
-def tg_premium_offer_link(*, ref: str) -> str:
+def tg_premium_offer_link(*, ref: str | None = None) -> str:
     """Used by official apps to show the `Telegram Premium` subscription page.
 
-    :param ref: Used by official apps for analytics using `help.saveAppLog`.
+    :param ref: Optional. Used by official apps for analytics using `help.saveAppLog`.
     """
     ...
 

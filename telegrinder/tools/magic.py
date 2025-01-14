@@ -256,6 +256,7 @@ async def cancel_future(fut: asyncio.Future[typing.Any], /) -> None:
 
     fut.cancel()
     exc: asyncio.CancelledError | None = None
+
     while not fut.done():
         shielded = asyncio.shield(fut)
         try:

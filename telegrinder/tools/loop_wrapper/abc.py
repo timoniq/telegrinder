@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 class ABCLoopWrapper(ABC):
     @abstractmethod
-    def add_task(self, task: typing.Any) -> None:
+    def add_task(self, task: typing.Any, /) -> None:
         pass
 
     @abstractmethod
