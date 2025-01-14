@@ -24,8 +24,8 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
     @typing.overload
     def __call__[**P, R](
         self,
-        update_type: UpdateType,
         *rules: ABCRule,
+        update_type: UpdateType,
         final: bool = True,
     ) -> typing.Callable[
         [Func[P, R]],
@@ -35,17 +35,38 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
     @typing.overload
     def __call__[**P, Dataclass, R](
         self,
-        update_type: UpdateType,
         *rules: ABCRule,
         dataclass: type[Dataclass],
+        final: bool = True,
+    ) -> typing.Callable[[Func[P, R]], FuncHandler[Dataclass, Func[P, R], ErrorHandler[Dataclass]]]: ...
+
+    @typing.overload
+    def __call__[**P, Dataclass, R](
+        self,
+        *rules: ABCRule,
+        update_type: UpdateType,
+        dataclass: type[Dataclass],
+        final: bool = True,
     ) -> typing.Callable[[Func[P, R]], FuncHandler[Dataclass, Func[P, R], ErrorHandler[Dataclass]]]: ...
 
     @typing.overload
     def __call__[**P, ErrorHandlerT: ABCErrorHandler, R](
         self,
-        update_type: UpdateType,
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
+        final: bool = True,
+    ) -> typing.Callable[
+        [Func[P, R]],
+        FuncHandler[BaseCute[typing.Any], Func[P, R], ErrorHandlerT],
+    ]: ...
+
+    @typing.overload
+    def __call__[**P, ErrorHandlerT: ABCErrorHandler, R](
+        self,
+        *rules: ABCRule,
+        error_handler: ErrorHandlerT,
+        update_type: UpdateType,
+        final: bool = True,
     ) -> typing.Callable[
         [Func[P, R]],
         FuncHandler[BaseCute[typing.Any], Func[P, R], ErrorHandlerT],
@@ -54,8 +75,8 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
     @typing.overload
     def __call__[**P, Dataclass, ErrorHandlerT: ABCErrorHandler, R](
         self,
-        update_type: UpdateType,
         *rules: ABCRule,
+        update_type: UpdateType,
         dataclass: type[Dataclass],
         error_handler: ErrorHandlerT,
         final: bool = True,
@@ -63,13 +84,13 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
 
     def __call__(
         self,
-        update_type: UpdateType,
         *rules: ABCRule,
+        update_type: UpdateType | None = None,
         dataclass: type[typing.Any] | None = None,
         error_handler: ABCErrorHandler | None = None,
         final: bool = True,
     ) -> typing.Callable[..., typing.Any]:
-        def wrapper(func):
+        def wrapper(func: typing.Callable[..., typing.Any]):
             func_handler = FuncHandler(
                 func,
                 rules=[*self.auto_rules, *rules],

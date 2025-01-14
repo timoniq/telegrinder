@@ -50,7 +50,7 @@ async def chat_boost(update: Update):
     logger.info(f"User boosted chat (title={boosted_chat.title.unwrap()}, id={boosted_chat.id})")
 
 
-@bot.on.raw_event(UpdateType.MESSAGE_REACTION, ReactionRule(), dataclass=MessageReactionUpdated)
+@bot.on.raw_event(ReactionRule(), dataclass=MessageReactionUpdated, update_type=UpdateType.MESSAGE_REACTION)
 async def message_reaction(message_reaction: MessageReactionUpdated):
     new_reactions = [
         x.v.emoji.value if x.v.type == "emoji" else "*custom reaction*" for x in message_reaction.new_reaction
@@ -61,7 +61,7 @@ async def message_reaction(message_reaction: MessageReactionUpdated):
     )
 
 
-@bot.on.raw_event(UpdateType.EDITED_MESSAGE, dataclass=Message)
+@bot.on.raw_event(dataclass=Message, update_type=UpdateType.MESSAGE_REACTION)
 async def edited_message(m: Message):
     logger.info(f"User edit message with id: {m.message_id}")
 

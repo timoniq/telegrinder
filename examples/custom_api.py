@@ -29,7 +29,7 @@ lw = LoopWrapper()
 dp = Dispatch()
 
 
-@dp.raw_event(UpdateType.MESSAGE, Command("get_me"), dataclass=Message)
+@dp.raw_event(Command("get_me"), update_type=UpdateType.MESSAGE, dataclass=Message)
 async def message_handler(message: Message) -> None:
     me = (await api.get_me()).unwrap()
     await message.reply(
