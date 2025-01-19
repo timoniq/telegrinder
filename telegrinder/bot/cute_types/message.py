@@ -8,7 +8,7 @@ from fntypes.co import Result, Some, Variative
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
 from telegrinder.bot.cute_types.utils import compose_reactions, input_media
-from telegrinder.model import From, field, get_params
+from telegrinder.model import UNSET, From, field, get_params
 from telegrinder.msgspec_utils import Option
 from telegrinder.tools.magic import shortcut
 from telegrinder.types import *
@@ -129,7 +129,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     api: API
 
     reply_to_message: Option[MessageCute] = field(
-        default=fntypes.option.Nothing(),
+        default=UNSET,
         converter=From["MessageCute | None"],
     )
     """Optional. For replies in the same chat and message thread, the original
@@ -137,7 +137,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     reply_to_message fields even if it itself is a reply."""
 
     pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
-        default=fntypes.option.Nothing(),
+        default=UNSET,
         converter=From["MessageCute | InaccessibleMessage | None"],
     )
     """Optional. Specified message was pinned. Note that the Message object in
