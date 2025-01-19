@@ -108,6 +108,11 @@ else:
 class Model(msgspec.Struct, **MODEL_CONFIG):
     if not typing.TYPE_CHECKING:
 
+        def __post_init__(self):
+            for field in self.__struct_fields__:
+                if is_none(getattr(self, field)):
+                    setattr(self, field, UNSET)
+
         def __getattribute__(self, name, /):
             val = super().__getattribute__(name)
             return Nothing() if val is UNSET else val
