@@ -4,16 +4,21 @@ import typing
 import msgspec
 from fntypes.co import Nothing, Result, Some
 
-from telegrinder.msgspec_utils import decoder, encoder
+from telegrinder.msgspec_utils import decoder, encoder, struct_as_dict
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
 
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
-    "omit_defaults": True,
     "dict": True,
     "rename": {kw + "_": kw for kw in keyword.kwlist},
 }
+UNSET = typing.cast(typing.Any, msgspec.UNSET)
+"""Docs: https://jcristharif.com/msgspec/api.html#unset
+
+During decoding, if a field isn't explicitly set in the model,
+the default value of `UNSET` will be set instead. This lets downstream
+consumers determine whether a field was left unset, or explicitly set a value."""
 
 
 def full_result[T](
@@ -101,6 +106,12 @@ else:
 
 @typing.dataclass_transform(field_specifiers=(field,))
 class Model(msgspec.Struct, **MODEL_CONFIG):
+    if not typing.TYPE_CHECKING:
+
+        def __getattribute__(self, name, /):
+            val = super().__getattribute__(name)
+            return Nothing() if val is UNSET else val
+
     @classmethod
     def from_data[**P, T](cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
         return decoder.convert(msgspec.structs.asdict(cls(*args, **kwargs)), type=cls)  # type: ignore
@@ -121,7 +132,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
     ) -> dict[str, typing.Any]:
         if dct_name not in self.__dict__:
             self.__dict__[dct_name] = (
-                msgspec.structs.asdict(self)
+                struct_as_dict(self)
                 if not full
                 else encoder.to_builtins(self.to_dict(exclude_fields=exclude_fields), order="deterministic")
             )

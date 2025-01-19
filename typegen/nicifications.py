@@ -13,10 +13,9 @@ import typing
 from datetime import datetime
 from functools import cached_property
 
-from fntypes.option import Option
+from fntypes.option import Nothing, Option
 
 from telegrinder.model import Model
-from telegrinder.msgspec_utils import Nothing
 from telegrinder.types import (
     Birthdate,
     Chat,
@@ -85,7 +84,10 @@ class _Message(Message):
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
         for content in ContentType:
-            if content.value in self.__struct_fields__ and getattr(self, content.value, Nothing) is not Nothing:
+            if content.value in self.__struct_fields__ and not isinstance(
+                getattr(self, content.value, Nothing()),
+                Nothing,
+            ):
                 return content
         return ContentType.UNKNOWN
 
@@ -134,7 +136,7 @@ class _Update(Update):
                 (
                     x
                     for x in self.__struct_fields__
-                    if x != "update_id" and not isinstance(getattr(self, x), type(Nothing))
+                    if x != "update_id" and not isinstance(getattr(self, x), Nothing)
                 )
             ),
         )

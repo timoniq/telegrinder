@@ -136,9 +136,5 @@ class ViewBox(
         )
         self.raw_event = typing.cast(RawEventView, raw_event_view or raw.RawEventView())
 
-    def get_views(self) -> dict[str, ABCView]:
-        """Get all views."""
-        return {name: view for name, view in self.__dict__.items() if isinstance(view, ABCView)}
-
 
 __all__ = ("ViewBox",)

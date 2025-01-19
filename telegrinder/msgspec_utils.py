@@ -11,9 +11,9 @@ if typing.TYPE_CHECKING:
 
     from fntypes.option import Option
 
-    def get_class_annotations(obj: typing.Any) -> dict[str, typing.Any]: ...
+    def get_class_annotations(obj: typing.Any, /) -> dict[str, typing.Any]: ...
 
-    def get_type_hints(obj: typing.Any) -> dict[str, typing.Any]: ...
+    def get_type_hints(obj: typing.Any, /) -> dict[str, typing.Any]: ...
 
 else:
     from datetime import datetime as dt
@@ -24,7 +24,7 @@ else:
 
     class OptionMeta(type):
         def __instancecheck__(cls, __instance: typing.Any) -> bool:
-            return isinstance(__instance, fntypes.option.Some | fntypes.option.Nothing)
+            return isinstance(__instance, (fntypes.option.Some | fntypes.option.Nothing, msgspec.UnsetType))
 
     class Option[Value](metaclass=OptionMeta):
         pass
@@ -32,8 +32,6 @@ else:
 
 type DecHook[T] = typing.Callable[[type[T], typing.Any], typing.Any]
 type EncHook[T] = typing.Callable[[T], typing.Any]
-
-Nothing: typing.Final[fntypes.option.Nothing] = fntypes.option.Nothing()
 
 
 def get_origin[T](t: type[T]) -> type[T]:
@@ -52,6 +50,14 @@ def is_common_type(type_: typing.Any) -> typing.TypeGuard[type[typing.Any]]:
         or issubclass(type_, msgspec.Struct)
         or hasattr(type_, "__dataclass_fields__")
     )
+
+
+def struct_as_dict(struct: msgspec.Struct, /) -> dict[str, typing.Any]:
+    return {
+        k: v
+        for k, v in msgspec.structs.asdict(struct).items()
+        if not isinstance(v, msgspec.UnsetType | type(None) | fntypes.option.Nothing)
+    }
 
 
 def type_check(obj: typing.Any, t: typing.Any) -> bool:
@@ -89,9 +95,14 @@ def msgspec_to_builtins(
         return Error(exc)
 
 
-def option_dec_hook(tp: type[Option[typing.Any]], obj: typing.Any) -> fntypes.option.Option[typing.Any]:
-    if obj is None or isinstance(obj, fntypes.Nothing):
-        return Nothing
+def option_dec_hook(
+    tp: type[Option[typing.Any]], obj: typing.Any
+) -> fntypes.option.Option[typing.Any] | msgspec.UnsetType:
+    if obj is msgspec.UNSET:
+        return obj
+
+    if obj is None or isinstance(obj, fntypes.option.Nothing):
+        return fntypes.option.Nothing()
 
     (value_type,) = typing.get_args(tp) or (typing.Any,)
     orig_value_type = typing.get_origin(value_type) or value_type
@@ -385,7 +396,6 @@ encoder: typing.Final[Encoder] = Encoder()
 __all__ = (
     "Decoder",
     "Encoder",
-    "Nothing",
     "Option",
     "datetime",
     "decoder",
@@ -394,4 +404,5 @@ __all__ = (
     "get_type_hints",
     "msgspec_convert",
     "msgspec_to_builtins",
+    "struct_as_dict",
 )

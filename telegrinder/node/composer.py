@@ -44,7 +44,7 @@ async def compose_nodes(
     ctx: Context,
     data: dict[type[typing.Any], typing.Any] | None = None,
 ) -> Result["NodeCollection", ComposeError]:
-    logger.debug("Composing nodes: {!r}...", nodes)
+    logger.debug("Composing nodes: ({})...", " ".join(f"{k}={v.__qualname__}" for k, v in nodes.items()))
 
     local_nodes: dict[type[Node], NodeSession]
     data = {Context: ctx} | (data or {})

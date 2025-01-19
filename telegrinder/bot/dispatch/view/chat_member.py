@@ -13,10 +13,7 @@ ChatMemberUpdateType: typing.TypeAlias = typing.Literal[
 
 class ChatMemberView(BaseStateView[ChatMemberUpdatedCute]):
     def __init__(self, *, update_type: ChatMemberUpdateType | None = None) -> None:
-        self.auto_rules = []
-        self.handlers = []
-        self.middlewares = []
-        self.return_manager = None
+        super().__init__()
         self.update_type = update_type
 
     def __repr__(self) -> str:

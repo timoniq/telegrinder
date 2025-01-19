@@ -8,8 +8,8 @@ from telegrinder.model import Model
 class APIResponse(Model):
     ok: bool = False
     result: msgspec.Raw = msgspec.Raw(b"")
-    error_code: int = 0
-    description: str = ""
+    error_code: int = 400
+    description: str = "Something went wrong"
 
     def to_result(self) -> Result[msgspec.Raw, APIError]:
         if self.ok:

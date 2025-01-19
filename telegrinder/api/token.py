@@ -8,9 +8,9 @@ from .error import InvalidTokenError
 
 
 class Token(str):
-    def __new__(cls, token: str) -> typing.Self:
+    def __new__(cls, token: str, /) -> typing.Self:
         if token.count(":") != 1 or not token.split(":")[0].isdigit():
-            raise InvalidTokenError("Invalid token, it should look like this '123:ABC'.")
+            raise InvalidTokenError("Invalid token, it should look like this: 12345:ABCdef")
         return super().__new__(cls, token)
 
     def __repr__(self) -> str:

@@ -2,7 +2,6 @@ import pytest
 
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.return_manager.abc import register_manager
@@ -21,9 +20,7 @@ class CustomMessageReturnManager(MessageReturnManager):
 
 class CustomMessageView(BaseStateView[MessageCute]):
     def __init__(self) -> None:
-        self.middlewares: list[ABCMiddleware[MessageCute]] = []
-        self.auto_rules: list[ABCRule[MessageCute]] = []
-        self.handlers: list[ABCHandler[MessageCute]] = []
+        super().__init__()
         self.return_manager: CustomMessageReturnManager = CustomMessageReturnManager()
 
     async def get_state_key(self, event: MessageCute) -> int | None:
@@ -77,12 +74,12 @@ async def test_register_func_handler():
 async def test_register_auto_rule():
     view = CustomMessageView()
 
-    class SomeRule(ABCRule[MessageCute]):
+    class Rule(ABCRule[MessageCute]):
         async def check(self, event: MessageCute) -> bool: ...
 
-    view.auto_rules.append(SomeRule())
-    assert len(view.auto_rules) == 1
-    assert isinstance(view.auto_rules[0], SomeRule)
+    view.auto_rules = Rule()
+    assert isinstance(view.auto_rules, tuple) and len(view.auto_rules) == 1
+    assert isinstance(view.auto_rules[0], Rule)  # type: ignore
 
 
 @pytest.mark.asyncio()

@@ -18,10 +18,8 @@ MessageUpdateType: typing.TypeAlias = typing.Literal[
 
 class MessageView(BaseStateView[MessageCute]):
     def __init__(self, *, update_type: MessageUpdateType | None = None) -> None:
-        self.auto_rules = []
-        self.handlers = []
+        super().__init__()
         self.update_type = update_type
-        self.middlewares = []
         self.return_manager = MessageReturnManager()
 
     def __repr__(self) -> str:

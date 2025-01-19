@@ -5,9 +5,7 @@ from telegrinder.bot.dispatch.view.base import BaseStateView
 
 class CallbackQueryView(BaseStateView[CallbackQueryCute]):
     def __init__(self) -> None:
-        self.auto_rules = []
-        self.handlers = []
-        self.middlewares = []
+        super().__init__()
         self.return_manager = CallbackQueryReturnManager()
 
     @classmethod

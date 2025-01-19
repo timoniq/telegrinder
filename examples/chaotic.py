@@ -15,7 +15,7 @@ from telegrinder import (
 from telegrinder.bot import MESSAGE_FROM_USER_IN_CHAT, WaiterMachine, clear_wm_storage_worker
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
-from telegrinder.bot.rules.is_from import IsUser
+from telegrinder.bot.rules.is_from import IsPrivate, IsUser
 from telegrinder.modules import logger
 from telegrinder.node import Me, UserId
 from telegrinder.rules import CallbackDataEq, FuzzyText, HasText, IsUpdateType, Markup, Text
@@ -28,7 +28,7 @@ wm = WaiterMachine(bot.dispatch)
 kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
 logger.set_level("DEBUG")
 
-bot.dispatch.message.auto_rules.append(IsUser())
+bot.dispatch.message.auto_rules = IsPrivate() & IsUser()
 
 
 class DummyMiddleware(ABCMiddleware[Message]):
@@ -97,9 +97,9 @@ async def reverse(message: Message, text: str):
 #   1) declare patterns ordered by their broadness
 #   2) don't forget to set default value for optional arguments
 @bot.on.message(Markup(["/predict", "/predict <thing>"]))
-async def predict(message: Message, thing: str | None = None):
+async def predict(message: Message, thing: str = "it"):
     probability_percent = random.randint(0, 100)
-    await message.answer(f"I predict the probability {thing or 'it'} will happen is {probability_percent}%")
+    await message.answer(f"I predict the probability {thing} will happen is {probability_percent}%")
 
 
 @bot.on.message(FuzzyText("hello"))
@@ -111,7 +111,7 @@ async def hello(message: Message):
 async def freeze_handler(message: Message):
     msg = (
         await message.answer(
-            "well ok freezing",
+            "Well ok freezing",
             reply_markup=InlineKeyboard().add(InlineButton("Unfreeze", callback_data="unfreeze")).get_markup(),
         )
     ).unwrap()
@@ -119,12 +119,12 @@ async def freeze_handler(message: Message):
     with bot.on.global_middleware.apply_filters(
         source_filter=(UserId, message.from_user.id, IsUpdateType(UpdateType.CALLBACK_QUERY)),
     ):
-        await wm.wait(
+        cb, _ = await wm.wait(
             CALLBACK_QUERY_FOR_MESSAGE,
             msg.message_id,
             release=CallbackDataEq("unfreeze"),
         )
-        await message.answer("Wow heated")
+        await cb.edit_text("Wow heated!")
 
 
 bot.loop_wrapper.add_task(clear_wm_storage_worker(wm))

@@ -10,7 +10,7 @@ class IsAdmin(MessageRule):
 
 
 dp = Dispatch()
-dp.message.auto_rules = [IsAdmin()]
+dp.message.auto_rules = IsAdmin()
 
 
 @dp.message(Text("/explode"))

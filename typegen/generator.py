@@ -277,9 +277,7 @@ class ObjectGenerator(ABCGenerator):
         code = makesafe(field.name) + ": "
         field_type = "typing.Any"
         field_value = (
-            "field(default=Nothing, converter={converter})"
-            if not field.required
-            else "field(converter={converter})"
+            "field(default=UNSET, converter={converter})" if not field.required else "field(converter={converter})"
         )
 
         if literal_types is not None and any((literal_types.enum, literal_types.literals)):
@@ -297,7 +295,7 @@ class ObjectGenerator(ABCGenerator):
                 if field.required and field.default is not None
                 else "field()"
                 if field.required
-                else "field(default=Nothing)"
+                else "field(default=UNSET)"
             )
         else:
             if field.description:
@@ -305,7 +303,7 @@ class ObjectGenerator(ABCGenerator):
                     field.types.remove("Integer")
                     field_type = "datetime"
                     field_value = (
-                        "field(default=Nothing, converter=From[datetime | None])"
+                        "field(default=UNSET, converter=From[datetime | None])"
                         if not field.required
                         else "field()"
                     )
@@ -441,10 +439,10 @@ class ObjectGenerator(ABCGenerator):
             "import pathlib\n",
             "import secrets\n",
             "import typing\n\n",
-            "from fntypes.variative import Variative\n",
-            "from telegrinder.model import From, Model, field, generate_random_id\n",
+            "from fntypes.co import Variative, Nothing\n",
+            "from telegrinder.model import UNSET, From, Model, field\n",
             "from functools import cached_property\n",
-            "from telegrinder.msgspec_utils import Nothing, Option, datetime\n\n",
+            "from telegrinder.msgspec_utils import Option, datetime\n\n",
         ]
         all_ = ["Model"]
 
@@ -653,10 +651,10 @@ class MethodGenerator(ABCGenerator):
             "from telegrinder.types.enums import *  # noqa: F403\n"
             "from telegrinder.types.objects import *  # noqa: F403\n\n"
             "if typing.TYPE_CHECKING:\n",
-            "    from telegrinder.api.api import API\n\n\n",
-            "class APIMethods:\n" + docstring,
+            "    from telegrinder.api.api import API\n    from telegrinder.client.abc import ABCClient\n\n\n",
+            "class APIMethods[HTTPClient: ABCClient]:\n" + docstring,
             f"\n\n    default_params = ProxiedDict({default_params_typeddict})\n\n",
-            '    def __init__(self, api: "API") -> None:\n',
+            '    def __init__(self, api: "API[HTTPClient]") -> None:\n',
             "        self.api = api\n\n",
         ]
 

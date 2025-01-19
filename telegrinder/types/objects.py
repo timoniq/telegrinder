@@ -5,10 +5,10 @@ import secrets
 import typing
 from functools import cached_property
 
-from fntypes.variative import Variative
+from fntypes.co import Nothing, Variative
 
-from telegrinder.model import From, Model, field
-from telegrinder.msgspec_utils import Nothing, Option, datetime
+from telegrinder.model import UNSET, From, Model, field
+from telegrinder.msgspec_utils import Option, datetime
 from telegrinder.types.enums import *  # noqa: F403
 
 
@@ -236,42 +236,42 @@ class Update(Model):
     If there are no new updates for at least a week, then identifier of the next
     update will be chosen randomly instead of sequentially."""
 
-    message: Option[Message] = field(default=Nothing, converter=From["Message | None"])
+    message: Option[Message] = field(default=UNSET, converter=From["Message | None"])
     """Optional. New incoming message of any kind - text, photo, sticker, etc."""
 
-    edited_message: Option[Message] = field(default=Nothing, converter=From["Message | None"])
+    edited_message: Option[Message] = field(default=UNSET, converter=From["Message | None"])
     """Optional. New version of a message that is known to the bot and was edited.
     This update may at times be triggered by changes to message fields that are
     either unavailable or not actively used by your bot."""
 
-    channel_post: Option[Message] = field(default=Nothing, converter=From["Message | None"])
+    channel_post: Option[Message] = field(default=UNSET, converter=From["Message | None"])
     """Optional. New incoming channel post of any kind - text, photo, sticker,
     etc."""
 
-    edited_channel_post: Option[Message] = field(default=Nothing, converter=From["Message | None"])
+    edited_channel_post: Option[Message] = field(default=UNSET, converter=From["Message | None"])
     """Optional. New version of a channel post that is known to the bot and was edited.
     This update may at times be triggered by changes to message fields that are
     either unavailable or not actively used by your bot."""
 
     business_connection: Option[BusinessConnection] = field(
-        default=Nothing, converter=From["BusinessConnection | None"]
+        default=UNSET, converter=From["BusinessConnection | None"]
     )
     """Optional. The bot was connected to or disconnected from a business account,
     or a user edited an existing connection with the bot."""
 
-    business_message: Option[Message] = field(default=Nothing, converter=From["Message | None"])
+    business_message: Option[Message] = field(default=UNSET, converter=From["Message | None"])
     """Optional. New message from a connected business account."""
 
-    edited_business_message: Option[Message] = field(default=Nothing, converter=From["Message | None"])
+    edited_business_message: Option[Message] = field(default=UNSET, converter=From["Message | None"])
     """Optional. New version of a message from a connected business account."""
 
     deleted_business_messages: Option[BusinessMessagesDeleted] = field(
-        default=Nothing, converter=From["BusinessMessagesDeleted | None"]
+        default=UNSET, converter=From["BusinessMessagesDeleted | None"]
     )
     """Optional. Messages were deleted from a connected business account."""
 
     message_reaction: Option[MessageReactionUpdated] = field(
-        default=Nothing, converter=From["MessageReactionUpdated | None"]
+        default=UNSET, converter=From["MessageReactionUpdated | None"]
     )
     """Optional. A reaction to a message was changed by a user. The bot must be an
     administrator in the chat and must explicitly specify `message_reaction`
@@ -279,71 +279,67 @@ class Update(Model):
     received for reactions set by bots."""
 
     message_reaction_count: Option[MessageReactionCountUpdated] = field(
-        default=Nothing, converter=From["MessageReactionCountUpdated | None"]
+        default=UNSET, converter=From["MessageReactionCountUpdated | None"]
     )
     """Optional. Reactions to a message with anonymous reactions were changed.
     The bot must be an administrator in the chat and must explicitly specify
     `message_reaction_count` in the list of allowed_updates to receive these
     updates. The updates are grouped and can be sent with delay up to a few minutes."""
 
-    inline_query: Option[InlineQuery] = field(default=Nothing, converter=From["InlineQuery | None"])
+    inline_query: Option[InlineQuery] = field(default=UNSET, converter=From["InlineQuery | None"])
     """Optional. New incoming inline query."""
 
     chosen_inline_result: Option[ChosenInlineResult] = field(
-        default=Nothing, converter=From["ChosenInlineResult | None"]
+        default=UNSET, converter=From["ChosenInlineResult | None"]
     )
     """Optional. The result of an inline query that was chosen by a user and sent
     to their chat partner. Please see our documentation on the feedback collecting
     for details on how to enable these updates for your bot."""
 
-    callback_query: Option[CallbackQuery] = field(default=Nothing, converter=From["CallbackQuery | None"])
+    callback_query: Option[CallbackQuery] = field(default=UNSET, converter=From["CallbackQuery | None"])
     """Optional. New incoming callback query."""
 
-    shipping_query: Option[ShippingQuery] = field(default=Nothing, converter=From["ShippingQuery | None"])
+    shipping_query: Option[ShippingQuery] = field(default=UNSET, converter=From["ShippingQuery | None"])
     """Optional. New incoming shipping query. Only for invoices with flexible
     price."""
 
-    pre_checkout_query: Option[PreCheckoutQuery] = field(
-        default=Nothing, converter=From["PreCheckoutQuery | None"]
-    )
+    pre_checkout_query: Option[PreCheckoutQuery] = field(default=UNSET, converter=From["PreCheckoutQuery | None"])
     """Optional. New incoming pre-checkout query. Contains full information
     about checkout."""
 
     purchased_paid_media: Option[PaidMediaPurchased] = field(
-        default=Nothing, converter=From["PaidMediaPurchased | None"]
+        default=UNSET, converter=From["PaidMediaPurchased | None"]
     )
     """Optional. A user purchased paid media with a non-empty payload sent by the
     bot in a non-channel chat."""
 
-    poll: Option[Poll] = field(default=Nothing, converter=From["Poll | None"])
+    poll: Option[Poll] = field(default=UNSET, converter=From["Poll | None"])
     """Optional. New poll state. Bots receive only updates about manually stopped
     polls and polls, which are sent by the bot."""
 
-    poll_answer: Option[PollAnswer] = field(default=Nothing, converter=From["PollAnswer | None"])
+    poll_answer: Option[PollAnswer] = field(default=UNSET, converter=From["PollAnswer | None"])
     """Optional. A user changed their answer in a non-anonymous poll. Bots receive
     new votes only in polls that were sent by the bot itself."""
 
-    my_chat_member: Option[ChatMemberUpdated] = field(default=Nothing, converter=From["ChatMemberUpdated | None"])
+    my_chat_member: Option[ChatMemberUpdated] = field(default=UNSET, converter=From["ChatMemberUpdated | None"])
     """Optional. The bot's chat member status was updated in a chat. For private
     chats, this update is received only when the bot is blocked or unblocked
     by the user."""
 
-    chat_member: Option[ChatMemberUpdated] = field(default=Nothing, converter=From["ChatMemberUpdated | None"])
+    chat_member: Option[ChatMemberUpdated] = field(default=UNSET, converter=From["ChatMemberUpdated | None"])
     """Optional. A chat member's status was updated in a chat. The bot must be an
     administrator in the chat and must explicitly specify `chat_member` in
     the list of allowed_updates to receive these updates."""
 
-    chat_join_request: Option[ChatJoinRequest] = field(default=Nothing, converter=From["ChatJoinRequest | None"])
+    chat_join_request: Option[ChatJoinRequest] = field(default=UNSET, converter=From["ChatJoinRequest | None"])
     """Optional. A request to join the chat has been sent. The bot must have the can_invite_users
     administrator right in the chat to receive these updates."""
 
-    chat_boost: Option[ChatBoostUpdated] = field(default=Nothing, converter=From["ChatBoostUpdated | None"])
+    chat_boost: Option[ChatBoostUpdated] = field(default=UNSET, converter=From["ChatBoostUpdated | None"])
     """Optional. A chat boost was added or changed. The bot must be an administrator
     in the chat to receive these updates."""
 
-    removed_chat_boost: Option[ChatBoostRemoved] = field(
-        default=Nothing, converter=From["ChatBoostRemoved | None"]
-    )
+    removed_chat_boost: Option[ChatBoostRemoved] = field(default=UNSET, converter=From["ChatBoostRemoved | None"])
     """Optional. A boost was removed from a chat. The bot must be an administrator
     in the chat to receive these updates."""
 
@@ -358,7 +354,7 @@ class Update(Model):
                 (
                     x
                     for x in self.__struct_fields__
-                    if x != "update_id" and not isinstance(getattr(self, x), type(Nothing))
+                    if x != "update_id" and not isinstance(getattr(self, x), Nothing)
                 )
             ),
         )
@@ -384,26 +380,26 @@ class WebhookInfo(Model):
     pending_update_count: int = field()
     """Number of updates awaiting delivery."""
 
-    ip_address: Option[str] = field(default=Nothing, converter=From[str | None])
+    ip_address: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Currently used webhook IP address."""
 
-    last_error_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
+    last_error_date: Option[datetime] = field(default=UNSET, converter=From[datetime | None])
     """Optional. Unix time for the most recent error that happened when trying
     to deliver an update via webhook."""
 
-    last_error_message: Option[str] = field(default=Nothing, converter=From[str | None])
+    last_error_message: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Error message in human-readable format for the most recent error
     that happened when trying to deliver an update via webhook."""
 
-    last_synchronization_error_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
+    last_synchronization_error_date: Option[datetime] = field(default=UNSET, converter=From[datetime | None])
     """Optional. Unix time of the most recent error that happened when trying to
     synchronize available updates with Telegram datacenters."""
 
-    max_connections: Option[int] = field(default=Nothing, converter=From[int | None])
+    max_connections: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The maximum allowed number of simultaneous HTTPS connections
     to the webhook for update delivery."""
 
-    allowed_updates: Option[list[str]] = field(default=Nothing, converter=From[list[str] | None])
+    allowed_updates: Option[list[str]] = field(default=UNSET, converter=From[list[str] | None])
     """Optional. A list of update types the bot is subscribed to. Defaults to all
     update types except chat_member."""
 
@@ -426,36 +422,36 @@ class User(Model):
     first_name: str = field()
     """User's or bot's first name."""
 
-    last_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    last_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. User's or bot's last name."""
 
-    username: Option[str] = field(default=Nothing, converter=From[str | None])
+    username: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. User's or bot's username."""
 
-    language_code: Option[str] = field(default=Nothing, converter=From[str | None])
+    language_code: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. IETF language tag of the user's language."""
 
-    is_premium: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_premium: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if this user is a Telegram Premium user."""
 
-    added_to_attachment_menu: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    added_to_attachment_menu: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if this user added the bot to the attachment menu."""
 
-    can_join_groups: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_join_groups: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the bot can be invited to groups. Returned only in getMe."""
 
-    can_read_all_group_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_read_all_group_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if privacy mode is disabled for the bot. Returned only in
     getMe."""
 
-    supports_inline_queries: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    supports_inline_queries: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the bot supports inline queries. Returned only in getMe."""
 
-    can_connect_to_business: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_connect_to_business: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the bot can be connected to a Telegram Business account
     to receive its messages. Returned only in getMe."""
 
-    has_main_web_app: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_main_web_app: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the bot has a main Web App. Returned only in getMe."""
 
     def __eq__(self, other: object, /) -> bool:
@@ -487,19 +483,19 @@ class Chat(Model):
     type: ChatType = field()
     """Type of the chat, can be either `private`, `group`, `supergroup` or `channel`."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title, for supergroups, channels and group chats."""
 
-    username: Option[str] = field(default=Nothing, converter=From[str | None])
+    username: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Username, for private chats, supergroups and channels if available."""
 
-    first_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    first_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. First name of the other party in a private chat."""
 
-    last_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    last_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Last name of the other party in a private chat."""
 
-    is_forum: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_forum: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
 
     def __eq__(self, other: object, /) -> bool:
@@ -535,149 +531,149 @@ class ChatFullInfo(Model):
     max_reaction_count: int = field()
     """The maximum number of reactions that can be set on a message in the chat."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title, for supergroups, channels and group chats."""
 
-    username: Option[str] = field(default=Nothing, converter=From[str | None])
+    username: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Username, for private chats, supergroups and channels if available."""
 
-    first_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    first_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. First name of the other party in a private chat."""
 
-    last_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    last_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Last name of the other party in a private chat."""
 
-    is_forum: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_forum: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
 
-    photo: Option[ChatPhoto] = field(default=Nothing, converter=From["ChatPhoto | None"])
+    photo: Option[ChatPhoto] = field(default=UNSET, converter=From["ChatPhoto | None"])
     """Optional. Chat photo."""
 
-    active_usernames: Option[list[str]] = field(default=Nothing, converter=From[list[str] | None])
+    active_usernames: Option[list[str]] = field(default=UNSET, converter=From[list[str] | None])
     """Optional. If non-empty, the list of all active chat usernames; for private
     chats, supergroups and channels."""
 
-    birthdate: Option[Birthdate] = field(default=Nothing, converter=From["Birthdate | None"])
+    birthdate: Option[Birthdate] = field(default=UNSET, converter=From["Birthdate | None"])
     """Optional. For private chats, the date of birth of the user."""
 
-    business_intro: Option[BusinessIntro] = field(default=Nothing, converter=From["BusinessIntro | None"])
+    business_intro: Option[BusinessIntro] = field(default=UNSET, converter=From["BusinessIntro | None"])
     """Optional. For private chats with business accounts, the intro of the business."""
 
-    business_location: Option[BusinessLocation] = field(default=Nothing, converter=From["BusinessLocation | None"])
+    business_location: Option[BusinessLocation] = field(default=UNSET, converter=From["BusinessLocation | None"])
     """Optional. For private chats with business accounts, the location of the
     business."""
 
     business_opening_hours: Option[BusinessOpeningHours] = field(
-        default=Nothing, converter=From["BusinessOpeningHours | None"]
+        default=UNSET, converter=From["BusinessOpeningHours | None"]
     )
     """Optional. For private chats with business accounts, the opening hours
     of the business."""
 
-    personal_chat: Option[Chat] = field(default=Nothing, converter=From["Chat | None"])
+    personal_chat: Option[Chat] = field(default=UNSET, converter=From["Chat | None"])
     """Optional. For private chats, the personal channel of the user."""
 
     available_reactions: Option[list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]] = (
         field(
-            default=Nothing,
+            default=UNSET,
             converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"],
         )
     )
     """Optional. List of available reactions allowed in the chat. If omitted,
     then all emoji reactions are allowed."""
 
-    background_custom_emoji_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    background_custom_emoji_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Custom emoji identifier of the emoji chosen by the chat for the
     reply header and link preview background."""
 
-    profile_accent_color_id: Option[int] = field(default=Nothing, converter=From[int | None])
+    profile_accent_color_id: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Identifier of the accent color for the chat's profile background.
     See profile accent colors for more details."""
 
-    profile_background_custom_emoji_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    profile_background_custom_emoji_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Custom emoji identifier of the emoji chosen by the chat for its
     profile background."""
 
-    emoji_status_custom_emoji_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    emoji_status_custom_emoji_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Custom emoji identifier of the emoji status of the chat or the
     other party in a private chat."""
 
-    emoji_status_expiration_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
+    emoji_status_expiration_date: Option[datetime] = field(default=UNSET, converter=From[datetime | None])
     """Optional. Expiration date of the emoji status of the chat or the other party
     in a private chat, in Unix time, if any."""
 
-    bio: Option[str] = field(default=Nothing, converter=From[str | None])
+    bio: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Bio of the other party in a private chat."""
 
-    has_private_forwards: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_private_forwards: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if privacy settings of the other party in the private chat
     allows to use tg://user?id=<user_id> links only in chats with the user."""
 
-    has_restricted_voice_and_video_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_restricted_voice_and_video_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the privacy settings of the other party restrict sending
     voice and video note messages in the private chat."""
 
-    join_to_send_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    join_to_send_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if users need to join the supergroup before they can send
     messages."""
 
-    join_by_request: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    join_by_request: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if all users directly joining the supergroup without using
     an invite link need to be approved by supergroup administrators."""
 
-    description: Option[str] = field(default=Nothing, converter=From[str | None])
+    description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Description, for groups, supergroups and channel chats."""
 
-    invite_link: Option[str] = field(default=Nothing, converter=From[str | None])
+    invite_link: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Primary invite link, for groups, supergroups and channel chats."""
 
-    pinned_message: Option[Message] = field(default=Nothing, converter=From["Message | None"])
+    pinned_message: Option[Message] = field(default=UNSET, converter=From["Message | None"])
     """Optional. The most recent pinned message (by sending date)."""
 
-    permissions: Option[ChatPermissions] = field(default=Nothing, converter=From["ChatPermissions | None"])
+    permissions: Option[ChatPermissions] = field(default=UNSET, converter=From["ChatPermissions | None"])
     """Optional. Default chat member permissions, for groups and supergroups."""
 
-    can_send_paid_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_paid_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if paid media messages can be sent or forwarded to the channel
     chat. The field is available only for channel chats."""
 
-    slow_mode_delay: Option[int] = field(default=Nothing, converter=From[int | None])
+    slow_mode_delay: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. For supergroups, the minimum allowed delay between consecutive
     messages sent by each unprivileged user; in seconds."""
 
-    unrestrict_boost_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    unrestrict_boost_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. For supergroups, the minimum number of boosts that a non-administrator
     user needs to add in order to ignore slow mode and chat permissions."""
 
-    message_auto_delete_time: Option[int] = field(default=Nothing, converter=From[int | None])
+    message_auto_delete_time: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The time after which all messages sent to the chat will be automatically
     deleted; in seconds."""
 
-    has_aggressive_anti_spam_enabled: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_aggressive_anti_spam_enabled: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if aggressive anti-spam checks are enabled in the supergroup.
     The field is only available to chat administrators."""
 
-    has_hidden_members: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_hidden_members: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if non-administrators can only get the list of bots and
     administrators in the chat."""
 
-    has_protected_content: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_protected_content: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if messages from the chat can't be forwarded to other chats."""
 
-    has_visible_history: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_visible_history: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if new chat members will have access to old messages; available
     only to chat administrators."""
 
-    sticker_set_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    sticker_set_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. For supergroups, name of the group sticker set."""
 
-    can_set_sticker_set: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_set_sticker_set: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the bot can change the group sticker set."""
 
-    custom_emoji_sticker_set_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    custom_emoji_sticker_set_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. For supergroups, the name of the group's custom emoji sticker
     set. Custom emoji from this set can be used by all users and bots in the group."""
 
-    linked_chat_id: Option[int] = field(default=Nothing, converter=From[int | None])
+    linked_chat_id: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Unique identifier for the linked chat, i.e. the discussion group
     identifier for a channel and vice versa; for supergroups and channel chats.
     This identifier may be greater than 32 bits and some programming languages
@@ -685,7 +681,7 @@ class ChatFullInfo(Model):
     than 52 bits, so a signed 64 bit integer or double-precision float type are
     safe for storing this identifier."""
 
-    location: Option[ChatLocation] = field(default=Nothing, converter=From["ChatLocation | None"])
+    location: Option[ChatLocation] = field(default=UNSET, converter=From["ChatLocation | None"])
     """Optional. For supergroups, the location to which the supergroup is connected."""
 
 
@@ -709,16 +705,16 @@ class Message(MaybeInaccessibleMessage):
     chat: Chat = field()
     """Chat the message belongs to."""
 
-    message_thread_id: Option[int] = field(default=Nothing, converter=From[int | None])
+    message_thread_id: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Unique identifier of a message thread to which the message belongs;
     for supergroups only."""
 
-    from_: Option[User] = field(default=Nothing, converter=From["User | None"])
+    from_: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. Sender of the message; may be empty for messages sent to channels.
     For backward compatibility, if the message was sent on behalf of a chat,
     the field contains a fake sender user in non-channel chats."""
 
-    sender_chat: Option[Chat] = field(default=Nothing, converter=From["Chat | None"])
+    sender_chat: Option[Chat] = field(default=UNSET, converter=From["Chat | None"])
     """Optional. Sender of the message when sent on behalf of a chat. For example,
     the supergroup itself for messages sent by its anonymous administrators
     or a linked channel for messages automatically forwarded to the channel's
@@ -726,16 +722,16 @@ class Message(MaybeInaccessibleMessage):
     on behalf of a chat, the field from contains a fake sender user in non-channel
     chats."""
 
-    sender_boost_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    sender_boost_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. If the sender of the message boosted the chat, the number of boosts
     added by the user."""
 
-    sender_business_bot: Option[User] = field(default=Nothing, converter=From["User | None"])
+    sender_business_bot: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. The bot that actually sent the message on behalf of the business
     account. Available only for outgoing messages sent on behalf of the connected
     business account."""
 
-    business_connection_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    business_connection_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Unique identifier of the business connection from which the
     message was received. If non-empty, the message belongs to a chat of the
     corresponding business account that is independent from any potential
@@ -744,187 +740,187 @@ class Message(MaybeInaccessibleMessage):
     forward_origin: Option[
         Variative[MessageOriginUser, MessageOriginHiddenUser, MessageOriginChat, MessageOriginChannel]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel | None"
         ],
     )
     """Optional. Information about the original message for forwarded messages."""
 
-    is_topic_message: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_topic_message: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the message is sent to a forum topic."""
 
-    is_automatic_forward: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_automatic_forward: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the message is a channel post that was automatically
     forwarded to the connected discussion group."""
 
-    reply_to_message: Option[Message] = field(default=Nothing, converter=From["Message | None"])
+    reply_to_message: Option[Message] = field(default=UNSET, converter=From["Message | None"])
     """Optional. For replies in the same chat and message thread, the original
     message. Note that the Message object in this field will not contain further
     reply_to_message fields even if it itself is a reply."""
 
-    external_reply: Option[ExternalReplyInfo] = field(default=Nothing, converter=From["ExternalReplyInfo | None"])
+    external_reply: Option[ExternalReplyInfo] = field(default=UNSET, converter=From["ExternalReplyInfo | None"])
     """Optional. Information about the message that is being replied to, which
     may come from another chat or forum topic."""
 
-    quote: Option[TextQuote] = field(default=Nothing, converter=From["TextQuote | None"])
+    quote: Option[TextQuote] = field(default=UNSET, converter=From["TextQuote | None"])
     """Optional. For replies that quote part of the original message, the quoted
     part of the message."""
 
-    reply_to_story: Option[Story] = field(default=Nothing, converter=From["Story | None"])
+    reply_to_story: Option[Story] = field(default=UNSET, converter=From["Story | None"])
     """Optional. For replies to a story, the original story."""
 
-    via_bot: Option[User] = field(default=Nothing, converter=From["User | None"])
+    via_bot: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. Bot through which the message was sent."""
 
-    edit_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
+    edit_date: Option[datetime] = field(default=UNSET, converter=From[datetime | None])
     """Optional. Date the message was last edited in Unix time."""
 
-    has_protected_content: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_protected_content: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the message can't be forwarded."""
 
-    is_from_offline: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_from_offline: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the message was sent by an implicit action, for example,
     as an away or a greeting business message, or as a scheduled message."""
 
-    media_group_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    media_group_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. The unique identifier of a media message group this message belongs
     to."""
 
-    author_signature: Option[str] = field(default=Nothing, converter=From[str | None])
+    author_signature: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Signature of the post author for messages in channels, or the
     custom title of an anonymous group administrator."""
 
-    text: Option[str] = field(default=Nothing, converter=From[str | None])
+    text: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. For text messages, the actual UTF-8 text of the message."""
 
-    entities: Option[list[MessageEntity]] = field(default=Nothing, converter=From["list[MessageEntity] | None"])
+    entities: Option[list[MessageEntity]] = field(default=UNSET, converter=From["list[MessageEntity] | None"])
     """Optional. For text messages, special entities like usernames, URLs, bot
     commands, etc. that appear in the text."""
 
     link_preview_options: Option[LinkPreviewOptions] = field(
-        default=Nothing, converter=From["LinkPreviewOptions | None"]
+        default=UNSET, converter=From["LinkPreviewOptions | None"]
     )
     """Optional. Options used for link preview generation for the message, if
     it is a text message and link preview options were changed."""
 
-    effect_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    effect_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Unique identifier of the message effect added to the message."""
 
-    animation: Option[Animation] = field(default=Nothing, converter=From["Animation | None"])
+    animation: Option[Animation] = field(default=UNSET, converter=From["Animation | None"])
     """Optional. Message is an animation, information about the animation. For
     backward compatibility, when this field is set, the document field will
     also be set."""
 
-    audio: Option[Audio] = field(default=Nothing, converter=From["Audio | None"])
+    audio: Option[Audio] = field(default=UNSET, converter=From["Audio | None"])
     """Optional. Message is an audio file, information about the file."""
 
-    document: Option[Document] = field(default=Nothing, converter=From["Document | None"])
+    document: Option[Document] = field(default=UNSET, converter=From["Document | None"])
     """Optional. Message is a general file, information about the file."""
 
-    paid_media: Option[PaidMediaInfo] = field(default=Nothing, converter=From["PaidMediaInfo | None"])
+    paid_media: Option[PaidMediaInfo] = field(default=UNSET, converter=From["PaidMediaInfo | None"])
     """Optional. Message contains paid media; information about the paid media."""
 
-    photo: Option[list[PhotoSize]] = field(default=Nothing, converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=UNSET, converter=From["list[PhotoSize] | None"])
     """Optional. Message is a photo, available sizes of the photo."""
 
-    sticker: Option[Sticker] = field(default=Nothing, converter=From["Sticker | None"])
+    sticker: Option[Sticker] = field(default=UNSET, converter=From["Sticker | None"])
     """Optional. Message is a sticker, information about the sticker."""
 
-    story: Option[Story] = field(default=Nothing, converter=From["Story | None"])
+    story: Option[Story] = field(default=UNSET, converter=From["Story | None"])
     """Optional. Message is a forwarded story."""
 
-    video: Option[Video] = field(default=Nothing, converter=From["Video | None"])
+    video: Option[Video] = field(default=UNSET, converter=From["Video | None"])
     """Optional. Message is a video, information about the video."""
 
-    video_note: Option[VideoNote] = field(default=Nothing, converter=From["VideoNote | None"])
+    video_note: Option[VideoNote] = field(default=UNSET, converter=From["VideoNote | None"])
     """Optional. Message is a video note, information about the video message."""
 
-    voice: Option[Voice] = field(default=Nothing, converter=From["Voice | None"])
+    voice: Option[Voice] = field(default=UNSET, converter=From["Voice | None"])
     """Optional. Message is a voice message, information about the file."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption for the animation, audio, document, paid media, photo,
     video or voice."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. For messages with a caption, special entities like usernames,
     URLs, bot commands, etc. that appear in the caption."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the caption must be shown above the message media."""
 
-    has_media_spoiler: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_media_spoiler: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the message media is covered by a spoiler animation."""
 
-    contact: Option[Contact] = field(default=Nothing, converter=From["Contact | None"])
+    contact: Option[Contact] = field(default=UNSET, converter=From["Contact | None"])
     """Optional. Message is a shared contact, information about the contact."""
 
-    dice: Option[Dice] = field(default=Nothing, converter=From["Dice | None"])
+    dice: Option[Dice] = field(default=UNSET, converter=From["Dice | None"])
     """Optional. Message is a dice with random value."""
 
-    game: Option[Game] = field(default=Nothing, converter=From["Game | None"])
+    game: Option[Game] = field(default=UNSET, converter=From["Game | None"])
     """Optional. Message is a game, information about the game. More about games:
     https://core.telegram.org/bots/api#games."""
 
-    poll: Option[Poll] = field(default=Nothing, converter=From["Poll | None"])
+    poll: Option[Poll] = field(default=UNSET, converter=From["Poll | None"])
     """Optional. Message is a native poll, information about the poll."""
 
-    venue: Option[Venue] = field(default=Nothing, converter=From["Venue | None"])
+    venue: Option[Venue] = field(default=UNSET, converter=From["Venue | None"])
     """Optional. Message is a venue, information about the venue. For backward
     compatibility, when this field is set, the location field will also be set."""
 
-    location: Option[Location] = field(default=Nothing, converter=From["Location | None"])
+    location: Option[Location] = field(default=UNSET, converter=From["Location | None"])
     """Optional. Message is a shared location, information about the location."""
 
-    new_chat_members: Option[list[User]] = field(default=Nothing, converter=From["list[User] | None"])
+    new_chat_members: Option[list[User]] = field(default=UNSET, converter=From["list[User] | None"])
     """Optional. New members that were added to the group or supergroup and information
     about them (the bot itself may be one of these members)."""
 
-    left_chat_member: Option[User] = field(default=Nothing, converter=From["User | None"])
+    left_chat_member: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. A member was removed from the group, information about them (this
     member may be the bot itself)."""
 
-    new_chat_title: Option[str] = field(default=Nothing, converter=From[str | None])
+    new_chat_title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. A chat title was changed to this value."""
 
-    new_chat_photo: Option[list[PhotoSize]] = field(default=Nothing, converter=From["list[PhotoSize] | None"])
+    new_chat_photo: Option[list[PhotoSize]] = field(default=UNSET, converter=From["list[PhotoSize] | None"])
     """Optional. A chat photo was change to this value."""
 
-    delete_chat_photo: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    delete_chat_photo: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Service message: the chat photo was deleted."""
 
-    group_chat_created: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    group_chat_created: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Service message: the group has been created."""
 
-    supergroup_chat_created: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    supergroup_chat_created: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Service message: the supergroup has been created. This field
     can't be received in a message coming through updates, because bot can't
     be a member of a supergroup when it is created. It can only be found in reply_to_message
     if someone replies to a very first message in a directly created supergroup."""
 
-    channel_chat_created: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    channel_chat_created: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Service message: the channel has been created. This field can't
     be received in a message coming through updates, because bot can't be a member
     of a channel when it is created. It can only be found in reply_to_message
     if someone replies to a very first message in a channel."""
 
     message_auto_delete_timer_changed: Option[MessageAutoDeleteTimerChanged] = field(
-        default=Nothing, converter=From["MessageAutoDeleteTimerChanged | None"]
+        default=UNSET, converter=From["MessageAutoDeleteTimerChanged | None"]
     )
     """Optional. Service message: auto-delete timer settings changed in the
     chat."""
 
-    migrate_to_chat_id: Option[int] = field(default=Nothing, converter=From[int | None])
+    migrate_to_chat_id: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The group has been migrated to a supergroup with the specified
     identifier. This number may have more than 32 significant bits and some
     programming languages may have difficulty/silent defects in interpreting
     it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision
     float type are safe for storing this identifier."""
 
-    migrate_from_chat_id: Option[int] = field(default=Nothing, converter=From[int | None])
+    migrate_from_chat_id: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The supergroup has been migrated from a group with the specified
     identifier. This number may have more than 32 significant bits and some
     programming languages may have difficulty/silent defects in interpreting
@@ -932,125 +928,119 @@ class Message(MaybeInaccessibleMessage):
     float type are safe for storing this identifier."""
 
     pinned_message: Option[Variative[Message, InaccessibleMessage]] = field(
-        default=Nothing, converter=From["Message | InaccessibleMessage | None"]
+        default=UNSET, converter=From["Message | InaccessibleMessage | None"]
     )
     """Optional. Specified message was pinned. Note that the Message object in
     this field will not contain further reply_to_message fields even if it
     itself is a reply."""
 
-    invoice: Option[Invoice] = field(default=Nothing, converter=From["Invoice | None"])
+    invoice: Option[Invoice] = field(default=UNSET, converter=From["Invoice | None"])
     """Optional. Message is an invoice for a payment, information about the invoice.
     More about payments: https://core.telegram.org/bots/api#payments."""
 
     successful_payment: Option[SuccessfulPayment] = field(
-        default=Nothing, converter=From["SuccessfulPayment | None"]
+        default=UNSET, converter=From["SuccessfulPayment | None"]
     )
     """Optional. Message is a service message about a successful payment, information
     about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
 
-    refunded_payment: Option[RefundedPayment] = field(default=Nothing, converter=From["RefundedPayment | None"])
+    refunded_payment: Option[RefundedPayment] = field(default=UNSET, converter=From["RefundedPayment | None"])
     """Optional. Message is a service message about a refunded payment, information
     about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
 
-    users_shared: Option[UsersShared] = field(default=Nothing, converter=From["UsersShared | None"])
+    users_shared: Option[UsersShared] = field(default=UNSET, converter=From["UsersShared | None"])
     """Optional. Service message: users were shared with the bot."""
 
-    chat_shared: Option[ChatShared] = field(default=Nothing, converter=From["ChatShared | None"])
+    chat_shared: Option[ChatShared] = field(default=UNSET, converter=From["ChatShared | None"])
     """Optional. Service message: a chat was shared with the bot."""
 
-    connected_website: Option[str] = field(default=Nothing, converter=From[str | None])
+    connected_website: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. The domain name of the website on which the user has logged in.
     More about Telegram Login: https://core.telegram.org/widgets/login."""
 
     write_access_allowed: Option[WriteAccessAllowed] = field(
-        default=Nothing, converter=From["WriteAccessAllowed | None"]
+        default=UNSET, converter=From["WriteAccessAllowed | None"]
     )
     """Optional. Service message: the user allowed the bot to write messages after
     adding it to the attachment or side menu, launching a Web App from a link,
     or accepting an explicit request from a Web App sent by the method requestWriteAccess."""
 
-    passport_data: Option[PassportData] = field(default=Nothing, converter=From["PassportData | None"])
+    passport_data: Option[PassportData] = field(default=UNSET, converter=From["PassportData | None"])
     """Optional. Telegram Passport data."""
 
     proximity_alert_triggered: Option[ProximityAlertTriggered] = field(
-        default=Nothing, converter=From["ProximityAlertTriggered | None"]
+        default=UNSET, converter=From["ProximityAlertTriggered | None"]
     )
     """Optional. Service message. A user in the chat triggered another user's
     proximity alert while sharing Live Location."""
 
-    boost_added: Option[ChatBoostAdded] = field(default=Nothing, converter=From["ChatBoostAdded | None"])
+    boost_added: Option[ChatBoostAdded] = field(default=UNSET, converter=From["ChatBoostAdded | None"])
     """Optional. Service message: user boosted the chat."""
 
-    chat_background_set: Option[ChatBackground] = field(default=Nothing, converter=From["ChatBackground | None"])
+    chat_background_set: Option[ChatBackground] = field(default=UNSET, converter=From["ChatBackground | None"])
     """Optional. Service message: chat background set."""
 
     forum_topic_created: Option[ForumTopicCreated] = field(
-        default=Nothing, converter=From["ForumTopicCreated | None"]
+        default=UNSET, converter=From["ForumTopicCreated | None"]
     )
     """Optional. Service message: forum topic created."""
 
-    forum_topic_edited: Option[ForumTopicEdited] = field(
-        default=Nothing, converter=From["ForumTopicEdited | None"]
-    )
+    forum_topic_edited: Option[ForumTopicEdited] = field(default=UNSET, converter=From["ForumTopicEdited | None"])
     """Optional. Service message: forum topic edited."""
 
-    forum_topic_closed: Option[ForumTopicClosed] = field(
-        default=Nothing, converter=From["ForumTopicClosed | None"]
-    )
+    forum_topic_closed: Option[ForumTopicClosed] = field(default=UNSET, converter=From["ForumTopicClosed | None"])
     """Optional. Service message: forum topic closed."""
 
     forum_topic_reopened: Option[ForumTopicReopened] = field(
-        default=Nothing, converter=From["ForumTopicReopened | None"]
+        default=UNSET, converter=From["ForumTopicReopened | None"]
     )
     """Optional. Service message: forum topic reopened."""
 
     general_forum_topic_hidden: Option[GeneralForumTopicHidden] = field(
-        default=Nothing, converter=From["GeneralForumTopicHidden | None"]
+        default=UNSET, converter=From["GeneralForumTopicHidden | None"]
     )
     """Optional. Service message: the 'General' forum topic hidden."""
 
     general_forum_topic_unhidden: Option[GeneralForumTopicUnhidden] = field(
-        default=Nothing, converter=From["GeneralForumTopicUnhidden | None"]
+        default=UNSET, converter=From["GeneralForumTopicUnhidden | None"]
     )
     """Optional. Service message: the 'General' forum topic unhidden."""
 
-    giveaway_created: Option[GiveawayCreated] = field(default=Nothing, converter=From["GiveawayCreated | None"])
+    giveaway_created: Option[GiveawayCreated] = field(default=UNSET, converter=From["GiveawayCreated | None"])
     """Optional. Service message: a scheduled giveaway was created."""
 
-    giveaway: Option[Giveaway] = field(default=Nothing, converter=From["Giveaway | None"])
+    giveaway: Option[Giveaway] = field(default=UNSET, converter=From["Giveaway | None"])
     """Optional. The message is a scheduled giveaway message."""
 
-    giveaway_winners: Option[GiveawayWinners] = field(default=Nothing, converter=From["GiveawayWinners | None"])
+    giveaway_winners: Option[GiveawayWinners] = field(default=UNSET, converter=From["GiveawayWinners | None"])
     """Optional. A giveaway with public winners was completed."""
 
     giveaway_completed: Option[GiveawayCompleted] = field(
-        default=Nothing, converter=From["GiveawayCompleted | None"]
+        default=UNSET, converter=From["GiveawayCompleted | None"]
     )
     """Optional. Service message: a giveaway without public winners was completed."""
 
     video_chat_scheduled: Option[VideoChatScheduled] = field(
-        default=Nothing, converter=From["VideoChatScheduled | None"]
+        default=UNSET, converter=From["VideoChatScheduled | None"]
     )
     """Optional. Service message: video chat scheduled."""
 
-    video_chat_started: Option[VideoChatStarted] = field(
-        default=Nothing, converter=From["VideoChatStarted | None"]
-    )
+    video_chat_started: Option[VideoChatStarted] = field(default=UNSET, converter=From["VideoChatStarted | None"])
     """Optional. Service message: video chat started."""
 
-    video_chat_ended: Option[VideoChatEnded] = field(default=Nothing, converter=From["VideoChatEnded | None"])
+    video_chat_ended: Option[VideoChatEnded] = field(default=UNSET, converter=From["VideoChatEnded | None"])
     """Optional. Service message: video chat ended."""
 
     video_chat_participants_invited: Option[VideoChatParticipantsInvited] = field(
-        default=Nothing, converter=From["VideoChatParticipantsInvited | None"]
+        default=UNSET, converter=From["VideoChatParticipantsInvited | None"]
     )
     """Optional. Service message: new participants invited to a video chat."""
 
-    web_app_data: Option[WebAppData] = field(default=Nothing, converter=From["WebAppData | None"])
+    web_app_data: Option[WebAppData] = field(default=UNSET, converter=From["WebAppData | None"])
     """Optional. Service message: data sent by a Web App."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message. login_url buttons
     are represented as ordinary url buttons."""
@@ -1066,7 +1056,10 @@ class Message(MaybeInaccessibleMessage):
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
         for content in ContentType:
-            if content.value in self.__struct_fields__ and getattr(self, content.value, Nothing) is not Nothing:
+            if content.value in self.__struct_fields__ and not isinstance(
+                getattr(self, content.value, Nothing()),
+                Nothing,
+            ):
                 return content
         return ContentType.UNKNOWN
 
@@ -1142,17 +1135,17 @@ class MessageEntity(Model):
     length: int = field()
     """Length of the entity in UTF-16 code units."""
 
-    url: Option[str] = field(default=Nothing, converter=From[str | None])
+    url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. For `text_link` only, URL that will be opened after user taps
     on the text."""
 
-    user: Option[User] = field(default=Nothing, converter=From["User | None"])
+    user: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. For `text_mention` only, the mentioned user."""
 
-    language: Option[str] = field(default=Nothing, converter=From[str | None])
+    language: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. For `pre` only, the programming language of the entity text."""
 
-    custom_emoji_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    custom_emoji_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. For `custom_emoji` only, unique identifier of the custom emoji.
     Use getCustomEmojiStickers to get full information about the sticker."""
 
@@ -1170,12 +1163,12 @@ class TextQuote(Model):
     """Approximate quote position in the original message in UTF-16 code units
     as specified by the sender."""
 
-    entities: Option[list[MessageEntity]] = field(default=Nothing, converter=From["list[MessageEntity] | None"])
+    entities: Option[list[MessageEntity]] = field(default=UNSET, converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the quote. Currently, only bold,
     italic, underline, strikethrough, spoiler, and custom_emoji entities
     are kept in quotes."""
 
-    is_manual: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_manual: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the quote was chosen manually by the message sender.
     Otherwise, the quote was added automatically by the server."""
 
@@ -1191,80 +1184,80 @@ class ExternalReplyInfo(Model):
     )
     """Origin of the message replied to by the given message."""
 
-    chat: Option[Chat] = field(default=Nothing, converter=From["Chat | None"])
+    chat: Option[Chat] = field(default=UNSET, converter=From["Chat | None"])
     """Optional. Chat the original message belongs to. Available only if the chat
     is a supergroup or a channel."""
 
-    message_id: Option[int] = field(default=Nothing, converter=From[int | None])
+    message_id: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Unique message identifier inside the original chat. Available
     only if the original chat is a supergroup or a channel."""
 
     link_preview_options: Option[LinkPreviewOptions] = field(
-        default=Nothing, converter=From["LinkPreviewOptions | None"]
+        default=UNSET, converter=From["LinkPreviewOptions | None"]
     )
     """Optional. Options used for link preview generation for the original message,
     if it is a text message."""
 
-    animation: Option[Animation] = field(default=Nothing, converter=From["Animation | None"])
+    animation: Option[Animation] = field(default=UNSET, converter=From["Animation | None"])
     """Optional. Message is an animation, information about the animation."""
 
-    audio: Option[Audio] = field(default=Nothing, converter=From["Audio | None"])
+    audio: Option[Audio] = field(default=UNSET, converter=From["Audio | None"])
     """Optional. Message is an audio file, information about the file."""
 
-    document: Option[Document] = field(default=Nothing, converter=From["Document | None"])
+    document: Option[Document] = field(default=UNSET, converter=From["Document | None"])
     """Optional. Message is a general file, information about the file."""
 
-    paid_media: Option[PaidMediaInfo] = field(default=Nothing, converter=From["PaidMediaInfo | None"])
+    paid_media: Option[PaidMediaInfo] = field(default=UNSET, converter=From["PaidMediaInfo | None"])
     """Optional. Message contains paid media; information about the paid media."""
 
-    photo: Option[list[PhotoSize]] = field(default=Nothing, converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=UNSET, converter=From["list[PhotoSize] | None"])
     """Optional. Message is a photo, available sizes of the photo."""
 
-    sticker: Option[Sticker] = field(default=Nothing, converter=From["Sticker | None"])
+    sticker: Option[Sticker] = field(default=UNSET, converter=From["Sticker | None"])
     """Optional. Message is a sticker, information about the sticker."""
 
-    story: Option[Story] = field(default=Nothing, converter=From["Story | None"])
+    story: Option[Story] = field(default=UNSET, converter=From["Story | None"])
     """Optional. Message is a forwarded story."""
 
-    video: Option[Video] = field(default=Nothing, converter=From["Video | None"])
+    video: Option[Video] = field(default=UNSET, converter=From["Video | None"])
     """Optional. Message is a video, information about the video."""
 
-    video_note: Option[VideoNote] = field(default=Nothing, converter=From["VideoNote | None"])
+    video_note: Option[VideoNote] = field(default=UNSET, converter=From["VideoNote | None"])
     """Optional. Message is a video note, information about the video message."""
 
-    voice: Option[Voice] = field(default=Nothing, converter=From["Voice | None"])
+    voice: Option[Voice] = field(default=UNSET, converter=From["Voice | None"])
     """Optional. Message is a voice message, information about the file."""
 
-    has_media_spoiler: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_media_spoiler: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the message media is covered by a spoiler animation."""
 
-    contact: Option[Contact] = field(default=Nothing, converter=From["Contact | None"])
+    contact: Option[Contact] = field(default=UNSET, converter=From["Contact | None"])
     """Optional. Message is a shared contact, information about the contact."""
 
-    dice: Option[Dice] = field(default=Nothing, converter=From["Dice | None"])
+    dice: Option[Dice] = field(default=UNSET, converter=From["Dice | None"])
     """Optional. Message is a dice with random value."""
 
-    game: Option[Game] = field(default=Nothing, converter=From["Game | None"])
+    game: Option[Game] = field(default=UNSET, converter=From["Game | None"])
     """Optional. Message is a game, information about the game. More about games:
     https://core.telegram.org/bots/api#games."""
 
-    giveaway: Option[Giveaway] = field(default=Nothing, converter=From["Giveaway | None"])
+    giveaway: Option[Giveaway] = field(default=UNSET, converter=From["Giveaway | None"])
     """Optional. Message is a scheduled giveaway, information about the giveaway."""
 
-    giveaway_winners: Option[GiveawayWinners] = field(default=Nothing, converter=From["GiveawayWinners | None"])
+    giveaway_winners: Option[GiveawayWinners] = field(default=UNSET, converter=From["GiveawayWinners | None"])
     """Optional. A giveaway with public winners was completed."""
 
-    invoice: Option[Invoice] = field(default=Nothing, converter=From["Invoice | None"])
+    invoice: Option[Invoice] = field(default=UNSET, converter=From["Invoice | None"])
     """Optional. Message is an invoice for a payment, information about the invoice.
     More about payments: https://core.telegram.org/bots/api#payments."""
 
-    location: Option[Location] = field(default=Nothing, converter=From["Location | None"])
+    location: Option[Location] = field(default=UNSET, converter=From["Location | None"])
     """Optional. Message is a shared location, information about the location."""
 
-    poll: Option[Poll] = field(default=Nothing, converter=From["Poll | None"])
+    poll: Option[Poll] = field(default=UNSET, converter=From["Poll | None"])
     """Optional. Message is a native poll, information about the poll."""
 
-    venue: Option[Venue] = field(default=Nothing, converter=From["Venue | None"])
+    venue: Option[Venue] = field(default=UNSET, converter=From["Venue | None"])
     """Optional. Message is a venue, information about the venue."""
 
 
@@ -1278,34 +1271,34 @@ class ReplyParameters(Model):
     """Identifier of the message that will be replied to in the current chat, or
     in the chat chat_id if it is specified."""
 
-    chat_id: Option[Variative[int, str]] = field(default=Nothing, converter=From[int | str | None])
+    chat_id: Option[Variative[int, str]] = field(default=UNSET, converter=From[int | str | None])
     """Optional. If the message to be replied to is from a different chat, unique
     identifier for the chat or username of the channel (in the format @channelusername).
     Not supported for messages sent on behalf of a business account."""
 
-    allow_sending_without_reply: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    allow_sending_without_reply: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if the message should be sent even if the specified message
     to be replied to is not found. Always False for replies in another chat or
     forum topic. Always True for messages sent on behalf of a business account."""
 
-    quote: Option[str] = field(default=Nothing, converter=From[str | None])
+    quote: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Quoted part of the message to be replied to; 0-1024 characters
     after entities parsing. The quote must be an exact substring of the message
     to be replied to, including bold, italic, underline, strikethrough, spoiler,
     and custom_emoji entities. The message will fail to send if the quote isn't
     found in the original message."""
 
-    quote_parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    quote_parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the quote. See formatting options
     for more details."""
 
     quote_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. A JSON-serialized list of special entities that appear in the
     quote. It can be specified instead of quote_parse_mode."""
 
-    quote_position: Option[int] = field(default=Nothing, converter=From[int | None])
+    quote_position: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Position of the quote in the original message in UTF-16 code units."""
 
 
@@ -1356,7 +1349,7 @@ class MessageOriginChat(MessageOrigin):
     type: typing.Literal["chat"] = field(default="chat")
     """Type of the message origin, always `chat`."""
 
-    author_signature: Option[str] = field(default=Nothing, converter=From[str | None])
+    author_signature: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. For messages originally sent by an anonymous chat administrator,
     original message author signature."""
 
@@ -1379,7 +1372,7 @@ class MessageOriginChannel(MessageOrigin):
     type: typing.Literal["channel"] = field(default="channel")
     """Type of the message origin, always `channel`."""
 
-    author_signature: Option[str] = field(default=Nothing, converter=From[str | None])
+    author_signature: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Signature of the original post author."""
 
 
@@ -1402,7 +1395,7 @@ class PhotoSize(Model):
     height: int = field()
     """Photo height."""
 
-    file_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    file_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. File size in bytes."""
 
 
@@ -1428,16 +1421,16 @@ class Animation(Model):
     duration: int = field()
     """Duration of the video in seconds as defined by the sender."""
 
-    thumbnail: Option[PhotoSize] = field(default=Nothing, converter=From["PhotoSize | None"])
+    thumbnail: Option[PhotoSize] = field(default=UNSET, converter=From["PhotoSize | None"])
     """Optional. Animation thumbnail as defined by the sender."""
 
-    file_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    file_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Original animation filename as defined by the sender."""
 
-    mime_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    mime_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. MIME type of the file as defined by the sender."""
 
-    file_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    file_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
     it has at most 52 significant bits, so a signed 64-bit integer or double-precision
@@ -1460,25 +1453,25 @@ class Audio(Model):
     duration: int = field()
     """Duration of the audio in seconds as defined by the sender."""
 
-    performer: Option[str] = field(default=Nothing, converter=From[str | None])
+    performer: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Performer of the audio as defined by the sender or by audio tags."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title of the audio as defined by the sender or by audio tags."""
 
-    file_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    file_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Original filename as defined by the sender."""
 
-    mime_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    mime_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. MIME type of the file as defined by the sender."""
 
-    file_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    file_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
     it has at most 52 significant bits, so a signed 64-bit integer or double-precision
     float type are safe for storing this value."""
 
-    thumbnail: Option[PhotoSize] = field(default=Nothing, converter=From["PhotoSize | None"])
+    thumbnail: Option[PhotoSize] = field(default=UNSET, converter=From["PhotoSize | None"])
     """Optional. Thumbnail of the album cover to which the music file belongs."""
 
 
@@ -1495,16 +1488,16 @@ class Document(Model):
     """Unique identifier for this file, which is supposed to be the same over time
     and for different bots. Can't be used to download or reuse the file."""
 
-    thumbnail: Option[PhotoSize] = field(default=Nothing, converter=From["PhotoSize | None"])
+    thumbnail: Option[PhotoSize] = field(default=UNSET, converter=From["PhotoSize | None"])
     """Optional. Document thumbnail as defined by the sender."""
 
-    file_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    file_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Original filename as defined by the sender."""
 
-    mime_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    mime_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. MIME type of the file as defined by the sender."""
 
-    file_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    file_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
     it has at most 52 significant bits, so a signed 64-bit integer or double-precision
@@ -1546,16 +1539,16 @@ class Video(Model):
     duration: int = field()
     """Duration of the video in seconds as defined by the sender."""
 
-    thumbnail: Option[PhotoSize] = field(default=Nothing, converter=From["PhotoSize | None"])
+    thumbnail: Option[PhotoSize] = field(default=UNSET, converter=From["PhotoSize | None"])
     """Optional. Video thumbnail."""
 
-    file_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    file_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Original filename as defined by the sender."""
 
-    mime_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    mime_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. MIME type of the file as defined by the sender."""
 
-    file_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    file_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
     it has at most 52 significant bits, so a signed 64-bit integer or double-precision
@@ -1582,10 +1575,10 @@ class VideoNote(Model):
     duration: int = field()
     """Duration of the video in seconds as defined by the sender."""
 
-    thumbnail: Option[PhotoSize] = field(default=Nothing, converter=From["PhotoSize | None"])
+    thumbnail: Option[PhotoSize] = field(default=UNSET, converter=From["PhotoSize | None"])
     """Optional. Video thumbnail."""
 
-    file_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    file_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. File size in bytes."""
 
 
@@ -1605,10 +1598,10 @@ class Voice(Model):
     duration: int = field()
     """Duration of the audio in seconds as defined by the sender."""
 
-    mime_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    mime_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. MIME type of the file as defined by the sender."""
 
-    file_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    file_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
     it has at most 52 significant bits, so a signed 64-bit integer or double-precision
@@ -1639,13 +1632,13 @@ class PaidMediaPreview(PaidMedia):
     type: typing.Literal["preview"] = field(default="preview")
     """Type of the paid media, always `preview`."""
 
-    width: Option[int] = field(default=Nothing, converter=From[int | None])
+    width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Media width as defined by the sender."""
 
-    height: Option[int] = field(default=Nothing, converter=From[int | None])
+    height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Media height as defined by the sender."""
 
-    duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Duration of the media in seconds as defined by the sender."""
 
 
@@ -1687,16 +1680,16 @@ class Contact(Model):
     first_name: str = field()
     """Contact's first name."""
 
-    last_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    last_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Contact's last name."""
 
-    user_id: Option[int] = field(default=Nothing, converter=From[int | None])
+    user_id: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Contact's user identifier in Telegram. This number may have
     more than 32 significant bits and some programming languages may have difficulty/silent
     defects in interpreting it. But it has at most 52 significant bits, so a 64-bit
     integer or double-precision float type are safe for storing this identifier."""
 
-    vcard: Option[str] = field(default=Nothing, converter=From[str | None])
+    vcard: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Additional data about the contact in the form of a vCard."""
 
 
@@ -1726,9 +1719,7 @@ class PollOption(Model):
     voter_count: int = field()
     """Number of users that voted for this option."""
 
-    text_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
-    )
+    text_entities: Option[list[MessageEntity]] = field(default=UNSET, converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the option text. Currently,
     only custom emoji entities are allowed in poll option texts."""
 
@@ -1742,13 +1733,11 @@ class InputPollOption(Model):
     text: str = field()
     """Option text, 1-100 characters."""
 
-    text_parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    text_parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the text. See formatting options
     for more details. Currently, only custom emoji entities are allowed."""
 
-    text_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
-    )
+    text_entities: Option[list[MessageEntity]] = field(default=UNSET, converter=From["list[MessageEntity] | None"])
     """Optional. A JSON-serialized list of special entities that appear in the
     poll option text. It can be specified instead of text_parse_mode."""
 
@@ -1766,10 +1755,10 @@ class PollAnswer(Model):
     """0-based identifiers of chosen answer options. May be empty if the vote was
     retracted."""
 
-    voter_chat: Option[Chat] = field(default=Nothing, converter=From["Chat | None"])
+    voter_chat: Option[Chat] = field(default=UNSET, converter=From["Chat | None"])
     """Optional. The chat that changed the answer to the poll, if the voter is anonymous."""
 
-    user: Option[User] = field(default=Nothing, converter=From["User | None"])
+    user: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. The user that changed the answer to the poll, if the voter isn't
     anonymous."""
 
@@ -1805,30 +1794,30 @@ class Poll(Model):
     """Poll type, currently can be `regular` or `quiz`."""
 
     question_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. Special entities that appear in the question. Currently, only
     custom emoji entities are allowed in poll questions."""
 
-    correct_option_id: Option[int] = field(default=Nothing, converter=From[int | None])
+    correct_option_id: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. 0-based identifier of the correct answer option. Available
     only for polls in the quiz mode, which are closed, or was sent (not forwarded)
     by the bot or to the private chat with the bot."""
 
-    explanation: Option[str] = field(default=Nothing, converter=From[str | None])
+    explanation: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Text that is shown when a user chooses an incorrect answer or taps
     on the lamp icon in a quiz-style poll, 0-200 characters."""
 
     explanation_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. Special entities like usernames, URLs, bot commands, etc. that
     appear in the explanation."""
 
-    open_period: Option[int] = field(default=Nothing, converter=From[int | None])
+    open_period: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Amount of time in seconds the poll will be active after creation."""
 
-    close_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
+    close_date: Option[datetime] = field(default=UNSET, converter=From[datetime | None])
     """Optional. Point in time (Unix timestamp) when the poll will be automatically
     closed."""
 
@@ -1845,19 +1834,19 @@ class Location(Model):
     longitude: float = field()
     """Longitude as defined by the sender."""
 
-    horizontal_accuracy: Option[float] = field(default=Nothing, converter=From[float | None])
+    horizontal_accuracy: Option[float] = field(default=UNSET, converter=From[float | None])
     """Optional. The radius of uncertainty for the location, measured in meters;
     0-1500."""
 
-    live_period: Option[int] = field(default=Nothing, converter=From[int | None])
+    live_period: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Time relative to the message sending date, during which the location
     can be updated; in seconds. For active live locations only."""
 
-    heading: Option[int] = field(default=Nothing, converter=From[int | None])
+    heading: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The direction in which user is moving, in degrees; 1-360. For
     active live locations only."""
 
-    proximity_alert_radius: Option[int] = field(default=Nothing, converter=From[int | None])
+    proximity_alert_radius: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The maximum distance for proximity alerts about approaching
     another chat member, in meters. For sent live locations only."""
 
@@ -1877,17 +1866,17 @@ class Venue(Model):
     address: str = field()
     """Address of the venue."""
 
-    foursquare_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    foursquare_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Foursquare identifier of the venue."""
 
-    foursquare_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    foursquare_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Foursquare type of the venue. (For example, `arts_entertainment/default`,
     `arts_entertainment/aquarium` or `food/icecream`.)."""
 
-    google_place_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    google_place_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Google Places identifier of the venue."""
 
-    google_place_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    google_place_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Google Places type of the venue. (See supported types.)."""
 
 
@@ -2020,11 +2009,11 @@ class BackgroundTypeWallpaper(BackgroundType):
     type: typing.Literal["wallpaper"] = field(default="wallpaper")
     """Type of the background, always `wallpaper`."""
 
-    is_blurred: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_blurred: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the wallpaper is downscaled to fit in a 450x450 square
     and then box-blurred with radius 12."""
 
-    is_moving: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_moving: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the background moves slightly when the device is tilted."""
 
 
@@ -2048,11 +2037,11 @@ class BackgroundTypePattern(BackgroundType):
     type: typing.Literal["pattern"] = field(default="pattern")
     """Type of the background, always `pattern`."""
 
-    is_inverted: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_inverted: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the background fill must be applied only to the pattern
     itself. All other pixels are black in this case. For dark themes only."""
 
-    is_moving: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_moving: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the background moves slightly when the device is tilted."""
 
 
@@ -2097,7 +2086,7 @@ class ForumTopicCreated(Model):
     icon_color: TopicIconColor = field()
     """Color of the topic icon in RGB format."""
 
-    icon_custom_emoji_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    icon_custom_emoji_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Unique identifier of the custom emoji shown as the topic icon."""
 
 
@@ -2114,10 +2103,10 @@ class ForumTopicEdited(Model):
     This object represents a service message about an edited forum topic.
     """
 
-    name: Option[str] = field(default=Nothing, converter=From[str | None])
+    name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. New name of the topic, if it was edited."""
 
-    icon_custom_emoji_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    icon_custom_emoji_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. New identifier of the custom emoji shown as the topic icon, if
     it was edited; an empty string if the icon was removed."""
 
@@ -2157,16 +2146,16 @@ class SharedUser(Model):
     The bot may not have access to the user and could be unable to use this identifier,
     unless the user is already known to the bot by some other means."""
 
-    first_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    first_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. First name of the user, if the name was requested by the bot."""
 
-    last_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    last_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Last name of the user, if the name was requested by the bot."""
 
-    username: Option[str] = field(default=Nothing, converter=From[str | None])
+    username: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Username of the user, if the username was requested by the bot."""
 
-    photo: Option[list[PhotoSize]] = field(default=Nothing, converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=UNSET, converter=From["list[PhotoSize] | None"])
     """Optional. Available sizes of the chat photo, if the photo was requested
     by the bot."""
 
@@ -2201,14 +2190,14 @@ class ChatShared(Model):
     bot may not have access to the chat and could be unable to use this identifier,
     unless the chat is already known to the bot by some other means."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title of the chat, if the title was requested by the bot."""
 
-    username: Option[str] = field(default=Nothing, converter=From[str | None])
+    username: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Username of the chat, if the username was requested by the bot
     and available."""
 
-    photo: Option[list[PhotoSize]] = field(default=Nothing, converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=UNSET, converter=From["list[PhotoSize] | None"])
     """Optional. Available sizes of the chat photo, if the photo was requested
     by the bot."""
 
@@ -2219,15 +2208,15 @@ class WriteAccessAllowed(Model):
     This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess.
     """
 
-    from_request: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    from_request: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the access was granted after the user accepted an explicit
     request from a Web App sent by the method requestWriteAccess."""
 
-    web_app_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    web_app_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Name of the Web App, if the access was granted when the Web App was
     launched from a link."""
 
-    from_attachment_menu: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    from_attachment_menu: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the access was granted when the bot was added to the attachment
     or side menu."""
 
@@ -2276,7 +2265,7 @@ class GiveawayCreated(Model):
     This object represents a service message about the creation of a scheduled giveaway.
     """
 
-    prize_star_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    prize_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of Telegram Stars to be split between giveaway winners;
     for Telegram Star giveaways only."""
 
@@ -2296,27 +2285,27 @@ class Giveaway(Model):
     winner_count: int = field()
     """The number of users which are supposed to be selected as winners of the giveaway."""
 
-    only_new_members: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    only_new_members: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if only users who join the chats after the giveaway started
     should be eligible to win."""
 
-    has_public_winners: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_public_winners: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the list of giveaway winners will be visible to everyone."""
 
-    prize_description: Option[str] = field(default=Nothing, converter=From[str | None])
+    prize_description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Description of additional giveaway prize."""
 
-    country_codes: Option[list[str]] = field(default=Nothing, converter=From[list[str] | None])
+    country_codes: Option[list[str]] = field(default=UNSET, converter=From[list[str] | None])
     """Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating
     the countries from which eligible users for the giveaway must come. If empty,
     then all users can participate in the giveaway. Users with a phone number
     that was bought on Fragment can always participate in giveaways."""
 
-    prize_star_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    prize_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of Telegram Stars to be split between giveaway winners;
     for Telegram Star giveaways only."""
 
-    premium_subscription_month_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    premium_subscription_month_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of months the Telegram Premium subscription won from
     the giveaway will be active for; for Telegram Premium giveaways only."""
 
@@ -2342,30 +2331,30 @@ class GiveawayWinners(Model):
     winners: list[User] = field()
     """List of up to 100 winners of the giveaway."""
 
-    additional_chat_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    additional_chat_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of other chats the user had to join in order to be eligible
     for the giveaway."""
 
-    prize_star_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    prize_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of Telegram Stars that were split between giveaway
     winners; for Telegram Star giveaways only."""
 
-    premium_subscription_month_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    premium_subscription_month_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of months the Telegram Premium subscription won from
     the giveaway will be active for; for Telegram Premium giveaways only."""
 
-    unclaimed_prize_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    unclaimed_prize_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Number of undistributed prizes."""
 
-    only_new_members: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    only_new_members: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if only users who had joined the chats after the giveaway
     started were eligible to win."""
 
-    was_refunded: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    was_refunded: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the giveaway was canceled because the payment for it
     was refunded."""
 
-    prize_description: Option[str] = field(default=Nothing, converter=From[str | None])
+    prize_description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Description of additional giveaway prize."""
 
 
@@ -2378,13 +2367,13 @@ class GiveawayCompleted(Model):
     winner_count: int = field()
     """Number of winners in the giveaway."""
 
-    unclaimed_prize_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    unclaimed_prize_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Number of undistributed prizes."""
 
-    giveaway_message: Option[Message] = field(default=Nothing, converter=From["Message | None"])
+    giveaway_message: Option[Message] = field(default=UNSET, converter=From["Message | None"])
     """Optional. Message with the giveaway that was completed, if it wasn't deleted."""
 
-    is_star_giveaway: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_star_giveaway: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the giveaway is a Telegram Star giveaway. Otherwise,
     currently, the giveaway is a Telegram Premium giveaway."""
 
@@ -2395,24 +2384,24 @@ class LinkPreviewOptions(Model):
     Describes the options used for link preview generation.
     """
 
-    is_disabled: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_disabled: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the link preview is disabled."""
 
-    url: Option[str] = field(default=Nothing, converter=From[str | None])
+    url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. URL to use for the link preview. If empty, then the first URL found
     in the message text will be used."""
 
-    prefer_small_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    prefer_small_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the media in the link preview is supposed to be shrunk;
     ignored if the URL isn't explicitly specified or media size change isn't
     supported for the preview."""
 
-    prefer_large_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    prefer_large_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the media in the link preview is supposed to be enlarged;
     ignored if the URL isn't explicitly specified or media size change isn't
     supported for the preview."""
 
-    show_above_text: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_above_text: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the link preview must be shown above the message text;
     otherwise, the link preview will be shown below the message text."""
 
@@ -2443,13 +2432,13 @@ class File(Model):
     """Unique identifier for this file, which is supposed to be the same over time
     and for different bots. Can't be used to download or reuse the file."""
 
-    file_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    file_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. File size in bytes. It can be bigger than 2^31 and some programming
     languages may have difficulty/silent defects in interpreting it. But
     it has at most 52 significant bits, so a signed 64-bit integer or double-precision
     float type are safe for storing this value."""
 
-    file_path: Option[str] = field(default=Nothing, converter=From[str | None])
+    file_path: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. File path. Use https://api.telegram.org/file/bot<token>/<file_path>
     to get the file."""
 
@@ -2474,28 +2463,28 @@ class ReplyKeyboardMarkup(Model):
     keyboard: list[list[KeyboardButton]] = field()
     """Array of button rows, each represented by an Array of KeyboardButton objects."""
 
-    is_persistent: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_persistent: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Requests clients to always show the keyboard when the regular
     keyboard is hidden. Defaults to false, in which case the custom keyboard
     can be hidden and opened with a keyboard icon."""
 
-    resize_keyboard: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    resize_keyboard: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Requests clients to resize the keyboard vertically for optimal
     fit (e.g., make the keyboard smaller if there are just two rows of buttons).
     Defaults to false, in which case the custom keyboard is always of the same
     height as the app's standard keyboard."""
 
-    one_time_keyboard: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    one_time_keyboard: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Requests clients to hide the keyboard as soon as it's been used.
     The keyboard will still be available, but clients will automatically display
     the usual letter-keyboard in the chat - the user can press a special button
     in the input field to see the custom keyboard again. Defaults to false."""
 
-    input_field_placeholder: Option[str] = field(default=Nothing, converter=From[str | None])
+    input_field_placeholder: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. The placeholder to be shown in the input field when the keyboard
     is active; 1-64 characters."""
 
-    selective: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    selective: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Use this parameter if you want to show the keyboard to specific
     users only. Targets: 1) users that are @mentioned in the text of the Message
     object; 2) if the bot's message is a reply to a message in the same chat and
@@ -2521,34 +2510,34 @@ class KeyboardButton(Model):
     as a message when the button is pressed."""
 
     request_users: Option[KeyboardButtonRequestUsers] = field(
-        default=Nothing, converter=From["KeyboardButtonRequestUsers | None"]
+        default=UNSET, converter=From["KeyboardButtonRequestUsers | None"]
     )
     """Optional. If specified, pressing the button will open a list of suitable
     users. Identifiers of selected users will be sent to the bot in a `users_shared`
     service message. Available in private chats only."""
 
     request_chat: Option[KeyboardButtonRequestChat] = field(
-        default=Nothing, converter=From["KeyboardButtonRequestChat | None"]
+        default=UNSET, converter=From["KeyboardButtonRequestChat | None"]
     )
     """Optional. If specified, pressing the button will open a list of suitable
     chats. Tapping on a chat will send its identifier to the bot in a `chat_shared`
     service message. Available in private chats only."""
 
-    request_contact: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    request_contact: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. If True, the user's phone number will be sent as a contact when
     the button is pressed. Available in private chats only."""
 
-    request_location: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    request_location: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. If True, the user's current location will be sent when the button
     is pressed. Available in private chats only."""
 
     request_poll: Option[KeyboardButtonPollType] = field(
-        default=Nothing, converter=From["KeyboardButtonPollType | None"]
+        default=UNSET, converter=From["KeyboardButtonPollType | None"]
     )
     """Optional. If specified, the user will be asked to create a poll and send it
     to the bot when the button is pressed. Available in private chats only."""
 
-    web_app: Option[WebAppInfo] = field(default=Nothing, converter=From["WebAppInfo | None"])
+    web_app: Option[WebAppInfo] = field(default=UNSET, converter=From["WebAppInfo | None"])
     """Optional. If specified, the described Web App will be launched when the
     button is pressed. The Web App will be able to send a `web_app_data` service
     message. Available in private chats only."""
@@ -2564,25 +2553,25 @@ class KeyboardButtonRequestUsers(Model):
     """Signed 32-bit identifier of the request that will be received back in the
     UsersShared object. Must be unique within the message."""
 
-    user_is_bot: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    user_is_bot: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request bots, pass False to request regular users.
     If not specified, no additional restrictions are applied."""
 
-    user_is_premium: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    user_is_premium: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request premium users, pass False to request non-premium
     users. If not specified, no additional restrictions are applied."""
 
-    max_quantity: Option[int] = field(default=Nothing, converter=From[int | None])
+    max_quantity: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The maximum number of users to be selected; 1-10. Defaults to
     1."""
 
-    request_name: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    request_name: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request the users' first and last names."""
 
-    request_username: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    request_username: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request the users' usernames."""
 
-    request_photo: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    request_photo: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request the users' photos."""
 
 
@@ -2600,44 +2589,44 @@ class KeyboardButtonRequestChat(Model):
     """Pass True to request a channel chat, pass False to request a group or a supergroup
     chat."""
 
-    chat_is_forum: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    chat_is_forum: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request a forum supergroup, pass False to request
     a non-forum chat. If not specified, no additional restrictions are applied."""
 
-    chat_has_username: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    chat_has_username: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request a supergroup or a channel with a username,
     pass False to request a chat without a username. If not specified, no additional
     restrictions are applied."""
 
-    chat_is_created: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    chat_is_created: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request a chat owned by the user. Otherwise, no additional
     restrictions are applied."""
 
     user_administrator_rights: Option[ChatAdministratorRights] = field(
-        default=Nothing, converter=From["ChatAdministratorRights | None"]
+        default=UNSET, converter=From["ChatAdministratorRights | None"]
     )
     """Optional. A JSON-serialized object listing the required administrator
     rights of the user in the chat. The rights must be a superset of bot_administrator_rights.
     If not specified, no additional restrictions are applied."""
 
     bot_administrator_rights: Option[ChatAdministratorRights] = field(
-        default=Nothing, converter=From["ChatAdministratorRights | None"]
+        default=UNSET, converter=From["ChatAdministratorRights | None"]
     )
     """Optional. A JSON-serialized object listing the required administrator
     rights of the bot in the chat. The rights must be a subset of user_administrator_rights.
     If not specified, no additional restrictions are applied."""
 
-    bot_is_member: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    bot_is_member: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request a chat with the bot as a member. Otherwise,
     no additional restrictions are applied."""
 
-    request_title: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    request_title: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request the chat's title."""
 
-    request_username: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    request_username: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request the chat's username."""
 
-    request_photo: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    request_photo: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request the chat's photo."""
 
 
@@ -2647,7 +2636,7 @@ class KeyboardButtonPollType(Model):
     This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
     """
 
-    type: Option[typing.Literal["quiz", "regular"]] = field(default=Nothing)
+    type: Option[typing.Literal["quiz", "regular"]] = field(default=UNSET)
     """Optional. If quiz is passed, the user will be allowed to create only polls
     in the quiz mode. If regular is passed, only regular polls will be allowed.
     Otherwise, the user will be allowed to create a poll of any type."""
@@ -2664,7 +2653,7 @@ class ReplyKeyboardRemove(Model):
     summon this keyboard; if you want to hide the keyboard from sight but keep
     it accessible, use one_time_keyboard in ReplyKeyboardMarkup)."""
 
-    selective: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    selective: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Use this parameter if you want to remove the keyboard for specific
     users only. Targets: 1) users that are @mentioned in the text of the Message
     object; 2) if the bot's message is a reply to a message in the same chat and
@@ -2694,34 +2683,34 @@ class InlineKeyboardButton(Model):
     text: str = field()
     """Label text on the button."""
 
-    url: Option[str] = field(default=Nothing, converter=From[str | None])
+    url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. HTTP or tg:// URL to be opened when the button is pressed. Links
     tg://user?id=<user_id> can be used to mention a user by their identifier
     without using a username, if this is allowed by their privacy settings."""
 
-    callback_data: Option[str] = field(default=Nothing, converter=From[str | None])
+    callback_data: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Data to be sent in a callback query to the bot when the button is
     pressed, 1-64 bytes."""
 
-    web_app: Option[WebAppInfo] = field(default=Nothing, converter=From["WebAppInfo | None"])
+    web_app: Option[WebAppInfo] = field(default=UNSET, converter=From["WebAppInfo | None"])
     """Optional. Description of the Web App that will be launched when the user
     presses the button. The Web App will be able to send an arbitrary message
     on behalf of the user using the method answerWebAppQuery. Available only
     in private chats between a user and the bot. Not supported for messages sent
     on behalf of a Telegram Business account."""
 
-    login_url: Option[LoginUrl] = field(default=Nothing, converter=From["LoginUrl | None"])
+    login_url: Option[LoginUrl] = field(default=UNSET, converter=From["LoginUrl | None"])
     """Optional. An HTTPS URL used to automatically authorize the user. Can be
     used as a replacement for the Telegram Login Widget."""
 
-    switch_inline_query: Option[str] = field(default=Nothing, converter=From[str | None])
+    switch_inline_query: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. If set, pressing the button will prompt the user to select one
     of their chats, open that chat and insert the bot's username and the specified
     inline query in the input field. May be empty, in which case just the bot's
     username will be inserted. Not supported for messages sent on behalf of
     a Telegram Business account."""
 
-    switch_inline_query_current_chat: Option[str] = field(default=Nothing, converter=From[str | None])
+    switch_inline_query_current_chat: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. If set, pressing the button will insert the bot's username and
     the specified inline query in the current chat's input field. May be empty,
     in which case only the bot's username will be inserted. This offers a quick
@@ -2730,23 +2719,23 @@ class InlineKeyboardButton(Model):
     sent on behalf of a Telegram Business account."""
 
     switch_inline_query_chosen_chat: Option[SwitchInlineQueryChosenChat] = field(
-        default=Nothing, converter=From["SwitchInlineQueryChosenChat | None"]
+        default=UNSET, converter=From["SwitchInlineQueryChosenChat | None"]
     )
     """Optional. If set, pressing the button will prompt the user to select one
     of their chats of the specified type, open that chat and insert the bot's
     username and the specified inline query in the input field. Not supported
     for messages sent on behalf of a Telegram Business account."""
 
-    copy_text: Option[CopyTextButton] = field(default=Nothing, converter=From["CopyTextButton | None"])
+    copy_text: Option[CopyTextButton] = field(default=UNSET, converter=From["CopyTextButton | None"])
     """Optional. Description of the button that copies the specified text to the
     clipboard."""
 
-    callback_game: Option[CallbackGame] = field(default=Nothing, converter=From["CallbackGame | None"])
+    callback_game: Option[CallbackGame] = field(default=UNSET, converter=From["CallbackGame | None"])
     """Optional. Description of the game that will be launched when the user presses
     the button. NOTE: This type of button must always be the first button in the
     first row."""
 
-    pay: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    pay: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Specify True, to send a Pay button. Substrings `⭐` and `XTR` in
     the buttons's text will be replaced with a Telegram Star icon. NOTE: This
     type of button must always be the first button in the first row and can only
@@ -2768,16 +2757,16 @@ class LoginUrl(Model):
     NOTE: You must always check the hash of the received data to verify the authentication
     and the integrity of the data as described in Checking authorization."""
 
-    forward_text: Option[str] = field(default=Nothing, converter=From[str | None])
+    forward_text: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. New text of the button in forwarded messages."""
 
-    bot_username: Option[str] = field(default=Nothing, converter=From[str | None])
+    bot_username: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Username of a bot, which will be used for user authorization.
     See Setting up a bot for more details. If not specified, the current bot's
     username will be assumed. The url's domain must be the same as the domain
     linked with the bot. See Linking your domain to the bot for more details."""
 
-    request_write_access: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    request_write_access: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True to request the permission for your bot to send messages
     to the user."""
 
@@ -2788,20 +2777,20 @@ class SwitchInlineQueryChosenChat(Model):
     This object represents an inline button that switches the current user to inline mode in a chosen chat, with an optional default inline query.
     """
 
-    query: Option[str] = field(default=Nothing, converter=From[str | None])
+    query: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. The default inline query to be inserted in the input field. If
     left empty, only the bot's username will be inserted."""
 
-    allow_user_chats: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    allow_user_chats: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if private chats with users can be chosen."""
 
-    allow_bot_chats: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    allow_bot_chats: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if private chats with bots can be chosen."""
 
-    allow_group_chats: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    allow_group_chats: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if group and supergroup chats can be chosen."""
 
-    allow_channel_chats: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    allow_channel_chats: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if channel chats can be chosen."""
 
 
@@ -2832,20 +2821,20 @@ class CallbackQuery(Model):
     with the callback button was sent. Useful for high scores in games."""
 
     message: Option[Variative[Message, InaccessibleMessage]] = field(
-        default=Nothing, converter=From["Message | InaccessibleMessage | None"]
+        default=UNSET, converter=From["Message | InaccessibleMessage | None"]
     )
     """Optional. Message sent by the bot with the callback button that originated
     the query."""
 
-    inline_message_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    inline_message_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Identifier of the message sent via the bot in inline mode, that
     originated the query."""
 
-    data: Option[str] = field(default=Nothing, converter=From[str | None])
+    data: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Data associated with the callback button. Be aware that the message
     originated the query can contain no callback buttons with this data."""
 
-    game_short_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    game_short_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Short name of a Game to be returned, serves as the unique identifier
     for the game."""
 
@@ -2860,11 +2849,11 @@ class ForceReply(Model):
     """Shows reply interface to the user, as if they manually selected the bot's
     message and tapped 'Reply'."""
 
-    input_field_placeholder: Option[str] = field(default=Nothing, converter=From[str | None])
+    input_field_placeholder: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. The placeholder to be shown in the input field when the reply is
     active; 1-64 characters."""
 
-    selective: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    selective: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Use this parameter if you want to force reply from specific users
     only. Targets: 1) users that are @mentioned in the text of the Message object;
     2) if the bot's message is a reply to a message in the same chat and forum topic,
@@ -2918,25 +2907,25 @@ class ChatInviteLink(Model):
     is_revoked: bool = field()
     """True, if the link is revoked."""
 
-    name: Option[str] = field(default=Nothing, converter=From[str | None])
+    name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Invite link name."""
 
-    expire_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
+    expire_date: Option[datetime] = field(default=UNSET, converter=From[datetime | None])
     """Optional. Point in time (Unix timestamp) when the link will expire or has
     been expired."""
 
-    member_limit: Option[int] = field(default=Nothing, converter=From[int | None])
+    member_limit: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The maximum number of users that can be members of the chat simultaneously
     after joining the chat via this invite link; 1-99999."""
 
-    pending_join_request_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    pending_join_request_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Number of pending join requests created using this link."""
 
-    subscription_period: Option[int] = field(default=Nothing, converter=From[int | None])
+    subscription_period: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of seconds the subscription will be active for before
     the next payment."""
 
-    subscription_price: Option[int] = field(default=Nothing, converter=From[int | None])
+    subscription_price: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The amount of Telegram Stars a user must pay initially and after
     each subsequent subscription period to be a member of the chat using the
     link."""
@@ -2987,19 +2976,19 @@ class ChatAdministratorRights(Model):
     can_delete_stories: bool = field()
     """True, if the administrator can delete stories posted by other users."""
 
-    can_post_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_post_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the administrator can post messages in the channel,
     or access channel statistics; for channels only."""
 
-    can_edit_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_edit_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the administrator can edit messages of other users and
     can pin messages; for channels only."""
 
-    can_pin_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_pin_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to pin messages; for groups and supergroups
     only."""
 
-    can_manage_topics: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_manage_topics: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to create, rename, close, and reopen
     forum topics; for supergroups only."""
 
@@ -3047,15 +3036,15 @@ class ChatMemberUpdated(Model):
     )
     """New information about the chat member."""
 
-    invite_link: Option[ChatInviteLink] = field(default=Nothing, converter=From["ChatInviteLink | None"])
+    invite_link: Option[ChatInviteLink] = field(default=UNSET, converter=From["ChatInviteLink | None"])
     """Optional. Chat invite link, which was used by the user to join the chat; for
     joining by invite link events only."""
 
-    via_join_request: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    via_join_request: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user joined the chat after sending a direct join request
     without using an invite link and being approved by an administrator."""
 
-    via_chat_folder_invite_link: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    via_chat_folder_invite_link: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user joined the chat via a chat folder invite link."""
 
     @property
@@ -3079,7 +3068,7 @@ class ChatMemberOwner(ChatMember):
     status: typing.Literal["creator"] = field(default="creator")
     """The member's status in the chat, always `creator`."""
 
-    custom_title: Option[str] = field(default=Nothing, converter=From[str | None])
+    custom_title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Custom title for this user."""
 
 
@@ -3137,23 +3126,23 @@ class ChatMemberAdministrator(ChatMember):
     status: typing.Literal["administrator"] = field(default="administrator")
     """The member's status in the chat, always `administrator`."""
 
-    can_post_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_post_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the administrator can post messages in the channel,
     or access channel statistics; for channels only."""
 
-    can_edit_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_edit_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the administrator can edit messages of other users and
     can pin messages; for channels only."""
 
-    can_pin_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_pin_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to pin messages; for groups and supergroups
     only."""
 
-    can_manage_topics: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_manage_topics: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to create, rename, close, and reopen
     forum topics; for supergroups only."""
 
-    custom_title: Option[str] = field(default=Nothing, converter=From[str | None])
+    custom_title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Custom title for this user."""
 
 
@@ -3169,7 +3158,7 @@ class ChatMemberMember(ChatMember):
     status: typing.Literal["member"] = field(default="member")
     """The member's status in the chat, always `member`."""
 
-    until_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
+    until_date: Option[datetime] = field(default=UNSET, converter=From[datetime | None])
     """Optional. Date when the user's subscription will expire; Unix time."""
 
 
@@ -3291,10 +3280,10 @@ class ChatJoinRequest(Model):
     date: datetime = field()
     """Date the request was sent in Unix time."""
 
-    bio: Option[str] = field(default=Nothing, converter=From[str | None])
+    bio: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Bio of the user."""
 
-    invite_link: Option[ChatInviteLink] = field(default=Nothing, converter=From["ChatInviteLink | None"])
+    invite_link: Option[ChatInviteLink] = field(default=UNSET, converter=From["ChatInviteLink | None"])
     """Optional. Chat invite link that was used by the user to send the join request."""
 
     @property
@@ -3309,50 +3298,50 @@ class ChatPermissions(Model):
     Describes actions that a non-administrator user is allowed to take in a chat.
     """
 
-    can_send_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to send text messages, contacts,
     giveaways, giveaway winners, invoices, locations and venues."""
 
-    can_send_audios: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_audios: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to send audios."""
 
-    can_send_documents: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_documents: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to send documents."""
 
-    can_send_photos: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_photos: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to send photos."""
 
-    can_send_videos: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_videos: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to send videos."""
 
-    can_send_video_notes: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_video_notes: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to send video notes."""
 
-    can_send_voice_notes: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_voice_notes: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to send voice notes."""
 
-    can_send_polls: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_polls: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to send polls."""
 
-    can_send_other_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_send_other_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to send animations, games, stickers
     and use inline bots."""
 
-    can_add_web_page_previews: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_add_web_page_previews: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to add web page previews to their messages."""
 
-    can_change_info: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_change_info: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to change the chat title, photo and
     other settings. Ignored in public supergroups."""
 
-    can_invite_users: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_invite_users: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to invite new users to the chat."""
 
-    can_pin_messages: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_pin_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to pin messages. Ignored in public
     supergroups."""
 
-    can_manage_topics: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    can_manage_topics: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the user is allowed to create forum topics. If omitted
     defaults to the value of can_pin_messages."""
 
@@ -3369,7 +3358,7 @@ class Birthdate(Model):
     month: int = field()
     """Month of the user's birth; 1-12."""
 
-    year: Option[int] = field(default=Nothing, converter=From[int | None])
+    year: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Year of the user's birth."""
 
     @property
@@ -3390,13 +3379,13 @@ class BusinessIntro(Model):
     Contains information about the start page settings of a Telegram Business account.
     """
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title text of the business intro."""
 
-    message: Option[str] = field(default=Nothing, converter=From[str | None])
+    message: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Message text of the business intro."""
 
-    sticker: Option[Sticker] = field(default=Nothing, converter=From["Sticker | None"])
+    sticker: Option[Sticker] = field(default=UNSET, converter=From["Sticker | None"])
     """Optional. Sticker of the business intro."""
 
 
@@ -3409,7 +3398,7 @@ class BusinessLocation(Model):
     address: str = field()
     """Address of the business."""
 
-    location: Option[Location] = field(default=Nothing, converter=From["Location | None"])
+    location: Option[Location] = field(default=UNSET, converter=From["Location | None"])
     """Optional. Location of the business."""
 
 
@@ -3535,10 +3524,10 @@ class MessageReactionUpdated(Model):
     )
     """New list of reaction types that have been set by the user."""
 
-    user: Option[User] = field(default=Nothing, converter=From["User | None"])
+    user: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. The user that changed the reaction, if the user isn't anonymous."""
 
-    actor_chat: Option[Chat] = field(default=Nothing, converter=From["Chat | None"])
+    actor_chat: Option[Chat] = field(default=UNSET, converter=From["Chat | None"])
     """Optional. The chat on behalf of which the reaction was changed, if the user
     is anonymous."""
 
@@ -3577,7 +3566,7 @@ class ForumTopic(Model):
     icon_color: TopicIconColor = field()
     """Color of the topic icon in RGB format."""
 
-    icon_custom_emoji_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    icon_custom_emoji_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Unique identifier of the custom emoji shown as the topic icon."""
 
 
@@ -3789,15 +3778,15 @@ class ChatBoostSourceGiveaway(ChatBoostSource):
     source: typing.Literal["giveaway"] = field(default="giveaway")
     """Source of the boost, always `giveaway`."""
 
-    user: Option[User] = field(default=Nothing, converter=From["User | None"])
+    user: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. User that won the prize in the giveaway if any; for Telegram Premium
     giveaways only."""
 
-    prize_star_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    prize_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of Telegram Stars to be split between giveaway winners;
     for Telegram Star giveaways only."""
 
-    is_unclaimed: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_unclaimed: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the giveaway was completed, but there was no user to win
     the prize."""
 
@@ -3921,14 +3910,14 @@ class ResponseParameters(Model):
     Describes why a request was unsuccessful.
     """
 
-    migrate_to_chat_id: Option[int] = field(default=Nothing, converter=From[int | None])
+    migrate_to_chat_id: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The group has been migrated to a supergroup with the specified
     identifier. This number may have more than 32 significant bits and some
     programming languages may have difficulty/silent defects in interpreting
     it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision
     float type are safe for storing this identifier."""
 
-    retry_after: Option[int] = field(default=Nothing, converter=From[int | None])
+    retry_after: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. In case of exceeding flood control, the number of seconds left
     to wait before the request can be repeated."""
 
@@ -3948,24 +3937,24 @@ class InputMediaPhoto(InputMedia):
     type: typing.Literal["photo"] = field(default="photo")
     """Type of the result, must be photo."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
-    has_spoiler: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_spoiler: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if the photo needs to be covered with a spoiler animation."""
 
 
@@ -3984,7 +3973,7 @@ class InputMediaVideo(InputMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -3993,36 +3982,36 @@ class InputMediaVideo(InputMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
-    width: Option[int] = field(default=Nothing, converter=From[int | None])
+    width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video width."""
 
-    height: Option[int] = field(default=Nothing, converter=From[int | None])
+    height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video height."""
 
-    duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video duration in seconds."""
 
-    supports_streaming: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    supports_streaming: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if the uploaded video is suitable for streaming."""
 
-    has_spoiler: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_spoiler: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if the video needs to be covered with a spoiler animation."""
 
 
@@ -4041,7 +4030,7 @@ class InputMediaAnimation(InputMedia):
     type: typing.Literal["animation"] = field(default="animation")
     """Type of the result, must be animation."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4050,33 +4039,33 @@ class InputMediaAnimation(InputMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the animation to be sent, 0-1024 characters after
     entities parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the animation caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
-    width: Option[int] = field(default=Nothing, converter=From[int | None])
+    width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Animation width."""
 
-    height: Option[int] = field(default=Nothing, converter=From[int | None])
+    height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Animation height."""
 
-    duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Animation duration in seconds."""
 
-    has_spoiler: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    has_spoiler: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if the animation needs to be covered with a spoiler animation."""
 
 
@@ -4095,7 +4084,7 @@ class InputMediaAudio(InputMedia):
     type: typing.Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4104,27 +4093,27 @@ class InputMediaAudio(InputMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the audio to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Duration of the audio in seconds."""
 
-    performer: Option[str] = field(default=Nothing, converter=From[str | None])
+    performer: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Performer of the audio."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title of the audio."""
 
 
@@ -4143,7 +4132,7 @@ class InputMediaDocument(InputMedia):
     type: typing.Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4152,21 +4141,21 @@ class InputMediaDocument(InputMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    disable_content_type_detection: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    disable_content_type_detection: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Disables automatic server-side content type detection for
     files uploaded using multipart/form-data. Always True, if the document
     is sent as part of an album."""
@@ -4224,7 +4213,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the media, must be video."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=Nothing, converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4233,16 +4222,16 @@ class InputPaidMediaVideo(InputPaidMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    width: Option[int] = field(default=Nothing, converter=From[int | None])
+    width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video width."""
 
-    height: Option[int] = field(default=Nothing, converter=From[int | None])
+    height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video height."""
 
-    duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video duration in seconds."""
 
-    supports_streaming: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    supports_streaming: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if the uploaded video is suitable for streaming."""
 
 
@@ -4276,30 +4265,30 @@ class Sticker(Model):
     The type of the sticker is independent from its format, which is determined
     by the fields is_animated and is_video."""
 
-    thumbnail: Option[PhotoSize] = field(default=Nothing, converter=From["PhotoSize | None"])
+    thumbnail: Option[PhotoSize] = field(default=UNSET, converter=From["PhotoSize | None"])
     """Optional. Sticker thumbnail in the .WEBP or .JPG format."""
 
-    emoji: Option[str] = field(default=Nothing, converter=From[str | None])
+    emoji: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Emoji associated with the sticker."""
 
-    set_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    set_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Name of the sticker set to which the sticker belongs."""
 
-    premium_animation: Option[File] = field(default=Nothing, converter=From["File | None"])
+    premium_animation: Option[File] = field(default=UNSET, converter=From["File | None"])
     """Optional. For premium regular stickers, premium animation for the sticker."""
 
-    mask_position: Option[MaskPosition] = field(default=Nothing, converter=From["MaskPosition | None"])
+    mask_position: Option[MaskPosition] = field(default=UNSET, converter=From["MaskPosition | None"])
     """Optional. For mask stickers, the position where the mask should be placed."""
 
-    custom_emoji_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    custom_emoji_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. For custom emoji stickers, unique identifier of the custom emoji."""
 
-    needs_repainting: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    needs_repainting: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the sticker must be repainted to a text color in messages,
     the color of the Telegram Premium badge in emoji status, white color on chat
     photos, or another appropriate color in other places."""
 
-    file_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    file_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. File size in bytes."""
 
 
@@ -4321,7 +4310,7 @@ class StickerSet(Model):
     sticker_type: typing.Literal["regular", "mask", "custom_emoji"] = field(default="regular")
     """Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`."""
 
-    thumbnail: Option[PhotoSize] = field(default=Nothing, converter=From["PhotoSize | None"])
+    thumbnail: Option[PhotoSize] = field(default=UNSET, converter=From["PhotoSize | None"])
     """Optional. Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format."""
 
 
@@ -4370,11 +4359,11 @@ class InputSticker(Model):
     emoji_list: list[str] = field()
     """List of 1-20 emoji associated with the sticker."""
 
-    mask_position: Option[MaskPosition] = field(default=Nothing, converter=From["MaskPosition | None"])
+    mask_position: Option[MaskPosition] = field(default=UNSET, converter=From["MaskPosition | None"])
     """Optional. Position where the mask should be placed on faces. For `mask`
     stickers only."""
 
-    keywords: Option[list[str]] = field(default=Nothing, converter=From[list[str] | None])
+    keywords: Option[list[str]] = field(default=UNSET, converter=From[list[str] | None])
     """Optional. List of 0-20 search keywords for the sticker with total length
     of up to 64 characters. For `regular` and `custom_emoji` stickers only."""
 
@@ -4394,15 +4383,15 @@ class Gift(Model):
     star_count: int = field()
     """The number of Telegram Stars that must be paid to send the sticker."""
 
-    upgrade_star_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    upgrade_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of Telegram Stars that must be paid to upgrade the gift
     to a unique one."""
 
-    total_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    total_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The total number of the gifts of this type that can be sent; for
     limited gifts only."""
 
-    remaining_count: Option[int] = field(default=Nothing, converter=From[int | None])
+    remaining_count: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of remaining gifts of this type that can be sent; for
     limited gifts only."""
 
@@ -4435,14 +4424,14 @@ class InlineQuery(Model):
     offset: str = field()
     """Offset of the results to be returned, can be controlled by the bot."""
 
-    chat_type: Option[ChatType] = field(default=Nothing)
+    chat_type: Option[ChatType] = field(default=UNSET)
     """Optional. Type of the chat from which the inline query was sent. Can be either
     `sender` for a private chat with the inline query sender, `private`, `group`,
     `supergroup`, or `channel`. The chat type should be always known for requests
     sent from official clients and most third-party clients, unless the request
     was sent from a secret chat."""
 
-    location: Option[Location] = field(default=Nothing, converter=From["Location | None"])
+    location: Option[Location] = field(default=UNSET, converter=From["Location | None"])
     """Optional. Sender location, only for bots that request user location."""
 
 
@@ -4455,12 +4444,12 @@ class InlineQueryResultsButton(Model):
     text: str = field()
     """Label text on the button."""
 
-    web_app: Option[WebAppInfo] = field(default=Nothing, converter=From["WebAppInfo | None"])
+    web_app: Option[WebAppInfo] = field(default=UNSET, converter=From["WebAppInfo | None"])
     """Optional. Description of the Web App that will be launched when the user
     presses the button. The Web App will be able to switch back to the inline mode
     using the method switchInlineQuery inside the Web App."""
 
-    start_parameter: Option[str] = field(default=Nothing, converter=From[str | None])
+    start_parameter: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Deep-linking parameter for the /start message sent to the bot
     when a user presses the button. 1-64 characters, only A-Z, a-z, 0-9, _ and
     - are allowed. Example: An inline bot that sends YouTube videos can ask the
@@ -4504,23 +4493,23 @@ class InlineQueryResultArticle(InlineQueryResult):
     """Unique identifier for this result, 1-64 Bytes."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
-    url: Option[str] = field(default=Nothing, converter=From[str | None])
+    url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. URL of the result."""
 
-    description: Option[str] = field(default=Nothing, converter=From[str | None])
+    description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Short description of the result."""
 
-    thumbnail_url: Option[str] = field(default=Nothing, converter=From[str | None])
+    thumbnail_url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Url of the thumbnail for the result."""
 
-    thumbnail_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail width."""
 
-    thumbnail_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail height."""
 
 
@@ -4545,37 +4534,37 @@ class InlineQueryResultPhoto(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    photo_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    photo_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Width of the photo."""
 
-    photo_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    photo_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Height of the photo."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title for the result."""
 
-    description: Option[str] = field(default=Nothing, converter=From[str | None])
+    description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Short description of the result."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -4588,7 +4577,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -4616,41 +4605,41 @@ class InlineQueryResultGif(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    gif_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    gif_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Width of the GIF."""
 
-    gif_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    gif_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Height of the GIF."""
 
-    gif_duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    gif_duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Duration of the GIF in seconds."""
 
-    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(default=Nothing)
+    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(default=UNSET)
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title for the result."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -4663,7 +4652,7 @@ class InlineQueryResultGif(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -4691,41 +4680,41 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    mpeg4_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    mpeg4_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video width."""
 
-    mpeg4_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    mpeg4_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video height."""
 
-    mpeg4_duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    mpeg4_duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video duration in seconds."""
 
-    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(default=Nothing)
+    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(default=UNSET)
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title for the result."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after
     entities parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -4738,7 +4727,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -4772,37 +4761,37 @@ class InlineQueryResultVideo(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
-    video_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    video_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video width."""
 
-    video_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    video_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video height."""
 
-    video_duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    video_duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video duration in seconds."""
 
-    description: Option[str] = field(default=Nothing, converter=From[str | None])
+    description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Short description of the result."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -4815,7 +4804,7 @@ class InlineQueryResultVideo(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -4845,27 +4834,27 @@ class InlineQueryResultAudio(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    performer: Option[str] = field(default=Nothing, converter=From[str | None])
+    performer: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Performer."""
 
-    audio_duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    audio_duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Audio duration in seconds."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -4878,7 +4867,7 @@ class InlineQueryResultAudio(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -4906,24 +4895,24 @@ class InlineQueryResultVoice(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    voice_duration: Option[int] = field(default=Nothing, converter=From[int | None])
+    voice_duration: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Recording duration in seconds."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -4936,7 +4925,7 @@ class InlineQueryResultVoice(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -4967,25 +4956,25 @@ class InlineQueryResultDocument(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    description: Option[str] = field(default=Nothing, converter=From[str | None])
+    description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Short description of the result."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -4998,20 +4987,20 @@ class InlineQueryResultDocument(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the file."""
 
-    thumbnail_url: Option[str] = field(default=Nothing, converter=From[str | None])
+    thumbnail_url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. URL of the thumbnail (JPEG only) for the file."""
 
-    thumbnail_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail width."""
 
-    thumbnail_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail height."""
 
 
@@ -5038,26 +5027,26 @@ class InlineQueryResultLocation(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 Bytes."""
 
-    horizontal_accuracy: Option[float] = field(default=Nothing, converter=From[float | None])
+    horizontal_accuracy: Option[float] = field(default=UNSET, converter=From[float | None])
     """Optional. The radius of uncertainty for the location, measured in meters;
     0-1500."""
 
-    live_period: Option[int] = field(default=Nothing, converter=From[int | None])
+    live_period: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Period in seconds during which the location can be updated, should
     be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited
     indefinitely."""
 
-    heading: Option[int] = field(default=Nothing, converter=From[int | None])
+    heading: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. For live locations, a direction in which the user is moving, in
     degrees. Must be between 1 and 360 if specified."""
 
-    proximity_alert_radius: Option[int] = field(default=Nothing, converter=From[int | None])
+    proximity_alert_radius: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. For live locations, a maximum distance for proximity alerts
     about approaching another chat member, in meters. Must be between 1 and
     100000 if specified."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5070,20 +5059,20 @@ class InlineQueryResultLocation(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the location."""
 
-    thumbnail_url: Option[str] = field(default=Nothing, converter=From[str | None])
+    thumbnail_url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Url of the thumbnail for the result."""
 
-    thumbnail_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail width."""
 
-    thumbnail_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail height."""
 
 
@@ -5113,21 +5102,21 @@ class InlineQueryResultVenue(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 Bytes."""
 
-    foursquare_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    foursquare_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Foursquare identifier of the venue if known."""
 
-    foursquare_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    foursquare_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,
     `arts_entertainment/aquarium` or `food/icecream`.)."""
 
-    google_place_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    google_place_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Google Places identifier of the venue."""
 
-    google_place_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    google_place_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Google Places type of the venue. (See supported types.)."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5140,20 +5129,20 @@ class InlineQueryResultVenue(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the venue."""
 
-    thumbnail_url: Option[str] = field(default=Nothing, converter=From[str | None])
+    thumbnail_url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Url of the thumbnail for the result."""
 
-    thumbnail_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail width."""
 
-    thumbnail_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail height."""
 
 
@@ -5177,15 +5166,15 @@ class InlineQueryResultContact(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 Bytes."""
 
-    last_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    last_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Contact's last name."""
 
-    vcard: Option[str] = field(default=Nothing, converter=From[str | None])
+    vcard: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Additional data about the contact in the form of a vCard, 0-2048
     bytes."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5198,20 +5187,20 @@ class InlineQueryResultContact(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the contact."""
 
-    thumbnail_url: Option[str] = field(default=Nothing, converter=From[str | None])
+    thumbnail_url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Url of the thumbnail for the result."""
 
-    thumbnail_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail width."""
 
-    thumbnail_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    thumbnail_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Thumbnail height."""
 
 
@@ -5233,7 +5222,7 @@ class InlineQueryResultGame(InlineQueryResult):
     """Unique identifier for this result, 1-64 bytes."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5255,31 +5244,31 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title for the result."""
 
-    description: Option[str] = field(default=Nothing, converter=From[str | None])
+    description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Short description of the result."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5292,7 +5281,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -5317,28 +5306,28 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title for the result."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5351,7 +5340,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -5376,28 +5365,28 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    title: Option[str] = field(default=Nothing, converter=From[str | None])
+    title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title for the result."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after
     entities parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5410,7 +5399,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -5436,7 +5425,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     """Unique identifier for this result, 1-64 bytes."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5449,7 +5438,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -5477,25 +5466,25 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    description: Option[str] = field(default=Nothing, converter=From[str | None])
+    description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Short description of the result."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5508,7 +5497,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -5536,28 +5525,28 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    description: Option[str] = field(default=Nothing, converter=From[str | None])
+    description: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Short description of the result."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    show_caption_above_media: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    show_caption_above_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True, if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5570,7 +5559,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -5598,21 +5587,21 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5625,7 +5614,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -5650,21 +5639,21 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     )
     """Unique identifier for this result, 1-64 bytes."""
 
-    caption: Option[str] = field(default=Nothing, converter=From[str | None])
+    caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
+        default=UNSET, converter=From["list[MessageEntity] | None"]
     )
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(
-        default=Nothing, converter=From["InlineKeyboardMarkup | None"]
+        default=UNSET, converter=From["InlineKeyboardMarkup | None"]
     )
     """Optional. Inline keyboard attached to the message."""
 
@@ -5677,7 +5666,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
             InputInvoiceMessageContent,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
@@ -5694,16 +5683,16 @@ class InputTextMessageContent(InputMessageContent):
     message_text: str = field()
     """Text of the message to be sent, 1-4096 characters."""
 
-    parse_mode: Option[str] = field(default=Nothing, converter=From[str | None])
+    parse_mode: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Mode for parsing entities in the message text. See formatting
     options for more details."""
 
-    entities: Option[list[MessageEntity]] = field(default=Nothing, converter=From["list[MessageEntity] | None"])
+    entities: Option[list[MessageEntity]] = field(default=UNSET, converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in message text, which can
     be specified instead of parse_mode."""
 
     link_preview_options: Option[LinkPreviewOptions] = field(
-        default=Nothing, converter=From["LinkPreviewOptions | None"]
+        default=UNSET, converter=From["LinkPreviewOptions | None"]
     )
     """Optional. Link preview generation options for the message."""
 
@@ -5720,20 +5709,20 @@ class InputLocationMessageContent(InputMessageContent):
     longitude: float = field()
     """Longitude of the location in degrees."""
 
-    horizontal_accuracy: Option[float] = field(default=Nothing, converter=From[float | None])
+    horizontal_accuracy: Option[float] = field(default=UNSET, converter=From[float | None])
     """Optional. The radius of uncertainty for the location, measured in meters;
     0-1500."""
 
-    live_period: Option[int] = field(default=Nothing, converter=From[int | None])
+    live_period: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Period in seconds during which the location can be updated, should
     be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited
     indefinitely."""
 
-    heading: Option[int] = field(default=Nothing, converter=From[int | None])
+    heading: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. For live locations, a direction in which the user is moving, in
     degrees. Must be between 1 and 360 if specified."""
 
-    proximity_alert_radius: Option[int] = field(default=Nothing, converter=From[int | None])
+    proximity_alert_radius: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. For live locations, a maximum distance for proximity alerts
     about approaching another chat member, in meters. Must be between 1 and
     100000 if specified."""
@@ -5757,17 +5746,17 @@ class InputVenueMessageContent(InputMessageContent):
     address: str = field()
     """Address of the venue."""
 
-    foursquare_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    foursquare_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Foursquare identifier of the venue, if known."""
 
-    foursquare_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    foursquare_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,
     `arts_entertainment/aquarium` or `food/icecream`.)."""
 
-    google_place_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    google_place_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Google Places identifier of the venue."""
 
-    google_place_type: Option[str] = field(default=Nothing, converter=From[str | None])
+    google_place_type: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Google Places type of the venue. (See supported types.)."""
 
 
@@ -5783,10 +5772,10 @@ class InputContactMessageContent(InputMessageContent):
     first_name: str = field()
     """Contact's first name."""
 
-    last_name: Option[str] = field(default=Nothing, converter=From[str | None])
+    last_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Contact's last name."""
 
-    vcard: Option[str] = field(default=Nothing, converter=From[str | None])
+    vcard: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Additional data about the contact in the form of a vCard, 0-2048
     bytes."""
 
@@ -5816,11 +5805,11 @@ class InputInvoiceMessageContent(InputMessageContent):
     tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain
     exactly one item for payments in Telegram Stars."""
 
-    provider_token: Option[str] = field(default=Nothing, converter=From[str | None])
+    provider_token: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Payment provider token, obtained via @BotFather. Pass an empty
     string for payments in Telegram Stars."""
 
-    max_tip_amount: Option[int] = field(default=Nothing, converter=From[int | None])
+    max_tip_amount: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The maximum accepted amount for tips in the smallest units of
     the currency (integer, not float/double). For example, for a maximum tip
     of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json,
@@ -5828,55 +5817,55 @@ class InputInvoiceMessageContent(InputMessageContent):
     for the majority of currencies). Defaults to 0. Not supported for payments
     in Telegram Stars."""
 
-    suggested_tip_amounts: Option[list[int]] = field(default=Nothing, converter=From[list[int] | None])
+    suggested_tip_amounts: Option[list[int]] = field(default=UNSET, converter=From[list[int] | None])
     """Optional. A JSON-serialized array of suggested amounts of tip in the smallest
     units of the currency (integer, not float/double). At most 4 suggested
     tip amounts can be specified. The suggested tip amounts must be positive,
     passed in a strictly increased order and must not exceed max_tip_amount."""
 
-    provider_data: Option[str] = field(default=Nothing, converter=From[str | None])
+    provider_data: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. A JSON-serialized object for data about the invoice, which will
     be shared with the payment provider. A detailed description of the required
     fields should be provided by the payment provider."""
 
-    photo_url: Option[str] = field(default=Nothing, converter=From[str | None])
+    photo_url: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. URL of the product photo for the invoice. Can be a photo of the goods
     or a marketing image for a service."""
 
-    photo_size: Option[int] = field(default=Nothing, converter=From[int | None])
+    photo_size: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Photo size in bytes."""
 
-    photo_width: Option[int] = field(default=Nothing, converter=From[int | None])
+    photo_width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Photo width."""
 
-    photo_height: Option[int] = field(default=Nothing, converter=From[int | None])
+    photo_height: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Photo height."""
 
-    need_name: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    need_name: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if you require the user's full name to complete the order.
     Ignored for payments in Telegram Stars."""
 
-    need_phone_number: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    need_phone_number: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if you require the user's phone number to complete the
     order. Ignored for payments in Telegram Stars."""
 
-    need_email: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    need_email: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if you require the user's email address to complete
     the order. Ignored for payments in Telegram Stars."""
 
-    need_shipping_address: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    need_shipping_address: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if you require the user's shipping address to complete
     the order. Ignored for payments in Telegram Stars."""
 
-    send_phone_number_to_provider: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    send_phone_number_to_provider: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if the user's phone number should be sent to the provider.
     Ignored for payments in Telegram Stars."""
 
-    send_email_to_provider: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    send_email_to_provider: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if the user's email address should be sent to the provider.
     Ignored for payments in Telegram Stars."""
 
-    is_flexible: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_flexible: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. Pass True if the final price depends on the shipping method. Ignored
     for payments in Telegram Stars."""
 
@@ -5897,10 +5886,10 @@ class ChosenInlineResult(Model):
     query: str = field()
     """The query that was used to obtain the result."""
 
-    location: Option[Location] = field(default=Nothing, converter=From["Location | None"])
+    location: Option[Location] = field(default=UNSET, converter=From["Location | None"])
     """Optional. Sender location, only for bots that require user location."""
 
-    inline_message_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    inline_message_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Identifier of the sent inline message. Available only if there
     is an inline keyboard attached to the message. Will be also received in callback
     queries and can be used to edit the message."""
@@ -5912,7 +5901,7 @@ class SentWebAppMessage(Model):
     Describes an inline message sent by a Web App on behalf of a user.
     """
 
-    inline_message_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    inline_message_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Identifier of the sent inline message. Available only if there
     is an inline keyboard attached to the message."""
 
@@ -6004,16 +5993,16 @@ class OrderInfo(Model):
     This object represents information about an order.
     """
 
-    name: Option[str] = field(default=Nothing, converter=From[str | None])
+    name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. User name."""
 
-    phone_number: Option[str] = field(default=Nothing, converter=From[str | None])
+    phone_number: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. User's phone number."""
 
-    email: Option[str] = field(default=Nothing, converter=From[str | None])
+    email: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. User email."""
 
-    shipping_address: Option[ShippingAddress] = field(default=Nothing, converter=From["ShippingAddress | None"])
+    shipping_address: Option[ShippingAddress] = field(default=UNSET, converter=From["ShippingAddress | None"])
     """Optional. User shipping address."""
 
 
@@ -6058,20 +6047,20 @@ class SuccessfulPayment(Model):
     provider_payment_charge_id: str = field()
     """Provider payment identifier."""
 
-    subscription_expiration_date: Option[datetime] = field(default=Nothing, converter=From[datetime | None])
+    subscription_expiration_date: Option[datetime] = field(default=UNSET, converter=From[datetime | None])
     """Optional. Expiration date of the subscription, in Unix time; for recurring
     payments only."""
 
-    is_recurring: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_recurring: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the payment is a recurring payment for a subscription."""
 
-    is_first_recurring: Option[bool] = field(default=Nothing, converter=From[bool | None])
+    is_first_recurring: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if the payment is the first payment for a subscription."""
 
-    shipping_option_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    shipping_option_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Identifier of the shipping option chosen by the user."""
 
-    order_info: Option[OrderInfo] = field(default=Nothing, converter=From["OrderInfo | None"])
+    order_info: Option[OrderInfo] = field(default=UNSET, converter=From["OrderInfo | None"])
     """Optional. Order information provided by the user."""
 
 
@@ -6097,7 +6086,7 @@ class RefundedPayment(Model):
     """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
     Stars. Currently, always `XTR`."""
 
-    provider_payment_charge_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    provider_payment_charge_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Provider payment identifier."""
 
 
@@ -6145,10 +6134,10 @@ class PreCheckoutQuery(Model):
     invoice_payload: str = field()
     """Bot-specified invoice payload."""
 
-    shipping_option_id: Option[str] = field(default=Nothing, converter=From[str | None])
+    shipping_option_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Identifier of the shipping option chosen by the user."""
 
-    order_info: Option[OrderInfo] = field(default=Nothing, converter=From["OrderInfo | None"])
+    order_info: Option[OrderInfo] = field(default=UNSET, converter=From["OrderInfo | None"])
     """Optional. Order information provided by the user."""
 
 
@@ -6215,15 +6204,15 @@ class AffiliateInfo(Model):
     """Integer amount of Telegram Stars received by the affiliate from the transaction,
     rounded to 0; can be negative for refunds."""
 
-    affiliate_user: Option[User] = field(default=Nothing, converter=From["User | None"])
+    affiliate_user: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. The bot or the user that received an affiliate commission if it
     was received by a bot or a user."""
 
-    affiliate_chat: Option[Chat] = field(default=Nothing, converter=From["Chat | None"])
+    affiliate_chat: Option[Chat] = field(default=UNSET, converter=From["Chat | None"])
     """Optional. The chat that received an affiliate commission if it was received
     by a chat."""
 
-    nanostar_amount: Option[int] = field(default=Nothing, converter=From[int | None])
+    nanostar_amount: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of 1/1000000000 shares of Telegram Stars received
     by the affiliate; from -999999999 to 999999999; can be negative for refunds."""
 
@@ -6240,25 +6229,25 @@ class TransactionPartnerUser(TransactionPartner):
     type: typing.Literal["user"] = field(default="user")
     """Type of the transaction partner, always `user`."""
 
-    affiliate: Option[AffiliateInfo] = field(default=Nothing, converter=From["AffiliateInfo | None"])
+    affiliate: Option[AffiliateInfo] = field(default=UNSET, converter=From["AffiliateInfo | None"])
     """Optional. Information about the affiliate that received a commission
     via this transaction."""
 
-    invoice_payload: Option[str] = field(default=Nothing, converter=From[str | None])
+    invoice_payload: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Bot-specified invoice payload."""
 
-    subscription_period: Option[int] = field(default=Nothing, converter=From[int | None])
+    subscription_period: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The duration of the paid subscription."""
 
     paid_media: Option[list[Variative[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]]] = field(
-        default=Nothing, converter=From["list[PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo] | None"]
+        default=UNSET, converter=From["list[PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo] | None"]
     )
     """Optional. Information about the paid media bought by the user."""
 
-    paid_media_payload: Option[str] = field(default=Nothing, converter=From[str | None])
+    paid_media_payload: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Bot-specified paid media payload."""
 
-    gift: Option[Gift] = field(default=Nothing, converter=From["Gift | None"])
+    gift: Option[Gift] = field(default=UNSET, converter=From["Gift | None"])
     """Optional. The gift sent to the user by the bot."""
 
 
@@ -6275,7 +6264,7 @@ class TransactionPartnerAffiliateProgram(TransactionPartner):
     type: typing.Literal["affiliate_program"] = field(default="affiliate_program")
     """Type of the transaction partner, always `affiliate_program`."""
 
-    sponsor_user: Option[User] = field(default=Nothing, converter=From["User | None"])
+    sponsor_user: Option[User] = field(default=UNSET, converter=From["User | None"])
     """Optional. Information about the bot that sponsored the affiliate program."""
 
 
@@ -6291,7 +6280,7 @@ class TransactionPartnerFragment(TransactionPartner):
     withdrawal_state: Option[
         Variative[RevenueWithdrawalStatePending, RevenueWithdrawalStateSucceeded, RevenueWithdrawalStateFailed]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "RevenueWithdrawalStatePending | RevenueWithdrawalStateSucceeded | RevenueWithdrawalStateFailed | None"
         ],
@@ -6350,7 +6339,7 @@ class StarTransaction(Model):
     date: datetime = field()
     """Date the transaction was created in Unix time."""
 
-    nanostar_amount: Option[int] = field(default=Nothing, converter=From[int | None])
+    nanostar_amount: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. The number of 1/1000000000 shares of Telegram Stars transferred
     by the transaction; from 0 to 999999999."""
 
@@ -6364,7 +6353,7 @@ class StarTransaction(Model):
             TransactionPartnerOther,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "TransactionPartnerUser | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
         ],
@@ -6383,7 +6372,7 @@ class StarTransaction(Model):
             TransactionPartnerOther,
         ]
     ] = field(
-        default=Nothing,
+        default=UNSET,
         converter=From[
             "TransactionPartnerUser | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
         ],
@@ -6451,43 +6440,43 @@ class EncryptedPassportElement(Model):
     hash: str = field()
     """Base64-encoded element hash for using in PassportElementErrorUnspecified."""
 
-    data: Option[str] = field(default=Nothing, converter=From[str | None])
+    data: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Base64-encoded encrypted Telegram Passport element data provided
     by the user; available only for `personal_details`, `passport`, `driver_license`,
     `identity_card`, `internal_passport` and `address` types. Can be decrypted
     and verified using the accompanying EncryptedCredentials."""
 
-    phone_number: Option[str] = field(default=Nothing, converter=From[str | None])
+    phone_number: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. User's verified phone number; available only for `phone_number`
     type."""
 
-    email: Option[str] = field(default=Nothing, converter=From[str | None])
+    email: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. User's verified email address; available only for `email` type."""
 
-    files: Option[list[PassportFile]] = field(default=Nothing, converter=From["list[PassportFile] | None"])
+    files: Option[list[PassportFile]] = field(default=UNSET, converter=From["list[PassportFile] | None"])
     """Optional. Array of encrypted files with documents provided by the user;
     available only for `utility_bill`, `bank_statement`, `rental_agreement`,
     `passport_registration` and `temporary_registration` types. Files
     can be decrypted and verified using the accompanying EncryptedCredentials."""
 
-    front_side: Option[PassportFile] = field(default=Nothing, converter=From["PassportFile | None"])
+    front_side: Option[PassportFile] = field(default=UNSET, converter=From["PassportFile | None"])
     """Optional. Encrypted file with the front side of the document, provided
     by the user; available only for `passport`, `driver_license`, `identity_card`
     and `internal_passport`. The file can be decrypted and verified using
     the accompanying EncryptedCredentials."""
 
-    reverse_side: Option[PassportFile] = field(default=Nothing, converter=From["PassportFile | None"])
+    reverse_side: Option[PassportFile] = field(default=UNSET, converter=From["PassportFile | None"])
     """Optional. Encrypted file with the reverse side of the document, provided
     by the user; available only for `driver_license` and `identity_card`.
     The file can be decrypted and verified using the accompanying EncryptedCredentials."""
 
-    selfie: Option[PassportFile] = field(default=Nothing, converter=From["PassportFile | None"])
+    selfie: Option[PassportFile] = field(default=UNSET, converter=From["PassportFile | None"])
     """Optional. Encrypted file with the selfie of the user holding a document,
     provided by the user; available if requested for `passport`, `driver_license`,
     `identity_card` and `internal_passport`. The file can be decrypted and
     verified using the accompanying EncryptedCredentials."""
 
-    translation: Option[list[PassportFile]] = field(default=Nothing, converter=From["list[PassportFile] | None"])
+    translation: Option[list[PassportFile]] = field(default=UNSET, converter=From["list[PassportFile] | None"])
     """Optional. Array of encrypted files with translated versions of documents
     provided by the user; available if requested for `passport`, `driver_license`,
     `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`,
@@ -6767,19 +6756,17 @@ class Game(Model):
     photo: list[PhotoSize] = field()
     """Photo that will be displayed in the game message in chats."""
 
-    text: Option[str] = field(default=Nothing, converter=From[str | None])
+    text: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Brief description of the game or high scores included in the game
     message. Can be automatically edited to include current high scores for
     the game when the bot calls setGameScore, or manually edited using editMessageText.
     0-4096 characters."""
 
-    text_entities: Option[list[MessageEntity]] = field(
-        default=Nothing, converter=From["list[MessageEntity] | None"]
-    )
+    text_entities: Option[list[MessageEntity]] = field(default=UNSET, converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in text, such as usernames, URLs,
     bot commands, etc."""
 
-    animation: Option[Animation] = field(default=Nothing, converter=From["Animation | None"])
+    animation: Option[Animation] = field(default=UNSET, converter=From["Animation | None"])
     """Optional. Animation that will be displayed in the game message in chats.
     Upload via BotFather."""
 

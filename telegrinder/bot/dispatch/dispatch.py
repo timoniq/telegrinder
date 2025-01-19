@@ -6,12 +6,13 @@ import typing_extensions as typing
 from fntypes import Nothing, Option, Some
 from vbml.patcher import Patcher
 
-from telegrinder.api.api import API
+from telegrinder.api.api import API, HTTPClient
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, Func, FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import run_middleware
 from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
+from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.dispatch.view.box import (
     CallbackQueryView,
     ChatJoinRequestView,
@@ -43,6 +44,7 @@ DEFAULT_DATACLASS: typing.Final[type[Update]] = Update
 
 @dataclasses.dataclass(repr=False, kw_only=True)
 class Dispatch(
+    ABCDispatch,
     ViewBox[
         CallbackQueryView,
         ChatJoinRequestView,
@@ -52,7 +54,16 @@ class Dispatch(
         PreCheckoutQueryView,
         RawEventView,
     ],
-    ABCDispatch,
+    typing.Generic[
+        HTTPClient,
+        CallbackQueryView,
+        ChatJoinRequestView,
+        ChatMemberView,
+        InlineQueryView,
+        MessageView,
+        PreCheckoutQueryView,
+        RawEventView,
+    ],
 ):
     _global_context: TelegrinderContext = dataclasses.field(
         init=False,
@@ -174,7 +185,7 @@ class Dispatch(
 
         return wrapper
 
-    async def feed(self, event: Update, api: API) -> bool:
+    async def feed(self, event: Update, api: API[HTTPClient]) -> bool:
         logger.debug(
             "Processing update (update_id={}, update_type={!r})",
             event.update_id,
@@ -232,6 +243,10 @@ class Dispatch(
             if isinstance(view, of_type):
                 return Some(view)
         return Nothing()
+
+    def get_views(self) -> dict[str, ABCView]:
+        """Get all views."""
+        return {name: view for name, view in self.__dict__.items() if isinstance(view, ABCView)}
 
     __call__ = handle
 

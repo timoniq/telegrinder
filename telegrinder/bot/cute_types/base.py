@@ -1,27 +1,41 @@
 import typing
 
 import msgspec
-import typing_extensions
 
 from telegrinder.api.api import API
-from telegrinder.model import Model
+from telegrinder.model import Model, is_none
 
-F = typing.TypeVar("F", bound=typing.Callable[..., typing.Any])
-Cute = typing.TypeVar("Cute", bound="BaseCute")
-Update = typing_extensions.TypeVar("Update", bound=Model)
-CtxAPI = typing_extensions.TypeVar("CtxAPI", bound=API, default=API)
+
+def compose_method_params[Cute: BaseCute](
+    params: dict[str, typing.Any],
+    update: Cute,
+    *,
+    default_params: set[str | tuple[str, str]] | None = None,
+    validators: dict[str, typing.Callable[[Cute], bool]] | None = None,
+) -> dict[str, typing.Any]:
+    default_params = default_params or set()
+    validators = validators or {}
+
+    for param in default_params:
+        param_name = param if isinstance(param, str) else param[0]
+        if param_name not in params:
+            if param_name in validators and not validators[param_name](update):
+                continue
+            params[param_name] = getattr(update, param if isinstance(param, str) else param[1])
+
+    return params
 
 
 if typing.TYPE_CHECKING:
 
-    class BaseCute(Model, typing.Generic[Update, CtxAPI]):
+    class BaseCute[Update: Model](Model):
         api: API
 
         @classmethod
         def from_update(cls, update: Update, bound_api: API) -> typing.Self: ...
 
         @property
-        def ctx_api(self) -> CtxAPI: ...
+        def ctx_api(self) -> API: ...
 
         def to_dict(
             self,
@@ -47,10 +61,10 @@ else:
     import msgspec
     from fntypes.co import Nothing, Some, Variative
 
-    from telegrinder.msgspec_utils import Option, decoder, encoder
+    from telegrinder.msgspec_utils import Option, decoder, encoder, struct_as_dict
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
 
-    def _get_cute_from_generic(generic_args):
+    def _get_cute_from_generic(generic_args, /):
         for arg in generic_args:
             orig_arg = typing.get_origin(arg) or arg
 
@@ -63,7 +77,7 @@ else:
 
         return None
 
-    def _get_cute_annotations(annotations):
+    def _get_cute_annotations(annotations, /):
         cute_annotations = {}
 
         for key, hint in annotations.items():
@@ -76,7 +90,7 @@ else:
 
         return cute_annotations
 
-    def _get_value(value):
+    def _validate_value(value, /):
         while isinstance(value, Variative | Some):
             if isinstance(value, Variative):
                 value = value.v
@@ -84,7 +98,7 @@ else:
                 value = value.value
         return value
 
-    class BaseCute(typing.Generic[Update, CtxAPI]):
+    class BaseCute[Update]:
         def __init_subclass__(cls, *args, **kwargs):
             super().__init_subclass__(*args, **kwargs)
 
@@ -106,10 +120,10 @@ else:
             return cls(
                 **{
                     field: decoder.convert(
-                        cls.__cute_annotations__[field].from_update(_get_value(value), bound_api=bound_api),
+                        cls.__cute_annotations__[field].from_update(_validate_value(value), bound_api=bound_api),
                         type=cls.__annotations__[field],
                     )
-                    if field in cls.__cute_annotations__ and not isinstance(value, Nothing)
+                    if field in cls.__cute_annotations__ and not isinstance(value, Nothing | msgspec.UnsetType)
                     else value
                     for field, value in update.to_dict().items()
                 },
@@ -123,15 +137,17 @@ else:
         def _to_dict(self, dct_name, exclude_fields, full):
             if dct_name not in self.__dict__:
                 self.__dict__[dct_name] = (
-                    msgspec.structs.asdict(self)
+                    struct_as_dict(self)
                     if not full
                     else encoder.to_builtins(
                         {
                             k: field.to_dict(exclude_fields=exclude_fields)
-                            if isinstance(field := _get_value(getattr(self, k)), BaseCute)
+                            if isinstance(field, BaseCute)
                             else field
                             for k in self.__struct_fields__
                             if k not in exclude_fields
+                            and not isinstance(field := _validate_value(getattr(self, k)), msgspec.UnsetType)
+                            and not is_none(field)
                         },
                         order="deterministic",
                     )
@@ -142,33 +158,12 @@ else:
 
             return {key: value for key, value in self.__dict__[dct_name].items() if key not in exclude_fields}
 
-        def to_dict(self, *, exclude_fields=None):
+        def to_dict(self, *, exclude_fields=None, full=False):
             exclude_fields = exclude_fields or set()
-            return self._to_dict("model_as_dict", exclude_fields={"api"} | exclude_fields, full=False)
+            return self._to_dict("model_as_dict", exclude_fields={"api"} | exclude_fields, full=full)
 
         def to_full_dict(self, *, exclude_fields=None):
-            exclude_fields = exclude_fields or set()
-            return self._to_dict("model_as_full_dict", exclude_fields={"api"} | exclude_fields, full=True)
-
-
-def compose_method_params(
-    params: dict[str, typing.Any],
-    update: Cute,
-    *,
-    default_params: set[str | tuple[str, str]] | None = None,
-    validators: dict[str, typing.Callable[[Cute], bool]] | None = None,
-) -> dict[str, typing.Any]:
-    default_params = default_params or set()
-    validators = validators or {}
-
-    for param in default_params:
-        param_name = param if isinstance(param, str) else param[0]
-        if param_name not in params:
-            if param_name in validators and not validators[param_name](update):
-                continue
-            params[param_name] = getattr(update, param if isinstance(param, str) else param[1])
-
-    return params
+            return self.to_dict(exclude_fields=exclude_fields, full=True)
 
 
 __all__ = ("BaseCute", "compose_method_params")

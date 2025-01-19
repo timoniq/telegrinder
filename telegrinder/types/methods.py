@@ -10,9 +10,10 @@ from telegrinder.types.objects import *  # noqa: F403
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
+    from telegrinder.client.abc import ABCClient
 
 
-class APIMethods:
+class APIMethods[HTTPClient: ABCClient]:
     """Telegram Bot API methods version 8.2, released `January 1, 2025`."""
 
     default_params = ProxiedDict(
@@ -21,7 +22,7 @@ class APIMethods:
         )
     )
 
-    def __init__(self, api: "API") -> None:
+    def __init__(self, api: "API[HTTPClient]") -> None:
         self.api = api
 
     async def get_updates(

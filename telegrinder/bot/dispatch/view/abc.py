@@ -17,11 +17,16 @@ class ABCView(ABC):
         pass
 
     @abstractmethod
-    async def process(self, event: Update, api: API, context: Context) -> bool:
+    async def process(
+        self,
+        event: Update,
+        api: API[typing.Any],
+        context: Context,
+    ) -> bool:
         pass
 
     @abstractmethod
-    def load(self, external: typing.Self) -> None:
+    def load(self, external: typing.Self, /) -> None:
         pass
 
 

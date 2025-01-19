@@ -6,7 +6,9 @@ from telegrinder.client.abc import ABCClient
 
 class MockedHttpClient(ABCClient):
     def __init__(
-        self, return_value: typing.Any | None = None, callback: typing.Callable | None = None
+        self,
+        return_value: typing.Any | None = None,
+        callback: typing.Callable | None = None,
     ) -> None:
         super().__init__()
         self.return_value = return_value
@@ -48,8 +50,13 @@ class MockedHttpClient(ABCClient):
     ) -> bytes | typing.Any:
         return self.return_value or self.callback(method, url, data)
 
+    @classmethod
+    def multipart_form_factory(cls) -> typing.Any:
+        pass
+
+    @classmethod
     def get_form(
-        self,
+        cls,
         data: dict[str, typing.Any],
         files: dict[str, tuple[str, bytes]] | None = None,
     ) -> typing.Any:

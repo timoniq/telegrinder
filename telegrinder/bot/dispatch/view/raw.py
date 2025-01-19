@@ -15,12 +15,6 @@ from telegrinder.types.objects import Update
 
 
 class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
-    def __init__(self) -> None:
-        self.auto_rules = []
-        self.handlers = []
-        self.middlewares = []
-        self.return_manager = None
-
     @typing.overload
     def __call__[**P, R](
         self,

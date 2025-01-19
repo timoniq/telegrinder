@@ -1,6 +1,6 @@
 from telegrinder.modules import logger
 
-from .client import bot, dp  # type: ignore
+from .client import bot, dp
 
 logger.set_level("INFO")
 dp.load_from_dir("handlers")

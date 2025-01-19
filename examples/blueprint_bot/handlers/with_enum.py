@@ -27,7 +27,7 @@ class WasNaughty(MessageRule, requires=[HasText()]):
 
 
 # The enumeration will only resolve once and save the state in context
-dp.message.auto_rules = [Commands()]
+dp.message.auto_rules = Commands()
 
 
 @dp.message(Commands.PLAY)

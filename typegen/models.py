@@ -1,7 +1,7 @@
 from msgspec import Struct, field
 
 
-class Model(Struct, omit_defaults=True):
+class Model(Struct):
     pass
 
 

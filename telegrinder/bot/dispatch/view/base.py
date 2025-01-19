@@ -42,10 +42,29 @@ def get_event_model_class[Event: BaseCute](
 
 
 class BaseView[Event: BaseCute](ABCView):
-    auto_rules: list[ABCRule]
-    handlers: list[ABCHandler[Event]]
-    middlewares: list[ABCMiddleware[Event]]
-    return_manager: ABCReturnManager[Event] | None = None
+    def __init__(self) -> None:
+        self.handlers: list[ABCHandler[Event]] = []
+        self.middlewares: list[ABCMiddleware[Event]] = []
+        self.return_manager: ABCReturnManager[Event] | None = None
+        self._auto_rules: ABCRule | None = None
+
+    @property
+    def auto_rules(self) -> tuple[ABCRule] | tuple[()]:
+        return (self._auto_rules,) if self._auto_rules else ()
+
+    @auto_rules.setter
+    def auto_rules(self, value: ABCRule | None) -> None:
+        """Example usage:
+
+        ```python
+        view.auto_rules = Rule1() & Rule2() | Rule3() & Rule4()
+        view.auto_rules  # (<OrRule>,)
+
+        view.auto_rules = None
+        view.auto_rules # ()
+        ```
+        """
+        self._auto_rules = value
 
     @staticmethod
     def get_raw_event(update: Update) -> Option[Model]:
@@ -197,8 +216,7 @@ class BaseView[Event: BaseCute](ABCView):
             self.return_manager,
         )
 
-    def load(self, external: typing.Self) -> None:
-        self.auto_rules.extend(external.auto_rules)
+    def load(self, external: typing.Self, /) -> None:
         self.handlers.extend(external.handlers)
         self.middlewares.extend(external.middlewares)
 

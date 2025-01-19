@@ -47,11 +47,11 @@ class PayloadModelRule[Model: ModelType](PayloadRule[Model]):
 
 
 class PayloadEqRule(ABCRule):
-    def __init__(self, payload: str, /) -> None:
-        self.payload = payload
+    def __init__(self, payloads: str | list[str], /) -> None:
+        self.payloads = [payloads] if isinstance(payloads, str) else payloads
 
     def check(self, payload: Payload) -> bool:
-        return self.payload == payload
+        return any(p == payload for p in self.payloads)
 
 
 class PayloadMarkupRule(ABCRule):

@@ -28,6 +28,12 @@ class LoopWrapper(ABCLoopWrapper):
         self._loop: asyncio.AbstractEventLoop | None = None
 
     @property
+    def is_running(self) -> bool:
+        if self._loop is None:
+            return False
+        return self._loop.is_running()
+
+    @property
     def loop(self) -> asyncio.AbstractEventLoop:
         assert self._loop is not None, "Loop is not set."
         return self._loop
@@ -40,14 +46,14 @@ class LoopWrapper(ABCLoopWrapper):
             self.lifespan,
         )
 
-    def run_event_loop(self) -> None:
+    def run_event_loop(self) -> typing.NoReturn:  # type: ignore
         if not self.tasks:
             logger.warning("Run loop without tasks!")
 
         try:
             self._loop = asyncio.get_running_loop()
         except RuntimeError:
-            self._loop = asyncio.new_event_loop()
+            self._loop = asyncio.get_event_loop()
 
         self.lifespan.start()
         while self.tasks:
@@ -62,8 +68,8 @@ class LoopWrapper(ABCLoopWrapper):
                 for task_result in tasks_results:
                     try:
                         task_result.result()
-                    except BaseException as ex:
-                        logger.exception(ex)
+                    except BaseException:
+                        logger.exception("Traceback message below:")
                 tasks = asyncio.all_tasks(self._loop)
         except KeyboardInterrupt:
             print()  # blank print for ^C

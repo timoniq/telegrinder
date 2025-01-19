@@ -273,7 +273,7 @@ class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
 
 
 if __name__ == "__main__":
-    merge(path_cute_types="telegrinder/bot/cute_types")
+    merge()
 
 
 __all__ = ("merge",)

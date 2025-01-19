@@ -27,8 +27,10 @@ type HasherWithData[Event: BaseCute, Data] = tuple[Hasher[Event, Data], Data]
 WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
 
 
-class ContextUnpackProto[Ts: tuple[typing.Any, ...]](typing.Protocol):
-    def __call__(self, context: Context) -> Ts: ...
+class ContextUnpackProto[*Ts](typing.Protocol):
+    __name__: str
+
+    def __call__(self, context: Context, /) -> tuple[*Ts]: ...
 
 
 def unpack_to_context(context: Context) -> tuple[Context]:
@@ -53,8 +55,9 @@ class WaiterMachine:
         self.storage: Storage = {}
 
     def __repr__(self) -> str:
-        return "<{}: max_storage_size={}, base_state_lifetime={!r}>".format(
+        return "<{}: with {} storage items and max_storage_size={}, base_state_lifetime={!r}>".format(
             self.__class__.__name__,
+            len(self.storage),
             self.max_storage_size,
             self.base_state_lifetime,
         )
@@ -106,7 +109,7 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        lifespan: Lifespan = Lifespan(),
+        lifespan: Lifespan | None = None,
         **actions: typing.Unpack[WaiterActions[Event]],
     ) -> ShortStateContext[Event]:
         hasher = StateViewHasher(view)
@@ -118,7 +121,7 @@ class WaiterMachine:
             filter=filter,
             release=release,
             lifetime=lifetime,
-            lifespan=lifespan,
+            lifespan=lifespan or Lifespan(),
             **actions,
         )
 
@@ -130,12 +133,13 @@ class WaiterMachine:
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        lifespan: Lifespan = Lifespan(),
+        lifespan: Lifespan | None = None,
         **actions: typing.Unpack[WaiterActions[Event]],
     ) -> ShortStateContext[Event]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
 
+        lifespan = lifespan or Lifespan()
         event = asyncio.Event()
         short_state = ShortState[Event](
             event,
@@ -166,19 +170,20 @@ class WaiterMachine:
             raise LookupError("No context in short_state.")
         return short_state.context
 
-    async def wait_many[RestEvent: BaseCute[typing.Any], Data, Ts: tuple[typing.Any, ...]](
+    async def wait_many[RestEvent: BaseCute[typing.Any], Data, *Ts](
         self,
         *hashers: HasherWithData[RestEvent, Data],
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
-        lifespan: Lifespan = Lifespan(),
-        unpack: ContextUnpackProto[Ts] = unpack_to_context,
+        lifespan: Lifespan | None = None,
+        unpack: ContextUnpackProto[*Ts] = unpack_to_context,
         **actions: typing.Unpack[WaiterActions[BaseCute[typing.Any]]],
-    ) -> tuple[HasherWithData[RestEvent, Data], RestEvent, typing.Unpack[Ts]]:
+    ) -> tuple[HasherWithData[RestEvent, Data], RestEvent, *Ts]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
 
+        lifespan = lifespan or Lifespan()
         event = asyncio.Event()
         short_state = ShortState(
             event,

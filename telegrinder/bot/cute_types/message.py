@@ -9,7 +9,7 @@ from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
 from telegrinder.bot.cute_types.utils import compose_reactions, input_media
 from telegrinder.model import From, field, get_params
-from telegrinder.msgspec_utils import Nothing, Option
+from telegrinder.msgspec_utils import Option
 from telegrinder.tools.magic import shortcut
 from telegrinder.types import *
 
@@ -111,25 +111,25 @@ async def execute_method_edit(
 
 def get_entity_value(
     entity_value: typing.Literal["user", "url", "custom_emoji_id", "language"],
-    entities: fntypes.option.Option[list[MessageEntity]] = Nothing,
-    caption_entities: fntypes.option.Option[list[MessageEntity]] = Nothing,
+    entities: fntypes.option.Option[list[MessageEntity]],
+    caption_entities: fntypes.option.Option[list[MessageEntity]],
 ) -> fntypes.option.Option[typing.Any]:
     ents = entities.unwrap_or(caption_entities.unwrap_or_none())
     if not ents:
-        return Nothing
+        return fntypes.option.Nothing()
 
     for entity in ents:
-        if (obj := getattr(entity, entity_value, Nothing)) is not Nothing:
+        if (obj := getattr(entity, entity_value, fntypes.option.Nothing())) is not fntypes.option.Nothing():
             return obj if isinstance(obj, Some) else Some(obj)
 
-    return Nothing
+    return fntypes.option.Nothing()
 
 
 class MessageCute(BaseCute[Message], Message, kw_only=True):
     api: API
 
     reply_to_message: Option[MessageCute] = field(
-        default=Nothing,
+        default=fntypes.option.Nothing(),
         converter=From["MessageCute | None"],
     )
     """Optional. For replies in the same chat and message thread, the original
@@ -137,7 +137,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     reply_to_message fields even if it itself is a reply."""
 
     pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
-        default=Nothing,
+        default=fntypes.option.Nothing(),
         converter=From["MessageCute | InaccessibleMessage | None"],
     )
     """Optional. Specified message was pinned. Note that the Message object in
