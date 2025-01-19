@@ -8,8 +8,6 @@ Nicifications can only implement fields/methods/properties working only with mod
 
 from __future__ import annotations
 
-import pathlib
-import typing
 from datetime import datetime
 from functools import cached_property
 
@@ -145,22 +143,6 @@ class _Update(Update):
     def incoming_update(self) -> Model:
         """Incoming update."""
         return getattr(self, self.update_type.value).unwrap()
-
-
-class _InputFile(typing.NamedTuple):
-    filename: str
-    """File name."""
-
-    data: bytes
-    """Bytes of file."""
-
-    @classmethod
-    def from_file(cls, path: str | pathlib.Path) -> typing.Self:
-        path = pathlib.Path(path)
-        return cls(
-            filename=path.name,
-            data=path.read_bytes(),
-        )
 
 
 class _ReplyKeyboardMarkup(ReplyKeyboardMarkup):

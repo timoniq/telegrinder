@@ -1,4 +1,3 @@
-import secrets
 from functools import cached_property
 
 import msgspec
@@ -9,9 +8,8 @@ from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
 from telegrinder.api.token import Token
 from telegrinder.client import ABCClient, AiohttpClient, MultipartFormProto
-from telegrinder.model import decoder, is_none
+from telegrinder.model import decoder
 from telegrinder.types.methods import APIMethods
-from telegrinder.types.objects import InputFile
 
 HTTPClient = typing.TypeVar("HTTPClient", bound=ABCClient, default=AiohttpClient)
 
@@ -25,25 +23,7 @@ def compose_data[MultipartForm: MultipartFormProto](
 ) -> MultipartForm:
     if not data and not files:
         return client.multipart_form_factory()
-
-    if not data:
-        return client.get_form(data={}, files=files)
-
-    composed_data: dict[str, typing.Any] = {}
-    stack = [(data, composed_data)]
-    while stack:
-        current_data, current_composed_data = stack.pop()
-
-        for k, v in current_data.items():
-            match v:
-                case InputFile(filename, content):
-                    attach_name = secrets.token_urlsafe(16)
-                    files[attach_name] = (filename, content)
-                    current_composed_data[k] = f"attach://{attach_name}"
-                case _ as value if not is_none(value):
-                    current_composed_data[k] = value
-
-    return client.get_form(data=composed_data, files=files)
+    return client.get_form(data=data, files=files)
 
 
 class API(APIMethods[HTTPClient], typing.Generic[HTTPClient]):

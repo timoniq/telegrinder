@@ -441,6 +441,7 @@ class ObjectGenerator(ABCGenerator):
             "import typing\n\n",
             "from fntypes.co import Variative, Nothing\n",
             "from telegrinder.model import UNSET, From, Model, field\n",
+            "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
             "from telegrinder.msgspec_utils import Option, datetime\n\n",
         ]
@@ -450,8 +451,9 @@ class ObjectGenerator(ABCGenerator):
             lines.append("from telegrinder.types.enums import *  # noqa: F403\n")
 
         for object_schema in sorted(self.objects, key=lambda x: x.subtypes or [], reverse=True):
-            lines.append(self.make_object(object_schema) + "\n\n")
-            all_.append(camel_to_pascal(object_schema.name))
+            if object_schema.name != "InputFile":
+                lines.append(self.make_object(object_schema) + "\n\n")
+            all_.append(object_schema.name)
 
         lines.append(f"\n__all__ = {tuple(all_)!r}\n")
         with open(path + "/objects.py", mode="w", encoding="UTF-8") as f:

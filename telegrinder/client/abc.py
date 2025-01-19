@@ -73,7 +73,7 @@ class ABCClient[MultipartForm: MultipartFormProto](ABC):
         files = files or {}
         multipart_form = cls.multipart_form_factory()
 
-        for k, v in encode_form_data(data).items():
+        for k, v in encode_form_data(data, files).items():
             multipart_form.add_field(k, v)
 
         for n, (filename, content) in files.items():

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pathlib
 import secrets
 import typing
 from functools import cached_property
@@ -10,6 +9,7 @@ from fntypes.co import Nothing, Variative
 from telegrinder.model import UNSET, From, Model, field
 from telegrinder.msgspec_utils import Option, datetime
 from telegrinder.types.enums import *  # noqa: F403
+from telegrinder.types.input_file import InputFile
 
 
 class TransactionPartner(Model):
@@ -4159,27 +4159,6 @@ class InputMediaDocument(InputMedia):
     """Optional. Disables automatic server-side content type detection for
     files uploaded using multipart/form-data. Always True, if the document
     is sent as part of an album."""
-
-
-class InputFile(typing.NamedTuple):
-    """NamedTuple object `InputFile`, see the [documentation](https://core.telegram.org/bots/api#inputfile).
-
-    This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
-    """
-
-    filename: str
-    """File name."""
-
-    data: bytes
-    """Bytes of file."""
-
-    @classmethod
-    def from_file(cls, path: str | pathlib.Path) -> typing.Self:
-        path = pathlib.Path(path)
-        return cls(
-            filename=path.name,
-            data=path.read_bytes(),
-        )
 
 
 class InputPaidMediaPhoto(InputPaidMedia):

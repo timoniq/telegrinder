@@ -92,7 +92,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
             )
 
         self.__dict__["cached_callback_data"] = data
-        return data
+        return data  # type: ignore
 
     @shortcut("answer_callback_query", custom_params={"callback_query_id"})
     async def answer(

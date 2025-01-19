@@ -30,8 +30,8 @@ else:
         pass
 
 
-type DecHook[T] = typing.Callable[[type[T], typing.Any], typing.Any]
-type EncHook[T] = typing.Callable[[T], typing.Any]
+type DecHook[T] = typing.Callable[typing.Concatenate[type[T], typing.Any, ...], typing.Any]
+type EncHook[T] = typing.Callable[typing.Concatenate[T, ...], typing.Any]
 
 
 def get_origin[T](t: type[T]) -> type[T]:
@@ -96,7 +96,8 @@ def msgspec_to_builtins(
 
 
 def option_dec_hook(
-    tp: type[Option[typing.Any]], obj: typing.Any
+    tp: type[Option[typing.Any]],
+    obj: typing.Any,
 ) -> fntypes.option.Option[typing.Any] | msgspec.UnsetType:
     if obj is msgspec.UNSET:
         return obj
@@ -203,10 +204,18 @@ class Decoder:
         )
 
     @typing.overload
-    def __call__[T](self, type: type[T]) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
+    def __call__[T](
+        self,
+        type: type[T],
+        context: dict[str, typing.Any] | None = None,
+    ) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
 
     @typing.overload
-    def __call__(self, type: typing.Any) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
+    def __call__(
+        self,
+        type: typing.Any,
+        context: dict[str, typing.Any] | None = None,
+    ) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
 
     @typing.overload
     def __call__[T](
@@ -214,6 +223,7 @@ class Decoder:
         type: type[T],
         *,
         strict: bool = True,
+        context: dict[str, typing.Any] | None = None,
     ) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
 
     @typing.overload
@@ -222,31 +232,39 @@ class Decoder:
         type: typing.Any,
         *,
         strict: bool = True,
+        context: dict[str, typing.Any] | None = None,
     ) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
 
     @contextmanager
-    def __call__(self, type=object, *, strict=True):
+    def __call__(self, type=object, *, strict=True, **context):
         """Context manager returns an `msgspec.json.Decoder` object with the `dec_hook`."""
         dec_obj = msgspec.json.Decoder(
             type=typing.Any if type is object else type,
             strict=strict,
-            dec_hook=self.dec_hook,
+            dec_hook=self.dec_hook(**context),
         )
         yield dec_obj
 
-    def add_dec_hook[T](self, t: type[T]):
+    def add_dec_hook[T](self, t: type[T], /):
         def decorator(func: DecHook[T]) -> DecHook[T]:
             return self.dec_hooks.setdefault(get_origin(t), func)
 
         return decorator
 
-    def dec_hook(self, tp: type[typing.Any], obj: object) -> object:
-        origin_type = t if isinstance((t := get_origin(tp)), type) else type(t)
-        if origin_type not in self.dec_hooks:
-            raise TypeError(
-                f"Unknown type `{repr_type(origin_type)}`. You can implement decode hook for this type."
-            )
-        return self.dec_hooks[origin_type](tp, obj)
+    def dec_hook(self, context: dict[str, typing.Any] | None = None):
+        from telegrinder.tools.magic import magic_bundle
+
+        def inner(tp: type[typing.Any], obj: object) -> typing.Any:
+            origin_type = t if isinstance((t := get_origin(tp)), type) else type(t)
+            if origin_type not in self.dec_hooks:
+                raise TypeError(
+                    f"Unknown type `{repr_type(origin_type)}`. You can implement decode hook for this type."
+                )
+            dec_hook_func = self.dec_hooks[origin_type]
+            kwargs = magic_bundle(dec_hook_func, context or {}, start_idx=2, bundle_ctx=False)
+            return dec_hook_func(tp, obj, **kwargs)
+
+        return inner
 
     def convert[T](
         self,
@@ -257,25 +275,43 @@ class Decoder:
         from_attributes: bool = False,
         builtin_types: typing.Iterable[type[typing.Any]] | None = None,
         str_keys: bool = False,
+        context: dict[str, typing.Any] | None = None,
     ) -> T:
         return msgspec.convert(
             obj,
             type,
             strict=strict,
             from_attributes=from_attributes,
-            dec_hook=self.dec_hook,
+            dec_hook=self.dec_hook(context),
             builtin_types=builtin_types,
             str_keys=str_keys,
         )
 
     @typing.overload
-    def decode(self, buf: str | bytes) -> typing.Any: ...
+    def decode(
+        self,
+        buf: str | bytes,
+        *,
+        context: dict[str, typing.Any] | None = None,
+    ) -> typing.Any: ...
 
     @typing.overload
-    def decode[T](self, buf: str | bytes, *, type: type[T]) -> T: ...
+    def decode[T](
+        self,
+        buf: str | bytes,
+        *,
+        type: type[T],
+        context: dict[str, typing.Any] | None = None,
+    ) -> T: ...
 
     @typing.overload
-    def decode(self, buf: str | bytes, *, type: typing.Any) -> typing.Any: ...
+    def decode(
+        self,
+        buf: str | bytes,
+        *,
+        type: typing.Any,
+        context: dict[str, typing.Any] | None = None,
+    ) -> typing.Any: ...
 
     @typing.overload
     def decode[T](
@@ -284,6 +320,7 @@ class Decoder:
         *,
         type: type[T],
         strict: bool = True,
+        context: dict[str, typing.Any] | None = None,
     ) -> T: ...
 
     @typing.overload
@@ -293,14 +330,15 @@ class Decoder:
         *,
         type: typing.Any,
         strict: bool = True,
+        context: dict[str, typing.Any] | None = None,
     ) -> typing.Any: ...
 
-    def decode(self, buf, *, type=object, strict=True):
+    def decode(self, buf, *, type=object, strict=True, context=None):
         return msgspec.json.decode(
             buf,
             type=typing.Any if type is object else type,
             strict=strict,
-            dec_hook=self.dec_hook,
+            dec_hook=self.dec_hook(context),
         )
 
 
@@ -339,37 +377,68 @@ class Encoder:
         decimal_format: typing.Literal["string", "number"] = "string",
         uuid_format: typing.Literal["canonical", "hex"] = "canonical",
         order: typing.Literal[None, "deterministic", "sorted"] = None,
+        context: dict[str, typing.Any] | None = None,
     ) -> typing.Generator[msgspec.json.Encoder, typing.Any, None]:
         """Context manager returns an `msgspec.json.Encoder` object with the `enc_hook`."""
-        enc_obj = msgspec.json.Encoder(enc_hook=self.enc_hook)
+        enc_obj = msgspec.json.Encoder(enc_hook=self.enc_hook(context))
         yield enc_obj
 
-    def add_enc_hook[T](self, t: type[T]):
+    def add_enc_hook[T](self, t: type[T], /):
         def decorator(func: EncHook[T]) -> EncHook[T]:
             encode_hook = self.enc_hooks.setdefault(get_origin(t), func)
             return func if encode_hook is not func else encode_hook
 
         return decorator
 
-    def enc_hook(self, obj: object) -> object:
-        origin_type = get_origin(obj.__class__)
-        if origin_type not in self.enc_hooks:
-            raise NotImplementedError(
-                f"Not implemented encode hook for object of type `{repr_type(origin_type)}`.",
-            )
-        return self.enc_hooks[origin_type](obj)
+    def enc_hook(self, context: dict[str, typing.Any] | None = None):
+        from telegrinder.tools.magic import magic_bundle
+
+        def inner(obj: typing.Any) -> typing.Any:
+            origin_type = get_origin(obj.__class__)
+            if origin_type not in self.enc_hooks:
+                raise NotImplementedError(
+                    f"Not implemented encode hook for object of type `{repr_type(origin_type)}`.",
+                )
+            enc_hook_func = self.enc_hooks[origin_type]
+            kwargs = magic_bundle(enc_hook_func, context or {}, start_idx=1, bundle_ctx=False)
+            return enc_hook_func(obj, **kwargs)
+
+        return inner
 
     @typing.overload
-    def encode(self, obj: typing.Any) -> str: ...
+    def encode(
+        self,
+        obj: typing.Any,
+        *,
+        context: dict[str, typing.Any] | None = None,
+    ) -> str: ...
 
     @typing.overload
-    def encode(self, obj: typing.Any, *, as_str: typing.Literal[True]) -> str: ...
+    def encode(
+        self,
+        obj: typing.Any,
+        *,
+        as_str: typing.Literal[True],
+        context: dict[str, typing.Any] | None = None,
+    ) -> str: ...
 
     @typing.overload
-    def encode(self, obj: typing.Any, *, as_str: typing.Literal[False]) -> bytes: ...
+    def encode(
+        self,
+        obj: typing.Any,
+        *,
+        as_str: typing.Literal[False],
+        context: dict[str, typing.Any] | None = None,
+    ) -> bytes: ...
 
-    def encode(self, obj: typing.Any, *, as_str: bool = True) -> str | bytes:
-        buf = msgspec.json.encode(obj, enc_hook=self.enc_hook)
+    def encode(
+        self,
+        obj: typing.Any,
+        *,
+        as_str: bool = True,
+        context: dict[str, typing.Any] | None = None,
+    ) -> str | bytes:
+        buf = msgspec.json.encode(obj, enc_hook=self.enc_hook(context))
         return buf.decode() if as_str else buf
 
     def to_builtins(
@@ -379,12 +448,13 @@ class Encoder:
         str_keys: bool = False,
         builtin_types: typing.Iterable[type[typing.Any]] | None = None,
         order: typing.Literal["deterministic", "sorted"] | None = None,
+        context: dict[str, typing.Any] | None = None,
     ) -> typing.Any:
         return msgspec.to_builtins(
             obj,
             str_keys=str_keys,
             builtin_types=builtin_types,
-            enc_hook=self.enc_hook,
+            enc_hook=self.enc_hook(context),
             order=order,
         )
 

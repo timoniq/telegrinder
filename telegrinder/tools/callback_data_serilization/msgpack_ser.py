@@ -162,7 +162,7 @@ class MsgPackSerializer[Model: ModelType](ABCDataSerializer[Model]):
 
             data: list[typing.Any] = msgspec.msgpack.decode(
                 ser_data.removeprefix(self.key),
-                dec_hook=decoder.dec_hook,
+                dec_hook=decoder.dec_hook(),
             )
             return Ok(decoder.convert(self._model_parser.compose(data), type=self.model_t))
 
