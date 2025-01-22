@@ -33,19 +33,19 @@ class InputFile:
         )
 
     @classmethod
-    def from_file(cls, path: str | pathlib.Path) -> typing.Self:
+    def from_path(cls, path: str | pathlib.Path, /) -> typing.Self:
         path = pathlib.Path(path)
         return cls(path.name, path.read_bytes())
 
-    def _to_multipart(self, files: dict[str, tuple[str, bytes]], /) -> str:
+    def _to_multipart(self, files: Files, /) -> str:
         attach_name = secrets.token_urlsafe(16)
         files[attach_name] = (self.filename, self.data)
         return f"attach://{attach_name}"
 
 
 @encoder.add_enc_hook(InputFile)
-def encode_inputfile(inputfule: InputFile, files: Files) -> str:
-    return inputfule._to_multipart(files)
+def encode_inputfile(inputfile: InputFile, files: Files) -> str:
+    return inputfile._to_multipart(files)
 
 
 __all__ = ("InputFile",)

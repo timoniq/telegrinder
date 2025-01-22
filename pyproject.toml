@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [project]
 requires-python = ">=3.12,<4.0"
 name = "telegrinder"
-version = "0.3.4.post1"
+version = "0.4.dev1"
 description = "Modern visionary telegram bot framework."
 authors = [
   {name = "timoniq", email = "tesseradecades@mail.ru"}
@@ -61,7 +61,21 @@ Documentation = "https://telegrinder.readthedocs.io/en/latest/"
 
 [project.optional-dependencies]
 all = [
+  "aiosonic >= 0.22.0",
   "uvloop >= 0.21.0",
+  "loguru >= 0.7.0"
+]
+fast = [
+  "aiosonic >= 0.22.0",
+  "uvloop >= 0.21.0"
+]
+aiosonic = [
+  "aiosonic >= 0.22.0"
+]
+uvloop = [
+  "uvloop >= 0.21.0"
+]
+loguru = [
   "loguru >= 0.7.0"
 ]
 

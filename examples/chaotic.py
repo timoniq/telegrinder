@@ -25,7 +25,7 @@ from telegrinder.types.objects import InputFile
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine(bot.dispatch)
-kitten_bytes = pathlib.Path("examples/assets/kitten.jpg").read_bytes()
+kitten_pic = InputFile.from_path(pathlib.Path("examples/assets/kitten.jpg"))
 logger.set_level("DEBUG")
 
 bot.dispatch.message.auto_rules = IsPrivate() & IsUser()
@@ -64,7 +64,7 @@ async def start(message: Message, me: Me):
             await m.reply("Cool!")
         case "bad":
             await message.answer_photo(
-                InputFile("kitten.jpg", kitten_bytes),
+                photo=kitten_pic,
                 caption="I'm sorry... You prob need some kitten pictures",
             )
 

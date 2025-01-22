@@ -231,8 +231,9 @@ class WaiterMachine:
 
     async def clear_storage(self) -> None:
         """Clears storage."""
+        now = datetime.datetime.now()
+
         for hasher in self.storage:
-            now = datetime.datetime.now()
             for ident, short_state in self.storage.get(hasher, {}).copy().items():
                 if short_state.expiration_date is not None and now > short_state.expiration_date:
                     await self.drop(hasher, data=ident, force=True)

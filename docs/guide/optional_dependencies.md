@@ -4,11 +4,37 @@
 
 | Default      | Optional                                                                                           |
 | ------------ | ---------------------------------------------------------------------------------------------------|
+| [aiohttp](https://docs.aiohttp.org/en/stable)                  | [aiosonic](#aiosonic)                            |
 | [asyncio](https://docs.python.org/3/library/asyncio.html)      | [uvloop](#uvloop)                                |
 | [logging](https://docs.python.org/3/library/logging.html)      | [loguru](#loguru)                                |
 
+
+Install all optional dependecies
+```console
+pip install "telegrinder[all]"
+```
+
+
+### [aiosonic](https://github.com/sonic182/aiosonic)
+```console
+pip install "telegrinder[aiosonic]"
+```
+
+This dependency is required for the `AiosonicClient` class. This is a fast HTTP client that can be passed to the `API` class:
+```python
+from telegrinder.api import API, Token
+from telegrinder.client import AiosonicClient
+
+api = API(Token(...), http=AiosonicClient())
+```
+
+
 ### [uvloop](https://github.com/MagicStack/uvloop)
-Telegrinder uses the `asyncio` event loop and when you install `uvloop`, `uvloop.EventLoopPolicy()` will be automatically set:
+```console
+pip install "telegrinder[uvloop]"
+```
+
+Telegrinder uses the `asyncio` event loop and when you install `uvloop`, `uvloop.EventLoopPolicy` will be automatically set:
 ```python
 import asyncio
 import uvloop
@@ -17,7 +43,17 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 ```
 
 
+#### Install `aiosonic` and `uvloop`
+```console
+pip install "telegrinder[fast]"
+```
+
+
 ### [loguru](https://github.com/Delgan/loguru)
+```console
+pip install "telegrinder[loguru]"
+```
+
 If this dependency is installed it is used instead of the default `logging` std module.
 
 Telegrinder supports env variable to set a logging level: `LOGGER_LEVEL`, the default is `DEBUG`.

@@ -11,7 +11,8 @@ from telegrinder.tools.error_handler.error import CatcherError
 from telegrinder.tools.magic import magic_bundle
 
 type FuncCatcher[Exc: BaseException] = typing.Callable[
-    typing.Concatenate[Exc, ...], typing.Awaitable[typing.Any]
+    typing.Concatenate[Exc, ...],
+    typing.Awaitable[typing.Any],
 ]
 
 
@@ -66,9 +67,7 @@ class Catcher[Event]:
                     self.func.__name__,
                 )
             )
-            return Ok(
-                await self.func(exception, **magic_bundle(self.func, {"event": event, "api": api} | ctx))
-            )
+            return Ok(await self.func(exception, **magic_bundle(self.func, {"event": event, "api": api} | ctx)))
 
         logger.debug("Failed to match exception {!r}.", exception.__class__.__name__)
         return Error(exception)
@@ -143,7 +142,7 @@ class ErrorHandler[Event](ABCErrorHandler[Event]):
             return Error(
                 CatcherError(
                     exc,
-                    "Exception {!r} was occurred during the running catcher {!r}.".format(
+                    "{!r} was occurred during the running catcher {!r}.".format(
                         exc,
                         self.catcher.func.__name__,
                     ),
@@ -172,10 +171,8 @@ class ErrorHandler[Event](ABCErrorHandler[Event]):
             case Error(exc):
                 if isinstance(exc, CatcherError):
                     return self._process_catcher_error(exc).unwrap()
-
                 if self.catcher.ignore_errors:
                     return None
-
                 raise exc from None
 
 

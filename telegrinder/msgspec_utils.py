@@ -236,12 +236,12 @@ class Decoder:
     ) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
 
     @contextmanager
-    def __call__(self, type=object, *, strict=True, **context):
+    def __call__(self, type=object, *, strict=True, context=None):
         """Context manager returns an `msgspec.json.Decoder` object with the `dec_hook`."""
         dec_obj = msgspec.json.Decoder(
             type=typing.Any if type is object else type,
             strict=strict,
-            dec_hook=self.dec_hook(**context),
+            dec_hook=self.dec_hook(context),
         )
         yield dec_obj
 

@@ -46,6 +46,11 @@ class LoopWrapper(ABCLoopWrapper):
             self.lifespan,
         )
 
+    async def _run_tasks(self) -> None:
+        async with asyncio.TaskGroup() as tg:
+            while self.tasks:
+                tg.create_task(self.tasks.pop(0))
+
     def run_event_loop(self) -> typing.NoReturn:  # type: ignore
         if not self.tasks:
             logger.warning("Run loop without tasks!")
@@ -56,8 +61,7 @@ class LoopWrapper(ABCLoopWrapper):
             self._loop = asyncio.get_event_loop()
 
         self.lifespan.start()
-        while self.tasks:
-            self._loop.create_task(self.tasks.pop(0))
+        self._loop.create_task(self._run_tasks())
 
         tasks = asyncio.all_tasks(self._loop)
         try:

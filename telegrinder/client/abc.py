@@ -1,3 +1,4 @@
+import io
 import typing
 from abc import ABC, abstractmethod
 
@@ -70,13 +71,15 @@ class ABCClient[MultipartForm: MultipartFormProto](ABC):
         data: dict[str, typing.Any],
         files: dict[str, tuple[str, typing.Any]] | None = None,
     ) -> MultipartForm:
-        files = files or {}
         multipart_form = cls.multipart_form_factory()
+        files = files or {}
 
         for k, v in encode_form_data(data, files).items():
             multipart_form.add_field(k, v)
 
-        for n, (filename, content) in files.items():
+        for n, (filename, content) in {
+            k: (n, io.BytesIO(c) if isinstance(c, bytes) else c) for k, (n, c) in files.items()
+        }.items():
             multipart_form.add_field(n, content, filename=filename)
 
         return multipart_form

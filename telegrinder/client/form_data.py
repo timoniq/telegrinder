@@ -5,7 +5,7 @@ from telegrinder.msgspec_utils import encoder
 
 def encode_form_data(
     data: dict[str, typing.Any],
-    files: dict[str, tuple[str, bytes]],
+    files: dict[str, tuple[str, typing.Any]],
     /,
 ) -> dict[str, str]:
     context = dict(files=files)

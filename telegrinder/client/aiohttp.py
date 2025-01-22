@@ -124,15 +124,6 @@ class AiohttpClient(ABCClient[aiohttp.formdata.FormData]):
     def multipart_form_factory(cls) -> aiohttp.formdata.FormData:
         return aiohttp.formdata.FormData(quote_fields=False)
 
-    @classmethod
-    def get_form(
-        cls,
-        *,
-        data: dict[str, typing.Any],
-        files: dict[str, tuple[str, bytes]] | None = None,
-    ) -> aiohttp.formdata.FormData:
-        return super().get_form(data=data, files=files)
-
     def __del__(self) -> None:
         if self.session and not self.session.closed:
             if self.session._connector is not None and self.session._connector_owner:
