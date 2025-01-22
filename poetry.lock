@@ -126,6 +126,24 @@ files = [
 frozenlist = ">=1.1.0"
 
 [[package]]
+name = "aiosonic"
+version = "0.22.0"
+description = "Async http client"
+optional = true
+python-versions = "<3.13,>=3.8.0"
+groups = ["main"]
+markers = "extra == \"all\" or extra == \"fast\" or extra == \"aiosonic\""
+files = [
+    {file = "aiosonic-0.22.0-py3-none-any.whl", hash = "sha256:8cb920f17e5c3fb2ece0f6e5bbc9f1f303cbe4cef8d217ba96ff87709d4a92a4"},
+    {file = "aiosonic-0.22.0.tar.gz", hash = "sha256:2391930c097376f02381be07630779cfdde829b14891ddd24faad91a0924e717"},
+]
+
+[package.dependencies]
+charset-normalizer = ">=2.0.0,<4.0.0"
+h2 = ">=4.1.0,<5.0.0"
+onecache = ">=0.7.0,<0.8.0"
+
+[[package]]
 name = "attrs"
 version = "24.3.0"
 description = "Classes Without Boilerplate"
@@ -190,7 +208,7 @@ version = "3.4.1"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 optional = false
 python-versions = ">=3.7"
-groups = ["dev"]
+groups = ["main", "dev"]
 files = [
     {file = "charset_normalizer-3.4.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:91b36a978b5ae0ee86c394f5a54d6ef44db1de0815eb43de826d41d21e4af3de"},
     {file = "charset_normalizer-3.4.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7461baadb4dc00fd9e0acbe254e3d7d2112e7f92ced2adc96e54ef6501c5f176"},
@@ -285,6 +303,7 @@ files = [
     {file = "charset_normalizer-3.4.1-py3-none-any.whl", hash = "sha256:d98b1668f06378c6dbefec3b92299716b931cd4e6061f3c875a71ced1780ab85"},
     {file = "charset_normalizer-3.4.1.tar.gz", hash = "sha256:44251f18cd68a75b56585dd00dae26183e102cd5e0f9f1466e6df5da2ed64ea3"},
 ]
+markers = {main = "extra == \"all\" or extra == \"fast\" or extra == \"aiosonic\""}
 
 [[package]]
 name = "choicelib"
@@ -546,6 +565,49 @@ files = [
 ]
 
 [[package]]
+name = "h2"
+version = "4.1.0"
+description = "HTTP/2 State-Machine based protocol implementation"
+optional = true
+python-versions = ">=3.6.1"
+groups = ["main"]
+markers = "extra == \"all\" or extra == \"fast\" or extra == \"aiosonic\""
+files = [
+    {file = "h2-4.1.0-py3-none-any.whl", hash = "sha256:03a46bcf682256c95b5fd9e9a99c1323584c3eec6440d379b9903d709476bc6d"},
+    {file = "h2-4.1.0.tar.gz", hash = "sha256:a83aca08fbe7aacb79fec788c9c0bac936343560ed9ec18b82a13a12c28d2abb"},
+]
+
+[package.dependencies]
+hpack = ">=4.0,<5"
+hyperframe = ">=6.0,<7"
+
+[[package]]
+name = "hpack"
+version = "4.0.0"
+description = "Pure-Python HPACK header compression"
+optional = true
+python-versions = ">=3.6.1"
+groups = ["main"]
+markers = "extra == \"all\" or extra == \"fast\" or extra == \"aiosonic\""
+files = [
+    {file = "hpack-4.0.0-py3-none-any.whl", hash = "sha256:84a076fad3dc9a9f8063ccb8041ef100867b1878b25ef0ee63847a5d53818a6c"},
+    {file = "hpack-4.0.0.tar.gz", hash = "sha256:fc41de0c63e687ebffde81187a948221294896f6bdc0ae2312708df339430095"},
+]
+
+[[package]]
+name = "hyperframe"
+version = "6.0.1"
+description = "HTTP/2 framing layer for Python"
+optional = true
+python-versions = ">=3.6.1"
+groups = ["main"]
+markers = "extra == \"all\" or extra == \"fast\" or extra == \"aiosonic\""
+files = [
+    {file = "hyperframe-6.0.1-py3-none-any.whl", hash = "sha256:0ec6bafd80d8ad2195c4f03aacba3a8265e57bc4cff261e802bf39970ed02a15"},
+    {file = "hyperframe-6.0.1.tar.gz", hash = "sha256:ae510046231dc8e9ecb1a6586f63d2347bf4c8905914aa84ba585ae85f28a914"},
+]
+
+[[package]]
 name = "identify"
 version = "2.6.5"
 description = "File identification library for Python"
@@ -646,7 +708,7 @@ description = "Python logging made (stupidly) simple"
 optional = true
 python-versions = "<4.0,>=3.5"
 groups = ["main"]
-markers = "extra == \"all\""
+markers = "extra == \"all\" or extra == \"loguru\""
 files = [
     {file = "loguru-0.7.3-py3-none-any.whl", hash = "sha256:31a33c10c8e1e10422bfd431aeb5d351c7cf7fa671e3c4df004162264b28220c"},
     {file = "loguru-0.7.3.tar.gz", hash = "sha256:19480589e77d47b8d85b2c827ad95d49bf31b0dcde16593892eb51dd18706eb6"},
@@ -842,6 +904,19 @@ files = [
     {file = "nodejs_wheel_binaries-22.13.0-py2.py3-none-win_amd64.whl", hash = "sha256:cd9c6cdfd00ec48c55cbcd21a98af1fc9c2a18f039aede729de319346ed8675d"},
     {file = "nodejs_wheel_binaries-22.13.0-py2.py3-none-win_arm64.whl", hash = "sha256:aa8af75d30c3132bc4e998126a78b11c269abc3060f1c7c697907299b21ae0e1"},
     {file = "nodejs_wheel_binaries-22.13.0.tar.gz", hash = "sha256:dd811e3e5b92f2e5d4eb236cdf1ff814c91d3d3533d90d63b4af41d07a8bb2fc"},
+]
+
+[[package]]
+name = "onecache"
+version = "0.7.0"
+description = "Python cache for sync and async code"
+optional = true
+python-versions = "<3.13,>=3.8"
+groups = ["main"]
+markers = "extra == \"all\" or extra == \"fast\" or extra == \"aiosonic\""
+files = [
+    {file = "onecache-0.7.0-py3-none-any.whl", hash = "sha256:b39e575f7d75791d826e65c609fa1d718a6ad7425ec1a440f7448214ca4de528"},
+    {file = "onecache-0.7.0.tar.gz", hash = "sha256:a7cb3b4f8d63d0c6153cc3174b11f70cd1ae38c06ed57c6972b9f3fce0b4945f"},
 ]
 
 [[package]]
@@ -1254,7 +1329,7 @@ description = "Fast implementation of asyncio event loop on top of libuv"
 optional = true
 python-versions = ">=3.8.0"
 groups = ["main"]
-markers = "extra == \"all\""
+markers = "extra == \"all\" or extra == \"fast\" or extra == \"uvloop\""
 files = [
     {file = "uvloop-0.21.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:ec7e6b09a6fdded42403182ab6b832b71f4edaf7f37a9a0e371a01db5f0cb45f"},
     {file = "uvloop-0.21.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:196274f2adb9689a289ad7d65700d37df0c0930fd8e4e743fa4834e850d7719d"},
@@ -1343,7 +1418,7 @@ description = "A small Python utility to set file creation time on Windows"
 optional = true
 python-versions = ">=3.5"
 groups = ["main"]
-markers = "extra == \"all\" and sys_platform == \"win32\""
+markers = "(extra == \"all\" or extra == \"loguru\") and sys_platform == \"win32\""
 files = [
     {file = "win32_setctime-1.2.0-py3-none-any.whl", hash = "sha256:95d644c4e708aba81dc3704a116d8cbc974d70b3bdb8be1d150e36be6e9d1390"},
     {file = "win32_setctime-1.2.0.tar.gz", hash = "sha256:ae1fdf948f5640aae05c511ade119313fb6a30d7eabe25fef9764dca5873c4c0"},
@@ -1450,9 +1525,13 @@ multidict = ">=4.0"
 propcache = ">=0.2.0"
 
 [extras]
-all = ["loguru", "uvloop"]
+aiosonic = ["aiosonic"]
+all = ["aiosonic", "loguru", "uvloop"]
+fast = ["aiosonic", "uvloop"]
+loguru = ["loguru"]
+uvloop = ["uvloop"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.12,<4.0"
-content-hash = "f34dcd736db41f422f70b45067175823dcb040d67dd11a84c245018ccc615d27"
+python-versions = ">=3.12,<3.13"
+content-hash = "ea95bd8170c0c9f79459ee69baf45e9cb0e9f259437437208e5036da0da78e3e"

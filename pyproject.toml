@@ -3,7 +3,7 @@ requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [project]
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.12,<3.13"
 name = "telegrinder"
 version = "0.4.dev1"
 description = "Modern visionary telegram bot framework."
