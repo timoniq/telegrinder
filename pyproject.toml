@@ -159,6 +159,7 @@ exclude = [
   "**/__pycache__",
   "docs",
   "local",
+  "telegrinder/client/sonic.py"
 ]
 typeCheckingMode = "basic"
 pythonPlatform = "All"
