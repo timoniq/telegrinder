@@ -96,9 +96,7 @@ async def test_data_morph(api_instance, message_update):
 
 @pytest.mark.asyncio()
 async def test_node(api_instance, message_update):
-    result = await compose_nodes(
-        {"string": StringNode}, Context(), {API: api_instance, Update: message_update}
-    )
+    result = await compose_nodes({"string": StringNode}, Context(), {API: api_instance, Update: message_update})
     assert result
     assert isinstance(result.value, NodeCollection)
     assert result.value.values == {"string": "12345"}
@@ -106,9 +104,7 @@ async def test_node(api_instance, message_update):
 
 @pytest.mark.asyncio()
 async def test_message_node(api_instance, message_update):
-    result = await compose_nodes(
-        {"message": MessageNode}, Context(), {API: api_instance, Update: message_update}
-    )
+    result = await compose_nodes({"message": MessageNode}, Context(), {API: api_instance, Update: message_update})
     assert result
     assert isinstance(result.value, NodeCollection)
     assert "message" in result.value.values and isinstance(result.value.values["message"], MessageCute)

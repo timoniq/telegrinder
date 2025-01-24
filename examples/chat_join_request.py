@@ -14,8 +14,7 @@ async def approve_user(request: ChatJoinRequest) -> None:
         case Ok(ok) if ok:
             await request.ctx_api.send_message(
                 chat_id=request.chat.id,
-                text=f"Welcome to the chat {request.chat.title.unwrap()!r}"
-                f", {request.from_user.full_name}!",
+                text=f"Welcome to the chat {request.chat.title.unwrap()!r}, {request.from_user.full_name}!",
             )
         case Error(error):
             logger.error(

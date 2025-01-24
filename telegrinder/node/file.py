@@ -1,9 +1,9 @@
 from telegrinder.api.api import API
-from telegrinder.types.objects import File as FileObject
-
+from telegrinder.node.attachment import Audio, Document, Photo, Video
 from telegrinder.node.base import ComposeError, Node
 from telegrinder.node.polymorphic import Polymorphic, impl
-from telegrinder.node.attachment import Document, Video, Audio, Photo
+from telegrinder.types.objects import File as FileObject
+
 
 class FileId(Polymorphic, str):
     @impl
@@ -22,6 +22,7 @@ class FileId(Polymorphic, str):
     def compose_photo(cls, photo: Photo) -> str:
         # last size is the best resolution
         return photo.sizes[-1].file_id
+
 
 class File(Node, FileObject):
     @classmethod

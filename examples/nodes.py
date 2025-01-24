@@ -25,8 +25,5 @@ class DB2(ScalarNode, aiosqlite.Connection): ...
 async def create_tables() -> None:
     async with aiosqlite.connect("test.db") as conn:
         await conn.execute(
-            "create table if not exists admins("
-            "id integer primary key autoincrement, "
-            "telegram_id text unique"
-            ")"
+            "create table if not exists admins(id integer primary key autoincrement, telegram_id text unique)"
         )
