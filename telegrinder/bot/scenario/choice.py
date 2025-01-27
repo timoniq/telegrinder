@@ -13,11 +13,9 @@ if typing.TYPE_CHECKING:
             self,
             hasher: Hasher[CallbackQueryCute, int],
             api: API,
-            view: BaseStateView[CallbackQueryCute],
         ) -> tuple[Key, int]: ...
 
 else:
-
     class Choice(Checkbox):
         async def handle(self, cb):
             code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
@@ -40,10 +38,10 @@ else:
 
             return True
 
-        async def wait(self, hasher, api, view):
+        async def wait(self, hasher, api):
             if len(tuple(choice for choice in self.choices if choice.is_picked)) != 1:
-                raise ValueError("Exactly one choice must be picked")
-            choices, m_id = await super().wait(hasher, api, view)
+                raise ValueError("Exactly one choice must be picked.")
+            choices, m_id = await super().wait(hasher, api)
             return tuple(choices.keys())[tuple(choices.values()).index(True)], m_id
 
 
