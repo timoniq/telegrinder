@@ -1,4 +1,4 @@
-from .attachment import Attachment, Audio, Document, Photo, SuccessfulPayment, Video
+from .attachment import Animation, Attachment, Audio, Document, Photo, SuccessfulPayment, Video, VideoNote, Voice
 from .base import ComposeError, DataNode, FactoryNode, GlobalNode, Name, Node, ScalarNode, is_node
 from .callback_query import (
     CallbackQueryData,
@@ -11,6 +11,7 @@ from .composer import NodeCollection, NodeSession, compose_node, compose_nodes
 from .container import ContainerNode
 from .either import Either, Optional
 from .event import EventNode
+from .file import File, FileId
 from .me import Me
 from .message import MessageNode
 from .payload import Payload, PayloadData, PayloadSerializer
@@ -24,6 +25,7 @@ from .tools import generate_node
 from .update import UpdateNode
 
 __all__ = (
+    "Animation",
     "Attachment",
     "Audio",
     "CallbackQueryData",
@@ -38,6 +40,8 @@ __all__ = (
     "Either",
     "EventNode",
     "FactoryNode",
+    "File",
+    "FileId",
     "Field",
     "Field",
     "GLOBAL",
@@ -69,6 +73,8 @@ __all__ = (
     "UserId",
     "UserSource",
     "Video",
+    "VideoNote",
+    "Voice",
     "compose_node",
     "compose_nodes",
     "generate_node",

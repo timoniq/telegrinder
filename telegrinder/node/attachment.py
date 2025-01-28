@@ -7,11 +7,27 @@ import telegrinder.types
 from telegrinder.node.base import ComposeError, DataNode, ScalarNode
 from telegrinder.node.message import MessageNode
 
+type AttachmentType = typing.Literal[
+    "audio",
+    "animation",
+    "document",
+    "photo",
+    "poll",
+    "voice",
+    "video",
+    "video_note",
+    "successful_payment",
+]
+
 
 @dataclasses.dataclass(slots=True)
 class Attachment(DataNode):
-    attachment_type: typing.Literal["audio", "document", "photo", "poll", "video", "successful_payment"]
+    attachment_type: AttachmentType
 
+    animation: Option[telegrinder.types.Animation] = dataclasses.field(
+        default_factory=Nothing,
+        kw_only=True,
+    )
     audio: Option[telegrinder.types.Audio] = dataclasses.field(
         default_factory=Nothing,
         kw_only=True,
@@ -25,7 +41,15 @@ class Attachment(DataNode):
         kw_only=True,
     )
     poll: Option[telegrinder.types.Poll] = dataclasses.field(default_factory=lambda: Nothing(), kw_only=True)
+    voice: Option[telegrinder.types.Voice] = dataclasses.field(
+        default_factory=Nothing,
+        kw_only=True,
+    )
     video: Option[telegrinder.types.Video] = dataclasses.field(
+        default_factory=Nothing,
+        kw_only=True,
+    )
+    video_note: Option[telegrinder.types.VideoNote] = dataclasses.field(
         default_factory=Nothing,
         kw_only=True,
     )
@@ -35,11 +59,11 @@ class Attachment(DataNode):
     )
 
     @classmethod
-    def get_attachment_types(cls) -> tuple[typing.Any, ...]:
-        return typing.get_args(cls.__annotations__["attachment_type"])
+    def get_attachment_types(cls) -> tuple[AttachmentType, ...]:
+        return typing.get_args(AttachmentType.__value__)
 
     @classmethod
-    def compose(cls, message: MessageNode) -> "Attachment":
+    def compose(cls, message: MessageNode) -> typing.Self:
         for attachment_type in cls.get_attachment_types():
             match getattr(message, attachment_type, Nothing()):
                 case Some(attachment):
@@ -66,12 +90,36 @@ class Video(ScalarNode, telegrinder.types.Video):
         return attachment.video.unwrap()
 
 
+class VideoNote(ScalarNode, telegrinder.types.VideoNote):
+    @classmethod
+    def compose(cls, attachment: Attachment) -> telegrinder.types.VideoNote:
+        if not attachment.video_note:
+            raise ComposeError("Attachment is not a video note.")
+        return attachment.video_note.unwrap()
+
+
 class Audio(ScalarNode, telegrinder.types.Audio):
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Audio:
         if not attachment.audio:
             raise ComposeError("Attachment is not an audio.")
         return attachment.audio.unwrap()
+
+
+class Animation(ScalarNode, telegrinder.types.Animation):
+    @classmethod
+    def compose(cls, attachment: Attachment) -> telegrinder.types.Animation:
+        if not attachment.animation:
+            raise ComposeError("Attachment is not an animation.")
+        return attachment.animation.unwrap()
+
+
+class Voice(ScalarNode, telegrinder.types.Voice):
+    @classmethod
+    def compose(cls, attachment: Attachment) -> telegrinder.types.Voice:
+        if not attachment.voice:
+            raise ComposeError("Attachment is not a voice.")
+        return attachment.voice.unwrap()
 
 
 class Document(ScalarNode, telegrinder.types.Document):
@@ -99,11 +147,14 @@ class SuccessfulPayment(ScalarNode, telegrinder.types.SuccessfulPayment):
 
 
 __all__ = (
+    "Animation",
     "Attachment",
     "Audio",
     "Document",
     "Photo",
     "Poll",
     "SuccessfulPayment",
+    "Voice",
     "Video",
+    "VideoNote",
 )

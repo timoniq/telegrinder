@@ -65,10 +65,6 @@ class RuleChain(dict[str, typing.Any], Node):
         return cls
 
     @classmethod
-    def get_subnodes(cls) -> dict[typing.Literal["update"], type[UpdateNode]]:
-        return {"update": UpdateNode}
-
-    @classmethod
     def is_generator(cls) -> typing.Literal[False]:
         return False
 

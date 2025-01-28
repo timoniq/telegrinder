@@ -17,7 +17,7 @@ from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
 from telegrinder.bot.rules.is_from import IsPrivate, IsUser
 from telegrinder.modules import logger
-from telegrinder.node import Me, UserId
+from telegrinder.node import FileId, Me, Photo, UserId
 from telegrinder.rules import CallbackDataEq, FuzzyText, HasText, IsUpdateType, Markup, Text
 from telegrinder.types import UpdateType
 from telegrinder.types.objects import InputFile
@@ -37,6 +37,11 @@ class DummyMiddleware(ABCMiddleware[Message]):
 
     async def post(self, event: Message, ctx: Context) -> None:
         return None
+
+
+@bot.on.message()
+async def handle_photo(photo_id: FileId[Photo]) -> str:
+    return f"Photo ID: {photo_id}"
 
 
 @bot.on.message(final=False)
