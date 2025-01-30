@@ -99,6 +99,8 @@ else:
         return value
 
     class BaseCute[Update]:
+        api: API
+        
         def __init_subclass__(cls, *args, **kwargs):
             super().__init_subclass__(*args, **kwargs)
 
