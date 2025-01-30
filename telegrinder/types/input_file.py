@@ -21,7 +21,7 @@ class InputFile:
     data: bytes
     """Bytes of file."""
 
-    def __init__(self, filename: str, data: bytes, /) -> None:
+    def __init__(self, filename: str, data: bytes) -> None:
         self.filename = filename
         self.data = data
 
