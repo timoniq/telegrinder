@@ -155,6 +155,13 @@ def magic_bundle(
     return args
 
 
+def join_dicts[Key, Value](
+    left_dict: dict[Key, type[typing.Any]],
+    right_dict: dict[type[typing.Any], Value],
+) -> dict[Key, Value]:
+    return {key: right_dict[type_key] for key, type_key in left_dict.items()} 
+
+
 def get_cached_translation[Rule: ABCRule](rule: Rule, locale: str) -> Rule | None:
     return getattr(rule, TRANSLATIONS_KEY, {}).get(locale)
 
@@ -300,4 +307,5 @@ __all__ = (
     "resolve_arg_names",
     "shortcut",
     "to_str",
+    "join_dicts",
 )

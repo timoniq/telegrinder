@@ -12,9 +12,13 @@ class _FileId(FactoryNode, str):
     attachment_node: type[Attachment]
 
     def __class_getitem__(cls, attachment_node: type[Attachment], /):
-        class_ = cls(attachment_node=attachment_node)
-        class_.compose.__annotations__["attach"] = attachment_node
-        return class_
+        return cls(attachment_node=attachment_node)
+    
+    @classmethod
+    def get_subnodes(cls):
+        return {
+            "attach": cls.attachment_node,
+        }
 
     @classmethod
     def compose(cls, attach: Attachment) -> str:
@@ -27,12 +31,16 @@ class _File(FactoryNode):
     attachment_node: type[Attachment]
 
     def __class_getitem__(cls, attachment_node: type[Attachment], /):
-        class_ = cls(attachment_node=attachment_node)
-        class_.compose.__annotations__["file_id"] = _FileId[cls.attachment_node]
-        return class_
-
+        return cls(attachment_node=attachment_node)
+    
     @classmethod
-    async def compose(cls, file_id: _FileId, api: API) -> tg_types.File:
+    def get_subnodes(cls):
+        return {
+            "file_id": FileId[cls.attachment_node],
+        }
+    
+    @classmethod
+    async def compose(cls, file_id: str, api: API) -> tg_types.File:
         return (await api.get_file(file_id=file_id)).expect("File can't be downloaded.")
 
 

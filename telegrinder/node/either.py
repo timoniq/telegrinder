@@ -53,7 +53,8 @@ class _Either(FactoryNode):
                     try:
                         session = await compose_node(
                             _node=node,
-                            linked={n: col.sessions[name].value for name, n in subnodes.items()} | data,
+                            linked={n: col.sessions[name].value for name, n in subnodes.items()},
+                            data=data,
                         )
                     except ComposeError:
                         continue

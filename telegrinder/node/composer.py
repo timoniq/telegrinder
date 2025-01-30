@@ -14,7 +14,7 @@ from telegrinder.node.base import (
     NodeScope,
     get_node_calc_lst,
 )
-from telegrinder.tools.magic import magic_bundle
+from telegrinder.tools.magic import magic_bundle, join_dicts
 
 CONTEXT_STORE_NODES_KEY = "_node_ctx"
 GLOBAL_VALUE_KEY = "_value"
@@ -23,9 +23,18 @@ GLOBAL_VALUE_KEY = "_value"
 async def compose_node(
     _node: type[Node],
     linked: dict[type[typing.Any], typing.Any],
+    data: dict[type[typing.Any], typing.Any] | None = None,
 ) -> "NodeSession":
     node = _node.as_node()
-    kwargs = magic_bundle(node.compose, linked, typebundle=True)
+
+    subnodes = node.get_subnodes()
+    kwargs = magic_bundle(node.compose, join_dicts(subnodes, linked))
+
+    if data is not None:
+        # Linking data via typebundle
+        kwargs.update(
+            magic_bundle(node.compose, data, typebundle=True)
+        )
 
     if node.is_generator():
         generator = typing.cast(typing.AsyncGenerator[typing.Any, None], node.compose(**kwargs))
@@ -75,7 +84,7 @@ async def compose_nodes(
             }
 
             try:
-                local_nodes[node_t] = await compose_node(node_t, subnodes | data)
+                local_nodes[node_t] = await compose_node(node_t, linked=subnodes, data=data)
             except (ComposeError, UnwrapError) as exc:
                 for t, local_node in local_nodes.items():
                     if t.scope is NodeScope.PER_CALL:
