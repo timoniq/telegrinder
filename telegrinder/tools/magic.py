@@ -67,7 +67,7 @@ def get_default_args(func: FuncType) -> dict[str, typing.Any]:
 
 
 @cache_magic_value("__func_parameters__")
-def get_func_parameters(func: FuncType) -> FuncParams:
+def get_func_parameters(func: FuncType, /) -> FuncParams:
     func_params: FuncParams = {"args": [], "kwargs": []}
 
     for k, p in inspect.signature(func).parameters.items():
@@ -101,16 +101,16 @@ def to_str(s: str | enum.Enum) -> str:
 
 
 @typing.overload
-def magic_bundle(handler: FuncType, kw: dict[str, typing.Any]) -> dict[str, typing.Any]: ...
+def magic_bundle(function: FuncType, kw: dict[str, typing.Any]) -> dict[str, typing.Any]: ...
 
 
 @typing.overload
-def magic_bundle(handler: FuncType, kw: dict[enum.Enum, typing.Any]) -> dict[str, typing.Any]: ...
+def magic_bundle(function: FuncType, kw: dict[enum.Enum, typing.Any]) -> dict[str, typing.Any]: ...
 
 
 @typing.overload
 def magic_bundle(
-    handler: FuncType,
+    function: FuncType,
     kw: dict[str, typing.Any],
     *,
     start_idx: int = 1,
@@ -120,7 +120,7 @@ def magic_bundle(
 
 @typing.overload
 def magic_bundle(
-    handler: FuncType,
+    function: FuncType,
     kw: dict[enum.Enum, typing.Any],
     *,
     start_idx: int = 1,
@@ -130,7 +130,7 @@ def magic_bundle(
 
 @typing.overload
 def magic_bundle(
-    handler: FuncType,
+    function: FuncType,
     kw: dict[type[typing.Any], typing.Any],
     *,
     typebundle: typing.Literal[True] = True,
@@ -138,20 +138,27 @@ def magic_bundle(
 
 
 def magic_bundle(
-    handler: FuncType,
+    function: FuncType,
     kw: dict[typing.Any, typing.Any],
     *,
     start_idx: int = 1,
     bundle_ctx: bool = True,
     typebundle: bool = False,
 ) -> dict[str, typing.Any]:
+    # Bundle considering the function annotations
     if typebundle:
-        return {name: kw[t] for name, t in get_annotations(handler, return_type=False).items() if t in kw}
+        return {name: kw[t] for name, t in get_annotations(function, return_type=False).items() if t in kw}
 
-    names = resolve_arg_names(handler, start_idx=start_idx)
-    args = get_default_args(handler) | {to_str(k): v for k, v in kw.items() if to_str(k) in names}
+    names = resolve_arg_names(function, start_idx=start_idx)
+    # Determine if the function is only have the **kwargs parameter, then bundle all kw
+    if "var_kwargs" in get_func_parameters(function) and not names:
+        return {to_str(k): v for k, v in kw.items()}
+
+    # Bundle considering the function parameters and defaults
+    args = get_default_args(function) | {n: v for k, v in kw.items() if (n := to_str(k)) in names}
     if "ctx" in names and bundle_ctx:
         args["ctx"] = kw
+
     return args
 
 
@@ -159,7 +166,7 @@ def join_dicts[Key, Value](
     left_dict: dict[Key, type[typing.Any]],
     right_dict: dict[type[typing.Any], Value],
 ) -> dict[Key, Value]:
-    return {key: right_dict[type_key] for key, type_key in left_dict.items()} 
+    return {key: right_dict[type_key] for key, type_key in left_dict.items()}
 
 
 def get_cached_translation[Rule: ABCRule](rule: Rule, locale: str) -> Rule | None:

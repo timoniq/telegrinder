@@ -122,7 +122,7 @@ def parse_deep_link(
     no_value_params: set[str] | None = None,
 ) -> str:
     no_value_params, params = parse_query_params(params, no_value_params)
-    query = urlencode(params, safe="+") + ("&" if no_value_params else "") + "&".join(no_value_params)
+    query = urlencode(params, encoding="UTF-8") + ("&" if no_value_params else "") + "&".join(no_value_params)
     return f"{link}?{query}"
 
 

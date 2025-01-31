@@ -14,7 +14,10 @@ from telegrinder.node.base import (
     NodeScope,
     get_node_calc_lst,
 )
-from telegrinder.tools.magic import magic_bundle, join_dicts
+from telegrinder.tools.magic import join_dicts, magic_bundle
+
+type AsyncGenerator = typing.AsyncGenerator[typing.Any, None]
+type Awaitable = typing.Awaitable[typing.Any]
 
 CONTEXT_STORE_NODES_KEY = "_node_ctx"
 GLOBAL_VALUE_KEY = "_value"
@@ -30,18 +33,16 @@ async def compose_node(
     subnodes = node.get_subnodes()
     kwargs = magic_bundle(node.compose, join_dicts(subnodes, linked))
 
-    if data is not None:
-        # Linking data via typebundle
-        kwargs.update(
-            magic_bundle(node.compose, data, typebundle=True)
-        )
+    # Linking data via typebundle
+    if data:
+        kwargs.update(magic_bundle(node.compose, data, typebundle=True))
 
     if node.is_generator():
-        generator = typing.cast(typing.AsyncGenerator[typing.Any, None], node.compose(**kwargs))
+        generator = typing.cast(AsyncGenerator, node.compose(**kwargs))
         value = await generator.asend(None)
     else:
         generator = None
-        value = typing.cast(typing.Awaitable[typing.Any] | typing.Any, node.compose(**kwargs))
+        value = typing.cast(Awaitable | typing.Any, node.compose(**kwargs))
         if inspect.isawaitable(value):
             value = await value
 
