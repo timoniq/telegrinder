@@ -33,7 +33,7 @@ bot.run_forever()
 
 import typing
 
-from .api import API, APIError, APIResponse, Token
+from .api import API, APIError, APIResponse, APIServerError, Token
 from .bot import (
     CALLBACK_QUERY_FOR_MESSAGE,
     CALLBACK_QUERY_FROM_CHAT,
@@ -141,6 +141,7 @@ __all__ = (
     "API",
     "APIError",
     "APIResponse",
+    "APIServerError",
     "AiohttpClient",
     "AiosonicClient",
     "AnyMarkup",

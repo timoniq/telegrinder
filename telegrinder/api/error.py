@@ -9,8 +9,12 @@ class APIError(Exception):
         return f"<APIError: {self.__str__()}>"
 
 
+class APIServerError(Exception):
+    pass
+
+
 class InvalidTokenError(BaseException):
     pass
 
 
-__all__ = ("APIError", "InvalidTokenError")
+__all__ = ("APIError", "APIServerError", "InvalidTokenError")

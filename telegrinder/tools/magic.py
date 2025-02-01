@@ -310,9 +310,9 @@ __all__ = (
     "get_func_parameters",
     "get_impls",
     "impl",
+    "join_dicts",
     "magic_bundle",
     "resolve_arg_names",
     "shortcut",
     "to_str",
-    "join_dicts",
 )

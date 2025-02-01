@@ -17,7 +17,7 @@ pip install "telegrinder[all]"
 
 ### [aiosonic](https://github.com/sonic182/aiosonic)
 ```console
-pip install "telegrinder[aiosonic]"
+pip install aiosonic
 ```
 
 This dependency is required for the `AiosonicClient` class. This is a fast HTTP client that can be passed to the `API` class:
@@ -41,13 +41,6 @@ import uvloop
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 ```
-
-
-#### Install `aiosonic` and `uvloop`
-```console
-pip install "telegrinder[fast]"
-```
-
 
 ### [loguru](https://github.com/Delgan/loguru)
 ```console

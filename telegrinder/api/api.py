@@ -68,7 +68,7 @@ class API(APIMethods[HTTPClient], typing.Generic[HTTPClient]):
         data: dict[str, typing.Any] | None = None,
         files: dict[str, tuple[str, bytes]] | None = None,
     ) -> Result[Json, APIError]:
-        """Request a `JSON` response with `POST` HTTP method and passing data, files as `multipart/form-data`."""
+        """Request a `JSON` response with the `POST` HTTP method and passing data, files as `multipart/form-data`."""
         response = await self.http.request_json(
             url=self.request_url + method,
             method="POST",
@@ -89,7 +89,7 @@ class API(APIMethods[HTTPClient], typing.Generic[HTTPClient]):
         data: dict[str, typing.Any] | None = None,
         files: dict[str, tuple[str, bytes]] | None = None,
     ) -> Result[msgspec.Raw, APIError]:
-        """Request a `raw` response with `POST` HTTP method and passing data, files as `multipart/form-data`."""
+        """Request a `raw` response with the `POST` HTTP method and passing data, files as `multipart/form-data`."""
         response_bytes = await self.http.request_bytes(
             url=self.request_url + method,
             method="POST",

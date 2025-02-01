@@ -154,7 +154,7 @@ __all__ = (
     "Photo",
     "Poll",
     "SuccessfulPayment",
-    "Voice",
     "Video",
     "VideoNote",
+    "Voice",
 )

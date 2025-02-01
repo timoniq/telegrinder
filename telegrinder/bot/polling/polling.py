@@ -1,12 +1,13 @@
 import asyncio
 import sys
 import typing
+from http import HTTPStatus
 
 import msgspec
 from fntypes.result import Error, Ok
 
 from telegrinder.api.api import API, HTTPClient
-from telegrinder.api.error import InvalidTokenError
+from telegrinder.api.error import APIServerError, InvalidTokenError
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import decoder
@@ -70,17 +71,20 @@ class Polling(ABCPolling, typing.Generic[HTTPClient]):
     async def get_updates(self) -> msgspec.Raw:
         raw_updates = await self.api.request_raw(
             method="getUpdates",
-            data={
-                "offset": self.offset,
-                "allowed_updates": self.allowed_updates,
-            },
+            data=dict(
+                offset=self.offset,
+                allowed_updates=self.allowed_updates,
+            ),
         )
+
         match raw_updates:
             case Ok(value):
                 return value
-            case Error(err) if err.code in (401, 404):
-                raise InvalidTokenError("Token seems to be invalid")
             case Error(err):
+                if err.code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.NOT_FOUND):
+                    raise InvalidTokenError("Token seems to be invalid")
+                if err.code in (HTTPStatus.BAD_GATEWAY, HTTPStatus.GATEWAY_TIMEOUT):
+                    raise APIServerError("Unavilability of the API Telegram server")
                 raise err from None
 
     async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
@@ -101,6 +105,9 @@ class Polling(ABCPolling, typing.Generic[HTTPClient]):
                     logger.error(e)
                     self.stop()
                     sys.exit(3)
+                except APIServerError as e:
+                    logger.error(f"{e}, waiting {self.reconnection_timeout} seconds to the next request...")
+                    await asyncio.sleep(self.reconnection_timeout)
                 except asyncio.CancelledError:
                     logger.info("Caught cancel, polling stopping...")
                     self.stop()
