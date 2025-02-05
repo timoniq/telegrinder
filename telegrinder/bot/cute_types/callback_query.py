@@ -74,7 +74,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
     @typing.overload
     def decode_data[T](self, *, to: type[T]) -> Option[T]: ...
 
-    def decode_data[T](self, *, to: type[T] = dict) -> Option[T]:
+    def decode_data[T](self, *, to: type[T] = dict[str, typing.Any]) -> Option[T]:
         if not self.data:
             return Nothing()
 

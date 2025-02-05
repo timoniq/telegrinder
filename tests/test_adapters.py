@@ -69,7 +69,7 @@ async def test_raw_update_adapter_with_callback_query_update(api_instance, callb
 
 @pytest.mark.asyncio()
 async def test_node_adapter(api_instance, message_update):
-    adapter = NodeAdapter(Text)
+    adapter = NodeAdapter(Text)  # type: ignore
     context = Context(raw_update=message_update)
 
     result = await adapter.adapt(api_instance, message_update, context)

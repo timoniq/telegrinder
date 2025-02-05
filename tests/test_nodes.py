@@ -8,7 +8,7 @@ from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules import IsUser, Markup
-from telegrinder.node import DataNode, Node, Polymorphic, ScalarNode, impl
+from telegrinder.node import DataNode, Node, Polymorphic, impl, scalar_node
 from telegrinder.node.base import ComposeError
 from telegrinder.node.callback_query import CallbackQueryNode
 from telegrinder.node.composer import NodeCollection, compose_nodes
@@ -49,7 +49,8 @@ class PrettyRuleChain(
     smile: str
 
 
-class ScalarMorphNode(Polymorphic, ScalarNode, int):
+@scalar_node(int)
+class ScalarMorphNode(Polymorphic):
     @impl
     async def impl1(cls, update: UpdateNode) -> int:
         if update.update_id >= 10000:
@@ -77,7 +78,9 @@ class StringNode(Node):
 @pytest.mark.asyncio()
 async def test_scalar_morph(api_instance, message_update):
     result = await compose_nodes(
-        {"scalar_morph": ScalarMorphNode}, Context(), {API: api_instance, Update: message_update}
+        {"scalar_morph": ScalarMorphNode},  # type: ignore
+        Context(),
+        {API: api_instance, Update: message_update},  # type: ignore
     )
     assert result
     assert isinstance(result.value, NodeCollection)
@@ -96,9 +99,7 @@ async def test_data_morph(api_instance, message_update):
 
 @pytest.mark.asyncio()
 async def test_node(api_instance, message_update):
-    result = await compose_nodes(
-        {"string": StringNode}, Context(), {API: api_instance, Update: message_update}
-    )
+    result = await compose_nodes({"string": StringNode}, Context(), {API: api_instance, Update: message_update})
     assert result
     assert isinstance(result.value, NodeCollection)
     assert result.value.values == {"string": "12345"}
@@ -107,7 +108,9 @@ async def test_node(api_instance, message_update):
 @pytest.mark.asyncio()
 async def test_message_node(api_instance, message_update):
     result = await compose_nodes(
-        {"message": MessageNode}, Context(), {API: api_instance, Update: message_update}
+        {"message": MessageNode},  # type: ignore
+        Context(),
+        {API: api_instance, Update: message_update},
     )
     assert result
     assert isinstance(result.value, NodeCollection)
@@ -117,7 +120,9 @@ async def test_message_node(api_instance, message_update):
 @pytest.mark.asyncio()
 async def test_callback_query_node(api_instance, callback_query_update):
     result = await compose_nodes(
-        {"callback_query": CallbackQueryNode}, Context(), {API: api_instance, Update: callback_query_update}
+        {"callback_query": CallbackQueryNode},  # type: ignore
+        Context(),
+        {API: api_instance, Update: callback_query_update},
     )
     assert result
     assert isinstance(result.value, NodeCollection)
@@ -129,7 +134,7 @@ async def test_callback_query_node(api_instance, callback_query_update):
 @pytest.mark.asyncio()
 @with_mocked_api(GET_ME_RAW_RESPONSE)
 async def test_me_node(api: API):
-    result = await compose_nodes({"me": Me}, Context(), {API: api})
+    result = await compose_nodes({"me": Me}, Context(), {API: api})  # type: ignore
     assert result
     assert isinstance(result.value, NodeCollection)
     assert "me" in result.value.values and isinstance(result.value.values["me"], User)
@@ -187,7 +192,7 @@ async def test_rule_chain(api_instance, message_update):
 @pytest.mark.asyncio()
 async def test_node_generator(api_instance, message_update):
     MyNode = generate_node(  # noqa: N806
-        (Text,),
+        (Text,),  # type: ignore
         func=lambda text: text
         if text == "Hello, Telegrinder! btw, laurelang - nice pure logical programming launguage ^_^"
         else False,

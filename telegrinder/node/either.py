@@ -72,8 +72,8 @@ class _Either(FactoryNode):
 
 
 if typing.TYPE_CHECKING:
-    type Either[Left: Node, Right: Node | None] = Left | Right
-    type Optional[Left: Node] = Either[Left, None]
+    type Either[Left, Right: typing.Any | None] = Left | Right
+    type Optional[Left] = Either[Left, None]
 else:
     Either = _Either
     Optional = type("Optional", (Either,), {})

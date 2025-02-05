@@ -1,5 +1,5 @@
 from .attachment import Animation, Attachment, Audio, Document, Photo, SuccessfulPayment, Video, VideoNote, Voice
-from .base import ComposeError, DataNode, FactoryNode, GlobalNode, Name, Node, ScalarNode, is_node
+from .base import ComposeError, DataNode, FactoryNode, GlobalNode, Name, Node, is_node, scalar_node
 from .callback_query import (
     CallbackQueryData,
     CallbackQueryDataJson,
@@ -63,7 +63,6 @@ __all__ = (
     "Polymorphic",
     "PreCheckoutQueryNode",
     "RuleChain",
-    "ScalarNode",
     "Source",
     "SuccessfulPayment",
     "Text",
@@ -81,6 +80,7 @@ __all__ = (
     "global_node",
     "impl",
     "is_node",
+    "scalar_node",
     "per_call",
     "per_event",
 )

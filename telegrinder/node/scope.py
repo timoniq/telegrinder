@@ -2,7 +2,7 @@ import enum
 import typing
 
 if typing.TYPE_CHECKING:
-    from .base import Node
+    from .base import NodeProto
 
 
 class NodeScope(enum.Enum):
@@ -16,17 +16,17 @@ PER_CALL = NodeScope.PER_CALL
 GLOBAL = NodeScope.GLOBAL
 
 
-def per_call[T: Node](node: type[T]) -> type[T]:
+def per_call[T: NodeProto](node: type[T]) -> type[T]:
     setattr(node, "scope", PER_CALL)
     return node
 
 
-def per_event[T: Node](node: type[T]) -> type[T]:
+def per_event[T: NodeProto](node: type[T]) -> type[T]:
     setattr(node, "scope", PER_EVENT)
     return node
 
 
-def global_node[T: Node](node: type[T]) -> type[T]:
+def global_node[T: NodeProto](node: type[T]) -> type[T]:
     setattr(node, "scope", GLOBAL)
     return node
 

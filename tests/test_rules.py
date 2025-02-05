@@ -3,7 +3,6 @@ import pytest
 from telegrinder.bot.cute_types import CallbackQueryCute, MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.node.payload import Payload
 from telegrinder.rules import IsPrivate, MessageRule, PayloadEqRule
 from telegrinder.types.objects import CallbackQuery, Message
 
@@ -58,8 +57,8 @@ def test_rule_callback_data_eq(api_instance):
     cb_event_with_data["data"] = "test"
     cb_update = CallbackQuery.from_dict(cb_event_with_data)
     cb_event = CallbackQueryCute.from_update(cb_update, api_instance)
-    assert PayloadEqRule("test").check(Payload(cb_event.data.unwrap())) is True
-    assert PayloadEqRule("test1").check(Payload(cb_event.data.unwrap())) is False
+    assert PayloadEqRule("test").check(cb_event.data.unwrap()) is True
+    assert PayloadEqRule("test1").check(cb_event.data.unwrap()) is False
 
 
 def test_rule_text(api_instance):

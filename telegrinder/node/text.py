@@ -1,11 +1,12 @@
 import typing
 
-from telegrinder.node.base import ComposeError, FactoryNode, ScalarNode
+from telegrinder.node.base import ComposeError, FactoryNode, scalar_node
 from telegrinder.node.either import Either
 from telegrinder.node.message import MessageNode
 
 
-class Caption(ScalarNode, str):
+@scalar_node()
+class Caption:
     @classmethod
     def compose(cls, message: MessageNode) -> str:
         if not message.caption:
@@ -13,7 +14,8 @@ class Caption(ScalarNode, str):
         return message.caption.unwrap()
 
 
-class Text(ScalarNode, str):
+@scalar_node()
+class Text:
     @classmethod
     def compose(cls, message: MessageNode) -> str:
         if not message.text:
@@ -21,7 +23,8 @@ class Text(ScalarNode, str):
         return message.text.unwrap()
 
 
-class TextInteger(ScalarNode, int):
+@scalar_node()
+class TextInteger:
     @classmethod
     def compose(cls, text: Either[Text, Caption]) -> int:
         if not text.isdigit():

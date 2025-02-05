@@ -5,7 +5,7 @@ from fntypes.option import Nothing, Option, Some
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types import ChatJoinRequestCute
-from telegrinder.node.base import ComposeError, DataNode, ScalarNode
+from telegrinder.node.base import ComposeError, DataNode, scalar_node
 from telegrinder.node.callback_query import CallbackQueryNode
 from telegrinder.node.event import EventNode
 from telegrinder.node.message import MessageNode
@@ -67,19 +67,22 @@ class Source(Polymorphic, DataNode):
         return result.unwrap()
 
 
-class ChatSource(ScalarNode, Chat):
+@scalar_node()
+class ChatSource:
     @classmethod
     def compose(cls, source: Source) -> Chat:
         return source.chat.expect(ComposeError("Source has no chat."))
 
 
-class UserSource(ScalarNode, User):
+@scalar_node()
+class UserSource:
     @classmethod
     def compose(cls, source: Source) -> User:
         return source.from_user
 
 
-class UserId(ScalarNode, int):
+@scalar_node()
+class UserId:
     @classmethod
     def compose(cls, user: UserSource) -> int:
         return user.id

@@ -7,7 +7,7 @@ from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.rules.abc import ABCRule, check_rule
-from telegrinder.node import ScalarNode, compose_nodes
+from telegrinder.node import compose_nodes
 from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
 from telegrinder.types import Update
@@ -18,7 +18,7 @@ class GlobalMiddleware(ABCMiddleware):
 
     def __init__(self):
         self.filters: set[ABCRule] = set()
-        self.source_filters: dict[ABCAdapter | type[ScalarNode], dict[typing.Any, ABCRule]] = {}
+        self.source_filters: dict[ABCAdapter | type[typing.Any], dict[typing.Any, ABCRule]] = {}
 
     async def pre(self, event: UpdateCute, ctx: Context) -> bool:
         for filter in self.filters:
@@ -52,7 +52,7 @@ class GlobalMiddleware(ABCMiddleware):
     def apply_filters(
         self,
         *filters: ABCRule,
-        source_filter: tuple[ABCAdapter | type[ScalarNode], typing.Any, ABCRule] | None = None,
+        source_filter: tuple[ABCAdapter | type[typing.Any], typing.Any, ABCRule] | None = None,
     ):
         if source_filter is not None:
             self.source_filters.setdefault(source_filter[0], {})

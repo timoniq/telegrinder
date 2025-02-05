@@ -5,10 +5,12 @@ from telegrinder.node.base import Node
 
 class ContainerNode(Node):
     linked_nodes: typing.ClassVar[list[type[Node]]]
+    composer: typing.Callable[..., typing.Awaitable[typing.Any]]
 
     @classmethod
-    def compose(cls, **kw) -> tuple[Node, ...]:
-        return tuple(t[1] for t in sorted(kw.items(), key=lambda t: t[0]))
+    async def compose(cls, **kw: typing.Any) -> typing.Any:
+        subnodes = cls.get_subnodes().keys()
+        return await cls.composer(*tuple(t[1] for t in sorted(kw.items(), key=lambda t: t[0]) if t[0] in subnodes))
 
     @classmethod
     def get_subnodes(cls) -> dict[str, type[Node]]:
@@ -20,8 +22,12 @@ class ContainerNode(Node):
         return subnodes
 
     @classmethod
-    def link_nodes(cls, linked_nodes: list[type[Node]]) -> type["ContainerNode"]:
-        return type("_ContainerNode", (cls,), {"linked_nodes": linked_nodes})
+    def link_nodes(
+        cls,
+        linked_nodes: list[type[Node]],
+        composer: typing.Callable[..., typing.Awaitable[typing.Any]],
+    ) -> type["ContainerNode"]:
+        return type(cls.__name__, (cls,), {"linked_nodes": linked_nodes, "composer": classmethod(composer)})
 
 
 __all__ = ("ContainerNode",)

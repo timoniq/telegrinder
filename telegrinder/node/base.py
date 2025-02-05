@@ -1,6 +1,6 @@
 import abc
 import inspect
-from types import AsyncGeneratorType
+from types import AsyncGeneratorType, resolve_bases
 
 import typing_extensions as typing
 
@@ -8,11 +8,20 @@ from telegrinder.node.scope import NodeScope
 from telegrinder.tools.magic import cache_magic_value, get_annotations
 
 T = typing.TypeVar("T", default=typing.Any)
+X = typing.TypeVar("X", default=typing.Never)
 
 ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerator[T, None]
 
 
-def is_node(maybe_node: typing.Any) -> typing.TypeGuard[type["Node"]]:
+@typing.overload
+def is_node(maybe_node: type[typing.Any], /) -> typing.TypeGuard[type["Node"]]: ...
+
+
+@typing.overload
+def is_node(maybe_node: typing.Any, /) -> typing.TypeGuard["Node"]: ...
+
+
+def is_node(maybe_node: typing.Any, /) -> typing.TypeGuard["Node | type[Node]"]:
     if isinstance(maybe_node, typing.TypeAliasType):
         maybe_node = maybe_node.__value__
     if not isinstance(maybe_node, type):
@@ -56,6 +65,11 @@ class ComposeError(BaseException):
     pass
 
 
+class NodeProto[T](typing.Protocol):
+    @classmethod
+    def compose(cls, *args: typing.Any, **kwargs: typing.Any) -> ComposeResult[T]: ...
+
+
 class Node(abc.ABC):
     node: str = "node"
     scope: NodeScope = NodeScope.PER_EVENT
@@ -80,6 +94,25 @@ class Node(abc.ABC):
     @classmethod
     def is_generator(cls) -> bool:
         return is_generator(cls.compose)
+
+
+@typing.overload
+def scalar_node[T]() -> typing.Callable[[type[NodeProto[T]]], type[T]]: ...
+
+
+@typing.overload
+def scalar_node[T](*types: type[T]) -> typing.Callable[[type[NodeProto[typing.Any]]], type[T]]: ...
+
+
+def scalar_node(*types):
+    def wrapper[R](node, /):
+        bases: list[type[typing.Any]] = [node]
+        node_bases = resolve_bases(node.__bases__)
+        if not any(issubclass(base, Node) for base in node_bases if isinstance(base, type)):
+            bases.append(Node)
+        return type("Scalar" + node.__name__, tuple(bases), {})  # type: ignore
+
+    return wrapper
 
 
 @typing.dataclass_transform(kw_only_default=True)
@@ -107,50 +140,8 @@ class DataNode(Node, abc.ABC):
         pass
 
 
-class ScalarNodeProto(Node, abc.ABC):
-    @classmethod
-    @abc.abstractmethod
-    def compose(cls, *args, **kwargs) -> ComposeResult:
-        pass
-
-
-SCALAR_NODE = type("Scalar", (), {"node": "scalar"})
-
-
-if typing.TYPE_CHECKING:
-
-    class ScalarNode(ScalarNodeProto, abc.ABC):
-        pass
-else:
-
-    def __init_subclass__(cls, *args, **kwargs):  # noqa: N807
-        if any(issubclass(base, ScalarNodeProto) for base in cls.__bases__ if base is not ScalarNode):
-            raise RuntimeError("Scalar nodes do not support inheritance.")
-
-    def _as_node(cls, bases, dct):
-        if not hasattr(cls, "_scalar_node_type"):
-            dct.update(cls.__dict__)
-            scalar_node_type = type(cls.__name__, bases, dct)
-            setattr(cls, "_scalar_node_type", scalar_node_type)
-            return scalar_node_type
-        return getattr(cls, "_scalar_node_type")
-
-    def create_class(name, bases, dct):
-        return type(
-            "ScalarNode",
-            (SCALAR_NODE,),
-            {
-                "as_node": classmethod(lambda cls: _as_node(cls, bases, dct)),
-                "scope": Node.scope,
-                "__init_subclass__": __init_subclass__,
-            },
-        )
-
-    class ScalarNode(ScalarNodeProto, abc.ABC, metaclass=create_class):
-        pass
-
-
-class Name(ScalarNode, str):
+@scalar_node()
+class Name:
     @classmethod
     def compose(cls) -> str: ...
 
@@ -189,9 +180,7 @@ __all__ = (
     "GlobalNode",
     "Name",
     "Node",
-    "SCALAR_NODE",
-    "ScalarNode",
-    "ScalarNodeProto",
+    "scalar_node",
     "get_nodes",
     "is_node",
 )

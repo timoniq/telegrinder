@@ -4,7 +4,7 @@ import typing
 from fntypes.option import Nothing, Option, Some
 
 import telegrinder.types
-from telegrinder.node.base import ComposeError, DataNode, ScalarNode
+from telegrinder.node.base import ComposeError, DataNode, scalar_node
 from telegrinder.node.message import MessageNode
 
 type AttachmentType = typing.Literal[
@@ -82,7 +82,8 @@ class Photo(DataNode):
         return cls(attachment.photo.unwrap())
 
 
-class Video(ScalarNode, telegrinder.types.Video):
+@scalar_node()
+class Video:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Video:
         if not attachment.video:
@@ -90,7 +91,8 @@ class Video(ScalarNode, telegrinder.types.Video):
         return attachment.video.unwrap()
 
 
-class VideoNote(ScalarNode, telegrinder.types.VideoNote):
+@scalar_node()
+class VideoNote:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.VideoNote:
         if not attachment.video_note:
@@ -98,7 +100,8 @@ class VideoNote(ScalarNode, telegrinder.types.VideoNote):
         return attachment.video_note.unwrap()
 
 
-class Audio(ScalarNode, telegrinder.types.Audio):
+@scalar_node()
+class Audio:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Audio:
         if not attachment.audio:
@@ -106,7 +109,8 @@ class Audio(ScalarNode, telegrinder.types.Audio):
         return attachment.audio.unwrap()
 
 
-class Animation(ScalarNode, telegrinder.types.Animation):
+@scalar_node()
+class Animation:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Animation:
         if not attachment.animation:
@@ -114,7 +118,8 @@ class Animation(ScalarNode, telegrinder.types.Animation):
         return attachment.animation.unwrap()
 
 
-class Voice(ScalarNode, telegrinder.types.Voice):
+@scalar_node()
+class Voice:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Voice:
         if not attachment.voice:
@@ -122,7 +127,8 @@ class Voice(ScalarNode, telegrinder.types.Voice):
         return attachment.voice.unwrap()
 
 
-class Document(ScalarNode, telegrinder.types.Document):
+@scalar_node()
+class Document:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Document:
         if not attachment.document:
@@ -130,7 +136,8 @@ class Document(ScalarNode, telegrinder.types.Document):
         return attachment.document.unwrap()
 
 
-class Poll(ScalarNode, telegrinder.types.Poll):
+@scalar_node()
+class Poll:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Poll:
         if not attachment.poll:
@@ -138,7 +145,8 @@ class Poll(ScalarNode, telegrinder.types.Poll):
         return attachment.poll.unwrap()
 
 
-class SuccessfulPayment(ScalarNode, telegrinder.types.SuccessfulPayment):
+@scalar_node()
+class SuccessfulPayment:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.SuccessfulPayment:
         if not attachment.successful_payment:

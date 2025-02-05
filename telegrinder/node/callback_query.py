@@ -4,11 +4,12 @@ from fntypes.result import Error, Ok
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.msgspec_utils import msgspec_convert
-from telegrinder.node.base import ComposeError, FactoryNode, Name, ScalarNode
+from telegrinder.node.base import ComposeError, FactoryNode, Name, scalar_node
 from telegrinder.node.update import UpdateNode
 
 
-class CallbackQueryNode(ScalarNode, CallbackQueryCute):
+@scalar_node()
+class CallbackQueryNode:
     @classmethod
     def compose(cls, update: UpdateNode) -> CallbackQueryCute:
         if not update.callback_query:
@@ -16,13 +17,15 @@ class CallbackQueryNode(ScalarNode, CallbackQueryCute):
         return update.callback_query.unwrap()
 
 
-class CallbackQueryData(ScalarNode, str):
+@scalar_node()
+class CallbackQueryData:
     @classmethod
     def compose(cls, callback_query: CallbackQueryNode) -> str:
         return callback_query.data.expect(ComposeError("Cannot complete decode callback query data."))
 
 
-class CallbackQueryDataJson(ScalarNode, dict[str, typing.Any]):
+@scalar_node()
+class CallbackQueryDataJson:
     @classmethod
     def compose(cls, callback_query: CallbackQueryNode) -> dict[str, typing.Any]:
         return callback_query.decode_data().expect(

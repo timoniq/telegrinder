@@ -5,7 +5,7 @@ from telegrinder import API, Message, Telegrinder, Token, node
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
 from telegrinder.modules import logger
-from telegrinder.node import ChatSource, MessageNode, ScalarNode, TextLiteral
+from telegrinder.node import ChatSource, MessageNode, TextLiteral, scalar_node
 
 MessageId = type("MessageId", (int,), {})
 
@@ -21,20 +21,21 @@ class IsChat(ABCRule):
 
 class IsAdmin(ABCRule):
     async def check(self, source: node.Source, db: DB, context: Context) -> bool:
-        result = await db.execute("select * from admins where telegram_id = ?", (source.from_user.id,))
+        result = await db.execute("select * from admins where telegram_id = ?", (source.from_user.id,))  # type: ignore
         context["is_admin"] = True
         return bool(await result.fetchone())
 
 
-class IncomingMessageId(ScalarNode, MessageId):
+@scalar_node()
+class IncomingMessageId:
     @classmethod
-    async def compose(cls, message: MessageNode) -> MessageId:
+    def compose(cls, message: MessageNode) -> MessageId:
         return MessageId(message.message_id)
 
 
 async def promote(user_id: int, *, db: DB) -> None:
-    await db.execute("insert into admins(telegram_id) values (?) on conflict do nothing", (user_id,))
-    await db.commit()
+    await db.execute("insert into admins(telegram_id) values (?) on conflict do nothing", (user_id,))  # type: ignore
+    await db.commit()  # type: ignore
 
 
 @bot.on.message(IsChat())
@@ -64,8 +65,6 @@ async def handle_texts(texts: TextLiteral["hello", "hi", "hilo"]) -> typing.Lite
 # therefore DB node will only be resolved once on event
 # If you run this code you will see that connection opening
 # and closing is going to happen only once.
-
-
 @bot.on.message()
 async def photo_handler(
     message: Message,

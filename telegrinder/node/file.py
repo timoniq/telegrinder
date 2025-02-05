@@ -8,17 +8,15 @@ from telegrinder.node.base import FactoryNode
 type Attachment = Animation | Audio | Document | Photo | Video | VideoNote | Voice
 
 
-class _FileId(FactoryNode, str):
+class _FileId(FactoryNode):
     attachment_node: type[Attachment]
 
     def __class_getitem__(cls, attachment_node: type[Attachment], /):
         return cls(attachment_node=attachment_node)
-    
+
     @classmethod
     def get_subnodes(cls):
-        return {
-            "attach": cls.attachment_node,
-        }
+        return {"attach": cls.attachment_node}
 
     @classmethod
     def compose(cls, attach: Attachment) -> str:
@@ -32,13 +30,11 @@ class _File(FactoryNode):
 
     def __class_getitem__(cls, attachment_node: type[Attachment], /):
         return cls(attachment_node=attachment_node)
-    
+
     @classmethod
     def get_subnodes(cls):
-        return {
-            "file_id": FileId[cls.attachment_node],
-        }
-    
+        return {"file_id": _FileId[cls.attachment_node]}
+
     @classmethod
     async def compose(cls, file_id: str, api: API) -> tg_types.File:
         return (await api.get_file(file_id=file_id)).expect("File can't be downloaded.")

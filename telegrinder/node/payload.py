@@ -3,7 +3,7 @@ import typing
 
 from fntypes.result import Error, Ok
 
-from telegrinder.node.base import ComposeError, DataNode, FactoryNode, GlobalNode, ScalarNode
+from telegrinder.node.base import ComposeError, DataNode, FactoryNode, GlobalNode, scalar_node
 from telegrinder.node.callback_query import CallbackQueryNode
 from telegrinder.node.message import MessageNode
 from telegrinder.node.polymorphic import Polymorphic, impl
@@ -11,7 +11,8 @@ from telegrinder.node.pre_checkout_query import PreCheckoutQueryNode
 from telegrinder.tools.callback_data_serilization import ABCDataSerializer, JSONSerializer
 
 
-class Payload(Polymorphic, ScalarNode, str):
+@scalar_node(str)
+class Payload(Polymorphic):
     @impl
     def compose_pre_checkout_query(cls, event: PreCheckoutQueryNode) -> str:
         return event.invoice_payload

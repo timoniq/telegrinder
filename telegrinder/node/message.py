@@ -1,9 +1,10 @@
 from telegrinder.bot.cute_types.message import MessageCute
-from telegrinder.node.base import ComposeError, ScalarNode
+from telegrinder.node.base import ComposeError, scalar_node
 from telegrinder.node.update import UpdateNode
 
 
-class MessageNode(ScalarNode, MessageCute):
+@scalar_node()
+class MessageNode:
     @classmethod
     def compose(cls, update: UpdateNode) -> MessageCute:
         if not update.message:
