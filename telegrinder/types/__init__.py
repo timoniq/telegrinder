@@ -241,6 +241,7 @@ __all__ = (
     "TopicIconColor",
     "TransactionPartner",
     "TransactionPartnerAffiliateProgram",
+    "TransactionPartnerChat",
     "TransactionPartnerFragment",
     "TransactionPartnerOther",
     "TransactionPartnerTelegramAds",

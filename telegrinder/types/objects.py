@@ -17,6 +17,7 @@ class TransactionPartner(Model):
 
     This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
     - TransactionPartnerUser
+    - TransactionPartnerChat
     - TransactionPartnerAffiliateProgram
     - TransactionPartnerFragment
     - TransactionPartnerTelegramAds
@@ -1541,6 +1542,12 @@ class Video(Model):
 
     thumbnail: Option[PhotoSize] = field(default=UNSET, converter=From["PhotoSize | None"])
     """Optional. Video thumbnail."""
+
+    cover: Option[list[PhotoSize]] = field(default=UNSET, converter=From["list[PhotoSize] | None"])
+    """Optional. Available sizes of the cover of the video in the message."""
+
+    start_timestamp: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Timestamp in seconds from which the video will play in the message."""
 
     file_name: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Original filename as defined by the sender."""
@@ -3973,7 +3980,7 @@ class InputMediaVideo(InputMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
+    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -3981,6 +3988,16 @@ class InputMediaVideo(InputMedia):
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    cover: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
+    """Optional. Cover for the video in the message. Pass a file_id to send a file
+    that exists on the Telegram servers (recommended), pass an HTTP URL for
+    Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
+    to upload a new one using multipart/form-data under <file_attach_name>
+    name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    start_timestamp: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Start timestamp for the video in the message."""
 
     caption: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
@@ -4030,7 +4047,7 @@ class InputMediaAnimation(InputMedia):
     type: typing.Literal["animation"] = field(default="animation")
     """Type of the result, must be animation."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
+    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4084,7 +4101,7 @@ class InputMediaAudio(InputMedia):
     type: typing.Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
+    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4132,7 +4149,7 @@ class InputMediaDocument(InputMedia):
     type: typing.Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
+    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4192,7 +4209,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the media, must be video."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
+    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4200,6 +4217,16 @@ class InputPaidMediaVideo(InputPaidMedia):
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    cover: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
+    """Optional. Cover for the video in the message. Pass a file_id to send a file
+    that exists on the Telegram servers (recommended), pass an HTTP URL for
+    Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
+    to upload a new one using multipart/form-data under <file_attach_name>
+    name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    start_timestamp: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Start timestamp for the video in the message."""
 
     width: Option[int] = field(default=UNSET, converter=From[int | None])
     """Optional. Video width."""
@@ -6004,7 +6031,7 @@ class ShippingOption(Model):
 class SuccessfulPayment(Model):
     """Object `SuccessfulPayment`, see the [documentation](https://core.telegram.org/bots/api#successfulpayment).
 
-    This object contains basic information about a successful payment.
+    This object contains basic information about a successful payment. Note that if the buyer initiates a chargeback with the relevant payment provider following this transaction, the funds may be debited from your balance. This is outside of Telegram's control.
     """
 
     currency: Currency = field()
@@ -6230,6 +6257,22 @@ class TransactionPartnerUser(TransactionPartner):
     """Optional. The gift sent to the user by the bot."""
 
 
+class TransactionPartnerChat(TransactionPartner):
+    """Object `TransactionPartnerChat`, see the [documentation](https://core.telegram.org/bots/api#transactionpartnerchat).
+
+    Describes a transaction with a chat.
+    """
+
+    type: str = field()
+    """Type of the transaction partner, always `chat`."""
+
+    chat: Chat = field()
+    """Information about the chat."""
+
+    gift: Option[Gift] = field(default=UNSET, converter=From["Gift | None"])
+    """Optional. The gift sent to the chat by the bot."""
+
+
 class TransactionPartnerAffiliateProgram(TransactionPartner):
     """Object `TransactionPartnerAffiliateProgram`, see the [documentation](https://core.telegram.org/bots/api#transactionpartneraffiliateprogram).
 
@@ -6304,7 +6347,7 @@ class TransactionPartnerOther(TransactionPartner):
 class StarTransaction(Model):
     """Object `StarTransaction`, see the [documentation](https://core.telegram.org/bots/api#startransaction).
 
-    Describes a Telegram Star transaction.
+    Describes a Telegram Star transaction. Note that if the buyer initiates a chargeback with the payment provider from whom they acquired Stars (e.g., Apple, Google) following this transaction, the refunded Stars will be deducted from the bot's balance. This is outside of Telegram's control.
     """
 
     id: str = field()
@@ -6325,6 +6368,7 @@ class StarTransaction(Model):
     source: Option[
         Variative[
             TransactionPartnerUser,
+            TransactionPartnerChat,
             TransactionPartnerAffiliateProgram,
             TransactionPartnerFragment,
             TransactionPartnerTelegramAds,
@@ -6334,7 +6378,7 @@ class StarTransaction(Model):
     ] = field(
         default=UNSET,
         converter=From[
-            "TransactionPartnerUser | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
+            "TransactionPartnerUser | TransactionPartnerChat | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
         ],
     )
     """Optional. Source of an incoming transaction (e.g., a user purchasing goods
@@ -6344,6 +6388,7 @@ class StarTransaction(Model):
     receiver: Option[
         Variative[
             TransactionPartnerUser,
+            TransactionPartnerChat,
             TransactionPartnerAffiliateProgram,
             TransactionPartnerFragment,
             TransactionPartnerTelegramAds,
@@ -6353,7 +6398,7 @@ class StarTransaction(Model):
     ] = field(
         default=UNSET,
         converter=From[
-            "TransactionPartnerUser | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
+            "TransactionPartnerUser | TransactionPartnerChat | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
         ],
     )
     """Optional. Receiver of an outgoing transaction (e.g., a user for a purchase
@@ -6984,6 +7029,7 @@ __all__ = (
     "TextQuote",
     "TransactionPartner",
     "TransactionPartnerAffiliateProgram",
+    "TransactionPartnerChat",
     "TransactionPartnerFragment",
     "TransactionPartnerOther",
     "TransactionPartnerTelegramAds",

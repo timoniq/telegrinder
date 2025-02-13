@@ -362,6 +362,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
+        video_start_timestamp: int | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
@@ -406,9 +407,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         """Shortcut `API.set_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
 
         Use this method to change the chosen reactions on a message. Service messages
-        can't be reacted to. Automatically forwarded messages from a channel to
-        its discussion group have the same available reactions as messages in the
-        channel. Bots can't use paid reactions. Returns True on success."""
+        of some types can't be reacted to. Automatically forwarded messages from
+        a channel to its discussion group have the same available reactions as messages
+        in the channel. Bots can't use paid reactions. Returns True on success."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -431,6 +432,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_id: int | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = None,
+        video_start_timestamp: int | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.forward_message()`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
@@ -443,6 +445,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
 
         :param from_chat_id: Unique identifier for the chat where the original message was sent (or channelusername in the format @channelusername).
+
+        :param video_start_timestamp: New start timestamp for the forwarded video in the message.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the forwarded message from forwarding and saving.
@@ -836,6 +840,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
+        cover: InputFile | str | None = None,
         disable_notification: bool | None = None,
         duration: int | None = None,
         emoji: str | None = None,
@@ -847,6 +852,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
+        start_timestamp: int | None = None,
         supports_streaming: bool | None = None,
         thumbnail: InputFile | str | None = None,
         width: int | None = None,
@@ -872,6 +878,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param height: Video height.
 
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param cover: Cover for the video in the message. Pass a file_id to send a file that existson the Telegram servers (recommended), pass an HTTP URL for Telegram toget a file from the Internet, or pass `attach://<file_attach_name>` toupload a new one using multipart/form-data under <file_attach_name>name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param start_timestamp: Start timestamp for the video in the message.
+
         :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.
@@ -1779,6 +1788,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
+        cover: InputFile | str | None = None,
         disable_notification: bool | None = None,
         duration: int | None = None,
         emoji: str | None = None,
@@ -1790,6 +1800,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
+        start_timestamp: int | None = None,
         supports_streaming: bool | None = None,
         thumbnail: InputFile | str | None = None,
         width: int | None = None,
@@ -1815,6 +1826,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param height: Video height.
 
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param cover: Cover for the video in the message. Pass a file_id to send a file that existson the Telegram servers (recommended), pass an HTTP URL for Telegram toget a file from the Internet, or pass `attach://<file_attach_name>` toupload a new one using multipart/form-data under <file_attach_name>name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param start_timestamp: Start timestamp for the video in the message.
+
         :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.

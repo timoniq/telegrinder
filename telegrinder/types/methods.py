@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods[HTTPClient: ABCClient]:
-    """Telegram Bot API methods version 8.2, released `January 1, 2025`."""
+    """Telegram Bot API methods version 8.3, released `February 12, 2025`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -283,6 +283,7 @@ class APIMethods[HTTPClient: ABCClient]:
         from_chat_id: int | str,
         message_id: int,
         message_thread_id: int | None = None,
+        video_start_timestamp: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         **other: typing.Any,
@@ -301,6 +302,8 @@ class APIMethods[HTTPClient: ABCClient]:
 
         :param from_chat_id: Unique identifier for the chat where the original message was sent (or channel \
         username in the format @channelusername).
+
+        :param video_start_timestamp: New start timestamp for the forwarded video in the message.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -366,6 +369,7 @@ class APIMethods[HTTPClient: ABCClient]:
         from_chat_id: int | str,
         message_id: int,
         message_thread_id: int | None = None,
+        video_start_timestamp: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -396,6 +400,8 @@ class APIMethods[HTTPClient: ABCClient]:
         username in the format @channelusername).
 
         :param message_id: Message identifier in the chat specified in from_chat_id.
+
+        :param video_start_timestamp: New start timestamp for the copied video in the message.
 
         :param caption: New caption for media, 0-1024 characters after entities parsing. If not \
         specified, the original caption is kept.
@@ -741,6 +747,8 @@ class APIMethods[HTTPClient: ABCClient]:
         width: int | None = None,
         height: int | None = None,
         thumbnail: InputFile | str | None = None,
+        cover: InputFile | str | None = None,
+        start_timestamp: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -789,6 +797,14 @@ class APIMethods[HTTPClient: ABCClient]:
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
         More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+
+        :param cover: Cover for the video in the message. Pass a file_id to send a file that exists \
+        on the Telegram servers (recommended), pass an HTTP URL for Telegram to \
+        get a file from the Internet, or pass `attach://<file_attach_name>` to \
+        upload a new one using multipart/form-data under <file_attach_name> \
+        name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+
+        :param start_timestamp: Start timestamp for the video in the message.
 
         :param caption: Video caption (may also be used when resending videos by file_id), 0-1024 \
         characters after entities parsing.
@@ -1622,9 +1638,9 @@ class APIMethods[HTTPClient: ABCClient]:
         """Method `setMessageReaction`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
 
         Use this method to change the chosen reactions on a message. Service messages
-        can't be reacted to. Automatically forwarded messages from a channel to
-        its discussion group have the same available reactions as messages in the
-        channel. Bots can't use paid reactions. Returns True on success.
+        of some types can't be reacted to. Automatically forwarded messages from
+        a channel to its discussion group have the same available reactions as messages
+        in the channel. Bots can't use paid reactions. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -4234,8 +4250,8 @@ class APIMethods[HTTPClient: ABCClient]:
     async def get_available_gifts(self, **other: typing.Any) -> Result[Gifts, APIError]:
         """Method `getAvailableGifts`, see the [documentation](https://core.telegram.org/bots/api#getavailablegifts)
 
-        Returns the list of gifts that can be sent by the bot to users. Requires no
-        parameters. Returns a Gifts object.
+        Returns the list of gifts that can be sent by the bot to users and channel chats.
+        Requires no parameters. Returns a Gifts object.
         """
 
         method_response = await self.api.request_raw(
@@ -4247,8 +4263,9 @@ class APIMethods[HTTPClient: ABCClient]:
     async def send_gift(
         self,
         *,
-        user_id: int,
         gift_id: str,
+        user_id: int | None = None,
+        chat_id: int | str | None = None,
         pay_for_upgrade: bool | None = None,
         text: str | None = None,
         text_parse_mode: str | None = None,
@@ -4257,10 +4274,15 @@ class APIMethods[HTTPClient: ABCClient]:
     ) -> Result[bool, APIError]:
         """Method `sendGift`, see the [documentation](https://core.telegram.org/bots/api#sendgift)
 
-        Sends a gift to the given user. The gift can't be converted to Telegram Stars
-        by the user. Returns True on success.
+        Sends a gift to the given user or channel chat. The gift can't be converted
+        to Telegram Stars by the receiver. Returns True on success.
 
-        :param user_id: Unique identifier of the target user that will receive the gift.
+        :param user_id: Required if chat_id is not specified. Unique identifier of the target user \
+        who will receive the gift.
+
+        :param chat_id: Required if user_id is not specified. Unique identifier for the chat or \
+        username of the channel (in the format @channelusername) that will receive \
+        the gift.
 
         :param gift_id: Identifier of the gift.
 
