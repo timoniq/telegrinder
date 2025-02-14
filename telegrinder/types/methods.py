@@ -4289,7 +4289,7 @@ class APIMethods[HTTPClient: ABCClient]:
         :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby making \
         the upgrade free for the receiver.
 
-        :param text: Text that will be shown along with the gift; 0-255 characters.
+        :param text: Text that will be shown along with the gift; 0-128 characters.
 
         :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
         Entities other than `bold`, `italic`, `underline`, `strikethrough`, \

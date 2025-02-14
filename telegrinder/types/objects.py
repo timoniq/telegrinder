@@ -633,6 +633,9 @@ class ChatFullInfo(Model):
     permissions: Option[ChatPermissions] = field(default=UNSET, converter=From["ChatPermissions | None"])
     """Optional. Default chat member permissions, for groups and supergroups."""
 
+    can_send_gift: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if gifts can be sent to the chat."""
+
     can_send_paid_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if paid media messages can be sent or forwarded to the channel
     chat. The field is available only for channel chats."""
