@@ -11,6 +11,7 @@ from telegrinder.node.base import (
     ComposeError,
     IsNode,
     Name,
+    NodeImpersonation,
     NodeScope,
     unwrap_node,
 )
@@ -32,21 +33,19 @@ async def compose_node(
     linked: dict[type[typing.Any], typing.Any],
     data: dict[type[typing.Any], typing.Any] | None = None,
 ) -> "NodeSession":
-    _node = node.as_node()
-
-    subnodes = _node.get_subnodes()
-    kwargs = magic_bundle(_node.compose, join_dicts(subnodes, linked))
+    subnodes = node.get_subnodes()
+    kwargs = magic_bundle(node.compose, join_dicts(subnodes, linked))
 
     # Linking data via typebundle
     if data:
-        kwargs.update(magic_bundle(_node.compose, data, typebundle=True))
+        kwargs.update(magic_bundle(node.compose, data, typebundle=True))
 
-    if _node.is_generator():
-        generator = typing.cast(AsyncGenerator, _node.compose(**kwargs))
+    if node.is_generator():
+        generator = typing.cast(AsyncGenerator, node.compose(**kwargs))
         value = await generator.asend(None)
     else:
         generator = None
-        value = typing.cast(Awaitable | typing.Any, _node.compose(**kwargs))
+        value = typing.cast(Awaitable | typing.Any, node.compose(**kwargs))
         if inspect.isawaitable(value):
             value = await value
 
@@ -54,7 +53,7 @@ async def compose_node(
 
 
 async def compose_nodes(
-    nodes: dict[str, IsNode],
+    nodes: typing.Mapping[str, IsNode | NodeImpersonation],
     ctx: Context,
     data: dict[type[typing.Any], typing.Any] | None = None,
 ) -> Result["NodeCollection", ComposeError]:
@@ -63,7 +62,7 @@ async def compose_nodes(
     data = {Context: ctx} | (data or {})
     parent_nodes = dict[IsNode, NodeSession]()
     event_nodes: dict[IsNode, NodeSession] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
-    unwrapped_nodes = {pair: unwrap_node(pair[1]) for pair in nodes.items()}
+    unwrapped_nodes = {(key, node.as_node()): unwrap_node(node) for key, node in nodes.items()}
 
     for (parent_node_name, parent_node_t), linked_nodes in unwrapped_nodes.items():
         local_nodes = dict[IsNode, NodeSession]()
@@ -98,7 +97,7 @@ async def compose_nodes(
 
         parent_nodes[parent_node_t] = local_nodes[parent_node_t]
 
-    return Ok(NodeCollection({k: parent_nodes[t] for k, t in nodes.items()}))
+    return Ok(NodeCollection({k: parent_nodes[t] for k, t in unwrapped_nodes}))
 
 
 @dataclasses.dataclass(slots=True, repr=False)

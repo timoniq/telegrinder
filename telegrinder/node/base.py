@@ -221,32 +221,6 @@ class scalar_node[T]:  # noqa: N801
         return inner if x is None else inner(x)
 
 
-def scalar_nod(*_, scope=NodeScope.PER_EVENT):  # type: ignore
-    def wrapper[R](node_or_func, /):  # type: ignore
-        if isinstance(node_or_func, type):
-            bases: list[type[typing.Any]] = [node_or_func]
-            node_bases = resolve_bases(node_or_func.__bases__)
-            if not any(issubclass(base, Node) for base in node_bases if isinstance(base, type)):
-                bases.append(Node)
-            return type(
-                node_or_func.__name__,
-                tuple(bases),
-                {"node": "scalar", "scope": scope, "__module__": node_or_func.__module__},
-            )
-        else:
-            base_node = generate_node(
-                func=node_or_func,
-                subnodes=tuple(get_nodes(node_or_func).values()),
-            )
-            return type(
-                to_pascal_case(node_or_func.__name__),
-                (base_node,),
-                {"node": "scalar", "scope": scope},
-            )
-
-    return wrapper
-
-
 @typing.dataclass_transform(kw_only_default=True)
 class FactoryNode(Node, abc.ABC):
     node = "factory"
@@ -306,20 +280,20 @@ class GlobalNode[Value](Node):
 
 
 __all__ = (
+    "Composable",
     "ComposeError",
     "DataNode",
     "FactoryNode",
     "GlobalNode",
+    "IsNode",
     "Name",
     "Node",
+    "NodeImpersonation",
     "NodeProto",
     "NodeType",
-    "IsNode",
-    "Composable",
-    "NodeImpersonation",
+    "as_node",
+    "get_nodes",
+    "is_node",
     "scalar_node",
     "unwrap_node",
-    "get_nodes",
-    "as_node",
-    "is_node",
 )
