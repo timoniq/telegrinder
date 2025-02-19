@@ -9,7 +9,7 @@ from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules import IsUser, Markup
 from telegrinder.node import DataNode, Node, Polymorphic, impl, scalar_node
-from telegrinder.node.base import ComposeError
+from telegrinder.node.base import ComposeError, as_node
 from telegrinder.node.callback_query import CallbackQueryNode
 from telegrinder.node.composer import NodeCollection, compose_nodes
 from telegrinder.node.event import EventNode
@@ -49,7 +49,7 @@ class PrettyRuleChain(
     smile: str
 
 
-@scalar_node(int)
+@scalar_node[int]
 class ScalarMorphNode(Polymorphic):
     @impl
     async def impl1(cls, update: UpdateNode) -> int:
@@ -78,9 +78,9 @@ class StringNode(Node):
 @pytest.mark.asyncio()
 async def test_scalar_morph(api_instance, message_update):
     result = await compose_nodes(
-        {"scalar_morph": ScalarMorphNode},  # type: ignore
+        {"scalar_morph": as_node(ScalarMorphNode)},
         Context(),
-        {API: api_instance, Update: message_update},  # type: ignore
+        {API: api_instance, Update: message_update},
     )
     assert result
     assert isinstance(result.value, NodeCollection)
@@ -108,7 +108,7 @@ async def test_node(api_instance, message_update):
 @pytest.mark.asyncio()
 async def test_message_node(api_instance, message_update):
     result = await compose_nodes(
-        {"message": MessageNode},  # type: ignore
+        {"message": as_node(MessageNode)},
         Context(),
         {API: api_instance, Update: message_update},
     )
@@ -120,21 +120,22 @@ async def test_message_node(api_instance, message_update):
 @pytest.mark.asyncio()
 async def test_callback_query_node(api_instance, callback_query_update):
     result = await compose_nodes(
-        {"callback_query": CallbackQueryNode},  # type: ignore
+        {"callback_query": as_node(CallbackQueryNode)},
         Context(),
         {API: api_instance, Update: callback_query_update},
     )
     assert result
     assert isinstance(result.value, NodeCollection)
     assert "callback_query" in result.value.values and isinstance(
-        result.value.values["callback_query"], CallbackQueryCute
+        result.value.values["callback_query"],
+        CallbackQueryCute,
     )
 
 
 @pytest.mark.asyncio()
 @with_mocked_api(GET_ME_RAW_RESPONSE)
 async def test_me_node(api: API):
-    result = await compose_nodes({"me": Me}, Context(), {API: api})  # type: ignore
+    result = await compose_nodes({"me": as_node(Me)}, Context(), {API: api})
     assert result
     assert isinstance(result.value, NodeCollection)
     assert "me" in result.value.values and isinstance(result.value.values["me"], User)
@@ -144,7 +145,7 @@ async def test_me_node(api: API):
 @pytest.mark.asyncio()
 async def test_event_node_with_dict(api_instance, message_update):
     result = await compose_nodes(
-        {"event": EventNode[dict[str, typing.Any]]},  # type: ignore
+        {"event": as_node(EventNode[dict[str, typing.Any]])},
         Context(),
         {API: api_instance, Update: message_update, Context: Context()},
     )
@@ -157,7 +158,7 @@ async def test_event_node_with_dict(api_instance, message_update):
 @pytest.mark.asyncio()
 async def test_event_node_with_message_object(api_instance, message_update):
     result = await compose_nodes(
-        {"event": EventNode[Message]},  # type: ignore
+        {"event": as_node(EventNode[Message])},
         Context(),
         {API: api_instance, Update: message_update, Context: Context()},
     )
@@ -170,7 +171,7 @@ async def test_event_node_with_message_object(api_instance, message_update):
 @pytest.mark.asyncio()
 async def test_rule_chain(api_instance, message_update):
     result = await compose_nodes(
-        {"rule_chain": PrettyRuleChain},  # type: ignore
+        {"rule_chain": PrettyRuleChain},
         Context(),
         {API: api_instance, Update: message_update},
     )
@@ -182,7 +183,7 @@ async def test_rule_chain(api_instance, message_update):
     )
     assert dataclasses.is_dataclass(result.value.values["rule_chain"]) and dataclasses.asdict(
         result.value.values["rule_chain"]  # type: ignore
-    ) == {  # type: ignore
+    ) == {
         "framework": "Telegrinder",
         "logical_lang": "laurelang",
         "smile": "^_^",
@@ -192,7 +193,7 @@ async def test_rule_chain(api_instance, message_update):
 @pytest.mark.asyncio()
 async def test_node_generator(api_instance, message_update):
     MyNode = generate_node(  # noqa: N806
-        (Text,),  # type: ignore
+        (as_node(Text),),
         func=lambda text: text
         if text == "Hello, Telegrinder! btw, laurelang - nice pure logical programming launguage ^_^"
         else False,

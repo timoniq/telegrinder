@@ -9,12 +9,12 @@ from .node import NodeRule
 
 class HasText(NodeRule):
     def __init__(self) -> None:
-        super().__init__(node.text.Text)
+        super().__init__(node.as_node(node.text.Text))
 
 
 class HasCaption(NodeRule):
     def __init__(self) -> None:
-        super().__init__(node.text.Caption)
+        super().__init__(node.as_node(node.text.Caption))
 
 
 class Text(ABCRule):

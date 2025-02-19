@@ -17,7 +17,7 @@ from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
 from telegrinder.bot.rules.is_from import IsPrivate, IsUser
 from telegrinder.modules import logger
-from telegrinder.node import FileId, Me, Photo, UserId
+from telegrinder.node import FileId, Me, Photo, UserId, as_node
 from telegrinder.rules import CallbackDataEq, FuzzyText, HasText, IsUpdateType, Markup, Text
 from telegrinder.types import UpdateType
 from telegrinder.types.objects import InputFile
@@ -122,7 +122,7 @@ async def freeze_handler(message: Message):
     ).unwrap()
 
     with bot.on.global_middleware.apply_filters(
-        source_filter=(UserId, message.from_user.id, IsUpdateType(UpdateType.CALLBACK_QUERY)),
+        source_filter=(as_node(UserId), message.from_user.id, IsUpdateType(UpdateType.CALLBACK_QUERY)),
     ):
         cb, _ = await wm.wait(
             CALLBACK_QUERY_FOR_MESSAGE,

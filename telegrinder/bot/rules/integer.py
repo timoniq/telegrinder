@@ -1,3 +1,4 @@
+from telegrinder.node.base import as_node
 from telegrinder.node.text import TextInteger
 
 from .abc import ABCRule
@@ -6,7 +7,7 @@ from .node import NodeRule
 
 class IsInteger(NodeRule):
     def __init__(self) -> None:
-        super().__init__(TextInteger)
+        super().__init__(as_node(TextInteger))
 
 
 class IntegerInRange(ABCRule):

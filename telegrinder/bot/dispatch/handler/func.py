@@ -7,7 +7,7 @@ from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import logger
-from telegrinder.node.base import Node, get_nodes
+from telegrinder.node.base import IsNode, get_nodes
 from telegrinder.node.composer import NodeCollection, compose_nodes
 from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.tools.adapter.dataclass import DataclassAdapter
@@ -64,7 +64,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         )
 
     @cached_property
-    def required_nodes(self) -> dict[str, type[Node]]:
+    def required_nodes(self) -> dict[str, IsNode]:
         return get_nodes(self.function)
 
     def get_func_event_param(self, event: Event) -> str | None:

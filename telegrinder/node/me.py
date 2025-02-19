@@ -4,7 +4,7 @@ from telegrinder.node.scope import GLOBAL
 from telegrinder.types.objects import User
 
 
-@scalar_node()
+@scalar_node
 class Me:
     scope = GLOBAL
 

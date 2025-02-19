@@ -3,11 +3,10 @@ import typing
 import aiosqlite  # type: ignore
 
 from telegrinder.modules import logger
-from telegrinder.node import per_call, scalar_node
+from telegrinder.node import NodeScope, scalar_node
 
 
-@per_call
-@scalar_node()
+@scalar_node(scope=NodeScope.PER_CALL)
 class DB:
     @classmethod
     async def compose(cls) -> typing.AsyncGenerator[aiosqlite.Connection, None]:

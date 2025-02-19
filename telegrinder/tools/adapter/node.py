@@ -10,11 +10,11 @@ from telegrinder.tools.adapter.errors import AdapterError
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
-    from telegrinder.node.base import Node
+    from telegrinder.node.base import IsNode
 
 
-class NodeAdapter(ABCAdapter[Update, Event[tuple[type["Node"], ...]]]):
-    def __init__(self, *nodes: type["Node"]) -> None:
+class NodeAdapter(ABCAdapter[Update, Event[tuple["IsNode", ...]]]):
+    def __init__(self, *nodes: "IsNode") -> None:
         self.nodes = nodes
 
     def __repr__(self) -> str:
@@ -30,7 +30,7 @@ class NodeAdapter(ABCAdapter[Update, Event[tuple[type["Node"], ...]]]):
         context: Context,
     ) -> Result[Event[tuple[NodeSession, ...]], AdapterError]:
         result = await compose_nodes(
-            nodes={f"node_{i}": typing.cast(type["Node"], node) for i, node in enumerate(self.nodes)},
+            nodes={f"node_{i}": typing.cast("IsNode", node) for i, node in enumerate(self.nodes)},
             ctx=context,
             data={Update: update, API: api},
         )

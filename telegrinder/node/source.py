@@ -67,21 +67,21 @@ class Source(Polymorphic, DataNode):
         return result.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class ChatSource:
     @classmethod
     def compose(cls, source: Source) -> Chat:
         return source.chat.expect(ComposeError("Source has no chat."))
 
 
-@scalar_node()
+@scalar_node
 class UserSource:
     @classmethod
     def compose(cls, source: Source) -> User:
         return source.from_user
 
 
-@scalar_node()
+@scalar_node
 class UserId:
     @classmethod
     def compose(cls, user: UserSource) -> int:

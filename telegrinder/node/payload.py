@@ -11,7 +11,7 @@ from telegrinder.node.pre_checkout_query import PreCheckoutQueryNode
 from telegrinder.tools.callback_data_serilization import ABCDataSerializer, JSONSerializer
 
 
-@scalar_node(str)
+@scalar_node[str]
 class Payload(Polymorphic):
     @impl
     def compose_pre_checkout_query(cls, event: PreCheckoutQueryNode) -> str:

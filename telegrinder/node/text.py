@@ -5,7 +5,7 @@ from telegrinder.node.either import Either
 from telegrinder.node.message import MessageNode
 
 
-@scalar_node()
+@scalar_node
 class Caption:
     @classmethod
     def compose(cls, message: MessageNode) -> str:
@@ -14,7 +14,7 @@ class Caption:
         return message.caption.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class Text:
     @classmethod
     def compose(cls, message: MessageNode) -> str:
@@ -23,7 +23,7 @@ class Text:
         return message.text.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class TextInteger:
     @classmethod
     def compose(cls, text: Either[Text, Caption]) -> int:

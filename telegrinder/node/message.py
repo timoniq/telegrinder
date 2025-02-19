@@ -3,7 +3,7 @@ from telegrinder.node.base import ComposeError, scalar_node
 from telegrinder.node.update import UpdateNode
 
 
-@scalar_node()
+@scalar_node
 class MessageNode:
     @classmethod
     def compose(cls, update: UpdateNode) -> MessageCute:

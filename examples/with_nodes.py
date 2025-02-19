@@ -26,7 +26,7 @@ class IsAdmin(ABCRule):
         return bool(await result.fetchone())
 
 
-@scalar_node()
+@scalar_node
 class IncomingMessageId:
     @classmethod
     def compose(cls, message: MessageNode) -> MessageId:

@@ -52,8 +52,10 @@ class _Either(FactoryNode):
                 case Ok(col):
                     try:
                         session = await compose_node(
-                            _node=node,
-                            linked={n: col.sessions[name].value for name, n in subnodes.items()},
+                            node=node,
+                            linked={
+                                typing.cast(type, n): col.sessions[name].value for name, n in subnodes.items()
+                            },
                             data=data,
                         )
                     except ComposeError:
@@ -66,9 +68,7 @@ class _Either(FactoryNode):
 
                     return session.value
 
-        raise ComposeError(
-            "Cannot compose either nodes: {}.".format(", ".join(repr(n) for n in cls.nodes)),
-        )
+        raise ComposeError("Cannot compose either nodes: {}.".format(", ".join(repr(n) for n in cls.nodes)))
 
 
 if typing.TYPE_CHECKING:

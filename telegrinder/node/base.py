@@ -1,73 +1,167 @@
+from __future__ import annotations
+
 import abc
 import inspect
-from types import AsyncGeneratorType, resolve_bases
+from functools import wraps
+from types import AsyncGeneratorType, CodeType, resolve_bases
 
 import typing_extensions as typing
 
 from telegrinder.node.scope import NodeScope
 from telegrinder.tools.magic import cache_magic_value, get_annotations
+from telegrinder.tools.strings import to_pascal_case
+
+if typing.TYPE_CHECKING:
+    from telegrinder.node.tools.generator import generate_node
+else:
+
+    def generate_node(*args, **kwargs):
+        globalns = globals()
+        if "__generate_node" not in globalns:
+            import telegrinder.node.tools.generator
+
+            globals()["__generate_node"] = telegrinder.node.tools.generator.generate_node
+
+        return globals()["__generate_node"](*args, **kwargs)
+
+
+type NodeType = Node | NodeProto[typing.Any]
+type IsNode = NodeType | type[NodeType]
 
 T = typing.TypeVar("T", default=typing.Any)
-X = typing.TypeVar("X", default=typing.Never)
 
 ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerator[T, None]
 
-
-@typing.overload
-def is_node(maybe_node: type[typing.Any], /) -> typing.TypeGuard[type["Node"]]: ...
+UNWRAPPED_NODE_KEY = "__unwrapped_node__"
 
 
 @typing.overload
-def is_node(maybe_node: typing.Any, /) -> typing.TypeGuard["Node"]: ...
+def is_node(maybe_node: type[typing.Any], /) -> typing.TypeIs[type[NodeType]]: ...
 
 
-def is_node(maybe_node: typing.Any, /) -> typing.TypeGuard["Node | type[Node]"]:
+@typing.overload
+def is_node(maybe_node: typing.Any, /) -> typing.TypeIs[NodeType]: ...
+
+
+def is_node(maybe_node: typing.Any, /) -> bool:
     if isinstance(maybe_node, typing.TypeAliasType):
         maybe_node = maybe_node.__value__
     if not isinstance(maybe_node, type):
         maybe_node = typing.get_origin(maybe_node) or maybe_node
 
     return (
-        isinstance(maybe_node, type)
-        and issubclass(maybe_node, Node)
-        or isinstance(maybe_node, Node)
-        or hasattr(maybe_node, "as_node")
+        hasattr(maybe_node, "as_node")
+        or isinstance(maybe_node, type)
+        and issubclass(maybe_node, (Node, NodeProto))
+        or not isinstance(maybe_node, type)
+        and isinstance(maybe_node, (Node, NodeProto))
     )
 
 
+@typing.overload
+def as_node(maybe_node: type[typing.Any], /) -> type[NodeType]: ...
+
+
+@typing.overload
+def as_node(maybe_node: typing.Any, /) -> NodeType: ...
+
+
+@typing.overload
+def as_node(*maybe_nodes: type[typing.Any]) -> tuple[type[NodeType], ...]: ...
+
+
+@typing.overload
+def as_node(*maybe_nodes: typing.Any) -> tuple[NodeType, ...]: ...
+
+
+@typing.overload
+def as_node(*maybe_nodes: type[typing.Any] | typing.Any) -> tuple[IsNode, ...]: ...
+
+
+def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
+    for maybe_node in maybe_nodes:
+        if not is_node(maybe_node):
+            is_type = isinstance(maybe_node, type)
+            raise LookupError(
+                f"{'Type of' if is_type else 'Object of type'} "
+                f"{maybe_node.__name__ if is_type else maybe_node.__class__.__name__!r} "
+                "cannot be resolved as Node."
+            )
+    return maybe_nodes[0] if len(maybe_nodes) == 1 else maybe_nodes
+
+
 @cache_magic_value("__nodes__")
-def get_nodes(function: typing.Callable[..., typing.Any]) -> dict[str, type["Node"]]:
+def get_nodes(function: typing.Callable[..., typing.Any], /) -> dict[str, IsNode]:
     return {k: v for k, v in get_annotations(function).items() if is_node(v)}
 
 
 @cache_magic_value("__is_generator__")
 def is_generator(
     function: typing.Callable[..., typing.Any],
+    /,
 ) -> typing.TypeGuard[AsyncGeneratorType[typing.Any, None]]:
     return inspect.isasyncgenfunction(function)
 
 
-def get_node_calc_lst(node: type["Node"]) -> list[type["Node"]]:
-    """Returns flattened list of node types in ordering required to calculate given node.
-    Provides caching for passed node type.
+def cache_unwrapped_node(
+    func: typing.Callable[[IsNode], tuple[IsNode, ...]],
+    /,
+) -> typing.Callable[[IsNode | NodeImpersonation], tuple[IsNode, ...]]:
+    @wraps(func)
+    def wrapper(node: IsNode | NodeImpersonation, /) -> tuple[IsNode, ...]:
+        _node = node.as_node()
+        if (unwrapped := getattr(_node, UNWRAPPED_NODE_KEY, None)) is not None:
+            return unwrapped
+        unwrapped = func(_node)
+        unwrapped += (_node,)
+        setattr(_node, UNWRAPPED_NODE_KEY, unwrapped)
+        return unwrapped
+
+    return wrapper
+
+
+@cache_unwrapped_node
+def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
+    """Unwrap node as flattened tuple of node in ordering required to calculate given node.
+
+    Provides caching for passed node.
     """
-    if calc_lst := getattr(node, "__nodes_calc_lst__", None):
-        return calc_lst
-    nodes_lst: list[type[Node]] = []
-    for node_type in node.as_node().get_subnodes().values():
-        nodes_lst.extend(get_node_calc_lst(node_type))
-    calc_lst = [*nodes_lst, node]
-    setattr(node, "__nodes_calc_lst__", calc_lst)
-    return calc_lst
+
+    unwrapped = tuple[IsNode, ...]()
+    for node_type in node.get_subnodes().values():
+        unwrapped += unwrap_node(node_type)
+    return unwrapped
 
 
 class ComposeError(BaseException):
     pass
 
 
-class NodeProto[T](typing.Protocol):
+@typing.runtime_checkable
+class Composable[R](typing.Protocol):
     @classmethod
-    def compose(cls, *args: typing.Any, **kwargs: typing.Any) -> ComposeResult[T]: ...
+    def compose(cls, *args: typing.Any, **kwargs: typing.Any) -> ComposeResult[R]: ...
+
+
+class NodeImpersonation(typing.Protocol):
+    @classmethod
+    def as_node(cls) -> type["NodeProto[typing.Any]"]: ...
+
+
+class NodeComposeFunction[R](typing.Protocol):
+    __name__: str
+    __code__: CodeType
+
+    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> ComposeResult[R]: ...
+
+
+@typing.runtime_checkable
+class NodeProto[R](Composable[R], NodeImpersonation, typing.Protocol):
+    @classmethod
+    def get_subnodes(cls) -> dict[str, IsNode]: ...
+
+    @classmethod
+    def is_generator(cls) -> bool: ...
 
 
 class Node(abc.ABC):
@@ -80,11 +174,7 @@ class Node(abc.ABC):
         pass
 
     @classmethod
-    def compose_error(cls, error: str | None = None) -> typing.NoReturn:
-        raise ComposeError(error)
-
-    @classmethod
-    def get_subnodes(cls) -> dict[str, type["Node"]]:
+    def get_subnodes(cls) -> dict[str, IsNode]:
         return get_nodes(cls.compose)
 
     @classmethod
@@ -96,21 +186,63 @@ class Node(abc.ABC):
         return is_generator(cls.compose)
 
 
-@typing.overload
-def scalar_node[T]() -> typing.Callable[[type[NodeProto[T]]], type[T]]: ...
+class scalar_node[T]:  # noqa: N801
+    @typing.overload
+    def __new__(cls, x: NodeComposeFunction[Composable[T]], /) -> type[T]: ...
+
+    @typing.overload
+    def __new__(cls, x: NodeComposeFunction[T], /) -> type[T]: ...
+
+    @typing.overload
+    def __new__(
+        cls,
+        /,
+        *,
+        scope: NodeScope,
+    ) -> typing.Callable[[NodeComposeFunction[Composable[T]] | NodeComposeFunction[T]], type[T]]: ...
+
+    def __new__(cls, x=None, /, *, scope=NodeScope.PER_EVENT) -> typing.Any:
+        def inner(node_or_func, /) -> typing.Any:
+            namespace = {"node": "scalar", "scope": scope, "__module__": node_or_func.__module__}
+
+            if isinstance(node_or_func, type):
+                bases: list[type[typing.Any]] = [node_or_func]
+                node_bases = resolve_bases(node_or_func.__bases__)
+                if not any(issubclass(base, Node) for base in node_bases if isinstance(base, type)):
+                    bases.append(Node)
+                return type(node_or_func.__name__, tuple(bases), namespace)
+            else:
+                base_node = generate_node(
+                    func=node_or_func,
+                    subnodes=tuple(get_nodes(node_or_func).values()),
+                )
+                return type(to_pascal_case(node_or_func.__name__), (base_node,), namespace)
+
+        return inner if x is None else inner(x)
 
 
-@typing.overload
-def scalar_node[T](*types: type[T]) -> typing.Callable[[type[NodeProto[typing.Any]]], type[T]]: ...
-
-
-def scalar_node(*types):
-    def wrapper[R](node, /):
-        bases: list[type[typing.Any]] = [node]
-        node_bases = resolve_bases(node.__bases__)
-        if not any(issubclass(base, Node) for base in node_bases if isinstance(base, type)):
-            bases.append(Node)
-        return type("Scalar" + node.__name__, tuple(bases), {})  # type: ignore
+def scalar_nod(*_, scope=NodeScope.PER_EVENT):  # type: ignore
+    def wrapper[R](node_or_func, /):  # type: ignore
+        if isinstance(node_or_func, type):
+            bases: list[type[typing.Any]] = [node_or_func]
+            node_bases = resolve_bases(node_or_func.__bases__)
+            if not any(issubclass(base, Node) for base in node_bases if isinstance(base, type)):
+                bases.append(Node)
+            return type(
+                node_or_func.__name__,
+                tuple(bases),
+                {"node": "scalar", "scope": scope, "__module__": node_or_func.__module__},
+            )
+        else:
+            base_node = generate_node(
+                func=node_or_func,
+                subnodes=tuple(get_nodes(node_or_func).values()),
+            )
+            return type(
+                to_pascal_case(node_or_func.__name__),
+                (base_node,),
+                {"node": "scalar", "scope": scope},
+            )
 
     return wrapper
 
@@ -140,7 +272,7 @@ class DataNode(Node, abc.ABC):
         pass
 
 
-@scalar_node()
+@scalar_node(scope=NodeScope.PER_CALL)
 class Name:
     @classmethod
     def compose(cls) -> str: ...
@@ -180,7 +312,14 @@ __all__ = (
     "GlobalNode",
     "Name",
     "Node",
+    "NodeProto",
+    "NodeType",
+    "IsNode",
+    "Composable",
+    "NodeImpersonation",
     "scalar_node",
+    "unwrap_node",
     "get_nodes",
+    "as_node",
     "is_node",
 )

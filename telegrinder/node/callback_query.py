@@ -8,7 +8,7 @@ from telegrinder.node.base import ComposeError, FactoryNode, Name, scalar_node
 from telegrinder.node.update import UpdateNode
 
 
-@scalar_node()
+@scalar_node
 class CallbackQueryNode:
     @classmethod
     def compose(cls, update: UpdateNode) -> CallbackQueryCute:
@@ -17,17 +17,17 @@ class CallbackQueryNode:
         return update.callback_query.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class CallbackQueryData:
     @classmethod
     def compose(cls, callback_query: CallbackQueryNode) -> str:
         return callback_query.data.expect(ComposeError("Cannot complete decode callback query data."))
 
 
-@scalar_node()
+@scalar_node
 class CallbackQueryDataJson:
     @classmethod
-    def compose(cls, callback_query: CallbackQueryNode) -> dict[str, typing.Any]:
+    def compose(cls, callback_query: CallbackQueryNode) -> dict:
         return callback_query.decode_data().expect(
             ComposeError("Cannot complete decode callback query data."),
         )

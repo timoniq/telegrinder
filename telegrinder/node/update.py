@@ -4,7 +4,7 @@ from telegrinder.node.base import scalar_node
 from telegrinder.types.objects import Update
 
 
-@scalar_node()
+@scalar_node
 class UpdateNode:
     @classmethod
     def compose(cls, update: Update, api: API) -> UpdateCute:

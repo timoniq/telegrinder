@@ -68,7 +68,7 @@ class Attachment(DataNode):
             match getattr(message, attachment_type, Nothing()):
                 case Some(attachment):
                     return cls(attachment_type, **{attachment_type: Some(attachment)})
-        return cls.compose_error("No attachment found in message.")
+        raise ComposeError("No attachment found in message.")
 
 
 @dataclasses.dataclass(slots=True)
@@ -82,7 +82,7 @@ class Photo(DataNode):
         return cls(attachment.photo.unwrap())
 
 
-@scalar_node()
+@scalar_node
 class Video:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Video:
@@ -91,7 +91,7 @@ class Video:
         return attachment.video.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class VideoNote:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.VideoNote:
@@ -100,7 +100,7 @@ class VideoNote:
         return attachment.video_note.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class Audio:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Audio:
@@ -109,7 +109,7 @@ class Audio:
         return attachment.audio.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class Animation:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Animation:
@@ -118,7 +118,7 @@ class Animation:
         return attachment.animation.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class Voice:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Voice:
@@ -127,7 +127,7 @@ class Voice:
         return attachment.voice.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class Document:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Document:
@@ -136,7 +136,7 @@ class Document:
         return attachment.document.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class Poll:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.Poll:
@@ -145,7 +145,7 @@ class Poll:
         return attachment.poll.unwrap()
 
 
-@scalar_node()
+@scalar_node
 class SuccessfulPayment:
     @classmethod
     def compose(cls, attachment: Attachment) -> telegrinder.types.SuccessfulPayment:

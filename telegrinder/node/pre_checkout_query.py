@@ -3,7 +3,7 @@ from telegrinder.node.base import scalar_node
 from telegrinder.node.update import UpdateNode
 
 
-@scalar_node()
+@scalar_node
 class PreCheckoutQueryNode:
     @classmethod
     def compose(cls, update: UpdateNode) -> PreCheckoutQueryCute:
