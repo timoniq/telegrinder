@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import inspect
-from functools import wraps
+from collections import deque
 from types import AsyncGeneratorType, CodeType, resolve_bases
 
 import typing_extensions as typing
@@ -103,33 +103,29 @@ def is_generator(
     return inspect.isasyncgenfunction(function)
 
 
-def cache_unwrapped_node(
-    func: typing.Callable[[IsNode], tuple[IsNode, ...]],
-    /,
-) -> typing.Callable[[IsNode | NodeImpersonation], tuple[IsNode, ...]]:
-    @wraps(func)
-    def wrapper(node: IsNode | NodeImpersonation, /) -> tuple[IsNode, ...]:
-        _node = node.as_node()
-        if (unwrapped := getattr(_node, UNWRAPPED_NODE_KEY, None)) is not None:
-            return unwrapped
-        unwrapped = func(_node)
-        unwrapped += (_node,)
-        setattr(_node, UNWRAPPED_NODE_KEY, unwrapped)
+def unwrap_node(node: type[NodeType], /) -> tuple[type[NodeType], ...]:
+    """Unwrap node as flattened tuple of node types in ordering required to calculate given node.
+
+    Provides caching for passed node type.
+    """
+    if (unwrapped := getattr(node, UNWRAPPED_NODE_KEY, None)) is not None:
         return unwrapped
 
-    return wrapper
+    stack = deque([(node, node.get_subnodes().values())])
+    visited = list[type[NodeType]]()
 
+    while stack:
+        parent, child_nodes = stack.pop()
 
-@cache_unwrapped_node
-def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
-    """Unwrap node as flattened tuple of node in ordering required to calculate given node.
+        if parent not in visited:
+            visited.insert(0, parent)
 
-    Provides caching for passed node.
-    """
+        for child in child_nodes:
+            parent_child = child.as_node()
+            stack.append((parent_child, parent_child.get_subnodes().values()))
 
-    unwrapped = tuple[IsNode, ...]()
-    for node_type in node.get_subnodes().values():
-        unwrapped += unwrap_node(node_type)
+    unwrapped = tuple(visited)
+    setattr(node, UNWRAPPED_NODE_KEY, unwrapped)
     return unwrapped
 
 
@@ -145,7 +141,7 @@ class Composable[R](typing.Protocol):
 
 class NodeImpersonation(typing.Protocol):
     @classmethod
-    def as_node(cls) -> type["NodeProto[typing.Any]"]: ...
+    def as_node(cls) -> type[NodeProto[typing.Any]]: ...
 
 
 class NodeComposeFunction[R](typing.Protocol):

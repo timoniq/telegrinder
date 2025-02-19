@@ -102,8 +102,22 @@ from .modules import logger
 from .tools.error_handler import ABCErrorHandler, ErrorHandler
 from .tools.formatting import HTMLFormatter
 from .tools.global_context import ABCGlobalContext, CtxVar, GlobalContext, ctx_var
-from .tools.i18n import ABCTranslator, ABCTranslatorMiddleware, I18nEnum, SimpleI18n, SimpleTranslator
-from .tools.keyboard import AnyMarkup, Button, InlineButton, InlineKeyboard, Keyboard, RowButtons
+from .tools.i18n import (
+    ABCTranslator,
+    ABCTranslatorMiddleware,
+    I18nEnum,
+    SimpleI18n,
+    SimpleTranslator,
+)
+from .tools.input_file_directory import InputFileDirectory
+from .tools.keyboard import (
+    AnyMarkup,
+    Button,
+    InlineButton,
+    InlineKeyboard,
+    Keyboard,
+    RowButtons,
+)
 from .tools.lifespan import Lifespan
 from .tools.loop_wrapper import ABCLoopWrapper, DelayedTask, LoopWrapper
 from .tools.magic import cache_translation, get_cached_translation, magic_bundle
@@ -186,6 +200,7 @@ __all__ = (
     "InlineQueryCute",
     "InlineQueryReturnManager",
     "InlineQueryRule",
+    "InputFileDirectory",
     "Keyboard",
     "Lifespan",
     "LoopWrapper",

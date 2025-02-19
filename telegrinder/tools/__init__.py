@@ -7,7 +7,11 @@ from .adapter import (
     RawUpdateAdapter,
 )
 from .buttons import BaseButton
-from .callback_data_serilization import ABCDataSerializer, JSONSerializer, MsgPackSerializer
+from .callback_data_serilization import (
+    ABCDataSerializer,
+    JSONSerializer,
+    MsgPackSerializer,
+)
 from .error_handler import ABCErrorHandler, Catcher, CatcherError, ErrorHandler
 from .formatting import (
     Base,
@@ -74,6 +78,7 @@ from .i18n import (
     SimpleI18n,
     SimpleTranslator,
 )
+from .input_file_directory import InputFileDirectory
 from .keyboard import (
     AnyMarkup,
     Button,
@@ -95,12 +100,7 @@ from .magic import (
     magic_bundle,
     resolve_arg_names,
 )
-from .paginator import (
-    Page,
-    PaginatedData,
-    Paginator,
-    PaginatorItem,
-)
+from .paginator import Page, PaginatedData, Paginator, PaginatorItem
 from .parse_mode import ParseMode
 from .state_storage import ABCStateStorage, MemoryStateStorage, StateData
 
@@ -133,6 +133,7 @@ __all__ = (
     "I18nEnum",
     "InlineButton",
     "InlineKeyboard",
+    "InputFileDirectory",
     "JSONSerializer",
     "Keyboard",
     "Lifespan",

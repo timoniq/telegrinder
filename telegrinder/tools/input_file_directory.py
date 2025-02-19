@@ -5,7 +5,7 @@ from telegrinder.types.objects import InputFile
 
 
 @dataclasses.dataclass
-class InputFileManager:
+class InputFileDirectory:
     directory: pathlib.Path
     storage: dict[str, InputFile] = dataclasses.field(init=False, repr=False)
 
@@ -27,4 +27,4 @@ class InputFileManager:
         return self.storage[filename]
 
 
-__all__ = ("InputFileManager",)
+__all__ = ("InputFileDirectory",)

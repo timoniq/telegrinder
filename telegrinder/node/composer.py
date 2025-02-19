@@ -62,7 +62,7 @@ async def compose_nodes(
     data = {Context: ctx} | (data or {})
     parent_nodes = dict[IsNode, NodeSession]()
     event_nodes: dict[IsNode, NodeSession] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
-    unwrapped_nodes = {(key, node.as_node()): unwrap_node(node) for key, node in nodes.items()}
+    unwrapped_nodes = {(key, n := node.as_node()): unwrap_node(n) for key, node in nodes.items()}
 
     for (parent_node_name, parent_node_t), linked_nodes in unwrapped_nodes.items():
         local_nodes = dict[IsNode, NodeSession]()
