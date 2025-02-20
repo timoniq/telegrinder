@@ -1,18 +1,17 @@
 from telegrinder import (
     API,
     Message,
-    MessageReplyHandler,
     MessageRule,
     Telegrinder,
     Token,
 )
-from telegrinder.bot import Context, WaiterMachine
+from telegrinder.bot import MESSAGE_FROM_USER, Context, WaiterMachine
 from telegrinder.modules import logger
 from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine()
+wm = WaiterMachine(bot.dispatch)
 
 logger.set_level("INFO")
 
@@ -31,16 +30,15 @@ class HasNicePhoto(MessageRule, requires=[HasPhoto()]):
 async def start_handler(m: Message):
     await m.answer("Send me a photo please")
     m, _ = await wm.wait(
-        bot.dispatch.message,
-        m,
-        HasPhoto(),
-        default=MessageReplyHandler("Waiting for the photo", as_reply=True),
+        MESSAGE_FROM_USER,
+        m.from_user.id,
+        release=HasPhoto(),
     )
     await m.reply("Great photo! Chain completed.")
 
 
 @bot.on.message(HasNicePhoto())
-async def nice_photo_handler(m: Message):
+async def dad_photo_handler(m: Message):
     await m.reply("Wow this photo is really nice")
 
 

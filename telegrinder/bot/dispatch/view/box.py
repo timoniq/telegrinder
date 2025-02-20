@@ -8,21 +8,31 @@ from telegrinder.bot.dispatch.view import (
     chat_member,
     inline_query,
     message,
+    pre_checkout_query,
     raw,
 )
-from telegrinder.bot.dispatch.view.abc import ABCView
+from telegrinder.bot.dispatch.view.abc import ABCEventRawView, ABCView
 from telegrinder.types.enums import UpdateType
 
 CallbackQueryView = typing.TypeVar(
-    "CallbackQueryView", bound=ABCView, default=callback_query.CallbackQueryView
+    "CallbackQueryView",
+    bound=ABCView,
+    default=callback_query.CallbackQueryView,
+)
+PreCheckoutQueryView = typing.TypeVar(
+    "PreCheckoutQueryView",
+    bound=ABCView,
+    default=pre_checkout_query.PreCheckoutQueryView,
 )
 ChatJoinRequestView = typing.TypeVar(
-    "ChatJoinRequestView", bound=ABCView, default=chat_join_request.ChatJoinRequestView
+    "ChatJoinRequestView",
+    bound=ABCView,
+    default=chat_join_request.ChatJoinRequestView,
 )
 ChatMemberView = typing.TypeVar("ChatMemberView", bound=ABCView, default=chat_member.ChatMemberView)
 InlineQueryView = typing.TypeVar("InlineQueryView", bound=ABCView, default=inline_query.InlineQueryView)
 MessageView = typing.TypeVar("MessageView", bound=ABCView, default=message.MessageView)
-RawEventView = typing.TypeVar("RawEventView", bound=ABCView, default=raw.RawEventView)
+RawEventView = typing.TypeVar("RawEventView", bound=ABCEventRawView, default=raw.RawEventView)
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -33,6 +43,7 @@ class ViewBox(
         ChatMemberView,
         InlineQueryView,
         MessageView,
+        PreCheckoutQueryView,
         RawEventView,
     ],
 ):
@@ -44,6 +55,7 @@ class ViewBox(
     message_view: dataclasses.InitVar[MessageView | None] = None
     business_message_view: dataclasses.InitVar[MessageView | None] = None
     channel_post_view: dataclasses.InitVar[MessageView | None] = None
+    pre_checkout_query_view: dataclasses.InitVar[PreCheckoutQueryView | None] = None
     edited_message_view: dataclasses.InitVar[MessageView | None] = None
     edited_business_message_view: dataclasses.InitVar[MessageView | None] = None
     edited_channel_post_view: dataclasses.InitVar[MessageView | None] = None
@@ -66,6 +78,7 @@ class ViewBox(
         edited_channel_post_view: MessageView | None = None,
         any_message_view: MessageView | None = None,
         chat_member_updated_view: ChatMemberView | None = None,
+        pre_checkout_query_view: PreCheckoutQueryView | None = None,
         raw_event_view: RawEventView | None = None,
     ) -> None:
         self.callback_query = typing.cast(
@@ -106,12 +119,15 @@ class ViewBox(
         )
         self.edited_business_message = typing.cast(
             MessageView,
-            edited_business_message_view
-            or message.MessageView(update_type=UpdateType.EDITED_BUSINESS_MESSAGE),
+            edited_business_message_view or message.MessageView(update_type=UpdateType.EDITED_BUSINESS_MESSAGE),
         )
         self.edited_channel_post = typing.cast(
             MessageView,
             edited_channel_post_view or message.MessageView(update_type=UpdateType.EDITED_CHANNEL_POST),
+        )
+        self.pre_checkout_query = typing.cast(
+            PreCheckoutQueryView,
+            pre_checkout_query_view or pre_checkout_query.PreCheckoutQueryView(),
         )
         self.any_message = typing.cast(MessageView, any_message_view or message.MessageView())
         self.chat_member_updated = typing.cast(
@@ -119,11 +135,6 @@ class ViewBox(
             chat_member_updated_view or chat_member.ChatMemberView(),
         )
         self.raw_event = typing.cast(RawEventView, raw_event_view or raw.RawEventView())
-
-    def get_views(self) -> dict[str, ABCView]:
-        """Get all views."""
-
-        return {name: view for name, view in self.__dict__.items() if isinstance(view, ABCView)}
 
 
 __all__ = ("ViewBox",)

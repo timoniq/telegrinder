@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 import msgspec
 
-from telegrinder.types import Update
+from telegrinder.types.objects import Update
 
 
 class ABCPolling(ABC):

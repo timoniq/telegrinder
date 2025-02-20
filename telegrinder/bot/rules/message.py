@@ -1,17 +1,15 @@
 import abc
+import typing
 
-from telegrinder.bot.dispatch.context import Context
+from telegrinder.tools.adapter.event import EventAdapter
 from telegrinder.types.objects import Message as MessageEvent
 
-from .abc import ABCRule, Message
-from .adapter import EventAdapter
+from .abc import ABCRule, CheckResult, Message
 
 
-class MessageRule(ABCRule[Message], abc.ABC):
-    adapter: EventAdapter[Message] = EventAdapter(MessageEvent, Message)
-
+class MessageRule(ABCRule[Message], abc.ABC, adapter=EventAdapter(MessageEvent, Message)):
     @abc.abstractmethod
-    async def check(self, message: Message, ctx: Context) -> bool: ...
+    def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
 
 
 __all__ = ("MessageRule",)

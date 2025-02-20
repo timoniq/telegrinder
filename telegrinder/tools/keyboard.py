@@ -1,20 +1,24 @@
 import dataclasses
 import typing
 from abc import ABC, abstractmethod
-from types import NoneType
 
-from fntypes.option import Nothing, Some
+from fntypes.option import Some
 
+from telegrinder.model import is_none
 from telegrinder.types.objects import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
 )
 
-from .buttons import Button, ButtonT, InlineButton, RowButtons
+from .buttons import BaseButton, Button, InlineButton, RowButtons
 
-DictStrAny: typing.TypeAlias = dict[str, typing.Any]
-AnyMarkup: typing.TypeAlias = InlineKeyboardMarkup | ReplyKeyboardMarkup
+type DictStrAny = dict[str, typing.Any]
+type AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
+
+
+def copy_keyboard(keyboard: list[list[DictStrAny]]) -> list[list[DictStrAny]]:
+    return [row.copy() for row in keyboard]
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
@@ -26,8 +30,8 @@ class KeyboardModel:
     keyboard: list[list[DictStrAny]]
 
 
-class ABCMarkup(ABC, typing.Generic[ButtonT]):
-    BUTTON: type[ButtonT]
+class ABCMarkup[KeyboardButton: BaseButton](ABC):
+    BUTTON: type[KeyboardButton]
     keyboard: list[list[DictStrAny]]
 
     @abstractmethod
@@ -42,8 +46,8 @@ class ABCMarkup(ABC, typing.Generic[ButtonT]):
     def get_empty_markup(cls) -> AnyMarkup:
         return cls().get_markup()
 
-    def add(self, row_or_button: RowButtons[ButtonT] | ButtonT) -> typing.Self:
-        if not len(self.keyboard):
+    def add(self, row_or_button: RowButtons[KeyboardButton] | KeyboardButton, /) -> typing.Self:
+        if not self.keyboard:
             self.row()
 
         if isinstance(row_or_button, RowButtons):
@@ -57,7 +61,7 @@ class ABCMarkup(ABC, typing.Generic[ButtonT]):
 
     def row(self) -> typing.Self:
         if len(self.keyboard) and not len(self.keyboard[-1]):
-            raise RuntimeError("Last row is empty!")
+            return self
 
         self.keyboard.append([])
         return self
@@ -73,7 +77,7 @@ class ABCMarkup(ABC, typing.Generic[ButtonT]):
         return copy_keyboard
 
     def merge(self, other: typing.Self) -> typing.Self:
-        self.keyboard.extend(other.keyboard)
+        self.keyboard.extend(copy_keyboard(other.keyboard))
         return self
 
 
@@ -94,15 +98,15 @@ class Keyboard(ABCMarkup[Button], KeyboardModel):
         self.keyboard = [row for row in self.keyboard if row]
         return {
             k: v.unwrap() if v and isinstance(v, Some) else v
-            for k, v in self.__dict__.items()
-            if type(v) not in (NoneType, Nothing)
+            for k, v in dataclasses.asdict(self).items()
+            if not is_none(v)
         }
 
     def get_markup(self) -> ReplyKeyboardMarkup:
         return ReplyKeyboardMarkup(**self.dict())
 
     def keyboard_remove(self, *, selective: bool = False) -> ReplyKeyboardRemove:
-        return ReplyKeyboardRemove(remove_keyboard=True, selective=Some(selective))
+        return ReplyKeyboardRemove(remove_keyboard=True, selective=selective)
 
 
 class InlineKeyboard(ABCMarkup[InlineButton]):
@@ -124,4 +128,5 @@ __all__ = (
     "InlineKeyboard",
     "Keyboard",
     "KeyboardModel",
+    "copy_keyboard",
 )

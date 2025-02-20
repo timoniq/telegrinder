@@ -1,13 +1,7 @@
-from telegrinder import API, Dispatch, Telegrinder, Token
 from telegrinder.modules import logger
 
-from . import admin, start, with_enum
+from .client import bot, dp
 
-dp = Dispatch()
 logger.set_level("INFO")
-
-for blueprint in (admin, start, with_enum):
-    dp.load(blueprint.dp)
-
-bot = Telegrinder(API(Token.from_env()), dispatch=dp)
+dp.load_from_dir("handlers")
 bot.run_forever()

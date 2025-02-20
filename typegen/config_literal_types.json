@@ -195,6 +195,17 @@
             ]
         },
         {
+            "name": "InaccessibleMessage",
+            "fields": [
+                {
+                    "name": "date",
+                    "literals": [
+                        0
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Dice",
             "fields": [
                 {
@@ -306,6 +317,17 @@
             ]
         },
         {
+            "name": "TransactionPartnerAffiliateProgram",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "affiliate_program"
+                    ]
+                }
+            ]
+        },
+        {
             "name": "RevenueWithdrawalStatePending",
             "fields": [
                 {
@@ -345,6 +367,17 @@
                     "name": "currency",
                     "literals": [
                         "XTR"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ReactionTypePaid",
+            "fields": [
+                {
+                    "name": "type",
+                    "literals": [
+                        "paid"
                     ]
                 }
             ]
@@ -1219,6 +1252,24 @@
                         "mask",
                         "custom_emoji"
                     ]
+                }
+            ]
+        },
+        {
+            "name": "sendInvoice",
+            "params": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
+                }
+            ]
+        },
+        {
+            "name": "createInvoiceLink",
+            "params": [
+                {
+                    "name": "currency",
+                    "enum": "Currency"
                 }
             ]
         }

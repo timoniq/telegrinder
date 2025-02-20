@@ -5,23 +5,36 @@ import aiohttp
 import certifi
 from aiohttp import ClientSession, TCPConnector
 
+import telegrinder.msgspec_json as json
 from telegrinder.client.abc import ABCClient
-from telegrinder.modules import JSONModule, json
 
 if typing.TYPE_CHECKING:
     from aiohttp import ClientResponse
 
+type Data = dict[str, typing.Any] | aiohttp.formdata.FormData
+type Response = ClientResponse
 
-class AiohttpClient(ABCClient):
+
+class AiohttpClient(ABCClient[aiohttp.formdata.FormData]):
+    """HTTP client based on `aiohttp` module."""
+
+    CONNECTION_TIMEOUT_ERRORS = (
+        aiohttp.client.ServerConnectionError,
+        TimeoutError,
+    )
+    CLIENT_CONNECTION_ERRORS = (
+        aiohttp.client.ClientConnectionError,
+        aiohttp.client.ClientConnectorError,
+        aiohttp.ClientOSError,
+    )
+
     def __init__(
         self,
         session: ClientSession | None = None,
-        json_processing_module: JSONModule | None = None,
         timeout: aiohttp.ClientTimeout | None = None,
         **session_params: typing.Any,
     ) -> None:
         self.session = session
-        self.json_processing_module = json_processing_module or json
         self.session_params = session_params
         self.timeout = timeout or aiohttp.ClientTimeout(total=0)
 
@@ -37,15 +50,16 @@ class AiohttpClient(ABCClient):
         self,
         url: str,
         method: str = "GET",
-        data: dict[str, typing.Any] | None = None,
+        data: Data | None = None,
         **kwargs: typing.Any,
-    ) -> "ClientResponse":
+    ) -> Response:
         if not self.session:
             self.session = ClientSession(
                 connector=TCPConnector(ssl=ssl.create_default_context(cafile=certifi.where())),
-                json_serialize=self.json_processing_module.dumps,
+                json_serialize=json.dumps,
                 **self.session_params,
             )
+
         async with self.session.request(
             url=url,
             method=method,
@@ -60,13 +74,13 @@ class AiohttpClient(ABCClient):
         self,
         url: str,
         method: str = "GET",
-        data: dict[str, typing.Any] | None = None,
+        data: Data | None = None,
         **kwargs: typing.Any,
     ) -> dict[str, typing.Any]:
         response = await self.request_raw(url, method, data, **kwargs)
         return await response.json(
-            encoding="utf-8",
-            loads=self.json_processing_module.loads,
+            encoding="UTF-8",
+            loads=json.loads,
             content_type=None,
         )
 
@@ -74,58 +88,46 @@ class AiohttpClient(ABCClient):
         self,
         url: str,
         method: str = "GET",
-        data: dict[str, typing.Any] | aiohttp.FormData | None = None,
+        data: Data | None = None,
         **kwargs: typing.Any,
     ) -> str:
         response = await self.request_raw(url, method, data, **kwargs)  # type: ignore
-        return await response.text(encoding="utf-8")
+        return await response.text(encoding="UTF-8")
 
     async def request_bytes(
         self,
         url: str,
         method: str = "GET",
-        data: dict[str, typing.Any] | aiohttp.FormData | None = None,
+        data: Data | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         response = await self.request_raw(url, method, data, **kwargs)  # type: ignore
         if response._body is None:
             await response.read()
-        return response._body
+        return response._body or bytes()
 
     async def request_content(
         self,
         url: str,
         method: str = "GET",
-        data: dict[str, typing.Any] | None = None,
+        data: Data | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         response = await self.request_raw(url, method, data, **kwargs)
-        return response._body
+        return response._body or bytes()
 
     async def close(self) -> None:
         if self.session and not self.session.closed:
             await self.session.close()
 
     @classmethod
-    def get_form(
-        cls,
-        data: dict[str, typing.Any],
-        files: dict[str, tuple[str, bytes]] | None = None,
-    ) -> aiohttp.formdata.FormData:
-        files = files or {}
-        form = aiohttp.formdata.FormData(quote_fields=False)
-        for k, v in data.items():
-            form.add_field(k, str(v))
-
-        for n, f in files.items():
-            form.add_field(n, f[1], filename=f[0])
-
-        return form
+    def multipart_form_factory(cls) -> aiohttp.formdata.FormData:
+        return aiohttp.formdata.FormData(quote_fields=False)
 
     def __del__(self) -> None:
         if self.session and not self.session.closed:
             if self.session._connector is not None and self.session._connector_owner:
-                self.session._connector.close()
+                self.session._connector._close()
             self.session._connector = None
 
 

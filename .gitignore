@@ -137,8 +137,12 @@ dmypy.json
 # pytest
 .pytest_cache
 
-# poetry lock files
-poetry.lock
+# ruff
+.ruff_cache
 
 .vscode
 local
+
+pyvenv.cfg
+
+.basedpyright

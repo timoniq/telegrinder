@@ -52,7 +52,8 @@ class ChatAction(str, enum.Enum):
     - find_location for location data,
     - record_video_note or upload_video_note for video notes.
 
-    Docs: https://core.telegram.org/bots/api#sendchataction"""
+    Docs: https://core.telegram.org/bots/api#sendchataction
+    """
 
     TYPING = "typing"
     UPLOAD_PHOTO = "upload_photo"
@@ -77,7 +78,8 @@ class ReactionEmoji(str, enum.Enum):
     `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`,
     `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`.
 
-    Docs: https://core.telegram.org/bots/api#reactiontypeemoji"""
+    Docs: https://core.telegram.org/bots/api#reactiontypeemoji
+    """
 
     THUMBS_UP = "👍"
     THUMBS_DOWN = "👎"
@@ -194,7 +196,8 @@ class TopicIconColor(int, enum.Enum):
 
 class ChatBoostSourceType(str, enum.Enum):
     """Type of ChatBoostSourceType
-    Docs: https://core.telegram.org/bots/api#chatboostsource"""
+    Docs: https://core.telegram.org/bots/api#chatboostsource
+    """
 
     PREMIUM = "premium"
     GIFT_CODE = "gift_code"
@@ -263,7 +266,8 @@ class ContentType(str, enum.Enum):
 
 class Currency(str, enum.Enum):
     """Type of Currency.
-    Docs: https://core.telegram.org/bots/payments#supported-currencies"""
+    Docs: https://core.telegram.org/bots/payments#supported-currencies
+    """
 
     AED = "AED"
     AFN = "AFN"
@@ -357,7 +361,8 @@ class Currency(str, enum.Enum):
 
 class InlineQueryResultType(str, enum.Enum):
     """Type of InlineQueryResultType.
-    Docs: https://core.telegram.org/bots/api#inlinequeryresult"""
+    Docs: https://core.telegram.org/bots/api#inlinequeryresult
+    """
 
     AUDIO = "audio"
     DOCUMENT = "document"
@@ -425,7 +430,8 @@ class UpdateType(str, enum.Enum):
 
 class BotCommandScopeType(str, enum.Enum):
     """Type of BotCommandScope.
-    Represents the scope to which bot commands are applied."""
+    Represents the scope to which bot commands are applied.
+    """
 
     DEFAULT = "default"
     ALL_PRIVATE_CHATS = "all_private_chats"
@@ -443,6 +449,7 @@ class ChatType(str, enum.Enum):
     GROUP = "group"
     SUPERGROUP = "supergroup"
     CHANNEL = "channel"
+    SENDER = "sender"
 
 
 class ChatMemberStatus(str, enum.Enum):
@@ -468,17 +475,17 @@ class DiceEmoji(str, enum.Enum):
 
 
 class MessageEntityType(str, enum.Enum):
-    """Type of the entity.
-    Currently, can be `mention` (`@username`), `hashtag`
-    (`#hashtag`), `cashtag` (`$USD`), `bot_command` (`/start@jobs_bot`),
-    `url` (`https://telegram.org`), `email` (`do-not-reply@telegram.org`),
-    `phone_number` (`+1-212-555-0123`), `bold` (**bold text**), `italic`
-    (*italic text*), `underline` (underlined text), `strikethrough` (strikethrough
-    text), `spoiler` (spoiler message), `code` (monowidth string), `pre`
-    (monowidth block), `text_link` (for clickable text URLs), `text_mention`
-    (for users [without usernames](https://telegram.org/blog/edit#new-mentions)),
-    `custom_emoji` (for inline custom emoji stickers), `blockquote` (blockquote)
-    [docs](https://core.telegram.org/bots/api#messageentity)"""
+    """Type of the entity. Currently, can be `mention` (@username), `hashtag`
+    (#hashtag or #hashtag@chatusername), `cashtag` ($USD or $USD@chatusername),
+    `bot_command` (/start@jobs_bot), `url` (https://telegram.org), `email`
+    (do-not-reply@telegram.org), `phone_number` (+1-212-555-0123),
+    `bold` (bold text), `italic` (italic text), `underline` (underlined
+    text), `strikethrough` (strikethrough text), `spoiler` (spoiler message),
+    `blockquote` (block quotation), `expandable_blockquote` (collapsed-by-default
+    block quotation), `code` (monowidth string), `pre` (monowidth block),
+    `text_link` (for clickable text URLs), `text_mention` (for users without
+    usernames), `custom_emoji` (for inline custom emoji stickers).
+    """
 
     MENTION = "mention"
     HASHTAG = "hashtag"
@@ -511,7 +518,8 @@ class PollType(str, enum.Enum):
 class StickerType(str, enum.Enum):
     """Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`.
     The type of the sticker is independent from its format, which is determined
-    by the fields `is_animated` and `is_video`."""
+    by the fields `is_animated` and `is_video`.
+    """
 
     REGULAR = "regular"
     MASK = "mask"
@@ -520,7 +528,8 @@ class StickerType(str, enum.Enum):
 
 class MessageOriginType(str, enum.Enum):
     """Type of MessageOriginType
-    Docs: https://core.telegram.org/bots/api#messageorigin"""
+    Docs: https://core.telegram.org/bots/api#messageorigin
+    """
 
     USER = "user"
     HIDDEN_USER = "hidden_user"
@@ -538,7 +547,8 @@ class StickerSetStickerType(str, enum.Enum):
 
 class MaskPositionPoint(str, enum.Enum):
     """The part of the face relative to which the mask should be placed. One of `forehead`,
-    `eyes`, `mouth`, or `chin`."""
+    `eyes`, `mouth`, or `chin`.
+    """
 
     FOREHEAD = "forehead"
     EYES = "eyes"
@@ -551,7 +561,8 @@ class InlineQueryChatType(str, enum.Enum):
     either `sender` for a private chat with the inline query sender, `private`,
     `group`, `supergroup`, or `channel`. The chat type should be always known
     for requests sent from official clients and most third-party clients,
-    unless the request was sent from a secret chat."""
+    unless the request was sent from a secret chat.
+    """
 
     SENDER = "sender"
     PRIVATE = "private"

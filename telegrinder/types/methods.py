@@ -9,11 +9,12 @@ from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.objects import *  # noqa: F403
 
 if typing.TYPE_CHECKING:
-    from telegrinder.api.abc import ABCAPI
+    from telegrinder.api.api import API
+    from telegrinder.client.abc import ABCClient
 
 
-class APIMethods:
-    """Telegram Bot API 7.8 methods, released `July 31, 2024`."""
+class APIMethods[HTTPClient: ABCClient]:
+    """Telegram Bot API methods version 8.3, released `February 12, 2025`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -21,11 +22,12 @@ class APIMethods:
         )
     )
 
-    def __init__(self, api: "ABCAPI") -> None:
+    def __init__(self, api: "API[HTTPClient]") -> None:
         self.api = api
 
     async def get_updates(
         self,
+        *,
         offset: int | None = None,
         limit: int | None = None,
         timeout: int | None = None,
@@ -58,8 +60,8 @@ class APIMethods:
         except chat_member, message_reaction, and message_reaction_count \
         (default). If not specified, the previous setting will be used. Please \
         note that this parameter doesn't affect updates created before the call \
-        to the getUpdates, so unwanted updates may be received for a short period \
-        of time.
+        to getUpdates, so unwanted updates may be received for a short period of \
+        time.
         """
 
         method_response = await self.api.request_raw(
@@ -70,6 +72,7 @@ class APIMethods:
 
     async def set_webhook(
         self,
+        *,
         url: str,
         certificate: InputFile | None = None,
         ip_address: str | None = None,
@@ -84,9 +87,10 @@ class APIMethods:
         Use this method to specify a URL and receive incoming updates via an outgoing
         webhook. Whenever there is an update for the bot, we will send an HTTPS POST
         request to the specified URL, containing a JSON-serialized Update. In
-        case of an unsuccessful request, we will give up after a reasonable amount
-        of attempts. Returns True on success. If you'd like to make sure that the
-        webhook was set by you, you can specify secret data in the parameter secret_token.
+        case of an unsuccessful request (a request with response HTTP status code
+        different from 2XY), we will repeat the request and give up after a reasonable
+        amount of attempts. Returns True on success. If you'd like to make sure that
+        the webhook was set by you, you can specify secret data in the parameter secret_token.
         If specified, the request will contain a header "X-Telegram-Bot-Api-Secret-Token"
         with the secret token as content.
 
@@ -128,6 +132,7 @@ class APIMethods:
 
     async def delete_webhook(
         self,
+        *,
         drop_pending_updates: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -208,6 +213,7 @@ class APIMethods:
 
     async def send_message(
         self,
+        *,
         chat_id: int | str,
         text: str,
         business_connection_id: str | None = None,
@@ -217,13 +223,10 @@ class APIMethods:
         link_preview_options: LinkPreviewOptions | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendMessage`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
@@ -253,6 +256,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -271,10 +278,12 @@ class APIMethods:
 
     async def forward_message(
         self,
+        *,
         chat_id: int | str,
         from_chat_id: int | str,
         message_id: int,
         message_thread_id: int | None = None,
+        video_start_timestamp: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         **other: typing.Any,
@@ -294,6 +303,8 @@ class APIMethods:
         :param from_chat_id: Unique identifier for the chat where the original message was sent (or channel \
         username in the format @channelusername).
 
+        :param video_start_timestamp: New start timestamp for the forwarded video in the message.
+
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the forwarded message from forwarding and saving. \
@@ -309,6 +320,7 @@ class APIMethods:
 
     async def forward_messages(
         self,
+        *,
         chat_id: int | str,
         from_chat_id: int | str,
         message_ids: list[int],
@@ -352,22 +364,21 @@ class APIMethods:
 
     async def copy_message(
         self,
+        *,
         chat_id: int | str,
         from_chat_id: int | str,
         message_id: int,
         message_thread_id: int | None = None,
+        video_start_timestamp: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Method `copyMessage`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
@@ -390,6 +401,8 @@ class APIMethods:
 
         :param message_id: Message identifier in the chat specified in from_chat_id.
 
+        :param video_start_timestamp: New start timestamp for the copied video in the message.
+
         :param caption: New caption for media, 0-1024 characters after entities parsing. If not \
         specified, the original caption is kept.
 
@@ -406,6 +419,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
@@ -421,6 +438,7 @@ class APIMethods:
 
     async def copy_messages(
         self,
+        *,
         chat_id: int | str,
         from_chat_id: int | str,
         message_ids: list[int],
@@ -469,6 +487,7 @@ class APIMethods:
 
     async def send_photo(
         self,
+        *,
         chat_id: int | str,
         photo: InputFile | str,
         business_connection_id: str | None = None,
@@ -480,13 +499,10 @@ class APIMethods:
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendPhoto`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
@@ -526,6 +542,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -544,6 +564,7 @@ class APIMethods:
 
     async def send_audio(
         self,
+        *,
         chat_id: int | str,
         audio: InputFile | str,
         business_connection_id: str | None = None,
@@ -557,13 +578,10 @@ class APIMethods:
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendAudio`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
@@ -614,6 +632,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -632,6 +654,7 @@ class APIMethods:
 
     async def send_document(
         self,
+        *,
         chat_id: int | str,
         document: InputFile | str,
         business_connection_id: str | None = None,
@@ -643,13 +666,10 @@ class APIMethods:
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendDocument`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
@@ -696,6 +716,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -714,6 +738,7 @@ class APIMethods:
 
     async def send_video(
         self,
+        *,
         chat_id: int | str,
         video: InputFile | str,
         business_connection_id: str | None = None,
@@ -722,6 +747,8 @@ class APIMethods:
         width: int | None = None,
         height: int | None = None,
         thumbnail: InputFile | str | None = None,
+        cover: InputFile | str | None = None,
+        start_timestamp: int | None = None,
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -730,13 +757,10 @@ class APIMethods:
         supports_streaming: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendVideo`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
@@ -774,6 +798,14 @@ class APIMethods:
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
         More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
+        :param cover: Cover for the video in the message. Pass a file_id to send a file that exists \
+        on the Telegram servers (recommended), pass an HTTP URL for Telegram to \
+        get a file from the Internet, or pass `attach://<file_attach_name>` to \
+        upload a new one using multipart/form-data under <file_attach_name> \
+        name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+
+        :param start_timestamp: Start timestamp for the video in the message.
+
         :param caption: Video caption (may also be used when resending videos by file_id), 0-1024 \
         characters after entities parsing.
 
@@ -793,6 +825,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -811,6 +847,7 @@ class APIMethods:
 
     async def send_animation(
         self,
+        *,
         chat_id: int | str,
         animation: InputFile | str,
         business_connection_id: str | None = None,
@@ -826,13 +863,10 @@ class APIMethods:
         has_spoiler: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendAnimation`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
@@ -886,6 +920,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -904,6 +942,7 @@ class APIMethods:
 
     async def send_voice(
         self,
+        *,
         chat_id: int | str,
         voice: InputFile | str,
         business_connection_id: str | None = None,
@@ -914,13 +953,10 @@ class APIMethods:
         duration: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendVoice`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
@@ -960,6 +996,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -978,6 +1018,7 @@ class APIMethods:
 
     async def send_video_note(
         self,
+        *,
         chat_id: int | str,
         video_note: InputFile | str,
         business_connection_id: str | None = None,
@@ -987,13 +1028,10 @@ class APIMethods:
         thumbnail: InputFile | str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendVideoNote`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
@@ -1032,6 +1070,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1050,34 +1092,42 @@ class APIMethods:
 
     async def send_paid_media(
         self,
+        *,
         chat_id: int | str,
         star_count: int,
         media: list[InputPaidMedia],
+        business_connection_id: str | None = None,
+        payload: str | None = None,
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendPaidMedia`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
 
-        Use this method to send paid media to channel chats. On success, the sent
-        Message is returned.
+        Use this method to send paid media. On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
+        (in the format @channelusername). If the chat is a channel, all Telegram \
+        Star proceeds from this media will be credited to the chat's balance. Otherwise, \
+        they will be credited to the bot's balance.
 
-        :param star_count: The number of Telegram Stars that must be paid to buy access to the media. \
+        :param star_count: The number of Telegram Stars that must be paid to buy access to the media; \
+        1-2500.
 
         :param media: A JSON-serialized array describing the media to be sent; up to 10 items. \
+
+        :param payload: Bot-defined paid media payload, 0-128 bytes. This will not be displayed \
+        to the user, use it for your internal processes.
 
         :param caption: Media caption, 0-1024 characters after entities parsing.
 
@@ -1092,6 +1142,10 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
 
         :param reply_parameters: Description of the message to reply to.
 
@@ -1108,12 +1162,14 @@ class APIMethods:
 
     async def send_media_group(
         self,
+        *,
         chat_id: int | str,
         media: list[InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo],
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
@@ -1140,6 +1196,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent messages from forwarding and saving. \
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1154,6 +1214,7 @@ class APIMethods:
 
     async def send_location(
         self,
+        *,
         chat_id: int | str,
         latitude: float,
         longitude: float,
@@ -1165,13 +1226,10 @@ class APIMethods:
         proximity_alert_radius: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendLocation`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
@@ -1207,6 +1265,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1225,6 +1287,7 @@ class APIMethods:
 
     async def send_venue(
         self,
+        *,
         chat_id: int | str,
         latitude: float,
         longitude: float,
@@ -1238,13 +1301,10 @@ class APIMethods:
         google_place_type: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendVenue`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
@@ -1282,6 +1342,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1300,6 +1364,7 @@ class APIMethods:
 
     async def send_contact(
         self,
+        *,
         chat_id: int | str,
         phone_number: str,
         first_name: str,
@@ -1309,13 +1374,10 @@ class APIMethods:
         vcard: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendContact`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
@@ -1343,6 +1405,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1361,6 +1427,7 @@ class APIMethods:
 
     async def send_poll(
         self,
+        *,
         chat_id: int | str,
         question: str,
         options: list[InputPollOption],
@@ -1380,13 +1447,10 @@ class APIMethods:
         is_closed: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendPoll`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
@@ -1446,6 +1510,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1464,19 +1532,17 @@ class APIMethods:
 
     async def send_dice(
         self,
+        *,
         chat_id: int | str,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         emoji: DiceEmoji | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendDice`, see the [documentation](https://core.telegram.org/bots/api#senddice)
@@ -1501,6 +1567,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -1519,6 +1589,7 @@ class APIMethods:
 
     async def send_chat_action(
         self,
+        *,
         chat_id: int | str,
         action: ChatAction,
         business_connection_id: str | None = None,
@@ -1557,6 +1628,7 @@ class APIMethods:
 
     async def set_message_reaction(
         self,
+        *,
         chat_id: int | str,
         message_id: int,
         reaction: list[ReactionType] | None = None,
@@ -1566,9 +1638,9 @@ class APIMethods:
         """Method `setMessageReaction`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
 
         Use this method to change the chosen reactions on a message. Service messages
-        can't be reacted to. Automatically forwarded messages from a channel to
-        its discussion group have the same available reactions as messages in the
-        channel. Returns True on success.
+        of some types can't be reacted to. Automatically forwarded messages from
+        a channel to its discussion group have the same available reactions as messages
+        in the channel. Bots can't use paid reactions. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
@@ -1579,7 +1651,8 @@ class APIMethods:
         :param reaction: A JSON-serialized list of reaction types to set on the message. Currently, \
         as non-premium users, bots can set up to one reaction per message. A custom \
         emoji reaction can be used if it is either already present on the message \
-        or explicitly allowed by chat administrators.
+        or explicitly allowed by chat administrators. Paid reactions can't be \
+        used by bots.
 
         :param is_big: Pass True to set the reaction with a big animation.
         """
@@ -1592,6 +1665,7 @@ class APIMethods:
 
     async def get_user_profile_photos(
         self,
+        *,
         user_id: int,
         offset: int | None = None,
         limit: int | None = None,
@@ -1617,8 +1691,37 @@ class APIMethods:
         )
         return full_result(method_response, UserProfilePhotos)
 
+    async def set_user_emoji_status(
+        self,
+        *,
+        user_id: int,
+        emoji_status_custom_emoji_id: str | None = None,
+        emoji_status_expiration_date: int | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setUserEmojiStatus`, see the [documentation](https://core.telegram.org/bots/api#setuseremojistatus)
+
+        Changes the emoji status for a given user that previously allowed the bot
+        to manage their emoji status via the Mini App method requestEmojiStatusAccess.
+        Returns True on success.
+
+        :param user_id: Unique identifier of the target user.
+
+        :param emoji_status_custom_emoji_id: Custom emoji identifier of the emoji status to set. Pass an empty string \
+        to remove the status.
+
+        :param emoji_status_expiration_date: Expiration date of the emoji status, if any.
+        """
+
+        method_response = await self.api.request_raw(
+            "setUserEmojiStatus",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
     async def get_file(
         self,
+        *,
         file_id: str,
         **other: typing.Any,
     ) -> Result[File, APIError]:
@@ -1644,6 +1747,7 @@ class APIMethods:
 
     async def ban_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         until_date: datetime | int | None = None,
@@ -1680,6 +1784,7 @@ class APIMethods:
 
     async def unban_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         only_if_banned: bool | None = None,
@@ -1711,6 +1816,7 @@ class APIMethods:
 
     async def restrict_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         permissions: ChatPermissions,
@@ -1751,6 +1857,7 @@ class APIMethods:
 
     async def promote_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         is_anonymous: bool | None = None,
@@ -1831,6 +1938,7 @@ class APIMethods:
 
     async def set_chat_administrator_custom_title(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         custom_title: str,
@@ -1858,6 +1966,7 @@ class APIMethods:
 
     async def ban_chat_sender_chat(
         self,
+        *,
         chat_id: int | str,
         sender_chat_id: int,
         **other: typing.Any,
@@ -1884,6 +1993,7 @@ class APIMethods:
 
     async def unban_chat_sender_chat(
         self,
+        *,
         chat_id: int | str,
         sender_chat_id: int,
         **other: typing.Any,
@@ -1908,6 +2018,7 @@ class APIMethods:
 
     async def set_chat_permissions(
         self,
+        *,
         chat_id: int | str,
         permissions: ChatPermissions,
         use_independent_chat_permissions: bool | None = None,
@@ -1940,6 +2051,7 @@ class APIMethods:
 
     async def export_chat_invite_link(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[str, APIError]:
@@ -1962,6 +2074,7 @@ class APIMethods:
 
     async def create_chat_invite_link(
         self,
+        *,
         chat_id: int | str,
         name: str | None = None,
         expire_date: datetime | int | None = None,
@@ -1998,6 +2111,7 @@ class APIMethods:
 
     async def edit_chat_invite_link(
         self,
+        *,
         chat_id: int | str,
         invite_link: str,
         name: str | None = None,
@@ -2035,8 +2149,72 @@ class APIMethods:
         )
         return full_result(method_response, ChatInviteLink)
 
+    async def create_chat_subscription_invite_link(
+        self,
+        *,
+        chat_id: int | str,
+        subscription_period: int,
+        subscription_price: int,
+        name: str | None = None,
+        **other: typing.Any,
+    ) -> Result[ChatInviteLink, APIError]:
+        """Method `createChatSubscriptionInviteLink`, see the [documentation](https://core.telegram.org/bots/api#createchatsubscriptioninvitelink)
+
+        Use this method to create a subscription invite link for a channel chat.
+        The bot must have the can_invite_users administrator rights. The link
+        can be edited using the method editChatSubscriptionInviteLink or revoked
+        using the method revokeChatInviteLink. Returns the new invite link as
+        a ChatInviteLink object.
+
+        :param chat_id: Unique identifier for the target channel chat or username of the target \
+        channel (in the format @channelusername).
+
+        :param name: Invite link name; 0-32 characters.
+
+        :param subscription_period: The number of seconds the subscription will be active for before the next \
+        payment. Currently, it must always be 2592000 (30 days).
+
+        :param subscription_price: The amount of Telegram Stars a user must pay initially and after each subsequent \
+        subscription period to be a member of the chat; 1-2500.
+        """
+
+        method_response = await self.api.request_raw(
+            "createChatSubscriptionInviteLink",
+            get_params(locals()),
+        )
+        return full_result(method_response, ChatInviteLink)
+
+    async def edit_chat_subscription_invite_link(
+        self,
+        *,
+        chat_id: int | str,
+        invite_link: str,
+        name: str | None = None,
+        **other: typing.Any,
+    ) -> Result[ChatInviteLink, APIError]:
+        """Method `editChatSubscriptionInviteLink`, see the [documentation](https://core.telegram.org/bots/api#editchatsubscriptioninvitelink)
+
+        Use this method to edit a subscription invite link created by the bot. The
+        bot must have the can_invite_users administrator rights. Returns the
+        edited invite link as a ChatInviteLink object.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+
+        :param invite_link: The invite link to edit.
+
+        :param name: Invite link name; 0-32 characters.
+        """
+
+        method_response = await self.api.request_raw(
+            "editChatSubscriptionInviteLink",
+            get_params(locals()),
+        )
+        return full_result(method_response, ChatInviteLink)
+
     async def revoke_chat_invite_link(
         self,
+        *,
         chat_id: int | str,
         invite_link: str,
         **other: typing.Any,
@@ -2063,6 +2241,7 @@ class APIMethods:
 
     async def approve_chat_join_request(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
@@ -2087,6 +2266,7 @@ class APIMethods:
 
     async def decline_chat_join_request(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
@@ -2111,6 +2291,7 @@ class APIMethods:
 
     async def set_chat_photo(
         self,
+        *,
         chat_id: int | str,
         photo: InputFile,
         **other: typing.Any,
@@ -2136,6 +2317,7 @@ class APIMethods:
 
     async def delete_chat_photo(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2157,6 +2339,7 @@ class APIMethods:
 
     async def set_chat_title(
         self,
+        *,
         chat_id: int | str,
         title: str,
         **other: typing.Any,
@@ -2181,6 +2364,7 @@ class APIMethods:
 
     async def set_chat_description(
         self,
+        *,
         chat_id: int | str,
         description: str | None = None,
         **other: typing.Any,
@@ -2205,6 +2389,7 @@ class APIMethods:
 
     async def pin_chat_message(
         self,
+        *,
         chat_id: int | str,
         message_id: int,
         business_connection_id: str | None = None,
@@ -2240,6 +2425,7 @@ class APIMethods:
 
     async def unpin_chat_message(
         self,
+        *,
         chat_id: int | str,
         business_connection_id: str | None = None,
         message_id: int | None = None,
@@ -2272,6 +2458,7 @@ class APIMethods:
 
     async def unpin_all_chat_messages(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2295,6 +2482,7 @@ class APIMethods:
 
     async def leave_chat(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2315,6 +2503,7 @@ class APIMethods:
 
     async def get_chat(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[ChatFullInfo, APIError]:
@@ -2335,6 +2524,7 @@ class APIMethods:
 
     async def get_chat_administrators(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[
@@ -2379,6 +2569,7 @@ class APIMethods:
 
     async def get_chat_member_count(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[int, APIError]:
@@ -2398,6 +2589,7 @@ class APIMethods:
 
     async def get_chat_member(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
@@ -2442,6 +2634,7 @@ class APIMethods:
 
     async def set_chat_sticker_set(
         self,
+        *,
         chat_id: int | str,
         sticker_set_name: str,
         **other: typing.Any,
@@ -2468,6 +2661,7 @@ class APIMethods:
 
     async def delete_chat_sticker_set(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2505,6 +2699,7 @@ class APIMethods:
 
     async def create_forum_topic(
         self,
+        *,
         chat_id: int | str,
         name: str,
         icon_color: TopicIconColor | None = None,
@@ -2539,6 +2734,7 @@ class APIMethods:
 
     async def edit_forum_topic(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         name: str | None = None,
@@ -2549,8 +2745,8 @@ class APIMethods:
 
         Use this method to edit name and icon of a topic in a forum supergroup chat.
         The bot must be an administrator in the chat for this to work and must have
-        can_manage_topics administrator rights, unless it is the creator of the
-        topic. Returns True on success.
+        the can_manage_topics administrator rights, unless it is the creator
+        of the topic. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
@@ -2573,6 +2769,7 @@ class APIMethods:
 
     async def close_forum_topic(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
@@ -2598,6 +2795,7 @@ class APIMethods:
 
     async def reopen_forum_topic(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
@@ -2623,6 +2821,7 @@ class APIMethods:
 
     async def delete_forum_topic(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
@@ -2648,6 +2847,7 @@ class APIMethods:
 
     async def unpin_all_forum_topic_messages(
         self,
+        *,
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
@@ -2673,6 +2873,7 @@ class APIMethods:
 
     async def edit_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         name: str,
         **other: typing.Any,
@@ -2681,7 +2882,7 @@ class APIMethods:
 
         Use this method to edit the name of the 'General' topic in a forum supergroup
         chat. The bot must be an administrator in the chat for this to work and must
-        have can_manage_topics administrator rights. Returns True on success.
+        have the can_manage_topics administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
@@ -2697,6 +2898,7 @@ class APIMethods:
 
     async def close_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2718,6 +2920,7 @@ class APIMethods:
 
     async def reopen_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2740,6 +2943,7 @@ class APIMethods:
 
     async def hide_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2762,6 +2966,7 @@ class APIMethods:
 
     async def unhide_general_forum_topic(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2783,6 +2988,7 @@ class APIMethods:
 
     async def unpin_all_general_forum_topic_messages(
         self,
+        *,
         chat_id: int | str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -2805,6 +3011,7 @@ class APIMethods:
 
     async def answer_callback_query(
         self,
+        *,
         callback_query_id: str,
         text: str | None = None,
         show_alert: bool | None = None,
@@ -2845,6 +3052,7 @@ class APIMethods:
 
     async def get_user_chat_boosts(
         self,
+        *,
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
@@ -2868,6 +3076,7 @@ class APIMethods:
 
     async def get_business_connection(
         self,
+        *,
         business_connection_id: str,
         **other: typing.Any,
     ) -> Result[BusinessConnection, APIError]:
@@ -2887,6 +3096,7 @@ class APIMethods:
 
     async def set_my_commands(
         self,
+        *,
         commands: list[BotCommand],
         scope: BotCommandScope | None = None,
         language_code: str | None = None,
@@ -2916,6 +3126,7 @@ class APIMethods:
 
     async def delete_my_commands(
         self,
+        *,
         scope: BotCommandScope | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -2942,6 +3153,7 @@ class APIMethods:
 
     async def get_my_commands(
         self,
+        *,
         scope: BotCommandScope | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -2965,6 +3177,7 @@ class APIMethods:
 
     async def set_my_name(
         self,
+        *,
         name: str | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -2988,6 +3201,7 @@ class APIMethods:
 
     async def get_my_name(
         self,
+        *,
         language_code: str | None = None,
         **other: typing.Any,
     ) -> Result[BotName, APIError]:
@@ -3007,6 +3221,7 @@ class APIMethods:
 
     async def set_my_description(
         self,
+        *,
         description: str | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -3031,6 +3246,7 @@ class APIMethods:
 
     async def get_my_description(
         self,
+        *,
         language_code: str | None = None,
         **other: typing.Any,
     ) -> Result[BotDescription, APIError]:
@@ -3050,6 +3266,7 @@ class APIMethods:
 
     async def set_my_short_description(
         self,
+        *,
         short_description: str | None = None,
         language_code: str | None = None,
         **other: typing.Any,
@@ -3075,6 +3292,7 @@ class APIMethods:
 
     async def get_my_short_description(
         self,
+        *,
         language_code: str | None = None,
         **other: typing.Any,
     ) -> Result[BotShortDescription, APIError]:
@@ -3094,6 +3312,7 @@ class APIMethods:
 
     async def set_chat_menu_button(
         self,
+        *,
         chat_id: int | None = None,
         menu_button: MenuButton | None = None,
         **other: typing.Any,
@@ -3117,6 +3336,7 @@ class APIMethods:
 
     async def get_chat_menu_button(
         self,
+        *,
         chat_id: int | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], APIError]:
@@ -3133,12 +3353,11 @@ class APIMethods:
             "getChatMenuButton",
             get_params(locals()),
         )
-        return full_result(
-            method_response, Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault]
-        )
+        return full_result(method_response, Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault])
 
     async def set_my_default_administrator_rights(
         self,
+        *,
         rights: ChatAdministratorRights | None = None,
         for_channels: bool | None = None,
         **other: typing.Any,
@@ -3166,6 +3385,7 @@ class APIMethods:
 
     async def get_my_default_administrator_rights(
         self,
+        *,
         for_channels: bool | None = None,
         **other: typing.Any,
     ) -> Result[ChatAdministratorRights, APIError]:
@@ -3187,6 +3407,7 @@ class APIMethods:
 
     async def edit_message_text(
         self,
+        *,
         text: str,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
@@ -3239,6 +3460,7 @@ class APIMethods:
 
     async def edit_message_caption(
         self,
+        *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
@@ -3292,6 +3514,7 @@ class APIMethods:
 
     async def edit_message_media(
         self,
+        *,
         media: InputMedia,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
@@ -3302,15 +3525,15 @@ class APIMethods:
     ) -> Result[Variative[Message, bool], APIError]:
         """Method `editMessageMedia`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
-        Use this method to edit animation, audio, document, photo, or video messages.
-        If a message is part of a message album, then it can be edited only to an audio
-        for audio albums, only to a document for document albums and to a photo or
-        a video otherwise. When an inline message is edited, a new file can't be uploaded;
-        use a previously uploaded file via its file_id or specify a URL. On success,
-        if the edited message is not an inline message, the edited Message is returned,
-        otherwise True is returned. Note that business messages that were not sent
-        by the bot and do not contain an inline keyboard can only be edited within
-        48 hours from the time they were sent.
+        Use this method to edit animation, audio, document, photo, or video messages,
+        or to add media to text messages. If a message is part of a message album, then
+        it can be edited only to an audio for audio albums, only to a document for document
+        albums and to a photo or a video otherwise. When an inline message is edited,
+        a new file can't be uploaded; use a previously uploaded file via its file_id
+        or specify a URL. On success, if the edited message is not an inline message,
+        the edited Message is returned, otherwise True is returned. Note that business
+        messages that were not sent by the bot and do not contain an inline keyboard
+        can only be edited within 48 hours from the time they were sent.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
         to be edited was sent.
@@ -3337,6 +3560,7 @@ class APIMethods:
 
     async def edit_message_live_location(
         self,
+        *,
         latitude: float,
         longitude: float,
         business_connection_id: str | None = None,
@@ -3399,6 +3623,7 @@ class APIMethods:
 
     async def stop_message_live_location(
         self,
+        *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
@@ -3435,6 +3660,7 @@ class APIMethods:
 
     async def edit_message_reply_markup(
         self,
+        *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
@@ -3473,6 +3699,7 @@ class APIMethods:
 
     async def stop_poll(
         self,
+        *,
         chat_id: int | str,
         message_id: int,
         business_connection_id: str | None = None,
@@ -3503,6 +3730,7 @@ class APIMethods:
 
     async def delete_message(
         self,
+        *,
         chat_id: int | str,
         message_id: int,
         **other: typing.Any,
@@ -3535,6 +3763,7 @@ class APIMethods:
 
     async def delete_messages(
         self,
+        *,
         chat_id: int | str,
         message_ids: list[int],
         **other: typing.Any,
@@ -3560,6 +3789,7 @@ class APIMethods:
 
     async def send_sticker(
         self,
+        *,
         chat_id: int | str,
         sticker: InputFile | str,
         business_connection_id: str | None = None,
@@ -3567,13 +3797,10 @@ class APIMethods:
         emoji: str | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
-        reply_markup: InlineKeyboardMarkup
-        | ReplyKeyboardMarkup
-        | ReplyKeyboardRemove
-        | ForceReply
-        | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
         """Method `sendSticker`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
@@ -3603,6 +3830,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -3621,6 +3852,7 @@ class APIMethods:
 
     async def get_sticker_set(
         self,
+        *,
         name: str,
         **other: typing.Any,
     ) -> Result[StickerSet, APIError]:
@@ -3639,6 +3871,7 @@ class APIMethods:
 
     async def get_custom_emoji_stickers(
         self,
+        *,
         custom_emoji_ids: list[str],
         **other: typing.Any,
     ) -> Result[list[Sticker], APIError]:
@@ -3659,6 +3892,7 @@ class APIMethods:
 
     async def upload_sticker_file(
         self,
+        *,
         user_id: int,
         sticker: InputFile,
         sticker_format: typing.Literal["static", "animated", "video"],
@@ -3686,6 +3920,7 @@ class APIMethods:
 
     async def create_new_sticker_set(
         self,
+        *,
         user_id: int,
         name: str,
         title: str,
@@ -3728,6 +3963,7 @@ class APIMethods:
 
     async def add_sticker_to_set(
         self,
+        *,
         user_id: int,
         name: str,
         sticker: InputSticker,
@@ -3756,6 +3992,7 @@ class APIMethods:
 
     async def set_sticker_position_in_set(
         self,
+        *,
         sticker: str,
         position: int,
         **other: typing.Any,
@@ -3778,6 +4015,7 @@ class APIMethods:
 
     async def delete_sticker_from_set(
         self,
+        *,
         sticker: str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -3797,6 +4035,7 @@ class APIMethods:
 
     async def replace_sticker_in_set(
         self,
+        *,
         user_id: int,
         name: str,
         old_sticker: str,
@@ -3828,6 +4067,7 @@ class APIMethods:
 
     async def set_sticker_emoji_list(
         self,
+        *,
         sticker: str,
         emoji_list: list[str],
         **other: typing.Any,
@@ -3851,6 +4091,7 @@ class APIMethods:
 
     async def set_sticker_keywords(
         self,
+        *,
         sticker: str,
         keywords: list[str] | None = None,
         **other: typing.Any,
@@ -3875,6 +4116,7 @@ class APIMethods:
 
     async def set_sticker_mask_position(
         self,
+        *,
         sticker: str,
         mask_position: MaskPosition | None = None,
         **other: typing.Any,
@@ -3898,6 +4140,7 @@ class APIMethods:
 
     async def set_sticker_set_title(
         self,
+        *,
         name: str,
         title: str,
         **other: typing.Any,
@@ -3920,6 +4163,7 @@ class APIMethods:
 
     async def set_sticker_set_thumbnail(
         self,
+        *,
         name: str,
         user_id: int,
         format: str,
@@ -3939,7 +4183,7 @@ class APIMethods:
         :param thumbnail: A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size \
         and have a width and height of exactly 100px, or a .TGS animation with a thumbnail \
         up to 32 kilobytes in size (see https://core.telegram.org/stickers#animation-requirements \
-        for animated sticker technical requirements), or a WEBM video with the \
+        for animated sticker technical requirements), or a .WEBM video with the \
         thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-requirements \
         for video sticker technical requirements. Pass a file_id as a String to \
         send a file that already exists on the Telegram servers, pass an HTTP URL \
@@ -3950,7 +4194,7 @@ class APIMethods:
         the thumbnail.
 
         :param format: Format of the thumbnail, must be one of `static` for a .WEBP or .PNG image, \
-        `animated` for a .TGS animation, or `video` for a WEBM video.
+        `animated` for a .TGS animation, or `video` for a .WEBM video.
         """
 
         method_response = await self.api.request_raw(
@@ -3961,6 +4205,7 @@ class APIMethods:
 
     async def set_custom_emoji_sticker_set_thumbnail(
         self,
+        *,
         name: str,
         custom_emoji_id: str | None = None,
         **other: typing.Any,
@@ -3984,6 +4229,7 @@ class APIMethods:
 
     async def delete_sticker_set(
         self,
+        *,
         name: str,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -4001,8 +4247,159 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
+    async def get_available_gifts(self, **other: typing.Any) -> Result[Gifts, APIError]:
+        """Method `getAvailableGifts`, see the [documentation](https://core.telegram.org/bots/api#getavailablegifts)
+
+        Returns the list of gifts that can be sent by the bot to users and channel chats.
+        Requires no parameters. Returns a Gifts object.
+        """
+
+        method_response = await self.api.request_raw(
+            "getAvailableGifts",
+            get_params(locals()),
+        )
+        return full_result(method_response, Gifts)
+
+    async def send_gift(
+        self,
+        *,
+        gift_id: str,
+        user_id: int | None = None,
+        chat_id: int | str | None = None,
+        pay_for_upgrade: bool | None = None,
+        text: str | None = None,
+        text_parse_mode: str | None = None,
+        text_entities: list[MessageEntity] | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `sendGift`, see the [documentation](https://core.telegram.org/bots/api#sendgift)
+
+        Sends a gift to the given user or channel chat. The gift can't be converted
+        to Telegram Stars by the receiver. Returns True on success.
+
+        :param user_id: Required if chat_id is not specified. Unique identifier of the target user \
+        who will receive the gift.
+
+        :param chat_id: Required if user_id is not specified. Unique identifier for the chat or \
+        username of the channel (in the format @channelusername) that will receive \
+        the gift.
+
+        :param gift_id: Identifier of the gift.
+
+        :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby making \
+        the upgrade free for the receiver.
+
+        :param text: Text that will be shown along with the gift; 0-128 characters.
+
+        :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
+        Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
+        `spoiler`, and `custom_emoji` are ignored.
+
+        :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
+        It can be specified instead of text_parse_mode. Entities other than `bold`, \
+        `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` \
+        are ignored.
+        """
+
+        method_response = await self.api.request_raw(
+            "sendGift",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def verify_user(
+        self,
+        *,
+        user_id: int,
+        custom_description: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `verifyUser`, see the [documentation](https://core.telegram.org/bots/api#verifyuser)
+
+        Verifies a user on behalf of the organization which is represented by the
+        bot. Returns True on success.
+
+        :param user_id: Unique identifier of the target user.
+
+        :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
+        if the organization isn't allowed to provide a custom verification description. \
+        """
+
+        method_response = await self.api.request_raw(
+            "verifyUser",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def verify_chat(
+        self,
+        *,
+        chat_id: int | str,
+        custom_description: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `verifyChat`, see the [documentation](https://core.telegram.org/bots/api#verifychat)
+
+        Verifies a chat on behalf of the organization which is represented by the
+        bot. Returns True on success.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+
+        :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
+        if the organization isn't allowed to provide a custom verification description. \
+        """
+
+        method_response = await self.api.request_raw(
+            "verifyChat",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def remove_user_verification(
+        self,
+        *,
+        user_id: int,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `removeUserVerification`, see the [documentation](https://core.telegram.org/bots/api#removeuserverification)
+
+        Removes verification from a user who is currently verified on behalf of
+        the organization represented by the bot. Returns True on success.
+
+        :param user_id: Unique identifier of the target user.
+        """
+
+        method_response = await self.api.request_raw(
+            "removeUserVerification",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def remove_chat_verification(
+        self,
+        *,
+        chat_id: int | str,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `removeChatVerification`, see the [documentation](https://core.telegram.org/bots/api#removechatverification)
+
+        Removes verification from a chat that is currently verified on behalf of
+        the organization represented by the bot. Returns True on success.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+        """
+
+        method_response = await self.api.request_raw(
+            "removeChatVerification",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
     async def answer_inline_query(
         self,
+        *,
         inline_query_id: str,
         results: list[InlineQueryResult],
         cache_time: int | None = None,
@@ -4043,6 +4440,7 @@ class APIMethods:
 
     async def answer_web_app_query(
         self,
+        *,
         web_app_query_id: str,
         result: InlineQueryResult,
         **other: typing.Any,
@@ -4064,13 +4462,49 @@ class APIMethods:
         )
         return full_result(method_response, SentWebAppMessage)
 
+    async def save_prepared_inline_message(
+        self,
+        *,
+        user_id: int,
+        result: InlineQueryResult,
+        allow_user_chats: bool | None = None,
+        allow_bot_chats: bool | None = None,
+        allow_group_chats: bool | None = None,
+        allow_channel_chats: bool | None = None,
+        **other: typing.Any,
+    ) -> Result[PreparedInlineMessage, APIError]:
+        """Method `savePreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#savepreparedinlinemessage)
+
+        Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage
+        object.
+
+        :param user_id: Unique identifier of the target user that can use the prepared message. \
+
+        :param result: A JSON-serialized object describing the message to be sent.
+
+        :param allow_user_chats: Pass True if the message can be sent to private chats with users.
+
+        :param allow_bot_chats: Pass True if the message can be sent to private chats with bots.
+
+        :param allow_group_chats: Pass True if the message can be sent to group and supergroup chats.
+
+        :param allow_channel_chats: Pass True if the message can be sent to channel chats.
+        """
+
+        method_response = await self.api.request_raw(
+            "savePreparedInlineMessage",
+            get_params(locals()),
+        )
+        return full_result(method_response, PreparedInlineMessage)
+
     async def send_invoice(
         self,
+        *,
         chat_id: int | str,
         title: str,
         description: str,
         payload: str,
-        currency: str,
+        currency: Currency,
         prices: list[LabeledPrice],
         message_thread_id: int | None = None,
         provider_token: str | None = None,
@@ -4091,6 +4525,7 @@ class APIMethods:
         is_flexible: bool | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
@@ -4111,7 +4546,7 @@ class APIMethods:
         :param description: Product description, 1-255 characters.
 
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
-        the user, use for your internal processes.
+        the user, use it for your internal processes.
 
         :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty string \
         for payments in Telegram Stars.
@@ -4180,6 +4615,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -4197,12 +4636,15 @@ class APIMethods:
 
     async def create_invoice_link(
         self,
+        *,
         title: str,
         description: str,
         payload: str,
-        currency: str,
+        currency: Currency,
         prices: list[LabeledPrice],
+        business_connection_id: str | None = None,
         provider_token: str | None = None,
+        subscription_period: int | None = None,
         max_tip_amount: int | None = None,
         suggested_tip_amounts: list[int] | None = None,
         provider_data: str | None = None,
@@ -4224,12 +4666,15 @@ class APIMethods:
         Use this method to create a link for an invoice. Returns the created invoice
         link as String on success.
 
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the link \
+        will be created. For payments in Telegram Stars only.
+
         :param title: Product name, 1-32 characters.
 
         :param description: Product description, 1-255 characters.
 
         :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to \
-        the user, use for your internal processes.
+        the user, use it for your internal processes.
 
         :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty string \
         for payments in Telegram Stars.
@@ -4240,6 +4685,13 @@ class APIMethods:
         :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price, \
         tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain \
         exactly one item for payments in Telegram Stars.
+
+        :param subscription_period: The number of seconds the subscription will be active for before the next \
+        payment. The currency must be set to `XTR` (Telegram Stars) if the parameter \
+        is used. Currently, it must always be 2592000 (30 days) if specified. Any \
+        number of subscriptions can be active for a given bot at the same time, including \
+        multiple concurrent subscriptions from the same user. Subscription price \
+        must no exceed 2500 Telegram Stars.
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
         (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
@@ -4296,6 +4748,7 @@ class APIMethods:
 
     async def answer_shipping_query(
         self,
+        *,
         shipping_query_id: str,
         ok: bool,
         shipping_options: list[ShippingOption] | None = None,
@@ -4319,7 +4772,7 @@ class APIMethods:
 
         :param error_message: Required if ok is False. Error message in human readable form that explains \
         why it is impossible to complete the order (e.g. `Sorry, delivery to your \
-        desired address is unavailable'). Telegram will display this message \
+        desired address is unavailable`). Telegram will display this message \
         to the user.
         """
 
@@ -4331,6 +4784,7 @@ class APIMethods:
 
     async def answer_pre_checkout_query(
         self,
+        *,
         pre_checkout_query_id: str,
         ok: bool,
         error_message: str | None = None,
@@ -4364,6 +4818,7 @@ class APIMethods:
 
     async def get_star_transactions(
         self,
+        *,
         offset: int | None = None,
         limit: int | None = None,
         **other: typing.Any,
@@ -4387,6 +4842,7 @@ class APIMethods:
 
     async def refund_star_payment(
         self,
+        *,
         user_id: int,
         telegram_payment_charge_id: str,
         **other: typing.Any,
@@ -4406,8 +4862,38 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
+    async def edit_user_star_subscription(
+        self,
+        *,
+        user_id: int,
+        telegram_payment_charge_id: str,
+        is_canceled: bool,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `editUserStarSubscription`, see the [documentation](https://core.telegram.org/bots/api#edituserstarsubscription)
+
+        Allows the bot to cancel or re-enable extension of a subscription paid in
+        Telegram Stars. Returns True on success.
+
+        :param user_id: Identifier of the user whose subscription will be edited.
+
+        :param telegram_payment_charge_id: Telegram payment identifier for the subscription.
+
+        :param is_canceled: Pass True to cancel extension of the user subscription; the subscription \
+        must be active up to the end of the current subscription period. Pass False \
+        to allow the user to re-enable a subscription that was previously canceled \
+        by the bot.
+        """
+
+        method_response = await self.api.request_raw(
+            "editUserStarSubscription",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
     async def set_passport_data_errors(
         self,
+        *,
         user_id: int,
         errors: list[PassportElementError],
         **other: typing.Any,
@@ -4436,12 +4922,14 @@ class APIMethods:
 
     async def send_game(
         self,
+        *,
         chat_id: int,
         game_short_name: str,
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
+        allow_paid_broadcast: bool | None = None,
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
@@ -4466,6 +4954,10 @@ class APIMethods:
 
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
         :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
         chats only.
 
@@ -4483,6 +4975,7 @@ class APIMethods:
 
     async def set_game_score(
         self,
+        *,
         user_id: int,
         score: int,
         force: bool | None = None,
@@ -4527,6 +5020,7 @@ class APIMethods:
 
     async def get_game_high_scores(
         self,
+        *,
         user_id: int,
         chat_id: int | None = None,
         message_id: int | None = None,
@@ -4556,3 +5050,6 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(method_response, list[GameHighScore])
+
+
+__all__ = ("APIMethods",)

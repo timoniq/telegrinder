@@ -9,9 +9,10 @@ from telegrinder.types.objects import Message
 bot = Telegrinder(API(Token.from_env()))
 
 
+# bot.on() is the same as bot.on.raw_event()
 @bot.on(Text(["hello", "hi"], ignore_case=True))
 async def handle_raw_message(raw_msg: EventNode[Message]) -> None:
-    await bot.api.send_message(raw_msg.chat_id, "Hello, World!")
+    await bot.api.send_message(chat_id=raw_msg.chat_id, text="Hello, World!")
 
 
 @bot.on(update_type=UpdateType.CALLBACK_QUERY)

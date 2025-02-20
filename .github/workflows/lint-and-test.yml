@@ -1,35 +1,38 @@
 name: Lint and test
 
-on: [push]
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating system"
+        required: true
+        type: string
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.os }}
 
     steps:
         - uses: actions/checkout@v4
-        - name: Set up CPython 3.11
+        - name: Set up CPython 3.12
           uses: actions/setup-python@v5
           with:
-            python-version: "3.11"
+            python-version: "3.12"
 
-        - name: Install poetry
+        - name: Install poetry manager
           run: pip install --upgrade pip setuptools wheel && pip install --user pipx && pipx install poetry
 
-        - name: Poetry check structure
-          run: >
-            poetry check
-
-        - name: Install depends
-          run: >
-            poetry install
+        - name: Poetry check structure and install dependencies
+          run: poetry check && poetry install
 
         - name: Lint code with ruff
           run: >
-            poetry run ruff check . --fix
+            poetry run ruff check --fix
 
         - name: Check types with basedpyright
           run: >
-            poetry run basedpyright . --level ERROR
+            poetry run basedpyright --level ERROR
 
-        # NOTE: add run tests
+        - name: Run tests with pytest
+          run: >
+            poetry run pytest --cov

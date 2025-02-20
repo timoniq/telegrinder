@@ -2,6 +2,7 @@ from fntypes.co import Some
 
 from telegrinder import (
     API,
+    MESSAGE_FROM_USER,
     Message,
     MessageReplyHandler,
     Telegrinder,
@@ -15,7 +16,7 @@ from telegrinder.rules import ABCRule, HasText, Text
 from telegrinder.types import MessageReactionUpdated, ReactionEmoji, UpdateType
 
 bot = Telegrinder(API(Token.from_env()))
-wm = WaiterMachine()
+wm = WaiterMachine(bot.dispatch)
 logger.set_level("INFO")
 
 
@@ -33,22 +34,23 @@ class ReactionRule(ABCRule[Update]):
 async def react_message(message: Message):
     await message.reply("Send me message with any text and i'll react it!")
     msg, _ = await wm.wait(
-        bot.dispatch.message,
-        message,
-        HasText(),
-        default=MessageReplyHandler("Im still waiting for the message with any text!"),
+        MESSAGE_FROM_USER,
+        message.from_user.id,
+        release=HasText(),
+        on_miss=MessageReplyHandler("Im still waiting for the message with any text!"),
     )
     await msg.react(ReactionEmoji.HEART_ON_FIRE)
     bot.dispatch.global_context[f"{msg.from_user.id}:{msg.chat.id}"] = msg.message_id
 
 
-@bot.on.raw_event(UpdateType.CHAT_BOOST)
+# Same as bot.on.raw_event
+@bot.on(update_type=UpdateType.CHAT_BOOST)
 async def chat_boost(update: Update):
     boosted_chat = update.chat_boost.unwrap().chat
     logger.info(f"User boosted chat (title={boosted_chat.title.unwrap()}, id={boosted_chat.id})")
 
 
-@bot.on.raw_event(UpdateType.MESSAGE_REACTION, ReactionRule(), dataclass=MessageReactionUpdated)
+@bot.on.raw_event(ReactionRule(), dataclass=MessageReactionUpdated, update_type=UpdateType.MESSAGE_REACTION)
 async def message_reaction(message_reaction: MessageReactionUpdated):
     new_reactions = [
         x.v.emoji.value if x.v.type == "emoji" else "*custom reaction*" for x in message_reaction.new_reaction
@@ -59,7 +61,7 @@ async def message_reaction(message_reaction: MessageReactionUpdated):
     )
 
 
-@bot.on.raw_event(UpdateType.EDITED_MESSAGE, dataclass=Message)
+@bot.on.raw_event(dataclass=Message, update_type=UpdateType.MESSAGE_REACTION)
 async def edited_message(m: Message):
     logger.info(f"User edit message with id: {m.message_id}")
 

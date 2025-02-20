@@ -1,6 +1,7 @@
 import random
 
 from telegrinder import (
+    MESSAGE_IN_CHAT,
     CallbackQuery,
     Checkbox,
     Dispatch,
@@ -8,19 +9,22 @@ from telegrinder import (
     MessageReplyHandler,
     WaiterMachine,
 )
+from telegrinder.bot.dispatch.waiter_machine.hasher.callback import CALLBACK_QUERY_FOR_MESSAGE
 from telegrinder.rules import (
-    CallbackDataEq,
-    CallbackDataMarkup,
     FuzzyText,
     HasText,
     IntegerInRange,
+    PayloadEqRule,
+    PayloadMarkupRule,
     Text,
 )
 from telegrinder.tools.formatting import HTMLFormatter, block_quote, link
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 dp = Dispatch()
-wm = WaiterMachine()
+wm = WaiterMachine(dp)
+
+
 kb = (
     InlineKeyboard()
     .add(InlineButton("✅ Confirm", callback_data="action/confirm"))
@@ -48,7 +52,7 @@ async def car_choice(message: Message) -> None:
         .add_option("bentley", "Bentley Continental", "Continental 🤍")
         .add_option("mazda", "Mazda rx 7", "Mazda rx 7 🩵")
         .add_option("toyota", "Toyota Supra mk5", "Supra mk5 💜")
-        .wait(message.ctx_api, dp.callback_query)
+        .wait(CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api)
     )
     await message.edit(
         "🚘 You picked: {}.".format(", ".join(c for c in picked if picked[c])),
@@ -61,7 +65,7 @@ async def handle_menu_command(message: Message) -> None:
     await message.answer("📋 Menu:", reply_markup=kb)
 
 
-@dp.callback_query(CallbackDataEq("action/webhook"))
+@dp.callback_query(PayloadEqRule("action/webhook"))
 async def handle_query_webhook(cb: CallbackQuery) -> None:
     await cb.answer()
     await cb.ctx_api.send_message(
@@ -76,7 +80,7 @@ async def handle_query_webhook(cb: CallbackQuery) -> None:
     )
 
 
-@dp.callback_query(CallbackDataEq("action/quote"))
+@dp.callback_query(PayloadEqRule("action/quote"))
 async def handle_query_quote(cb: CallbackQuery) -> None:
     await cb.answer()
     message = (
@@ -86,15 +90,15 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        dp.message,
-        (cb.ctx_api, message.chat_id),
-        HasText(),
-        default=MessageReplyHandler("Im still waiting for your message!"),
+        MESSAGE_IN_CHAT,
+        message.chat.id,
+        release=HasText(),
+        on_miss=MessageReplyHandler("Im still waiting for your message!"),
     )
     await msg.reply(HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE)
 
 
-@dp.callback_query(CallbackDataEq("action/guess"))
+@dp.callback_query(PayloadEqRule("action/guess"))
 async def handle_query_guess(cb: CallbackQuery) -> None:
     await cb.answer()
     message = (
@@ -104,10 +108,10 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        dp.message,
-        (cb.ctx_api, message.chat_id),
-        IntegerInRange(range(1, 11)),
-        default=MessageReplyHandler("Send a number between 1 and 10!"),
+        MESSAGE_IN_CHAT,
+        message.chat.id,
+        release=IntegerInRange(range(1, 11)),
+        on_miss=MessageReplyHandler("Send a number between 1 and 10!"),
     )
     random_number = random.randint(1, 10)
     if int(msg.text.unwrap()) == random_number:
@@ -116,7 +120,7 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
     await msg.answer(f"🎲 Ohh noooo...  i guessed the number {random_number} :-(")
 
 
-@dp.callback_query(CallbackDataMarkup("action/<action>"))
+@dp.callback_query(PayloadMarkupRule("action/<action>"))
 async def handle_query_action(cb: CallbackQuery, action: str) -> None:
     await cb.answer("✅" if action == "confirm" else "❌")
     match action:

@@ -33,7 +33,7 @@ Let's write code in `start.py`:
 ```python
 from telegrinder import Dispatch, Message
 from telegrinder.rules import Text
-from telegrinder.tools import HTMLFormatter
+from telegrinder.tools.formatting import HTMLFormatter
 
 dp = Dispatch()
 

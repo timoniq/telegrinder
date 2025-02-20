@@ -1,3 +1,3 @@
-from .base import ABCTranslatorMiddleware
+from .abc import ABCTranslatorMiddleware
 
 __all__ = ("ABCTranslatorMiddleware",)

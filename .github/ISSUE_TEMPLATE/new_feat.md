@@ -3,7 +3,7 @@ name: "\U0001F680 New feature \U0001F680"
 about: "\U0001F680 I want to propose a new feature. \U0001F680"
 title: ""
 labels: ["new_feature"]
-assignees: "luwqz1"
+assignees: []
 ---
 
 ## 🚀 Feature Request 🚀

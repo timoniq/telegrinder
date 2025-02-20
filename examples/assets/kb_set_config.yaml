@@ -1,7 +1,7 @@
 menu:
   buttons:
     - text: "Choose"
-    - text: "Edit"
+    - text: "Items"
 yes_no:
   one_time_keyboard: on
   buttons:
@@ -10,9 +10,6 @@ yes_no:
     - text: "No"
 items:
   buttons:
-    - text: "remove"
-      callback_data: "remove_kb"
-    -
     - text: "Buy apple"
       callback_data:
         name: "Apple"
@@ -21,3 +18,7 @@ items:
       callback_data:
         name: "Banana"
         cost: 456
+edit:
+  buttons:
+    - text: "Edit message"
+      callback_data: "edit"

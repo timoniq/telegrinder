@@ -5,8 +5,7 @@ from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot import Context
 from telegrinder.modules import logger
 from telegrinder.rules import Markup, MessageEntities, Text
-from telegrinder.tools.formatting import HTMLFormatter, bold, code_inline
-from telegrinder.tools.formatting.html import TagFormat
+from telegrinder.tools.formatting.html_formatter import HTMLFormatter, bold, code_inline
 from telegrinder.tools.global_context import GlobalContext, ctx_var
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity, User
@@ -20,13 +19,13 @@ class ImportantContext(GlobalContext):
     __ctx_name__ = "important_ctx"
 
     formatting: bool = False
-    users: typing.ClassVar[dict[int, User]] = ctx_var({}, const=True)
+    users: dict[int, User] = ctx_var(default={}, frozen=True)
 
 
 global_ctx = ImportantContext()
 
 
-def formatting_text(*fmt_texts: str | TagFormat) -> dict[str, typing.Any]:
+def formatting_text(*fmt_texts: str) -> dict[str, typing.Any]:
     params = {"text": "", "parse_mode": None}
     if not global_ctx.formatting:
         params["text"] = "".join(map(str, fmt_texts))

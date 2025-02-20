@@ -52,7 +52,7 @@ async def command_handler_me(message: Message) -> list[str]:
 
 @bot.on.message(
     Command("secret", Argument("code", validators=[MappedValidator(int_validator)])),
-    is_blocking=False,
+    final=False,
 )
 async def command_handler_secret(message: Message, code: list[int]) -> Context:
     await message.answer("The secret code has been created!")

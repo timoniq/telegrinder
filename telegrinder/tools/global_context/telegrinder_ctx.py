@@ -1,4 +1,4 @@
-import typing
+import re
 
 import vbml
 
@@ -15,11 +15,13 @@ class TelegrinderContext(GlobalContext):
     ctx1 = TelegrinderContext()
     ctx2 = GlobalContext("telegrinder")  # same, but without the type-hints
     assert ctx1 == ctx2  # ok
-    ```"""
+    ```
+    """
 
     __ctx_name__ = "telegrinder"
 
-    vbml_patcher: typing.ClassVar[vbml.Patcher] = ctx_var(vbml.Patcher(), const=True)
+    vbml_pattern_flags: re.RegexFlag | None = None
+    vbml_patcher: vbml.Patcher = ctx_var(default=vbml.Patcher(), frozen=True)
 
 
 __all__ = ("TelegrinderContext",)

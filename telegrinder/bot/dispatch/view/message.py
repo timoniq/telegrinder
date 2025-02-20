@@ -1,10 +1,10 @@
 import typing
 
-from telegrinder.bot.cute_types import MessageCute
-from telegrinder.bot.dispatch.return_manager import MessageReturnManager
-from telegrinder.types import Update, UpdateType
-
-from .abc import BaseStateView
+from telegrinder.bot.cute_types.message import MessageCute
+from telegrinder.bot.dispatch.return_manager.message import MessageReturnManager
+from telegrinder.bot.dispatch.view.base import BaseStateView
+from telegrinder.types.enums import UpdateType
+from telegrinder.types.objects import Update
 
 MessageUpdateType: typing.TypeAlias = typing.Literal[
     UpdateType.MESSAGE,
@@ -18,10 +18,8 @@ MessageUpdateType: typing.TypeAlias = typing.Literal[
 
 class MessageView(BaseStateView[MessageCute]):
     def __init__(self, *, update_type: MessageUpdateType | None = None) -> None:
-        self.auto_rules = []
-        self.handlers = []
+        super().__init__()
         self.update_type = update_type
-        self.middlewares = []
         self.return_manager = MessageReturnManager()
 
     def __repr__(self) -> str:
@@ -30,7 +28,8 @@ class MessageView(BaseStateView[MessageCute]):
             "any message update" if self.update_type is None else self.update_type.value,
         )
 
-    def get_state_key(self, event: MessageCute) -> int | None:
+    @classmethod
+    def get_state_key(cls, event: MessageCute) -> int | None:
         return event.chat_id
 
     async def check(self, event: Update) -> bool:

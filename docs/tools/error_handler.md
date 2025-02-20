@@ -38,22 +38,27 @@ async def some_catcher(exception: NameError | ValueError) -> None:
 
 The catcher function *_always accepts the error object as its first parameter_*, which has no specific name, and can also accept two optional arguments:
 
-* `api` - An instance of the API class;
-* `event` - The event that came to the handler.
+* `api` - API instance;
+* `event` - Incoming event.
 
 Additionally some parameters from the context and the catcher function can return a value for `ReturnManager`.
 
 `.run()` method:
 
 * `handler` - The handler that needs to be processed;
-* `event` - The event that came to the handler;
-* `api` - An instance of the API class;
+* `event` - Incoming event;
+* `api` - API instance;
 * `ctx` - Context instance.
 
 ```python
 from telegrinder.tools.error_handler import ErrorHandler
 
 error_handler = ErrorHandler()
+
+
+async def some_handler(message: Message, value: int):
+    if value == 123:
+        raise ValueError("Wrong value!")
 
 
 @error_handler(NameError, ValueError("Wrong value!"), logging=True, ignore_errors=True, raise_exception=False)

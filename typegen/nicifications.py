@@ -1,19 +1,19 @@
-"""
-Code in this file is automatically parsed.
+"""Code in this file is automatically parsed.
 ---
 Nicifications are basically nice features for models which are included in auto-generate_noded models
 The difference between nicifications and cure types is: cute types can borrow view runtime properties and have context api
 (so they can implement model-specific methods).
-Nicifications can only implement methods/properties working only with model fields.
+Nicifications can only implement fields/methods/properties working only with model fields.
 """
 
-import pathlib
-import typing
+from __future__ import annotations
+
 from datetime import datetime
+from functools import cached_property
 
-from fntypes.option import Option
+from fntypes.option import Nothing, Option
 
-from telegrinder.msgspec_utils import Nothing
+from telegrinder.model import Model
 from telegrinder.types import (
     Birthdate,
     Chat,
@@ -22,7 +22,6 @@ from telegrinder.types import (
     ChatType,
     ContentType,
     DefaultAccentColor,
-    InaccessibleMessage,
     Message,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
@@ -36,28 +35,24 @@ class _Birthdate(Birthdate):
     @property
     def is_birthday(self) -> bool:
         """True, if today is a user's birthday."""
-
         now = datetime.now()
         return now.month == self.month and now.day == self.day
 
     @property
     def age(self) -> Option[int]:
         """Optional. Contains the user's age, if the user has a birth year specified."""
-
-        return self.year.map(
-            lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days
-        )
+        return self.year.map(lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days)
 
 
 class _Chat(Chat):
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
     def full_name(self) -> Option[str]:
         """Optional. Full name (`first_name` + `last_name`) of the
-        other party in a `private` chat."""
-
+        other party in a `private` chat.
+        """
         return self.first_name.map(lambda x: x + " " + self.last_name.unwrap_or(""))
 
 
@@ -65,7 +60,6 @@ class _ChatJoinRequest(ChatJoinRequest):
     @property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
-
         return self.chat.id
 
 
@@ -73,26 +67,24 @@ class _ChatMemberUpdated(ChatMemberUpdated):
     @property
     def chat_id(self) -> int:
         """Alias `.chat_id` instead of `.chat.id`"""
-
         return self.chat.id
 
 
 class _Message(Message):
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return (
             isinstance(other, self.__class__)
             and self.message_id == other.message_id
             and self.chat_id == other.chat_id
         )
 
-    @property
+    @cached_property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
-
         for content in ContentType:
-            if (
-                content.value in self.__struct_fields__
-                and getattr(self, content.value, Nothing) is not Nothing
+            if content.value in self.__struct_fields__ and not isinstance(
+                getattr(self, content.value, Nothing()),
+                Nothing,
             ):
                 return content
         return ContentType.UNKNOWN
@@ -100,85 +92,61 @@ class _Message(Message):
     @property
     def from_user(self) -> "User":
         """`from_user` instead of `from_.unwrap()`."""
-
         return self.from_.unwrap()
 
     @property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
-
         return self.chat.id
 
     @property
     def chat_title(self) -> str:
         """Chat title, for `supergroups`, `channels` and `group` chats.
-        Full name, for `private` chat."""
-
-        return (
-            self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
-        )
+        Full name, for `private` chat.
+        """
+        return self.chat.full_name.unwrap() if self.chat.type == ChatType.PRIVATE else self.chat.title.unwrap()
 
 
 class _User(User):
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return isinstance(other, self.__class__) and self.id == other.id
 
     @property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
-
         return DefaultAccentColor(self.id % 7)
 
     @property
     def full_name(self) -> str:
         """User's or bot's full name (`first_name` + `last_name`)."""
-
         return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
 
 
 class _Update(Update):
-    def __eq__(self, other: typing.Any) -> bool:
+    def __eq__(self, other: object, /) -> bool:
         return isinstance(other, self.__class__) and self.update_type == other.update_type
 
-    @property
+    @cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
-
         return UpdateType(
             next(
-                filter(
-                    lambda x: bool(x[1]),
-                    self.to_dict(exclude_fields={"update_id"}).items(),
-                ),
-            )[0],
+                (
+                    x
+                    for x in self.__struct_fields__
+                    if x != "update_id" and not isinstance(getattr(self, x), Nothing)
+                )
+            ),
         )
 
-
-class _InputFile(typing.NamedTuple):
-    filename: str
-    """File name."""
-
-    data: bytes
-    """Bytes of file."""
-
-    @classmethod
-    def from_file(cls, path: str | pathlib.Path) -> typing.Self:
-        path = pathlib.Path(path)
-        return cls(
-            filename=path.name,
-            data=path.read_bytes(),
-        )
-
-
-class _InaccessibleMessage(InaccessibleMessage):
-    date: typing.Literal[0]
-    """Always 0. The field can be used to differentiate regular and inaccessible
-    messages."""
+    @cached_property
+    def incoming_update(self) -> Model:
+        """Incoming update."""
+        return getattr(self, self.update_type.value).unwrap()
 
 
 class _ReplyKeyboardMarkup(ReplyKeyboardMarkup):
     @property
-    def empty_markup(self) -> "ReplyKeyboardRemove":
+    def empty_markup(self) -> ReplyKeyboardRemove:
         """Empty keyboard to remove the custom keyboard."""
-
-        return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective)
+        return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective.unwrap_or_none())

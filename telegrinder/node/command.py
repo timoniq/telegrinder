@@ -1,10 +1,11 @@
 import typing
 from dataclasses import dataclass, field
 
-from fntypes import Nothing, Option, Some
+from fntypes.option import Nothing, Option, Some
 
-from .base import DataNode
-from .text import Text
+from telegrinder.node.base import DataNode
+from telegrinder.node.either import Either
+from telegrinder.node.text import Caption, Text
 
 
 def single_split(s: str, separator: str) -> tuple[str, str]:
@@ -24,7 +25,7 @@ class CommandInfo(DataNode):
     mention: Option[str] = field(default_factory=Nothing)
 
     @classmethod
-    async def compose(cls, text: Text) -> typing.Self:
+    def compose(cls, text: Either[Text, Caption]) -> typing.Self:
         name, arguments = single_split(text, separator=" ")
         name, mention = cut_mention(name)
         return cls(name, arguments, mention)

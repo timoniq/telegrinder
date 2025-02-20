@@ -2,13 +2,12 @@ import typing
 
 from examples.nodes import DB, create_tables
 from telegrinder import API, Message, Telegrinder, Token, node
-from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
 from telegrinder.modules import logger
-from telegrinder.node import ScalarNode, node_impl
+from telegrinder.node import ChatSource, TextLiteral, scalar_node
 
-MessageId = typing.NewType("MessageId", int)
+MessageId = type("MessageId", (int,), {})
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -16,33 +15,27 @@ logger.set_level("DEBUG")
 
 
 class IsChat(ABCRule):
-    async def check(self, source: node.Source) -> bool:
-        return source.chat.id < 0
+    async def check(self, chat: ChatSource) -> bool:
+        return chat.id < 0
 
 
 class IsAdmin(ABCRule):
     async def check(self, source: node.Source, db: DB, context: Context) -> bool:
-        result = await db.execute("select * from admins where telegram_id = ?", (source.from_user.id,))
+        result = await db.execute("select * from admins where telegram_id = ?", (source.from_user.id,))  # type: ignore
         context["is_admin"] = True
         return bool(await result.fetchone())
 
 
-class IncomingMessageId(ScalarNode, int):
+@scalar_node
+class IncomingMessageId:
     @classmethod
-    async def compose(cls, message_id: MessageId) -> MessageId:
-        logger.debug("Message with id: {}", message_id)
-        return message_id
-
-    # Create node implementation for 'MessageId' annotation in compose method.
-    # This node implementation can be found by return type.
-    @node_impl
-    def compose_message_id(cls, update: UpdateCute) -> MessageId:
-        return MessageId(update.message.expect("Update is not a message.").message_id)
+    def compose(cls, message: Message) -> MessageId:
+        return MessageId(message.message_id)
 
 
 async def promote(user_id: int, *, db: DB) -> None:
-    await db.execute("insert into admins(telegram_id) values (?) on conflict do nothing", (user_id,))
-    await db.commit()
+    await db.execute("insert into admins(telegram_id) values (?) on conflict do nothing", (user_id,))  # type: ignore
+    await db.commit()  # type: ignore
 
 
 @bot.on.message(IsChat())
@@ -56,13 +49,22 @@ async def reply_handler(_: Message, message_id: IncomingMessageId) -> str:
     return f"Your message id: {message_id}"
 
 
+@bot.on.message()
+async def handle_texts(texts: TextLiteral["hello", "hi", "hilo"]) -> typing.Literal["hilo", "hello", "hi"]:
+    match texts:
+        case "hello":
+            return "hilo"
+        case "hi":
+            return "hello"
+        case "hilo":
+            return "hi"
+
+
 ### Two handlers below require DB node
 # DB node is marked with scope = PER_EVENT
 # therefore DB node will only be resolved once on event
 # If you run this code you will see that connection opening
 # and closing is going to happen only once.
-
-
 @bot.on.message()
 async def photo_handler(
     message: Message,
@@ -97,7 +99,7 @@ async def getadmin_handler(message: Message, token: str, db: DB) -> str:
     return "Done"
 
 
-@bot.on.message(Text("/amiadmin"), IsAdmin().optional())
+@bot.on.message(Text("/amiadmin"), IsAdmin().as_optional())
 async def amiadmin_handler(message: Message, is_admin: bool = False):
     await message.answer("You are " + ("not " if not is_admin else "") + "an admin")
 

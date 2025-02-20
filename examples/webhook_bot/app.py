@@ -28,7 +28,7 @@ SECRET_TOKEN = secrets.token_urlsafe(64)  # > random secret token
 
 @asynccontextmanager
 async def lifespan(_):
-    await api.set_webhook(WEBHOOK_URL, secret_token=SECRET_TOKEN)
+    await api.set_webhook(url=WEBHOOK_URL, secret_token=SECRET_TOKEN)
     yield
     await api.delete_webhook(drop_pending_updates=True)
 
@@ -40,7 +40,7 @@ app = FastAPI(lifespan=lifespan)  # type: ignore
 async def webhook_bot(request: Request) -> Response:  # type: ignore
     if request.headers.get("X-Telegram-Bot-Api-Secret-Token") != SECRET_TOKEN:  # type: ignore
         return Response(status_code=404)  # type: ignore
-    update = Update.from_bytes(await request.body())  # type: ignore
+    update = Update.from_raw(await request.body())  # type: ignore
     logger.debug("Webhook received update (update_id={})", update.update_id)
     asyncio.get_running_loop().create_task(dp.feed(update, api))
     return Response(status_code=200)  # type: ignore

@@ -1,10 +1,11 @@
 from telegrinder import API, Choice, Message, Telegrinder, Token, WaiterMachine
+from telegrinder.bot.dispatch.waiter_machine.hasher.callback import CALLBACK_QUERY_FOR_MESSAGE
 from telegrinder.modules import logger
 from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine()
+wm = WaiterMachine(bot.dispatch)
 
 logger.set_level("INFO")
 
@@ -16,7 +17,7 @@ async def action(m: Message):
         .add_option("apple", "Apple 🔴", "Apple 🟢")
         .add_option("banana", "Banana 🔴", "Banana 🟢", is_picked=True)
         .add_option("pear", "Pear 🔴", "Pear 🟢")
-        .wait(m.ctx_api, bot.dispatch.callback_query)
+        .wait(CALLBACK_QUERY_FOR_MESSAGE, m.ctx_api)
     )
     await m.edit(text=f"You chose - {chosen}", message_id=m_id)
 

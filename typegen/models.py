@@ -1,7 +1,7 @@
 from msgspec import Struct, field
 
 
-class Model(Struct, omit_defaults=True):
+class Model(Struct):
     pass
 
 
@@ -71,6 +71,12 @@ class ObjectField(Model):
 
     description: str | None = None
     """Field description."""
+
+    default: str | None = None
+    """Default value."""
+
+    default_factory: str | None = None
+    """Default factory for dataclass."""
 
 
 class MethodParameter(Model):

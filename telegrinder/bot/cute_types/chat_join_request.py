@@ -2,15 +2,15 @@ import typing
 
 from fntypes.result import Result
 
-from telegrinder.api.abc import ABCAPI, APIError
-from telegrinder.types.objects import ChatJoinRequest, User
-
-from .base import BaseCute, shortcut
-from .chat_member_updated import ChatMemberShortcuts, chat_member_interaction
+from telegrinder.api.api import API, APIError
+from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.bot.cute_types.chat_member_updated import ChatMemberShortcuts, chat_member_interaction
+from telegrinder.tools.magic import shortcut
+from telegrinder.types.objects import *
 
 
 class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMemberShortcuts, kw_only=True):
-    api: ABCAPI
+    api: API
 
     @property
     def from_user(self) -> User:
@@ -20,9 +20,14 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     def user_id(self) -> int:
         return self.from_user.id
 
-    @shortcut("approve_chat_join_request", executor=chat_member_interaction)
+    @shortcut(
+        "approve_chat_join_request",
+        executor=chat_member_interaction,
+        custom_params={"chat_id", "user_id"},
+    )
     async def approve(
         self,
+        *,
         chat_id: int | str | None = None,
         user_id: int | None = None,
         **other: typing.Any,
@@ -31,19 +36,17 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
 
         Use this method to approve a chat join request. The bot must be an administrator
         in the chat for this to work and must have the can_invite_users administrator
-        right. Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param user_id: Unique identifier of the target user.
-        """
-
+        right. Returns True on success."""
         ...
 
-    @shortcut("decline_chat_join_request", executor=chat_member_interaction)
+    @shortcut(
+        "decline_chat_join_request",
+        executor=chat_member_interaction,
+        custom_params={"chat_id", "user_id"},
+    )
     async def decline(
         self,
+        *,
         chat_id: int | str | None = None,
         user_id: int | None = None,
         **other: typing.Any,
@@ -52,14 +55,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
 
         Use this method to decline a chat join request. The bot must be an administrator
         in the chat for this to work and must have the can_invite_users administrator
-        right. Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param user_id: Unique identifier of the target user.
-        """
-
+        right. Returns True on success."""
         ...
 
 

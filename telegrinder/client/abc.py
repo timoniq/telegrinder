@@ -1,10 +1,18 @@
+import io
 import typing
 from abc import ABC, abstractmethod
 
+from telegrinder.client.form_data import MultipartFormProto, encode_form_data
 
-class ABCClient(ABC):
+type Data = dict[str, typing.Any] | MultipartFormProto
+
+
+class ABCClient[MultipartForm: MultipartFormProto](ABC):
+    CONNECTION_TIMEOUT_ERRORS: tuple[type[BaseException], ...] = ()
+    CLIENT_CONNECTION_ERRORS: tuple[type[BaseException], ...] = ()
+
     @abstractmethod
-    def __init__(self, *args: typing.Any, **kwargs: typing.Any):
+    def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         pass
 
     @abstractmethod
@@ -12,7 +20,7 @@ class ABCClient(ABC):
         self,
         url: str,
         method: str = "GET",
-        data: dict[str, typing.Any] | None = None,
+        data: Data | None = None,
         **kwargs: typing.Any,
     ) -> str:
         pass
@@ -22,7 +30,7 @@ class ABCClient(ABC):
         self,
         url: str,
         method: str = "GET",
-        data: dict[str, typing.Any] | None = None,
+        data: Data | None = None,
         **kwargs: typing.Any,
     ) -> dict[str, typing.Any]:
         pass
@@ -32,7 +40,7 @@ class ABCClient(ABC):
         self,
         url: str,
         method: str = "GET",
-        data: dict[str, typing.Any] | None = None,
+        data: Data | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         pass
@@ -42,7 +50,7 @@ class ABCClient(ABC):
         self,
         url: str,
         method: str = "GET",
-        data: dict[str, typing.Any] | None = None,
+        data: Data | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         pass
@@ -53,12 +61,28 @@ class ABCClient(ABC):
 
     @classmethod
     @abstractmethod
+    def multipart_form_factory(cls) -> MultipartForm:
+        pass
+
+    @classmethod
     def get_form(
         cls,
+        *,
         data: dict[str, typing.Any],
-        files: dict[str, tuple[str, bytes]] | None = None,
-    ) -> typing.Any:
-        pass
+        files: dict[str, tuple[str, typing.Any]] | None = None,
+    ) -> MultipartForm:
+        multipart_form = cls.multipart_form_factory()
+        files = files or {}
+
+        for k, v in encode_form_data(data, files).items():
+            multipart_form.add_field(k, v)
+
+        for n, (filename, content) in {
+            k: (n, io.BytesIO(c) if isinstance(c, bytes) else c) for k, (n, c) in files.items()
+        }.items():
+            multipart_form.add_field(n, content, filename=filename)
+
+        return multipart_form
 
     async def __aenter__(self) -> typing.Self:
         return self
@@ -68,8 +92,9 @@ class ABCClient(ABC):
         exc_type: type[BaseException],
         exc_val: typing.Any,
         exc_tb: typing.Any,
-    ) -> None:
+    ) -> bool:
         await self.close()
+        return not bool(exc_val)
 
 
 __all__ = ("ABCClient",)

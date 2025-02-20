@@ -2,17 +2,17 @@ import dataclasses
 import importlib
 import typing
 
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import ComposeError, Node
-from telegrinder.node.update import UpdateNode
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.process import check_rule
     from telegrinder.bot.rules.abc import ABCRule
 
 
-class RuleChain(dict[str, typing.Any]):
-    dataclass = dict
+class RuleChain(dict[str, typing.Any], Node):
+    dataclass: type[typing.Any] = dict
     rules: tuple["ABCRule", ...] = ()
 
     def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
@@ -28,7 +28,6 @@ class RuleChain(dict[str, typing.Any]):
     def __class_getitem__(cls, items: "ABCRule | tuple[ABCRule, ...]", /) -> typing.Self:
         if not isinstance(items, tuple):
             items = (items,)
-        assert all(isinstance(rule, "ABCRule") for rule in items), "All items must be instances of 'ABCRule'."
         return cls(*items)
 
     @staticmethod
@@ -36,7 +35,8 @@ class RuleChain(dict[str, typing.Any]):
         return dataclasses.dataclass(type(cls_.__name__, (object,), dict(cls_.__dict__)))
 
     @classmethod
-    async def compose(cls, update: UpdateNode) -> typing.Any:
+    async def compose(cls, update: UpdateCute) -> typing.Any:
+        # Hack to avoid circular import
         globalns = globals()
         if "check_rule" not in globalns:
             globalns.update(
@@ -54,25 +54,15 @@ class RuleChain(dict[str, typing.Any]):
                 raise ComposeError(f"Rule {rule!r} failed!")
 
         try:
-            return cls.dataclass(**ctx)  # type: ignore
+            if dataclasses.is_dataclass(cls.dataclass):
+                return cls.dataclass(**{k: ctx[k] for k in cls.__annotations__})
+            return cls.dataclass(**ctx)
         except Exception as exc:
             raise ComposeError(f"Dataclass validation error: {exc}")
 
     @classmethod
     def as_node(cls) -> type[typing.Self]:
         return cls
-
-    @classmethod
-    def get_sub_nodes(cls) -> dict:
-        return {"update": UpdateNode}
-
-    @classmethod
-    def get_compose_annotations(cls) -> dict[str, typing.Any]:
-        return {}
-
-    @classmethod
-    def get_node_impls(cls) -> dict[str, typing.Callable[..., typing.Any]]:
-        return {}
 
     @classmethod
     def is_generator(cls) -> typing.Literal[False]:

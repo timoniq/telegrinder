@@ -18,7 +18,7 @@ You want to create a checkbox to choose accessories user want to buy with their 
 You need to import required components. The special one for the needs of checkbox scenario will be `telegrinder.Checkbox`. Let's integrate it to your bot.
 
 ```python
-from telegrinder import Telegrinder, API, Token, Message, Checkbox
+from telegrinder import Telegrinder, API, Token, Message, Checkbox, CALLBACK_QUERY_FOR_MESSAGE
 from telegrinder.rules import Text
 
 api = API(token=Token("..."))
@@ -71,7 +71,7 @@ async def start(m: Message):
     # now your checkbox is ready to use.
     # picked is a dictionary option name to option state
     # message_id is the id of the one sent with `msg` text
-    picked, message_id = await checkbox.wait(m.ctx_api, bot.dispatch)
+    picked, message_id = await checkbox.wait(CALLBACK_QUERY_FOR_MESSAGE, m.ctx_api)
 
     # usually this message is edited
     # with received information

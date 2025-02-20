@@ -4,15 +4,13 @@ from abc import ABC, abstractmethod
 from telegrinder.bot.cute_types.base import BaseCute
 
 if typing.TYPE_CHECKING:
-    from telegrinder.api import ABCAPI
+    from telegrinder.api import API
     from telegrinder.bot.dispatch.view.abc import ABCStateView
 
-EventT = typing.TypeVar("EventT", bound=BaseCute)
 
-
-class ABCScenario(ABC, typing.Generic[EventT]):
+class ABCScenario[Event: BaseCute](ABC):
     @abstractmethod
-    def wait(self, api: "ABCAPI", view: "ABCStateView[EventT]") -> typing.Any:
+    def wait(self, api: "API", view: "ABCStateView[Event]") -> typing.Any:
         pass
 
 

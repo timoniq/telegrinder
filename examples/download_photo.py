@@ -16,7 +16,7 @@ class HasPhoto(MessageRule):
 
 @bot.on.message(HasPhoto())
 async def downloader(message: Message) -> str:
-    photo_file = (await message.ctx_api.get_file(message.photo.unwrap()[-1].file_id)).unwrap()
+    photo_file = (await message.ctx_api.get_file(file_id=message.photo.unwrap()[-1].file_id)).unwrap()
     photo_path = photo_file.file_path.unwrap()
 
     path = photos_path / pathlib.Path(photo_path.split("/")[-1])

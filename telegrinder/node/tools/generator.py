@@ -1,31 +1,28 @@
 import inspect
 import typing
 
-from telegrinder.node.base import ComposeError, Node
+from telegrinder.node.base import ComposeError, IsNode, Node
 from telegrinder.node.container import ContainerNode
 
-T = typing.TypeVar("T")
 
-
-def cast_false_to_none(value: T) -> T | None:
+def cast_false_to_none[Value](value: Value) -> Value | None:
     if value is False:
         return None
     return value
 
 
-def error_on_none(value: T | None) -> T:
+def error_on_none[Value](value: Value | None) -> Value:
     if value is None:
         raise ComposeError
     return value
 
 
 def generate_node(
-    subnodes: tuple[type["Node"], ...],
-    func: typing.Callable[..., T],
+    subnodes: tuple[IsNode, ...],
+    func: typing.Callable[..., typing.Any],
     casts: tuple[typing.Callable[[typing.Any], typing.Any], ...] = (cast_false_to_none, error_on_none),
-) -> type["Node"]:
-    async def compose(**kw: typing.Any) -> typing.Any:
-        args = await ContainerNode.compose(**kw)
+) -> type[Node]:
+    async def compose(cls, *args: typing.Any) -> typing.Any:
         result = func(*args)
         if inspect.isawaitable(result):
             result = await result
@@ -33,8 +30,7 @@ def generate_node(
             result = cast(result)
         return result
 
-    container = ContainerNode.link_nodes(list(subnodes))
-    return type("_ContainerNode", (container,), {"compose": compose})
+    return ContainerNode.link_nodes(linked_nodes=list(subnodes), composer=compose)
 
 
 __all__ = ("generate_node",)

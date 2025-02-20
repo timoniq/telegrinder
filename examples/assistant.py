@@ -23,7 +23,7 @@ class WithReply(MessageRule):
 
 class IsChatAdmin(MessageRule, requires=[IsChat()]):
     async def check(self, message: Message, ctx: Context) -> bool:
-        admins = (await bot.api.get_chat_administrators(message.chat.id)).unwrap()
+        admins = (await bot.api.get_chat_administrators(chat_id=message.chat.id)).unwrap()
         if message.from_user.id not in (admin.v.user.id for admin in admins if admin.v.user):
             await message.reply("You need to be an admin in this chat")
             return False
@@ -39,8 +39,8 @@ async def ping(msg: Message):
 async def ban(msg: Message, hours: int = 1):
     perms = ChatPermissions()  # no permissions added
     result = await bot.api.restrict_chat_member(
-        msg.chat.id,
-        msg.reply_to_message.unwrap().from_user.id,
+        chat_id=msg.chat.id,
+        user_id=msg.reply_to_message.unwrap().from_user.id,
         permissions=perms,
         until_date=int(time.time() + hours * 3600),
     )

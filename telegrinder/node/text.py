@@ -1,21 +1,53 @@
-from telegrinder.node.base import ComposeError, ScalarNode
-from telegrinder.node.message import MessageNode
+import typing
+
+from telegrinder.bot.cute_types.message import MessageCute
+from telegrinder.node.base import ComposeError, FactoryNode, scalar_node
+from telegrinder.node.either import Either
 
 
-class Text(ScalarNode, str):
+@scalar_node
+class Caption:
     @classmethod
-    async def compose(cls, message: MessageNode) -> str:
+    def compose(cls, message: MessageCute) -> str:
+        if not message.caption:
+            raise ComposeError("Message has no caption.")
+        return message.caption.unwrap()
+
+
+@scalar_node
+class Text:
+    @classmethod
+    def compose(cls, message: MessageCute) -> str:
         if not message.text:
             raise ComposeError("Message has no text.")
         return message.text.unwrap()
 
 
-class TextInteger(ScalarNode, int):
+@scalar_node
+class TextInteger:
     @classmethod
-    async def compose(cls, text: Text) -> int:
+    def compose(cls, text: Either[Text, Caption]) -> int:
         if not text.isdigit():
             raise ComposeError("Text is not digit.")
         return int(text)
 
 
-__all__ = ("Text", "TextInteger")
+if typing.TYPE_CHECKING:
+    from typing import Literal as TextLiteral
+
+else:
+
+    class TextLiteral(FactoryNode):
+        texts: tuple[str, ...]
+
+        def __class_getitem__(cls, texts, /):
+            return cls(texts=(texts,) if not isinstance(texts, tuple) else texts)
+
+        @classmethod
+        def compose(cls, text: Text) -> str:
+            if text in cls.texts:
+                return text
+            raise ComposeError("Text mismatched literal.")
+
+
+__all__ = ("Caption", "Text", "TextInteger", "TextLiteral")

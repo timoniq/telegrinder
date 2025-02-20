@@ -27,7 +27,7 @@ async def integer_handler(message: Message) -> None:
 
 
 @bot.on.message(IsPrivate())
-async def hello_handler(_: Message) -> HTMLFormatter:
+async def hello_handler() -> HTMLFormatter:
     return HTMLFormatter(
         "Write a positive number and I'll translate it to {} numeral",
     ).format(Link("https://en.wikipedia.org/wiki/Kaktovik_numerals", "kaktovik"))
