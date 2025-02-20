@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [project]
 requires-python = ">=3.12,<4.0"
 name = "telegrinder"
-version = "0.4.dev1"
+version = "0.4.0"
 description = "Modern visionary telegram bot framework."
 authors = [
   {name = "timoniq", email = "tesseradecades@mail.ru"}
