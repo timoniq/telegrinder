@@ -7,7 +7,7 @@ import typing_extensions as typing
 from telegrinder.bot.cute_types import MessageCute, UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.node.base import IsNode, get_nodes, is_node
+from telegrinder.node.base import NodeType, get_nodes, is_node
 from telegrinder.tools.adapter import ABCAdapter
 from telegrinder.tools.adapter.node import Event
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
@@ -115,7 +115,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         )
 
     @cached_property
-    def required_nodes(self) -> dict[str, IsNode]:
+    def required_nodes(self) -> dict[str, type[NodeType]]:
         return get_nodes(self.check)
 
     def as_optional(self) -> "ABCRule":

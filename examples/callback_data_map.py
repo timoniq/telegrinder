@@ -1,4 +1,4 @@
-from telegrinder import API, CallbackQuery, InlineButton, InlineKeyboard, Message, Telegrinder, Token
+from telegrinder import API, InlineButton, InlineKeyboard, Message, Telegrinder, Token
 from telegrinder.rules import CallbackDataMap, Text
 
 bot = Telegrinder(API(Token.from_env()))
@@ -16,7 +16,7 @@ async def start(message: Message):
 
 
 @bot.on.callback_query(CallbackDataMap({"item": str, "amount": lambda v: v <= 20}))
-async def eat_item(_: CallbackQuery, item: str, amount: int) -> str:
+async def eat_item(item: str, amount: int) -> str:
     return f"You chose: {item=}, {amount=}"
 
 

@@ -27,9 +27,13 @@ def compose_method_params[Cute: BaseCute](
 
 
 if typing.TYPE_CHECKING:
+    from telegrinder.node.base import Node
 
     class BaseCute[Update: Model](Model):
         api: API
+
+        @classmethod
+        def as_node(cls) -> type[Node]: ...
 
         @classmethod
         def from_update(cls, update: Update, bound_api: API) -> typing.Self: ...
@@ -109,6 +113,15 @@ else:
 
             cls.__is_solved_annotations__ = False
             cls.__cute_annotations__ = None
+            cls.__event_node__ = None
+
+        @classmethod
+        def as_node(cls):
+            if cls.__event_node__ is None:
+                from telegrinder.node.event import _EventNode
+
+                cls.__event_node__ = _EventNode[cls]
+            return cls.__event_node__
 
         @classmethod
         def from_update(cls, update, bound_api):

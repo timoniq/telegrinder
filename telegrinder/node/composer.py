@@ -13,23 +13,23 @@ from telegrinder.node.base import (
     Name,
     NodeImpersonation,
     NodeScope,
+    NodeType,
     unwrap_node,
 )
 from telegrinder.tools.magic import join_dicts, magic_bundle
 
 type AsyncGenerator = typing.AsyncGenerator[typing.Any, None]
-type Awaitable = typing.Awaitable[typing.Any]
 
 CONTEXT_STORE_NODES_KEY = "_node_ctx"
 GLOBAL_VALUE_KEY = "_value"
 
 
-def get_scope(node: IsNode, /) -> NodeScope | None:
+def get_scope(node: type[NodeType], /) -> NodeScope | None:
     return getattr(node, "scope", None)
 
 
 async def compose_node(
-    node: IsNode,
+    node: type[NodeType],
     linked: dict[type[typing.Any], typing.Any],
     data: dict[type[typing.Any], typing.Any] | None = None,
 ) -> "NodeSession":
@@ -45,7 +45,7 @@ async def compose_node(
         value = await generator.asend(None)
     else:
         generator = None
-        value = typing.cast(Awaitable | typing.Any, node.compose(**kwargs))
+        value = node.compose(**kwargs)
         if inspect.isawaitable(value):
             value = await value
 
@@ -65,7 +65,7 @@ async def compose_nodes(
     unwrapped_nodes = {(key, n := node.as_node()): unwrap_node(n) for key, node in nodes.items()}
 
     for (parent_node_name, parent_node_t), linked_nodes in unwrapped_nodes.items():
-        local_nodes = dict[IsNode, NodeSession]()
+        local_nodes = dict[type[NodeType], NodeSession]()
         subnodes = {}
         data[Name] = parent_node_name
 
@@ -88,7 +88,7 @@ async def compose_nodes(
                 for t, local_node in local_nodes.items():
                     if get_scope(t) is NodeScope.PER_CALL:
                         await local_node.close()
-                return Error(ComposeError(f"Cannot compose {node_t!r}, error: {exc!r}"))
+                return Error(ComposeError(f"Cannot compose {node_t!r}, error: {str(exc)}"))
 
             if scope is NodeScope.PER_EVENT:
                 event_nodes[node_t] = local_nodes[node_t]
@@ -102,7 +102,7 @@ async def compose_nodes(
 
 @dataclasses.dataclass(slots=True, repr=False)
 class NodeSession:
-    node_type: IsNode | None
+    node_type: type[NodeType] | None
     value: typing.Any
     subnodes: dict[str, typing.Self]
     generator: typing.AsyncGenerator[typing.Any, typing.Any | None] | None = None

@@ -4,8 +4,8 @@ import typing
 from fntypes.option import Nothing, Option, Some
 
 import telegrinder.types
+from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.node.base import ComposeError, DataNode, scalar_node
-from telegrinder.node.message import MessageNode
 
 type AttachmentType = typing.Literal[
     "audio",
@@ -63,7 +63,7 @@ class Attachment(DataNode):
         return typing.get_args(AttachmentType.__value__)
 
     @classmethod
-    def compose(cls, message: MessageNode) -> typing.Self:
+    def compose(cls, message: MessageCute) -> typing.Self:
         for attachment_type in cls.get_attachment_types():
             match getattr(message, attachment_type, Nothing()):
                 case Some(attachment):

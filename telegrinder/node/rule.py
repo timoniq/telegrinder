@@ -2,9 +2,9 @@ import dataclasses
 import importlib
 import typing
 
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import ComposeError, Node
-from telegrinder.node.update import UpdateNode
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.process import check_rule
@@ -35,7 +35,7 @@ class RuleChain(dict[str, typing.Any], Node):
         return dataclasses.dataclass(type(cls_.__name__, (object,), dict(cls_.__dict__)))
 
     @classmethod
-    async def compose(cls, update: UpdateNode) -> typing.Any:
+    async def compose(cls, update: UpdateCute) -> typing.Any:
         # Hack to avoid circular import
         globalns = globals()
         if "check_rule" not in globalns:

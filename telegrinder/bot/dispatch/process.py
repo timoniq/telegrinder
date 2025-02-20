@@ -132,8 +132,9 @@ async def check_rule(
     nodes = rule.required_nodes
     node_col = None
     if nodes:
-        result = await compose_nodes(nodes, ctx, data={Update: update, API: api, UpdateCute: update_cute})
+        result = await compose_nodes(nodes, ctx, data={Update: update, API: api})
         if not result:
+            logger.debug(f"Cannot compose nodes for rule, error: {str(result.error)}")
             return False
         node_col = result.value
 

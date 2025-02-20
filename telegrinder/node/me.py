@@ -4,10 +4,8 @@ from telegrinder.node.scope import GLOBAL
 from telegrinder.types.objects import User
 
 
-@scalar_node
+@scalar_node(scope=GLOBAL)
 class Me:
-    scope = GLOBAL
-
     @classmethod
     async def compose(cls, api: API) -> User:
         me = await api.get_me()

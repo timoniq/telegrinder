@@ -66,9 +66,9 @@ class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
         handler = FuncHandler(
             self.pass_runtime,
             [short_state.release] if short_state.release else [],
-            dataclass=BaseCute,
             preset_context=preset_context,
         )
+        handler.get_name_event_param = lambda event: "event"  # FIXME: HOTFIX
         result = await handler.check(event.ctx_api, ctx.raw_update, ctx)
 
         if result is True:
@@ -82,12 +82,12 @@ class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
 
     async def pass_runtime(
         self,
-        event: BaseCute[Event],
+        event: Event,
         short_state: "ShortState[Event]",
         ctx: Context,
     ) -> None:
-        ctx.set("initiator", self.hasher)
-        short_state.context = ShortStateContext(typing.cast(Event, event), ctx)
+        ctx.initiator = self.hasher
+        short_state.context = ShortStateContext(event, ctx)
         short_state.event.set()
 
 

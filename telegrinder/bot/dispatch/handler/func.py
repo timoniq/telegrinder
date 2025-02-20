@@ -7,7 +7,7 @@ from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import logger
-from telegrinder.node.base import IsNode, get_nodes
+from telegrinder.node.base import NodeType, get_nodes
 from telegrinder.node.composer import NodeCollection, compose_nodes
 from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.tools.adapter.dataclass import DataclassAdapter
@@ -64,10 +64,10 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         )
 
     @cached_property
-    def required_nodes(self) -> dict[str, IsNode]:
+    def required_nodes(self) -> dict[str, type[NodeType]]:
         return get_nodes(self.function)
 
-    def get_func_event_param(self, event: Event) -> str | None:
+    def get_name_event_param(self, event: Event) -> str | None:
         event_class = self.dataclass or event.__class__
         for k, v in get_annotations(self.function).items():
             if isinstance(v := typing.get_origin(v) or v, type) and v is event_class:
@@ -93,9 +93,9 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         nodes = self.required_nodes
         node_col = None
         if nodes:
-            result = await compose_nodes(nodes, ctx, data={Update: event, API: api})
+            result = await compose_nodes(nodes, ctx, data={Update: update, API: api})
             if not result:
-                logger.debug(f"Cannot compose nodes for handler. Error: {result.error!r}")
+                logger.debug(f"Cannot compose nodes for handler, error: {str(result.error)}")
                 return False
 
             node_col = result.value
@@ -116,7 +116,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         logger.debug(f"Running handler {self!r}...")
 
         try:
-            if event_param := self.get_func_event_param(event):
+            if event_param := self.get_name_event_param(event):
                 ctx = Context(**{event_param: event, **ctx})
             return await self(**magic_bundle(self.function, ctx, start_idx=0))
         except BaseException as exception:

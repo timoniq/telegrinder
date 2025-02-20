@@ -1,7 +1,8 @@
 import typing
 
 from telegrinder.api.api import API
-from telegrinder.node import CallbackQueryNode, ComposeError, PayloadData, Polymorphic, impl
+from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
+from telegrinder.node import ComposeError, PayloadData, Polymorphic, impl
 from telegrinder.node.base import FactoryNode
 
 from .data import OpenId, PaginatedData, SwitchPage
@@ -29,7 +30,7 @@ class _PaginatorItem[T: PaginatedData, F](Polymorphic, FactoryNode):
     @impl
     async def compose_switch_page(
         cls,
-        event: CallbackQueryNode,
+        event: CallbackQueryCute,
         api: API,
         payload: PayloadData[SwitchPage],
     ) -> typing.NoReturn:

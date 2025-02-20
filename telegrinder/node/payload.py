@@ -3,26 +3,26 @@ import typing
 
 from fntypes.result import Error, Ok
 
+from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
+from telegrinder.bot.cute_types.message import MessageCute
+from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.node.base import ComposeError, DataNode, FactoryNode, GlobalNode, scalar_node
-from telegrinder.node.callback_query import CallbackQueryNode
-from telegrinder.node.message import MessageNode
 from telegrinder.node.polymorphic import Polymorphic, impl
-from telegrinder.node.pre_checkout_query import PreCheckoutQueryNode
 from telegrinder.tools.callback_data_serilization import ABCDataSerializer, JSONSerializer
 
 
 @scalar_node[str]
 class Payload(Polymorphic):
     @impl
-    def compose_pre_checkout_query(cls, event: PreCheckoutQueryNode) -> str:
+    def compose_pre_checkout_query(cls, event: PreCheckoutQueryCute) -> str:
         return event.invoice_payload
 
     @impl
-    def compose_callback_query(cls, event: CallbackQueryNode) -> str:
+    def compose_callback_query(cls, event: CallbackQueryCute) -> str:
         return event.data.expect("CallbackQuery has no data.")
 
     @impl
-    def compose_message(cls, event: MessageNode) -> str:
+    def compose_message(cls, event: MessageCute) -> str:
         return event.successful_payment.map(
             lambda payment: payment.invoice_payload,
         ).expect("Message has no successful payment.")

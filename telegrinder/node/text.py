@@ -1,14 +1,14 @@
 import typing
 
+from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.node.base import ComposeError, FactoryNode, scalar_node
 from telegrinder.node.either import Either
-from telegrinder.node.message import MessageNode
 
 
 @scalar_node
 class Caption:
     @classmethod
-    def compose(cls, message: MessageNode) -> str:
+    def compose(cls, message: MessageCute) -> str:
         if not message.caption:
             raise ComposeError("Message has no caption.")
         return message.caption.unwrap()
@@ -17,7 +17,7 @@ class Caption:
 @scalar_node
 class Text:
     @classmethod
-    def compose(cls, message: MessageNode) -> str:
+    def compose(cls, message: MessageCute) -> str:
         if not message.text:
             raise ComposeError("Message has no text.")
         return message.text.unwrap()

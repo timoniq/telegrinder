@@ -91,8 +91,8 @@ def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
 
 
 @cache_magic_value("__nodes__")
-def get_nodes(function: typing.Callable[..., typing.Any], /) -> dict[str, IsNode]:
-    return {k: v for k, v in get_annotations(function).items() if is_node(v)}
+def get_nodes(function: typing.Callable[..., typing.Any], /) -> dict[str, type[NodeType]]:
+    return {k: v.as_node() for k, v in get_annotations(function).items() if is_node(v)}
 
 
 @cache_magic_value("__is_generator__")
@@ -121,8 +121,7 @@ def unwrap_node(node: type[NodeType], /) -> tuple[type[NodeType], ...]:
             visited.insert(0, parent)
 
         for child in child_nodes:
-            parent_child = child.as_node()
-            stack.append((parent_child, parent_child.get_subnodes().values()))
+            stack.append((child, child.get_subnodes().values()))
 
     unwrapped = tuple(visited)
     setattr(node, UNWRAPPED_NODE_KEY, unwrapped)
@@ -154,7 +153,7 @@ class NodeComposeFunction[R](typing.Protocol):
 @typing.runtime_checkable
 class NodeProto[R](Composable[R], NodeImpersonation, typing.Protocol):
     @classmethod
-    def get_subnodes(cls) -> dict[str, IsNode]: ...
+    def get_subnodes(cls) -> dict[str, type[NodeType]]: ...
 
     @classmethod
     def is_generator(cls) -> bool: ...
@@ -170,7 +169,7 @@ class Node(abc.ABC):
         pass
 
     @classmethod
-    def get_subnodes(cls) -> dict[str, IsNode]:
+    def get_subnodes(cls) -> dict[str, type[NodeType]]:
         return get_nodes(cls.compose)
 
     @classmethod

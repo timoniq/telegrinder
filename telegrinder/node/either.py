@@ -7,7 +7,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import ComposeError, FactoryNode, Node
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, GLOBAL_VALUE_KEY, compose_node, compose_nodes
 from telegrinder.node.scope import NodeScope, per_call
-from telegrinder.node.update import UpdateNode
+from telegrinder.types.objects import Update
 
 
 @per_call
@@ -34,8 +34,8 @@ class _Either(FactoryNode):
         return cls(nodes=nodes)
 
     @classmethod
-    async def compose(cls, update: UpdateNode, context: Context) -> typing.Any | None:
-        data = {API: update.api, Context: context}
+    async def compose(cls, api: API, update: Update, context: Context) -> typing.Any | None:
+        data = {API: api, Update: update, Context: context}
         node_ctx = context.get_or_set(CONTEXT_STORE_NODES_KEY, {})
 
         for node in cls.nodes:

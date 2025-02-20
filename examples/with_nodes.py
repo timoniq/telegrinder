@@ -5,7 +5,7 @@ from telegrinder import API, Message, Telegrinder, Token, node
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
 from telegrinder.modules import logger
-from telegrinder.node import ChatSource, MessageNode, TextLiteral, scalar_node
+from telegrinder.node import ChatSource, TextLiteral, scalar_node
 
 MessageId = type("MessageId", (int,), {})
 
@@ -29,7 +29,7 @@ class IsAdmin(ABCRule):
 @scalar_node
 class IncomingMessageId:
     @classmethod
-    def compose(cls, message: MessageNode) -> MessageId:
+    def compose(cls, message: Message) -> MessageId:
         return MessageId(message.message_id)
 
 

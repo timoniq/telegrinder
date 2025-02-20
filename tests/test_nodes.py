@@ -4,21 +4,18 @@ import typing
 import pytest
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.cute_types.message import MessageCute
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules import IsUser, Markup
 from telegrinder.node import DataNode, Node, Polymorphic, impl, scalar_node
 from telegrinder.node.base import ComposeError, as_node
-from telegrinder.node.callback_query import CallbackQueryNode
 from telegrinder.node.composer import NodeCollection, compose_nodes
 from telegrinder.node.event import EventNode
 from telegrinder.node.me import Me
-from telegrinder.node.message import MessageNode
 from telegrinder.node.rule import RuleChain
 from telegrinder.node.text import Text
 from telegrinder.node.tools.generator import generate_node
-from telegrinder.node.update import UpdateNode
 from telegrinder.types.objects import Message, Update, User
 from tests.test_utils import with_mocked_api
 
@@ -52,7 +49,7 @@ class PrettyRuleChain(
 @scalar_node[int]
 class ScalarMorphNode(Polymorphic):
     @impl
-    async def impl1(cls, update: UpdateNode) -> int:
+    async def impl1(cls, update: UpdateCute) -> int:
         if update.update_id >= 10000:
             return update.update_id
         raise ComposeError("Update id < 10000")
@@ -63,7 +60,7 @@ class DataMorphNode(Polymorphic, DataNode):
     update_id: int
 
     @impl
-    async def impl1(cls, update: UpdateNode) -> typing.Self:
+    async def impl1(cls, update: UpdateCute) -> typing.Self:
         if update.update_id >= 10000:
             return cls(update.update_id)
         raise ComposeError("Update id < 10000")
@@ -71,7 +68,7 @@ class DataMorphNode(Polymorphic, DataNode):
 
 class StringNode(Node):
     @classmethod
-    async def compose(cls, update: UpdateNode) -> str:
+    async def compose(cls, update: UpdateCute) -> str:
         return str(update.update_id)
 
 
@@ -106,30 +103,15 @@ async def test_node(api_instance, message_update):
 
 
 @pytest.mark.asyncio()
-async def test_message_node(api_instance, message_update):
+async def test_message_cute_as_node(api_instance, message_update):
     result = await compose_nodes(
-        {"message": as_node(MessageNode)},
+        {"message": as_node(MessageCute)},
         Context(),
         {API: api_instance, Update: message_update},
     )
     assert result
     assert isinstance(result.value, NodeCollection)
     assert "message" in result.value.values and isinstance(result.value.values["message"], MessageCute)
-
-
-@pytest.mark.asyncio()
-async def test_callback_query_node(api_instance, callback_query_update):
-    result = await compose_nodes(
-        {"callback_query": as_node(CallbackQueryNode)},
-        Context(),
-        {API: api_instance, Update: callback_query_update},
-    )
-    assert result
-    assert isinstance(result.value, NodeCollection)
-    assert "callback_query" in result.value.values and isinstance(
-        result.value.values["callback_query"],
-        CallbackQueryCute,
-    )
 
 
 @pytest.mark.asyncio()
