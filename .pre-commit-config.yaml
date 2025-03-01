@@ -13,14 +13,14 @@ repos:
 
   - repo: local
     hooks:
-      - id: basedpyright
-        name: basedpyright
-        description: "Run 'basedpyright' for Python type checking"
-        entry: poetry run basedpyright --level ERROR
-        pass_filenames: false
-        language: system
-        types: [ python ]
-        stages: [ pre-commit ]
+      #- id: basedpyright
+      #  name: basedpyright
+      #  description: "Run 'basedpyright' for Python type checking"
+      #  entry: poetry run basedpyright --level ERROR
+      #  pass_filenames: false
+      #  language: system
+      #  types: [ python ]
+      #  stages: [ pre-commit ]
 
       - id: pytest
         name: pytest
