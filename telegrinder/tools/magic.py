@@ -136,7 +136,7 @@ def magic_bundle(
     kw: dict[str, typing.Any],
     *,
     start_idx: int = 1,
-    bundle_ctx: bool = True,
+    bundle_ctx: bool = False,
     omit_defaults: bool = False,
 ) -> dict[str, typing.Any]: ...
 
@@ -147,7 +147,7 @@ def magic_bundle(
     kw: dict[enum.Enum, typing.Any],
     *,
     start_idx: int = 1,
-    bundle_ctx: bool = True,
+    bundle_ctx: bool = False,
     omit_defaults: bool = False,
 ) -> dict[str, typing.Any]: ...
 
@@ -168,7 +168,7 @@ def magic_bundle(
     kw: dict[typing.Any, typing.Any],
     *,
     start_idx: int = 1,
-    bundle_ctx: bool = True,
+    bundle_ctx: bool = False,
     typebundle: bool = False,
     omit_defaults: bool = False,
 ) -> dict[str, typing.Any]:

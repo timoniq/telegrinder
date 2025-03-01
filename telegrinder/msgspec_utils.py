@@ -261,7 +261,7 @@ class Decoder:
                     f"Unknown type `{repr_type(origin_type)}`. You can implement decode hook for this type."
                 )
             dec_hook_func = self.dec_hooks[origin_type]
-            kwargs = magic_bundle(dec_hook_func, context or {}, start_idx=2, bundle_ctx=False)
+            kwargs = magic_bundle(dec_hook_func, context or {}, start_idx=2)
             return dec_hook_func(tp, obj, **kwargs)
 
         return inner
@@ -400,7 +400,7 @@ class Encoder:
                     f"Not implemented encode hook for object of type `{repr_type(origin_type)}`.",
                 )
             enc_hook_func = self.enc_hooks[origin_type]
-            kwargs = magic_bundle(enc_hook_func, context or {}, start_idx=1, bundle_ctx=False)
+            kwargs = magic_bundle(enc_hook_func, context or {}, start_idx=1)
             return enc_hook_func(obj, **kwargs)
 
         return inner
