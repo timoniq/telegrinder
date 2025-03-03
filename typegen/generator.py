@@ -459,13 +459,13 @@ class ObjectGenerator(ABCGenerator):
         with open(path + "/objects.py", mode="w", encoding="UTF-8") as f:
             f.writelines(lines)
 
-        exec(f"from {path.replace('/', '.') + '.enums'} import __all__", globals(), locals())
+        enums_all = tuple(__import__(f"{path.replace('/', '.') + '.enums'}").__all__)
         with open(path + "/__init__.py", "w", encoding="UTF-8") as f:
             f.writelines(
                 [
                     "from telegrinder.types.enums import *\n",
                     "from telegrinder.types.objects import *\n\n",
-                    f"__all__ = {locals()['__all__'] + tuple(all_)}\n",  # type: ignore
+                    f"__all__ = {enums_all + tuple(all_)}\n",  # type: ignore
                 ]
             )
 
