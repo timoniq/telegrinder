@@ -23,9 +23,9 @@ jobs:
 
   open_pr:
     runs-on: ubuntu-22.04
-    needs: [lock_file, type_generation]
+    needs: [type_generation]
     steps:
-      - uses: peter-evans/create-pull-request@v6
+      - uses: peter-evans/create-pull-request@v7
         with:
           commit-message: >
             Update Bot API types based on the latest schema changes
