@@ -4,10 +4,10 @@ import asyncio
 import dataclasses
 import enum
 import inspect
-import typing
 from collections import OrderedDict
 from functools import wraps
 
+import typing_extensions as typing
 from fntypes import Result
 
 from telegrinder.model import get_params
@@ -222,7 +222,7 @@ def impl(method: typing.Callable[..., typing.Any]):
     return classmethod(method)
 
 
-def get_polymorphic_implemenations(cls: type[Polymorphic], /) -> list[typing.Callable[..., typing.Any]]:
+def get_polymorphic_implementations(cls: type[Polymorphic], /) -> list[typing.Callable[..., typing.Any]]:
     moprh_impls = getattr(cls, MORPH_IMPLEMENTATIONS_KEY, None)
     if moprh_impls is not None:
         return moprh_impls
@@ -334,7 +334,7 @@ __all__ = (
     "get_default_args",
     "get_default_args",
     "get_func_parameters",
-    "get_polymorphic_implemenations",
+    "get_polymorphic_implementations",
     "impl",
     "join_dicts",
     "magic_bundle",
