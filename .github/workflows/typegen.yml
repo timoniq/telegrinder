@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [type_generation]
     steps:
+      - uses: actions/checkout@v4
       - uses: peter-evans/create-pull-request@v7
         with:
           commit-message: >
