@@ -6,7 +6,6 @@ from telegrinder.bot.scenario.checkbox import Checkbox, ChoiceAction
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
-    from telegrinder.bot.dispatch.view.base import BaseStateView
 
     class Choice[Key: typing.Hashable](Checkbox[Key]):
         async def wait(
@@ -16,6 +15,7 @@ if typing.TYPE_CHECKING:
         ) -> tuple[Key, int]: ...
 
 else:
+
     class Choice(Checkbox):
         async def handle(self, cb):
             code = cb.data.unwrap().replace(self.random_code + "/", "", 1)

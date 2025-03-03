@@ -22,9 +22,7 @@ class EventAdapter[ToEvent: BaseCute](ABCAdapter[Update, ToEvent]):
 
     def __repr__(self) -> str:
         raw_update_type = (
-            f"Update -> {self.event.__name__}"
-            if isinstance(self.event, type)
-            else f"Update.{self.event.value}"  # type: ignore
+            f"Update -> {self.event.__name__}" if isinstance(self.event, type) else f"Update.{self.event.value}"  # type: ignore
         )
         return "<{}: adapt {} -> {}>".format(
             self.__class__.__name__,

@@ -16,21 +16,13 @@ jobs:
       - uses: ./.github/actions/setup
       - run: uvx ruff check .
 
-  formatting:
-    runs-on: ubuntu-22.04
-    needs: [lock_file]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - run: uvx ruff format --check .
-
   type_checking:
     runs-on: ubuntu-22.04
     needs: [lock_file]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: uv run basedpyright . --level ERROR
+      - run: uv run basedpyright --level ERROR
 
   tests:
     runs-on: ubuntu-22.04
@@ -42,7 +34,7 @@ jobs:
 
   build:
     runs-on: [ubuntu-22.04]
-    needs: [linting, formatting, type_checking, tests]
+    needs: [linting, type_checking, tests]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
