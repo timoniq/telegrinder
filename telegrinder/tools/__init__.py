@@ -69,6 +69,7 @@ from .global_context import (
     GlobalCtxVar,
     TelegrinderContext,
     ctx_var,
+    runtime_init,
 )
 from .i18n import (
     ABCI18n,
@@ -87,8 +88,9 @@ from .keyboard import (
     Keyboard,
     RowButtons,
 )
+from .lifespan import Lifespan
 from .limited_dict import LimitedDict
-from .loop_wrapper import ABCLoopWrapper, DelayedTask, Lifespan, LoopWrapper
+from .loop_wrapper import DelayedTask, LoopWrapper
 from .magic import (
     cancel_future,
     get_annotations,
@@ -109,7 +111,6 @@ __all__ = (
     "ABCErrorHandler",
     "ABCGlobalContext",
     "ABCI18n",
-    "ABCLoopWrapper",
     "ABCStateStorage",
     "ABCTranslator",
     "ABCTranslatorMiddleware",
@@ -175,6 +176,7 @@ __all__ = (
     "resolve_arg_names",
     "spoiler",
     "strike",
+    "runtime_init",
     "tg_bot_attach_open_any_chat",
     "tg_bot_attach_open_current_chat",
     "tg_bot_attach_open_specific_chat",

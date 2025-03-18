@@ -49,7 +49,6 @@ from telegrinder.bot.dispatch.waiter_machine import (
     ShortState,
     StateViewHasher,
     WaiterMachine,
-    clear_wm_storage_worker,
 )
 
 __all__ = (
@@ -97,8 +96,6 @@ __all__ = (
     "ViewBox",
     "WaiterMachine",
     "check_rule",
-    "clear_wm_storage_worker",
-    "clear_wm_storage_worker",
     "process_inner",
     "register_manager",
 )

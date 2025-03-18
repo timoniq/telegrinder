@@ -4,25 +4,24 @@ import datetime
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
-from telegrinder.rules import Text
+from telegrinder.rules import Markup, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 RAVIOLI_TIME_TO_COOK = 9 * 60
 
-logger.set_level("INFO")
+logger.set_level("DEBUG")
 
 
 @dataclasses.dataclass
 class TimerInfo:
     name: str
     end_time: datetime.datetime
-    task: asyncio.Task
 
 
-class FakeDB:
+class DummyDB:
     def __init__(self) -> None:
-        self.storage = {}
+        self.storage: dict[int, list[TimerInfo]] = {}
 
     def get(self, user_id: int) -> list[TimerInfo]:
         return self.storage.get(user_id) or []
@@ -33,8 +32,8 @@ class FakeDB:
         self.storage[user_id].append(tinfo)
 
     def new(self, name: str, time: int, message: Message) -> TimerInfo:
-        task = asyncio.get_running_loop().create_task(self.timer(name, time, message))
-        return TimerInfo(name, datetime.datetime.now() + datetime.timedelta(seconds=time), task)
+        bot.loop_wrapper.add_task(self.timer(name, time, message))
+        return TimerInfo(name, datetime.datetime.now() + datetime.timedelta(seconds=time))
 
     async def timer(self, name: str, time: int, message: Message) -> None:
         await asyncio.sleep(time)
@@ -42,14 +41,14 @@ class FakeDB:
         self.storage[message.from_user.id].pop(0)
 
 
-db = FakeDB()
+db = DummyDB()
 
 
-@bot.on.message(Text("/ravioli"))
-async def start(message: Message):
-    ravioli = db.new("Ravioli", RAVIOLI_TIME_TO_COOK, message)
+@bot.on.message(Markup(["/ravioli", "/ravioli <ravioli_name>"]))
+async def start(message: Message, ravioli_name: str = "Ravioli") -> str:
+    ravioli = db.new(ravioli_name, RAVIOLI_TIME_TO_COOK, message)
     db.add(message.from_user.id, ravioli)
-    await message.answer("Timer for ravioli is set!")
+    return f"Timer for ravioli {ravioli_name!r} is set!"
 
 
 @bot.on.message(Text("/cooking"))
@@ -60,13 +59,13 @@ async def cooking(message: Message):
         return
     text = "\n".join(
         "{}. {} will be ready at {}".format(
-            i + 1,
+            index,
             record.name,
-            record.end_time,
+            record.end_time.strftime("%m.%d.%Y %H:%M"),
         )
-        for i, record in enumerate(boiling)
+        for index, record in enumerate(boiling, start=1)
     )
     await message.answer("Boiling raviolies:\n\n" + text)
 
 
-bot.run_forever()
+bot.run_forever(skip_updates=True)

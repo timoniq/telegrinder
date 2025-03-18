@@ -47,4 +47,4 @@ async def run_polling() -> typing.NoReturn:
 
 
 lw.add_task(run_polling())
-lw.run_event_loop()
+lw.run()

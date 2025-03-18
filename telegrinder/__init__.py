@@ -101,7 +101,7 @@ from .model import Model
 from .modules import logger
 from .tools.error_handler import ABCErrorHandler, ErrorHandler
 from .tools.formatting import HTMLFormatter
-from .tools.global_context import ABCGlobalContext, CtxVar, GlobalContext, ctx_var
+from .tools.global_context import ABCGlobalContext, GlobalContext, TelegrinderContext
 from .tools.i18n import (
     ABCTranslator,
     ABCTranslatorMiddleware,
@@ -119,7 +119,7 @@ from .tools.keyboard import (
     RowButtons,
 )
 from .tools.lifespan import Lifespan
-from .tools.loop_wrapper import ABCLoopWrapper, DelayedTask, LoopWrapper
+from .tools.loop_wrapper import DelayedTask, LoopWrapper
 from .tools.magic import cache_translation, get_cached_translation, magic_bundle
 from .tools.parse_mode import ParseMode
 from .tools.state_storage import ABCStateStorage, MemoryStateStorage, StateData
@@ -140,7 +140,6 @@ __all__ = (
     "ABCErrorHandler",
     "ABCGlobalContext",
     "ABCHandler",
-    "ABCLoopWrapper",
     "ABCMiddleware",
     "ABCPolling",
     "ABCReturnManager",
@@ -184,7 +183,6 @@ __all__ = (
     "Checkbox",
     "Choice",
     "Context",
-    "CtxVar",
     "DelayedTask",
     "Dispatch",
     "DocumentReplyHandler",
@@ -235,6 +233,7 @@ __all__ = (
     "StateViewHasher",
     "StickerReplyHandler",
     "Telegrinder",
+    "TelegrinderContext",
     "Token",
     "Update",
     "UpdateCute",
@@ -242,7 +241,6 @@ __all__ = (
     "ViewBox",
     "WaiterMachine",
     "cache_translation",
-    "ctx_var",
     "get_cached_translation",
     "logger",
     "magic_bundle",
