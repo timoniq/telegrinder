@@ -20,15 +20,24 @@ pip install telegrinder
 ```
 
 Using poetry:
-
 ```console
 poetry add telegrinder
+```
+
+Using uv:
+
+```console
+uv add telegrinder
 ```
 
 Install from github:
 
 ```console
 pip install -U https://github.com/timoniq/telegrinder/archive/dev.zip
+```
+
+```console
+uv add "telegrinder @ git+https://github.com/timoniq/telegrinder.git@dev"
 ```
 
 ```console
@@ -48,7 +57,7 @@ logger.set_level("INFO")
 
 
 @bot.on.message(Text("/start"))
-async def start(message: Message):
+async def start(message: Message) -> None:
     me = (await api.get_me()).unwrap()
     await message.answer(f"Hello, {message.from_user.full_name}! I'm {me.full_name}.")
 
@@ -73,6 +82,7 @@ Copyright © 2022-2025 [timoniq](https://github.com/timoniq)\
 Copyright © 2024-2025 [luwqz1](https://github.com/luwqz1)
 
 # Contributors
+
 
 <a href="https://github.com/timoniq/telegrinder/graphs/contributors">
  <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder" />

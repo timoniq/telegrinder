@@ -22,7 +22,7 @@ logger.set_level("INFO")
 
 
 @bot.on.message(Text("/start"))
-async def start(message: Message):
+async def start(message: Message) -> None:
     me = (await api.get_me()).unwrap()
     await message.answer(f"Hello, {message.from_user.full_name}! I'm {me.full_name}.")
 

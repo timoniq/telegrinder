@@ -118,7 +118,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         try:
             if event_param := self.get_name_event_param(event):
                 ctx = Context(**{event_param: event, **ctx})
-            return await self(**magic_bundle(self.function, ctx, start_idx=0))
+            return await self(**magic_bundle(self.function, ctx, start_idx=0, bundle_ctx=True))
         except BaseException as exception:
             return await self.error_handler.run(exception, event, api, ctx)
         finally:

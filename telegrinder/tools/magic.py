@@ -4,11 +4,10 @@ import asyncio
 import dataclasses
 import enum
 import inspect
-import types
-import typing
 from collections import OrderedDict
 from functools import wraps
 
+import typing_extensions as typing
 from fntypes import Result
 
 from telegrinder.model import get_params
@@ -18,56 +17,67 @@ if typing.TYPE_CHECKING:
     from telegrinder.node.polymorphic import Polymorphic
 
 type Impl = type[classmethod]
-type FuncType = types.FunctionType | typing.Callable[..., typing.Any]
-
+type Function = typing.Callable[..., typing.Any]
 type Executor[T] = typing.Callable[
     [T, str, dict[str, typing.Any]],
     typing.Awaitable[Result[typing.Any, typing.Any]],
 ]
 
 TRANSLATIONS_KEY: typing.Final[str] = "_translations"
+MORPH_IMPLEMENTATIONS_KEY = "__morph_implementations__"
 IMPL_MARK: typing.Final[str] = "_is_impl"
+CONTEXT_KEYS: typing.Final[tuple[str, ...]] = ("ctx", "context")
+
+
+class FuncParams(typing.TypedDict, total=True):
+    args: list[tuple[str, typing.Any | inspect.Parameter.empty]]
+    kwargs: list[tuple[str, typing.Any | inspect.Parameter.empty]]
+    var_args: typing.NotRequired[str]
+    var_kwargs: typing.NotRequired[str]
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
 class Shortcut[T]:
     method_name: str
     executor: Executor[T] | None = dataclasses.field(default=None, kw_only=True)
-    custom_params: set[str] = dataclasses.field(default_factory=lambda: set(), kw_only=True)
+    custom_params: set[str] = dataclasses.field(default_factory=lambda: set[str](), kw_only=True)
 
 
 def cache_magic_value(mark_key: str, /):
     def inner[Func: typing.Callable[..., typing.Any]](func: Func) -> Func:
         @wraps(func)
-        def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-            if mark_key not in args[0].__dict__:
-                args[0].__dict__[mark_key] = func(*args, **kwargs)
-            return args[0].__dict__[mark_key]
+        def wrapper(
+            f: Function | None = None,
+            /,
+            *args: typing.Any,
+            **kwargs: typing.Any,
+        ) -> typing.Any:
+            if f is not None and mark_key not in f.__dict__:
+                f.__dict__[mark_key] = func(f, *args, **kwargs)
+            return f.__dict__[mark_key]
 
         return wrapper  # type: ignore
 
     return inner
 
 
-def resolve_arg_names(func: FuncType, start_idx: int = 1) -> tuple[str, ...]:
+def resolve_arg_names(func: Function, start_idx: int = 1) -> tuple[str, ...]:
     return func.__code__.co_varnames[start_idx : func.__code__.co_argcount]
 
 
-@cache_magic_value("__default_args__")
-def get_default_args(func: FuncType) -> dict[str, typing.Any]:
-    kwdefaults = func.__kwdefaults__
-    if kwdefaults:
-        return kwdefaults
-
+@cache_magic_value("__default_arguments__")
+def get_default_args(func: Function, /) -> dict[str, typing.Any]:
     defaults = func.__defaults__
+    kwdefaults = {} if not func.__kwdefaults__ else func.__kwdefaults__.copy()
     if not defaults:
-        return {}
+        return kwdefaults
+    return {
+        k: defaults[i] for i, k in enumerate(resolve_arg_names(func, start_idx=0)[-len(defaults) :])
+    } | kwdefaults
 
-    return {k: defaults[i] for i, k in enumerate(resolve_arg_names(func, start_idx=0)[-len(defaults) :])}
 
-
-@cache_magic_value("__func_parameters__")
-def get_func_parameters(func: FuncType, /) -> FuncParams:
+@cache_magic_value("__function_parameters__")
+def get_func_parameters(func: Function, /) -> FuncParams:
     func_params: FuncParams = {"args": [], "kwargs": []}
 
     for k, p in inspect.signature(func).parameters.items():
@@ -87,8 +97,8 @@ def get_func_parameters(func: FuncType, /) -> FuncParams:
     return func_params
 
 
-def get_annotations(func: FuncType, *, return_type: bool = False) -> dict[str, typing.Any]:
-    annotations = func.__annotations__
+def get_annotations(func: Function, *, return_type: bool = False) -> dict[str, typing.Any]:
+    annotations = func.__annotations__.copy()
     if not return_type:
         annotations.pop("return", None)
     return annotations
@@ -101,49 +111,66 @@ def to_str(s: str | enum.Enum) -> str:
 
 
 @typing.overload
-def magic_bundle(function: FuncType, kw: dict[str, typing.Any]) -> dict[str, typing.Any]: ...
-
-
-@typing.overload
-def magic_bundle(function: FuncType, kw: dict[enum.Enum, typing.Any]) -> dict[str, typing.Any]: ...
-
-
-@typing.overload
 def magic_bundle(
-    function: FuncType,
+    function: Function,
     kw: dict[str, typing.Any],
     *,
     start_idx: int = 1,
-    bundle_ctx: bool = True,
+    omit_defaults: bool = False,
 ) -> dict[str, typing.Any]: ...
 
 
 @typing.overload
 def magic_bundle(
-    function: FuncType,
+    function: Function,
     kw: dict[enum.Enum, typing.Any],
     *,
     start_idx: int = 1,
-    bundle_ctx: bool = True,
+    omit_defaults: bool = False,
 ) -> dict[str, typing.Any]: ...
 
 
 @typing.overload
 def magic_bundle(
-    function: FuncType,
+    function: Function,
+    kw: dict[str, typing.Any],
+    *,
+    start_idx: int = 1,
+    bundle_ctx: bool = False,
+    omit_defaults: bool = False,
+) -> dict[str, typing.Any]: ...
+
+
+@typing.overload
+def magic_bundle(
+    function: Function,
+    kw: dict[enum.Enum, typing.Any],
+    *,
+    start_idx: int = 1,
+    bundle_ctx: bool = False,
+    omit_defaults: bool = False,
+) -> dict[str, typing.Any]: ...
+
+
+@typing.overload
+def magic_bundle(
+    function: Function,
     kw: dict[type[typing.Any], typing.Any],
     *,
+    start_idx: int = 1,
     typebundle: typing.Literal[True] = True,
+    omit_defaults: bool = False,
 ) -> dict[str, typing.Any]: ...
 
 
 def magic_bundle(
-    function: FuncType,
+    function: Function,
     kw: dict[typing.Any, typing.Any],
     *,
     start_idx: int = 1,
-    bundle_ctx: bool = True,
+    bundle_ctx: bool = False,
     typebundle: bool = False,
+    omit_defaults: bool = False,
 ) -> dict[str, typing.Any]:
     # Bundle considering the function annotations
     if typebundle:
@@ -154,10 +181,16 @@ def magic_bundle(
     if "var_kwargs" in get_func_parameters(function) and not names:
         return {to_str(k): v for k, v in kw.items()}
 
-    # Bundle considering the function parameters and defaults
-    args = get_default_args(function) | {n: v for k, v in kw.items() if (n := to_str(k)) in names}
-    if "ctx" in names and bundle_ctx:
-        args["ctx"] = kw
+    # Bundle considering the function parameters and defaults (if do not omit defaults)
+    defaults = {} if omit_defaults else get_default_args(function)
+    args = defaults | {n: v for k, v in kw.items() if (n := to_str(k)) in names}
+
+    # Bundle a context if context key specified in `names`
+    if bundle_ctx:
+        for key in CONTEXT_KEYS:
+            if key in names:
+                args[key] = kw
+                break
 
     return args
 
@@ -189,28 +222,21 @@ def impl(method: typing.Callable[..., typing.Any]):
     return classmethod(method)
 
 
-def get_impls(cls: type[Polymorphic]) -> list[typing.Callable[..., typing.Any]]:
-    moprh_impls = getattr(cls, "__morph_impls__", None)
+def get_polymorphic_implementations(cls: type[Polymorphic], /) -> list[typing.Callable[..., typing.Any]]:
+    moprh_impls = getattr(cls, MORPH_IMPLEMENTATIONS_KEY, None)
     if moprh_impls is not None:
         return moprh_impls
 
     impls = []
     for cls_ in cls.mro():
         impls += [
-            func.__func__
-            for func in vars(cls_).values()
-            if isinstance(func, classmethod) and getattr(func.__func__, IMPL_MARK, False)
+            obj.__func__
+            for obj in vars(cls_).values()
+            if isinstance(obj, classmethod) and getattr(obj.__func__, IMPL_MARK, False)
         ]
 
-    setattr(cls, "__morph_impls__", impls)
+    setattr(cls, MORPH_IMPLEMENTATIONS_KEY, impls)
     return impls
-
-
-class FuncParams(typing.TypedDict, total=True):
-    args: list[tuple[str, typing.Any | inspect.Parameter.empty]]
-    kwargs: list[tuple[str, typing.Any | inspect.Parameter.empty]]
-    var_args: typing.NotRequired[str]
-    var_kwargs: typing.NotRequired[str]
 
 
 def shortcut[T](
@@ -308,7 +334,7 @@ __all__ = (
     "get_default_args",
     "get_default_args",
     "get_func_parameters",
-    "get_impls",
+    "get_polymorphic_implementations",
     "impl",
     "join_dicts",
     "magic_bundle",

@@ -10,7 +10,7 @@ from telegrinder.modules import logger
 from telegrinder.node.base import ComposeError, Node, get_nodes
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeSession, compose_nodes
 from telegrinder.node.scope import NodeScope
-from telegrinder.tools.magic import get_impls, impl, magic_bundle
+from telegrinder.tools.magic import get_polymorphic_implementations, impl, magic_bundle
 from telegrinder.types.objects import Update
 
 
@@ -26,7 +26,7 @@ class Polymorphic(Node):
             Update: raw_update,
         }
 
-        for i, impl_ in enumerate(get_impls(cls)):
+        for i, impl_ in enumerate(get_polymorphic_implementations(cls)):
             logger.debug("Checking impl {!r}...", impl_.__name__)
             node_collection = None
 

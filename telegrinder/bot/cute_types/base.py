@@ -76,7 +76,7 @@ else:
                 continue
             if orig_arg in (Variative, Some, Option):
                 return _get_cute_from_generic(typing.get_args(arg))
-            if issubclass(arg, BaseCute):
+            if issubclass(orig_arg, BaseCute):
                 return arg
 
         return None

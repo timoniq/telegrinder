@@ -13,19 +13,28 @@ repos:
 
   - repo: local
     hooks:
-      - id: basedpyright
-        name: basedpyright
-        description: "Run 'basedpyright' for Python type checking"
-        entry: poetry run basedpyright --level ERROR
-        pass_filenames: false
+      - id: lock
+        name: lock
+        description: "Run uv lock"
+        entry: uv lock --locked
         language: system
+        pass_filenames: false
         types: [ python ]
         stages: [ pre-commit ]
+
+      #- id: basedpyright
+      #  name: basedpyright
+      #  description: "Run 'basedpyright' for Python type checking"
+      #  entry: uv run basedpyright --level ERROR
+      #  pass_filenames: false
+      #  language: system
+      #  types: [ python ]
+      #  stages: [ pre-commit ]
 
       - id: pytest
         name: pytest
         description: "Run tests for testing code"
-        entry: poetry run pytest
+        entry: uv run pytest
         language: system
         pass_filenames: false
         types: [ python ]
@@ -34,7 +43,7 @@ repos:
       - id: ruff
         name: ruff-format
         description: "Run 'ruff format' for extremely fast Python formatting"
-        entry: poetry run ruff format
+        entry: uv run ruff format
         language: system
         types: [ python ]
         stages: [ pre-commit ]
@@ -42,7 +51,7 @@ repos:
       - id: ruff
         name: ruff-isort
         description: "Run 'ruff --select I --select F401 --fix' for extremely fast Python sorting imports"
-        entry: poetry run ruff check --select I --select F401 --fix
+        entry: uv run ruff check --select I --select F401 --fix
         language: system
         types: [ python ]
         stages: [ pre-commit ]
@@ -50,7 +59,7 @@ repos:
       - id: ruff
         name: ruff-check
         description: "Run 'ruff-format' for extremely fast Python linting"
-        entry: poetry run ruff check --fix
+        entry: uv run ruff check --fix
         language: system
         types: [ python ]
         stages: [ pre-commit ]

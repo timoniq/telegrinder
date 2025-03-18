@@ -6,37 +6,36 @@ on:
     - cron: "0 13 * * *"
 
 jobs:
-  build:
-    name: Generating Telegram Bot API types
-    runs-on: ubuntu-latest
+  lock_file:
+    runs-on: ubuntu-22.04
     steps:
-        - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: uv lock --locked
 
-        - name: Set up CPython 3.12
-          uses: actions/setup-python@v5
-          with:
-            python-version: "3.12"
+  type_generation:
+    runs-on: ubuntu-22.04
+    needs: [lock_file]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: uv run typegen
 
-        - name: Install poetry
-          run: pip install --upgrade pip setuptools wheel && pip install --user pipx && pipx install poetry
-
-        - name: Install depends
-          run: poetry install
-
-        - name: Run typegen
-          run: poetry run python typegen
-
-        - name: Open PR
-          uses: peter-evans/create-pull-request@v6
-          with:
-            commit-message: >
-              Update Bot API types based on the latest schema changes
-            title: >
-              Update Bot API types based on the latest schema changes
-            body: >
-              This is an automated PR. Please check the diff, and the action logs, to check for any funky behaviour.
-            branch: automated/types
-            reviewers: luwqz1
-            assignees: luwqz1
-            labels: automated, types
-            delete-branch: true
+  open_pr:
+    runs-on: ubuntu-22.04
+    needs: [type_generation]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: >
+            Update Bot API types based on the latest schema changes
+          title: >
+            Update Bot API types based on the latest schema changes
+          body: >
+            This is an automated PR. Please check the diff, and the action logs, to check for any funky behavior.
+          branch: automated/types
+          reviewers: luwqz1
+          assignees: luwqz1
+          labels: automated, types
+          delete-branch: true

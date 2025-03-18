@@ -384,7 +384,7 @@ class ObjectGenerator(ABCGenerator):
         code += f"\n"
         if not object_schema.fields and not nicifications:
             if (not object_schema.subtypes and base is None) or not object_schema.subtypes:
-                logger.warning(f"Object {object_name!r} has not fields, subtypes and nicification.")
+                logger.warning(f"Object {object_name!r} has no fields or subtypes or nicification (mark as empty object).")
             code += f"{TAB}pass" if not object_schema.description else ""
             return code
 
@@ -459,13 +459,13 @@ class ObjectGenerator(ABCGenerator):
         with open(path + "/objects.py", mode="w", encoding="UTF-8") as f:
             f.writelines(lines)
 
-        exec(f"from {path.replace('/', '.') + '.enums'} import __all__", globals(), locals())
+        enums_all = tuple(__import__(f"{path.replace('/', '.') + '.enums'}").__all__)
         with open(path + "/__init__.py", "w", encoding="UTF-8") as f:
             f.writelines(
                 [
                     "from telegrinder.types.enums import *\n",
                     "from telegrinder.types.objects import *\n\n",
-                    f"__all__ = {locals()['__all__'] + tuple(all_)}\n",  # type: ignore
+                    f"__all__ = {enums_all + tuple(all_)}\n",  # type: ignore
                 ]
             )
 
