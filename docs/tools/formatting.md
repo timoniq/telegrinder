@@ -1,13 +1,11 @@
 # Formatting
 
-Telegrinder has builtin formatter `HTMLFormatter`.
-
+A built-in formatter:
 ```python
 from telegrinder.tools.formatting import HTMLFormatter
 ```
 
-Formatter is derived from `FormatString` to work string formatting with the following formats:
-
+`HTMLFormatter` is derived from `FormatString` to work string formatting with the following formats:
 * `bold(string: str) -> TagFormat` | **bold text**
 * `block_quote(string: str, expandable: bool = False) -> TagFormat` | quoted text
 * `code_inline(string: str) -> TagFormat` | `inline text`
@@ -28,7 +26,7 @@ HTMLFormatter(spoiler("I want tea."))  # if you want use only formatting functio
 "Just string | " + bold("bold string")  # if you want concat str with formatting functions or HTMLFormatter instance (there's no difference between right or left)
 ```
 
-Also formatter has a `.format(self, *args, **kwargs)` method for formatting a string with `{}`, it can support specifiers whose names are the same as the format names (other than special):
+`HTMLFormatter` has a `.format(self, *args, **kwargs)` method for formatting a string with `{}`, it can support specifiers whose names are the same as the format names (other than special):
 
 ```python
 from telegrinder.tools.formatting import HTMLFormatter

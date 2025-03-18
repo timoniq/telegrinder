@@ -51,7 +51,6 @@ from telegrinder.bot.dispatch import (
     VideoReplyHandler,
     ViewBox,
     WaiterMachine,
-    clear_wm_storage_worker,
     register_manager,
 )
 from telegrinder.bot.polling import ABCPolling, Polling
@@ -125,6 +124,5 @@ __all__ = (
     "VideoReplyHandler",
     "ViewBox",
     "WaiterMachine",
-    "clear_wm_storage_worker",
     "register_manager",
 )

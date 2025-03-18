@@ -131,6 +131,7 @@ ignore = [
   "PLR0913"
 ]
 fixable = ["ALL"]
+exclude = [".venv", ".idea", "docs"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "F403"]
@@ -139,10 +140,12 @@ fixable = ["ALL"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::RuntimeWarning"]
 
 [tool.pyright]
 exclude = [
   ".venv",
+  ".idea",
   "**/__pycache__",
   "docs",
   "local",

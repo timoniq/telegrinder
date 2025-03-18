@@ -35,7 +35,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
     rules: list["ABCRule"]
     adapter: ABCAdapter[Update, Event] | None = dataclasses.field(default=None, kw_only=True)
     final: bool = dataclasses.field(default=True, kw_only=True)
-    dataclass: type[typing.Any] | None = dataclasses.field(default=dict[str, typing.Any], kw_only=True)
+    dataclass: type[typing.Any] | None = dataclasses.field(default=None, kw_only=True)
     error_handler: ErrorHandlerT = dataclasses.field(
         default_factory=lambda: typing.cast(ErrorHandlerT, ErrorHandler()),
         kw_only=True,
@@ -118,7 +118,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         try:
             if event_param := self.get_name_event_param(event):
                 ctx = Context(**{event_param: event, **ctx})
-            return await self(**magic_bundle(self.function, ctx, start_idx=0))
+            return await self(**magic_bundle(self.function, ctx, start_idx=0, bundle_ctx=True))
         except BaseException as exception:
             return await self.error_handler.run(exception, event, api, ctx)
         finally:

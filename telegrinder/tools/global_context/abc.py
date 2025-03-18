@@ -21,7 +21,7 @@ class CtxVar(typing.Generic[T]):
 
 
 @dataclasses.dataclass(repr=False, frozen=True)
-class GlobalCtxVar(typing.Generic[T]):
+class GlobalCtxVar(CtxVar[T], typing.Generic[T]):
     name: str
     value: T
     const: bool = dataclasses.field(default=False, kw_only=True)
@@ -34,11 +34,14 @@ class GlobalCtxVar(typing.Generic[T]):
         )
 
     @classmethod
-    def collect(cls, name: str, ctx_value: T | CtxVariable[T]) -> typing.Self:
-        ctx_value = CtxVar(ctx_value) if not isinstance(ctx_value, CtxVar | GlobalCtxVar) else ctx_value
-        params = ctx_value.__dict__
-        params["name"] = name
-        return cls(**params)
+    def from_var(
+        cls,
+        name: str,
+        ctx_value: T | CtxVariable[T],
+        const: bool = False,
+    ) -> typing.Self:
+        var = CtxVar(ctx_value, const=const) if not isinstance(ctx_value, CtxVar | GlobalCtxVar) else ctx_value
+        return cls(**dict(var.__dict__) | dict(name=name))
 
 
 class ABCGlobalContext(ABC, typing.Generic[T]):

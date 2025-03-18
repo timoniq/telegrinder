@@ -13,10 +13,10 @@ from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
 from telegrinder.types import Update
 
 
-class GlobalMiddleware(ABCMiddleware):
+class GlobalMiddleware(ABCMiddleware[UpdateCute]):
     adapter = RawUpdateAdapter()
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.filters: set[ABCRule] = set()
         self.source_filters: dict[ABCAdapter | IsNode, dict[typing.Any, ABCRule]] = {}
 
@@ -53,7 +53,7 @@ class GlobalMiddleware(ABCMiddleware):
         self,
         *filters: ABCRule,
         source_filter: tuple[ABCAdapter | IsNode, typing.Any, ABCRule] | None = None,
-    ):
+    ) -> typing.Generator[None, typing.Any, None]:
         if source_filter is not None:
             self.source_filters.setdefault(source_filter[0], {})
             self.source_filters[source_filter[0]].update({source_filter[1]: source_filter[2]})
@@ -62,9 +62,8 @@ class GlobalMiddleware(ABCMiddleware):
         yield
         self.filters.difference_update(filters)
 
-        if source_filter is not None:  # noqa: SIM102
-            if identifiers := self.source_filters.get(source_filter[0]):
-                identifiers.pop(source_filter[1], None)
+        if source_filter is not None and (identifiers := self.source_filters.get(source_filter[0])):
+            identifiers.pop(source_filter[1], None)
 
 
 __all__ = ("GlobalMiddleware",)

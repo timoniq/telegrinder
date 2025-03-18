@@ -5,6 +5,7 @@ import typing
 from telegrinder import (
     API,
     CALLBACK_QUERY_FOR_MESSAGE,
+    MESSAGE_FROM_USER_IN_CHAT,
     Context,
     InlineButton,
     InlineKeyboard,
@@ -12,14 +13,21 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
-from telegrinder.bot import MESSAGE_FROM_USER_IN_CHAT, WaiterMachine, clear_wm_storage_worker
+from telegrinder.bot import WaiterMachine
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
 from telegrinder.bot.rules.is_from import IsPrivate, IsUser
 from telegrinder.modules import logger
 from telegrinder.node import FileId, Me, Photo, UserId, as_node
-from telegrinder.rules import CallbackDataEq, FuzzyText, HasText, IsUpdateType, Markup, Text
-from telegrinder.types import UpdateType
+from telegrinder.rules import (
+    CallbackDataEq,
+    FuzzyText,
+    HasText,
+    IsUpdateType,
+    Markup,
+    Text,
+)
+from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import InputFile
 
 api = API(token=Token.from_env())
@@ -132,5 +140,4 @@ async def freeze_handler(message: Message):
         await cb.edit_text("Wow heated!")
 
 
-bot.loop_wrapper.add_task(clear_wm_storage_worker(wm))
 bot.run_forever(skip_updates=True)

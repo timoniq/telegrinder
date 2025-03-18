@@ -1,3 +1,4 @@
+import re
 import typing
 
 import vbml
@@ -5,7 +6,7 @@ import vbml
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.either import Either
 from telegrinder.node.text import Caption, Text
-from telegrinder.tools.global_context.telegrinder_ctx import TelegrinderContext
+from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 
 from .abc import ABCRule
 
@@ -27,11 +28,19 @@ def check_string(patterns: list[vbml.Pattern], s: str, ctx: Context) -> bool:
 class Markup(ABCRule):
     """Markup Language. See the [vbml documentation](https://github.com/tesseradecade/vbml/blob/master/docs/index.md)."""
 
-    def __init__(self, patterns: PatternLike | list[PatternLike], /) -> None:
+    def __init__(
+        self,
+        patterns: PatternLike | list[PatternLike],
+        /,
+        *,
+        flags: re.RegexFlag | None = None,
+    ) -> None:
         if not isinstance(patterns, list):
             patterns = [patterns]
         self.patterns = [
-            vbml.Pattern(pattern, flags=global_ctx.vbml_pattern_flags) if isinstance(pattern, str) else pattern
+            vbml.Pattern(pattern, flags=flags or global_ctx.vbml_pattern_flags)
+            if isinstance(pattern, str)
+            else pattern
             for pattern in patterns
         ]
 

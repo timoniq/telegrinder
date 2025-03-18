@@ -4,6 +4,7 @@ import asyncio
 import dataclasses
 import enum
 import inspect
+import types
 from collections import OrderedDict
 from functools import wraps
 
@@ -41,6 +42,10 @@ class Shortcut[T]:
     method_name: str
     executor: Executor[T] | None = dataclasses.field(default=None, kw_only=True)
     custom_params: set[str] = dataclasses.field(default_factory=lambda: set[str](), kw_only=True)
+
+
+def is_function(obj: typing.Any, /) -> typing.TypeIs[types.FunctionType]:
+    return isinstance(obj, types.FunctionType)
 
 
 def cache_magic_value(mark_key: str, /):
