@@ -25,8 +25,8 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
         loop_wrapper: LoopWrapper | None = None,
     ) -> None:
         self.api = api
-        self.dispatch = typing.cast(Dispatch, dispatch or dp.Dispatch())
-        self.polling = typing.cast(Polling, polling or pg.Polling(api))
+        self.dispatch = typing.cast("Dispatch", dispatch or dp.Dispatch())
+        self.polling = typing.cast("Polling", polling or pg.Polling(api))
         self.loop_wrapper = loop_wrapper or CONTEXT.loop_wrapper
 
     def __repr__(self) -> str:

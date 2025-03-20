@@ -37,7 +37,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
     final: bool = dataclasses.field(default=True, kw_only=True)
     dataclass: type[typing.Any] | None = dataclasses.field(default=None, kw_only=True)
     error_handler: ErrorHandlerT = dataclasses.field(
-        default_factory=lambda: typing.cast(ErrorHandlerT, ErrorHandler()),
+        default_factory=lambda: typing.cast("ErrorHandlerT", ErrorHandler()),
         kw_only=True,
     )
     preset_context: Context = dataclasses.field(default_factory=lambda: Context(), kw_only=True)

@@ -6,6 +6,7 @@ from .adapter import (
     RawEventAdapter,
     RawUpdateAdapter,
 )
+from .awaitable import maybe_awaitable
 from .buttons import BaseButton
 from .callback_data_serilization import (
     ABCDataSerializer,
@@ -161,6 +162,7 @@ __all__ = (
     "code_inline",
     "ctx_var",
     "escape",
+    "maybe_awaitable",
     "from_optional",
     "get_annotations",
     "get_cached_translation",

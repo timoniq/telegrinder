@@ -1,5 +1,4 @@
 import dataclasses
-import inspect
 import typing
 
 from fntypes.error import UnwrapError
@@ -16,6 +15,7 @@ from telegrinder.node.base import (
     NodeType,
     unwrap_node,
 )
+from telegrinder.tools.awaitable import maybe_awaitable
 from telegrinder.tools.magic import join_dicts, magic_bundle
 
 type AsyncGenerator = typing.AsyncGenerator[typing.Any, None]
@@ -40,14 +40,13 @@ async def compose_node(
     if data:
         kwargs.update(magic_bundle(node.compose, data, typebundle=True))
 
+    compose_result = node.compose(**kwargs)
     if node.is_generator():
-        generator = typing.cast(AsyncGenerator, node.compose(**kwargs))
+        generator = typing.cast("AsyncGenerator", compose_result)
         value = await generator.asend(None)
     else:
         generator = None
-        value = node.compose(**kwargs)
-        if inspect.isawaitable(value):
-            value = await value
+        value = await maybe_awaitable(compose_result)
 
     return NodeSession(node, value, subnodes={}, generator=generator)
 

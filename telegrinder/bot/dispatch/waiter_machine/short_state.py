@@ -47,7 +47,7 @@ class ShortState[Event: BaseCute]:
     async def cancel(self) -> None:
         """Cancel schedule waiters."""
         waiters = typing.cast(
-            typing.Iterable[asyncio.Future[typing.Any]],
+            "typing.Iterable[asyncio.Future[typing.Any]]",
             self.event._waiters,  # type: ignore
         )
         for future in waiters:

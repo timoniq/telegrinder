@@ -35,7 +35,7 @@ type EncHook[T] = typing.Callable[typing.Concatenate[T, ...], typing.Any]
 
 
 def get_origin[T](t: type[T]) -> type[T]:
-    return typing.cast(T, typing.get_origin(t)) or t
+    return typing.cast("T", typing.get_origin(t)) or t
 
 
 def repr_type(t: typing.Any) -> str:

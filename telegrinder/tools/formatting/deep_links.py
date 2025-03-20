@@ -34,7 +34,7 @@ type Peer = typing.Literal[
 ]
 Parameter = typing.Annotated
 
-NO_VALUE: typing.Final[NoValue] = typing.cast(NoValue, ...)
+NO_VALUE: typing.Final[NoValue] = typing.cast("NoValue", ...)
 
 
 def deep_link[**P](

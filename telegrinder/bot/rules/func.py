@@ -1,9 +1,9 @@
-import inspect
 import typing
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
+from telegrinder.tools.awaitable import maybe_awaitable
 from telegrinder.types.objects import Update
 
 from .abc import ABCRule, AdaptTo
@@ -19,10 +19,7 @@ class FuncRule(ABCRule, typing.Generic[AdaptTo]):
         self.adapter = adapter or RawUpdateAdapter()  # type: ignore
 
     async def check(self, event: AdaptTo, ctx: Context) -> bool:
-        result = self.func(event, ctx)
-        if inspect.isawaitable(result):
-            result = await result
-        return result
+        return await maybe_awaitable(self.func(event, ctx))
 
 
 __all__ = ("FuncRule",)

@@ -1,8 +1,8 @@
-import inspect
 import typing
 
 from telegrinder.node.base import ComposeError, IsNode, Node
 from telegrinder.node.container import ContainerNode
+from telegrinder.tools.awaitable import maybe_awaitable
 
 
 def cast_false_to_none[Value](value: Value) -> Value | None:
@@ -22,10 +22,8 @@ def generate_node(
     func: typing.Callable[..., typing.Any],
     casts: tuple[typing.Callable[[typing.Any], typing.Any], ...] = (cast_false_to_none, error_on_none),
 ) -> type[Node]:
-    async def compose(cls, *args: typing.Any) -> typing.Any:
-        result = func(*args)
-        if inspect.isawaitable(result):
-            result = await result
+    async def compose(_, *args: typing.Any) -> typing.Any:
+        result = await maybe_awaitable(func(*args))
         for cast in casts:
             result = cast(result)
         return result

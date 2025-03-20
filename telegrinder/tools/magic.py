@@ -221,13 +221,16 @@ def cache_translation[Rule: ABCRule](
     setattr(base_rule, TRANSLATIONS_KEY, translations)
 
 
-@typing.cast(typing.Callable[..., Impl], lambda f: f)
+@typing.cast("typing.Callable[..., Impl]", lambda f: f)
 def impl(method: typing.Callable[..., typing.Any]):
     setattr(method, IMPL_MARK, True)
     return classmethod(method)
 
 
-def get_polymorphic_implementations(cls: type[Polymorphic], /) -> list[typing.Callable[..., typing.Any]]:
+def get_polymorphic_implementations(
+    cls: type[Polymorphic],
+    /,
+) -> list[typing.Callable[typing.Concatenate[type[Polymorphic], ...], typing.Any]]:
     moprh_impls = getattr(cls, MORPH_IMPLEMENTATIONS_KEY, None)
     if moprh_impls is not None:
         return moprh_impls
@@ -244,15 +247,15 @@ def get_polymorphic_implementations(cls: type[Polymorphic], /) -> list[typing.Ca
     return impls
 
 
-def shortcut[T](
+def shortcut[T, F: typing.Callable[..., typing.Any]](
     method_name: str,
     *,
     executor: Executor[T] | None = None,
     custom_params: set[str] | None = None,
-):
+) -> typing.Callable[[F], F]:
     """Decorate a cute method as a shortcut."""
 
-    def wrapper[F: typing.Callable[..., typing.Any]](func: F) -> F:
+    def wrapper(func: F) -> F:
         @wraps(func)
         async def inner(
             self: T,

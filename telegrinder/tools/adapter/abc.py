@@ -1,6 +1,5 @@
 import abc
 import dataclasses
-import inspect
 import typing
 
 from fntypes import Error, Nothing, Ok, Option, Some
@@ -8,6 +7,7 @@ from fntypes.result import Result
 
 from telegrinder.modules import logger
 from telegrinder.tools.adapter.errors import AdapterError
+from telegrinder.tools.awaitable import maybe_awaitable
 
 type AdaptResult[To] = Result[To, AdapterError] | typing.Awaitable[Result[To, AdapterError]]
 
@@ -37,8 +37,8 @@ async def run_adapter[T, U: "Model"](
     update: U,
     context: "Context",
 ) -> Option[T]:
-    adapt_result = adapter.adapt(api, update, context)
-    match await adapt_result if inspect.isawaitable(adapt_result) else adapt_result:
+    adapt_result = await maybe_awaitable(adapter.adapt(api, update, context))
+    match adapt_result:
         case Ok(value):
             return Some(value)
         case Error(err):

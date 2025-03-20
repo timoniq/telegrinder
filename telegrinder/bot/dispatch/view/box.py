@@ -82,59 +82,59 @@ class ViewBox(
         raw_event_view: RawEventView | None = None,
     ) -> None:
         self.callback_query = typing.cast(
-            CallbackQueryView,
+            "CallbackQueryView",
             callback_query_view or callback_query.CallbackQueryView(),
         )
         self.chat_join_request = typing.cast(
-            ChatJoinRequestView,
+            "ChatJoinRequestView",
             chat_join_request_view or chat_join_request.ChatJoinRequestView(),
         )
         self.chat_member = typing.cast(
-            ChatMemberView,
+            "ChatMemberView",
             chat_member_view or chat_member.ChatMemberView(update_type=UpdateType.CHAT_MEMBER),
         )
         self.my_chat_member = typing.cast(
-            ChatMemberView,
+            "ChatMemberView",
             my_chat_member_view or chat_member.ChatMemberView(update_type=UpdateType.MY_CHAT_MEMBER),
         )
         self.inline_query = typing.cast(
-            InlineQueryView,
+            "InlineQueryView",
             inline_query_view or inline_query.InlineQueryView(),
         )
         self.message = typing.cast(
-            MessageView,
+            "MessageView",
             message_view or message.MessageView(update_type=UpdateType.MESSAGE),
         )
         self.business_message = typing.cast(
-            MessageView,
+            "MessageView",
             business_message_view or message.MessageView(update_type=UpdateType.BUSINESS_MESSAGE),
         )
         self.channel_post = typing.cast(
-            MessageView,
+            "MessageView",
             channel_post_view or message.MessageView(update_type=UpdateType.CHANNEL_POST),
         )
         self.edited_message = typing.cast(
-            MessageView,
+            "MessageView",
             edited_message_view or message.MessageView(update_type=UpdateType.EDITED_MESSAGE),
         )
         self.edited_business_message = typing.cast(
-            MessageView,
+            "MessageView",
             edited_business_message_view or message.MessageView(update_type=UpdateType.EDITED_BUSINESS_MESSAGE),
         )
         self.edited_channel_post = typing.cast(
-            MessageView,
+            "MessageView",
             edited_channel_post_view or message.MessageView(update_type=UpdateType.EDITED_CHANNEL_POST),
         )
         self.pre_checkout_query = typing.cast(
-            PreCheckoutQueryView,
+            "PreCheckoutQueryView",
             pre_checkout_query_view or pre_checkout_query.PreCheckoutQueryView(),
         )
-        self.any_message = typing.cast(MessageView, any_message_view or message.MessageView())
+        self.any_message = typing.cast("MessageView", any_message_view or message.MessageView())
         self.chat_member_updated = typing.cast(
-            ChatMemberView,
+            "ChatMemberView",
             chat_member_updated_view or chat_member.ChatMemberView(),
         )
-        self.raw_event = typing.cast(RawEventView, raw_event_view or raw.RawEventView())
+        self.raw_event = typing.cast("RawEventView", raw_event_view or raw.RawEventView())
 
 
 __all__ = ("ViewBox",)

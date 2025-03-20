@@ -1,4 +1,3 @@
-import inspect
 import typing
 from contextlib import contextmanager
 
@@ -10,6 +9,7 @@ from telegrinder.bot.rules.abc import ABCRule, check_rule
 from telegrinder.node import IsNode, compose_nodes
 from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
+from telegrinder.tools.awaitable import maybe_awaitable
 from telegrinder.types import Update
 
 
@@ -28,14 +28,9 @@ class GlobalMiddleware(ABCMiddleware[UpdateCute]):
         # Simple implication.... Grouped by source categories
         for source, identifiers in self.source_filters.items():
             if isinstance(source, ABCAdapter):
-                result = source.adapt(event.api, event, ctx)
-                if inspect.isawaitable(result):
-                    result = await result
-
-                result = result.unwrap_or_none()
+                result = (await maybe_awaitable(source.adapt(event.api, event, ctx))).unwrap_or_none()
                 if result is None:
                     return True
-
             else:
                 result = await compose_nodes({"value": source}, ctx, {Update: event, API: event.api})
                 if result := result.unwrap():

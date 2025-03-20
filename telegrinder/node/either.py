@@ -54,7 +54,8 @@ class _Either(FactoryNode):
                         session = await compose_node(
                             node=node,
                             linked={
-                                typing.cast(type, n): col.sessions[name].value for name, n in subnodes.items()
+                                typing.cast("type[typing.Any]", n): col.sessions[name].value
+                                for name, n in subnodes.items()
                             },
                             data=data,
                         )

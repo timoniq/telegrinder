@@ -13,7 +13,7 @@ MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "dict": True,
     "rename": {kw + "_": kw for kw in keyword.kwlist},
 }
-UNSET = typing.cast(typing.Any, msgspec.UNSET)
+UNSET = typing.cast("typing.Any", msgspec.UNSET)
 """Docs: https://jcristharif.com/msgspec/api.html#unset
 
 During decoding, if a field isn't explicitly set in the model,

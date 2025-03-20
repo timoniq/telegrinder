@@ -1,4 +1,3 @@
-import inspect
 import typing
 
 from fntypes.result import Error, Ok
@@ -10,6 +9,7 @@ from telegrinder.modules import logger
 from telegrinder.node.base import ComposeError, Node, get_nodes
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeSession, compose_nodes
 from telegrinder.node.scope import NodeScope
+from telegrinder.tools.awaitable import maybe_awaitable
 from telegrinder.tools.magic import get_polymorphic_implementations, impl, magic_bundle
 from telegrinder.types.objects import Update
 
@@ -50,10 +50,12 @@ class Polymorphic(Node):
                 await node_collection.close_all()
                 return res.value
 
-            result = impl_(cls, **node_collection.values | magic_bundle(impl_, data, typebundle=True))
-            if inspect.isawaitable(result):
-                result = await result
-
+            result = await maybe_awaitable(
+                impl_(
+                    cls,
+                    **node_collection.values | magic_bundle(impl_, data, typebundle=True),
+                ),
+            )
             if scope is NodeScope.PER_EVENT:
                 node_ctx[(cls, i)] = NodeSession(cls, result, {})
 

@@ -1,4 +1,3 @@
-import inspect
 from abc import ABC, abstractmethod
 from functools import cached_property
 
@@ -11,6 +10,7 @@ from telegrinder.node.base import NodeType, get_nodes, is_node
 from telegrinder.tools.adapter import ABCAdapter
 from telegrinder.tools.adapter.node import Event
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
+from telegrinder.tools.awaitable import maybe_awaitable
 from telegrinder.tools.i18n.abc import ABCTranslator
 from telegrinder.tools.magic import (
     cache_translation,
@@ -139,10 +139,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
                     "because it cannot be resolved."
                 )
 
-        result = bound_check_rule(**kw)  # type: ignore
-        if inspect.isawaitable(result):
-            result = await result
-        return result
+        return await maybe_awaitable(bound_check_rule(**kw))
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
         return self
