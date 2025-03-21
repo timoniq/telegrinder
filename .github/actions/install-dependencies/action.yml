@@ -5,34 +5,17 @@ inputs:
     description: "Python version."
     required: false
     default: "3.12"
-  uv_install_path:
-    description: "Path to poetry installation"
-    required: false
-    default: "~/uv"
 
 runs:
   using: composite
   steps:
-    - name: Load cached venv
-      id: cached-venv
-      uses: actions/cache@v4
+    - uses: hynek/setup-cached-uv@v2
       with:
-        key: venv-${{ inputs.python-version }}-${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
-        path: .venv
+        cache-suffix: -${{ inputs.python-version }}-cache
+        cache-dependency-path: "**/uv.lock"
 
-    - name: Load cached uv installation
-      id: cached-uv
-      uses: actions/cache@v4
-      with:
-        key: uv-${{ inputs.python-version }}-${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
-        path: ${{ inputs.uv_install_path }}
-
-    - name: Install uv
-      if: steps.cached-uv.outputs.cache-hit != 'true'
-      run: curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="${{ inputs.uv_install_path }}" sh
-      shell: bash
-
-    - name: Create venv and sync dependencies
-      if: steps.cached-venv.outputs.cache-hit != 'true'
-      run: uv venv --python ${{ inputs.python-version }} && uv sync --all-groups --dev
+    - name: "Install dependencies"
+      run: |
+        uv venv --python ${{ inputs.python-version }}
+        uv sync --all-groups --dev
       shell: bash

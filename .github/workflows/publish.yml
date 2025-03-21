@@ -11,6 +11,7 @@ defaults:
 
 jobs:
   publish:
+    name: "Publishing dist"
     runs-on: ubuntu-latest
     steps:
       - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
