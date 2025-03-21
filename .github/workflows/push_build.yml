@@ -11,8 +11,8 @@ defaults:
     shell: bash
 
 jobs:
-  name: "CI/build"
   build:
+    name: "CI+build"
     strategy:
       matrix:
         python-version:
