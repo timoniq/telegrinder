@@ -1,68 +1,88 @@
 name: CI
+
 'on':
-  - push
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating system"
+        required: true
+        type: string
+      python-version:
+        description: "Python version"
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   lock-file:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: "Lock uv"
+    runs-on: ${{ inputs.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-cached-uv
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: ${{ inputs.python-version }}
+
       - run: uv lock --locked
 
   linting:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: "Linting"
+    runs-on: ${{ inputs.os }}
     needs:
       - lock-file
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-cached-uv
-      - run: uvx ruff check .
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Load ruff cache
+        id: cached-ruff
+        uses: actions/cache@v4
+        with:
+          key: ruff-${{ inputs.python-version }}-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          path: .ruff_cache
+
+      - name: "Run ruff"
+        run: uvx ruff check .
 
   type-checking:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: "Type-checking"
+    runs-on: ${{ inputs.os }}
     needs:
       - lock-file
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-cached-uv
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: ${{ inputs.python-version }}
+
       - run: uv run basedpyright --level ERROR
 
   tests:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: "Testing"
+    runs-on: ${{ inputs.os }}
     needs:
       - lock-file
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-cached-uv
-      - run: uv run pytest --cov
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
 
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    needs:
-      - linting
-      - type-checking
-      - tests
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-cached-uv
-      - run: uv build
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/install-dependencies
         with:
-          name: build-artifacts-${{ matrix.os }}
-          path: dist/
+          python-version: ${{ inputs.python-version }}
+
+      - name: Load pytest cache
+        id: cached-pytest
+        uses: actions/cache@v4
+        with:
+          key: pytest-${{ inputs.python-version }}-${{ runner.os }}
+          path: .pytest_cache
+
+      - name: "Run pytest"
+        run: uv run pytest --cov

@@ -7,25 +7,38 @@ on:
 
 jobs:
   lock-file:
-    runs-on: ubuntu-22.04
+    name: "Lock uv"
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-cached-uv
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: "3.13"
+
       - run: uv lock --locked
 
   type-generation:
-    runs-on: ubuntu-22.04
-    needs: [lock-file]
+    name: "Type-generation"
+    runs-on: ubuntu-latest
+    needs: lock-file
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-cached-uv
-      - run: uv run typegen
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: "3.13"
+
+      - name: "Run type-generator"
+        run: uv run typegen
 
   open-pr:
-    runs-on: ubuntu-22.04
-    needs: [type_generation]
+    name: "Open PR"
+    runs-on: ubuntu-latest
+    needs: type_generation
     steps:
-      - uses: actions/checkout@v4
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
       - uses: peter-evans/create-pull-request@v7
         with:
           commit-message: >

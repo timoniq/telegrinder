@@ -1,0 +1,27 @@
+name: Push build
+
+'on':
+  push:
+    branches:
+      - dev
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        python-version:
+          - "3.12"
+          - "3.13"
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    uses: ./.github/workflows/build.yml
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
