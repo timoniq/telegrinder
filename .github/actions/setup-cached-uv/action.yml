@@ -19,5 +19,6 @@ runs:
         restore-keys: |
           uv-${{ runner.os }}-
 
+    - run: uv venv
     - run: uv pip install -e .
       shell: bash
