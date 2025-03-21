@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup-cached-uv
       - run: uv lock --locked
 
   linting:
@@ -21,7 +21,7 @@ jobs:
       - lock_file
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup-cached-uv
       - run: uvx ruff check .
 
   type-checking:
@@ -33,7 +33,7 @@ jobs:
       - lock_file
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup-cached-uv
       - run: uv run basedpyright --level ERROR
 
   tests:
@@ -45,7 +45,7 @@ jobs:
       - lock_file
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup-cached-uv
       - run: uv run pytest --cov
 
   build:
@@ -59,7 +59,7 @@ jobs:
       - tests
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup-cached-uv
       - run: uv build
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

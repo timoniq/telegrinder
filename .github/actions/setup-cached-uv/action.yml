@@ -1,0 +1,18 @@
+name: Setup UV with Cache
+description: Checkout, cache and install using uv
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/cache@v4
+      with:
+        path: |
+          .venv
+          .uv
+        key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+        restore-keys: |
+          uv-${{ runner.os }}-
+
+    - run: uv pip install -e .
+      shell: bash
