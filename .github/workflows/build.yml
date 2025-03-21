@@ -1,4 +1,4 @@
-name: Run CI and build distribution
+name: Build distribution
 
 'on':
   workflow_call:
@@ -42,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-${{ inputs.os }}
-          path: dist/
+          path: "**/dist/"

@@ -25,7 +25,7 @@ jobs:
         env:
           cache-name: cache-pre-commit
         with:
-          key: ${{ env.cache-name }}-${{ hashFiles('.pre-commit-config.yaml', '~/.cache/pre-commit/*') }}
+          key: ${{ env.cache-name }}-${{ hashFiles('**/.pre-commit-config.yaml', '~/.cache/pre-commit/*') }}
           path: ~/.cache/pre-commit
 
       - name: Run pre-commit
