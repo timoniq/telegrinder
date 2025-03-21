@@ -20,4 +20,6 @@ runs:
           uv-${{ runner.os }}-
 
     - run: uv venv
+      shell: bash
     - run: uv sync
+      shell: bash
