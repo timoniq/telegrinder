@@ -2,7 +2,7 @@ name: CI
 'on':
   - push
 jobs:
-  lock_file:
+  lock-file:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -18,7 +18,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     needs:
-      - lock_file
+      - lock-file
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-cached-uv
@@ -30,7 +30,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     needs:
-      - lock_file
+      - lock-file
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-cached-uv
@@ -42,7 +42,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     needs:
-      - lock_file
+      - lock-file
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-cached-uv
