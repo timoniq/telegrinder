@@ -20,5 +20,4 @@ runs:
           uv-${{ runner.os }}-
 
     - run: uv venv
-    - run: uv pip install -e .
-      shell: bash
+    - run: uv sync
