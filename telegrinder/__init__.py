@@ -16,9 +16,9 @@ from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.rules import Text
 
+logger.set_level("INFO")
 api = API(token=Token("123:token"))
 bot = Telegrinder(api)
-logger.set_level("INFO")
 
 
 @bot.on.message(Text("/start"))
