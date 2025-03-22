@@ -32,8 +32,7 @@ jobs:
   linting:
     name: "Linting"
     runs-on: ${{ inputs.os }}
-    needs:
-      - lock-file
+    needs: lock-file
     steps:
       - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
 
@@ -54,8 +53,7 @@ jobs:
   type-checking:
     name: "Type-checking"
     runs-on: ${{ inputs.os }}
-    needs:
-      - lock-file
+    needs: lock-file
     steps:
       - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
 
@@ -68,8 +66,7 @@ jobs:
   tests:
     name: "Testing"
     runs-on: ${{ inputs.os }}
-    needs:
-      - lock-file
+    needs: lock-file
     steps:
       - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
 

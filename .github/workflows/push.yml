@@ -1,4 +1,4 @@
-name: Push build
+name: Push
 
 'on':
   push:
@@ -11,8 +11,8 @@ defaults:
     shell: bash
 
 jobs:
-  build:
-    name: "Push CI/build"
+  ci:
+    name: "CI (Push)"
     strategy:
       matrix:
         python-version:
@@ -22,7 +22,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
 
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/ci.yml
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}

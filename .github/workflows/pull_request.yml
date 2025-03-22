@@ -34,20 +34,3 @@ jobs:
       - name: Run pre-commit-ci-lite
         uses: pre-commit-ci/lite-action@v1.1.0
         if: failure() || cancelled()
-
-  ci:
-    name: "Run CI"
-    needs: pre-commit
-    strategy:
-      matrix:
-        python-version:
-          - "3.12"
-          - "3.13"
-        os:
-          - ubuntu-latest
-          - windows-latest
-
-    uses: ./.github/workflows/ci.yml
-    with:
-      os: ${{ matrix.os }}
-      python-version: ${{ matrix.python-version }}
