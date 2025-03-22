@@ -10,29 +10,16 @@
 </h1>
 
 <p align="center">
-    <em><b>Framework for effective and reliable telegram bot building.</b></em>
+  <em><b>Framework for effective and reliable telegram bot building.</b></em>
 </p>
 
 <p align="center">
-  <a href="https://github.com/timoniq/telegrinder/actions/workflows/push.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/push.yml?branch=main&style=flat-square&labelColor=black&label=CI
-    ">
-  </a>
-  <a href="https://github.com/timoniq/telegrinderblob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/timoniq/telegrinder.svg?color=lightGreen&labelColor=black">
-  </a>
-  <a href="https://pypi.org/project/telegrinder/">
-    <img src="https://img.shields.io/pypi/v/telegrinder.svg?labelColor=black">
-  </a>
-  <a href="https://docs.astral.sh/ruff/">
-    <img src="https://img.shields.io/badge/linter-Ruff-D7FF64?logo=ruff&logoColor=fff&style=flat-square&labelColor=black">
-  </a>
-  <a href="https://pypi.org/project/telegrinder/">
-    <img src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&style=flat-square&logo=python&logoColor=fff&labelColor=black">
-  </a>
-  <a href="https://core.telegram.org/bots/api">
-    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=API%20types&labelColor=black&color=%23FBCA04">
-  </a>
+  <img alt="GitHub CI" src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/push.yml?branch=main&style=flat-square&labelColor=black&label=CI">
+  <img alt="GitHub License" src="https://img.shields.io/github/license/timoniq/telegrinder.svg?color=lightGreen&labelColor=black">
+  <img alt="PyPI Version" src="https://img.shields.io/pypi/v/telegrinder.svg?labelColor=black">
+  <img alt="Linter" src="https://img.shields.io/badge/linter-Ruff-D7FF64?logo=ruff&logoColor=fff&style=flat-square&labelColor=black">
+  <img alt="Python versions" src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&style=flat-square&logo=python&logoColor=fff&labelColor=black">
+  <img alt="Telegram Bot API Version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=API%20types&labelColor=black&color=%23FBCA04">
 </p>
 
 
