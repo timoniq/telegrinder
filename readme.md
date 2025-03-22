@@ -14,8 +14,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/timoniq/telegrinder/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/ci.yml?branch=main&style=flat-square&labelColor=black
+  <a href="https://github.com/timoniq/telegrinder/actions/workflows/push.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/push.yml?branch=main&style=flat-square&labelColor=black&label=CI
     ">
   </a>
   <a href="https://github.com/timoniq/telegrinderblob/main/LICENSE">
