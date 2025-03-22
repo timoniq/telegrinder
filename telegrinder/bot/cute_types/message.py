@@ -104,7 +104,7 @@ async def execute_method_edit(
             .map(
                 lambda x: MessageCute.from_update(x, bound_api=update.api),
             )
-            .unwrap_or(typing.cast(bool, v.v))
+            .unwrap_or(typing.cast("bool", v.v))
         )
     )
 

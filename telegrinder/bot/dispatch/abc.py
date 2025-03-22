@@ -31,10 +31,6 @@ class ABCDispatch(ABC):
     def get_view[T](self, of_type: type[T]) -> Option[T]:
         pass
 
-    @abstractmethod
-    def get_views(self) -> dict[str, "ABCView"]:
-        pass
-
     def load_many(self, *externals: typing.Self) -> None:
         for external in externals:
             self.load(external)

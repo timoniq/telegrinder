@@ -1,0 +1,36 @@
+name: PR
+
+'on':
+  - pull_request
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  pre-commit:
+    name: "Run pre-commit"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - name: Install uv and dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          python-version: "3.13"
+
+      - name: Load pre-commit cache
+        id: cache-pre-commit
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-pre-commit
+        with:
+          key: ${{ env.cache-name }}-${{ hashFiles('**/.pre-commit-config.yaml', '~/.cache/pre-commit/*') }}
+          path: ~/.cache/pre-commit
+
+      - name: Run pre-commit
+        run: uv run pre-commit run --color=always --all-files
+
+      - name: Run pre-commit-ci-lite
+        uses: pre-commit-ci/lite-action@v1.1.0
+        if: failure() || cancelled()

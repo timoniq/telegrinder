@@ -1,0 +1,28 @@
+name: Push
+
+'on':
+  push:
+    branches:
+      - dev
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ci:
+    name: "CI (Push)"
+    strategy:
+      matrix:
+        python-version:
+          - "3.12"
+          - "3.13"
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    uses: ./.github/workflows/ci.yml
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}

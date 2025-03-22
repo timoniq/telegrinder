@@ -45,7 +45,7 @@ def test_set_value_in_global_ctx():
     ctx = GlobalContext()
     ctx.counter = {}
     ctx.start_id = CtxVar(20, const=True)
-    ctx.colors = GlobalCtxVar("colors", ("Red", "Green", "Blue"), const=True)
+    ctx.colors = GlobalCtxVar(value=("Red", "Green", "Blue"), name="colors", const=True)
 
     assert "counter" in ctx
     assert "start_id" in ctx
@@ -103,8 +103,8 @@ def test_rename_var_in_global_ctx():
 def test_clear_global_ctx():
     ctx = GlobalContext(temp=[], state=True)
     ctx.clear()
-
     assert not ctx
+
     ctx = GlobalContext(machine=CtxVar("Machine", const=True))
     ctx.clear(include_consts=True)
     assert not ctx
@@ -130,22 +130,22 @@ def test_delete_ctx_from_global_ctx():
 
 def test_create_global_ctx_with_inheritance():
     class LittleContext(GlobalContext):
-        __ctx_name__ = "my_little_ctx"
+        __ctx_name__ = "little_ctx"
 
-        flag: bool
-        control_id: int
-        states: typing.Final[list[bool]] = ctx_var(default=[], frozen=True)
+        is_little: bool
+        little_id: int
+        FLAGS: typing.Final[list[int]] = ctx_var(default=[], const=True)
 
-    ctx = LittleContext(flag=False, control_id=111, states=[True, True, False, True, False])
+    ctx = LittleContext(is_little=False, little_id=666, FLAGS=[23, 44, 32, 55, 12])
 
-    assert ctx.ctx_name == "my_little_ctx"
+    assert ctx.ctx_name == "little_ctx"
     assert isinstance(ctx, GlobalContext)
     assert issubclass(LittleContext, GlobalContext)
 
-    assert "flag" in ctx
-    assert "control_id" in ctx
-    assert "states" in ctx
+    assert "is_little" in ctx
+    assert "little_id" in ctx
+    assert "FLAGS" in ctx
 
-    assert ctx.get_value("flag", bool)
-    assert ctx.get_value("control_id", int)
-    assert ctx.get_value("states", list[bool])
+    assert ctx.get_value("is_little", bool)
+    assert ctx.get_value("little_id", int)
+    assert ctx.get_value("FLAGS", list[int])

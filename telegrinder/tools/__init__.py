@@ -6,6 +6,7 @@ from .adapter import (
     RawEventAdapter,
     RawUpdateAdapter,
 )
+from .awaitable import maybe_awaitable
 from .buttons import BaseButton
 from .callback_data_serilization import (
     ABCDataSerializer,
@@ -69,6 +70,7 @@ from .global_context import (
     GlobalCtxVar,
     TelegrinderContext,
     ctx_var,
+    runtime_init,
 )
 from .i18n import (
     ABCI18n,
@@ -87,8 +89,9 @@ from .keyboard import (
     Keyboard,
     RowButtons,
 )
+from .lifespan import Lifespan
 from .limited_dict import LimitedDict
-from .loop_wrapper import ABCLoopWrapper, DelayedTask, Lifespan, LoopWrapper
+from .loop_wrapper import DelayedTask, LoopWrapper
 from .magic import (
     cancel_future,
     get_annotations,
@@ -109,7 +112,6 @@ __all__ = (
     "ABCErrorHandler",
     "ABCGlobalContext",
     "ABCI18n",
-    "ABCLoopWrapper",
     "ABCStateStorage",
     "ABCTranslator",
     "ABCTranslatorMiddleware",
@@ -160,6 +162,7 @@ __all__ = (
     "code_inline",
     "ctx_var",
     "escape",
+    "maybe_awaitable",
     "from_optional",
     "get_annotations",
     "get_cached_translation",
@@ -175,6 +178,7 @@ __all__ = (
     "resolve_arg_names",
     "spoiler",
     "strike",
+    "runtime_init",
     "tg_bot_attach_open_any_chat",
     "tg_bot_attach_open_current_chat",
     "tg_bot_attach_open_specific_chat",

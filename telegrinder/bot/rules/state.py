@@ -28,7 +28,7 @@ class State[Payload](ABCRule):
         if self.key != StateMeta.ANY and self.key != state.unwrap().key:
             return False
 
-        ctx["state"] = state.unwrap()
+        ctx.state = state.unwrap()
         return True
 
 

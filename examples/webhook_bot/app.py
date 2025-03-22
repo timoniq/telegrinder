@@ -17,10 +17,10 @@ from telegrinder.types.objects import Update
 token = Token.from_env()
 api = API(token=token)
 
-HOST = typing.cast(str, env.str("HOST"))  # > host, for example: https://site.com
-PORT = typing.cast(int, env.int("PORT"))  # > port, can be either 443, 80, 88, or 8443.
+HOST = typing.cast("str", env.str("HOST"))  # > host, for example: https://site.com
+PORT = typing.cast("int", env.int("PORT"))  # > port, can be either 443, 80, 88, or 8443.
 WEBHOOK_PATH = typing.cast(
-    str, env.str("WEBHOOK_PATH") + token
+    "str", env.str("WEBHOOK_PATH") + token
 )  # > webhook path, for example: /bot/ + bot token: 123:ABC...
 WEBHOOK_URL = HOST + WEBHOOK_PATH  # > host + webhook path
 SECRET_TOKEN = secrets.token_urlsafe(64)  # > random secret token

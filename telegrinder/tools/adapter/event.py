@@ -46,7 +46,7 @@ class EventAdapter[ToEvent: BaseCute](ABCAdapter[Update, ToEvent]):
                     return Ok(context[self.ADAPTED_VALUE_KEY])
 
                 adapted = (
-                    typing.cast(ToEvent, event)
+                    typing.cast("ToEvent", event)
                     if isinstance(event, BaseCute)
                     else self.cute_model.from_update(event, bound_api=api)
                 )

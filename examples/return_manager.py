@@ -19,7 +19,7 @@ def int_validator(value: str) -> int | None:
     return None
 
 
-class MappedValidator(typing.Generic[T]):
+class MappedValidator[T]:
     def __init__(self, validator: typing.Callable[[str], T | None]):
         self.validator = validator
 
@@ -34,7 +34,7 @@ class MappedValidator(typing.Generic[T]):
 
 
 @bot.on.message(Command("get", Argument("count", validators=[int_validator])))
-async def command_handler_get(_: Message, count: int) -> str:
+async def command_handler_get(count: int) -> str:
     return f"You got {count} items."
 
 
@@ -60,7 +60,7 @@ async def command_handler_secret(message: Message, code: list[int]) -> Context:
 
 
 @bot.on.message(IsPrivate())
-async def handler_secret_code(_: Message, secret_code: int | None = None):
+async def handler_secret_code(_: Message, secret_code: int | None = None) -> str | None:
     if secret_code is None:
         return
     return f"Hey! Secret code: {secret_code!r}"

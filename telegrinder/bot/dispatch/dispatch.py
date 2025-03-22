@@ -4,7 +4,7 @@ import dataclasses
 
 import typing_extensions as typing
 from fntypes import Nothing, Option, Some
-from vbml.patcher import Patcher
+from vbml.patcher.abc import ABCPatcher
 
 from telegrinder.api.api import API, HTTPClient
 from telegrinder.bot.dispatch.abc import ABCDispatch
@@ -81,7 +81,7 @@ class Dispatch(
         return self._global_context
 
     @property
-    def patcher(self) -> Patcher:
+    def patcher(self) -> ABCPatcher:
         """Alias `patcher` to get `vbml.Patcher` from the global context."""
         return self.global_context.vbml_patcher
 
@@ -220,7 +220,7 @@ class Dispatch(
         await run_middleware(
             self.global_middleware.post,
             api,
-            event,
+            event,  # type: ignore
             raw_event=event,
             ctx=context,
             adapter=self.global_middleware.adapter,

@@ -1,4 +1,4 @@
-name: Generating Telegram Bot API types
+name: Generate Telegram Bot API types
 
 on:
   workflow_dispatch: {}
@@ -6,32 +6,45 @@ on:
     - cron: "0 13 * * *"
 
 jobs:
-  lock_file:
-    runs-on: ubuntu-22.04
+  lock-file:
+    name: "Lock uv"
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: "3.13"
+
       - run: uv lock --locked
 
-  type_generation:
-    runs-on: ubuntu-22.04
-    needs: [lock_file]
+  type-generation:
+    name: "Type-generation"
+    runs-on: ubuntu-latest
+    needs: lock-file
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - run: uv run typegen
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
 
-  open_pr:
-    runs-on: ubuntu-22.04
-    needs: [type_generation]
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: "3.13"
+
+      - name: "Run type-generator"
+        run: uv run typegen
+
+  open-pr:
+    name: "Open PR"
+    runs-on: ubuntu-latest
+    needs: type-generation
     steps:
       - uses: actions/checkout@v4
+
       - uses: peter-evans/create-pull-request@v7
         with:
           commit-message: >
-            Update Bot API types based on the latest schema changes
+            Update API types based on the latest schema changes.
           title: >
-            Update Bot API types based on the latest schema changes
+            Update API types based on the latest schema changes
           body: >
             This is an automated PR. Please check the diff, and the action logs, to check for any funky behavior.
           branch: automated/types

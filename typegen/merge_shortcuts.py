@@ -220,8 +220,8 @@ class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
         original_node: cst.FunctionDef,
         updated_node: cst.FunctionDef,
     ) -> cst.FunctionDef:
-        if typing.cast(Shortcut, original_node) in self.shortcuts:
-            shortcut = self.shortcuts.pop(self.shortcuts.index(typing.cast(Shortcut, original_node)))
+        if typing.cast("Shortcut", original_node) in self.shortcuts:
+            shortcut = self.shortcuts.pop(self.shortcuts.index(typing.cast("Shortcut", original_node)))
             shortcut_args, shortcut_kwargs = get_func_params(shortcut.function)
             api_method_args, api_method_kwargs = get_func_params(self.api_methods[shortcut.method_name])
 

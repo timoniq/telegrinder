@@ -1,8 +1,42 @@
-# Telegrinder
+<p align="center">
+  <a href="https://github.com/timoniq/telegrinder">
+    <img width="200px" height="145px" alt="Telegrinder" src="https://github.com/timoniq/telegrinder/blob/main/docs/logo.jpg">
+  </a>
+</p>
 
-Framework for effective and reliable telegram bot building.
+</p>
+<h1 align="center">
+  Telegrinder
+</h1>
 
-Still in development.
+<p align="center">
+    <em><b>Framework for effective and reliable telegram bot building.</b></em>
+</p>
+
+<p align="center">
+  <a href="https://github.com/timoniq/telegrinder/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/ci.yml?branch=main&style=flat-square&labelColor=black
+    ">
+  </a>
+  <a href="https://github.com/timoniq/telegrinderblob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/timoniq/telegrinder.svg?color=lightGreen&labelColor=black">
+  </a>
+  <a href="https://pypi.org/project/telegrinder/">
+    <img src="https://img.shields.io/pypi/v/telegrinder.svg?labelColor=black">
+  </a>
+  <a href="https://docs.astral.sh/ruff/">
+    <img src="https://img.shields.io/badge/linter-Ruff-D7FF64?logo=ruff&logoColor=fff&style=flat-square&labelColor=black">
+  </a>
+  <a href="https://pypi.org/project/telegrinder/">
+    <img src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&style=flat-square&logo=python&logoColor=fff&labelColor=black">
+  </a>
+  <a href="https://core.telegram.org/bots/api">
+    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=API%20types&labelColor=black&color=%23FBCA04">
+  </a>
+</p>
+
+
+_Still in development._
 
 * Type hinted
 * Customizable and extensible
@@ -11,29 +45,27 @@ Still in development.
 * Both low-level and high-level API
 * Support [optional dependecies](https://github.com/timoniq/telegrinder/blob/dev/docs/guide/optional_dependencies.md)
 
+
 # Getting started
 
-Install using pip:
+Install using pip, uv and poetry:
 
 ```console
 pip install telegrinder
 ```
 
-Using poetry:
 ```console
 poetry add telegrinder
 ```
-
-Using uv:
 
 ```console
 uv add telegrinder
 ```
 
-Install from github:
+Install from [source](https://github.com/timoniq/telegrinder):
 
 ```console
-pip install -U https://github.com/timoniq/telegrinder/archive/dev.zip
+pip install git+https://github.com/timoniq/telegrinder/archive/dev.zip
 ```
 
 ```console
@@ -51,9 +83,9 @@ from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.rules import Text
 
+logger.set_level("INFO")
 api = API(token=Token("123:token"))
 bot = Telegrinder(api)
-logger.set_level("INFO")
 
 
 @bot.on.message(Text("/start"))

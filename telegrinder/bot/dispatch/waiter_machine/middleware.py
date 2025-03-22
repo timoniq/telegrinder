@@ -16,9 +16,6 @@ if typing.TYPE_CHECKING:
     from .short_state import ShortState
 
 
-INITIATOR_CONTEXT_KEY = "initiator"
-
-
 class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
     def __init__(
         self,
@@ -52,7 +49,7 @@ class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
             ctx.raw_update,
             preset_context,
         ):
-            logger.debug("Filter rule {!r} failed", short_state.filter)
+            logger.debug("Filter rule {!r} failed!", short_state.filter)
             return True
 
         if short_state.expiration_date is not None and datetime.datetime.now() >= short_state.expiration_date:

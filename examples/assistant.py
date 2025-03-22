@@ -36,7 +36,7 @@ async def ping(msg: Message):
 
 
 @bot.on.message(Markup(["/mute", "/mute <hours:int>"]), IsChatAdmin(), WithReply())
-async def ban(msg: Message, hours: int = 1):
+async def ban(msg: Message, hours: int = 1) -> None:
     perms = ChatPermissions()  # no permissions added
     result = await bot.api.restrict_chat_member(
         chat_id=msg.chat.id,

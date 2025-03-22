@@ -1,5 +1,4 @@
 import abc
-import inspect
 import typing
 from contextlib import suppress
 
@@ -13,6 +12,7 @@ from telegrinder.bot.rules.payload import (
     PayloadModelRule,
 )
 from telegrinder.tools.adapter.event import EventAdapter
+from telegrinder.tools.awaitable import maybe_awaitable
 from telegrinder.types.enums import UpdateType
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
@@ -84,11 +84,7 @@ class CallbackDataMap(CallbackQueryDataRule):
     async def run_validator(value: typing.Any, validator: Validator) -> bool:
         """Run async or sync validator."""
         with suppress(BaseException):
-            result = validator(value)
-            if inspect.isawaitable(result):
-                result = await result
-            return result
-
+            return await maybe_awaitable(validator(value))
         return False
 
     @classmethod

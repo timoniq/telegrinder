@@ -1,0 +1,21 @@
+name: Install uv and dependencies
+
+inputs:
+  python-version:
+    description: "Python version."
+    required: false
+    default: "3.12"
+
+runs:
+  using: composite
+  steps:
+    - uses: hynek/setup-cached-uv@v2
+      with:
+        cache-suffix: -${{ inputs.python-version }}-cache
+        cache-dependency-path: "**/uv.lock"
+
+    - name: "Install dependencies"
+      run: |
+        uv venv --python ${{ inputs.python-version }}
+        uv sync --all-groups --dev
+      shell: bash

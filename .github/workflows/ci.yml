@@ -1,0 +1,85 @@
+name: CI
+
+'on':
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating system"
+        required: true
+        type: string
+      python-version:
+        description: "Python version"
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lock-file:
+    name: "Lock uv"
+    runs-on: ${{ inputs.os }}
+    steps:
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - run: uv lock --locked
+
+  linting:
+    name: "Linting"
+    runs-on: ${{ inputs.os }}
+    needs: lock-file
+    steps:
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Load ruff cache
+        id: cached-ruff
+        uses: actions/cache@v4
+        with:
+          key: ruff-${{ inputs.python-version }}-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          path: .ruff_cache
+
+      - name: "Run ruff"
+        run: uvx ruff check .
+
+  type-checking:
+    name: "Type-checking"
+    runs-on: ${{ inputs.os }}
+    needs: lock-file
+    steps:
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - run: uv run basedpyright --level ERROR
+
+  tests:
+    name: "Testing"
+    runs-on: ${{ inputs.os }}
+    needs: lock-file
+    steps:
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - uses: ./.github/actions/install-dependencies
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Load pytest cache
+        id: cached-pytest
+        uses: actions/cache@v4
+        with:
+          key: pytest-${{ inputs.python-version }}-${{ runner.os }}
+          path: .pytest_cache
+
+      - name: "Run pytest"
+        run: uv run pytest --cov

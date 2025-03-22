@@ -1,4 +1,3 @@
-import inspect
 from abc import ABC, abstractmethod
 from functools import cached_property
 
@@ -11,6 +10,7 @@ from telegrinder.node.base import NodeType, get_nodes, is_node
 from telegrinder.tools.adapter import ABCAdapter
 from telegrinder.tools.adapter.node import Event
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
+from telegrinder.tools.awaitable import maybe_awaitable
 from telegrinder.tools.i18n.abc import ABCTranslator
 from telegrinder.tools.magic import (
     cache_translation,
@@ -70,42 +70,27 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         if adapter is not None:
             cls.adapter = adapter
 
-        requirements = []
-        for base in inspect.getmro(cls):
+        requirements = list[ABCRule]()
+        for base in cls.__mro__:
             if issubclass(base, ABCRule) and base != cls:
-                requirements.extend(base.requires or ())  # type: ignore
+                requirements.extend(base.requires or ())
 
         requirements.extend(requires or ())
         cls.requires = list(dict.fromkeys(requirements))
 
-    def __and__(self, other: "ABCRule") -> "AndRule":
-        """And Rule.
-
-        ```python
-        rule = HasText() & HasCaption()
-        rule #> AndRule(HasText(), HasCaption()) -> True if all rules in an AndRule are True, otherwise False.
-        ```
-        """
+    def __and__(self, other: object, /) -> "AndRule":
+        if not isinstance(other, ABCRule):
+            return NotImplemented
         return AndRule(self, other)
 
-    def __or__(self, other: "ABCRule") -> "OrRule":
-        """Or Rule.
-
-        ```python
-        rule = HasText() | HasCaption()
-        rule #> OrRule(HasText(), HasCaption()) -> True if any rule in an OrRule are True, otherwise False.
-        ```
-        """
+    def __or__(self, other: object, /) -> "OrRule":
+        if not isinstance(other, ABCRule):
+            return NotImplemented
         return OrRule(self, other)
 
-    def __invert__(self) -> "NotRule":
-        """Not Rule.
-
-        ```python
-        rule = ~HasText()
-        rule # NotRule(HasText()) -> True if rule returned False, otherwise False.
-        ```
-        """
+    def __invert__(self, other: object, /) -> "NotRule":
+        if not isinstance(other, ABCRule):
+            return NotImplemented
         return NotRule(self)
 
     def __repr__(self) -> str:
@@ -154,10 +139,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
                     "because it cannot be resolved."
                 )
 
-        result = bound_check_rule(**kw)  # type: ignore
-        if inspect.isawaitable(result):
-            result = await result
-        return result
+        return await maybe_awaitable(bound_check_rule(**kw))
 
     async def translate(self, translator: ABCTranslator) -> typing.Self:
         return self
@@ -199,12 +181,16 @@ class NotRule(ABCRule):
 
 
 class Never(ABCRule):
-    async def check(self) -> typing.Literal[False]:
+    """Neutral element for `|` (OrRule)."""
+
+    def check(self) -> typing.Literal[False]:
         return False
 
 
 class Always(ABCRule):
-    async def check(self) -> typing.Literal[True]:
+    """Neutral element for `&` (AndRule)."""
+
+    def check(self) -> typing.Literal[True]:
         return True
 
 
