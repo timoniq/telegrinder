@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/timoniq/telegrinder">
-    <img width="200px" height="145px" alt="Telegrinder" src="docs/logo.jpg">
+    <img width="200px" height="145px" alt="Telegrinder" src="https://github.com/timoniq/telegrinder/blob/main/docs/logo.jpg">
   </a>
 </p>
 
@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="https://github.com/timoniq/telegrinder/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/ci.yml?branch=dev&style=flat-square&labelColor=black
+    <img src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/ci.yml?branch=main&style=flat-square&labelColor=black
     ">
   </a>
   <a href="https://github.com/timoniq/telegrinderblob/main/LICENSE">
@@ -31,7 +31,7 @@
     <img src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&style=flat-square&logo=python&logoColor=fff&labelColor=black">
   </a>
   <a href="https://core.telegram.org/bots/api">
-    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fdev%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=API%20types&labelColor=black&color=%23FBCA04">
+    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=API%20types&labelColor=black&color=%23FBCA04">
   </a>
 </p>
 
