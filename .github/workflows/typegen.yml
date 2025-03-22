@@ -35,7 +35,7 @@ jobs:
   open-pr:
     name: "Open PR"
     runs-on: ubuntu-latest
-    needs: type_generation
+    needs: type-generation
     steps:
       - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
 
