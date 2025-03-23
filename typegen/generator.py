@@ -59,10 +59,10 @@ def get_bot_api_schema(path: str = MAIN_DIR) -> "TelegramBotAPISchema":
     file = path + "/api_types_version.json"
     with open(file, mode="rb") as f:
         new_version = float(dct["version"].split()[-1])
-        current_version = float(msgspec.json.decode(f.read())["version"])
+        current_version = float(msgspec.json.decode(f.read())["version"][1:])
         if new_version > current_version:
             with open(file, mode="wb+") as f_:
-                f_.write(msgspec.json.encode({"version": new_version}))
+                f_.write(msgspec.json.encode({"version": f"v{new_version}"}))
 
     return msgspec.convert(dct, TelegramBotAPISchema)
 

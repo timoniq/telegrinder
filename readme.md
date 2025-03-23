@@ -18,7 +18,7 @@
   <a href="#license"><img alt="GitHub License" src="https://img.shields.io/github/license/timoniq/telegrinder.svg?color=lightGreen&labelColor=black"></img></a>
   <img alt="Linter" src="https://img.shields.io/badge/linter-Ruff-D7FF64?logo=ruff&logoColor=fff&style=flat-square&labelColor=black">
   <img alt="Python versions" src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&style=flat-square&logo=python&logoColor=fff&labelColor=black">
-  <img alt="Telegram Bot API Version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=Telegram%20API%20v&labelColor=black&color=%23FBCA04">
+  <img alt="Telegram Bot API Version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=Telegram%20API&labelColor=black&color=%23FBCA04">
 </p>
 
 
