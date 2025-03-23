@@ -13,25 +13,17 @@
 — effective and reliable telegram bot building.</b></em>
 </p>
 
-<p align="center">
+<p>
   <img alt="GitHub CI" src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/push.yml?branch=main&style=flat-square&labelColor=black&label=CI">
-  <img alt="GitHub License" src="https://img.shields.io/github/license/timoniq/telegrinder.svg?color=lightGreen&labelColor=black" style="opacity: 0">
-  <img alt="PyPI Version" src="https://img.shields.io/pypi/v/telegrinder.svg?labelColor=black">
-  <img alt="Linter" src="https://img.shields.io/badge/linter-Ruff-D7FF64?logo=ruff&logoColor=fff&style=flat-square&labelColor=black" style="opacity: 0">
-  <img alt="Python versions" src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&style=flat-square&logo=python&logoColor=fff&labelColor=black">
-  <img alt="Telegram Bot API Version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=API%20types&labelColor=black&color=%23FBCA04" style="opacity: 0">
-</p>
-<p align="center">
-  <img alt="GitHub CI" src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/push.yml?branch=main&style=flat-square&labelColor=black&label=CI" style="opacity: 0">
   <img alt="GitHub License" src="https://img.shields.io/github/license/timoniq/telegrinder.svg?color=lightGreen&labelColor=black">
-  <img alt="PyPI Version" src="https://img.shields.io/pypi/v/telegrinder.svg?labelColor=black" style="opacity: 0">
+  <img alt="PyPI Version" src="https://img.shields.io/pypi/v/telegrinder.svg?labelColor=black">
   <img alt="Linter" src="https://img.shields.io/badge/linter-Ruff-D7FF64?logo=ruff&logoColor=fff&style=flat-square&labelColor=black">
-  <img alt="Python versions" src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&style=flat-square&logo=python&logoColor=fff&labelColor=black" style="opacity: 0">
+  <img alt="Python versions" src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&style=flat-square&logo=python&logoColor=fff&labelColor=black">
   <img alt="Telegram Bot API Version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=API%20types&labelColor=black&color=%23FBCA04">
 </p>
 
 
-_Still in development._
+Still in development.
 
 * Type hinted
 * Customizable and extensible
@@ -40,36 +32,6 @@ _Still in development._
 * Both low-level and high-level API
 * Support [optional dependecies](https://github.com/timoniq/telegrinder/blob/dev/docs/guide/optional_dependencies.md)
 
-
-# Getting started
-
-Install using pip, uv and poetry:
-
-```console
-pip install telegrinder
-```
-
-```console
-poetry add telegrinder
-```
-
-```console
-uv add telegrinder
-```
-
-Install from [source](https://github.com/timoniq/telegrinder):
-
-```console
-pip install git+https://github.com/timoniq/telegrinder/archive/dev.zip
-```
-
-```console
-uv add "telegrinder @ git+https://github.com/timoniq/telegrinder.git@dev"
-```
-
-```console
-poetry add git+https://github.com/timoniq/telegrinder.git#dev
-```
 
 Basic example:
 
@@ -92,6 +54,24 @@ async def start(message: Message) -> None:
 bot.run_forever()
 ```
 
+# Getting started
+
+Install using pip, uv or poetry:
+
+```console
+pip install telegrinder
+poetry add telegrinder
+uv add telegrinder
+```
+
+Or install from source (unstable):
+
+```console
+pip install git+https://github.com/timoniq/telegrinder/archive/dev.zip
+uv add "telegrinder @ git+https://github.com/timoniq/telegrinder.git@dev"
+poetry add git+https://github.com/timoniq/telegrinder.git#dev
+```
+
 # Documentation
 
 [Readthedocs](https://telegrinder.readthedocs.io)
@@ -100,8 +80,6 @@ bot.run_forever()
 
 Join our [telegram forum](https://t.me/botoforum).
 
-# [Contributing](https://github.com/timoniq/telegrinder/blob/main/contributing.md)
-
 # License
 
 Telegrinder is [MIT licensed](./LICENSE)\
@@ -109,6 +87,8 @@ Copyright © 2022-2025 [timoniq](https://github.com/timoniq)\
 Copyright © 2024-2025 [luwqz1](https://github.com/luwqz1)
 
 # Contributors
+
+[How to contribute](https://github.com/timoniq/telegrinder/blob/main/contributing.md)
 
 
 <a href="https://github.com/timoniq/telegrinder/graphs/contributors">
