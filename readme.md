@@ -1,4 +1,4 @@
-<p align="center">
+<p>
   <a href="https://github.com/timoniq/telegrinder">
     <img width="200px" height="145px" alt="Telegrinder" src="https://github.com/timoniq/telegrinder/blob/main/docs/logo.jpg">
   </a>
@@ -27,7 +27,7 @@
 * Ready to use scenarios and rules
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
 * Both low-level and high-level API
-* Support [optional dependecies](https://github.com/timoniq/telegrinder/blob/dev/docs/guide/optional_dependencies.md)
+* Support for different [dependency builds](https://github.com/timoniq/telegrinder/blob/dev/docs/guide/optional_dependencies.md)
 
 
 Basic example:
