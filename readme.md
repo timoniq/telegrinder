@@ -10,12 +10,12 @@
 </h1>
 
 <p>
-— effective and reliable telegram bot building.</b></em>
+— effective and reliable telegram bot building.
 </p>
 
 <p>
-  <a href="#contributors"><img alt="Still in development" src="https://img.shields.io/badge/-Still%20in%20development-E3956B?style=FAFAFA&labelColor=0C560F&color=white&textColor=black"></a>
-  <a href="#license"><img alt="GitHub License" src="https://img.shields.io/github/license/timoniq/telegrinder.svg?color=lightGreen&labelColor=black"></img>
+  <a href="#contributors"><img alt="Still in development" src="https://img.shields.io/badge/Still_in_development-E3956B?logo=textpattern&logoColor=fff&style=flat-square&color=black"></a>
+  <a href="#license"><img alt="GitHub License" src="https://img.shields.io/github/license/timoniq/telegrinder.svg?color=lightGreen&labelColor=black"></img></a>
   <img alt="Linter" src="https://img.shields.io/badge/linter-Ruff-D7FF64?logo=ruff&logoColor=fff&style=flat-square&labelColor=black">
   <img alt="Python versions" src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Fpyproject.toml&style=flat-square&logo=python&logoColor=fff&labelColor=black">
   <img alt="Telegram Bot API Version" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftimoniq%2Ftelegrinder%2Frefs%2Fheads%2Fmain%2Ftypegen%2Fapi_types_version.json&query=%24.version&style=flat-square&logo=telegram&label=Telegram%20API%20v&labelColor=black&color=%23FBCA04">
