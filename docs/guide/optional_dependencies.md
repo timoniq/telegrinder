@@ -59,7 +59,7 @@ from telegrinder.modules import logger
 logger.set_level("INFO")
 ```
 
-### [brolti](https://github.com/google/brotli)
+### [brotli](https://github.com/google/brotli)
 Brotli is required for `telegrinder.tools.callback_data_serilization.MsgPackSerializer`, which provides a much more compact encode data.
 ```console
 pip install "telegrinder[brotli]"
