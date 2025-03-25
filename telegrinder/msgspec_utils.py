@@ -153,6 +153,8 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
         match msgspec_convert(obj, t):
             case Ok(value):
                 return tp(value)
+            case Error(_):
+                continue
 
     raise TypeError(
         "Object of type `{}` does not belong to types `{}`".format(

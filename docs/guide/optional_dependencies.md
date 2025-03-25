@@ -7,6 +7,7 @@
 | [aiohttp](https://docs.aiohttp.org/en/stable)                  | [aiosonic](#aiosonic)                            |
 | [asyncio](https://docs.python.org/3/library/asyncio.html)      | [uvloop](#uvloop)                                |
 | [logging](https://docs.python.org/3/library/logging.html)      | [loguru](#loguru)                                |
+| [base64](https://docs.python.org/3/library/base64.html)        | [brotli](#brotli)                                |
 
 
 Install all optional dependecies
@@ -56,4 +57,10 @@ There is a function to set a logging level for both `logging` or `loguru`:
 from telegrinder.modules import logger
 
 logger.set_level("INFO")
+```
+
+### [brolti](https://github.com/google/brotli)
+Brotli is required for `telegrinder.tools.callback_data_serilization.MsgPackSerializer`, which provides a much more compact encode data.
+```console
+pip install "telegrinder[brotli]"
 ```

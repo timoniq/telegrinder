@@ -13,6 +13,11 @@ from telegrinder.msgspec_utils import decoder, encoder, get_class_annotations
 
 from .abc import ABCDataSerializer, ModelType
 
+try:
+    import brotli  # type: ignore
+except ImportError:
+    brotli = None
+
 
 @dataclasses.dataclass(frozen=True, slots=True)
 class ModelParser[Model: ModelType]:
@@ -149,12 +154,13 @@ class MsgPackSerializer[Model: ModelType](ABCDataSerializer[Model]):
             return msgspec.msgpack.encode(super().key)
         return b""
 
-    def serialize(self, data: Model) -> str:
-        return base64.urlsafe_b64encode(
-            self.key + msgspec.msgpack.encode(self._model_parser.parse(data), enc_hook=encoder.enc_hook),
-        ).decode()
+    def serialize(self, data: Model, /) -> str:
+        encoded = self.key + msgspec.msgpack.encode(self._model_parser.parse(data), enc_hook=encoder.enc_hook)
+        if brotli is not None:
+            return base64.b85encode(brotli.compress(encoded, quality=11)).decode()  # type: ignore
+        return base64.urlsafe_b64encode(encoded).decode()
 
-    def deserialize(self, serialized_data: str) -> Result[Model, str]:
+    def deserialize(self, serialized_data: str, /) -> Result[Model, str]:
         with suppress(msgspec.DecodeError, msgspec.ValidationError, binascii.Error):
             ser_data = base64.urlsafe_b64decode(serialized_data)
             if self.ident_key and not ser_data.startswith(self.key):

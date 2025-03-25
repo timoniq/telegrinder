@@ -32,9 +32,10 @@ def make_keyboard[T: BaseStaticButton](
     keyboard = [[]]
 
     for button in buttons.values():
-        if button.row is True or len(keyboard[-1]) >= max_in_row:
-            keyboard.append([])
         keyboard[-1].append(button.get_data())
+
+        if (button.row is True or len(keyboard[-1]) >= max_in_row) and keyboard[-1]:
+            keyboard.append([])
 
     return tuple(tuple(x) for x in keyboard if x)
 
