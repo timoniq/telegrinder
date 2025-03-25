@@ -10,9 +10,6 @@ from fntypes.option import Option
 from telegrinder.api.api import API
 from telegrinder.types.objects import Update
 
-if typing.TYPE_CHECKING:
-    from telegrinder.bot.dispatch.view.abc import ABCView
-
 
 class PathExistsError(BaseException):
     pass

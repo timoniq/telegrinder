@@ -2,16 +2,12 @@ import dataclasses
 import typing
 from abc import ABC, abstractmethod
 
-from fntypes.option import Some
-
-from telegrinder.model import is_none
+from telegrinder.tools.keyboard.buttons import BaseButton, Button, InlineButton, RowButtons
 from telegrinder.types.objects import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
 )
-
-from .buttons import BaseButton, Button, InlineButton, RowButtons
 
 type DictStrAny = dict[str, typing.Any]
 type AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
@@ -21,16 +17,16 @@ def copy_keyboard(keyboard: list[list[DictStrAny]]) -> list[list[DictStrAny]]:
     return [row.copy() for row in keyboard]
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True, frozen=True)
 class KeyboardModel:
     resize_keyboard: bool
     one_time_keyboard: bool
     selective: bool
     is_persistent: bool
-    keyboard: list[list[DictStrAny]]
+    keyboard: typing.Iterable[typing.Iterable[DictStrAny]]
 
 
-class ABCMarkup[KeyboardButton: BaseButton](ABC):
+class ABCKeyboard[KeyboardButton: BaseButton](ABC):
     BUTTON: type[KeyboardButton]
     keyboard: list[list[DictStrAny]]
 
@@ -82,7 +78,7 @@ class ABCMarkup[KeyboardButton: BaseButton](ABC):
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
-class Keyboard(ABCMarkup[Button], KeyboardModel):
+class Keyboard(ABCKeyboard[Button]):
     BUTTON = Button
 
     keyboard: list[list[DictStrAny]] = dataclasses.field(
@@ -96,20 +92,16 @@ class Keyboard(ABCMarkup[Button], KeyboardModel):
 
     def dict(self) -> DictStrAny:
         self.keyboard = [row for row in self.keyboard if row]
-        return {
-            k: v.unwrap() if v and isinstance(v, Some) else v
-            for k, v in dataclasses.asdict(self).items()
-            if not is_none(v)
-        }
+        return dataclasses.asdict(self)
 
     def get_markup(self) -> ReplyKeyboardMarkup:
         return ReplyKeyboardMarkup(**self.dict())
 
-    def keyboard_remove(self, *, selective: bool = False) -> ReplyKeyboardRemove:
-        return ReplyKeyboardRemove(remove_keyboard=True, selective=selective)
+    def keyboard_remove(self) -> ReplyKeyboardRemove:
+        return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective)
 
 
-class InlineKeyboard(ABCMarkup[InlineButton]):
+class InlineKeyboard(ABCKeyboard[InlineButton]):
     BUTTON = InlineButton
 
     def __init__(self) -> None:
@@ -124,7 +116,7 @@ class InlineKeyboard(ABCMarkup[InlineButton]):
 
 
 __all__ = (
-    "ABCMarkup",
+    "ABCKeyboard",
     "InlineKeyboard",
     "Keyboard",
     "KeyboardModel",

@@ -102,7 +102,7 @@ class Lifespan:
             startup_tasks=self.startup_tasks + other.startup_tasks,
             shutdown_tasks=self.shutdown_tasks + other.shutdown_tasks,
         )
-    
+
     def __iadd__(self, other: object, /) -> typing.Self:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -131,7 +131,7 @@ class Lifespan:
     def _start(self) -> None:
         logger.debug("Running lifespan startup tasks")
         self._is_started = True
-    
+
     def _shutdown(self) -> None:
         logger.debug("Running lifespan shutdown tasks")
         self._is_started = False

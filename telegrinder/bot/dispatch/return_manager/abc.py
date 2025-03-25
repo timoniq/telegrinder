@@ -12,8 +12,7 @@ from telegrinder.modules import logger
 def get_union_types(t: typing.Any) -> tuple[type[typing.Any], ...] | None:
     if type(t) in (types.UnionType, typing._UnionGenericAlias):  # type: ignore
         return tuple(
-            v if isinstance(v := typing.get_origin(x) or x, type) else type(v)
-            for x in typing.get_args(t)
+            v if isinstance(v := typing.get_origin(x) or x, type) else type(v) for x in typing.get_args(t)
         )
     return None
 

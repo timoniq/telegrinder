@@ -4,6 +4,7 @@ import typing
 import msgspec
 
 from telegrinder.msgspec_utils import encoder
+from telegrinder.tools.callback_data_serilization import ABCDataSerializer, JSONSerializer
 from telegrinder.types.objects import (
     CallbackGame,
     CopyTextButton,
@@ -14,8 +15,6 @@ from telegrinder.types.objects import (
     SwitchInlineQueryChosenChat,
     WebAppInfo,
 )
-
-from .callback_data_serilization import ABCDataSerializer, JSONSerializer
 
 if typing.TYPE_CHECKING:
     from _typeshed import DataclassInstance
@@ -30,11 +29,11 @@ class BaseButton:
 
 
 class RowButtons[KeyboardButton: BaseButton]:
-    buttons: list[KeyboardButton]
+    buttons: typing.Iterable[KeyboardButton]
     auto_row: bool
 
     def __init__(self, *buttons: KeyboardButton, auto_row: bool = True) -> None:
-        self.buttons = list(buttons)
+        self.buttons = buttons
         self.auto_row = auto_row
 
     def get_data(self) -> list[dict[str, typing.Any]]:

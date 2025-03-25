@@ -41,17 +41,17 @@ repos:
         stages: [ pre-commit ]
 
       - id: ruff
-        name: ruff-format
-        description: "Run 'ruff format' for extremely fast Python formatting"
-        entry: uv run ruff format
+        name: ruff-isort
+        description: "Run 'ruff --select I --select F401 --fix' for extremely fast Python sorting imports"
+        entry: uv run ruff check --select I --select F401 --fix
         language: system
         types: [ python ]
         stages: [ pre-commit ]
 
       - id: ruff
-        name: ruff-isort
-        description: "Run 'ruff --select I --select F401 --fix' for extremely fast Python sorting imports"
-        entry: uv run ruff check --select I --select F401 --fix
+        name: ruff-format
+        description: "Run 'ruff format' for extremely fast Python formatting"
+        entry: uv run ruff format
         language: system
         types: [ python ]
         stages: [ pre-commit ]

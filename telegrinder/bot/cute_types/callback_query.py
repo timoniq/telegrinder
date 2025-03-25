@@ -29,6 +29,11 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         return self.from_
 
     @property
+    @unwrapping
+    def message_cute(self) -> Option[MessageCute]:
+        return self.message.unwrap().only().cast(Some, Nothing)
+
+    @property
     def chat_id(self) -> Option[int]:
         """Optional. Message from chat ID. This will be present if the message is sent
         by the bot with the callback button that originated the query.

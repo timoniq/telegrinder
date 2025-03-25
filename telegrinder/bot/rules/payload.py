@@ -39,6 +39,7 @@ class PayloadModelRule[Model: ModelType](PayloadRule[Model]):
     def __init__(
         self,
         model_t: type[Model],
+        /,
         *,
         serializer: type[ABCDataSerializer[Model]] | None = None,
         alias: str | None = None,

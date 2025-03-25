@@ -23,8 +23,7 @@ class DelayedFunction[**P, R](typing.Protocol):
     __name__: str
     __delayed_task__: DelayedTask
 
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R]:
-        ...
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R]: ...
 
     def cancel(self) -> bool:
         """Cancel delayed task."""
@@ -40,12 +39,10 @@ class LoopWrapper:
     __singleton_instance__: typing.ClassVar[typing.Self | None] = None
 
     @typing.overload
-    def __new__(cls) -> typing.Self:
-        ...
+    def __new__(cls) -> typing.Self: ...
 
     @typing.overload
-    def __new__(cls, *, loop_factory: LoopFactory) -> typing.Self:
-        ...
+    def __new__(cls, *, loop_factory: LoopFactory) -> typing.Self: ...
 
     def __new__(
         cls,
@@ -122,21 +119,18 @@ class LoopWrapper:
     def _stop(self) -> None:
         logger.debug("Stopping loop wrapper")
         self._is_running = False
-    
+
     def _run_tasks(self) -> None:
         if not self._is_running:
             return
 
         while self._tasks:
-            self._loop.create_task(self._tasks.pop(0))        
+            self._loop.create_task(self._tasks.pop(0))
 
     def _handle_tasks_results(self, tasks: Tasks, /) -> Tasks:
         for task_result in tasks:
             try:
-                if (
-                    not task_result.cancelled()
-                    and (exception := task_result.exception()) is not None
-                ):
+                if not task_result.cancelled() and (exception := task_result.exception()) is not None:
                     raise exception from None  # Raise the exception that was set on task.
             except BaseException:
                 logger.exception("Traceback message below:")
@@ -155,7 +149,9 @@ class LoopWrapper:
             logger.info("Caught KeyboardInterrupt, cancellation tasks...")
             with contextlib.suppress(asyncio.CancelledError, asyncio.InvalidStateError):
                 self._loop.run_until_complete(
-                    future=cancel_future(asyncio.gather(*asyncio.all_tasks(loop=self._loop), return_exceptions=True)),
+                    future=cancel_future(
+                        asyncio.gather(*asyncio.all_tasks(loop=self._loop), return_exceptions=True)
+                    ),
                 )
         finally:
             self._stop()

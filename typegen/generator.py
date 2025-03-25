@@ -393,7 +393,9 @@ class ObjectGenerator(ABCGenerator):
         code += f"\n"
         if not object_schema.fields and not nicifications:
             if (not object_schema.subtypes and base is None) or not object_schema.subtypes:
-                logger.warning(f"Object {object_name!r} has no fields or subtypes or nicification (mark as empty object).")
+                logger.warning(
+                    f"Object {object_name!r} has no fields or subtypes or nicification (mark as empty object)."
+                )
             code += f"{TAB}pass" if not object_schema.description else ""
             return code
 

@@ -67,7 +67,7 @@ def root_protection(func: F) -> F:
 
 
 @typing.overload
-def ctx_var() -> typing.Any:...
+def ctx_var() -> typing.Any: ...
 
 
 @typing.overload
@@ -109,7 +109,7 @@ def ctx_var(
 
 def runtime_init[T: ABCGlobalContext](cls: type[T], /) -> type[T]:
     r'''Initialization the global context at runtime.
-    
+
     ```python
     @runtime_init
     class Box(ABCGlobalContext):
@@ -265,7 +265,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def __setitem__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]):
         if is_dunder(__name):
             raise NameError("Cannot set a context variable with dunder name.")
-        
+
         var = self.get(__name)
         if var and (var.value.const and var.value.value is not NODEFAULT):
             raise TypeError(f"Unable to set variable {__name!r}, because it's a constant.")
@@ -274,7 +274,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             self,
             __name,
             GlobalCtxVar.from_var(
-                name=__name, 
+                name=__name,
                 ctx_value=__value,
                 const=var.map(lambda var: var.const).unwrap_or(False),
             ),
@@ -290,7 +290,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         var = self.get(__name).unwrap()
         if var.const:
             raise TypeError(f"Unable to delete variable {__name!r}, because it's a constant.")
-    
+
         if var.value is NODEFAULT:
             raise NameError(f"Variable {__name!r} is not defined in {self.ctx_name!r}.")
 
