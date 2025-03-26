@@ -86,8 +86,8 @@ class RawEventView(ABCEventRawView[UpdateCute], BaseView[UpdateCute]):
     ) -> typing.Callable[..., typing.Any]:
         def wrapper(func: typing.Callable[..., typing.Any]):
             func_handler = FuncHandler(
-                func,
-                rules=[*self.auto_rules, *rules],
+                function=func,
+                rules=[self.auto_rules, *rules],
                 final=final,
                 dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),

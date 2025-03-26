@@ -7,7 +7,7 @@ from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.return_manager.abc import register_manager
 from telegrinder.bot.dispatch.return_manager.message import MessageReturnManager
 from telegrinder.bot.dispatch.view.base import BaseStateView
-from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.abc import ABCRule, AndRule
 from telegrinder.bot.rules.text import Text
 
 
@@ -71,15 +71,14 @@ async def test_register_func_handler():
 
 
 @pytest.mark.asyncio()
-async def test_register_auto_rule():
+async def test_register_auto_rules():
     view = CustomMessageView()
 
     class Rule(ABCRule[MessageCute]):
         async def check(self, event: MessageCute) -> bool: ...
 
-    view.auto_rules = Rule()
-    assert isinstance(view.auto_rules, tuple) and len(view.auto_rules) == 1
-    assert isinstance(view.auto_rules[0], Rule)  # type: ignore
+    view.auto_rules = Rule() & Rule()
+    assert isinstance(view.auto_rules, AndRule)
 
 
 @pytest.mark.asyncio()

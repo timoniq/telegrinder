@@ -13,7 +13,7 @@ from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.dispatch.view.abc import ABCStateView, ABCView
-from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.abc import ABCRule, Always
 from telegrinder.model import Model
 from telegrinder.msgspec_utils import Option
 from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, ErrorHandler
@@ -46,25 +46,29 @@ class BaseView[Event: BaseCute](ABCView):
         self.handlers: list[ABCHandler[Event]] = []
         self.middlewares: list[ABCMiddleware[Event]] = []
         self.return_manager: ABCReturnManager[Event] | None = None
-        self._auto_rules: ABCRule | None = None
+        self._auto_rules: ABCRule = Always()
 
     @property
-    def auto_rules(self) -> tuple[ABCRule] | tuple[()]:
-        return (self._auto_rules,) if self._auto_rules else ()
+    def auto_rules(self) -> ABCRule:
+        return self._auto_rules
 
     @auto_rules.setter
-    def auto_rules(self, value: ABCRule | None) -> None:
+    def auto_rules(self, value: ABCRule | list[ABCRule], /) -> None:
         """Example usage:
 
         ```python
         view.auto_rules = Rule1() & Rule2() | Rule3() & Rule4()
-        view.auto_rules  # (<OrRule>,)
+        view.auto_rules # <OrRule>
 
-        view.auto_rules = None
-        view.auto_rules # ()
+        view.auto_rules = [Rule1(), Rule2()]
+        view.auto_rules # <AndRule>
         ```
         """
-        self._auto_rules = value
+        if isinstance(value, list):
+            for rule in value:
+                self._auto_rules = self._auto_rules & rule
+        else:
+            self._auto_rules = value
 
     @staticmethod
     def get_raw_event(update: Update) -> Option[Model]:
@@ -172,8 +176,8 @@ class BaseView[Event: BaseCute](ABCView):
     ) -> typing.Callable[..., typing.Any]:
         def wrapper(func: typing.Callable[..., typing.Any]):
             func_handler = FuncHandler(
-                func,
-                [*self.auto_rules, *rules],
+                function=func,
+                rules=[self.auto_rules, *rules],
                 final=final,
                 dataclass=dataclass,
                 error_handler=error_handler or ErrorHandler(),

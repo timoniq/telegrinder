@@ -10,11 +10,18 @@ import msgspec
 from fntypes.result import Error, Ok, Result
 
 from telegrinder.msgspec_utils import decoder, encoder, get_class_annotations
+from telegrinder.tools.callback_data_serilization.abc import ABCDataSerializer, ModelType
 
-from .abc import ABCDataSerializer, ModelType
+DESERIALIZE_EXCEPTIONS: typing.Final[set[type[BaseException]]]  = {
+    msgspec.DecodeError,
+    msgspec.ValidationError,
+    binascii.Error
+}
 
 try:
     import brotli  # type: ignore
+
+    DESERIALIZE_EXCEPTIONS.add(brotli.error)  # type: ignore
 except ImportError:
     brotli = None
 
@@ -161,8 +168,12 @@ class MsgPackSerializer[Model: ModelType](ABCDataSerializer[Model]):
         return base64.urlsafe_b64encode(encoded).decode()
 
     def deserialize(self, serialized_data: str, /) -> Result[Model, str]:
-        with suppress(msgspec.DecodeError, msgspec.ValidationError, binascii.Error):
-            ser_data = base64.urlsafe_b64decode(serialized_data)
+        with suppress(*DESERIALIZE_EXCEPTIONS):
+            if brotli is not None:
+                ser_data = brotli.decompress(base64.b85decode(serialized_data))
+            else:
+                ser_data = base64.urlsafe_b64decode(serialized_data)
+
             if self.ident_key and not ser_data.startswith(self.key):
                 return Error("Data is not corresponding to key.")
 
