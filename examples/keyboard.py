@@ -14,9 +14,9 @@ from telegrinder import (
 from telegrinder.modules import logger
 from telegrinder.rules import PayloadModelRule, Text
 
+logger.set_level("INFO")
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logger.set_level("INFO")
 
 
 class FruitsKeyboard(StaticKeyboard, max_in_row=2, one_time_keyboard=True):
@@ -46,7 +46,7 @@ kb = (
 
 
 @bot.on.message(Text("/start"))
-async def start(message: Message):
+async def start(message: Message) -> None:
     await message.answer(
         text="Hello! Choose what you need:",
         reply_markup=kb,
@@ -93,8 +93,8 @@ async def eat_kiwi(message: Message) -> None:
     )
 
 
-@bot.on.callback_query(PayloadModelRule(ItemModel))
-async def buy(cb: CallbackQuery, data: ItemModel):
+@bot.on.callback_query(PayloadModelRule(ItemModel, alias="data"))
+async def buy(cb: CallbackQuery, data: ItemModel) -> None:
     await cb.edit_text(f"You bought a {data.item} for {data.amount}")
 
 

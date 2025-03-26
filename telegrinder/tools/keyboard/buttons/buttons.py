@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import typing
 
@@ -5,6 +7,7 @@ import msgspec
 
 from telegrinder.msgspec_utils import encoder
 from telegrinder.tools.callback_data_serilization import ABCDataSerializer, JSONSerializer
+from telegrinder.tools.keyboard.buttons.base import BaseButton
 from telegrinder.types.objects import (
     CallbackGame,
     CopyTextButton,
@@ -20,24 +23,6 @@ if typing.TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
 type CallbackData = str | bytes | dict[str, typing.Any] | DataclassInstance | msgspec.Struct
-
-
-@dataclasses.dataclass
-class BaseButton:
-    def get_data(self) -> dict[str, typing.Any]:
-        return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}
-
-
-class RowButtons[KeyboardButton: BaseButton]:
-    buttons: typing.Iterable[KeyboardButton]
-    auto_row: bool
-
-    def __init__(self, *buttons: KeyboardButton, auto_row: bool = True) -> None:
-        self.buttons = buttons
-        self.auto_row = auto_row
-
-    def get_data(self) -> list[dict[str, typing.Any]]:
-        return [b.get_data() for b in self.buttons]
 
 
 @dataclasses.dataclass
@@ -85,7 +70,7 @@ class InlineButton(BaseButton):
             or dataclasses.is_dataclass(self.callback_data)
         ):
             callback_data_serializer = callback_data_serializer or JSONSerializer(
-                self.callback_data.__class__,
+                type(self.callback_data),
             )
 
         if callback_data_serializer is not None:
@@ -100,9 +85,4 @@ class InlineButton(BaseButton):
             self.web_app = WebAppInfo(url=self.web_app)
 
 
-__all__ = (
-    "BaseButton",
-    "Button",
-    "InlineButton",
-    "RowButtons",
-)
+__all__ = ("Button", "InlineButton")

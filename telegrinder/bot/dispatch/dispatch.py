@@ -189,7 +189,7 @@ class Dispatch(
         logger.debug(
             "Processing update (update_id={}, update_type={!r})",
             event.update_id,
-            event.update_type.name,
+            event.update_type,
         )
         context = Context(raw_update=event)
 

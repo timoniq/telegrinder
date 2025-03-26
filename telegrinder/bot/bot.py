@@ -65,7 +65,7 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
                     logger.debug(
                         "Received update (update_id={}, update_type={!r})",
                         update.update_id,
-                        update.update_type.name,
+                        update.update_type,
                     )
                     self.loop_wrapper.add_task(self.dispatch.feed(update, self.api))
 

@@ -1,13 +1,11 @@
-"""Telegrinder
-
-Modern visionary telegram bot framework.
+"""Modern visionary telegram bot framework.
 
 * Type hinted
 * Customizable and extensible
 * Ready to use scenarios and rules
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
 * Both low-level and high-level API
-* Support [optional dependecies](https://github.com/timoniq/telegrinder/blob/dev/docs/guide/optional_dependencies.md)
+* Support for different [dependency builds](https://github.com/timoniq/telegrinder/blob/main/docs/guide/optional_dependencies.md)
 
 Basic example:
 

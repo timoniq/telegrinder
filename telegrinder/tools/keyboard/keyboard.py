@@ -1,94 +1,23 @@
 import dataclasses
-import typing
-from abc import ABC, abstractmethod
 
-from telegrinder.tools.keyboard.buttons import BaseButton, Button, InlineButton, RowButtons
+from telegrinder.tools.keyboard.abc import ABCKeyboard, DictStrAny
 from telegrinder.types.objects import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
 )
 
-type DictStrAny = dict[str, typing.Any]
-type AnyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup
 
-
-def copy_keyboard(keyboard: list[list[DictStrAny]]) -> list[list[DictStrAny]]:
-    return [row.copy() for row in keyboard]
-
-
-@dataclasses.dataclass(kw_only=True, frozen=True)
-class KeyboardModel:
-    resize_keyboard: bool
-    one_time_keyboard: bool
-    selective: bool
-    is_persistent: bool
-    keyboard: typing.Iterable[typing.Iterable[DictStrAny]]
-
-
-class ABCKeyboard[KeyboardButton: BaseButton](ABC):
-    BUTTON: type[KeyboardButton]
-    keyboard: list[list[DictStrAny]]
-
-    @abstractmethod
-    def dict(self) -> DictStrAny:
-        pass
-
-    @abstractmethod
-    def get_markup(self) -> AnyMarkup:
-        pass
-
-    @classmethod
-    def get_empty_markup(cls) -> AnyMarkup:
-        return cls().get_markup()
-
-    def add(self, row_or_button: RowButtons[KeyboardButton] | KeyboardButton, /) -> typing.Self:
-        if not self.keyboard:
-            self.row()
-
-        if isinstance(row_or_button, RowButtons):
-            self.keyboard[-1].extend(row_or_button.get_data())
-            if row_or_button.auto_row:
-                self.row()
-            return self
-
-        self.keyboard[-1].append(row_or_button.get_data())
-        return self
-
-    def row(self) -> typing.Self:
-        if len(self.keyboard) and not len(self.keyboard[-1]):
-            return self
-
-        self.keyboard.append([])
-        return self
-
-    def format(self, **format_data: str) -> typing.Self:
-        copy_keyboard = self.__class__()
-        for row in self.keyboard:
-            for button in row:
-                copy_button = button.copy()
-                copy_button["text"] = copy_button["text"].format(**format_data)
-                copy_keyboard.add(self.BUTTON(**copy_button))
-            copy_keyboard.row()
-        return copy_keyboard
-
-    def merge(self, other: typing.Self) -> typing.Self:
-        self.keyboard.extend(copy_keyboard(other.keyboard))
-        return self
-
-
-@dataclasses.dataclass(kw_only=True, slots=True)
-class Keyboard(ABCKeyboard[Button]):
-    BUTTON = Button
-
-    keyboard: list[list[DictStrAny]] = dataclasses.field(
-        default_factory=lambda: [[]],
-        init=False,
-    )
+@dataclasses.dataclass(kw_only=True)
+class Keyboard(ABCKeyboard):
     resize_keyboard: bool = dataclasses.field(default=True)
     one_time_keyboard: bool = dataclasses.field(default=False)
     selective: bool = dataclasses.field(default=False)
     is_persistent: bool = dataclasses.field(default=False)
+    keyboard: list[list[DictStrAny]] = dataclasses.field(
+        default_factory=lambda: [[]],
+        init=False,
+    )
 
     def dict(self) -> DictStrAny:
         self.keyboard = [row for row in self.keyboard if row]
@@ -97,28 +26,33 @@ class Keyboard(ABCKeyboard[Button]):
     def get_markup(self) -> ReplyKeyboardMarkup:
         return ReplyKeyboardMarkup(**self.dict())
 
-    def keyboard_remove(self) -> ReplyKeyboardRemove:
-        return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective)
+    def get_settings(self) -> DictStrAny:
+        return {
+            "resize_keyboard": self.resize_keyboard,
+            "one_time_keyboard": self.one_time_keyboard,
+            "selective": self.selective,
+            "is_persistent": self.is_persistent,
+        }
+
+    def get_keyboard_remove(self) -> ReplyKeyboardRemove:
+        return ReplyKeyboardRemove.from_data(
+            remove_keyboard=True,
+            selective=self.selective,
+        )
 
 
-class InlineKeyboard(ABCKeyboard[InlineButton]):
-    BUTTON = InlineButton
-
+class InlineKeyboard(ABCKeyboard):
     def __init__(self) -> None:
         self.keyboard = [[]]
 
     def dict(self) -> DictStrAny:
-        self.keyboard = [row for row in self.keyboard if row]
-        return dict(inline_keyboard=self.keyboard)
+        return dict(inline_keyboard=[row for row in self.keyboard if row])
+
+    def get_settings(self) -> DictStrAny:
+        return {}
 
     def get_markup(self) -> InlineKeyboardMarkup:
         return InlineKeyboardMarkup(**self.dict())
 
 
-__all__ = (
-    "ABCKeyboard",
-    "InlineKeyboard",
-    "Keyboard",
-    "KeyboardModel",
-    "copy_keyboard",
-)
+__all__ = ("InlineKeyboard", "Keyboard")

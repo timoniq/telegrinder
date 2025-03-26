@@ -1,17 +1,20 @@
-from telegrinder.tools.keyboard.buttons import (
+from telegrinder.tools.keyboard.abc import ABCKeyboard, ABCStaticKeyboard, AnyMarkup
+from telegrinder.tools.keyboard.buttons.base import (
     BaseButton,
+    BaseStaticButton,
+)
+from telegrinder.tools.keyboard.buttons.buttons import (
     Button,
     InlineButton,
-    RowButtons,
 )
-from telegrinder.tools.keyboard.keyboard import ABCKeyboard, AnyMarkup, InlineKeyboard, Keyboard
-from telegrinder.tools.keyboard.static_buttons import (
-    BaseStaticButton,
+from telegrinder.tools.keyboard.buttons.static_buttons import (
     StaticButton,
     StaticInlineButton,
 )
+from telegrinder.tools.keyboard.buttons.tools import RowButtons
+from telegrinder.tools.keyboard.data import KeyboardModel
+from telegrinder.tools.keyboard.keyboard import InlineKeyboard, Keyboard
 from telegrinder.tools.keyboard.static_keyboard import (
-    ABCStaticKeyboard,
     BaseStaticKeyboard,
     StaticInlineKeyboard,
     StaticKeyboard,
@@ -28,6 +31,7 @@ __all__ = (
     "InlineButton",
     "InlineKeyboard",
     "Keyboard",
+    "KeyboardModel",
     "RowButtons",
     "StaticButton",
     "StaticInlineButton",

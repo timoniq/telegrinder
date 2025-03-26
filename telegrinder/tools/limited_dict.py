@@ -23,7 +23,7 @@ class LimitedDict[Key, Value](UserDict[Key, Value]):
     def __setitem__(self, key: Key, value: Value, /) -> None:
         self.set(key, value)
 
-    def __delitem__(self, key: Key) -> None:
+    def __delitem__(self, key: Key, /) -> None:
         if key in self.queue:
             self.queue.remove(key)
         return super().__delitem__(key)
