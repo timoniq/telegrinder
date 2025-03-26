@@ -1,4 +1,4 @@
-from telegrinder.tools.keyboard.abc import ABCKeyboard, ABCStaticKeyboard, AnyMarkup
+from telegrinder.tools.keyboard.abc import ABCKeyboard, ABCStaticKeyboard, AnyMarkup, copy_keyboard
 from telegrinder.tools.keyboard.buttons.base import (
     BaseButton,
     BaseStaticButton,
@@ -37,4 +37,5 @@ __all__ = (
     "StaticInlineButton",
     "StaticInlineKeyboard",
     "StaticKeyboard",
+    "copy_keyboard",
 )

@@ -146,4 +146,4 @@ class ABCStaticKeyboard(metaclass=ABCStaticKeyboardMeta):
         return _get_buttons(cls)
 
 
-__all__ = ("ABCKeyboard", "copy_keyboard")
+__all__ = ("ABCKeyboard", "ABCStaticKeyboard", "copy_keyboard")

@@ -97,6 +97,7 @@ from .keyboard import (
     StaticInlineButton,
     StaticInlineKeyboard,
     StaticKeyboard,
+    copy_keyboard,
 )
 from .lifespan import Lifespan
 from .limited_dict import LimitedDict
@@ -179,6 +180,7 @@ __all__ = (
     "bold",
     "cancel_future",
     "code_inline",
+    "copy_keyboard",
     "ctx_var",
     "escape",
     "from_optional",
