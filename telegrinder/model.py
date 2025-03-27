@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import keyword
 import typing
 
 import msgspec
-from fntypes.co import Nothing, Result, Some
+from fntypes.co import Nothing, Result
 
 from telegrinder.msgspec_utils import decoder, encoder, struct_as_dict
 
@@ -22,9 +24,9 @@ consumers determine whether a field was left unset, or explicitly set a value.""
 
 
 def full_result[T](
-    result: Result[msgspec.Raw, "APIError"],
+    result: Result[msgspec.Raw, APIError],
     full_t: type[T],
-) -> Result[T, "APIError"]:
+) -> Result[T, APIError]:
     return result.map(lambda v: decoder.decode(v, type=full_t))
 
 
@@ -33,17 +35,14 @@ def is_none(value: typing.Any, /) -> typing.TypeGuard[None | Nothing]:
 
 
 def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
-    validated_params = {}
-    for k, v in (
-        *params.pop("other", {}).items(),
-        *params.items(),
-    ):
-        if isinstance(v, Proxy):
-            v = v.get()
-        if k == "self" or is_none(v):
-            continue
-        validated_params[k] = v.unwrap() if isinstance(v, Some) else v
-    return validated_params
+    return {
+        k: v.get() if isinstance(v, Proxy) else v
+        for k, v in (
+            *params.pop("other", {}).items(),
+            *params.items(),
+        )
+        if k == "self" or v is None
+    }
 
 
 if typing.TYPE_CHECKING:
@@ -172,7 +171,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
 
 
 class Proxy[T]:
-    def __init__(self, cfg: "_ProxiedDict[T]", key: str) -> None:
+    def __init__(self, cfg: _ProxiedDict[T], key: str) -> None:
         self.key = key
         self.cfg = cfg
 

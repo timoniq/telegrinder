@@ -53,7 +53,7 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
         offset: int = 0,
         skip_updates: bool = False,
     ) -> typing.NoReturn:
-        async def polling() -> typing.NoReturn:
+        async def polling() -> typing.NoReturn:  # type: ignore
             if skip_updates:
                 logger.debug("Dropping pending updates")
                 await self.reset_webhook()

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import types
 import typing
 
 import msgspec
@@ -22,7 +23,29 @@ from telegrinder.types.objects import (
 if typing.TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
+    from telegrinder.tools.keyboard.abc import ABCKeyboard
+    from telegrinder.tools.keyboard.keyboard import InlineKeyboard, Keyboard
+
 type CallbackData = str | bytes | dict[str, typing.Any] | DataclassInstance | msgspec.Struct
+
+
+def _magic_add_buttons(
+    name_keyboard: str,
+    button: BaseButton,
+    other_button: typing.Any,
+    /,
+    *,
+    row: bool = False,
+) -> ABCKeyboard | types.NotImplementedType:
+    if not isinstance(other_button, type(button)):
+        return NotImplemented
+
+    from telegrinder.tools.keyboard.keyboard import InlineKeyboard, Keyboard  # noqa
+
+    keyboard = locals()[name_keyboard]().add(button)
+    if row:
+        keyboard = keyboard.row()
+    return keyboard.add(other_button)
 
 
 @dataclasses.dataclass
@@ -40,6 +63,12 @@ class Button(BaseButton):
         kw_only=True,
     )
     web_app: WebAppInfo | None = dataclasses.field(default=None, kw_only=True)
+
+    def __or__(self, other: object, /) -> Keyboard:
+        return _magic_add_buttons("Keyboard", self, other)
+
+    def __matmul__(self, other: object, /) -> Keyboard:
+        return _magic_add_buttons("Keyboard", self, other, row=True)
 
 
 @dataclasses.dataclass
@@ -83,6 +112,12 @@ class InlineButton(BaseButton):
 
         if isinstance(self.web_app, str):
             self.web_app = WebAppInfo(url=self.web_app)
+
+    def __or__(self, other: object, /) -> InlineKeyboard:
+        return _magic_add_buttons("InlineKeyboard", self, other)
+
+    def __matmul__(self, other: object, /) -> InlineKeyboard:
+        return _magic_add_buttons("InlineKeyboard", self, other, row=True)
 
 
 __all__ = ("Button", "InlineButton")

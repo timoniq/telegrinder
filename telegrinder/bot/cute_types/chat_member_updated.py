@@ -16,7 +16,7 @@ async def chat_member_interaction(
     params: dict[str, typing.Any],
 ) -> Result[typing.Any, APIError]:
     params = compose_method_params(
-        get_params(locals()),
+        get_params(params),
         update,
         default_params={"chat_id", "user_id"},
     )

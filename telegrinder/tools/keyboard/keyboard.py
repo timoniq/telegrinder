@@ -1,6 +1,6 @@
 import dataclasses
 
-from telegrinder.tools.keyboard.abc import ABCKeyboard, DictStrAny
+from telegrinder.tools.keyboard.base import BaseKeyboard, DictStrAny
 from telegrinder.types.objects import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
@@ -9,7 +9,7 @@ from telegrinder.types.objects import (
 
 
 @dataclasses.dataclass(kw_only=True)
-class Keyboard(ABCKeyboard):
+class Keyboard(BaseKeyboard):
     resize_keyboard: bool = dataclasses.field(default=True)
     one_time_keyboard: bool = dataclasses.field(default=False)
     selective: bool = dataclasses.field(default=False)
@@ -41,7 +41,7 @@ class Keyboard(ABCKeyboard):
         )
 
 
-class InlineKeyboard(ABCKeyboard):
+class InlineKeyboard(BaseKeyboard):
     def __init__(self) -> None:
         self.keyboard = [[]]
 

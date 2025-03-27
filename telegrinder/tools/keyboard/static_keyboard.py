@@ -3,15 +3,12 @@ from __future__ import annotations
 import dataclasses
 import typing
 
-from telegrinder.tools.keyboard.abc import ABCStaticKeyboard, DictStrAny
-from telegrinder.tools.keyboard.buttons.base import BaseStaticButton
+from telegrinder.tools.keyboard.abc import DictStrAny
+from telegrinder.tools.keyboard.base import BaseStaticKeyboard
 from telegrinder.tools.keyboard.data import KeyboardModel
 from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 type RawKeyboard = typing.Iterable[typing.Iterable[DictStrAny]]
-
-KEYBOARD_BUTTONS_KEY: typing.Final[str] = "_buttons"
-NO_VALUE: typing.Final[object] = object()
 
 
 def create_keyboard(cls_: type[BaseStaticKeyboard], /) -> RawKeyboard:
@@ -26,25 +23,6 @@ def create_keyboard(cls_: type[BaseStaticKeyboard], /) -> RawKeyboard:
             keyboard.append([])
 
     return tuple(tuple(x) for x in keyboard if x)
-
-
-class BaseStaticKeyboard(ABCStaticKeyboard):
-    __max_in_row__: int
-
-    @classmethod
-    def get_buttons(cls) -> dict[str, BaseStaticButton]:
-        if (buttons := cls._get_secret_value(KEYBOARD_BUTTONS_KEY)) is not NO_VALUE:
-            return buttons
-        return cls._set_secret_value(KEYBOARD_BUTTONS_KEY, super().get_buttons())
-
-    @classmethod
-    def _set_secret_value[V](cls, key: str, value: V, /) -> V:
-        setattr(cls, key, value)
-        return value
-
-    @classmethod
-    def _get_secret_value(cls, key: str, /) -> typing.Any:
-        return getattr(cls, key, NO_VALUE)
 
 
 class StaticKeyboard(BaseStaticKeyboard):
@@ -100,4 +78,4 @@ class StaticInlineKeyboard(BaseStaticKeyboard):
         return InlineKeyboardMarkup.from_dict(cls.dict())
 
 
-__all__ = ("BaseStaticKeyboard", "StaticInlineKeyboard", "StaticKeyboard")
+__all__ = ("StaticInlineKeyboard", "StaticKeyboard")

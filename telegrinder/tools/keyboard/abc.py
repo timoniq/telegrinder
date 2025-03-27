@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 type DictStrAny = dict[str, typing.Any]
 type AnyMarkup = ReplyKeyboardMarkup | InlineKeyboardMarkup
 type RawKeyboard = list[list[DictStrAny]]
-type Button[T] = DictStrAny | BaseButton | RowButtons[BaseButton]
+type Button = DictStrAny | list[DictStrAny] | BaseButton | RowButtons[BaseButton]
 
 KEYBOARD_BUTTON_CLASS_KEY: typing.Final[str] = "_button_class"
 NO_VALUE: typing.Final[object] = object()
@@ -35,8 +35,6 @@ def copy_keyboard(keyboard: RawKeyboard, /) -> RawKeyboard:
 class ABCKeyboard(abc.ABC):
     keyboard: RawKeyboard
 
-    type Keyboard = typing.Self
-
     @abc.abstractmethod
     def dict(self) -> DictStrAny:
         pass
@@ -49,7 +47,7 @@ class ABCKeyboard(abc.ABC):
     def get_settings(self) -> DictStrAny:
         pass
 
-    def add(self, button: Button[Keyboard], /) -> typing.Self:
+    def add(self, button: Button, /) -> typing.Self:
         if not self.keyboard:
             self.row()
 
@@ -57,6 +55,10 @@ class ABCKeyboard(abc.ABC):
             self.keyboard[-1].extend(button.get_data())
             if button.auto_row:
                 self.row()
+            return self
+
+        if isinstance(button, list):
+            self.keyboard[-1].extend(button)
             return self
 
         self.keyboard[-1].append(button if isinstance(button, dict) else button.get_data())

@@ -11,6 +11,9 @@ if typing.TYPE_CHECKING:
 
     from fntypes.option import Option
 
+    from telegrinder.tools.magic import magic_bundle
+    from telegrinder.tools.repr import fullname
+
     def get_class_annotations(obj: typing.Any, /) -> dict[str, typing.Any]: ...
 
     def get_type_hints(obj: typing.Any, /) -> dict[str, typing.Any]: ...
@@ -29,17 +32,25 @@ else:
     class Option[Value](metaclass=OptionMeta):
         pass
 
+    def magic_bundle(*args, **kwargs):
+        from telegrinder.tools.magic import magic_bundle
+
+        return magic_bundle(*args, **kwargs)
+
+    def fullname(*args, **kwargs):
+        from telegrinder.tools.repr import fullname
+
+        return fullname(*args, **kwargs)
+
 
 type DecHook[T] = typing.Callable[typing.Concatenate[type[T], typing.Any, ...], typing.Any]
 type EncHook[T] = typing.Callable[typing.Concatenate[T, ...], typing.Any]
 
 
-def get_origin[T](t: type[T]) -> type[T]:
-    return typing.cast("T", typing.get_origin(t)) or t
-
-
-def repr_type(t: typing.Any) -> str:
-    return getattr(t, "__name__", repr(get_origin(t)))
+def get_origin[T](t: type[T], /) -> type[T]:
+    t_ = typing.get_origin(t) or t
+    t_ = type(t_) if not isinstance(t_, type) else t_
+    return typing.cast("type[T]", t_)
 
 
 def is_common_type(type_: typing.Any) -> typing.TypeGuard[type[typing.Any]]:
@@ -76,8 +87,8 @@ def msgspec_convert[T](obj: typing.Any, t: type[T]) -> fntypes.result.Result[T, 
     except msgspec.ValidationError:
         return Error(
             "Expected object of type `{}`, got `{}`.".format(
-                repr_type(t),
-                repr_type(type(obj)),
+                fullname(t),
+                fullname(obj),
             )
         )
 
@@ -115,7 +126,7 @@ def option_dec_hook(
             orig_value_type = typing.get_args(value_type)
 
         if not type_check(orig_obj, orig_value_type):
-            raise TypeError(f"Expected `{repr_type(orig_value_type)}`, got `{repr_type(type(orig_obj))}`.")
+            raise TypeError(f"Expected `{fullname(orig_value_type)}`, got `{fullname(orig_obj)}`.")
 
         return fntypes.option.Some(obj)
 
@@ -158,8 +169,8 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
 
     raise TypeError(
         "Object of type `{}` does not belong to types `{}`".format(
-            repr_type(obj.__class__),
-            " | ".join(map(repr_type, union_types)),
+            fullname(obj),
+            " | ".join(map(fullname, union_types)),
         )
     )
 
@@ -247,20 +258,18 @@ class Decoder:
         )
         yield dec_obj
 
-    def add_dec_hook[T](self, t: type[T], /):
-        def decorator(func: DecHook[T]) -> DecHook[T]:
+    def add_dec_hook[T](self, t: type[T], /) -> typing.Callable[[DecHook[T]], DecHook[T]]:
+        def decorator(func: DecHook[T], /) -> DecHook[T]:
             return self.dec_hooks.setdefault(get_origin(t), func)
 
         return decorator
 
-    def dec_hook(self, context: dict[str, typing.Any] | None = None):
-        from telegrinder.tools.magic import magic_bundle
-
-        def inner(tp: type[typing.Any], obj: object) -> typing.Any:
+    def dec_hook(self, context: dict[str, typing.Any] | None = None) -> DecHook[typing.Any]:
+        def inner(tp: type[typing.Any], obj: typing.Any, /) -> typing.Any:
             origin_type = t if isinstance((t := get_origin(tp)), type) else type(t)
             if origin_type not in self.dec_hooks:
                 raise TypeError(
-                    f"Unknown type `{repr_type(origin_type)}`. You can implement decode hook for this type."
+                    f"Unknown type `{fullname(origin_type)}`. You can implement decode hook for this type."
                 )
             dec_hook_func = self.dec_hooks[origin_type]
             kwargs = magic_bundle(dec_hook_func, context or {}, start_idx=2)
@@ -385,21 +394,19 @@ class Encoder:
         enc_obj = msgspec.json.Encoder(enc_hook=self.enc_hook(context))
         yield enc_obj
 
-    def add_enc_hook[T](self, t: type[T], /):
-        def decorator(func: EncHook[T]) -> EncHook[T]:
+    def add_enc_hook[T](self, t: type[T], /) -> typing.Callable[[EncHook[T]], EncHook[T]]:
+        def decorator(func: EncHook[T], /) -> EncHook[T]:
             encode_hook = self.enc_hooks.setdefault(get_origin(t), func)
             return func if encode_hook is not func else encode_hook
 
         return decorator
 
-    def enc_hook(self, context: dict[str, typing.Any] | None = None):
-        from telegrinder.tools.magic import magic_bundle
-
-        def inner(obj: typing.Any) -> typing.Any:
+    def enc_hook(self, context: dict[str, typing.Any] | None = None) -> EncHook[typing.Any]:
+        def inner(obj: typing.Any, /) -> typing.Any:
             origin_type = get_origin(obj.__class__)
             if origin_type not in self.enc_hooks:
                 raise NotImplementedError(
-                    f"Not implemented encode hook for object of type `{repr_type(origin_type)}`.",
+                    f"Not implemented encode hook for object of type `{fullname(origin_type)}`.",
                 )
             enc_hook_func = self.enc_hooks[origin_type]
             kwargs = magic_bundle(enc_hook_func, context or {}, start_idx=1)
