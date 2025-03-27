@@ -29,7 +29,7 @@ def _get_buttons(cls_: type[ABCStaticKeyboard], /) -> dict[str, BaseStaticButton
 
 
 def copy_keyboard(keyboard: RawKeyboard, /) -> RawKeyboard:
-    return [row.copy() for row in keyboard]
+    return [row.copy() for row in keyboard if row]
 
 
 class ABCKeyboard(abc.ABC):
@@ -44,7 +44,7 @@ class ABCKeyboard(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_settings(self) -> DictStrAny:
+    def copy(self, **with_changes: typing.Any) -> typing.Self:
         pass
 
     def add(self, button: Button, /) -> typing.Self:
@@ -71,21 +71,29 @@ class ABCKeyboard(abc.ABC):
         self.keyboard.append([])
         return self
 
-    def format_text(self, **format_data: str) -> typing.Self:
-        copy_keyboard = self.__class__(**self.get_settings())
+    def format_text(self, **format_data: typing.Any) -> typing.Self:
+        copy_keyboard = self.copy()
 
         for row in self.keyboard:
             for button in row:
-                copy_button = button.copy()
-                copy_button["text"] = copy_button["text"].format(**format_data)
-                copy_keyboard.add(copy_button)
-
-            copy_keyboard.row()
+                button["text"] = button["text"].format(**format_data)
 
         return copy_keyboard
 
     def merge(self, other: typing.Self, /) -> typing.Self:
         self.keyboard.extend(copy_keyboard(other.keyboard))
+        return self
+
+    def merge_to_last_row(self, other: typing.Self, /) -> typing.Self:
+        kb_len = len(other.keyboard)
+
+        for index, row in enumerate(copy_keyboard(other.keyboard), start=1):
+            for button in row:
+                self.keyboard[-1].append(button)
+
+            if index < kb_len:
+                self.keyboard.append([])
+
         return self
 
 
@@ -148,4 +156,4 @@ class ABCStaticKeyboard(metaclass=ABCStaticKeyboardMeta):
         return _get_buttons(cls)
 
 
-__all__ = ("ABCKeyboard", "ABCStaticKeyboard", "copy_keyboard")
+__all__ = ("ABCKeyboard", "ABCStaticKeyboard")

@@ -11,7 +11,13 @@ from telegrinder.tools.keyboard.buttons.buttons import Button, InlineButton
 
 
 @dataclasses.dataclass
-class StaticButton(BaseStaticButton, Button, Text):
+class StaticButtonMixin(BaseStaticButton):
+    __and__: typing.ClassVar[None] = None
+    __or__: typing.ClassVar[None] = None
+
+
+@dataclasses.dataclass
+class StaticButton(StaticButtonMixin, Button, Text):
     if not typing.TYPE_CHECKING:
 
         def __init__(self, text, **kwargs):
@@ -21,7 +27,7 @@ class StaticButton(BaseStaticButton, Button, Text):
 
 
 @dataclasses.dataclass
-class StaticInlineButton(BaseStaticButton, InlineButton, ABCRule):
+class StaticInlineButton(StaticButtonMixin, InlineButton, ABCRule):
     if not typing.TYPE_CHECKING:
 
         def __init__(self, *args, **kwargs):
@@ -47,4 +53,4 @@ class StaticInlineButton(BaseStaticButton, InlineButton, ABCRule):
         super().__post_init__(callback_data_serializer)
 
 
-__all__ = ("BaseStaticButton", "StaticButton", "StaticInlineButton")
+__all__ = ("StaticButton", "StaticInlineButton")

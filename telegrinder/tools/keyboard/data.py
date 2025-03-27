@@ -9,11 +9,12 @@ if typing.TYPE_CHECKING:
 
 @dataclasses.dataclass(kw_only=True, frozen=True)
 class KeyboardModel:
-    resize_keyboard: bool
-    one_time_keyboard: bool
-    selective: bool
-    is_persistent: bool
-    keyboard: typing.Iterable[typing.Iterable[DictStrAny]]
+    keyboard: typing.Iterable[typing.Iterable[DictStrAny]] = dataclasses.field(default_factory=lambda: [[]])
+    resize_keyboard: bool = dataclasses.field(default=True)
+    one_time_keyboard: bool = dataclasses.field(default=False)
+    selective: bool = dataclasses.field(default=False)
+    is_persistent: bool = dataclasses.field(default=False)
+    input_field_placeholder: str | None = dataclasses.field(default=None)
 
 
 __all__ = ("KeyboardModel",)

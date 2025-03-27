@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+import types
 import typing
 
 from telegrinder.tools.keyboard.abc import ABCKeyboard, ABCStaticKeyboard, AnyMarkup, DictStrAny
@@ -13,6 +14,14 @@ KEYBOARD_BUTTONS_KEY: typing.Final[str] = "_buttons"
 NO_VALUE: typing.Final[object] = object()
 
 
+def _is_implemented[T: ABCKeyboard](
+    value: object,
+    kb_class: type[T],
+    /,
+) -> typing.TypeGuard[T | BaseButton]:
+    return isinstance(value, BaseButton | kb_class)
+
+
 class BaseKeyboard(ABCKeyboard, abc.ABC):
     @abc.abstractmethod
     def dict(self) -> DictStrAny:
@@ -23,16 +32,20 @@ class BaseKeyboard(ABCKeyboard, abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_settings(self) -> DictStrAny:
+    def copy(self, **with_changes: typing.Any) -> typing.Self:
         pass
 
-    def __or__(self, other: object, /) -> typing.Self:
-        if not isinstance(other, BaseButton):
+    def __and__(self, other: object, /) -> typing.Self:
+        if not _is_implemented(other, type(self)):
             return NotImplemented
-        return self.add(other)
+        return self.add(other) if isinstance(other, BaseButton) else self.merge(other)
 
-    def __matmul__(self, other: object, /) -> typing.Self:
-        return self.__or__(other).row()
+    def __or__(self, other: object, /) -> typing.Self:
+        if not _is_implemented(other, type(self)):
+            return NotImplemented
+
+        kb = self.row()
+        return kb.add(other) if isinstance(other, BaseButton) else kb.merge_to_last_row(other)
 
 
 class BaseStaticKeyboard(ABCStaticKeyboard, abc.ABC):
