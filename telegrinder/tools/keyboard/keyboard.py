@@ -47,7 +47,7 @@ class KeyboardModelMixin(KeyboardModel if typing.TYPE_CHECKING else object):
         return self.keyboard_model.selective
 
     @property
-    def field_placeholder(self) -> str | None:
+    def input_field_placeholder(self) -> str | None:
         return self.keyboard_model.input_field_placeholder
 
 
@@ -103,8 +103,8 @@ class Keyboard(KeyboardModelMixin, BaseKeyboard):
     def no_persistent(self) -> typing.Self:
         return self.copy(is_persistent=False)
 
-    def input_field_placeholder(self, placeholder: str | None, /) -> typing.Self:
-        return self.copy(input_field_placeholder=placeholder)
+    def placeholder(self, value: str | None, /) -> typing.Self:
+        return self.copy(input_field_placeholder=value)
 
 
 @dataclasses.dataclass(frozen=True)
