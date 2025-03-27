@@ -43,8 +43,6 @@ def _magic_keyboard(
     *,
     row: bool = False,
 ) -> ABCKeyboard | types.NotImplementedType:
-    from telegrinder.tools.keyboard.keyboard import InlineKeyboard, Keyboard  # noqa
-
     keyboard_type: type[typing.Any] = _get_keyboard_class(name_keyboard)
     if not isinstance(other, keyboard_type | type(button)):
         return NotImplemented
