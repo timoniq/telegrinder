@@ -29,7 +29,7 @@ class KeyboardModelMixin(KeyboardModel if typing.TYPE_CHECKING else object):
     @property
     def keyboard(self) -> RawKeyboard:
         return self.keyboard_model.keyboard  # type: ignore
-    
+
     @property
     def is_persistent(self) -> bool:
         return self.keyboard_model.is_persistent
@@ -54,6 +54,7 @@ class KeyboardModelMixin(KeyboardModel if typing.TYPE_CHECKING else object):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Keyboard(KeyboardModelMixin, BaseKeyboard):
     if not typing.TYPE_CHECKING:
+
         def __init__(self, **kwargs):
             super().__init__(keyboard_model=kwargs.pop("keyboard_model", None) or KeyboardModel(**kwargs))
 
@@ -81,10 +82,10 @@ class Keyboard(KeyboardModelMixin, BaseKeyboard):
 
     def resize(self) -> typing.Self:
         return self.copy(resize_keyboard=True)
-    
+
     def one_time(self) -> typing.Self:
         return self.copy(one_time_keyboard=True)
-    
+
     def selective(self) -> typing.Self:
         return self.copy(selective=True)
 
@@ -96,7 +97,7 @@ class Keyboard(KeyboardModelMixin, BaseKeyboard):
 
     def no_one_time(self) -> typing.Self:
         return self.copy(one_time_keyboard=False)
-    
+
     def no_selective(self) -> typing.Self:
         return self.copy(selective=False)
 

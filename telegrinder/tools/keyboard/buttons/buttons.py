@@ -51,11 +51,7 @@ def _magic_keyboard(
     if row:
         keyboard = keyboard.row()
 
-    return (
-        keyboard.merge_to_last_row(other)
-        if isinstance(other, keyboard_type)
-        else keyboard.add(other)
-    )
+    return keyboard.merge_to_last_row(other) if isinstance(other, keyboard_type) else keyboard.add(other)
 
 
 class ConvertButtonMixin[T: ABCKeyboard]:
@@ -68,7 +64,7 @@ class ConvertButtonMixin[T: ABCKeyboard]:
         def get_keyboard_class(cls):
             if (kb_cls := getattr(cls, cls.KEYBOARD_CLASS_KEY, None)) is not None:
                 return kb_cls
-            
+
             arg = None
             for base in cls.__orig_bases__:
                 origin = typing.get_origin(base) or base

@@ -42,8 +42,7 @@ def get_params(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
             *params.pop("other", {}).items(),
             *params.items(),
         )
-        if key != "self"
-        and (value := val.get() if isinstance(val, Proxy) else val) is not None
+        if key != "self" and (value := val.get() if isinstance(val, Proxy) else val) is not None
     }
 
 

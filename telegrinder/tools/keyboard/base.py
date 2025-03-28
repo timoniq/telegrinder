@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import abc
-import types
 import typing
 
 from telegrinder.tools.keyboard.abc import ABCKeyboard, ABCStaticKeyboard, AnyMarkup, DictStrAny
