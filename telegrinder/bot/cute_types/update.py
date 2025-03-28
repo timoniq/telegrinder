@@ -1,5 +1,3 @@
-import typing
-
 from fntypes.co import Nothing, Some
 
 from telegrinder.api.api import API
@@ -13,8 +11,6 @@ from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.model import UNSET, From, field
 from telegrinder.msgspec_utils import Option
 from telegrinder.types.objects import *
-
-EventModel = typing.TypeVar("EventModel", bound=Model)
 
 
 class UpdateCute(BaseCute[Update], Update, kw_only=True):
@@ -103,7 +99,7 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
     """Optional. New incoming pre-checkout query. Contains full information
     about checkout."""
 
-    def get_event(self, event_model: type[EventModel]) -> Option[EventModel]:
+    def get_event[T: Model](self, event_model: type[T], /) -> Option[T]:
         if isinstance(self.incoming_update, event_model):
             return Some(self.incoming_update)
         return Nothing()

@@ -2514,7 +2514,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         inline_message_id: str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
         reply_markup: InlineKeyboardMarkup | None = None,
         type: MediaType | None = None,
         **other: typing.Any,

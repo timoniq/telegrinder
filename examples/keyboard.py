@@ -55,10 +55,10 @@ async def start(message: Message) -> None:
 
 @bot.on.message(Text("/eat"))
 async def eat_some_fruit(message: Message) -> None:
-    (await message.reply(
+    await message.reply(
         text="What fruit do you want to eat?",
         reply_markup=FruitsKeyboard.get_markup(),
-    )).unwrap()
+    )
 
 
 @bot.on.message(FruitsKeyboard.APPLE)

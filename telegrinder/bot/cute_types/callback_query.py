@@ -5,7 +5,7 @@ from contextlib import suppress
 import msgspec
 from fntypes.co import Nothing, Result, Some, Variative, unwrapping
 
-from telegrinder.api import API, APIError
+from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
 from telegrinder.bot.cute_types.message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
 from telegrinder.model import UNSET, From, field, get_params
@@ -340,7 +340,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         inline_message_id: str | None = None,
         message_id: int | None = None,
         message_thread_id: int | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
         reply_markup: InlineKeyboardMarkup | None = None,
         type: MediaType | None = None,
         **other: typing.Any,

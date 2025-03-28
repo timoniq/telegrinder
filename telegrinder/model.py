@@ -184,8 +184,7 @@ class Proxy[T]:
 class ProxiedDict[T]:
     if typing.TYPE_CHECKING:
 
-        def __new__(cls, tp: type[T], /) -> T | typing.Self:
-            return super().__new__(cls)
+        def __new__(cls, tp: type[T], /) -> T | typing.Self: ...
 
     def __init__(self, tp: type[T], /) -> None:
         self.tp = tp
