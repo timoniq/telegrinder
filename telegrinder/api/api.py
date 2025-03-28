@@ -11,9 +11,9 @@ from telegrinder.client import ABCClient, AiohttpClient, MultipartFormProto
 from telegrinder.model import decoder
 from telegrinder.types.methods import APIMethods
 
-HTTPClient = typing.TypeVar("HTTPClient", bound=ABCClient, default=AiohttpClient)
-
 type Json = str | int | float | bool | list[Json] | dict[str, Json] | None
+
+HTTPClient = typing.TypeVar("HTTPClient", bound=ABCClient, default=AiohttpClient)
 
 
 def compose_data[MultipartForm: MultipartFormProto](

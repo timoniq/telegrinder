@@ -14,7 +14,7 @@ from telegrinder import (
 from telegrinder.modules import logger
 from telegrinder.rules import PayloadModelRule, Text
 
-logger.set_level("INFO")
+logger.set_level("DEBUG")
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 
@@ -55,10 +55,10 @@ async def start(message: Message) -> None:
 
 @bot.on.message(Text("/eat"))
 async def eat_some_fruit(message: Message) -> None:
-    await message.reply(
+    (await message.reply(
         text="What fruit do you want to eat?",
         reply_markup=FruitsKeyboard.get_markup(),
-    )
+    )).unwrap()
 
 
 @bot.on.message(FruitsKeyboard.APPLE)

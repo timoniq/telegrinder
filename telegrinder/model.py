@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import keyword
 import typing
 
@@ -34,14 +35,15 @@ def is_none(value: typing.Any, /) -> typing.TypeGuard[None | Nothing]:
     return value is None or isinstance(value, Nothing)
 
 
-def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
+def get_params(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
     return {
-        k: v.get() if isinstance(v, Proxy) else v
-        for k, v in (
+        key: value
+        for key, val in (
             *params.pop("other", {}).items(),
             *params.items(),
         )
-        if k == "self" or v is None
+        if key != "self"
+        and (value := val.get() if isinstance(val, Proxy) else val) is not None
     }
 
 
@@ -170,19 +172,24 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         return self._to_dict("model_as_full_dict", exclude_fields or set(), full=True)
 
 
+@dataclasses.dataclass(frozen=True)
 class Proxy[T]:
-    def __init__(self, cfg: _ProxiedDict[T], key: str) -> None:
-        self.key = key
-        self.cfg = cfg
+    cfg: ProxiedDict[T]
+    key: str
 
     def get(self) -> typing.Any | None:
         return self.cfg._defaults.get(self.key)
 
 
-class _ProxiedDict[T]:
-    def __init__(self, tp: type[T]) -> None:
-        self.type = tp
-        self._defaults = {}
+class ProxiedDict[T]:
+    if typing.TYPE_CHECKING:
+
+        def __new__(cls, tp: type[T], /) -> T | typing.Self:
+            return super().__new__(cls)
+
+    def __init__(self, tp: type[T], /) -> None:
+        self.tp = tp
+        self._defaults: dict[str, typing.Any] = {}
 
     def __setattribute__(self, name: str, value: typing.Any, /) -> None:
         self._defaults[name] = value
@@ -192,14 +199,6 @@ class _ProxiedDict[T]:
 
     def __setitem__(self, key: str, value: typing.Any, /) -> None:
         self._defaults[key] = value
-
-
-if typing.TYPE_CHECKING:
-
-    def ProxiedDict[T](typed_dct: type[T]) -> T | _ProxiedDict[T]:  # noqa: N802
-        ...
-else:
-    ProxiedDict = _ProxiedDict
 
 
 __all__ = (
