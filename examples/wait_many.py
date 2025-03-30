@@ -2,9 +2,10 @@ from telegrinder import (
     API,
     CALLBACK_QUERY_FOR_MESSAGE,
     MESSAGE_FROM_USER,
+    CallbackQueryCute,
     InlineButton,
     InlineKeyboard,
-    Message,
+    MessageCute,
     Telegrinder,
     Token,
     WaiterMachine,
@@ -19,17 +20,18 @@ wm = WaiterMachine(bot.dispatch)
 
 
 @bot.on.message(Text("/start"))
-async def start_handler(message: Message) -> None:
+async def start_handler(message: MessageCute) -> None:
     input_message = (await message.answer("Input or cancel", reply_markup=CANCEL_MARKUP)).unwrap()
-    hasher, event, context = await wm.wait_many(
-        (CALLBACK_QUERY_FOR_MESSAGE, input_message.message_id),
-        (MESSAGE_FROM_USER, message.from_user.id),
+    _, event, _ = await wm.wait_many(
+        MESSAGE_FROM_USER(message.from_user.id),
+        CALLBACK_QUERY_FOR_MESSAGE(input_message.message_id),
     )
 
-    if hasher == CALLBACK_QUERY_FOR_MESSAGE:
-        await message.answer("Cancel flow")
-    else:
-        await message.answer(f"Message input: {event.text.unwrap_or('no text')}")  # type: ignore
+    match event:
+        case MessageCute():
+            await event.answer(f"Message input: {event.text.unwrap_or('no text')}")
+        case CallbackQueryCute():
+            await event.answer("Cancel flow")
 
 
 bot.run_forever()
