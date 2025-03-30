@@ -24,8 +24,8 @@ class TelegrinderContext(GlobalContext):
     __ctx_name__ = "telegrinder"
 
     vbml_pattern_flags: re.RegexFlag | None = ctx_var(default=None, init=False)
-    vbml_patcher: ABCPatcher = ctx_var(default=Patcher(), init=False)
-    loop_wrapper: LoopWrapper = ctx_var(default=LoopWrapper(), init=False)
+    vbml_patcher: ABCPatcher = ctx_var(default_factory=Patcher, init=False)
+    loop_wrapper: LoopWrapper = ctx_var(default_factory=LoopWrapper, init=False)
 
 
 __all__ = ("TelegrinderContext",)

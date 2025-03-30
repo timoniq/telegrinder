@@ -7,7 +7,8 @@ from fntypes.co import Error, Nothing, Ok, Option, Result, Some
 
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import msgspec_convert
-from telegrinder.tools.global_context.abc import ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
+from telegrinder.tools.global_context.abc import NODEFAULT, ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
+from telegrinder.tools.repr import fullname
 
 T = typing.TypeVar("T")
 F = typing.TypeVar("F", bound=typing.Callable)
@@ -17,8 +18,6 @@ if typing.TYPE_CHECKING:
     _: typing.TypeAlias = None
 else:
     _ = lambda: None
-
-NODEFAULT = object()
 
 
 def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
@@ -87,9 +86,19 @@ def ctx_var(
 ) -> typing.Any: ...
 
 
+@typing.overload
+def ctx_var(
+    *,
+    default_factory: typing.Callable[[], typing.Any],
+    init: bool = ...,
+    const: bool = ...,
+) -> typing.Any: ...
+
+
 def ctx_var(
     *,
     default: typing.Any = NODEFAULT,
+    default_factory: typing.Any = NODEFAULT,
     const: bool = False,
     **_: typing.Any,
 ) -> typing.Any:
@@ -97,14 +106,14 @@ def ctx_var(
     ```
     class MyCtx(GlobalContext):
         name: str
-        URL: typing.Final[str] = ctx_var("https://google.com", init=False, const=True)
+        URL: typing.Final[str] = ctx_var(default="https://google.com", init=False, const=True)
 
     ctx = MyCtx(name="John")
     ctx.URL  #: 'https://google.com'
     ctx.URL = '...'  #: type checking error & exception 'TypeError'
     ```
     """
-    return CtxVar(value=default, const=const)
+    return CtxVar(value=default, factory=default_factory, const=const)
 
 
 def runtime_init[T: ABCGlobalContext](cls: type[T], /) -> type[T]:
@@ -115,7 +124,7 @@ def runtime_init[T: ABCGlobalContext](cls: type[T], /) -> type[T]:
     class Box(ABCGlobalContext):
         __ctx_name__ = "box"
 
-        cookies: list[Cookie] = ctx_var(default=[ChocolateCookie()], init=False)
+        cookies: list[Cookie] = ctx_var(default_factory=lambda: [ChocolateCookie()], init=False)
         """
         init=False means that when calling the class constructor it will not be necessary
         to pass this field to the class constructor, because it will already be initialized.
@@ -249,22 +258,22 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             self.set_context_variables(variables)
 
     def __repr__(self) -> str:
-        return "<{} contains variables: {}>".format(
-            f"{self.__class__.__name__}@{self.ctx_name}",
-            ", ".join(var for var in self),
+        return "<{} contains variables: {{ {} }}>".format(
+            f"{fullname(self)}@{self.ctx_name}",
+            ", ".join(var_name for var_name in self),
         )
 
     def __eq__(self, __value: object) -> bool:
         """Returns True if the names of context stores
         that use self and __value instances are equivalent.
         """
-        if not isinstance(__value, self.__class__):
+        if not isinstance(__value, type(self)):
             return NotImplemented
-        return self.__ctx_name__ == __value.__ctx_name__
+        return self.__ctx_name__ == __value.__ctx_name__ and self == __value
 
-    def __setitem__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]):
+    def __setitem__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]) -> None:
         if is_dunder(__name):
-            raise NameError("Cannot set a context variable with dunder name.")
+            raise NameError("Cannot set a context variable with a dunder name.")
 
         var = self.get(__name)
         if var and (var.value.const and var.value.value is not NODEFAULT):
@@ -286,7 +295,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             raise NameError(f"Variable {__name!r} is not defined in {self.ctx_name!r}.")
         return value
 
-    def __delitem__(self, __name: str):
+    def __delitem__(self, __name: str) -> None:
         var = self.get(__name).unwrap()
         if var.const:
             raise TypeError(f"Unable to delete variable {__name!r}, because it's a constant.")
@@ -297,7 +306,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         dict.__delitem__(self, __name)
 
     @root_protection
-    def __setattr__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]):
+    def __setattr__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]) -> None:
         """Setting a context variable."""
         if is_dunder(__name):
             return object.__setattr__(self, __name, __value)

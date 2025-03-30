@@ -14,17 +14,7 @@ type AnyValue = typing.Any
 
 
 class Context(dict[str, AnyValue]):
-    """Context class like dict & dotdict.
-
-    For example:
-    ```python
-    class MyRule(ABCRule[T]):
-        async def check(self, event: T, ctx: Context) -> bool:
-            ctx.me = (await event.ctx_api.get_me()).unwrap()
-            ctx["items"] = [1, 2, 3]
-            return True
-    ```
-    """
+    """Per-event the context storage."""
 
     raw_update: Update
     node_col: NodeCollection | None = None

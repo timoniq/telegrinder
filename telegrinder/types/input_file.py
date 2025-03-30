@@ -27,7 +27,7 @@ class InputFile:
 
     def __repr__(self) -> str:
         return "{}(filename={!r}, data={!r})".format(
-            self.__class__.__name__,
+            type(self).__name__,
             self.filename,
             (self.data[:30] + b"...") if len(self.data) > 30 else self.data,
         )
@@ -44,8 +44,8 @@ class InputFile:
 
 
 @encoder.add_enc_hook(InputFile)
-def encode_inputfile(inputfile: InputFile, files: Files) -> str:
-    return inputfile._to_multipart(files)
+def encode_input_file(input_file: InputFile, files: Files) -> str:
+    return input_file._to_multipart(files)
 
 
 __all__ = ("InputFile",)

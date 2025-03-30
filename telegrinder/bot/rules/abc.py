@@ -18,6 +18,7 @@ from telegrinder.tools.magic import (
     get_cached_translation,
     get_default_args,
 )
+from telegrinder.tools.repr import fullname
 from telegrinder.types.objects import Update as UpdateObject
 
 if typing.TYPE_CHECKING:
@@ -83,10 +84,16 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
             return NotImplemented
         return AndRule(self, other)
 
+    def __iadd__(self, other: object, /) -> "AndRule":
+        return self.__and__(other)
+
     def __or__(self, other: object, /) -> "OrRule":
         if not isinstance(other, ABCRule):
             return NotImplemented
         return OrRule(self, other)
+
+    def __ior__(self, other: object, /) -> "OrRule":
+        return self.__or__(other)
 
     def __invert__(self, other: object, /) -> "NotRule":
         if not isinstance(other, ABCRule):
@@ -94,10 +101,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         return NotRule(self)
 
     def __repr__(self) -> str:
-        return "<{}: adapter={!r}>".format(
-            self.__class__.__name__,
-            self.adapter,
-        )
+        return "<{}, requires={!r}>".format(fullname(self), self.requires)
 
     @cached_property
     def required_nodes(self) -> dict[str, type[NodeType]]:
