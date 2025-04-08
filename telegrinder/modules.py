@@ -3,7 +3,7 @@ import typing
 
 from choicelib import choice_in_order
 
-import telegrinder.msgspec_json as json
+from telegrinder.msgspec_utils import json
 
 
 @typing.runtime_checkable

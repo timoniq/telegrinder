@@ -6,7 +6,7 @@ import typing_extensions as typing
 from fntypes.co import Error, Nothing, Ok, Option, Result, Some
 
 from telegrinder.modules import logger
-from telegrinder.msgspec_utils import msgspec_convert
+from telegrinder.msgspec_utils import convert
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context.abc import NODEFAULT, ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
 
@@ -23,7 +23,7 @@ else:
 def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
     if value_type in (typing.Any, object):
         return True
-    match msgspec_convert(value, value_type):
+    match convert(value, value_type):
         case Ok(v):
             return type(value) is type(v)
         case Error(_):

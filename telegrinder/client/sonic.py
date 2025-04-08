@@ -6,11 +6,19 @@ import typing
 
 import certifi
 
-import telegrinder.msgspec_json as json
 from telegrinder.client.abc import ABCClient
+from telegrinder.msgspec_utils import json
 
 if typing.TYPE_CHECKING:
-    from aiosonic import Connection, HTTPClient, HttpResponse, MultipartForm, Proxy, TCPConnector, Timeouts
+    from aiosonic import (  # type: ignore
+        Connection,
+        HTTPClient,
+        HttpResponse,
+        MultipartForm,
+        Proxy,
+        TCPConnector,
+        Timeouts,
+    )
 
 type Data = dict[str, typing.Any] | MultipartForm
 type Response = HttpResponse
@@ -27,8 +35,8 @@ AIOSONIC_OBJECTS = (
 
 def init_aiosonic_module(client_class: type[ABCClient[typing.Any]], /) -> None:
     try:
-        import aiosonic
-        import aiosonic.exceptions
+        import aiosonic  # type: ignore
+        import aiosonic.exceptions  # type: ignore
     except ImportError:
         raise ImportError(
             "Module 'aiosonic' is not installed. You can install as follows: pip install aiosonic"
@@ -155,7 +163,7 @@ class AiosonicClient(ABCClient["MultipartForm"]):
                 proxy=self.proxy,
             )
 
-        return await self.client.request(
+        return await self.client.request(  # type: ignore
             url=url,
             method=method,
             data=data,

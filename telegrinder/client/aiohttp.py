@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import ssl
 import typing
 
@@ -5,8 +7,8 @@ import aiohttp
 import certifi
 from aiohttp import ClientSession, TCPConnector
 
-import telegrinder.msgspec_json as json
 from telegrinder.client.abc import ABCClient
+from telegrinder.msgspec_utils import json
 
 if typing.TYPE_CHECKING:
     from aiohttp import ClientResponse

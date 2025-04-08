@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import dataclasses
 import keyword
+import types
 import typing
 
 import msgspec
 from fntypes.co import Nothing, Result
 
-from telegrinder.msgspec_utils import decoder, encoder, struct_as_dict
+from telegrinder.msgspec_utils import decoder, encoder, struct_asdict
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
@@ -24,15 +25,15 @@ the default value of `UNSET` will be set instead. This lets downstream
 consumers determine whether a field was left unset, or explicitly set a value."""
 
 
+def is_none(obj: typing.Any, /) -> typing.TypeGuard[Nothing | None]:
+    return isinstance(obj, types.NoneType | Nothing)
+
+
 def full_result[T](
     result: Result[msgspec.Raw, APIError],
     full_t: type[T],
 ) -> Result[T, APIError]:
     return result.map(lambda v: decoder.decode(v, type=full_t))
-
-
-def is_none(value: typing.Any, /) -> typing.TypeGuard[None | Nothing]:
-    return value is None or isinstance(value, Nothing)
 
 
 def get_params(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
@@ -137,7 +138,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
     ) -> dict[str, typing.Any]:
         if dct_name not in self.__dict__:
             self.__dict__[dct_name] = (
-                struct_as_dict(self)
+                struct_asdict(self)
                 if not full
                 else encoder.to_builtins(self.to_dict(exclude_fields=exclude_fields), order="deterministic")
             )
@@ -201,6 +202,7 @@ class ProxiedDict[T]:
 
 __all__ = (
     "MODEL_CONFIG",
+    "UNSET",
     "Model",
     "ProxiedDict",
     "Proxy",

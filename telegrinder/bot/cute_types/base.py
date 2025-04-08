@@ -65,7 +65,7 @@ else:
     import msgspec
     from fntypes.co import Nothing, Some, Variative
 
-    from telegrinder.msgspec_utils import Option, decoder, encoder, struct_as_dict
+    from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
 
     def _get_cute_from_generic(generic_args, /):
@@ -152,7 +152,7 @@ else:
         def _to_dict(self, dct_name, exclude_fields, full):
             if dct_name not in self.__dict__:
                 self.__dict__[dct_name] = (
-                    struct_as_dict(self)
+                    struct_asdict(self)
                     if not full
                     else encoder.to_builtins(
                         {
