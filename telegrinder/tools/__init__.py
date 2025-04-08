@@ -61,6 +61,7 @@ from .formatting import (
     tg_story_link,
     underline,
 )
+from .fullname import fullname
 from .functional import from_optional
 from .global_context import (
     ABCGlobalContext,
@@ -182,6 +183,7 @@ __all__ = (
     "ctx_var",
     "escape",
     "from_optional",
+    "fullname",
     "get_annotations",
     "get_cached_translation",
     "get_default_args",

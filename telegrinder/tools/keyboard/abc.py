@@ -3,9 +3,9 @@ from __future__ import annotations
 import abc
 import typing
 
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.keyboard.buttons.base import BaseButton, BaseStaticButton
 from telegrinder.tools.keyboard.buttons.tools import RowButtons
-from telegrinder.tools.repr import fullname
 
 if typing.TYPE_CHECKING:
     from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup

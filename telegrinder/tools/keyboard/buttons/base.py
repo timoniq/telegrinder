@@ -1,7 +1,7 @@
 import dataclasses
 import typing
 
-from telegrinder.tools.repr import fullname
+from telegrinder.tools.fullname import fullname
 
 
 class BaseButton:

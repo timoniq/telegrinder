@@ -7,8 +7,8 @@ from fntypes.co import Error, Nothing, Ok, Option, Result, Some
 
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import msgspec_convert
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context.abc import NODEFAULT, ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
-from telegrinder.tools.repr import fullname
 
 T = typing.TypeVar("T")
 F = typing.TypeVar("F", bound=typing.Callable)
@@ -105,6 +105,8 @@ def ctx_var(
     """Example:
     ```
     class MyCtx(GlobalContext):
+        __ctx_name__ = "my_ctx"
+
         name: str
         URL: typing.Final[str] = ctx_var(default="https://google.com", init=False, const=True)
 

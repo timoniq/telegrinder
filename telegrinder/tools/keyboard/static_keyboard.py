@@ -35,15 +35,17 @@ class StaticKeyboard(BaseStaticKeyboard):
         one_time_keyboard: bool = False,
         selective: bool = False,
         is_persistent: bool = False,
+        input_field_placeholder: str | None = None,
         max_in_row: int = 3,
     ) -> None:
         cls.__max_in_row__ = max_in_row
         cls.__keyboard__ = KeyboardModel(
+            keyboard=create_keyboard(cls),
             resize_keyboard=resize_keyboard,
             one_time_keyboard=one_time_keyboard,
             selective=selective,
             is_persistent=is_persistent,
-            keyboard=create_keyboard(cls),
+            input_field_placeholder=input_field_placeholder,
         )
 
     @classmethod

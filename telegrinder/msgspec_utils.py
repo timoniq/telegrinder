@@ -11,8 +11,8 @@ if typing.TYPE_CHECKING:
 
     from fntypes.option import Option
 
+    from telegrinder.tools.fullname import fullname
     from telegrinder.tools.magic import magic_bundle
-    from telegrinder.tools.repr import fullname
 
     def get_class_annotations(obj: typing.Any, /) -> dict[str, typing.Any]: ...
 
@@ -38,7 +38,7 @@ else:
         return magic_bundle(*args, **kwargs)
 
     def fullname(*args, **kwargs):
-        from telegrinder.tools.repr import fullname
+        from telegrinder.tools.fullname import fullname
 
         return fullname(*args, **kwargs)
 

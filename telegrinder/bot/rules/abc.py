@@ -11,6 +11,7 @@ from telegrinder.tools.adapter import ABCAdapter
 from telegrinder.tools.adapter.node import Event
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
 from telegrinder.tools.awaitable import maybe_awaitable
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.i18n.abc import ABCTranslator
 from telegrinder.tools.magic import (
     cache_translation,
@@ -18,7 +19,6 @@ from telegrinder.tools.magic import (
     get_cached_translation,
     get_default_args,
 )
-from telegrinder.tools.repr import fullname
 from telegrinder.types.objects import Update as UpdateObject
 
 if typing.TYPE_CHECKING:
