@@ -26,6 +26,7 @@
 * Type hinted
 * Customizable and extensible
 * Ready to use scenarios and rules
+* Flexible DI [nodes](https://github.com/timoniq/telegrinder/tree/main/telegrinder/node)
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
 * Both low-level and high-level API
 * Support for different [dependency builds](https://github.com/timoniq/telegrinder/blob/dev/docs/guide/optional_dependencies.md)
@@ -59,9 +60,9 @@ Install using pip, uv or poetry:
   <a href="https://pypi.org/project/telegrinder/"><img alt="PyPI Version" src="https://img.shields.io/pypi/v/telegrinder.svg?labelColor=black&style=flat-square&logo=pypi"></img></a>
 
 ```console
-pip install telegrinder
-poetry add telegrinder
 uv add telegrinder
+poetry add telegrinder
+pip install telegrinder
 ```
 
 Or install from source (unstable):
@@ -69,9 +70,9 @@ Or install from source (unstable):
   <a href="https://github.com/timoniq/telegrinder/actions/workflows/push.yml"><img alt="GitHub CI" src="https://img.shields.io/github/actions/workflow/status/timoniq/telegrinder/push.yml?branch=main&style=flat-square&labelColor=black&label=CI&logo=github"></img></a>
 
 ```console
-pip install git+https://github.com/timoniq/telegrinder/archive/dev.zip
-uv add "telegrinder @ git+https://github.com/timoniq/telegrinder.git@dev"
+uv add "telegrinder @ git+https://github.com/timoniq/telegrinder@dev"
 poetry add git+https://github.com/timoniq/telegrinder.git#dev
+pip install git+https://github.com/timoniq/telegrinder/archive/dev.zip
 ```
 
 # Documentation

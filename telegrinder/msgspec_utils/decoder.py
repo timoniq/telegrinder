@@ -41,7 +41,9 @@ def option_dec_hook(
             orig_value_type = typing.get_args(value_type)
 
         if not type_check(orig_obj, orig_value_type):
-            raise TypeError(f"Expected `{fullname(orig_value_type)}`, got `{fullname(orig_obj)}`.")
+            raise msgspec.ValidationError(
+                f"Expected `{fullname(orig_value_type)}` or `builtins.None`, got `{fullname(orig_obj)}`.",
+            )
 
         return fntypes.co.Some(obj)
 
@@ -85,7 +87,7 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any, /) -> Variative:
             case _ as arg:
                 typing.assert_never(arg)
 
-    raise TypeError(
+    raise msgspec.ValidationError(
         "Object of type `{}` doesn't belong to `{}[{}]`.".format(
             fullname(obj),
             fullname(Variative),
@@ -211,7 +213,7 @@ class Decoder:
             origin_type = t if isinstance((t := get_origin(tp)), type) else type(t)
             if origin_type not in self.dec_hooks:
                 raise TypeError(
-                    f"Unknown type `{fullname(origin_type)}`. You can implement decode hook for this type."
+                    f"Unknown type `{fullname(origin_type)}`. You can implement decode hook for this type.",
                 )
 
             dec_hook_func = self.dec_hooks[origin_type]

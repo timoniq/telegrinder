@@ -4,6 +4,7 @@ import dataclasses
 import keyword
 import types
 import typing
+from reprlib import recursive_repr
 
 import msgspec
 from fntypes.co import Nothing, Result
@@ -117,6 +118,10 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         def __getattribute__(self, name, /):
             val = super().__getattribute__(name)
             return Nothing() if val is UNSET else val
+
+        @recursive_repr()
+        def __repr__(self) -> str:
+            return super().__repr__().replace(f"={UNSET}", f"={Nothing()}")
 
     @classmethod
     def from_data[**P, T](cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
