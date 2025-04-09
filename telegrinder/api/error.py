@@ -1,6 +1,7 @@
 class APIError(Exception):
     def __init__(self, code: int, error: str) -> None:
         self.code, self.error = code, error
+        super().__init__(self.code, self.error)
 
     def __str__(self) -> str:
         return f"[{self.code}] {self.error}"

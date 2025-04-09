@@ -48,7 +48,7 @@ def option_dec_hook(
     return fntypes.co.Some(decoder.convert(orig_obj, type=value_type))
 
 
-def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
+def variative_dec_hook(tp: type[Variative], obj: typing.Any, /) -> Variative:
     union_types = typing.get_args(tp)
 
     if isinstance(obj, dict):
@@ -94,9 +94,15 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any) -> Variative:
     )
 
 
-def convert[T](obj: typing.Any, t: type[T], /) -> Result[T, str]:
+def convert[T](
+    obj: typing.Any,
+    t: type[T],
+    /,
+    *,
+    context: Context | None = None,
+) -> Result[T, str]:
     try:
-        return Ok(decoder.convert(obj, type=t, strict=True))
+        return Ok(decoder.convert(obj, type=t, strict=True, context=context))
     except msgspec.ValidationError:
         return Error(
             "Expected object of type `{}`, got `{}`.".format(
@@ -151,14 +157,14 @@ class Decoder:
     def __call__[T](
         self,
         type: type[T],
-        context: dict[str, typing.Any] | None = None,
+        context: Context | None = None,
     ) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
 
     @typing.overload
     def __call__(
         self,
         type: typing.Any,
-        context: dict[str, typing.Any] | None = None,
+        context: Context | None = None,
     ) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
 
     @typing.overload
@@ -167,7 +173,7 @@ class Decoder:
         type: type[T],
         *,
         strict: bool = True,
-        context: dict[str, typing.Any] | None = None,
+        context: Context | None = None,
     ) -> typing.ContextManager[msgspec.json.Decoder[T]]: ...
 
     @typing.overload
@@ -176,7 +182,7 @@ class Decoder:
         type: typing.Any,
         *,
         strict: bool = True,
-        context: dict[str, typing.Any] | None = None,
+        context: Context | None = None,
     ) -> typing.ContextManager[msgspec.json.Decoder[typing.Any]]: ...
 
     @contextmanager

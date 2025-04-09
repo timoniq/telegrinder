@@ -57,7 +57,7 @@ class Hasher(typing.Generic[Event, Data]):
         self: "Hasher[E, Data]",
         event: E,
     ) -> Option[typing.Hashable]:
-        return self.get_data_from_event(event).and_then(self.get_hash_from_data)  # type: ignore
+        return self.get_data_from_event(event).then(self.get_hash_from_data)  # type: ignore
 
 
 __all__ = ("Hasher",)

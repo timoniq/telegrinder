@@ -202,10 +202,10 @@ class ProxiedDict[T]:
 
 __all__ = (
     "MODEL_CONFIG",
-    "UNSET",
     "Model",
     "ProxiedDict",
     "Proxy",
+    "UNSET",
     "full_result",
     "get_params",
 )

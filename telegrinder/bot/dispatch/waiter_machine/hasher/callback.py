@@ -10,7 +10,7 @@ def from_chat_hash(chat_id: int) -> int:
 
 
 def get_chat_from_event(event: CallbackQuery) -> int | None:
-    return event.chat.and_then(lambda chat: Some(chat.id)).unwrap_or_none()
+    return event.chat.then(lambda chat: Some(chat.id)).unwrap_or_none()
 
 
 def for_message_hash(message_id: int) -> int:

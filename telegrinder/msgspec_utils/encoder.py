@@ -145,7 +145,7 @@ class Encoder:
         str_keys: bool = False,
         builtin_types: typing.Iterable[type[typing.Any]] | None = None,
         order: Order | None = None,
-        context: dict[str, typing.Any] | None = None,
+        context: Context | None = None,
     ) -> typing.Any:
         return msgspec.to_builtins(
             obj,

@@ -1,7 +1,6 @@
 import dataclasses
 import typing
 
-from fntypes.error import UnwrapError
 from fntypes.result import Error, Ok, Result
 
 from telegrinder.bot.dispatch.context import Context
@@ -83,7 +82,7 @@ async def compose_nodes(
             }
             try:
                 local_nodes[node_t] = await compose_node(node_t, linked=subnodes, data=data)
-            except (ComposeError, UnwrapError) as exc:
+            except ComposeError as exc:
                 for t, local_node in local_nodes.items():
                     if get_scope(t) is NodeScope.PER_CALL:
                         await local_node.close()

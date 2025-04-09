@@ -1,5 +1,4 @@
 import pytest
-from fntypes.error import UnwrapError
 
 from telegrinder.api.api import API, Token
 from telegrinder.api.error import APIError
@@ -74,7 +73,7 @@ async def test_api_error(api: API):
     assert isinstance(response.error, APIError)
     assert response.error.code == 404
     assert response.error.error == "Not Found"
-    with pytest.raises(UnwrapError, match="Not Found"):
+    with pytest.raises(APIError, match="Not Found"):
         response.unwrap()
 
 
