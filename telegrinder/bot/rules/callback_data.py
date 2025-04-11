@@ -45,14 +45,19 @@ class CallbackQueryDataRule(CallbackQueryRule, abc.ABC, requires=[HasData()]):
 
 
 class CallbackDataMap(CallbackQueryDataRule):
-    def __init__(self, mapping: MapDict, /) -> None:
+    def __init__(self, mapping: MapDict, /*, strict: bool = True) -> None:
+        """Callback data map validation.
+        :param mapping: A callback data mapping with validators.
+        :param strict: Strict check of keys between mapping and callback query data.
+        """
         self.mapping = self.transform_to_callbacks(
             self.transform_to_map(mapping),
         )
+        self.strict = strict
 
     @classmethod
     def transform_to_map(cls, mapping: MapDict) -> CallbackMap:
-        """Transforms MapDict to CallbackMap."""
+        """Transforms `MapDict` to `CallbackMap`."""
         callback_map = []
 
         for k, v in mapping.items():
@@ -82,14 +87,14 @@ class CallbackDataMap(CallbackQueryDataRule):
 
     @staticmethod
     async def run_validator(value: typing.Any, validator: Validator) -> bool:
-        """Run async or sync validator."""
+        """Runs sync/async validator."""
         with suppress(BaseException):
             return await maybe_awaitable(validator(value))
         return False
 
     @classmethod
     async def match(cls, callback_data: dict[str, typing.Any], callback_map: CallbackMapStrict) -> bool:
-        """Matches callback_data with callback_map recursively."""
+        """Matches `callback_data` with `callback_map` recursively."""
         for key, validator in callback_map:
             if key not in callback_data:
                 return False
@@ -107,9 +112,14 @@ class CallbackDataMap(CallbackQueryDataRule):
         callback_data = event.decode_data().unwrap_or_none()
         if callback_data is None:
             return False
+
+        if self.strict and callback_data != self.mapping:
+            return False    
+
         if await self.match(callback_data, self.mapping):
             ctx.update(callback_data)
             return True
+
         return False
 
 
