@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods[HTTPClient: ABCClient]:
-    """Telegram Bot API methods version 8.3, released `February 12, 2025`."""
+    """Telegram Bot API methods version 9.0, released `April 11, 2025`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -1122,7 +1122,7 @@ class APIMethods[HTTPClient: ABCClient]:
         they will be credited to the bot's balance.
 
         :param star_count: The number of Telegram Stars that must be paid to buy access to the media; \
-        1-2500.
+        1-10000.
 
         :param media: A JSON-serialized array describing the media to be sent; up to 10 items. \
 
@@ -2175,7 +2175,7 @@ class APIMethods[HTTPClient: ABCClient]:
         payment. Currently, it must always be 2592000 (30 days).
 
         :param subscription_price: The amount of Telegram Stars a user must pay initially and after each subsequent \
-        subscription period to be a member of the chat; 1-2500.
+        subscription period to be a member of the chat; 1-10000.
         """
 
         method_response = await self.api.request_raw(
@@ -3787,6 +3787,705 @@ class APIMethods[HTTPClient: ABCClient]:
         )
         return full_result(method_response, bool)
 
+    async def get_available_gifts(self, **other: typing.Any) -> Result[Gifts, APIError]:
+        """Method `getAvailableGifts`, see the [documentation](https://core.telegram.org/bots/api#getavailablegifts)
+
+        Returns the list of gifts that can be sent by the bot to users and channel chats.
+        Requires no parameters. Returns a Gifts object.
+        """
+
+        method_response = await self.api.request_raw(
+            "getAvailableGifts",
+            get_params(locals()),
+        )
+        return full_result(method_response, Gifts)
+
+    async def send_gift(
+        self,
+        *,
+        gift_id: str,
+        user_id: int | None = None,
+        chat_id: int | str | None = None,
+        pay_for_upgrade: bool | None = None,
+        text: str | None = None,
+        text_parse_mode: str | None = None,
+        text_entities: list[MessageEntity] | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `sendGift`, see the [documentation](https://core.telegram.org/bots/api#sendgift)
+
+        Sends a gift to the given user or channel chat. The gift can't be converted
+        to Telegram Stars by the receiver. Returns True on success.
+
+        :param user_id: Required if chat_id is not specified. Unique identifier of the target user \
+        who will receive the gift.
+
+        :param chat_id: Required if user_id is not specified. Unique identifier for the chat or \
+        username of the channel (in the format @channelusername) that will receive \
+        the gift.
+
+        :param gift_id: Identifier of the gift.
+
+        :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby making \
+        the upgrade free for the receiver.
+
+        :param text: Text that will be shown along with the gift; 0-128 characters.
+
+        :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
+        Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
+        `spoiler`, and `custom_emoji` are ignored.
+
+        :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
+        It can be specified instead of text_parse_mode. Entities other than `bold`, \
+        `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` \
+        are ignored.
+        """
+
+        method_response = await self.api.request_raw(
+            "sendGift",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def gift_premium_subscription(
+        self,
+        *,
+        user_id: int,
+        month_count: int,
+        star_count: int,
+        text: str | None = None,
+        text_parse_mode: str | None = None,
+        text_entities: list[MessageEntity] | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `giftPremiumSubscription`, see the [documentation](https://core.telegram.org/bots/api#giftpremiumsubscription)
+
+        Gifts a Telegram Premium subscription to the given user. Returns True on
+        success.
+
+        :param user_id: Unique identifier of the target user who will receive a Telegram Premium \
+        subscription.
+
+        :param month_count: Number of months the Telegram Premium subscription will be active for the \
+        user; must be one of 3, 6, or 12.
+
+        :param star_count: Number of Telegram Stars to pay for the Telegram Premium subscription; \
+        must be 1000 for 3 months, 1500 for 6 months, and 2500 for 12 months.
+
+        :param text: Text that will be shown along with the service message about the subscription; \
+        0-128 characters.
+
+        :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
+        Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
+        `spoiler`, and `custom_emoji` are ignored.
+
+        :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
+        It can be specified instead of text_parse_mode. Entities other than `bold`, \
+        `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` \
+        are ignored.
+        """
+
+        method_response = await self.api.request_raw(
+            "giftPremiumSubscription",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def verify_user(
+        self,
+        *,
+        user_id: int,
+        custom_description: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `verifyUser`, see the [documentation](https://core.telegram.org/bots/api#verifyuser)
+
+        Verifies a user on behalf of the organization which is represented by the
+        bot. Returns True on success.
+
+        :param user_id: Unique identifier of the target user.
+
+        :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
+        if the organization isn't allowed to provide a custom verification description. \
+        """
+
+        method_response = await self.api.request_raw(
+            "verifyUser",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def verify_chat(
+        self,
+        *,
+        chat_id: int | str,
+        custom_description: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `verifyChat`, see the [documentation](https://core.telegram.org/bots/api#verifychat)
+
+        Verifies a chat on behalf of the organization which is represented by the
+        bot. Returns True on success.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+
+        :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
+        if the organization isn't allowed to provide a custom verification description. \
+        """
+
+        method_response = await self.api.request_raw(
+            "verifyChat",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def remove_user_verification(
+        self,
+        *,
+        user_id: int,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `removeUserVerification`, see the [documentation](https://core.telegram.org/bots/api#removeuserverification)
+
+        Removes verification from a user who is currently verified on behalf of
+        the organization represented by the bot. Returns True on success.
+
+        :param user_id: Unique identifier of the target user.
+        """
+
+        method_response = await self.api.request_raw(
+            "removeUserVerification",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def remove_chat_verification(
+        self,
+        *,
+        chat_id: int | str,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `removeChatVerification`, see the [documentation](https://core.telegram.org/bots/api#removechatverification)
+
+        Removes verification from a chat that is currently verified on behalf of
+        the organization represented by the bot. Returns True on success.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+        """
+
+        method_response = await self.api.request_raw(
+            "removeChatVerification",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def read_business_message(
+        self,
+        *,
+        business_connection_id: str,
+        chat_id: int,
+        message_id: int,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `readBusinessMessage`, see the [documentation](https://core.telegram.org/bots/api#readbusinessmessage)
+
+        Marks incoming message as read on behalf of a business account. Requires
+        the can_read_messages business bot right. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which to read \
+        the message.
+
+        :param chat_id: Unique identifier of the chat in which the message was received. The chat \
+        must have been active in the last 24 hours.
+
+        :param message_id: Unique identifier of the message to mark as read.
+        """
+
+        method_response = await self.api.request_raw(
+            "readBusinessMessage",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def delete_business_messages(
+        self,
+        *,
+        business_connection_id: str,
+        message_ids: list[int],
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `deleteBusinessMessages`, see the [documentation](https://core.telegram.org/bots/api#deletebusinessmessages)
+
+        Delete messages on behalf of a business account. Requires the can_delete_outgoing_messages
+        business bot right to delete messages sent by the bot itself, or the can_delete_all_messages
+        business bot right to delete any message. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which to delete \
+        the messages.
+
+        :param message_ids: A JSON-serialized list of 1-100 identifiers of messages to delete. All \
+        messages must be from the same chat. See deleteMessage for limitations \
+        on which messages can be deleted.
+        """
+
+        method_response = await self.api.request_raw(
+            "deleteBusinessMessages",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def set_business_account_name(
+        self,
+        *,
+        business_connection_id: str,
+        first_name: str,
+        last_name: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setBusinessAccountName`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountname)
+
+        Changes the first and last name of a managed business account. Requires
+        the can_change_name business bot right. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param first_name: The new value of the first name for the business account; 1-64 characters. \
+
+        :param last_name: The new value of the last name for the business account; 0-64 characters. \
+        """
+
+        method_response = await self.api.request_raw(
+            "setBusinessAccountName",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def set_business_account_username(
+        self,
+        *,
+        business_connection_id: str,
+        username: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setBusinessAccountUsername`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountusername)
+
+        Changes the username of a managed business account. Requires the can_change_username
+        business bot right. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param username: The new value of the username for the business account; 0-32 characters. \
+        """
+
+        method_response = await self.api.request_raw(
+            "setBusinessAccountUsername",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def set_business_account_bio(
+        self,
+        *,
+        business_connection_id: str,
+        bio: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setBusinessAccountBio`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountbio)
+
+        Changes the bio of a managed business account. Requires the can_change_bio
+        business bot right. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param bio: The new value of the bio for the business account; 0-140 characters.
+        """
+
+        method_response = await self.api.request_raw(
+            "setBusinessAccountBio",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def set_business_account_profile_photo(
+        self,
+        *,
+        business_connection_id: str,
+        photo: InputProfilePhoto,
+        is_public: bool | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setBusinessAccountProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountprofilephoto)
+
+        Changes the profile photo of a managed business account. Requires the can_edit_profile_photo
+        business bot right. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param photo: The new profile photo to set.
+
+        :param is_public: Pass True to set the public photo, which will be visible even if the main photo \
+        is hidden by the business account's privacy settings. An account can have \
+        only one public photo.
+        """
+
+        method_response = await self.api.request_raw(
+            "setBusinessAccountProfilePhoto",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def remove_business_account_profile_photo(
+        self,
+        *,
+        business_connection_id: str,
+        is_public: bool | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `removeBusinessAccountProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#removebusinessaccountprofilephoto)
+
+        Removes the current profile photo of a managed business account. Requires
+        the can_edit_profile_photo business bot right. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param is_public: Pass True to remove the public photo, which is visible even if the main photo \
+        is hidden by the business account's privacy settings. After the main photo \
+        is removed, the previous profile photo (if present) becomes the main photo. \
+        """
+
+        method_response = await self.api.request_raw(
+            "removeBusinessAccountProfilePhoto",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def set_business_account_gift_settings(
+        self,
+        *,
+        business_connection_id: str,
+        show_gift_button: bool,
+        accepted_gift_types: AcceptedGiftTypes,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setBusinessAccountGiftSettings`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountgiftsettings)
+
+        Changes the privacy settings pertaining to incoming gifts in a managed
+        business account. Requires the can_change_gift_settings business bot
+        right. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param show_gift_button: Pass True, if a button for sending a gift to the user or by the business account \
+        must always be shown in the input field.
+
+        :param accepted_gift_types: Types of gifts accepted by the business account.
+        """
+
+        method_response = await self.api.request_raw(
+            "setBusinessAccountGiftSettings",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def get_business_account_star_balance(
+        self,
+        *,
+        business_connection_id: str,
+        **other: typing.Any,
+    ) -> Result[StarAmount, APIError]:
+        """Method `getBusinessAccountStarBalance`, see the [documentation](https://core.telegram.org/bots/api#getbusinessaccountstarbalance)
+
+        Returns the amount of Telegram Stars owned by a managed business account.
+        Requires the can_view_gifts_and_stars business bot right. Returns StarAmount
+        on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+        """
+
+        method_response = await self.api.request_raw(
+            "getBusinessAccountStarBalance",
+            get_params(locals()),
+        )
+        return full_result(method_response, StarAmount)
+
+    async def transfer_business_account_stars(
+        self,
+        *,
+        business_connection_id: str,
+        star_count: int,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `transferBusinessAccountStars`, see the [documentation](https://core.telegram.org/bots/api#transferbusinessaccountstars)
+
+        Transfers Telegram Stars from the business account balance to the bot's
+        balance. Requires the can_transfer_stars business bot right. Returns
+        True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param star_count: Number of Telegram Stars to transfer; 1-10000.
+        """
+
+        method_response = await self.api.request_raw(
+            "transferBusinessAccountStars",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def get_business_account_gifts(
+        self,
+        *,
+        business_connection_id: str,
+        exclude_unsaved: bool | None = None,
+        exclude_saved: bool | None = None,
+        exclude_unlimited: bool | None = None,
+        exclude_limited: bool | None = None,
+        exclude_unique: bool | None = None,
+        sort_by_price: bool | None = None,
+        offset: str | None = None,
+        limit: int | None = None,
+        **other: typing.Any,
+    ) -> Result[OwnedGifts, APIError]:
+        """Method `getBusinessAccountGifts`, see the [documentation](https://core.telegram.org/bots/api#getbusinessaccountgifts)
+
+        Returns the gifts received and owned by a managed business account. Requires
+        the can_view_gifts_and_stars business bot right. Returns OwnedGifts
+        on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param exclude_unsaved: Pass True to exclude gifts that aren't saved to the account's profile page. \
+
+        :param exclude_saved: Pass True to exclude gifts that are saved to the account's profile page. \
+
+        :param exclude_unlimited: Pass True to exclude gifts that can be purchased an unlimited number of times. \
+
+        :param exclude_limited: Pass True to exclude gifts that can be purchased a limited number of times. \
+
+        :param exclude_unique: Pass True to exclude unique gifts.
+
+        :param sort_by_price: Pass True to sort results by gift price instead of send date. Sorting is applied \
+        before pagination.
+
+        :param offset: Offset of the first entry to return as received from the previous request; \
+        use empty string to get the first chunk of results.
+
+        :param limit: The maximum number of gifts to be returned; 1-100. Defaults to 100.
+        """
+
+        method_response = await self.api.request_raw(
+            "getBusinessAccountGifts",
+            get_params(locals()),
+        )
+        return full_result(method_response, OwnedGifts)
+
+    async def convert_gift_to_stars(
+        self,
+        *,
+        business_connection_id: str,
+        owned_gift_id: str,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `convertGiftToStars`, see the [documentation](https://core.telegram.org/bots/api#convertgifttostars)
+
+        Converts a given regular gift to Telegram Stars. Requires the can_convert_gifts_to_stars
+        business bot right. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param owned_gift_id: Unique identifier of the regular gift that should be converted to Telegram \
+        Stars.
+        """
+
+        method_response = await self.api.request_raw(
+            "convertGiftToStars",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def upgrade_gift(
+        self,
+        *,
+        business_connection_id: str,
+        owned_gift_id: str,
+        keep_original_details: bool | None = None,
+        star_count: int | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `upgradeGift`, see the [documentation](https://core.telegram.org/bots/api#upgradegift)
+
+        Upgrades a given regular gift to a unique gift. Requires the can_transfer_and_upgrade_gifts
+        business bot right. Additionally requires the can_transfer_stars business
+        bot right if the upgrade is paid. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param owned_gift_id: Unique identifier of the regular gift that should be upgraded to a unique \
+        one.
+
+        :param keep_original_details: Pass True to keep the original gift text, sender and receiver in the upgraded \
+        gift.
+
+        :param star_count: The amount of Telegram Stars that will be paid for the upgrade from the business \
+        account balance. If gift.prepaid_upgrade_star_count > 0, then pass 0, \
+        otherwise, the can_transfer_stars business bot right is required and \
+        gift.upgrade_star_count must be passed.
+        """
+
+        method_response = await self.api.request_raw(
+            "upgradeGift",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def transfer_gift(
+        self,
+        *,
+        business_connection_id: str,
+        owned_gift_id: str,
+        new_owner_chat_id: int,
+        star_count: int | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `transferGift`, see the [documentation](https://core.telegram.org/bots/api#transfergift)
+
+        Transfers an owned unique gift to another user. Requires the can_transfer_and_upgrade_gifts
+        business bot right. Requires can_transfer_stars business bot right if
+        the transfer is paid. Returns True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param owned_gift_id: Unique identifier of the regular gift that should be transferred.
+
+        :param new_owner_chat_id: Unique identifier of the chat which will own the gift. The chat must be active \
+        in the last 24 hours.
+
+        :param star_count: The amount of Telegram Stars that will be paid for the transfer from the business \
+        account balance. If positive, then the can_transfer_stars business bot \
+        right is required.
+        """
+
+        method_response = await self.api.request_raw(
+            "transferGift",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def post_story(
+        self,
+        *,
+        business_connection_id: str,
+        content: InputStoryContent,
+        active_period: int,
+        caption: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
+        caption_entities: list[MessageEntity] | None = None,
+        areas: list[StoryArea] | None = None,
+        post_to_chat_page: bool | None = None,
+        protect_content: bool | None = None,
+        **other: typing.Any,
+    ) -> Result[Story, APIError]:
+        """Method `postStory`, see the [documentation](https://core.telegram.org/bots/api#poststory)
+
+        Posts a story on behalf of a managed business account. Requires the can_manage_stories
+        business bot right. Returns Story on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param content: Content of the story.
+
+        :param active_period: Period after which the story is moved to the archive, in seconds; must be \
+        one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400.
+
+        :param caption: Caption of the story, 0-2048 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the story caption. See formatting options \
+        for more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
+        which can be specified instead of parse_mode.
+
+        :param areas: A JSON-serialized list of clickable areas to be shown on the story.
+
+        :param post_to_chat_page: Pass True to keep the story accessible after it expires.
+
+        :param protect_content: Pass True if the content of the story must be protected from forwarding and \
+        screenshotting.
+        """
+
+        method_response = await self.api.request_raw(
+            "postStory",
+            get_params(locals()),
+        )
+        return full_result(method_response, Story)
+
+    async def edit_story(
+        self,
+        *,
+        business_connection_id: str,
+        story_id: int,
+        content: InputStoryContent,
+        caption: str | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
+        caption_entities: list[MessageEntity] | None = None,
+        areas: list[StoryArea] | None = None,
+        **other: typing.Any,
+    ) -> Result[Story, APIError]:
+        """Method `editStory`, see the [documentation](https://core.telegram.org/bots/api#editstory)
+
+        Edits a story previously posted by the bot on behalf of a managed business
+        account. Requires the can_manage_stories business bot right. Returns
+        Story on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param story_id: Unique identifier of the story to edit.
+
+        :param content: Content of the story.
+
+        :param caption: Caption of the story, 0-2048 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the story caption. See formatting options \
+        for more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
+        which can be specified instead of parse_mode.
+
+        :param areas: A JSON-serialized list of clickable areas to be shown on the story.
+        """
+
+        method_response = await self.api.request_raw(
+            "editStory",
+            get_params(locals()),
+        )
+        return full_result(method_response, Story)
+
+    async def delete_story(
+        self,
+        *,
+        business_connection_id: str,
+        story_id: int,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `deleteStory`, see the [documentation](https://core.telegram.org/bots/api#deletestory)
+
+        Deletes a story previously posted by the bot on behalf of a managed business
+        account. Requires the can_manage_stories business bot right. Returns
+        True on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param story_id: Unique identifier of the story to delete.
+        """
+
+        method_response = await self.api.request_raw(
+            "deleteStory",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
     async def send_sticker(
         self,
         *,
@@ -4247,156 +4946,6 @@ class APIMethods[HTTPClient: ABCClient]:
         )
         return full_result(method_response, bool)
 
-    async def get_available_gifts(self, **other: typing.Any) -> Result[Gifts, APIError]:
-        """Method `getAvailableGifts`, see the [documentation](https://core.telegram.org/bots/api#getavailablegifts)
-
-        Returns the list of gifts that can be sent by the bot to users and channel chats.
-        Requires no parameters. Returns a Gifts object.
-        """
-
-        method_response = await self.api.request_raw(
-            "getAvailableGifts",
-            get_params(locals()),
-        )
-        return full_result(method_response, Gifts)
-
-    async def send_gift(
-        self,
-        *,
-        gift_id: str,
-        user_id: int | None = None,
-        chat_id: int | str | None = None,
-        pay_for_upgrade: bool | None = None,
-        text: str | None = None,
-        text_parse_mode: str | None = None,
-        text_entities: list[MessageEntity] | None = None,
-        **other: typing.Any,
-    ) -> Result[bool, APIError]:
-        """Method `sendGift`, see the [documentation](https://core.telegram.org/bots/api#sendgift)
-
-        Sends a gift to the given user or channel chat. The gift can't be converted
-        to Telegram Stars by the receiver. Returns True on success.
-
-        :param user_id: Required if chat_id is not specified. Unique identifier of the target user \
-        who will receive the gift.
-
-        :param chat_id: Required if user_id is not specified. Unique identifier for the chat or \
-        username of the channel (in the format @channelusername) that will receive \
-        the gift.
-
-        :param gift_id: Identifier of the gift.
-
-        :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby making \
-        the upgrade free for the receiver.
-
-        :param text: Text that will be shown along with the gift; 0-128 characters.
-
-        :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
-        Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
-        `spoiler`, and `custom_emoji` are ignored.
-
-        :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
-        It can be specified instead of text_parse_mode. Entities other than `bold`, \
-        `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` \
-        are ignored.
-        """
-
-        method_response = await self.api.request_raw(
-            "sendGift",
-            get_params(locals()),
-        )
-        return full_result(method_response, bool)
-
-    async def verify_user(
-        self,
-        *,
-        user_id: int,
-        custom_description: str | None = None,
-        **other: typing.Any,
-    ) -> Result[bool, APIError]:
-        """Method `verifyUser`, see the [documentation](https://core.telegram.org/bots/api#verifyuser)
-
-        Verifies a user on behalf of the organization which is represented by the
-        bot. Returns True on success.
-
-        :param user_id: Unique identifier of the target user.
-
-        :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
-        if the organization isn't allowed to provide a custom verification description. \
-        """
-
-        method_response = await self.api.request_raw(
-            "verifyUser",
-            get_params(locals()),
-        )
-        return full_result(method_response, bool)
-
-    async def verify_chat(
-        self,
-        *,
-        chat_id: int | str,
-        custom_description: str | None = None,
-        **other: typing.Any,
-    ) -> Result[bool, APIError]:
-        """Method `verifyChat`, see the [documentation](https://core.telegram.org/bots/api#verifychat)
-
-        Verifies a chat on behalf of the organization which is represented by the
-        bot. Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-
-        :param custom_description: Custom description for the verification; 0-70 characters. Must be empty \
-        if the organization isn't allowed to provide a custom verification description. \
-        """
-
-        method_response = await self.api.request_raw(
-            "verifyChat",
-            get_params(locals()),
-        )
-        return full_result(method_response, bool)
-
-    async def remove_user_verification(
-        self,
-        *,
-        user_id: int,
-        **other: typing.Any,
-    ) -> Result[bool, APIError]:
-        """Method `removeUserVerification`, see the [documentation](https://core.telegram.org/bots/api#removeuserverification)
-
-        Removes verification from a user who is currently verified on behalf of
-        the organization represented by the bot. Returns True on success.
-
-        :param user_id: Unique identifier of the target user.
-        """
-
-        method_response = await self.api.request_raw(
-            "removeUserVerification",
-            get_params(locals()),
-        )
-        return full_result(method_response, bool)
-
-    async def remove_chat_verification(
-        self,
-        *,
-        chat_id: int | str,
-        **other: typing.Any,
-    ) -> Result[bool, APIError]:
-        """Method `removeChatVerification`, see the [documentation](https://core.telegram.org/bots/api#removechatverification)
-
-        Removes verification from a chat that is currently verified on behalf of
-        the organization represented by the bot. Returns True on success.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel \
-        (in the format @channelusername).
-        """
-
-        method_response = await self.api.request_raw(
-            "removeChatVerification",
-            get_params(locals()),
-        )
-        return full_result(method_response, bool)
-
     async def answer_inline_query(
         self,
         *,
@@ -4691,7 +5240,7 @@ class APIMethods[HTTPClient: ABCClient]:
         is used. Currently, it must always be 2592000 (30 days) if specified. Any \
         number of subscriptions can be active for a given bot at the same time, including \
         multiple concurrent subscriptions from the same user. Subscription price \
-        must no exceed 2500 Telegram Stars.
+        must no exceed 10000 Telegram Stars.
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency \
         (integer, not float/double). For example, for a maximum tip of US$ 1.45 \
