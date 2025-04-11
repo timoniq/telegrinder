@@ -45,7 +45,7 @@ class CallbackQueryDataRule(CallbackQueryRule, abc.ABC, requires=[HasData()]):
 
 
 class CallbackDataMap(CallbackQueryDataRule):
-    def __init__(self, mapping: MapDict, /*, strict: bool = True) -> None:
+    def __init__(self, mapping: MapDict, /, *, strict: bool = True) -> None:
         """Callback data map validation.
         :param mapping: A callback data mapping with validators.
         :param strict: Strict check of keys between mapping and callback query data.
