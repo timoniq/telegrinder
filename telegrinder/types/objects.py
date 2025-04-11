@@ -26,6 +26,18 @@ class TransactionPartner(Model):
     """
 
 
+class StoryAreaType(Model):
+    """Base object `StoryAreaType`, see the [documentation](https://core.telegram.org/bots/api#storyareatype).
+
+    Describes the type of a clickable area on a story. Currently, it can be one of
+    - StoryAreaTypeLocation
+    - StoryAreaTypeSuggestedReaction
+    - StoryAreaTypeLink
+    - StoryAreaTypeWeather
+    - StoryAreaTypeUniqueGift
+    """
+
+
 class RevenueWithdrawalState(Model):
     """Base object `RevenueWithdrawalState`, see the [documentation](https://core.telegram.org/bots/api#revenuewithdrawalstate).
 
@@ -72,6 +84,15 @@ class PaidMedia(Model):
     """
 
 
+class OwnedGift(Model):
+    """Base object `OwnedGift`, see the [documentation](https://core.telegram.org/bots/api#ownedgift).
+
+    This object describes a gift received and owned by a user or a chat. Currently, it can be one of
+    - OwnedGiftRegular
+    - OwnedGiftUnique
+    """
+
+
 class MessageOrigin(Model):
     """Base object `MessageOrigin`, see the [documentation](https://core.telegram.org/bots/api#messageorigin).
 
@@ -112,6 +133,24 @@ class InputMessageContent(Model):
     - InputVenueMessageContent
     - InputContactMessageContent
     - InputInvoiceMessageContent
+    """
+
+
+class InputStoryContent(Model):
+    """Base object `InputStoryContent`, see the [documentation](https://core.telegram.org/bots/api#inputstorycontent).
+
+    This object describes the content of a story to post. Currently, it can be one of
+    - InputStoryContentPhoto
+    - InputStoryContentVideo
+    """
+
+
+class InputProfilePhoto(Model):
+    """Base object `InputProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#inputprofilephoto).
+
+    This object describes a profile photo to set. Currently, it can be one of
+    - InputProfilePhotoStatic
+    - InputProfilePhotoAnimated
     """
 
 
@@ -532,6 +571,10 @@ class ChatFullInfo(Model):
     max_reaction_count: int = field()
     """The maximum number of reactions that can be set on a message in the chat."""
 
+    accepted_gift_types: AcceptedGiftTypes = field()
+    """Information about types of gifts that are accepted by the chat or by the corresponding
+    user for private chats."""
+
     title: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Title, for supergroups, channels and group chats."""
 
@@ -632,9 +675,6 @@ class ChatFullInfo(Model):
 
     permissions: Option[ChatPermissions] = field(default=UNSET, converter=From["ChatPermissions | None"])
     """Optional. Default chat member permissions, for groups and supergroups."""
-
-    can_send_gift: Option[bool] = field(default=UNSET, converter=From[bool | None])
-    """Optional. True, if gifts can be sent to the chat."""
 
     can_send_paid_media: Option[bool] = field(default=UNSET, converter=From[bool | None])
     """Optional. True, if paid media messages can be sent or forwarded to the channel
@@ -794,6 +834,10 @@ class Message(MaybeInaccessibleMessage):
     author_signature: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Signature of the post author for messages in channels, or the
     custom title of an anonymous group administrator."""
+
+    paid_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. The number of Telegram Stars that were paid by the sender of the
+    message to send it."""
 
     text: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. For text messages, the actual UTF-8 text of the message."""
@@ -958,6 +1002,12 @@ class Message(MaybeInaccessibleMessage):
     chat_shared: Option[ChatShared] = field(default=UNSET, converter=From["ChatShared | None"])
     """Optional. Service message: a chat was shared with the bot."""
 
+    gift: Option[GiftInfo] = field(default=UNSET, converter=From["GiftInfo | None"])
+    """Optional. Service message: a regular gift was sent or received."""
+
+    unique_gift: Option[UniqueGiftInfo] = field(default=UNSET, converter=From["UniqueGiftInfo | None"])
+    """Optional. Service message: a unique gift was sent or received."""
+
     connected_website: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. The domain name of the website on which the user has logged in.
     More about Telegram Login: https://core.telegram.org/widgets/login."""
@@ -1023,6 +1073,12 @@ class Message(MaybeInaccessibleMessage):
         default=UNSET, converter=From["GiveawayCompleted | None"]
     )
     """Optional. Service message: a giveaway without public winners was completed."""
+
+    paid_message_price_changed: Option[PaidMessagePriceChanged] = field(
+        default=UNSET, converter=From["PaidMessagePriceChanged | None"]
+    )
+    """Optional. Service message: the price for paid messages has changed in the
+    chat."""
 
     video_chat_scheduled: Option[VideoChatScheduled] = field(
         default=UNSET, converter=From["VideoChatScheduled | None"]
@@ -2269,6 +2325,17 @@ class VideoChatParticipantsInvited(Model):
     """New members that were invited to the video chat."""
 
 
+class PaidMessagePriceChanged(Model):
+    """Object `PaidMessagePriceChanged`, see the [documentation](https://core.telegram.org/bots/api#paidmessagepricechanged).
+
+    Describes a service message about a change in the price of paid messages within a chat.
+    """
+
+    paid_message_star_count: int = field()
+    """The new number of Telegram Stars that must be paid by non-administrator
+    users of the supergroup chat for each sent message."""
+
+
 class GiveawayCreated(Model):
     """Object `GiveawayCreated`, see the [documentation](https://core.telegram.org/bots/api#giveawaycreated).
 
@@ -3440,6 +3507,160 @@ class BusinessOpeningHours(Model):
     """List of time intervals describing business opening hours."""
 
 
+class StoryAreaPosition(Model):
+    """Object `StoryAreaPosition`, see the [documentation](https://core.telegram.org/bots/api#storyareaposition).
+
+    Describes the position of a clickable area within a story.
+    """
+
+    x_percentage: float = field()
+    """The abscissa of the area's center, as a percentage of the media width."""
+
+    y_percentage: float = field()
+    """The ordinate of the area's center, as a percentage of the media height."""
+
+    width_percentage: float = field()
+    """The width of the area's rectangle, as a percentage of the media width."""
+
+    height_percentage: float = field()
+    """The height of the area's rectangle, as a percentage of the media height."""
+
+    rotation_angle: float = field()
+    """The clockwise rotation angle of the rectangle, in degrees; 0-360."""
+
+    corner_radius_percentage: float = field()
+    """The radius of the rectangle corner rounding, as a percentage of the media
+    width."""
+
+
+class LocationAddress(Model):
+    """Object `LocationAddress`, see the [documentation](https://core.telegram.org/bots/api#locationaddress).
+
+    Describes the physical address of a location.
+    """
+
+    country_code: str = field()
+    """The two-letter ISO 3166-1 alpha-2 country code of the country where the
+    location is located."""
+
+    state: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. State of the location."""
+
+    city: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. City of the location."""
+
+    street: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. Street address of the location."""
+
+
+class StoryAreaTypeLocation(StoryAreaType):
+    """Object `StoryAreaTypeLocation`, see the [documentation](https://core.telegram.org/bots/api#storyareatypelocation).
+
+    Describes a story area pointing to a location. Currently, a story can have up to 10 location areas.
+    """
+
+    type: str = field()
+    """Type of the area, always `location`."""
+
+    latitude: float = field()
+    """Location latitude in degrees."""
+
+    longitude: float = field()
+    """Location longitude in degrees."""
+
+    address: Option[LocationAddress] = field(default=UNSET, converter=From["LocationAddress | None"])
+    """Optional. Address of the location."""
+
+
+class StoryAreaTypeSuggestedReaction(StoryAreaType):
+    """Object `StoryAreaTypeSuggestedReaction`, see the [documentation](https://core.telegram.org/bots/api#storyareatypesuggestedreaction).
+
+    Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas.
+    """
+
+    type: str = field()
+    """Type of the area, always `suggested_reaction`."""
+
+    reaction_type: Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field(
+        converter=From["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]
+    )
+    """Type of the reaction."""
+
+    is_dark: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. Pass True if the reaction area has a dark background."""
+
+    is_flipped: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. Pass True if reaction area corner is flipped."""
+
+
+class StoryAreaTypeLink(StoryAreaType):
+    """Object `StoryAreaTypeLink`, see the [documentation](https://core.telegram.org/bots/api#storyareatypelink).
+
+    Describes a story area pointing to an HTTP or tg:// link. Currently, a story can have up to 3 link areas.
+    """
+
+    type: str = field()
+    """Type of the area, always `link`."""
+
+    url: str = field()
+    """HTTP or tg:// URL to be opened when the area is clicked."""
+
+
+class StoryAreaTypeWeather(StoryAreaType):
+    """Object `StoryAreaTypeWeather`, see the [documentation](https://core.telegram.org/bots/api#storyareatypeweather).
+
+    Describes a story area containing weather information. Currently, a story can have up to 3 weather areas.
+    """
+
+    type: str = field()
+    """Type of the area, always `weather`."""
+
+    temperature: float = field()
+    """Temperature, in degree Celsius."""
+
+    emoji: str = field()
+    """Emoji representing the weather."""
+
+    background_color: int = field()
+    """A color of the area background in the ARGB format."""
+
+
+class StoryAreaTypeUniqueGift(StoryAreaType):
+    """Object `StoryAreaTypeUniqueGift`, see the [documentation](https://core.telegram.org/bots/api#storyareatypeuniquegift).
+
+    Describes a story area pointing to a unique gift. Currently, a story can have at most 1 unique gift area.
+    """
+
+    type: str = field()
+    """Type of the area, always `unique_gift`."""
+
+    name: str = field()
+    """Unique name of the gift."""
+
+
+class StoryArea(Model):
+    """Object `StoryArea`, see the [documentation](https://core.telegram.org/bots/api#storyarea).
+
+    Describes a clickable area on a story media.
+    """
+
+    position: StoryAreaPosition = field()
+    """Position of the area."""
+
+    type: Variative[
+        StoryAreaTypeLocation,
+        StoryAreaTypeSuggestedReaction,
+        StoryAreaTypeLink,
+        StoryAreaTypeWeather,
+        StoryAreaTypeUniqueGift,
+    ] = field(
+        converter=From[
+            "StoryAreaTypeLocation | StoryAreaTypeSuggestedReaction | StoryAreaTypeLink | StoryAreaTypeWeather | StoryAreaTypeUniqueGift"
+        ]
+    )
+    """Type of the area."""
+
+
 class ChatLocation(Model):
     """Object `ChatLocation`, see the [documentation](https://core.telegram.org/bots/api#chatlocation).
 
@@ -3578,6 +3799,335 @@ class ForumTopic(Model):
 
     icon_custom_emoji_id: Option[str] = field(default=UNSET, converter=From[str | None])
     """Optional. Unique identifier of the custom emoji shown as the topic icon."""
+
+
+class Gift(Model):
+    """Object `Gift`, see the [documentation](https://core.telegram.org/bots/api#gift).
+
+    This object represents a gift that can be sent by the bot.
+    """
+
+    id: str = field()
+    """Unique identifier of the gift."""
+
+    sticker: Sticker = field()
+    """The sticker that represents the gift."""
+
+    star_count: int = field()
+    """The number of Telegram Stars that must be paid to send the sticker."""
+
+    upgrade_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. The number of Telegram Stars that must be paid to upgrade the gift
+    to a unique one."""
+
+    total_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. The total number of the gifts of this type that can be sent; for
+    limited gifts only."""
+
+    remaining_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. The number of remaining gifts of this type that can be sent; for
+    limited gifts only."""
+
+
+class Gifts(Model):
+    """Object `Gifts`, see the [documentation](https://core.telegram.org/bots/api#gifts).
+
+    This object represent a list of gifts.
+    """
+
+    gifts: list[Gift] = field()
+    """The list of gifts."""
+
+
+class UniqueGiftModel(Model):
+    """Object `UniqueGiftModel`, see the [documentation](https://core.telegram.org/bots/api#uniquegiftmodel).
+
+    This object describes the model of a unique gift.
+    """
+
+    name: str = field()
+    """Name of the model."""
+
+    sticker: Sticker = field()
+    """The sticker that represents the unique gift."""
+
+    rarity_per_mille: int = field()
+    """The number of unique gifts that receive this model for every 1000 gifts upgraded."""
+
+
+class UniqueGiftSymbol(Model):
+    """Object `UniqueGiftSymbol`, see the [documentation](https://core.telegram.org/bots/api#uniquegiftsymbol).
+
+    This object describes the symbol shown on the pattern of a unique gift.
+    """
+
+    name: str = field()
+    """Name of the symbol."""
+
+    sticker: Sticker = field()
+    """The sticker that represents the unique gift."""
+
+    rarity_per_mille: int = field()
+    """The number of unique gifts that receive this model for every 1000 gifts upgraded."""
+
+
+class UniqueGiftBackdropColors(Model):
+    """Object `UniqueGiftBackdropColors`, see the [documentation](https://core.telegram.org/bots/api#uniquegiftbackdropcolors).
+
+    This object describes the colors of the backdrop of a unique gift.
+    """
+
+    center_color: int = field()
+    """The color in the center of the backdrop in RGB format."""
+
+    edge_color: int = field()
+    """The color on the edges of the backdrop in RGB format."""
+
+    symbol_color: int = field()
+    """The color to be applied to the symbol in RGB format."""
+
+    text_color: int = field()
+    """The color for the text on the backdrop in RGB format."""
+
+
+class UniqueGiftBackdrop(Model):
+    """Object `UniqueGiftBackdrop`, see the [documentation](https://core.telegram.org/bots/api#uniquegiftbackdrop).
+
+    This object describes the backdrop of a unique gift.
+    """
+
+    name: str = field()
+    """Name of the backdrop."""
+
+    colors: UniqueGiftBackdropColors = field()
+    """Colors of the backdrop."""
+
+    rarity_per_mille: int = field()
+    """The number of unique gifts that receive this backdrop for every 1000 gifts
+    upgraded."""
+
+
+class UniqueGift(Model):
+    """Object `UniqueGift`, see the [documentation](https://core.telegram.org/bots/api#uniquegift).
+
+    This object describes a unique gift that was upgraded from a regular gift.
+    """
+
+    base_name: str = field()
+    """Human-readable name of the regular gift from which this unique gift was
+    upgraded."""
+
+    name: str = field()
+    """Unique name of the gift. This name can be used in https://t.me/nft/... links
+    and story areas."""
+
+    number: int = field()
+    """Unique number of the upgraded gift among gifts upgraded from the same regular
+    gift."""
+
+    model: UniqueGiftModel = field()
+    """Model of the gift."""
+
+    symbol: UniqueGiftSymbol = field()
+    """Symbol of the gift."""
+
+    backdrop: UniqueGiftBackdrop = field()
+    """Backdrop of the gift."""
+
+
+class GiftInfo(Model):
+    """Object `GiftInfo`, see the [documentation](https://core.telegram.org/bots/api#giftinfo).
+
+    Describes a service message about a regular gift that was sent or received.
+    """
+
+    gift: Gift = field()
+    """Information about the gift."""
+
+    owned_gift_id: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. Unique identifier of the received gift for the bot; only present
+    for gifts received on behalf of business accounts."""
+
+    convert_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Number of Telegram Stars that can be claimed by the receiver by
+    converting the gift; omitted if conversion to Telegram Stars is impossible."""
+
+    prepaid_upgrade_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Number of Telegram Stars that were prepaid by the sender for the
+    ability to upgrade the gift."""
+
+    can_be_upgraded: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the gift can be upgraded to a unique gift."""
+
+    text: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. Text of the message that was added to the gift."""
+
+    entities: Option[list[MessageEntity]] = field(default=UNSET, converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities that appear in the text."""
+
+    is_private: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the sender and gift text are shown only to the gift receiver;
+    otherwise, everyone will be able to see them."""
+
+
+class UniqueGiftInfo(Model):
+    """Object `UniqueGiftInfo`, see the [documentation](https://core.telegram.org/bots/api#uniquegiftinfo).
+
+    Describes a service message about a unique gift that was sent or received.
+    """
+
+    gift: UniqueGift = field()
+    """Information about the gift."""
+
+    origin: str = field()
+    """Origin of the gift. Currently, either `upgrade` or `transfer`."""
+
+    owned_gift_id: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. Unique identifier of the received gift for the bot; only present
+    for gifts received on behalf of business accounts."""
+
+    transfer_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Number of Telegram Stars that must be paid to transfer the gift;
+    omitted if the bot cannot transfer the gift."""
+
+
+class OwnedGiftRegular(OwnedGift):
+    """Object `OwnedGiftRegular`, see the [documentation](https://core.telegram.org/bots/api#ownedgiftregular).
+
+    Describes a regular gift owned by a user or a chat.
+    """
+
+    type: str = field()
+    """Type of the gift, always `regular`."""
+
+    gift: Gift = field()
+    """Information about the regular gift."""
+
+    send_date: datetime = field()
+    """Date the gift was sent in Unix time."""
+
+    owned_gift_id: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. Unique identifier of the gift for the bot; for gifts received
+    on behalf of business accounts only."""
+
+    sender_user: Option[User] = field(default=UNSET, converter=From["User | None"])
+    """Optional. Sender of the gift if it is a known user."""
+
+    text: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. Text of the message that was added to the gift."""
+
+    entities: Option[list[MessageEntity]] = field(default=UNSET, converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities that appear in the text."""
+
+    is_private: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the sender and gift text are shown only to the gift receiver;
+    otherwise, everyone will be able to see them."""
+
+    is_saved: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the gift is displayed on the account's profile page;
+    for gifts received on behalf of business accounts only."""
+
+    can_be_upgraded: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the gift can be upgraded to a unique gift; for gifts received
+    on behalf of business accounts only."""
+
+    was_refunded: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the gift was refunded and isn't available anymore."""
+
+    convert_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Number of Telegram Stars that can be claimed by the receiver instead
+    of the gift; omitted if the gift cannot be converted to Telegram Stars."""
+
+    prepaid_upgrade_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Number of Telegram Stars that were paid by the sender for the ability
+    to upgrade the gift."""
+
+
+class OwnedGiftUnique(OwnedGift):
+    """Object `OwnedGiftUnique`, see the [documentation](https://core.telegram.org/bots/api#ownedgiftunique).
+
+    Describes a unique gift received and owned by a user or a chat.
+    """
+
+    type: str = field()
+    """Type of the gift, always `unique`."""
+
+    gift: UniqueGift = field()
+    """Information about the unique gift."""
+
+    send_date: datetime = field()
+    """Date the gift was sent in Unix time."""
+
+    owned_gift_id: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. Unique identifier of the received gift for the bot; for gifts
+    received on behalf of business accounts only."""
+
+    sender_user: Option[User] = field(default=UNSET, converter=From["User | None"])
+    """Optional. Sender of the gift if it is a known user."""
+
+    is_saved: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the gift is displayed on the account's profile page;
+    for gifts received on behalf of business accounts only."""
+
+    can_be_transferred: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the gift can be transferred to another owner; for gifts
+    received on behalf of business accounts only."""
+
+    transfer_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Number of Telegram Stars that must be paid to transfer the gift;
+    omitted if the bot cannot transfer the gift."""
+
+
+class OwnedGifts(Model):
+    """Object `OwnedGifts`, see the [documentation](https://core.telegram.org/bots/api#ownedgifts).
+
+    Contains the list of gifts received and owned by a user or a chat.
+    """
+
+    total_count: int = field()
+    """The total number of gifts owned by the user or the chat."""
+
+    gifts: list[Variative[OwnedGiftRegular, OwnedGiftUnique]] = field(
+        converter=From[list["OwnedGiftRegular | OwnedGiftUnique"]]
+    )
+    """The list of gifts."""
+
+    next_offset: Option[str] = field(default=UNSET, converter=From[str | None])
+    """Optional. Offset for the next request. If empty, then there are no more results."""
+
+
+class AcceptedGiftTypes(Model):
+    """Object `AcceptedGiftTypes`, see the [documentation](https://core.telegram.org/bots/api#acceptedgifttypes).
+
+    This object describes the types of gifts that can be gifted to a user or a chat.
+    """
+
+    unlimited_gifts: bool = field()
+    """True, if unlimited regular gifts are accepted."""
+
+    limited_gifts: bool = field()
+    """True, if limited regular gifts are accepted."""
+
+    unique_gifts: bool = field()
+    """True, if unique gifts or gifts that can be upgraded to unique for free are
+    accepted."""
+
+    premium_subscription: bool = field()
+    """True, if a Telegram Premium subscription is accepted."""
+
+
+class StarAmount(Model):
+    """Object `StarAmount`, see the [documentation](https://core.telegram.org/bots/api#staramount).
+
+    Describes an amount of Telegram Stars.
+    """
+
+    amount: int = field()
+    """Integer amount of Telegram Stars, rounded to 0; can be negative."""
+
+    nanostar_amount: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. The number of 1/1000000000 shares of Telegram Stars; from -999999999
+    to 999999999; can be negative if and only if amount is non-positive."""
 
 
 class BotCommand(Model):
@@ -3867,6 +4417,63 @@ class UserChatBoosts(Model):
     """The list of boosts added to the chat by the user."""
 
 
+class BusinessBotRights(Model):
+    """Object `BusinessBotRights`, see the [documentation](https://core.telegram.org/bots/api#businessbotrights).
+
+    Represents the rights of a business bot.
+    """
+
+    can_reply: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can send and edit messages in the private chats
+    that had incoming messages in the last 24 hours."""
+
+    can_read_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can mark incoming private messages as read."""
+
+    can_delete_outgoing_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can delete messages sent by the bot."""
+
+    can_delete_all_messages: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can delete all private messages in managed chats."""
+
+    can_edit_name: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can edit the first and last name of the business
+    account."""
+
+    can_edit_bio: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can edit the bio of the business account."""
+
+    can_edit_profile_photo: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can edit the profile photo of the business account."""
+
+    can_edit_username: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can edit the username of the business account."""
+
+    can_change_gift_settings: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can change the privacy settings pertaining to
+    gifts for the business account."""
+
+    can_view_gifts_and_stars: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can view gifts and the amount of Telegram Stars
+    owned by the business account."""
+
+    can_convert_gifts_to_stars: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can convert regular gifts owned by the business
+    account to Telegram Stars."""
+
+    can_transfer_and_upgrade_gifts: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can transfer and upgrade gifts owned by the business
+    account."""
+
+    can_transfer_stars: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can transfer Telegram Stars received by the business
+    account to its own account, or use them to upgrade and transfer gifts."""
+
+    can_manage_stories: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. True, if the bot can post, edit and delete stories on behalf of
+    the business account."""
+
+
 class BusinessConnection(Model):
     """Object `BusinessConnection`, see the [documentation](https://core.telegram.org/bots/api#businessconnection).
 
@@ -3889,12 +4496,11 @@ class BusinessConnection(Model):
     date: datetime = field()
     """Date the connection was established in Unix time."""
 
-    can_reply: bool = field()
-    """True, if the bot can act on behalf of the business account in chats that were
-    active in the last 24 hours."""
-
     is_enabled: bool = field()
     """True, if the connection is active."""
+
+    rights: Option[BusinessBotRights] = field(default=UNSET, converter=From["BusinessBotRights | None"])
+    """Optional. Rights of the business bot."""
 
 
 class BusinessMessagesDeleted(Model):
@@ -4244,6 +4850,87 @@ class InputPaidMediaVideo(InputPaidMedia):
     """Optional. Pass True if the uploaded video is suitable for streaming."""
 
 
+class InputProfilePhotoStatic(InputProfilePhoto):
+    """Object `InputProfilePhotoStatic`, see the [documentation](https://core.telegram.org/bots/api#inputprofilephotostatic).
+
+    A static profile photo in the .JPG format.
+    """
+
+    type: str = field()
+    """Type of the profile photo, must be `static`."""
+
+    photo: str = field()
+    """The static profile photo. Profile photos can't be reused and can only be
+    uploaded as a new file, so you can pass `attach://<file_attach_name>`
+    if the photo was uploaded using multipart/form-data under <file_attach_name>.
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+
+class InputProfilePhotoAnimated(InputProfilePhoto):
+    """Object `InputProfilePhotoAnimated`, see the [documentation](https://core.telegram.org/bots/api#inputprofilephotoanimated).
+
+    An animated profile photo in the MPEG4 format.
+    """
+
+    type: str = field()
+    """Type of the profile photo, must be `animated`."""
+
+    animation: str = field()
+    """The animated profile photo. Profile photos can't be reused and can only
+    be uploaded as a new file, so you can pass `attach://<file_attach_name>`
+    if the photo was uploaded using multipart/form-data under <file_attach_name>.
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    main_frame_timestamp: Option[float] = field(default=UNSET, converter=From[float | None])
+    """Optional. Timestamp in seconds of the frame that will be used as the static
+    profile photo. Defaults to 0.0."""
+
+
+class InputStoryContentPhoto(InputStoryContent):
+    """Object `InputStoryContentPhoto`, see the [documentation](https://core.telegram.org/bots/api#inputstorycontentphoto).
+
+    Describes a photo to post as a story.
+    """
+
+    type: str = field()
+    """Type of the content, must be `photo`."""
+
+    photo: str = field()
+    """The photo to post as a story. The photo must be of the size 1080x1920 and must
+    not exceed 10 MB. The photo can't be reused and can only be uploaded as a new
+    file, so you can pass `attach://<file_attach_name>` if the photo was uploaded
+    using multipart/form-data under <file_attach_name>. More information
+    on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+
+class InputStoryContentVideo(InputStoryContent):
+    """Object `InputStoryContentVideo`, see the [documentation](https://core.telegram.org/bots/api#inputstorycontentvideo).
+
+    Describes a video to post as a story.
+    """
+
+    type: str = field()
+    """Type of the content, must be `video`."""
+
+    video: str = field()
+    """The video to post as a story. The video must be of the size 720x1280, streamable,
+    encoded with H.265 codec, with key frames added each second in the MPEG4
+    format, and must not exceed 30 MB. The video can't be reused and can only be
+    uploaded as a new file, so you can pass `attach://<file_attach_name>`
+    if the video was uploaded using multipart/form-data under <file_attach_name>.
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    duration: Option[float] = field(default=UNSET, converter=From[float | None])
+    """Optional. Precise duration of the video in seconds; 0-60."""
+
+    cover_frame_timestamp: Option[float] = field(default=UNSET, converter=From[float | None])
+    """Optional. Timestamp in seconds of the frame that will be used as the static
+    cover for the story. Defaults to 0.0."""
+
+    is_animation: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    """Optional. Pass True if the video has no sound."""
+
+
 class Sticker(Model):
     """Object `Sticker`, see the [documentation](https://core.telegram.org/bots/api#sticker).
 
@@ -4353,13 +5040,13 @@ class InputSticker(Model):
     This object describes a sticker to be added to a sticker set.
     """
 
-    sticker: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    sticker: str = field()
     """The added sticker. Pass a file_id as a String to send a file that already exists
     on the Telegram servers, pass an HTTP URL as a String for Telegram to get a
-    file from the Internet, upload a new one using multipart/form-data, or
-    pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. Animated and video stickers can't be uploaded
-    via HTTP URL. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    file from the Internet, or pass `attach://<file_attach_name>` to upload
+    a new file using multipart/form-data under <file_attach_name> name.
+    Animated and video stickers can't be uploaded via HTTP URL. More information
+    on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     format: str = field()
     """Format of the added sticker, must be one of `static` for a .WEBP or .PNG image,
@@ -4375,44 +5062,6 @@ class InputSticker(Model):
     keywords: Option[list[str]] = field(default=UNSET, converter=From[list[str] | None])
     """Optional. List of 0-20 search keywords for the sticker with total length
     of up to 64 characters. For `regular` and `custom_emoji` stickers only."""
-
-
-class Gift(Model):
-    """Object `Gift`, see the [documentation](https://core.telegram.org/bots/api#gift).
-
-    This object represents a gift that can be sent by the bot.
-    """
-
-    id: str = field()
-    """Unique identifier of the gift."""
-
-    sticker: Sticker = field()
-    """The sticker that represents the gift."""
-
-    star_count: int = field()
-    """The number of Telegram Stars that must be paid to send the sticker."""
-
-    upgrade_star_count: Option[int] = field(default=UNSET, converter=From[int | None])
-    """Optional. The number of Telegram Stars that must be paid to upgrade the gift
-    to a unique one."""
-
-    total_count: Option[int] = field(default=UNSET, converter=From[int | None])
-    """Optional. The total number of the gifts of this type that can be sent; for
-    limited gifts only."""
-
-    remaining_count: Option[int] = field(default=UNSET, converter=From[int | None])
-    """Optional. The number of remaining gifts of this type that can be sent; for
-    limited gifts only."""
-
-
-class Gifts(Model):
-    """Object `Gifts`, see the [documentation](https://core.telegram.org/bots/api#gifts).
-
-    This object represent a list of gifts.
-    """
-
-    gifts: list[Gift] = field()
-    """The list of gifts."""
 
 
 class InlineQuery(Model):
@@ -6232,6 +6881,13 @@ class TransactionPartnerUser(TransactionPartner):
     Describes a transaction with a user.
     """
 
+    transaction_type: str = field()
+    """Type of the transaction, currently one of `invoice_payment` for payments
+    via invoices, `paid_media_payment` for payments for paid media, `gift_purchase`
+    for gifts sent by the bot, `premium_purchase` for Telegram Premium subscriptions
+    gifted by the bot, `business_account_transfer` for direct transfers
+    from managed business accounts."""
+
     user: User = field()
     """Information about the user."""
 
@@ -6240,24 +6896,34 @@ class TransactionPartnerUser(TransactionPartner):
 
     affiliate: Option[AffiliateInfo] = field(default=UNSET, converter=From["AffiliateInfo | None"])
     """Optional. Information about the affiliate that received a commission
-    via this transaction."""
+    via this transaction. Can be available only for `invoice_payment` and
+    `paid_media_payment` transactions."""
 
     invoice_payload: Option[str] = field(default=UNSET, converter=From[str | None])
-    """Optional. Bot-specified invoice payload."""
+    """Optional. Bot-specified invoice payload. Can be available only for `invoice_payment`
+    transactions."""
 
     subscription_period: Option[int] = field(default=UNSET, converter=From[int | None])
-    """Optional. The duration of the paid subscription."""
+    """Optional. The duration of the paid subscription. Can be available only
+    for `invoice_payment` transactions."""
 
     paid_media: Option[list[Variative[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]]] = field(
         default=UNSET, converter=From["list[PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo] | None"]
     )
-    """Optional. Information about the paid media bought by the user."""
+    """Optional. Information about the paid media bought by the user; for `paid_media_payment`
+    transactions only."""
 
     paid_media_payload: Option[str] = field(default=UNSET, converter=From[str | None])
-    """Optional. Bot-specified paid media payload."""
+    """Optional. Bot-specified paid media payload. Can be available only for
+    `paid_media_payment` transactions."""
 
     gift: Option[Gift] = field(default=UNSET, converter=From["Gift | None"])
-    """Optional. The gift sent to the user by the bot."""
+    """Optional. The gift sent to the user by the bot; for `gift_purchase` transactions
+    only."""
+
+    premium_subscription_duration: Option[int] = field(default=UNSET, converter=From[int | None])
+    """Optional. Number of months the gifted Telegram Premium subscription will
+    be active for; for `premium_purchase` transactions only."""
 
 
 class TransactionPartnerChat(TransactionPartner):
@@ -6822,6 +7488,7 @@ class GameHighScore(Model):
 
 
 __all__ = (
+    "AcceptedGiftTypes",
     "AffiliateInfo",
     "Animation",
     "Audio",
@@ -6847,6 +7514,7 @@ __all__ = (
     "BotDescription",
     "BotName",
     "BotShortDescription",
+    "BusinessBotRights",
     "BusinessConnection",
     "BusinessIntro",
     "BusinessLocation",
@@ -6901,6 +7569,7 @@ __all__ = (
     "GeneralForumTopicHidden",
     "GeneralForumTopicUnhidden",
     "Gift",
+    "GiftInfo",
     "Gifts",
     "Giveaway",
     "GiveawayCompleted",
@@ -6947,7 +7616,13 @@ __all__ = (
     "InputPaidMediaPhoto",
     "InputPaidMediaVideo",
     "InputPollOption",
+    "InputProfilePhoto",
+    "InputProfilePhotoAnimated",
+    "InputProfilePhotoStatic",
     "InputSticker",
+    "InputStoryContent",
+    "InputStoryContentPhoto",
+    "InputStoryContentVideo",
     "InputTextMessageContent",
     "InputVenueMessageContent",
     "Invoice",
@@ -6958,6 +7633,7 @@ __all__ = (
     "LabeledPrice",
     "LinkPreviewOptions",
     "Location",
+    "LocationAddress",
     "LoginUrl",
     "MaskPosition",
     "MaybeInaccessibleMessage",
@@ -6978,12 +7654,17 @@ __all__ = (
     "MessageReactionUpdated",
     "Model",
     "OrderInfo",
+    "OwnedGift",
+    "OwnedGiftRegular",
+    "OwnedGiftUnique",
+    "OwnedGifts",
     "PaidMedia",
     "PaidMediaInfo",
     "PaidMediaPhoto",
     "PaidMediaPreview",
     "PaidMediaPurchased",
     "PaidMediaVideo",
+    "PaidMessagePriceChanged",
     "PassportData",
     "PassportElementError",
     "PassportElementErrorDataField",
@@ -7022,11 +7703,20 @@ __all__ = (
     "ShippingAddress",
     "ShippingOption",
     "ShippingQuery",
+    "StarAmount",
     "StarTransaction",
     "StarTransactions",
     "Sticker",
     "StickerSet",
     "Story",
+    "StoryArea",
+    "StoryAreaPosition",
+    "StoryAreaType",
+    "StoryAreaTypeLink",
+    "StoryAreaTypeLocation",
+    "StoryAreaTypeSuggestedReaction",
+    "StoryAreaTypeUniqueGift",
+    "StoryAreaTypeWeather",
     "SuccessfulPayment",
     "SwitchInlineQueryChosenChat",
     "TextQuote",
@@ -7038,6 +7728,12 @@ __all__ = (
     "TransactionPartnerTelegramAds",
     "TransactionPartnerTelegramApi",
     "TransactionPartnerUser",
+    "UniqueGift",
+    "UniqueGiftBackdrop",
+    "UniqueGiftBackdropColors",
+    "UniqueGiftInfo",
+    "UniqueGiftModel",
+    "UniqueGiftSymbol",
     "Update",
     "User",
     "UserChatBoosts",
