@@ -45,15 +45,15 @@ class CallbackQueryDataRule(CallbackQueryRule, abc.ABC, requires=[HasData()]):
 
 
 class CallbackDataMap(CallbackQueryDataRule):
-    def __init__(self, mapping: MapDict, /, *, strict: bool = True) -> None:
+    def __init__(self, mapping: MapDict, /, *, allow_extra_fields: bool = False) -> None:
         """Callback data map validation.
         :param mapping: A callback data mapping with validators.
-        :param strict: Strict check of keys between mapping and callback query data.
+        :param allow_extra_fields: Allows extra fields in a callback query data.
         """
         self.mapping = self.transform_to_callbacks(
             self.transform_to_map(mapping),
         )
-        self.strict = strict
+        self.allow_extra_fields = allow_extra_fields
 
     @classmethod
     def transform_to_map(cls, mapping: MapDict) -> CallbackMap:
@@ -113,11 +113,11 @@ class CallbackDataMap(CallbackQueryDataRule):
         if callback_data is None:
             return False
 
-        if self.strict and callback_data != self.mapping:
+        if not self.allow_extra_fields and callback_data != self.mapping:
             return False    
 
         if await self.match(callback_data, self.mapping):
-            ctx.update(callback_data)
+            ctx.update({k: callback_data[k] for k in self.mapping})
             return True
 
         return False
