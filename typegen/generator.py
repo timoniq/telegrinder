@@ -1,5 +1,6 @@
 import dataclasses
 import datetime
+import importlib
 import keyword
 import os
 import pathlib
@@ -466,11 +467,11 @@ class ObjectGenerator(ABCGenerator):
                 lines.append(self.make_object(object_schema) + "\n\n")
             all_.append(object_schema.name)
 
-        lines.append(f"\n__all__ = {tuple(all_)!r}\n")
+        lines.append(f"\n__all__ = {tuple(set(all_))!r}\n")
         with open(path + "/objects.py", mode="w", encoding="UTF-8") as f:
             f.writelines(lines)
 
-        enums_all = tuple(__import__(f"{path.replace('/', '.') + '.enums'}").__all__)
+        enums_all = tuple(set(importlib.import_module(f"{path.replace('/', '.') + '.enums'}").__all__))
         with open(path + "/__init__.py", "w", encoding="UTF-8") as f:
             f.writelines(
                 [
