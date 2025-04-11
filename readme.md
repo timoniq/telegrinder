@@ -26,10 +26,8 @@
 * Type hinted
 * Customizable and extensible
 * Ready to use scenarios and rules
-* Flexible DI [nodes](https://github.com/timoniq/telegrinder/tree/main/telegrinder/node)
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
 * Both low-level and high-level API
-* Support for different [dependency builds](https://github.com/timoniq/telegrinder/blob/dev/docs/guide/optional_dependencies.md)
 
 
 Basic example:
