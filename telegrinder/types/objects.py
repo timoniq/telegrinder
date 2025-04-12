@@ -4857,7 +4857,7 @@ class InputProfilePhotoStatic(InputProfilePhoto):
     """
 
     type: str = field()
-    """Type of the profile photo, must be `static`."""
+    """Type of the profile photo, must be static."""
 
     photo: str = field()
     """The static profile photo. Profile photos can't be reused and can only be
@@ -4873,7 +4873,7 @@ class InputProfilePhotoAnimated(InputProfilePhoto):
     """
 
     type: str = field()
-    """Type of the profile photo, must be `animated`."""
+    """Type of the profile photo, must be animated."""
 
     animation: str = field()
     """The animated profile photo. Profile photos can't be reused and can only
@@ -4893,7 +4893,7 @@ class InputStoryContentPhoto(InputStoryContent):
     """
 
     type: str = field()
-    """Type of the content, must be `photo`."""
+    """Type of the content, must be photo."""
 
     photo: str = field()
     """The photo to post as a story. The photo must be of the size 1080x1920 and must
@@ -4910,7 +4910,7 @@ class InputStoryContentVideo(InputStoryContent):
     """
 
     type: str = field()
-    """Type of the content, must be `video`."""
+    """Type of the content, must be video."""
 
     video: str = field()
     """The video to post as a story. The video must be of the size 720x1280, streamable,
