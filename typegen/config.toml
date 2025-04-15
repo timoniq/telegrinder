@@ -1,5 +1,5 @@
 [telegram-bot-api]
-version = 9.0
+version = "v9.0"
 schema_url = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/refs/heads/main/api.min.json"
 
 [generator]

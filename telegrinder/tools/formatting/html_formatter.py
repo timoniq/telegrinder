@@ -192,9 +192,9 @@ class TagFormat(FormatString):
 
 class HTMLFormatter(FormatString):
     """>>> HTMLFormatter(bold("Hello, World"))
-    >>> '<b>Hello, World</b>'
+    '<b>Hello, World</b>'
     >>> HTMLFormatter("Hi, {name:italic}").format(name="Max")
-    >>> 'Hi, <i>Max</i>'
+    'Hi, <i>Max</i>'
     """
 
     PARSE_MODE = ParseMode.HTML

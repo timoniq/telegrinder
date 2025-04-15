@@ -5,7 +5,6 @@
 * Ready to use scenarios and rules
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
 * Both low-level and high-level API
-* Support for different [dependency builds](https://github.com/timoniq/telegrinder/blob/main/docs/guide/optional_dependencies.md)
 
 Basic example:
 

@@ -67,8 +67,12 @@ class Generator(msgspec.Struct):
 
 
 class TelegramBotAPI(msgspec.Struct):
-    version: float
+    version: str
     schema_url: str
+
+    @property
+    def version_number(self) -> float:
+        return float(self.version.removeprefix("v"))
 
 
 class Config(msgspec.Struct):
