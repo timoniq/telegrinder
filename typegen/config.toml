@@ -1,0 +1,847 @@
+[telegram-bot-api]
+version = 9.0
+schema_url = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/refs/heads/main/api.min.json"
+
+[generator]
+directory = "telegrinder/types"
+nicifications_path = "typegen/nicifications.py"
+
+# Generator :: API :: TypedDict default parameters
+
+[[generator.api.typed-default-parameters]]
+name = "parse_mode"
+type = "String"
+
+[[generator.api.typed-default-parameters]]
+name = "question_parse_mode"
+type = "String"
+
+[[generator.api.typed-default-parameters]]
+name = "explanation_parse_mode"
+type = "String"
+
+# Generator :: Objects :: Random id by default for fields
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultArticle"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultPhoto"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultGif"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultMpeg4Gif"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultVideo"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultAudio"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultPhoto"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultVoice"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultDocument"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultLocation"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultVenue"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultContact"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultGame"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultCachedPhoto"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultCachedGif"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultCachedMpeg4Gif"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultCachedSticker"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultCachedDocument"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultCachedVideo"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultCachedVoice"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+[[generator.objects.id-by-default]]
+object_name = "InlineQueryResultCachedAudio"
+fields = [
+    { name = "id", nbytes = 64 },
+]
+
+# Generator :: Objects :: Literal types (Literal, enum) for fields
+
+[[generator.objects.fields-literal-types]]
+object_name = "BotCommandScopeAllChatAdministrators"
+fields = [
+    { name = "type", literals = ["all_chat_administrators",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BotCommandScopeAllGroupChats"
+fields = [
+    { name = "type", literals = ["all_group_chats",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BotCommandScopeAllPrivateChats"
+fields = [
+    { name = "type", literals = ["all_private_chats",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BotCommandScopeChat"
+fields = [
+    { name = "type", literals = ["chat",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BotCommandScopeChatAdministrators"
+fields = [
+    { name = "type", literals = ["chat_administrators",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BotCommandScopeChatMember"
+fields = [
+    { name = "type", literals = ["chat_member",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BotCommandScopeDefault"
+fields = [
+    { name = "type", literals = ["default",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "Chat"
+fields = [
+    { name = "type", enum = "ChatType" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatFullInfo"
+fields = [
+    { name = "type", enum = "ChatType" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatBoostSourceGiftCode"
+fields = [
+    { name = "source", literals = ["gift_code",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatBoostSourceGiveaway"
+fields = [
+    { name = "source", literals = ["giveaway",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatBoostSourcePremium"
+fields = [
+    { name = "source", literals = ["premium",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatMemberAdministrator"
+fields = [
+    { name = "status", literals = ["administrator",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatMemberBanned"
+fields = [
+    { name = "status", literals = ["kicked",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatMemberLeft"
+fields = [
+    { name = "status", literals = ["left",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatMemberMember"
+fields = [
+    { name = "status", literals = ["member",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatMemberOwner"
+fields = [
+    { name = "status", literals = ["creator",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ChatMemberRestricted"
+fields = [
+    { name = "status", literals = ["restricted",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InaccessibleMessage"
+fields = [
+    { name = "date", literals = [0,] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "Dice"
+fields = [
+    { name = "emoji", enum = "DiceEmoji" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputInvoiceMessageContent"
+fields = [
+    { name = "currency", enum = "Currency" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "Invoice"
+fields = [
+    { name = "currency", enum = "Currency" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "SuccessfulPayment"
+fields = [
+    { name = "currency", enum = "Currency" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PreCheckoutQuery"
+fields = [
+    { name = "currency", enum = "Currency" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PaidMediaPreview"
+fields = [
+    { name = "type", literals = ["preview",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PaidMediaPhoto"
+fields = [
+    { name = "type", literals = ["photo",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PaidMediaVideo"
+fields = [
+    { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputPaidMediaPhoto"
+fields = [
+    { name = "type", literals = ["photo",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputPaidMediaVideo"
+fields = [
+    { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "TransactionPartnerTelegramAds"
+fields = [
+    { name = "type", literals = ["telegram_ads",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "TransactionPartnerAffiliateProgram"
+fields = [
+    { name = "type", literals = ["affiliate_program",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "RevenueWithdrawalStatePending"
+fields = [
+    { name = "type", literals = ["pending",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "RevenueWithdrawalStateSucceeded"
+fields = [
+    { name = "type", literals = ["succeeded",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "RevenueWithdrawalStateFailed"
+fields = [
+    { name = "type", literals = ["failed",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "RefundedPayment"
+fields = [
+    { name = "currency", literals = ["XTR",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ReactionTypePaid"
+fields = [
+    { name = "type", literals = ["paid",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "TransactionPartnerFragment"
+fields = [
+    { name = "type", literals = ["fragment",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "TransactionPartnerUser"
+fields = [
+    { name = "type", literals = ["user",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "TransactionPartnerOther"
+fields = [
+    { name = "type", literals = ["other",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "EncryptedPassportElement"
+fields = [
+    { name = "type", enum = "EncryptedPassportElementType" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ForumTopic"
+fields = [
+    { name = "icon_color", enum = "TopicIconColor" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ForumTopicCreated"
+fields = [
+    { name = "icon_color", enum = "TopicIconColor" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQuery"
+fields = [
+    { name = "chat_type", enum = "ChatType" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultArticle"
+fields = [
+    { name = "type", literals = ["article",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BackgroundFillSolid"
+fields = [
+    { name = "type", literals = ["solid",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BackgroundFillGradient"
+fields = [
+    { name = "type", literals = ["gradient",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BackgroundFillFreeformGradient"
+fields = [
+    { name = "type", literals = ["freeform_gradient",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BackgroundTypeFill"
+fields = [
+    { name = "type", literals = ["fill",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BackgroundTypeWallpaper"
+fields = [
+    { name = "type", literals = ["wallpaper",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BackgroundTypePattern"
+fields = [
+    { name = "type", literals = ["pattern",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "BackgroundTypeChatTheme"
+fields = [
+    { name = "type", literals = ["chat_theme",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultAudio"
+fields = [
+    { name = "type", literals = ["audio",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultCachedAudio"
+fields = [
+    { name = "type", literals = ["audio",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultCachedDocument"
+fields = [
+    { name = "type", literals = ["document",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultCachedGif"
+fields = [
+    { name = "type", literals = ["gif",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultCachedMpeg4Gif"
+fields = [
+    { name = "type", literals = ["mpeg4_gif",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultCachedPhoto"
+fields = [
+    { name = "type", literals = ["photo",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultCachedSticker"
+fields = [
+    { name = "type", literals = ["sticker",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultCachedVideo"
+fields = [
+    { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultCachedVoice"
+fields = [
+    { name = "type", literals = ["voice",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultContact"
+fields = [
+    { name = "type", literals = ["contact",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultDocument"
+fields = [
+    { name = "type", literals = ["document",] },
+    { name = "mime_type", literals = ["application/pdf", "application/zip",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultGame"
+fields = [
+    { name = "type", literals = ["game",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultGif"
+fields = [
+    { name = "type", literals = ["gif",] },
+    { name = "thumbnail_mime_type", literals = ["image/jpeg", "image/gif", "video/mp4",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultLocation"
+fields = [
+    { name = "type", literals = ["location",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultMpeg4Gif"
+fields = [
+    { name = "type", literals = ["mpeg4_gif",] },
+    { name = "thumbnail_mime_type", literals = ["image/jpeg", "image/gif", "video/mp4",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultPhoto"
+fields = [
+    { name = "type", literals = ["photo",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultVenue"
+fields = [
+    { name = "type", literals = ["venue",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultVideo"
+fields = [
+    { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InlineQueryResultVoice"
+fields = [
+    { name = "type", literals = ["voice",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputMediaAnimation"
+fields = [
+    { name = "type", literals = ["animation",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputMediaAudio"
+fields = [
+    { name = "type", literals = ["audio",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputMediaDocument"
+fields = [
+    { name = "type", literals = ["document",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputMediaPhoto"
+fields = [
+    { name = "type", literals = ["photo",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputMediaVideo"
+fields = [
+    { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "KeyboardButtonPollType"
+fields = [
+    { name = "type", literals = ["quiz", "regular",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "MenuButtonCommands"
+fields = [
+    { name = "type", literals = ["commands",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "MenuButtonDefault"
+fields = [
+    { name = "type", literals = ["default",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "MenuButtonWebApp"
+fields = [
+    { name = "type", literals = ["web_app",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "MessageEntity"
+fields = [
+    { name = "type", enum = "MessageEntityType" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "MessageOriginChannel"
+fields = [
+    { name = "type", literals = ["channel",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "MessageOriginChat"
+fields = [
+    { name = "type", literals = ["chat",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "MessageOriginHiddenUser"
+fields = [
+    { name = "type", literals = ["hidden_user",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "MessageOriginUser"
+fields = [
+    { name = "type", literals = ["user",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PassportElementErrorDataField"
+fields = [
+    { name = "source", literals = ["data",] },
+    { name = "type", literals = [
+        "personal_details",
+        "passport",
+        "driver_license",
+        "identity_card",
+        "internal_passport",
+        "address",
+    ] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PassportElementErrorFile"
+fields = [
+    { name = "source", literals = ["file",] },
+    { name = "type", literals = [
+        "utility_bill",
+        "bank_statement",
+        "rental_agreement",
+        "passport_registration",
+        "temporary_registration",
+    ] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PassportElementErrorFiles"
+fields = [
+    { name = "source", literals = ["files",] },
+    { name = "type", literals = [
+        "utility_bill",
+        "bank_statement",
+        "rental_agreement",
+        "passport_registration",
+        "temporary_registration",
+    ] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PassportElementErrorFrontSide"
+fields = [
+    { name = "source", literals = ["front_side",] },
+    { name = "type", literals = ["passport", "driver_license", "identity_card", "internal_passport",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PassportElementErrorReverseSide"
+fields = [
+    { name = "source", literals = ["reverse_side",] },
+    { name = "type", literals = ["driver_license", "identity_card",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PassportElementErrorSelfie"
+fields = [
+    { name = "source", literals = ["selfie",] },
+    { name = "type", literals = ["passport", "driver_license", "identity_card", "internal_passport",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PassportElementErrorTranslationFile"
+fields = [
+    { name = "source", literals = ["translation_file",] },
+    { name = "type", literals = [
+        "passport",
+        "driver_license",
+        "identity_card",
+        "internal_passport",
+        "utility_bill",
+        "bank_statement",
+        "rental_agreement",
+        "passport_registration",
+        "temporary_registration",
+    ] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PassportElementErrorTranslationFiles"
+fields = [
+    { name = "source", literals = ["translation_files",] },
+    { name = "type", literals = [
+        "passport",
+        "driver_license",
+        "identity_card",
+        "internal_passport",
+        "utility_bill",
+        "bank_statement",
+        "rental_agreement",
+        "passport_registration",
+        "temporary_registration",
+    ] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "PassportElementErrorUnspecified"
+fields = [
+    { name = "source", literals = ["unspecified",] },
+    { name = "type", enum = "EncryptedPassportElementType" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "Poll"
+fields = [
+    { name = "type", literals = ["regular", "quiz",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ReactionTypeCustomEmoji"
+fields = [
+    { name = "type", literals = ["custom_emoji",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ReactionTypeEmoji"
+fields = [
+    { name = "emoji", enum = "ReactionEmoji" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "ReactionTypeEmoji"
+fields = [
+    { name = "type", literals = ["emoji",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "Sticker"
+fields = [
+    { name = "type", literals = ["regular", "mask", "custom_emoji",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "StickerSet"
+fields = [
+    { name = "sticker_type", literals = ["regular", "mask", "custom_emoji",] },
+]
+
+# Generator :: Methods :: Literal types (Literal, enum) for parameters
+
+[[generator.methods.params-literal-types]]
+method_name = "sendDice"
+params = [
+    { name = "emoji", enum = "DiceEmoji" },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "sendPoll"
+params = [
+    { name = "type", literals = ["quiz", "regular",] },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "sendChatAction"
+params = [
+    { name = "action", enum = "ChatAction" },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "createForumTopic"
+params = [
+    { name = "icon_color", enum = "TopicIconColor" },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "uploadStickerFile"
+params = [
+    { name = "sticker_format", literals = ["static", "animated", "video",] },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "createNewStickerSet"
+params = [
+    { name = "sticker_format", literals = ["static", "animated", "video",] },
+    { name = "sticker_type", literals = ["regular", "mask", "custom_emoji",] },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "sendInvoice"
+params = [
+    { name = "currency", enum = "Currency" },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "createInvoiceLink"
+params = [
+    { name = "currency", enum = "Currency" },
+]

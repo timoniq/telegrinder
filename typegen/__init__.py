@@ -1,31 +1,26 @@
+from .config import ConfigTOML, read_config
 from .generator import (
     ABCGenerator,
-    ConfigLiteralTypes,
-    ConfigMethodLiteralTypes,
-    ConfigObjectLiteralTypes,
     MethodGenerator,
     ObjectGenerator,
-    find_nicifications,
     generate,
-    get_bot_api_schema,
-    read_config_default_api_params,
-    read_config_literals,
-    sort_all,
 )
+from .merge_shortcuts import merge_shortcuts
 from .models import (
+    Config,
     MethodParameter,
     MethodSchema,
     Model,
     ObjectField,
     ObjectSchema,
     TelegramBotAPISchema,
+    dec_hook,
 )
 
 __all__ = (
     "ABCGenerator",
-    "ConfigLiteralTypes",
-    "ConfigMethodLiteralTypes",
-    "ConfigObjectLiteralTypes",
+    "Config",
+    "ConfigTOML",
     "MethodGenerator",
     "MethodParameter",
     "MethodSchema",
@@ -34,10 +29,8 @@ __all__ = (
     "ObjectGenerator",
     "ObjectSchema",
     "TelegramBotAPISchema",
-    "find_nicifications",
+    "dec_hook",
     "generate",
-    "get_bot_api_schema",
-    "read_config_default_api_params",
-    "read_config_literals",
-    "sort_all",
+    "merge_shortcuts",
+    "read_config",
 )

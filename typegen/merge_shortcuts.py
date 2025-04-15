@@ -14,7 +14,6 @@ type APIMethodsMapping = dict[str, cst.FunctionDef]
 ANNOTATION_TYPING_ANY: typing.Final[cst.Annotation] = cst.parse_statement("x: typing.Any").body[0].annotation  # type: ignore
 DEFAULT_API_METHODS_CLASS_NAME: typing.Final[str] = "APIMethods"
 DEFAULT_PATH_CUTE_TYPES: typing.Final[pathlib.Path] = pathlib.Path("telegrinder") / "bot" / "cute_types"
-DEFAULT_PATH_API_METHODS: typing.Final[pathlib.Path] = pathlib.Path("telegrinder") / "types" / "methods.py"
 
 
 def is_cute_class(node: cst.ClassDef) -> bool:
@@ -95,16 +94,16 @@ def prepare_docstring(
     return None
 
 
-def merge(
-    path_api_methods: str | pathlib.Path | None = None,
-    path_cute_types: str | pathlib.Path | None = None,
-    api_methods_class_name: str | None = None,
+def merge_shortcuts(
+    *,
+    path_api_methods: str | pathlib.Path,
+    path_cute_types: str | pathlib.Path = DEFAULT_PATH_CUTE_TYPES,
+    api_methods_class_name: str = DEFAULT_API_METHODS_CLASS_NAME,
 ) -> None:
-    path_api_methods = pathlib.Path(path_api_methods or DEFAULT_PATH_API_METHODS)
-    path_cute_types = pathlib.Path(path_cute_types or DEFAULT_PATH_CUTE_TYPES)
-    api_methods_class_name = api_methods_class_name or DEFAULT_API_METHODS_CLASS_NAME
+    path_api_methods = pathlib.Path(path_api_methods)
+    path_cute_types = pathlib.Path(path_cute_types)
 
-    logger.info("Merge shortcuts with API methods...")
+    logger.info("Merge shortcuts with the last changes in schema...")
 
     api_methods_source_tree = cst.parse_module(path_api_methods.read_text(encoding="UTF-8"))
     api_methods_visitor = APIMethodsCollector(api_methods_class_name)
@@ -272,8 +271,4 @@ class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
         return updated_node
 
 
-if __name__ == "__main__":
-    merge()
-
-
-__all__ = ("merge",)
+__all__ = ("merge_shortcuts",)

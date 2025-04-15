@@ -120,7 +120,7 @@ def get_entity_value(
 
     for entity in ents:
         if (obj := getattr(entity, entity_value, fntypes.option.Nothing())) is not fntypes.option.Nothing():
-            return obj if isinstance(obj, Some) else Some(obj)
+            return obj if isinstance(obj, fntypes.option.Some) else fntypes.option.Some(obj)
 
     return fntypes.option.Nothing()
 

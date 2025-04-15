@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods[HTTPClient: ABCClient]:
-    """Telegram Bot API methods version 9.0, released `April 11, 2025`."""
+    """Telegram Bot API version `9.0`, released `April 11, 2025`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(

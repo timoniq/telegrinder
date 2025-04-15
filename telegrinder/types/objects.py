@@ -4589,7 +4589,7 @@ class InputMediaVideo(InputMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
-    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4656,7 +4656,7 @@ class InputMediaAnimation(InputMedia):
     type: typing.Literal["animation"] = field(default="animation")
     """Type of the result, must be animation."""
 
-    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4710,7 +4710,7 @@ class InputMediaAudio(InputMedia):
     type: typing.Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
-    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4758,7 +4758,7 @@ class InputMediaDocument(InputMedia):
     type: typing.Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4781,7 +4781,9 @@ class InputMediaDocument(InputMedia):
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    disable_content_type_detection: Option[bool] = field(default=UNSET, converter=From[bool | None])
+    disable_content_type_detection: Option[Variative[InputFile, bool]] = field(
+        default=UNSET, converter=From["InputFile | bool | None"]
+    )
     """Optional. Disables automatic server-side content type detection for
     files uploaded using multipart/form-data. Always True, if the document
     is sent as part of an album."""
@@ -4818,7 +4820,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the media, must be video."""
 
-    thumbnail: Option[str] = field(default=UNSET, converter=From[str | None])
+    thumbnail: Option[Variative[InputFile, str]] = field(default=UNSET, converter=From["InputFile | str | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4859,7 +4861,7 @@ class InputProfilePhotoStatic(InputProfilePhoto):
     type: str = field()
     """Type of the profile photo, must be static."""
 
-    photo: str = field()
+    photo: Variative[InputFile, str] = field(converter=From["InputFile | str"])
     """The static profile photo. Profile photos can't be reused and can only be
     uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
@@ -4875,7 +4877,7 @@ class InputProfilePhotoAnimated(InputProfilePhoto):
     type: str = field()
     """Type of the profile photo, must be animated."""
 
-    animation: str = field()
+    animation: Variative[InputFile, str] = field(converter=From["InputFile | str"])
     """The animated profile photo. Profile photos can't be reused and can only
     be uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
@@ -4895,7 +4897,7 @@ class InputStoryContentPhoto(InputStoryContent):
     type: str = field()
     """Type of the content, must be photo."""
 
-    photo: str = field()
+    photo: Variative[InputFile, str] = field(converter=From["InputFile | str"])
     """The photo to post as a story. The photo must be of the size 1080x1920 and must
     not exceed 10 MB. The photo can't be reused and can only be uploaded as a new
     file, so you can pass `attach://<file_attach_name>` if the photo was uploaded
@@ -4912,7 +4914,7 @@ class InputStoryContentVideo(InputStoryContent):
     type: str = field()
     """Type of the content, must be video."""
 
-    video: str = field()
+    video: Variative[InputFile, str] = field(converter=From["InputFile | str"])
     """The video to post as a story. The video must be of the size 720x1280, streamable,
     encoded with H.265 codec, with key frames added each second in the MPEG4
     format, and must not exceed 30 MB. The video can't be reused and can only be
@@ -5040,7 +5042,7 @@ class InputSticker(Model):
     This object describes a sticker to be added to a sticker set.
     """
 
-    sticker: str = field()
+    sticker: Variative[InputFile, str] = field(converter=From["InputFile | str"])
     """The added sticker. Pass a file_id as a String to send a file that already exists
     on the Telegram servers, pass an HTTP URL as a String for Telegram to get a
     file from the Internet, or pass `attach://<file_attach_name>` to upload

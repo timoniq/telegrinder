@@ -29,13 +29,13 @@ class MethodSchema(Model, rename={"params": "fields"}):
     href: str
     """Url of the documentation about method."""
 
-    returns: list[str] | None = None
+    returns: list[str] = field(default_factory=lambda: [])
     """Return type."""
 
-    description: list[str] | None = None
+    description: list[str] = field(default_factory=lambda: [])
     """Method description."""
 
-    params: list["MethodParameter"] | None = None
+    params: list["MethodParameter"] = field(default_factory=lambda: [])
     """Method parameters."""
 
 
@@ -46,16 +46,16 @@ class ObjectSchema(Model):
     href: str
     """Url of the documentation about object."""
 
-    description: list[str] | None = None
+    description: list[str] = field(default_factory=lambda: [])
     """Object description."""
 
-    fields: list["ObjectField"] | None = None
+    fields: list["ObjectField"] = field(default_factory=lambda: [])
     """Object fields."""
 
-    subtypes: list[str] | None = None
+    subtypes: list[str] = field(default_factory=lambda: [])
     """Object is inherited by other objects."""
 
-    subtype_of: list[str] | None = None
+    subtype_of: list[str] = field(default_factory=lambda: [])
     """List of objects that object inherits."""
 
 
