@@ -1,14 +1,10 @@
 import types
 import typing
 
-import fntypes.co
 import msgspec
+from fntypes.co import Nothing, Variative
 
 if typing.TYPE_CHECKING:
-    from datetime import datetime
-
-    from fntypes.option import Option
-
     from telegrinder.tools.fullname import fullname
     from telegrinder.tools.magic import magic_bundle
 
@@ -17,18 +13,7 @@ if typing.TYPE_CHECKING:
     def get_type_hints(obj: typing.Any, /) -> dict[str, typing.Any]: ...
 
 else:
-    from datetime import datetime as dt
-
     from msgspec._utils import get_class_annotations, get_type_hints
-
-    datetime = type("datetime", (dt,), {})
-
-    class OptionMeta(type):
-        def __instancecheck__(cls, __instance: typing.Any) -> bool:
-            return isinstance(__instance, (fntypes.option.Some | fntypes.option.Nothing, msgspec.UnsetType))
-
-    class Option[Value](metaclass=OptionMeta):
-        pass
 
     def magic_bundle(*args, **kwargs):
         from telegrinder.tools.magic import magic_bundle
@@ -41,7 +26,7 @@ else:
         return fullname(*args, **kwargs)
 
 
-_COMMON_TYPES = frozenset((str, int, float, bool, None, fntypes.co.Variative))
+_COMMON_TYPES = frozenset((str, int, float, bool, None, Variative))
 
 
 def get_origin[T](t: type[T], /) -> type[T]:
@@ -60,7 +45,7 @@ def struct_asdict(struct: msgspec.Struct, /) -> dict[str, typing.Any]:
     return {
         k: v
         for k, v in msgspec.structs.asdict(struct).items()
-        if not isinstance(v, msgspec.UnsetType | types.NoneType | fntypes.option.Nothing)
+        if not isinstance(v, msgspec.UnsetType | types.NoneType | Nothing)
     }
 
 
@@ -75,8 +60,6 @@ def type_check(obj: typing.Any, t: typing.Any) -> bool:
 
 
 __all__ = (
-    "Option",
-    "datetime",
     "get_class_annotations",
     "get_origin",
     "get_type_hints",

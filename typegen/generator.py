@@ -76,7 +76,9 @@ def download_schema(config_toml: ConfigTOML, config_model: Config, /) -> Telegra
 
 
 def find_object_nicifications(
-    object_name: str, nicification_path: pathlib.Path, /
+    object_name: str,
+    nicification_path: pathlib.Path,
+    /,
 ) -> tuple[str | None, list[str]]:
     pattern = r"class _" + object_name + r"\((?P<base>.+)\):\n((?:.|\n {4}|\n$)+)"
     nicifications_source = nicification_path.read_text(encoding="UTF-8")
@@ -221,7 +223,7 @@ class ObjectGenerator(ABCGenerator):
         code = makesafe_name(field.name) + ": "
         field_type = "typing.Any"
         field_value = (
-            "field(default=UNSET, converter={converter})" if not field.required else "field(converter={converter})"
+            "field(default=..., converter={converter})" if not field.required else "field(converter={converter})"
         )
 
         if literal_types is not None and any((literal_types.enum, literal_types.literals)):
@@ -239,7 +241,7 @@ class ObjectGenerator(ABCGenerator):
                 if field.required and field.default is not None
                 else "field()"
                 if field.required
-                else "field(default=UNSET)"
+                else "field(default=...)"
             )
         else:
             if field.description:
@@ -247,9 +249,7 @@ class ObjectGenerator(ABCGenerator):
                     field.types.remove("Integer")
                     field_type = "datetime"
                     field_value = (
-                        "field(default=UNSET, converter=From[datetime | None])"
-                        if not field.required
-                        else "field()"
+                        "field(default=..., converter=From[datetime | None])" if not field.required else "field()"
                     )
 
                 elif "InputFile" not in field.types and INPUTFILE_DOCSTRING in field.description:
@@ -272,7 +272,10 @@ class ObjectGenerator(ABCGenerator):
             elif len(field.types) == 1:
                 field_type = convert_to_python_type(field.types[0], self.parent_types)
                 converted_type = convert_to_python_type(
-                    field.types[0], self.parent_types, as_forward_ref=True, as_union=True
+                    field.types[0],
+                    self.parent_types,
+                    as_forward_ref=True,
+                    as_union=True,
                 )
                 field_value = (
                     field_value.format(
@@ -337,7 +340,7 @@ class ObjectGenerator(ABCGenerator):
         if not object_schema.fields and not nicifications:
             if (not object_schema.subtypes and base_object_name is None) or not object_schema.subtypes:
                 logger.warning(
-                    f"Object {object_name!r} has no fields or subtypes or nicification (mark as empty object).",
+                    f"Object {object_name!r} has no fields or subtypes or nicifications (mark as empty object).",
                 )
 
             code += TAB + "pass" if not object_schema.description else ""
@@ -395,7 +398,7 @@ class ObjectGenerator(ABCGenerator):
             "import secrets\n",
             "import typing\n\n",
             "from fntypes.co import Variative, Nothing\n",
-            "from telegrinder.model import UNSET, From, Model, field\n",
+            "from telegrinder.model import From, Model, field\n",
             "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
             "from telegrinder.msgspec_utils import Option, datetime\n\n",

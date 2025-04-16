@@ -46,7 +46,9 @@ class _Birthdate(Birthdate):
 
 class _Chat(Chat):
     def __eq__(self, other: object, /) -> bool:
-        return isinstance(other, self.__class__) and self.id == other.id
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.id == other.id
 
     @property
     def full_name(self) -> Option[str]:
@@ -72,11 +74,9 @@ class _ChatMemberUpdated(ChatMemberUpdated):
 
 class _Message(Message):
     def __eq__(self, other: object, /) -> bool:
-        return (
-            isinstance(other, self.__class__)
-            and self.message_id == other.message_id
-            and self.chat_id == other.chat_id
-        )
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.message_id == other.message_id and self.chat_id == other.chat_id
 
     @cached_property
     def content_type(self) -> ContentType:
@@ -109,7 +109,9 @@ class _Message(Message):
 
 class _User(User):
     def __eq__(self, other: object, /) -> bool:
-        return isinstance(other, self.__class__) and self.id == other.id
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.id == other.id
 
     @property
     def default_accent_color(self) -> DefaultAccentColor:
@@ -124,7 +126,9 @@ class _User(User):
 
 class _Update(Update):
     def __eq__(self, other: object, /) -> bool:
-        return isinstance(other, self.__class__) and self.update_type == other.update_type
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.update_type == other.update_type
 
     @cached_property
     def update_type(self) -> UpdateType:

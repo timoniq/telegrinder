@@ -7,23 +7,20 @@ import typing
 from reprlib import recursive_repr
 
 import msgspec
-from fntypes.co import Nothing, Result
+from fntypes.co import Nothing, Result, Some
 
-from telegrinder.msgspec_utils import decoder, encoder, struct_asdict
+from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
 
+UNSET: typing.Final[typing.Any] = typing.cast("typing.Any", msgspec.UNSET)
+"""See [DOCS](https://jcristharif.com/msgspec/api.html#unset) about `msgspec.UNSET`."""
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "dict": True,
     "rename": {kw + "_": kw for kw in keyword.kwlist},
 }
-UNSET = typing.cast("typing.Any", msgspec.UNSET)
-"""Docs: https://jcristharif.com/msgspec/api.html#unset
-
-During decoding, if a field isn't explicitly set in the model,
-the default value of `UNSET` will be set instead. This lets downstream
-consumers determine whether a field was left unset, or explicitly set a value."""
+INSPECTED_MODEL_FIELDS_KEY: typing.Final[str] = "__inspected_struct_fields__"
 
 
 def is_none(obj: typing.Any, /) -> typing.TypeGuard[Nothing | None]:
@@ -49,6 +46,9 @@ def get_params(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
 
 
 if typing.TYPE_CHECKING:
+
+    @typing.overload
+    def field() -> typing.Any: ...
 
     @typing.overload
     def field(*, name: str | None = ...) -> typing.Any: ...
@@ -102,6 +102,9 @@ else:
     type From[T] = T
 
     def field(**kwargs):
+        if "default" in kwargs and (default := kwargs["default"]) is Ellipsis:
+            kwargs["default"] = UNSET
+
         kwargs.pop("converter", None)
         return _field(**kwargs)
 
@@ -117,11 +120,44 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
 
         def __getattribute__(self, name, /):
             val = super().__getattribute__(name)
-            return Nothing() if val is UNSET else val
+            field_info = super().__getattribute__("get_field")(name).unwrap_or_none()
+
+            if (
+                field_info is not None
+                and isinstance(field_info.type, msgspec.inspect.CustomType)
+                and issubclass(field_info.type.cls, Option)
+            ):
+                return Nothing() if val is UNSET else val
+
+            return val
 
         @recursive_repr()
         def __repr__(self) -> str:
-            return super().__repr__().replace(f"={UNSET}", f"={Nothing()}")
+            return "{}({})".format(
+                type(self).__name__,
+                ", ".join(
+                    f"{f}={value!r}"
+                    for f in self.__struct_fields__
+                    if (value := getattr(self, f)) is not UNSET  # excluding UNSET fields
+                ),
+            )
+
+    @classmethod
+    def get_fields(cls) -> types.MappingProxyType[str, msgspec.inspect.Field]:
+        if (model_fields := getattr(cls, INSPECTED_MODEL_FIELDS_KEY, None)) is not None:
+            return model_fields
+
+        model_fields = types.MappingProxyType[str, msgspec.inspect.Field](
+            {f.name: f for f in msgspec.inspect.type_info(cls).fields},  # type: ignore
+        )
+        setattr(cls, INSPECTED_MODEL_FIELDS_KEY, model_fields)
+        return model_fields
+
+    @classmethod
+    def get_field(cls, field_name: str, /) -> Option[msgspec.inspect.Field]:
+        if (f := cls.get_fields().get(field_name)) is not None:
+            return Some(f)
+        return Nothing()
 
     @classmethod
     def from_data[**P, T](cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:

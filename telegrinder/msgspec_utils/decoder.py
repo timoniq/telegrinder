@@ -6,9 +6,10 @@ import msgspec
 from fntypes.result import Error, Ok, Result
 from fntypes.variative import Variative
 
+from telegrinder.msgspec_utils.custom_types.datetime import datetime
+from telegrinder.msgspec_utils.custom_types.enum_meta import BaseEnumMeta
+from telegrinder.msgspec_utils.custom_types.option import Option
 from telegrinder.msgspec_utils.tools import (
-    Option,
-    datetime,
     fullname,
     get_origin,
     is_common_type,
@@ -140,20 +141,23 @@ class Decoder:
     ```
     """
 
+    dec_hooks: dict[typing.Any, DecHook[typing.Any]]
+    subclass_dec_hooks: dict[typing.Any, DecHook[typing.Any]]
+
     def __init__(self) -> None:
-        self.dec_hooks: dict[typing.Any, DecHook[typing.Any]] = {
+        self.dec_hooks = {
             Option: option_dec_hook,
             Variative: variative_dec_hook,
             datetime: lambda t, obj: t.fromtimestamp(obj),
             fntypes.option.Some: option_dec_hook,
             fntypes.option.Nothing: option_dec_hook,
         }
+        self.subclass_dec_hooks = {
+            BaseEnumMeta: lambda enum_type, member: enum_type(member),
+        }
 
     def __repr__(self) -> str:
-        return "<{}: dec_hooks={!r}>".format(
-            self.__class__.__name__,
-            self.dec_hooks,
-        )
+        return "<{}: dec_hooks={!r}>".format(self.__class__.__name__, self.dec_hooks)
 
     @typing.overload
     def __call__[T](
@@ -208,17 +212,26 @@ class Decoder:
 
         return decorator
 
+    def get_dec_hook_by_subclass(self, tp: type[typing.Any], /) -> DecHook[typing.Any] | None:
+        for subclass, dec_hook in self.subclass_dec_hooks.items():
+            if issubclass(tp, subclass) or issubclass(type(tp), subclass):
+                return dec_hook
+
+        return None
+
     def dec_hook(self, context: Context | None = None, /) -> DecHook[typing.Any]:
-        def inner(tp: type[typing.Any], obj: typing.Any, /) -> typing.Any:
-            origin_type = t if isinstance((t := get_origin(tp)), type) else type(t)
-            if origin_type not in self.dec_hooks:
-                raise TypeError(
-                    f"Unknown type `{fullname(origin_type)}`. You can implement decode hook for this type.",
+        def inner(tp: typing.Any, obj: typing.Any, /) -> typing.Any:
+            origin_type = get_origin(tp)
+
+            if (dec_hook_func := self.dec_hooks.get(origin_type)) is None and (
+                dec_hook_func := self.get_dec_hook_by_subclass(origin_type)
+            ) is None:
+                raise NotImplementedError(
+                    f"Not implemented decode hook for type `{fullname(origin_type)}`. "
+                    "You can implement decode hook for this type.",
                 )
 
-            dec_hook_func = self.dec_hooks[origin_type]
-            kwargs = magic_bundle(dec_hook_func, context or {}, start_idx=2)
-            return dec_hook_func(tp, obj, **kwargs)
+            return dec_hook_func(tp, obj, **magic_bundle(dec_hook_func, context or {}, start_idx=2))
 
         return inner
 

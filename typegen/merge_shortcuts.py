@@ -110,6 +110,9 @@ def merge_shortcuts(
     api_methods_source_tree.visit(api_methods_visitor)
 
     for path in path_cute_types.rglob("*.py"):
+        if path == "__init__.py":
+            continue
+
         logger.info("Parsing module {!r}...", path.name)
         cute_source_tree = cst.parse_module(path.read_text(encoding="UTF-8"))
 

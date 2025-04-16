@@ -6,7 +6,9 @@ from fntypes.option import Nothing, Some
 from fntypes.result import Error, Ok, Result
 from fntypes.variative import Variative
 
-from telegrinder.msgspec_utils.tools import datetime, fullname, get_origin, magic_bundle
+from telegrinder.msgspec_utils.custom_types.datetime import datetime
+from telegrinder.msgspec_utils.custom_types.enum_meta import BaseEnumMeta
+from telegrinder.msgspec_utils.tools import fullname, get_origin, magic_bundle
 
 type Context = dict[str, typing.Any]
 type Order = typing.Literal["deterministic", "sorted"]
@@ -49,12 +51,18 @@ class Encoder:
     ```
     """
 
+    enc_hooks: dict[typing.Any, EncHook[typing.Any]]
+    subclass_enc_hooks: dict[typing.Any, EncHook[typing.Any]]
+
     def __init__(self) -> None:
-        self.enc_hooks: dict[typing.Any, EncHook[typing.Any]] = {
+        self.enc_hooks = {
             Some: lambda some: some.value,
             Nothing: lambda _: None,
             Variative: lambda variative: variative.v,
             datetime: lambda date: int(date.timestamp()),
+        }
+        self.subclass_enc_hooks = {
+            BaseEnumMeta: lambda enum_member: enum_member.value,
         }
 
     def __repr__(self) -> str:
@@ -84,18 +92,26 @@ class Encoder:
 
         return decorator
 
+    def get_enc_hook_by_subclass(self, tp: type[typing.Any], /) -> EncHook[typing.Any] | None:
+        for subclass, enc_hook in self.subclass_enc_hooks.items():
+            if issubclass(tp, subclass) or issubclass(type(tp), subclass):
+                return enc_hook
+
+        return None
+
     def enc_hook(self, context: Context | None = None, /) -> EncHook[typing.Any]:
         def inner(obj: typing.Any, /) -> typing.Any:
             origin_type = get_origin(obj)
-            if origin_type not in self.enc_hooks:
+
+            if (enc_hook_func := self.enc_hooks.get(origin_type)) is None and (
+                enc_hook_func := self.get_enc_hook_by_subclass(origin_type)
+            ) is None:
                 raise NotImplementedError(
                     f"Not implemented encode hook for object of type `{fullname(origin_type)}`. "
-                    "You can implement encode hook for this object."
+                    "You can implement encode hook for this object.",
                 )
 
-            enc_hook_func = self.enc_hooks[origin_type]
-            kwargs = magic_bundle(enc_hook_func, context or {}, start_idx=1)
-            return enc_hook_func(obj, **kwargs)
+            return enc_hook_func(obj, **magic_bundle(enc_hook_func, context or {}, start_idx=1))
 
         return inner
 

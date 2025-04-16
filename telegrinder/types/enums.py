@@ -1,7 +1,9 @@
 import enum
 
+from telegrinder.msgspec_utils import BaseEnumMeta
 
-class ProgrammingLanguage(str, enum.Enum):
+
+class ProgrammingLanguage(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of ProgrammingLanguage."""
 
     ASSEMBLY = "assembly"
@@ -39,7 +41,7 @@ class ProgrammingLanguage(str, enum.Enum):
     MARKUP = "markup"
 
 
-class ChatAction(str, enum.Enum):
+class ChatAction(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of ChatAction.
 
     Choose one, depending on what the user is about to receive:
@@ -68,7 +70,7 @@ class ChatAction(str, enum.Enum):
     UPLOAD_VIDEO_NOTE = "upload_video_note"
 
 
-class ReactionEmoji(str, enum.Enum):
+class ReactionEmoji(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of ReactionEmoji.
 
     Currently, it can be one of `👍`, `👎`, `❤`, `🔥`, `🥰`, `👏`,
@@ -156,7 +158,7 @@ class ReactionEmoji(str, enum.Enum):
     ENRAGED_FACE = "😡"
 
 
-class DefaultAccentColor(int, enum.Enum):
+class DefaultAccentColor(enum.IntEnum, metaclass=BaseEnumMeta):
     """Type of DefaultAccentColor.
 
     One of 7 possible user colors:
@@ -180,7 +182,7 @@ class DefaultAccentColor(int, enum.Enum):
     PINK = 6
 
 
-class TopicIconColor(int, enum.Enum):
+class TopicIconColor(enum.IntEnum, metaclass=BaseEnumMeta):
     """Type of TopicIconColor.
 
     Docs: https://github.com/telegramdesktop/tdesktop/blob/991fe491c5ae62705d77aa8fdd44a79caf639c45/Telegram/SourceFiles/data/data_forum_topic.cpp#L51-L56
@@ -194,7 +196,7 @@ class TopicIconColor(int, enum.Enum):
     RED = 0xFB6F5F
 
 
-class ChatBoostSourceType(str, enum.Enum):
+class ChatBoostSourceType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of ChatBoostSourceType
     Docs: https://core.telegram.org/bots/api#chatboostsource
     """
@@ -204,7 +206,7 @@ class ChatBoostSourceType(str, enum.Enum):
     GIVEAWAY = "giveaway"
 
 
-class ContentType(str, enum.Enum):
+class ContentType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of ContentType."""
 
     TEXT = "text"
@@ -264,7 +266,7 @@ class ContentType(str, enum.Enum):
     UNKNOWN = "unknown"
 
 
-class Currency(str, enum.Enum):
+class Currency(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of Currency.
     Docs: https://core.telegram.org/bots/payments#supported-currencies
     """
@@ -359,7 +361,7 @@ class Currency(str, enum.Enum):
     """Telegram stars."""
 
 
-class InlineQueryResultType(str, enum.Enum):
+class InlineQueryResultType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of InlineQueryResultType.
     Docs: https://core.telegram.org/bots/api#inlinequeryresult
     """
@@ -379,7 +381,7 @@ class InlineQueryResultType(str, enum.Enum):
     VENUE = "venue"
 
 
-class MenuButtonType(str, enum.Enum):
+class MenuButtonType(enum.StrEnum, metaclass=BaseEnumMeta):
     """TType of MenuButtonType.
     Docs: https://core.telegram.org/bots/api#menubuttondefault
     """
@@ -389,7 +391,7 @@ class MenuButtonType(str, enum.Enum):
     WEB_APP = "web_app"
 
 
-class InputMediaType(str, enum.Enum):
+class InputMediaType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of InputMediaType.
     Docs: https://core.telegram.org/bots/api#inputmedia
     """
@@ -401,7 +403,7 @@ class InputMediaType(str, enum.Enum):
     VIDEO = "video"
 
 
-class UpdateType(str, enum.Enum):
+class UpdateType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of update."""
 
     MESSAGE = "message"
@@ -428,7 +430,7 @@ class UpdateType(str, enum.Enum):
     DELETE_BUSINESS_MESSAGE = "delete_business_messages"
 
 
-class BotCommandScopeType(str, enum.Enum):
+class BotCommandScopeType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of BotCommandScope.
     Represents the scope to which bot commands are applied.
     """
@@ -442,7 +444,7 @@ class BotCommandScopeType(str, enum.Enum):
     CHAT_MEMBER = "chat_member"
 
 
-class ChatType(str, enum.Enum):
+class ChatType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of chat, can be either `private`, `group`, `supergroup` or `channel`."""
 
     PRIVATE = "private"
@@ -452,7 +454,7 @@ class ChatType(str, enum.Enum):
     SENDER = "sender"
 
 
-class ChatMemberStatus(str, enum.Enum):
+class ChatMemberStatus(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of ChatMemberStatus."""
 
     CREATOR = "creator"
@@ -463,7 +465,7 @@ class ChatMemberStatus(str, enum.Enum):
     KICKED = "kicked"
 
 
-class DiceEmoji(str, enum.Enum):
+class DiceEmoji(enum.StrEnum, metaclass=BaseEnumMeta):
     """Emoji on which the dice throw animation is based."""
 
     DICE = "🎲"
@@ -474,7 +476,7 @@ class DiceEmoji(str, enum.Enum):
     BOWLING = "🎳"
 
 
-class MessageEntityType(str, enum.Enum):
+class MessageEntityType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of the entity. Currently, can be `mention` (@username), `hashtag`
     (#hashtag or #hashtag@chatusername), `cashtag` ($USD or $USD@chatusername),
     `bot_command` (/start@jobs_bot), `url` (https://telegram.org), `email`
@@ -508,14 +510,14 @@ class MessageEntityType(str, enum.Enum):
     EXPANDABLE_BLOCKQUOTE = "expandable_blockquote"
 
 
-class PollType(str, enum.Enum):
+class PollType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Poll type, currently can be `regular` or `quiz`."""
 
     REGULAR = "regular"
     QUIZ = "quiz"
 
 
-class StickerType(str, enum.Enum):
+class StickerType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`.
     The type of the sticker is independent from its format, which is determined
     by the fields `is_animated` and `is_video`.
@@ -526,7 +528,7 @@ class StickerType(str, enum.Enum):
     CUSTOM_EMOJI = "custom_emoji"
 
 
-class MessageOriginType(str, enum.Enum):
+class MessageOriginType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of MessageOriginType
     Docs: https://core.telegram.org/bots/api#messageorigin
     """
@@ -537,7 +539,7 @@ class MessageOriginType(str, enum.Enum):
     CHANNEL = "channel"
 
 
-class StickerSetStickerType(str, enum.Enum):
+class StickerSetStickerType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`."""
 
     REGULAR = "regular"
@@ -545,7 +547,7 @@ class StickerSetStickerType(str, enum.Enum):
     CUSTOM_EMOJI = "custom_emoji"
 
 
-class MaskPositionPoint(str, enum.Enum):
+class MaskPositionPoint(enum.StrEnum, metaclass=BaseEnumMeta):
     """The part of the face relative to which the mask should be placed. One of `forehead`,
     `eyes`, `mouth`, or `chin`.
     """
@@ -556,7 +558,7 @@ class MaskPositionPoint(str, enum.Enum):
     CHIN = "chin"
 
 
-class InlineQueryChatType(str, enum.Enum):
+class InlineQueryChatType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of the chat from which the inline query was sent. Can be
     either `sender` for a private chat with the inline query sender, `private`,
     `group`, `supergroup`, or `channel`. The chat type should be always known
@@ -571,14 +573,14 @@ class InlineQueryChatType(str, enum.Enum):
     CHANNEL = "channel"
 
 
-class InlineQueryResultMimeType(str, enum.Enum):
+class InlineQueryResultMimeType(enum.StrEnum, metaclass=BaseEnumMeta):
     """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
 
     TEXT_HTML = "text/html"
     VIDEO_MP4 = "video/mp4"
 
 
-class InlineQueryResultThumbnailMimeType(str, enum.Enum):
+class InlineQueryResultThumbnailMimeType(enum.StrEnum, metaclass=BaseEnumMeta):
     """MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`
     """
@@ -588,7 +590,7 @@ class InlineQueryResultThumbnailMimeType(str, enum.Enum):
     VIDEO_MP4 = "video/mp4"
 
 
-class PassportElementErrorType(str, enum.Enum):
+class PassportElementErrorType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of PassportElementErrorType.
     Docs: https://core.telegram.org/bots/api#passportelementerror
     """
@@ -604,7 +606,7 @@ class PassportElementErrorType(str, enum.Enum):
     UNSPECIFIED = "unspecified"
 
 
-class ReactionTypeType(str, enum.Enum):
+class ReactionTypeType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Type of ReactionTypeType.
     Docs: https://core.telegram.org/bots/api#reactiontype
     """
@@ -613,7 +615,7 @@ class ReactionTypeType(str, enum.Enum):
     CUSTOM_EMOJI = "custom_emoji"
 
 
-class InlineQueryResultGifThumbnailMimeType(str, enum.Enum):
+class InlineQueryResultGifThumbnailMimeType(enum.StrEnum, metaclass=BaseEnumMeta):
     """MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`.
     """
@@ -623,7 +625,7 @@ class InlineQueryResultGifThumbnailMimeType(str, enum.Enum):
     VIDEO_MP4 = "video/mp4"
 
 
-class InlineQueryResultMpeg4GifThumbnailMimeType(str, enum.Enum):
+class InlineQueryResultMpeg4GifThumbnailMimeType(enum.StrEnum, metaclass=BaseEnumMeta):
     """MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`.
     """
@@ -633,21 +635,21 @@ class InlineQueryResultMpeg4GifThumbnailMimeType(str, enum.Enum):
     VIDEO_MP4 = "video/mp4"
 
 
-class InlineQueryResultVideoMimeType(str, enum.Enum):
+class InlineQueryResultVideoMimeType(enum.StrEnum, metaclass=BaseEnumMeta):
     """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
 
     TEXT_HTML = "text/html"
     VIDEO_MP4 = "video/mp4"
 
 
-class InlineQueryResultDocumentMimeType(str, enum.Enum):
+class InlineQueryResultDocumentMimeType(enum.StrEnum, metaclass=BaseEnumMeta):
     """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
 
     APPLICATION_PDF = "application/pdf"
     APPLICATION_ZIP = "application/zip"
 
 
-class EncryptedPassportElementType(str, enum.Enum):
+class EncryptedPassportElementType(enum.StrEnum, metaclass=BaseEnumMeta):
     """Element type. One of `personal_details`, `passport`, `driver_license`,
     `identity_card`, `internal_passport`, `address`, `utility_bill`,
     `bank_statement`, `rental_agreement`, `passport_registration`,
@@ -669,7 +671,7 @@ class EncryptedPassportElementType(str, enum.Enum):
     EMAIL = "email"
 
 
-class StickerFormat(str, enum.Enum):
+class StickerFormat(enum.StrEnum, metaclass=BaseEnumMeta):
     """Format of the sticker."""
 
     STATIC = "static"
