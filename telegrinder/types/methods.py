@@ -1,5 +1,5 @@
 import typing
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fntypes.co import Result, Variative
 
@@ -18,8 +18,9 @@ class APIMethods[HTTPClient: ABCClient]:
 
     default_params = ProxiedDict(
         typing.TypedDict(
-            "DefaultParams", {"parse_mode": str, "question_parse_mode": str, "explanation_parse_mode": str}
-        )
+            "DefaultParams",
+            {"parse_mode": str, "text_parse_mode": str, "question_parse_mode": str, "explanation_parse_mode": str},
+        ),
     )
 
     def __init__(self, api: "API[HTTPClient]") -> None:
@@ -31,7 +32,7 @@ class APIMethods[HTTPClient: ABCClient]:
         offset: int | None = None,
         limit: int | None = None,
         timeout: int | None = None,
-        allowed_updates: list[str] | None = None,
+        allowed_updates: list[UpdateType] | None = None,
         **other: typing.Any,
     ) -> Result[list[Update], APIError]:
         """Method `getUpdates`, see the [documentation](https://core.telegram.org/bots/api#getupdates)
@@ -77,7 +78,7 @@ class APIMethods[HTTPClient: ABCClient]:
         certificate: InputFile | None = None,
         ip_address: str | None = None,
         max_connections: int | None = None,
-        allowed_updates: list[str] | None = None,
+        allowed_updates: list[UpdateType] | None = None,
         drop_pending_updates: bool | None = None,
         secret_token: str | None = None,
         **other: typing.Any,
@@ -283,7 +284,7 @@ class APIMethods[HTTPClient: ABCClient]:
         from_chat_id: int | str,
         message_id: int,
         message_thread_id: int | None = None,
-        video_start_timestamp: int | None = None,
+        video_start_timestamp: timedelta | int | None = None,
         disable_notification: bool | None = None,
         protect_content: bool | None = None,
         **other: typing.Any,
@@ -369,7 +370,7 @@ class APIMethods[HTTPClient: ABCClient]:
         from_chat_id: int | str,
         message_id: int,
         message_thread_id: int | None = None,
-        video_start_timestamp: int | None = None,
+        video_start_timestamp: timedelta | int | None = None,
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -748,7 +749,7 @@ class APIMethods[HTTPClient: ABCClient]:
         height: int | None = None,
         thumbnail: InputFile | str | None = None,
         cover: InputFile | str | None = None,
-        start_timestamp: int | None = None,
+        start_timestamp: timedelta | int | None = None,
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -1696,7 +1697,7 @@ class APIMethods[HTTPClient: ABCClient]:
         *,
         user_id: int,
         emoji_status_custom_emoji_id: str | None = None,
-        emoji_status_expiration_date: int | None = None,
+        emoji_status_expiration_date: datetime | int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Method `setUserEmojiStatus`, see the [documentation](https://core.telegram.org/bots/api#setuseremojistatus)
@@ -3808,7 +3809,7 @@ class APIMethods[HTTPClient: ABCClient]:
         chat_id: int | str | None = None,
         pay_for_upgrade: bool | None = None,
         text: str | None = None,
-        text_parse_mode: str | None = None,
+        text_parse_mode: str | None = default_params["text_parse_mode"],
         text_entities: list[MessageEntity] | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -3851,10 +3852,10 @@ class APIMethods[HTTPClient: ABCClient]:
         self,
         *,
         user_id: int,
-        month_count: int,
+        month_count: typing.Literal[3, 6, 12],
         star_count: int,
         text: str | None = None,
-        text_parse_mode: str | None = None,
+        text_parse_mode: str | None = default_params["text_parse_mode"],
         text_entities: list[MessageEntity] | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -4378,7 +4379,7 @@ class APIMethods[HTTPClient: ABCClient]:
         *,
         business_connection_id: str,
         content: InputStoryContent,
-        active_period: int,
+        active_period: typing.Literal[21600, 43200, 86400, 1036800],
         caption: str | None = None,
         parse_mode: str | None = default_params["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -4865,7 +4866,7 @@ class APIMethods[HTTPClient: ABCClient]:
         *,
         name: str,
         user_id: int,
-        format: str,
+        format: typing.Literal["static", "animated", "video"],
         thumbnail: InputFile | str | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:

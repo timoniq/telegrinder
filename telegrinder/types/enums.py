@@ -213,13 +213,13 @@ class ContentType(enum.StrEnum, metaclass=BaseEnumMeta):
     ANIMATION = "animation"
     AUDIO = "audio"
     DOCUMENT = "document"
+    PAID_MEDIA = "paid_media"
     PHOTO = "photo"
     STICKER = "sticker"
     STORY = "story"
     VIDEO = "video"
     VIDEO_NOTE = "video_note"
     VOICE = "voice"
-    HAS_MEDIA_SPOILER = "has_media_spoiler"
     CONTACT = "contact"
     DICE = "dice"
     GAME = "game"
@@ -241,12 +241,16 @@ class ContentType(enum.StrEnum, metaclass=BaseEnumMeta):
     PINNED_MESSAGE = "pinned_message"
     INVOICE = "invoice"
     SUCCESSFUL_PAYMENT = "successful_payment"
+    REFUNDED_PAYMENT = "refunded_payment"
     USERS_SHARED = "users_shared"
     CHAT_SHARED = "chat_shared"
+    GIFT = "gift"
+    UNIQUE_GIFT = "unique_gift"
     CONNECTED_WEBSITE = "connected_website"
     WRITE_ACCESS_ALLOWED = "write_access_allowed"
     PASSPORT_DATA = "passport_data"
     PROXIMITY_ALERT_TRIGGERED = "proximity_alert_triggered"
+    CHAT_BACKGROUND_SET = "chat_background_set"
     FORUM_TOPIC_CREATED = "forum_topic_created"
     FORUM_TOPIC_EDITED = "forum_topic_edited"
     FORUM_TOPIC_CLOSED = "forum_topic_closed"
@@ -257,6 +261,7 @@ class ContentType(enum.StrEnum, metaclass=BaseEnumMeta):
     GIVEAWAY = "giveaway"
     GIVEAWAY_WINNERS = "giveaway_winners"
     GIVEAWAY_COMPLETED = "giveaway_completed"
+    PAID_MESSAGE_PRICE_CHANGED = "paid_message_price_changed"
     VIDEO_CHAT_SCHEDULED = "video_chat_scheduled"
     VIDEO_CHAT_STARTED = "video_chat_started"
     VIDEO_CHAT_ENDED = "video_chat_ended"
@@ -417,6 +422,7 @@ class UpdateType(enum.StrEnum, metaclass=BaseEnumMeta):
     CALLBACK_QUERY = "callback_query"
     SHIPPING_QUERY = "shipping_query"
     PRE_CHECKOUT_QUERY = "pre_checkout_query"
+    PURCHASED_PAID_MEDIA = "purchased_paid_media"
     POLL = "poll"
     POLL_ANSWER = "poll_answer"
     MY_CHAT_MEMBER = "my_chat_member"
@@ -427,7 +433,7 @@ class UpdateType(enum.StrEnum, metaclass=BaseEnumMeta):
     BUSINESS_CONNECTION = "business_connection"
     BUSINESS_MESSAGE = "business_message"
     EDITED_BUSINESS_MESSAGE = "edited_business_message"
-    DELETE_BUSINESS_MESSAGE = "delete_business_messages"
+    DELETED_BUSINESS_MESSAGES = "deleted_business_messages"
 
 
 class BotCommandScopeType(enum.StrEnum, metaclass=BaseEnumMeta):
@@ -486,8 +492,7 @@ class MessageEntityType(enum.StrEnum, metaclass=BaseEnumMeta):
     `blockquote` (block quotation), `expandable_blockquote` (collapsed-by-default
     block quotation), `code` (monowidth string), `pre` (monowidth block),
     `text_link` (for clickable text URLs), `text_mention` (for users without
-    usernames), `custom_emoji` (for inline custom emoji stickers).
-    """
+    usernames), `custom_emoji` (for inline custom emoji stickers)."""
 
     MENTION = "mention"
     HASHTAG = "hashtag"
@@ -679,6 +684,16 @@ class StickerFormat(enum.StrEnum, metaclass=BaseEnumMeta):
     VIDEO = "video"
 
 
+class TransactionPartnerUserTransactionType(enum.StrEnum, metaclass=BaseEnumMeta):
+    """This object represents type of the transaction that were made by partner user."""
+
+    INVOICE_PAYMENT = "invoice_payment"
+    PAID_MEDIA_PAYMENT = "paid_media_payment"
+    GIFT_PURCHASE = "gift_purchase"
+    PREMIUM_PURCHASE = "premium_purchase"
+    BUSINESS_ACCOUNT_TRANSFER = "business_account_transfer"
+
+
 __all__ = (
     "BotCommandScopeType",
     "ChatAction",
@@ -709,5 +724,6 @@ __all__ = (
     "StickerSetStickerType",
     "StickerType",
     "TopicIconColor",
+    "TransactionPartnerUserTransactionType",
     "UpdateType",
 )

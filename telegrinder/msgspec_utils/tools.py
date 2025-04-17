@@ -29,7 +29,7 @@ else:
 _COMMON_TYPES = frozenset((str, int, float, bool, None, Variative))
 
 
-def get_origin[T](t: type[T], /) -> type[T]:
+def get_origin[T](t: T, /) -> type[T]:
     t_ = typing.get_origin(t) or t
     t_ = type(t_) if not isinstance(t_, type) else t_
     return typing.cast("type[T]", t_)

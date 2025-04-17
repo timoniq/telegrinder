@@ -13,6 +13,10 @@ name = "parse_mode"
 type = "String"
 
 [[generator.api.typed-default-parameters]]
+name = "text_parse_mode"
+type = "String"
+
+[[generator.api.typed-default-parameters]]
 name = "question_parse_mode"
 type = "String"
 
@@ -385,6 +389,24 @@ fields = [
 ]
 
 [[generator.objects.fields-literal-types]]
+object_name = "TransactionPartnerUser"
+fields = [
+    { name = "transaction_type", enum = "TransactionPartnerUserTransactionType" },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "TransactionPartnerChat"
+fields = [
+    { name = "type", literals = ["chat",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "TransactionPartnerTelegramApi"
+fields = [
+    { name = "type", literals = ["telegram_api",] },
+]
+
+[[generator.objects.fields-literal-types]]
 object_name = "EncryptedPassportElement"
 fields = [
     { name = "type", enum = "EncryptedPassportElementType" },
@@ -565,6 +587,7 @@ fields = [
 object_name = "InlineQueryResultVideo"
 fields = [
     { name = "type", literals = ["video",] },
+    { name = "mime_type", literals = ["text/html", "video/mp4"] },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -592,6 +615,12 @@ fields = [
 ]
 
 [[generator.objects.fields-literal-types]]
+object_name = "InputSticker"
+fields = [
+    { name = "format", literals = ["static", "animated", "video"] },
+]
+
+[[generator.objects.fields-literal-types]]
 object_name = "InputMediaPhoto"
 fields = [
     { name = "type", literals = ["photo",] },
@@ -604,9 +633,39 @@ fields = [
 ]
 
 [[generator.objects.fields-literal-types]]
+object_name = "InputProfilePhotoStatic"
+fields = [
+    { name = "type", literals = ["static",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputProfilePhotoAnimated"
+fields = [
+    { name = "type", literals = ["animated",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputStoryContentPhoto"
+fields = [
+    { name = "type", literals = ["photo",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "InputStoryContentVideo"
+fields = [
+    { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields-literal-types]]
 object_name = "KeyboardButtonPollType"
 fields = [
     { name = "type", literals = ["quiz", "regular",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "MaskPosition"
+fields = [
+    { name = "point", literals = ["forehead", "eyes", "mouth", "chin",] },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -655,6 +714,24 @@ fields = [
 object_name = "MessageOriginUser"
 fields = [
     { name = "type", literals = ["user",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "UniqueGiftInfo"
+fields = [
+    { name = "origin", literals = ["upgrade", "transfer",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "OwnedGiftRegular"
+fields = [
+    { name = "type", literals = ["regular",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "OwnedGiftUnique"
+fields = [
+    { name = "type", literals = ["unique",] },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -795,7 +872,61 @@ fields = [
     { name = "sticker_type", literals = ["regular", "mask", "custom_emoji",] },
 ]
 
+[[generator.objects.fields-literal-types]]
+object_name = "StoryAreaTypeLocation"
+fields = [
+    { name = "type", literals = ["location",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "StoryAreaTypeSuggestedReaction"
+fields = [
+    { name = "type", literals = ["suggested_reaction",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "StoryAreaTypeLink"
+fields = [
+    { name = "type", literals = ["link",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "StoryAreaTypeWeather"
+fields = [
+    { name = "type", literals = ["weather",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "StoryAreaTypeUniqueGift"
+fields = [
+    { name = "type", literals = ["unique_gift",] },
+]
+
+[[generator.objects.fields-literal-types]]
+object_name = "WebhookInfo"
+fields = [
+    { name = "allowed_updates", enum = "UpdateType" },
+]
+
 # Generator :: Methods :: Literal types (Literal, enum) for parameters
+
+[[generator.methods.params-literal-types]]
+method_name = "createNewStickerSet"
+params = [
+    { name = "sticker_type", literals = ["regular", "mask", "custom_emoji",] },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "createInvoiceLink"
+params = [
+    { name = "currency", enum = "Currency" },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "createForumTopic"
+params = [
+    { name = "icon_color", enum = "TopicIconColor" },
+]
 
 [[generator.methods.params-literal-types]]
 method_name = "sendDice"
@@ -810,28 +941,21 @@ params = [
 ]
 
 [[generator.methods.params-literal-types]]
+method_name = "setStickerSetThumbnail"
+params = [
+    { name = "format", literals = ["static", "animated", "video",] },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "setWebhook"
+params = [
+    { name = "allowed_updates", enum = "UpdateType" },
+]
+
+[[generator.methods.params-literal-types]]
 method_name = "sendChatAction"
 params = [
     { name = "action", enum = "ChatAction" },
-]
-
-[[generator.methods.params-literal-types]]
-method_name = "createForumTopic"
-params = [
-    { name = "icon_color", enum = "TopicIconColor" },
-]
-
-[[generator.methods.params-literal-types]]
-method_name = "uploadStickerFile"
-params = [
-    { name = "sticker_format", literals = ["static", "animated", "video",] },
-]
-
-[[generator.methods.params-literal-types]]
-method_name = "createNewStickerSet"
-params = [
-    { name = "sticker_format", literals = ["static", "animated", "video",] },
-    { name = "sticker_type", literals = ["regular", "mask", "custom_emoji",] },
 ]
 
 [[generator.methods.params-literal-types]]
@@ -841,7 +965,25 @@ params = [
 ]
 
 [[generator.methods.params-literal-types]]
-method_name = "createInvoiceLink"
+method_name = "uploadStickerFile"
 params = [
-    { name = "currency", enum = "Currency" },
+    { name = "sticker_format", literals = ["static", "animated", "video",] },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "postStory"
+params = [
+    { name = "active_period", literals = [21600, 43200, 86400, 1036800,] },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "getUpdates"
+params = [
+    { name = "allowed_updates", enum = "UpdateType" },
+]
+
+[[generator.methods.params-literal-types]]
+method_name = "giftPremiumSubscription"
+params = [
+    { name = "month_count", literals = [3, 6, 12,] },
 ]

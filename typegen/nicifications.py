@@ -82,11 +82,9 @@ class _Message(Message):
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
         for content in ContentType:
-            if content.value in self.__struct_fields__ and not isinstance(
-                getattr(self, content.value, Nothing()),
-                Nothing,
-            ):
+            if not isinstance(getattr(self, content.value, Nothing()), Nothing):
                 return content
+
         return ContentType.UNKNOWN
 
     @property
@@ -134,13 +132,7 @@ class _Update(Update):
     def update_type(self) -> UpdateType:
         """Incoming update type."""
         return UpdateType(
-            next(
-                (
-                    x
-                    for x in self.__struct_fields__
-                    if x != "update_id" and not isinstance(getattr(self, x), Nothing)
-                )
-            ),
+            next((x for x in self.__struct_fields__ if x != "update_id" and getattr(self, x))),
         )
 
     @cached_property

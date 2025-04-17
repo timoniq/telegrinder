@@ -36,7 +36,7 @@ def full_result[T](
 
 def get_params(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
     return {
-        key: value
+        key: encoder.cast(value)
         for key, val in (
             *params.pop("other", {}).items(),
             *params.items(),
@@ -128,6 +128,9 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
                 and issubclass(field_info.type.cls, Option)
             ):
                 return Nothing() if val is UNSET else val
+
+            if val is UNSET:
+                raise AttributeError(f"{self.__class__.__name__!r} object has no attribute {name!r}")
 
             return val
 

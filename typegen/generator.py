@@ -43,6 +43,7 @@ TYPES: typing.Final[dict[str, str]] = {
     "Float": "float",
     "Boolean": "bool",
     "Unixtime": "datetime",
+    "Timestamp": "timedelta",
 }
 INPUTFILE_DOCSTRING: typing.Final[str] = "using multipart/form-data"
 
@@ -172,11 +173,15 @@ def camel_to_pascal(s: str) -> str:
 
 
 def is_unixtime_type(name: str, types: list[str], description: str) -> bool:
-    return (
-        "date" in name
-        and "Integer" in types
-        and any(x in description.lower() for x in ("unix timestamp", "unix time"))
+    return "Integer" in types and (
+        name == "date"
+        or name.endswith("_date")
+        or any(x in description.lower() for x in ("unix timestamp", "unix time"))
     )
+
+
+def is_timestamp_type(name: str, types: list[str]) -> bool:
+    return any(("Integer" in types, "Float" in types)) and (name == "timestamp" or name.endswith("_timestamp"))
 
 
 class ABCGenerator(abc.ABC):
@@ -241,19 +246,40 @@ class ObjectGenerator(ABCGenerator):
                 if field.required and field.default is not None
                 else "field()"
                 if field.required
-                else "field(default=...)"
+                else f"field(default=..., converter=From[{field_type} | None])"
             )
         else:
-            if field.description:
-                if is_unixtime_type(field.name, field.types, field.description):
-                    field.types.remove("Integer")
-                    field_type = "datetime"
-                    field_value = (
-                        "field(default=..., converter=From[datetime | None])" if not field.required else "field()"
-                    )
+            if is_timestamp_type(field.name, field.types):
+                field_type = "timedelta"
+                converter_type = field_type
 
-                elif "InputFile" not in field.types and INPUTFILE_DOCSTRING in field.description:
-                    field.types.insert(0, "InputFile")
+                if "Integer" in field.types:
+                    field.types.remove("Integer")
+                    converter_type += "| int"
+                if "Float" in field.types:
+                    field.types.remove("Float")
+                    converter_type += "| float"
+
+                field_value = (
+                    "field(default=..., converter=From[{} | None])"
+                    if not field.required
+                    else "field(converter=From[{}])"
+                ).format(converter_type)
+
+            elif is_unixtime_type(field.name, field.types, field.description or ""):
+                field.types.remove("Integer")
+                field_type = "datetime"
+                field_value = (
+                    "field(default=..., converter=From[datetime | int | None])"
+                    if not field.required
+                    else "field(converter=From[datetime | int])"
+                )
+
+            if "InputFile" in field.types:
+                field.types.append(field.types.pop(field.types.index("InputFile")))
+
+            if field.description and "InputFile" not in field.types and INPUTFILE_DOCSTRING in field.description:
+                field.types.append("InputFile")
 
             if len(field.types) > 1:
                 field_type = "Variative[%s]" % ", ".join(
@@ -401,7 +427,7 @@ class ObjectGenerator(ABCGenerator):
             "from telegrinder.model import From, Model, field\n",
             "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
-            "from telegrinder.msgspec_utils import Option, datetime\n\n",
+            "from telegrinder.msgspec_utils.custom_types import Option, datetime, timedelta\n\n",
         ]
 
         if self.config.generator.objects.fields_literal_types:
@@ -554,9 +580,13 @@ class MethodGenerator(ABCGenerator):
                 tp = literal_types.enum or "typing.Literal[%s]" % ", ".join(
                     f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
                 )
+                tp = f"list[{tp}]" if any("Array of" in x for x in p.types) else tp
                 p.types = [tp]
 
-            if p.description and is_unixtime_type(param_name, p.types, p.description):
+            elif is_timestamp_type(param_name, types=p.types):
+                p.types.insert(p.types.index("Integer" if "Integer" in p.types else "Float"), "Timestamp")
+
+            elif p.description and is_unixtime_type(param_name, p.types, p.description):
                 p.types.insert(p.types.index("Integer"), "Unixtime")
 
             default_param_value = (
@@ -603,7 +633,7 @@ class MethodGenerator(ABCGenerator):
             self.config.telegram_bot_api.version_number,
             self.release_date or datetime.datetime.now().ctime(),
         )
-        default_params_typeddict = 'typing.TypedDict("DefaultParams", {})'.format(
+        default_params_typeddict = 'typing.TypedDict("DefaultParams", {},)'.format(
             "{%s}"
             % ", ".join(
                 f""""{x.name}": {convert_to_python_type(x.type, parent_types=self.parent_types)}"""
@@ -612,7 +642,7 @@ class MethodGenerator(ABCGenerator):
         )
         lines = [
             "import typing\n",
-            "from datetime import datetime\n\n"
+            "from datetime import datetime, timedelta\n\n"
             "from fntypes.co import Result, Variative\n"
             "from telegrinder.api.error import APIError\n",
             "from telegrinder.model import ProxiedDict, full_result, get_params\n",
@@ -621,7 +651,7 @@ class MethodGenerator(ABCGenerator):
             "if typing.TYPE_CHECKING:\n",
             "    from telegrinder.api.api import API\n    from telegrinder.client.abc import ABCClient\n\n\n",
             "class APIMethods[HTTPClient: ABCClient]:\n" + docstring,
-            f"\n\n    default_params = ProxiedDict({default_params_typeddict})\n\n",
+            f"\n\n    default_params = ProxiedDict({default_params_typeddict},)\n\n",
             '    def __init__(self, api: "API[HTTPClient]") -> None:\n',
             "        self.api = api\n\n",
         ]

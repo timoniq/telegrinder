@@ -14,7 +14,7 @@ from telegrinder.tools.magic import shortcut
 from telegrinder.types import *
 
 if typing.TYPE_CHECKING:
-    from datetime import datetime
+    from datetime import datetime, timedelta
 
     from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 
@@ -362,7 +362,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
-        video_start_timestamp: int | None = None,
+        video_start_timestamp: timedelta | int | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
@@ -432,7 +432,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         message_id: int | None = None,
         message_thread_id: str | None = None,
         protect_content: bool | None = None,
-        video_start_timestamp: int | None = None,
+        video_start_timestamp: timedelta | int | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.forward_message()`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
@@ -852,7 +852,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
-        start_timestamp: int | None = None,
+        start_timestamp: timedelta | int | None = None,
         supports_streaming: bool | None = None,
         thumbnail: InputFile | str | None = None,
         width: int | None = None,
@@ -1800,7 +1800,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
-        start_timestamp: int | None = None,
+        start_timestamp: timedelta | int | None = None,
         supports_streaming: bool | None = None,
         thumbnail: InputFile | str | None = None,
         width: int | None = None,

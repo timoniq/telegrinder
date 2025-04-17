@@ -1,3 +1,4 @@
+import datetime as dt
 import typing
 from contextlib import contextmanager
 
@@ -6,7 +7,8 @@ from fntypes.option import Nothing, Some
 from fntypes.result import Error, Ok, Result
 from fntypes.variative import Variative
 
-from telegrinder.msgspec_utils.custom_types.datetime import datetime
+from telegrinder.msgspec_utils.abc import SupportsCast
+from telegrinder.msgspec_utils.custom_types.datetime import _datetime, _timedelta
 from telegrinder.msgspec_utils.custom_types.enum_meta import BaseEnumMeta
 from telegrinder.msgspec_utils.tools import fullname, get_origin, magic_bundle
 
@@ -41,25 +43,34 @@ class Encoder:
     """Class `Encoder` for `msgspec` module with encode hooks for objects.
 
     ```
-    from datetime import datetime as dt
+    from datetime import datetime
+
+    class MyDatetime(datetime):
+        ...
 
     encoder = Encoder()
-    encoder.enc_hooks[dt] = lambda d: int(d.timestamp())
+    encoder.enc_hooks[MyDatetime] = lambda d: int(d.timestamp())
 
-    encoder.enc_hook(dt.now())  #> 1713354732
-    encoder.encode({'digit': Digit.ONE})  #> '{"digit":1}'
+    encoder.enc_hook(MyDatetime.now())  #> 1713354732
+    encoder.encode({"digit": Digit.ONE})  #> '{"digit":1}'
     ```
     """
 
+    cast_types: dict[type[typing.Any], type[SupportsCast]]
     enc_hooks: dict[typing.Any, EncHook[typing.Any]]
     subclass_enc_hooks: dict[typing.Any, EncHook[typing.Any]]
 
     def __init__(self) -> None:
+        self.cast_types = {
+            dt.datetime: _datetime,
+            dt.timedelta: _timedelta,
+        }
         self.enc_hooks = {
             Some: lambda some: some.value,
             Nothing: lambda _: None,
             Variative: lambda variative: variative.v,
-            datetime: lambda date: int(date.timestamp()),
+            _datetime: lambda date: int(date.timestamp()),
+            _timedelta: lambda time: time.total_seconds(),
         }
         self.subclass_enc_hooks = {
             BaseEnumMeta: lambda enum_member: enum_member.value,
@@ -171,6 +182,11 @@ class Encoder:
             enc_hook=self.enc_hook(context),
             order=order,
         )
+
+    def cast(self, obj: typing.Any, /) -> typing.Any:
+        if (caster := self.cast_types.get(get_origin(obj))) is not None:
+            return caster.cast(obj)
+        return obj
 
 
 encoder: typing.Final[Encoder] = Encoder()

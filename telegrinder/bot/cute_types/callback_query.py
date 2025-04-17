@@ -1,6 +1,7 @@
 import base64
 import typing
 from contextlib import suppress
+from datetime import timedelta
 
 import msgspec
 from fntypes.co import Nothing, Result, Some, Variative, unwrapping
@@ -144,7 +145,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
-        video_start_timestamp: int | None = None,
+        video_start_timestamp: timedelta | int | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)

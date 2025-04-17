@@ -1,4 +1,5 @@
-from telegrinder.msgspec_utils.custom_types.datetime import datetime
+from telegrinder.msgspec_utils.abc import SupportsCast, is_support_cast
+from telegrinder.msgspec_utils.custom_types.datetime import datetime, timedelta
 from telegrinder.msgspec_utils.custom_types.enum_meta import BaseEnumMeta
 from telegrinder.msgspec_utils.custom_types.option import Option
 from telegrinder.msgspec_utils.decoder import Decoder, convert, decoder
@@ -18,6 +19,7 @@ __all__ = (
     "Decoder",
     "Encoder",
     "Option",
+    "SupportsCast",
     "convert",
     "datetime",
     "decoder",
@@ -29,6 +31,8 @@ __all__ = (
     "is_common_type",
     "loads",
     "struct_asdict",
+    "timedelta",
+    "is_support_cast",
     "to_builtins",
     "type_check",
 )

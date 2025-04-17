@@ -1,3 +1,4 @@
+import datetime as dt
 import typing
 from contextlib import contextmanager
 
@@ -6,7 +7,8 @@ import msgspec
 from fntypes.result import Error, Ok, Result
 from fntypes.variative import Variative
 
-from telegrinder.msgspec_utils.custom_types.datetime import datetime
+from telegrinder.msgspec_utils.abc import SupportsCast
+from telegrinder.msgspec_utils.custom_types.datetime import datetime, timedelta
 from telegrinder.msgspec_utils.custom_types.enum_meta import BaseEnumMeta
 from telegrinder.msgspec_utils.custom_types.option import Option
 from telegrinder.msgspec_utils.tools import (
@@ -97,6 +99,42 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any, /) -> Variative:
     )
 
 
+def datetime_dec_hook(tp: type[datetime], obj: typing.Any, /) -> datetime:
+    if isinstance(obj, datetime):
+        return obj
+
+    if isinstance(obj, dt.datetime):
+        assert issubclass(tp, SupportsCast)
+        return tp.cast(obj)
+
+    if isinstance(obj, int | float):
+        return tp.fromtimestamp(timestamp=obj)
+
+    raise TypeError(
+        "Cannot validate object of type `{}` into `datetime.datetime`".format(
+            fullname(obj),
+        ),
+    )
+
+
+def timedelta_dec_hook(tp: type[timedelta], obj: typing.Any, /) -> timedelta:
+    if isinstance(obj, timedelta):
+        return obj
+
+    if isinstance(obj, dt.timedelta):
+        assert issubclass(tp, SupportsCast)
+        return tp.cast(obj)
+
+    if isinstance(obj, int | float):
+        return tp(seconds=obj)
+
+    raise TypeError(
+        "Cannot validate object of type `{}` into `datetime.timedelta`".format(
+            fullname(obj),
+        ),
+    )
+
+
 def convert[T](
     obj: typing.Any,
     t: type[T],
@@ -148,7 +186,8 @@ class Decoder:
         self.dec_hooks = {
             Option: option_dec_hook,
             Variative: variative_dec_hook,
-            datetime: lambda t, obj: t.fromtimestamp(obj),
+            datetime: datetime_dec_hook,
+            timedelta: timedelta_dec_hook,
             fntypes.option.Some: option_dec_hook,
             fntypes.option.Nothing: option_dec_hook,
         }

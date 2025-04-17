@@ -271,6 +271,7 @@ __all__ = (
     "TransactionPartnerTelegramAds",
     "TransactionPartnerTelegramApi",
     "TransactionPartnerUser",
+    "TransactionPartnerUserTransactionType",
     "UniqueGift",
     "UniqueGiftBackdrop",
     "UniqueGiftBackdropColors",

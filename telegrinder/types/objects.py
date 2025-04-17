@@ -7,7 +7,7 @@ from functools import cached_property
 from fntypes.co import Nothing, Variative
 
 from telegrinder.model import From, Model, field
-from telegrinder.msgspec_utils import Option, datetime
+from telegrinder.msgspec_utils.custom_types import Option, datetime, timedelta
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.input_file import InputFile
 
@@ -392,13 +392,7 @@ class Update(Model):
     def update_type(self) -> UpdateType:
         """Incoming update type."""
         return UpdateType(
-            next(
-                (
-                    x
-                    for x in self.__struct_fields__
-                    if x != "update_id" and not isinstance(getattr(self, x), Nothing)
-                )
-            ),
+            next((x for x in self.__struct_fields__ if x != "update_id" and getattr(self, x))),
         )
 
     @cached_property
@@ -425,7 +419,7 @@ class WebhookInfo(Model):
     ip_address: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Currently used webhook IP address."""
 
-    last_error_date: Option[datetime] = field(default=..., converter=From[datetime | None])
+    last_error_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Unix time for the most recent error that happened when trying
     to deliver an update via webhook."""
 
@@ -433,7 +427,7 @@ class WebhookInfo(Model):
     """Optional. Error message in human-readable format for the most recent error
     that happened when trying to deliver an update via webhook."""
 
-    last_synchronization_error_date: Option[datetime] = field(default=..., converter=From[datetime | None])
+    last_synchronization_error_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Unix time of the most recent error that happened when trying to
     synchronize available updates with Telegram datacenters."""
 
@@ -441,7 +435,7 @@ class WebhookInfo(Model):
     """Optional. The maximum allowed number of simultaneous HTTPS connections
     to the webhook for update delivery."""
 
-    allowed_updates: Option[list[str]] = field(default=..., converter=From[list[str] | None])
+    allowed_updates: Option[list[UpdateType]] = field(default=..., converter=From[list[UpdateType] | None])
     """Optional. A list of update types the bot is subscribed to. Defaults to all
     update types except chat_member."""
 
@@ -647,7 +641,7 @@ class ChatFullInfo(Model):
     """Optional. Custom emoji identifier of the emoji status of the chat or the
     other party in a private chat."""
 
-    emoji_status_expiration_date: Option[datetime] = field(default=..., converter=From[datetime | None])
+    emoji_status_expiration_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Expiration date of the emoji status of the chat or the other party
     in a private chat, in Unix time, if any."""
 
@@ -748,7 +742,7 @@ class Message(MaybeInaccessibleMessage):
     field will be 0 and the relevant message will be unusable until it is actually
     sent."""
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the message was sent in Unix time. It is always a positive number, representing
     a valid date."""
 
@@ -823,7 +817,7 @@ class Message(MaybeInaccessibleMessage):
     via_bot: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. Bot through which the message was sent."""
 
-    edit_date: Option[datetime] = field(default=..., converter=From[datetime | None])
+    edit_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Date the message was last edited in Unix time."""
 
     has_protected_content: Option[bool] = field(default=..., converter=From[bool | None])
@@ -1112,11 +1106,9 @@ class Message(MaybeInaccessibleMessage):
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
         for content in ContentType:
-            if content.value in self.__struct_fields__ and not isinstance(
-                getattr(self, content.value, Nothing()),
-                Nothing,
-            ):
+            if not isinstance(getattr(self, content.value, Nothing()), Nothing):
                 return content
+
         return ContentType.UNKNOWN
 
     @property
@@ -1362,7 +1354,7 @@ class MessageOriginUser(MessageOrigin):
     The message was originally sent by a known user.
     """
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the message was sent originally in Unix time."""
 
     sender_user: User = field()
@@ -1378,7 +1370,7 @@ class MessageOriginHiddenUser(MessageOrigin):
     The message was originally sent by an unknown user.
     """
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the message was sent originally in Unix time."""
 
     sender_user_name: str = field()
@@ -1394,7 +1386,7 @@ class MessageOriginChat(MessageOrigin):
     The message was originally sent on behalf of a chat to a group chat.
     """
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the message was sent originally in Unix time."""
 
     sender_chat: Chat = field()
@@ -1414,7 +1406,7 @@ class MessageOriginChannel(MessageOrigin):
     The message was originally sent to a channel chat.
     """
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the message was sent originally in Unix time."""
 
     chat: Chat = field()
@@ -1599,7 +1591,7 @@ class Video(Model):
     cover: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
     """Optional. Available sizes of the cover of the video in the message."""
 
-    start_timestamp: Option[int] = field(default=..., converter=From[int | None])
+    start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Timestamp in seconds from which the video will play in the message."""
 
     file_name: Option[str] = field(default=..., converter=From[str | None])
@@ -1877,7 +1869,7 @@ class Poll(Model):
     open_period: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Amount of time in seconds the poll will be active after creation."""
 
-    close_date: Option[datetime] = field(default=..., converter=From[datetime | None])
+    close_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Point in time (Unix timestamp) when the poll will be automatically
     closed."""
 
@@ -2287,7 +2279,7 @@ class VideoChatScheduled(Model):
     This object represents a service message about a video chat scheduled in the chat.
     """
 
-    start_date: datetime = field()
+    start_date: datetime = field(converter=From[datetime | int])
     """Point in time (Unix timestamp) when the video chat is supposed to be started
     by a chat administrator."""
 
@@ -2350,7 +2342,7 @@ class Giveaway(Model):
     chats: list[Chat] = field()
     """The list of chats which the user must join to participate in the giveaway."""
 
-    winners_selection_date: datetime = field()
+    winners_selection_date: datetime = field(converter=From[datetime | int])
     """Point in time (Unix timestamp) when winners of the giveaway will be selected."""
 
     winner_count: int = field()
@@ -2393,7 +2385,7 @@ class GiveawayWinners(Model):
     giveaway_message_id: int = field()
     """Identifier of the message with the giveaway in the chat."""
 
-    winners_selection_date: datetime = field()
+    winners_selection_date: datetime = field(converter=From[datetime | int])
     """Point in time (Unix timestamp) when winners of the giveaway were selected."""
 
     winner_count: int = field()
@@ -2707,7 +2699,9 @@ class KeyboardButtonPollType(Model):
     This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
     """
 
-    type: Option[typing.Literal["quiz", "regular"]] = field(default=...)
+    type: Option[typing.Literal["quiz", "regular"]] = field(
+        default=..., converter=From[typing.Literal["quiz", "regular"] | None]
+    )
     """Optional. If quiz is passed, the user will be allowed to create only polls
     in the quiz mode. If regular is passed, only regular polls will be allowed.
     Otherwise, the user will be allowed to create a poll of any type."""
@@ -2981,7 +2975,7 @@ class ChatInviteLink(Model):
     name: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Invite link name."""
 
-    expire_date: Option[datetime] = field(default=..., converter=From[datetime | None])
+    expire_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Point in time (Unix timestamp) when the link will expire or has
     been expired."""
 
@@ -3076,7 +3070,7 @@ class ChatMemberUpdated(Model):
     from_: User = field()
     """Performer of the action, which resulted in the change."""
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the change was done in Unix time."""
 
     old_chat_member: Variative[
@@ -3229,7 +3223,7 @@ class ChatMemberMember(ChatMember):
     status: typing.Literal["member"] = field(default="member")
     """The member's status in the chat, always `member`."""
 
-    until_date: Option[datetime] = field(default=..., converter=From[datetime | None])
+    until_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Date when the user's subscription will expire; Unix time."""
 
 
@@ -3289,7 +3283,7 @@ class ChatMemberRestricted(ChatMember):
     can_manage_topics: bool = field()
     """True, if the user is allowed to create forum topics."""
 
-    until_date: datetime = field()
+    until_date: datetime = field(converter=From[datetime | int])
     """Date when restrictions will be lifted for this user; Unix time. If 0, then
     the user is restricted forever."""
 
@@ -3319,7 +3313,7 @@ class ChatMemberBanned(ChatMember):
     user: User = field()
     """Information about the user."""
 
-    until_date: datetime = field()
+    until_date: datetime = field(converter=From[datetime | int])
     """Date when restrictions will be lifted for this user; Unix time. If 0, then
     the user is banned forever."""
 
@@ -3348,7 +3342,7 @@ class ChatJoinRequest(Model):
     5 minutes to send messages until the join request is processed, assuming
     no other administrator contacted the user."""
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the request was sent in Unix time."""
 
     bio: Option[str] = field(default=..., converter=From[str | None])
@@ -3553,14 +3547,14 @@ class StoryAreaTypeLocation(StoryAreaType):
     Describes a story area pointing to a location. Currently, a story can have up to 10 location areas.
     """
 
-    type: str = field()
-    """Type of the area, always `location`."""
-
     latitude: float = field()
     """Location latitude in degrees."""
 
     longitude: float = field()
     """Location longitude in degrees."""
+
+    type: typing.Literal["location"] = field(default="location")
+    """Type of the area, always `location`."""
 
     address: Option[LocationAddress] = field(default=..., converter=From["LocationAddress | None"])
     """Optional. Address of the location."""
@@ -3572,13 +3566,13 @@ class StoryAreaTypeSuggestedReaction(StoryAreaType):
     Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas.
     """
 
-    type: str = field()
-    """Type of the area, always `suggested_reaction`."""
-
     reaction_type: Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field(
         converter=From["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]
     )
     """Type of the reaction."""
+
+    type: typing.Literal["suggested_reaction"] = field(default="suggested_reaction")
+    """Type of the area, always `suggested_reaction`."""
 
     is_dark: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the reaction area has a dark background."""
@@ -3593,11 +3587,11 @@ class StoryAreaTypeLink(StoryAreaType):
     Describes a story area pointing to an HTTP or tg:// link. Currently, a story can have up to 3 link areas.
     """
 
-    type: str = field()
-    """Type of the area, always `link`."""
-
     url: str = field()
     """HTTP or tg:// URL to be opened when the area is clicked."""
+
+    type: typing.Literal["link"] = field(default="link")
+    """Type of the area, always `link`."""
 
 
 class StoryAreaTypeWeather(StoryAreaType):
@@ -3605,9 +3599,6 @@ class StoryAreaTypeWeather(StoryAreaType):
 
     Describes a story area containing weather information. Currently, a story can have up to 3 weather areas.
     """
-
-    type: str = field()
-    """Type of the area, always `weather`."""
 
     temperature: float = field()
     """Temperature, in degree Celsius."""
@@ -3618,6 +3609,9 @@ class StoryAreaTypeWeather(StoryAreaType):
     background_color: int = field()
     """A color of the area background in the ARGB format."""
 
+    type: typing.Literal["weather"] = field(default="weather")
+    """Type of the area, always `weather`."""
+
 
 class StoryAreaTypeUniqueGift(StoryAreaType):
     """Object `StoryAreaTypeUniqueGift`, see the [documentation](https://core.telegram.org/bots/api#storyareatypeuniquegift).
@@ -3625,11 +3619,11 @@ class StoryAreaTypeUniqueGift(StoryAreaType):
     Describes a story area pointing to a unique gift. Currently, a story can have at most 1 unique gift area.
     """
 
-    type: str = field()
-    """Type of the area, always `unique_gift`."""
-
     name: str = field()
     """Unique name of the gift."""
+
+    type: typing.Literal["unique_gift"] = field(default="unique_gift")
+    """Type of the area, always `unique_gift`."""
 
 
 class StoryArea(Model):
@@ -3736,7 +3730,7 @@ class MessageReactionUpdated(Model):
     message_id: int = field()
     """Unique identifier of the message inside the chat."""
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date of the change in Unix time."""
 
     old_reaction: list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field(
@@ -3769,7 +3763,7 @@ class MessageReactionCountUpdated(Model):
     message_id: int = field()
     """Unique message identifier inside the chat."""
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date of the change in Unix time."""
 
     reactions: list[ReactionCount] = field()
@@ -3973,7 +3967,7 @@ class UniqueGiftInfo(Model):
     gift: UniqueGift = field()
     """Information about the gift."""
 
-    origin: str = field()
+    origin: typing.Literal["upgrade", "transfer"] = field(default="upgrade")
     """Origin of the gift. Currently, either `upgrade` or `transfer`."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
@@ -3991,14 +3985,14 @@ class OwnedGiftRegular(OwnedGift):
     Describes a regular gift owned by a user or a chat.
     """
 
-    type: str = field()
-    """Type of the gift, always `regular`."""
-
     gift: Gift = field()
     """Information about the regular gift."""
 
-    send_date: datetime = field()
+    send_date: datetime = field(converter=From[datetime | int])
     """Date the gift was sent in Unix time."""
+
+    type: typing.Literal["regular"] = field(default="regular")
+    """Type of the gift, always `regular`."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the gift for the bot; for gifts received
@@ -4043,14 +4037,14 @@ class OwnedGiftUnique(OwnedGift):
     Describes a unique gift received and owned by a user or a chat.
     """
 
-    type: str = field()
-    """Type of the gift, always `unique`."""
-
     gift: UniqueGift = field()
     """Information about the unique gift."""
 
-    send_date: datetime = field()
+    send_date: datetime = field(converter=From[datetime | int])
     """Date the gift was sent in Unix time."""
+
+    type: typing.Literal["unique"] = field(default="unique")
+    """Type of the gift, always `unique`."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the received gift for the bot; for gifts
@@ -4354,10 +4348,10 @@ class ChatBoost(Model):
     boost_id: str = field()
     """Unique identifier of the boost."""
 
-    add_date: datetime = field()
+    add_date: datetime = field(converter=From[datetime | int])
     """Point in time (Unix timestamp) when the chat was boosted."""
 
-    expiration_date: datetime = field()
+    expiration_date: datetime = field(converter=From[datetime | int])
     """Point in time (Unix timestamp) when the boost will automatically expire,
     unless the booster's Telegram Premium subscription is prolonged."""
 
@@ -4392,7 +4386,7 @@ class ChatBoostRemoved(Model):
     boost_id: str = field()
     """Unique identifier of the boost."""
 
-    remove_date: datetime = field()
+    remove_date: datetime = field(converter=From[datetime | int])
     """Point in time (Unix timestamp) when the boost was removed."""
 
     source: Variative[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field(
@@ -4487,7 +4481,7 @@ class BusinessConnection(Model):
     it has at most 52 significant bits, so a 64-bit integer or double-precision
     float type are safe for storing this identifier."""
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the connection was established in Unix time."""
 
     is_enabled: bool = field()
@@ -4538,7 +4532,7 @@ class InputMediaPhoto(InputMedia):
     Represents a photo to be sent.
     """
 
-    media: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -4574,7 +4568,7 @@ class InputMediaVideo(InputMedia):
     Represents a video to be sent.
     """
 
-    media: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -4583,7 +4577,7 @@ class InputMediaVideo(InputMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=..., converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4592,14 +4586,14 @@ class InputMediaVideo(InputMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    cover: Option[Variative[InputFile, str]] = field(default=..., converter=From["InputFile | str | None"])
+    cover: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
     to upload a new one using multipart/form-data under <file_attach_name>
     name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    start_timestamp: Option[int] = field(default=..., converter=From[int | None])
+    start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Start timestamp for the video in the message."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
@@ -4641,7 +4635,7 @@ class InputMediaAnimation(InputMedia):
     Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
     """
 
-    media: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -4650,7 +4644,7 @@ class InputMediaAnimation(InputMedia):
     type: typing.Literal["animation"] = field(default="animation")
     """Type of the result, must be animation."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=..., converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4695,7 +4689,7 @@ class InputMediaAudio(InputMedia):
     Represents an audio file to be treated as music to be sent.
     """
 
-    media: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -4704,7 +4698,7 @@ class InputMediaAudio(InputMedia):
     type: typing.Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=..., converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4743,7 +4737,7 @@ class InputMediaDocument(InputMedia):
     Represents a general file to be sent.
     """
 
-    media: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -4752,7 +4746,7 @@ class InputMediaDocument(InputMedia):
     type: typing.Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=..., converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4775,8 +4769,8 @@ class InputMediaDocument(InputMedia):
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    disable_content_type_detection: Option[Variative[InputFile, bool]] = field(
-        default=..., converter=From["InputFile | bool | None"]
+    disable_content_type_detection: Option[Variative[bool, InputFile]] = field(
+        default=..., converter=From["bool | InputFile | None"]
     )
     """Optional. Disables automatic server-side content type detection for
     files uploaded using multipart/form-data. Always True, if the document
@@ -4789,7 +4783,7 @@ class InputPaidMediaPhoto(InputPaidMedia):
     The paid media to send is a photo.
     """
 
-    media: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -4805,7 +4799,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     The paid media to send is a video.
     """
 
-    media: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -4814,7 +4808,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     type: typing.Literal["video"] = field(default="video")
     """Type of the media, must be video."""
 
-    thumbnail: Option[Variative[InputFile, str]] = field(default=..., converter=From["InputFile | str | None"])
+    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4823,14 +4817,14 @@ class InputPaidMediaVideo(InputPaidMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    cover: Option[Variative[InputFile, str]] = field(default=..., converter=From["InputFile | str | None"])
+    cover: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
     to upload a new one using multipart/form-data under <file_attach_name>
     name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    start_timestamp: Option[int] = field(default=..., converter=From[int | None])
+    start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Start timestamp for the video in the message."""
 
     width: Option[int] = field(default=..., converter=From[int | None])
@@ -4852,14 +4846,14 @@ class InputProfilePhotoStatic(InputProfilePhoto):
     A static profile photo in the .JPG format.
     """
 
-    type: str = field()
-    """Type of the profile photo, must be static."""
-
-    photo: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    photo: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """The static profile photo. Profile photos can't be reused and can only be
     uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: typing.Literal["static"] = field(default="static")
+    """Type of the profile photo, must be static."""
 
 
 class InputProfilePhotoAnimated(InputProfilePhoto):
@@ -4868,16 +4862,16 @@ class InputProfilePhotoAnimated(InputProfilePhoto):
     An animated profile photo in the MPEG4 format.
     """
 
-    type: str = field()
-    """Type of the profile photo, must be animated."""
-
-    animation: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    animation: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """The animated profile photo. Profile photos can't be reused and can only
     be uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    main_frame_timestamp: Option[float] = field(default=..., converter=From[float | None])
+    type: typing.Literal["animated"] = field(default="animated")
+    """Type of the profile photo, must be animated."""
+
+    main_frame_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | float | None])
     """Optional. Timestamp in seconds of the frame that will be used as the static
     profile photo. Defaults to 0.0."""
 
@@ -4888,15 +4882,15 @@ class InputStoryContentPhoto(InputStoryContent):
     Describes a photo to post as a story.
     """
 
-    type: str = field()
-    """Type of the content, must be photo."""
-
-    photo: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    photo: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """The photo to post as a story. The photo must be of the size 1080x1920 and must
     not exceed 10 MB. The photo can't be reused and can only be uploaded as a new
     file, so you can pass `attach://<file_attach_name>` if the photo was uploaded
     using multipart/form-data under <file_attach_name>. More information
     on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: typing.Literal["photo"] = field(default="photo")
+    """Type of the content, must be photo."""
 
 
 class InputStoryContentVideo(InputStoryContent):
@@ -4905,10 +4899,7 @@ class InputStoryContentVideo(InputStoryContent):
     Describes a video to post as a story.
     """
 
-    type: str = field()
-    """Type of the content, must be video."""
-
-    video: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    video: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """The video to post as a story. The video must be of the size 720x1280, streamable,
     encoded with H.265 codec, with key frames added each second in the MPEG4
     format, and must not exceed 30 MB. The video can't be reused and can only be
@@ -4916,10 +4907,13 @@ class InputStoryContentVideo(InputStoryContent):
     if the video was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
+    type: typing.Literal["video"] = field(default="video")
+    """Type of the content, must be video."""
+
     duration: Option[float] = field(default=..., converter=From[float | None])
     """Optional. Precise duration of the video in seconds; 0-60."""
 
-    cover_frame_timestamp: Option[float] = field(default=..., converter=From[float | None])
+    cover_frame_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | float | None])
     """Optional. Timestamp in seconds of the frame that will be used as the static
     cover for the story. Defaults to 0.0."""
 
@@ -5012,10 +5006,6 @@ class MaskPosition(Model):
     This object describes the position on faces where a mask should be placed by default.
     """
 
-    point: str = field()
-    """The part of the face relative to which the mask should be placed. One of `forehead`,
-    `eyes`, `mouth`, or `chin`."""
-
     x_shift: float = field()
     """Shift by X-axis measured in widths of the mask scaled to the face size, from
     left to right. For example, choosing -1.0 will place mask just to the left
@@ -5029,6 +5019,15 @@ class MaskPosition(Model):
     scale: float = field()
     """Mask scaling coefficient. For example, 2.0 means double size."""
 
+    point: typing.Literal[
+        "forehead",
+        "eyes",
+        "mouth",
+        "chin",
+    ] = field(default="forehead")
+    """The part of the face relative to which the mask should be placed. One of `forehead`,
+    `eyes`, `mouth`, or `chin`."""
+
 
 class InputSticker(Model):
     """Object `InputSticker`, see the [documentation](https://core.telegram.org/bots/api#inputsticker).
@@ -5036,7 +5035,7 @@ class InputSticker(Model):
     This object describes a sticker to be added to a sticker set.
     """
 
-    sticker: Variative[InputFile, str] = field(converter=From["InputFile | str"])
+    sticker: Variative[str, InputFile] = field(converter=From["str | InputFile"])
     """The added sticker. Pass a file_id as a String to send a file that already exists
     on the Telegram servers, pass an HTTP URL as a String for Telegram to get a
     file from the Internet, or pass `attach://<file_attach_name>` to upload
@@ -5044,12 +5043,12 @@ class InputSticker(Model):
     Animated and video stickers can't be uploaded via HTTP URL. More information
     on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    format: str = field()
-    """Format of the added sticker, must be one of `static` for a .WEBP or .PNG image,
-    `animated` for a .TGS animation, `video` for a .WEBM video."""
-
     emoji_list: list[str] = field()
     """List of 1-20 emoji associated with the sticker."""
+
+    format: typing.Literal["static", "animated", "video"] = field(default="static")
+    """Format of the added sticker, must be one of `static` for a .WEBP or .PNG image,
+    `animated` for a .TGS animation, `video` for a .WEBM video."""
 
     mask_position: Option[MaskPosition] = field(default=..., converter=From["MaskPosition | None"])
     """Optional. Position where the mask should be placed on faces. For `mask`
@@ -5078,7 +5077,7 @@ class InlineQuery(Model):
     offset: str = field()
     """Offset of the results to be returned, can be controlled by the bot."""
 
-    chat_type: Option[ChatType] = field(default=...)
+    chat_type: Option[ChatType] = field(default=..., converter=From[ChatType | None])
     """Optional. Type of the chat from which the inline query was sent. Can be either
     `sender` for a private chat with the inline query sender, `private`, `group`,
     `supergroup`, or `channel`. The chat type should be always known for requests
@@ -5264,7 +5263,9 @@ class InlineQueryResultGif(InlineQueryResult):
     gif_duration: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Duration of the GIF in seconds."""
 
-    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(default=...)
+    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(
+        default=..., converter=From[typing.Literal["image/jpeg", "image/gif", "video/mp4"] | None]
+    )
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`."""
 
@@ -5337,7 +5338,9 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     mpeg4_duration: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Video duration in seconds."""
 
-    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(default=...)
+    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(
+        default=..., converter=From[typing.Literal["image/jpeg", "image/gif", "video/mp4"] | None]
+    )
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`."""
 
@@ -5390,9 +5393,6 @@ class InlineQueryResultVideo(InlineQueryResult):
     video_url: str = field()
     """A valid URL for the embedded video player or video file."""
 
-    mime_type: str = field()
-    """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
-
     thumbnail_url: str = field()
     """URL of the thumbnail (JPEG only) for the video."""
 
@@ -5401,6 +5401,9 @@ class InlineQueryResultVideo(InlineQueryResult):
 
     type: typing.Literal["video"] = field(default="video")
     """Type of the result, must be video."""
+
+    mime_type: typing.Literal["text/html", "video/mp4"] = field(default="text/html")
+    """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
 
     id: str = field(
         default_factory=lambda: secrets.token_urlsafe(64),
@@ -6529,7 +6532,7 @@ class PreparedInlineMessage(Model):
     id: str = field()
     """Unique identifier of the prepared message."""
 
-    expiration_date: datetime = field()
+    expiration_date: datetime = field(converter=From[datetime | int])
     """Expiration date of the prepared message, in Unix time. Expired prepared
     messages can no longer be used."""
 
@@ -6661,7 +6664,7 @@ class SuccessfulPayment(Model):
     provider_payment_charge_id: str = field()
     """Provider payment identifier."""
 
-    subscription_expiration_date: Option[datetime] = field(default=..., converter=From[datetime | None])
+    subscription_expiration_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Expiration date of the subscription, in Unix time; for recurring
     payments only."""
 
@@ -6784,7 +6787,7 @@ class RevenueWithdrawalStateSucceeded(RevenueWithdrawalState):
     The withdrawal succeeded.
     """
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the withdrawal was completed in Unix time."""
 
     url: str = field()
@@ -6837,7 +6840,7 @@ class TransactionPartnerUser(TransactionPartner):
     Describes a transaction with a user.
     """
 
-    transaction_type: str = field()
+    transaction_type: TransactionPartnerUserTransactionType = field()
     """Type of the transaction, currently one of `invoice_payment` for payments
     via invoices, `paid_media_payment` for payments for paid media, `gift_purchase`
     for gifts sent by the bot, `premium_purchase` for Telegram Premium subscriptions
@@ -6888,11 +6891,11 @@ class TransactionPartnerChat(TransactionPartner):
     Describes a transaction with a chat.
     """
 
-    type: str = field()
-    """Type of the transaction partner, always `chat`."""
-
     chat: Chat = field()
     """Information about the chat."""
+
+    type: typing.Literal["chat"] = field(default="chat")
+    """Type of the transaction partner, always `chat`."""
 
     gift: Option[Gift] = field(default=..., converter=From["Gift | None"])
     """Optional. The gift sent to the chat by the bot."""
@@ -6951,12 +6954,12 @@ class TransactionPartnerTelegramApi(TransactionPartner):
     Describes a transaction with payment for paid broadcasting.
     """
 
-    type: str = field()
-    """Type of the transaction partner, always `telegram_api`."""
-
     request_count: int = field()
     """The number of successful requests that exceeded regular limits and were
     therefore billed."""
+
+    type: typing.Literal["telegram_api"] = field(default="telegram_api")
+    """Type of the transaction partner, always `telegram_api`."""
 
 
 class TransactionPartnerOther(TransactionPartner):
@@ -6983,7 +6986,7 @@ class StarTransaction(Model):
     amount: int = field()
     """Integer amount of Telegram Stars transferred by the transaction."""
 
-    date: datetime = field()
+    date: datetime = field(converter=From[datetime | int])
     """Date the transaction was created in Unix time."""
 
     nanostar_amount: Option[int] = field(default=..., converter=From[int | None])
@@ -7070,7 +7073,7 @@ class PassportFile(Model):
     file_size: int = field()
     """File size in bytes."""
 
-    file_date: datetime = field()
+    file_date: datetime = field(converter=From[datetime | int])
     """Unix time when the file was uploaded."""
 
 

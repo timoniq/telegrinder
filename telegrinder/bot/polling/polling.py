@@ -82,9 +82,9 @@ class Polling(ABCPolling, typing.Generic[HTTPClient]):
                 return value
             case Error(err):
                 if err.code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.NOT_FOUND):
-                    raise InvalidTokenError("Token seems to be invalid")
+                    raise InvalidTokenError("Token seems to be invalid") from None
                 if err.code in (HTTPStatus.BAD_GATEWAY, HTTPStatus.GATEWAY_TIMEOUT):
-                    raise APIServerError("Unavilability of the API Telegram server")
+                    raise APIServerError("Unavilability of the API Telegram server") from None
                 raise err from None
 
     async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
@@ -92,7 +92,7 @@ class Polling(ABCPolling, typing.Generic[HTTPClient]):
         reconn_counter = 0
         self._stop = False
 
-        with decoder(list[Update]) as dec:  # For improve performance
+        with decoder(list[Update]) as dec:
             while not self._stop:
                 try:
                     updates = await self.get_updates()
