@@ -60,7 +60,7 @@ class LoopWrapper:
             cls.__instance._tasks = list()
             cls.__instance._state = LoopWrapperState.NOT_RUNNING
 
-            loop.create_task(cls.__instance._on_loop_running())
+            loop.create_task(cls.__instance._on_running_event_loop())
 
         return cls.__instance
 
@@ -78,8 +78,9 @@ class LoopWrapper:
             self._lifespan,
         )
 
-    async def _on_loop_running(self) -> None:
+    async def _on_running_event_loop(self) -> None:
         if not self.running:
+            self._state = LoopWrapperState.RUNNING
             async with self._async_wrap_loop():
                 await self._run()
 
@@ -114,7 +115,6 @@ class LoopWrapper:
     @contextlib.asynccontextmanager
     async def _async_wrap_loop(self) -> typing.AsyncGenerator[typing.Any, None]:
         try:
-            self._state = LoopWrapperState.RUNNING
             await self._lifespan._start()
             yield
         except asyncio.CancelledError:
@@ -157,7 +157,6 @@ class LoopWrapper:
     @contextlib.contextmanager
     def _wrap_loop(self, *, close_loop: bool = True) -> typing.Generator[typing.Any, None, None]:
         try:
-            self._state = LoopWrapperState.RUNNING_MANUALLY
             self.lifespan.start()
             yield
         except KeyboardInterrupt:
@@ -201,6 +200,7 @@ class LoopWrapper:
         if self.running:
             raise RuntimeError("Loop wrapper already running.")
 
+        self._state = LoopWrapperState.RUNNING_MANUALLY
         with self._wrap_loop(close_loop=close_loop):
             run_task(self._run())
 
@@ -222,7 +222,7 @@ class LoopWrapper:
         self._loop = loop_factory() if loop_factory else loop or self._loop
 
         if old_loop is not self._loop:
-            self._loop.create_task(self._on_loop_running())
+            self._loop.create_task(self._on_running_event_loop())
 
         return self
 

@@ -49,16 +49,18 @@ class ModelParser[Model: ModelType]:
         return isinstance(inspected_type, msgspec.inspect.DataclassType | msgspec.inspect.StructType)
 
     def _is_iter_of_model(
-        self, inspected_type: msgspec.inspect.Type, /
+        self,
+        inspected_type: msgspec.inspect.Type,
+        /,
     ) -> typing.TypeGuard[msgspec.inspect.ListType]:
         return isinstance(
             inspected_type,
             msgspec.inspect.ListType | msgspec.inspect.SetType | msgspec.inspect.FrozenSetType,
         ) and self._is_model_type(inspected_type.item_type)
 
-    def _validate_annotation(self, annotation: typing.Any, /) -> tuple[type[ModelType], bool] | None:
+    def _inspect_annotation(self, annotation: typing.Any, /) -> tuple[type[ModelType], bool] | None:
         is_iter_of_model = False
-        type_args: tuple[msgspec.inspect.Type, ...] | None = None
+        type_args: tuple[msgspec.inspect.Type, ...] = tuple()
         inspected_type = msgspec.inspect.type_info(annotation)
 
         if self._is_union(inspected_type):
@@ -69,14 +71,15 @@ class ModelParser[Model: ModelType]:
         elif self._is_model_type(inspected_type):
             type_args = (inspected_type,)
 
-        if type_args is not None:
-            for arg in type_args:
-                if self._is_union(arg):
-                    type_args += arg.types
-                if self._is_model_type(arg):
-                    return (arg.cls, is_iter_of_model)
-                if self._is_iter_of_model(arg):
-                    return (arg.item_type.cls, True)  # type: ignore
+        for arg in type_args:
+            if self._is_union(arg):
+                type_args += arg.types
+
+            if self._is_model_type(arg):
+                return (arg.cls, is_iter_of_model)
+
+            if self._is_iter_of_model(arg):
+                return (arg.item_type.cls, True)  # type: ignore
 
         return None
 
@@ -115,8 +118,8 @@ class ModelParser[Model: ModelType]:
             for index, (field, annotation) in enumerate(get_class_annotations(current_model).items()):
                 obj, model_type, is_iter_of_model = current_data[index], None, False
 
-                if isinstance(obj, list) and (validated := self._validate_annotation(annotation)):
-                    model_type, is_iter_of_model = validated
+                if isinstance(obj, list) and (inspected := self._inspect_annotation(annotation)):
+                    model_type, is_iter_of_model = inspected
 
                 if model_type is not None:
                     if is_iter_of_model:
@@ -157,9 +160,7 @@ class MsgPackSerializer[Model: ModelType](ABCDataSerializer[Model]):
 
     @cached_property
     def key(self) -> bytes:
-        if self.ident_key:
-            return msgspec.msgpack.encode(super().key)
-        return b""
+        return msgspec.msgpack.encode(super().key) if self.ident_key else b""
 
     def serialize(self, data: Model, /) -> str:
         encoded = self.key + msgspec.msgpack.encode(self._model_parser.parse(data), enc_hook=encoder.enc_hook)
@@ -170,11 +171,11 @@ class MsgPackSerializer[Model: ModelType](ABCDataSerializer[Model]):
     def deserialize(self, serialized_data: str, /) -> Result[Model, str]:
         with suppress(*DESERIALIZE_EXCEPTIONS):
             if brotli is not None:
-                ser_data = brotli.decompress(base64.b85decode(serialized_data))
+                ser_data = typing.cast("bytes", brotli.decompress(base64.b85decode(serialized_data)))
             else:
                 ser_data = base64.urlsafe_b64decode(serialized_data)
 
-            if self.ident_key and not ser_data.startswith(self.key):
+            if not ser_data.startswith(self.key):
                 return Error("Data is not corresponding to key.")
 
             data: list[typing.Any] = msgspec.msgpack.decode(

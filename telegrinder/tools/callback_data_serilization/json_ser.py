@@ -39,7 +39,7 @@ class JSONSerializer[JsonT: Json](ABCDataSerializer[JsonT]):
         return self.key + json.dumps(data)
 
     def deserialize(self, serialized_data: str) -> Result[JsonT, str]:
-        if self.ident_key and not serialized_data.startswith(self.key):
+        if not serialized_data.startswith(self.key):
             return Error("Data is not corresponding to key.")
 
         data = serialized_data.removeprefix(self.key)
