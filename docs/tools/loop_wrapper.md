@@ -17,24 +17,24 @@ loop_wrapper.add_task(main())
 loop_wrapper.run()
 ```
 
-It is worth mentioning that LoopWrapper is a singleton, meaning the same instance is returned upon initialization. However, it is possible to pass `loop_factory`, which provides an event loop that will be used. For reference, the built-in global context (`TelegrinderContext`) instantiate of the LoopWrapper at runtime.
+It is worth mentioning that LoopWrapper is a singleton. However, it is possible to pass the `loop` or `loop_factory` parameters to the `.bind_loop` method, which provide the event loop to be used. For reference, the built-in global context (`TelegrinderContext`) instantiate of the LoopWrapper at runtime.
 
 ```python
 import asyncio
 
 from telegrinder.tools import LoopWrapper
 
-loop_wrapper = LoopWrapper(loop_factory=asyncio.new_event_loop)
+loop_wrapper = LoopWrapper.bind_loop(loop_factory=asyncio.new_event_loop)
 ```
 
 > [!NOTE]
-> If `loop_factory` is not specified, `asyncio.get_event_loop` will be used by default.
+> If `loop` or `loop_factory` is not specified, `asyncio.get_event_loop` will be used by default.
 
 The `LoopWrapper` has several properties:
 
-* `lifespan` – Lifespan object for creating startup and shutdown tasks.
-* `event_loop` – Event loop object.
-* `is_running` – State of LW; True if the Loop Wrapper is running, otherwise False.
+* `lifespan` – Lifespan instance for creating startup and shutdown tasks.
+* `event_loop` – Event loop instance.
+* `running` – State of LW; True if the Loop Wrapper is running, otherwise False.
 
 
 Creating startup and shutdown tasks
@@ -71,7 +71,7 @@ from contextlib import suppress
 
 from telegrinder.tools import LoopWrapper
 
-loop_wrapper = LoopWrapper()  # You can pass loop_factory=asyncio.new_event_loop
+loop_wrapper = LoopWrapper()
 
 
 async def task() -> None:
@@ -90,7 +90,7 @@ loop_wrapper.add_task(task())
 
 
 # You need to pass a LoopWrapper instance to the loop_factory parameter.
-# A LoopWrapper instance has __call__ method that returns an event loop object.
+# A LoopWrapper instance has `__call__` method that returns an event loop object.
 with suppress(KeyboardInterrupt):
     # suppress KeyboardInterrupt, because in this case the LoopWrapper will be running in task and will
     # not be responsible for control flow. As a result, asyncio.run will raise KeyboardInterrupt exception.
@@ -98,7 +98,7 @@ with suppress(KeyboardInterrupt):
 ```
 
 > [!IMPORTANT]
-> Loop Wrapper must always be running, as `Telegrinder` works directly with it. If another library creates a new event loop, Loop Wrapper will not be able to run on its own. So, to integrate it properly, you can pass an instance of `LoopWrapper` wherever a `loop_factory` is accepted or manually create an event loop, pass and set it using `asyncio.set_event_loop`. This ensures that `asyncio` works smoothly across different libraries without conflicts.
+> Loop Wrapper must always be running, as `Telegrinder` works directly with it. If another library creates a new event loop, Loop Wrapper will not be able to run on its own. So, to integrate it properly it is possible to pass an instance of `LoopWrapper` wherever a `loop_factory` is accepted or manually create an event loop, pass and set it using `asyncio.set_event_loop`. This ensures that `asyncio` works smoothly across different libraries without conflicts.
 
 Loop Wrapper can create delayed tasks:
 * `timer` — a one-shot timer that is set a preset time, after the time has elapsed calls the function.
@@ -130,7 +130,7 @@ async def logging():
         await send_message_log(message)
 
 
-loop_wrapper.run()
+loop_wrapper.run(close_loop=False)
 ```
 
 > [!TIP]

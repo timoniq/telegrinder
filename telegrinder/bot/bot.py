@@ -69,7 +69,7 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
                     )
                     self.loop_wrapper.add_task(self.dispatch.feed(update, self.api))
 
-        if self.loop_wrapper.is_running:
+        if self.loop_wrapper.running:
             await polling()
         else:
             self.loop_wrapper.add_task(polling())

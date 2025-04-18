@@ -1,15 +1,18 @@
 import asyncio
 import contextlib
 import datetime
+import enum
 import typing
 
 from telegrinder.modules import logger
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.lifespan import (
     CoroutineFunc,
     CoroutineTask,
     DelayedTask,
     Lifespan,
     Task,
+    run_task,
     to_coroutine_task,
 )
 from telegrinder.tools.magic import cancel_future
@@ -17,8 +20,6 @@ from telegrinder.tools.magic import cancel_future
 type Tasks = set[asyncio.Task[typing.Any]]
 type LoopFactory = typing.Callable[[], asyncio.AbstractEventLoop]
 type DelayedFunctionDecorator[**P, R] = typing.Callable[[typing.Callable[P, R]], DelayedFunction[P, R]]
-
-_NODEFAULT: typing.Final[object] = object()
 
 
 class DelayedFunction[**P, R](typing.Protocol):
@@ -32,141 +33,138 @@ class DelayedFunction[**P, R](typing.Protocol):
         ...
 
 
+@enum.unique
+class LoopWrapperState(enum.Enum):
+    NOT_RUNNING = enum.auto()
+    RUNNING = enum.auto()
+    RUNNING_MANUALLY = enum.auto()
+    SHUTDOWN = enum.auto()
+
+
+@typing.final
 class LoopWrapper:
     _loop: asyncio.AbstractEventLoop
     _lifespan: Lifespan
-    _is_running: bool
-    _close_loop: bool
+    _state: LoopWrapperState
     _tasks: list[CoroutineTask[typing.Any]]
 
-    __singleton_instance__: typing.ClassVar[typing.Self | None] = None
+    __instance: typing.ClassVar[typing.Self | None] = None
 
-    @typing.overload
-    def __new__(cls) -> typing.Self: ...
+    __slots__ = ("_loop", "_lifespan", "_state", "_tasks")
 
-    @typing.overload
-    def __new__(cls, *, loop_factory: LoopFactory, close_loop: bool = ...) -> typing.Self: ...
+    def __new__(cls) -> typing.Self:
+        if cls.__instance is None:
+            cls.__instance = super().__new__(cls)
+            cls.__instance._loop = loop = asyncio.get_event_loop()
+            cls.__instance._lifespan = Lifespan()
+            cls.__instance._tasks = list()
+            cls.__instance._state = LoopWrapperState.NOT_RUNNING
 
-    def __new__(
-        cls,
-        *,
-        loop_factory: LoopFactory | None = None,
-        close_loop: typing.Any = _NODEFAULT,
-    ) -> typing.Self:
-        loop_factory = loop_factory or asyncio.get_event_loop
+            loop.create_task(cls.__instance._on_loop_running())
 
-        if cls.__singleton_instance__ is None:
-            instance = super().__new__(cls)
-            instance._loop = loop_factory()
-            instance._lifespan = Lifespan()
-            instance._is_running = False
-            instance._close_loop = True if close_loop is _NODEFAULT else close_loop
-            instance._tasks = []
-            instance._loop.create_task(instance._run_inner())
-            cls.__singleton_instance__ = instance
-            return cls.__singleton_instance__
+        return cls.__instance
 
-        if close_loop is not _NODEFAULT:
-            cls.__singleton_instance__._close_loop = close_loop
-
-        if cls.__singleton_instance__.is_running:
-            if loop_factory is not None:
-                logger.warning("The new factory was ignored, because the `LoopWrapper` is running.")
-            return cls.__singleton_instance__
-
-        loop = loop_factory()
-        if loop is not cls.__singleton_instance__._loop:
-            loop.create_task(cls.__singleton_instance__._run_inner())
-            cls.__singleton_instance__._loop = loop
-
-        return cls.__singleton_instance__
+    def __init_subclass__(cls) -> typing.NoReturn:
+        raise TypeError("Cannot subclass LoopWrapper.")
 
     def __call__(self) -> asyncio.AbstractEventLoop:
+        """A loop factory."""
         return self._loop
 
     def __repr__(self) -> str:
-        return "<{}: loop={!r}{}, lifespan={!r}>".format(
-            type(self).__name__,
+        return "<{}: loop={!r} lifespan={!r}>".format(
+            fullname(self) + (" (running)" if self.running else ""),
             self._loop,
-            " (running)" if self._is_running else "",
             self._lifespan,
         )
 
-    @property
-    def lifespan(self) -> Lifespan:
-        return self._lifespan
+    async def _on_loop_running(self) -> None:
+        if not self.running:
+            async with self._async_wrap_loop():
+                await self._run()
 
-    @property
-    def event_loop(self) -> asyncio.AbstractEventLoop:
-        return self._loop
-
-    @property
-    def is_running(self) -> bool:
-        return self._is_running
-
-    async def _run_inner(self) -> None:
-        if self.is_running:
-            return
-
-        if not self.event_loop.is_running():
-            return self.run()
-
-        with self._handle_loop():
-            async with self._lifespan:
-                self._run_tasks()
-                tasks = asyncio.all_tasks(loop=self._loop)
-                while self._is_running and tasks:
-                    tasks = self._handle_tasks_results(
-                        (await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION))[0],
-                    )
-
-    def _run(self) -> None:
+    async def _run(self) -> None:
         logger.debug("Running loop wrapper")
-        self._is_running = True
-
-    def _stop(self) -> None:
-        logger.debug("Stopping loop wrapper")
-        self._is_running = False
-
-    def _run_tasks(self) -> None:
-        if not self._is_running:
-            return
 
         while self._tasks:
             self._loop.create_task(self._tasks.pop(0))
 
-    def _handle_tasks_results(self, tasks: Tasks, /) -> Tasks:
-        for task_result in tasks:
+        tasks = self._get_all_tasks()
+        while self.running and tasks:
+            tasks = await self._process_tasks(tasks)
+
+    async def _process_tasks(self, tasks: Tasks, /) -> Tasks:
+        """Processes the given tasks, checks for exceptions, and raises them if any.
+        After checking the exceptions, returns all tasks that are still pending."""
+
+        tasks_results, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+        for task_result in tasks_results:
             try:
                 if not task_result.cancelled() and (exception := task_result.exception()) is not None:
-                    raise exception from None  # Raise the exception that was set on task.
+                    raise exception from None  # Raise the exception that was set on the task.
             except BaseException:
                 logger.exception("Traceback message below:")
-            finally:
-                tasks = asyncio.all_tasks(loop=self._loop)
 
-        return tasks
+        return self._get_all_tasks()
+
+    async def _cancel_tasks(self) -> None:
+        with contextlib.suppress(asyncio.CancelledError, asyncio.InvalidStateError):
+            await cancel_future(asyncio.gather(*self._get_all_tasks(), return_exceptions=True))
+
+    @contextlib.asynccontextmanager
+    async def _async_wrap_loop(self) -> typing.AsyncGenerator[typing.Any, None]:
+        try:
+            self._state = LoopWrapperState.RUNNING
+            await self._lifespan._start()
+            yield
+        except asyncio.CancelledError:
+            logger.info("LoopWrapper task was cancelled, cancellation tasks...")
+            await self._cancel_tasks()
+            await self._lifespan._shutdown()
+        finally:
+            self._shutdown()
+
+    def _shutdown(
+        self,
+        *,
+        shutdown_lifespan: bool = False,
+        close_loop: bool = False,
+    ) -> None:
+        logger.debug("Shutdown loop wrapper")
+        self._state = LoopWrapperState.SHUTDOWN
+
+        if (shutdown_lifespan or close_loop) and self._loop.is_running():
+            return
+
+        if shutdown_lifespan:
+            self.lifespan.shutdown()
+
+        if close_loop:
+            self._close_loop()
+
+    def _get_all_tasks(self) -> Tasks:
+        """Get a set of all tasks from the loop (`exclude current task if any`)."""
+
+        return asyncio.all_tasks(loop=self._loop).symmetric_difference(
+            set() if (task := asyncio.current_task(self.loop)) is None else {task},
+        )
+
+    def _close_loop(self) -> None:
+        if not self._loop.is_closed():
+            logger.debug("Closing event loop {!r}", self._loop)
+            self._loop.close()
 
     @contextlib.contextmanager
-    def _handle_loop(self) -> typing.Generator[typing.Any, None, None]:
+    def _wrap_loop(self, *, close_loop: bool = True) -> typing.Generator[typing.Any, None, None]:
         try:
-            self._run()
+            self._state = LoopWrapperState.RUNNING_MANUALLY
+            self.lifespan.start()
             yield
         except KeyboardInterrupt:
-            print()  # Prints new line for ^C
             logger.info("Caught KeyboardInterrupt, cancellation tasks...")
-            with contextlib.suppress(asyncio.CancelledError, asyncio.InvalidStateError):
-                self._loop.run_until_complete(
-                    future=cancel_future(
-                        asyncio.gather(*asyncio.all_tasks(loop=self._loop), return_exceptions=True)
-                    ),
-                )
-            self.lifespan.shutdown()
+            run_task(self._cancel_tasks())
         finally:
-            self._stop()
-            if self._close_loop and not self._loop.is_running() and not self._loop.is_closed():
-                logger.debug("Closing event loop {!r}", self._loop)
-                self._loop.close()
+            self._shutdown(shutdown_lifespan=True, close_loop=close_loop)
 
     def _get_delayed_task_decorator(
         self,
@@ -187,27 +185,50 @@ class LoopWrapper:
 
         return decorator
 
-    def run(self) -> typing.NoReturn:  # type: ignore
-        if self.is_running:
+    @property
+    def lifespan(self) -> Lifespan:
+        return self._lifespan
+
+    @property
+    def loop(self) -> asyncio.AbstractEventLoop:
+        return self._loop
+
+    @property
+    def running(self) -> bool:
+        return self._state in {LoopWrapperState.RUNNING, LoopWrapperState.RUNNING_MANUALLY}
+
+    def run(self, *, close_loop: bool = True) -> typing.NoReturn:  # type: ignore
+        if self.running:
             raise RuntimeError("Loop wrapper already running.")
 
-        with self._handle_loop():
-            self._lifespan.start()
-            self._run_tasks()
-            tasks = asyncio.all_tasks(loop=self._loop)
-            while self._is_running and tasks:
-                tasks = self._handle_tasks_results(
-                    self._loop.run_until_complete(
-                        future=asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION),
-                    )[0],
-                )
+        with self._wrap_loop(close_loop=close_loop):
+            run_task(self._run())
+
+    @typing.overload
+    def bind_loop(self, *, loop_factory: LoopFactory) -> typing.Self: ...
+
+    @typing.overload
+    def bind_loop(self, *, loop: asyncio.AbstractEventLoop) -> typing.Self: ...
+
+    def bind_loop(
+        self,
+        *,
+        loop_factory: LoopFactory | None = None,
+        loop: asyncio.AbstractEventLoop | None = None,
+    ) -> typing.Self:
+        assert loop is not None or loop_factory is not None
+
+        old_loop = self._loop
+        self._loop = loop_factory() if loop_factory else loop or self._loop
+
+        if old_loop is not self._loop:
+            self._loop.create_task(self._on_loop_running())
+
+        return self
 
     def add_task(self, task: Task[..., typing.Any], /) -> None:
         coro = to_coroutine_task(task)
-        if self.is_running:
-            self._loop.create_task(coro)
-        else:
-            self._tasks.append(coro)
+        self._loop.create_task(coro) if self.running else self._tasks.append(coro)
 
     @typing.overload
     def timer[**P, R](self, delta: datetime.timedelta, /) -> DelayedFunctionDecorator[P, R]: ...
@@ -230,7 +251,7 @@ class LoopWrapper:
         hours: int = 0,
         minutes: int = 0,
         seconds: float = 0.0,
-    ) -> typing.Callable[..., typing.Any]:
+    ) -> DelayedFunctionDecorator[..., typing.Any]:
         return self._get_delayed_task_decorator(
             repeat=False,
             days=days,
@@ -260,7 +281,7 @@ class LoopWrapper:
         hours: int = 0,
         minutes: int = 0,
         seconds: float = 0.0,
-    ) -> typing.Callable[..., typing.Any]:
+    ) -> DelayedFunctionDecorator[..., typing.Any]:
         return self._get_delayed_task_decorator(
             repeat=True,
             days=days,
