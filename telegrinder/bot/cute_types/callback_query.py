@@ -9,9 +9,10 @@ from fntypes.co import Nothing, Result, Some, Variative, unwrapping
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
 from telegrinder.bot.cute_types.message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
-from telegrinder.model import UNSET, From, field, get_params
+from telegrinder.model import UNSET, From, field
 from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.tools.magic import shortcut
+from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
 
 

@@ -645,7 +645,7 @@ class MethodGenerator(ABCGenerator):
             "from datetime import datetime, timedelta\n\n"
             "from fntypes.co import Result, Variative\n"
             "from telegrinder.api.error import APIError\n",
-            "from telegrinder.model import ProxiedDict, full_result, get_params\n",
+            "from telegrinder.types.methods_utils import ProxiedDict, full_result, get_params\n",
             "from telegrinder.types.enums import *  # noqa: F403\n"
             "from telegrinder.types.objects import *  # noqa: F403\n\n"
             "if typing.TYPE_CHECKING:\n",

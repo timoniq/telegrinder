@@ -94,7 +94,7 @@ from .bot import (
     register_manager,
 )
 from .client import ABCClient, AiohttpClient, AiosonicClient
-from .model import Model
+from .model import Model, field
 from .modules import logger
 from .tools.error_handler import ABCErrorHandler, ErrorHandler
 from .tools.formatting import HTMLFormatter
@@ -258,6 +258,7 @@ __all__ = (
     "cache_translation",
     "get_cached_translation",
     "logger",
+    "field",
     "magic_bundle",
     "register_manager",
 )

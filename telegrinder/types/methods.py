@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 from fntypes.co import Result, Variative
 
 from telegrinder.api.error import APIError
-from telegrinder.model import ProxiedDict, full_result, get_params
-from telegrinder.types.enums import *  # noqa: F403
-from telegrinder.types.objects import *  # noqa: F403
+from telegrinder.types.enums import *
+from telegrinder.types.methods_utils import ProxiedDict, full_result, get_params
+from telegrinder.types.objects import *
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API

@@ -11,7 +11,7 @@ from functools import wraps
 import typing_extensions as typing
 from fntypes import Result
 
-from telegrinder.model import get_params
+from telegrinder.types.methods_utils import get_params
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule

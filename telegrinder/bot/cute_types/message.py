@@ -8,10 +8,11 @@ from fntypes.co import Result, Some, Variative
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
 from telegrinder.bot.cute_types.utils import compose_reactions, input_media
-from telegrinder.model import UNSET, From, field, get_params
+from telegrinder.model import UNSET, From, field
 from telegrinder.msgspec_utils import Option
 from telegrinder.tools.magic import shortcut
 from telegrinder.types import *
+from telegrinder.types.methods_utils import get_params
 
 if typing.TYPE_CHECKING:
     from datetime import datetime, timedelta
