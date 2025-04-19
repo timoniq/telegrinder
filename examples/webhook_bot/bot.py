@@ -29,11 +29,9 @@ kb = (
     InlineKeyboard()
     .add(InlineButton("✅ Confirm", callback_data="action/confirm"))
     .row()
-    .add(InlineButton("🛰 Webhook", callback_data="action/webhook"))
+    .add(InlineButton("🛰 Webhooks", callback_data="action/webhooks"))
     .add(InlineButton("✍️ Quote", callback_data="action/quote"))
     .add(InlineButton("🎲 Guess the number", callback_data="action/guess"))
-    .row()
-    .add(InlineButton("🐌 Magicoolitka", url="https://magicoolitka.com"))
     .row()
     .add(InlineButton("❌ Cancel", callback_data="action/cancel"))
 ).get_markup()
@@ -65,14 +63,14 @@ async def handle_menu_command(message: Message) -> None:
     await message.answer("📋 Menu:", reply_markup=kb)
 
 
-@dp.callback_query(PayloadEqRule("action/webhook"))
+@dp.callback_query(PayloadEqRule("action/webhooks"))
 async def handle_query_webhook(cb: CallbackQuery) -> None:
     await cb.answer()
     await cb.ctx_api.send_message(
         text=HTMLFormatter(
             link(
                 "https://core.telegram.org/bots/webhooks",
-                "🛰 Marvin's Marvellous Guide to All Things Webhook.",
+                text="🛰 Marvin's Marvellous Guide to All Things Webhook.",
             )
         ),
         chat_id=cb.chat_id.unwrap(),
@@ -90,8 +88,7 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        MESSAGE_IN_CHAT,
-        message.chat.id,
+        *MESSAGE_IN_CHAT(message.chat.id),
         release=HasText(),
         on_miss=MessageReplyHandler("Im still waiting for your message!"),
     )

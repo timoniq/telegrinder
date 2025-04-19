@@ -23,7 +23,7 @@ async def handler_mention_me(message: Message, message_entities: list[MessageEnt
         HTMLFormatter("{:bold} don't mention me please!").format(
             mention(
                 message.from_user.first_name,
-                message.from_user.id,
+                user_id=message.from_user.id,
             )
         ),
         parse_mode=HTMLFormatter.PARSE_MODE,

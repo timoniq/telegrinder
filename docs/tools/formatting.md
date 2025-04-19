@@ -6,18 +6,18 @@ from telegrinder.tools.formatting import HTMLFormatter
 ```
 
 `HTMLFormatter` is derived from `FormatString` to work string formatting with the following formats:
-* `bold(string: str) -> TagFormat` | **bold text**
-* `block_quote(string: str, expandable: bool = False) -> TagFormat` | quoted text
-* `code_inline(string: str) -> TagFormat` | `inline text`
-* `escape(string: str) -> EscapedString` | escaped string for HTML
-* `italic(string: str) -> TagFormat` | __italic text__
-* `link(href: str, string: str | None = None) -> TagFormat` | https://link
-* `mention(string: str, user_id: int) -> TagFormat` | text url `tg://user?id=user_id` by `string`
-* `pre_code(string: str, lang: str | ProgrammingLanguage | None = None) -> TagFormat` | ```pre code```
-* `spoiler(string: str) -> TagFormat` -> ||spoiler text||
-* `strike(string: str) -> TagFormat` -> ~~strikethrough text~~
-* `tg_emoji(string: str, emoji_id: int) -> TagFormat` | telegram emoji by emoji id
-* `underline(string: str) -> TagFormat` -> <u>underline text</u>
+* `bold(string: str, /)` -> **bold text**
+* `block_quote(string: str, /, *, expandable: bool = False)` -> "block qoute"
+* `code_inline(string: str, /)` | `inline text`
+* `escape(string: str, /)` -> escaped string
+* `italic(string: str, /)` -> __italic text__
+* `link(href: str, /, *, string: str | None = None)` -> https://link
+* `mention(string: str, /, *, user_id: int)` -> text url `tg://user?id=user_id` by `string`
+* `pre_code(string: str, /, *, lang: str | ProgrammingLanguage | None = None)` -> `pre code`
+* `spoiler(string: str, /)` -> ||spoiler text||
+* `strike(string: str, /)` -> ~~strikethrough text~~
+* `tg_emoji(string: str, /, *, emoji_id: int)` -> telegram emoji by emoji id
+* `underline(string: str, /)` -> <u>underline text</u>
 
 ```python
 from telegrinder.tools.formatting import HTMLFormatter, bold, spoiler
@@ -43,16 +43,8 @@ HTMLFormatter("Hello, {:bold+underline}!").format("world")
 HTMLFormatter("Hello, {}!").format(bold(italic("world")))
 ```
 
-Special formats:
-* `Base` -> This class is inherited into other dataclasses to implement special formats.
-* `Link(href: str, string: str | None = None)` -> `link`
-* `Mention(string: str, user_id: int)` -> `mention`
-* `PreCode(string: str, lang: str | ProgrammingLanguage | None = None)` -> `pre_code`
-* `BlockQuote(string: str, expandable: bool = False)` -> `block_quote`
-* `TgEmoji(string: str, emoji_id: int)` -> `tg_emoji`
-
 ```python
-from telegrinder.tools.formatting import HTMLFormatter, Mention, Link, CodeBlock
+from telegrinder.tools.formatting import HTMLFormatter, mention, link, code_block
 from telegrinder.types.enums import ProgrammingLanguage
 
 PYTHON_CODE_ECHO_BOT = """
@@ -73,13 +65,13 @@ async def echo(message: Message):
 bot.run_forever()
 """
 
-HTMLFormatter("{:bold} very nice telegram user!").format(Mention("arseny", 549019276))
+HTMLFormatter("{:bold} very nice telegram user!").format(mention("arseny", user_id=549019276))
 
-HTMLFormatter("{:italic} very nice framework!").format(Link("https://github.com/timoniq/telegrinder", "telegrinder"))
+HTMLFormatter("{:italic} very nice framework!").format(link("https://github.com/timoniq/telegrinder", text="telegrinder"))
 
-HTMLFormatter("Echo bot on python framework telegrinder:\n{}").format(PreCode(PYTHON_CODE_ECHO_BOT, ProgrammingLanguage.PYTHON))
+HTMLFormatter("Echo bot on python framework telegrinder:\n{}").format(pre_code(PYTHON_CODE_ECHO_BOT, lang=ProgrammingLanguage.PYTHON))
 
-HTMLFormatter("I {} telegrinder!").format(TgEmoji("👍", 5368324170671202286))
+HTMLFormatter("I {} telegrinder!").format(tg_emoji("👍", emoji_id=5368324170671202286))
 ```
 
 `HTMLFormatter` also has a property of parse mode string:

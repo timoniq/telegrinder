@@ -12,9 +12,7 @@ logger.set_level("INFO")
 
 @bot.on.message(Text("/formatting"))
 async def formatting(m: Message):
-    await m.answer(
-        HTMLFormatter(bold(italic("bold italic text!"))),
-    )
+    await m.answer(HTMLFormatter(bold(italic("bold italic text!"))))
     await m.answer(
         "python library 'telegrinder' - "
         + HTMLFormatter("{:bold} for effective and reliable telegram {:bold+italic} {:underline}!").format(
@@ -23,9 +21,7 @@ async def formatting(m: Message):
             "building",
         ),
     )
-    await m.answer(
-        "this is " + mention(m.from_user.first_name, m.from_user.id),
-    )
+    await m.answer("this is " + mention(m.from_user.first_name, user_id=m.from_user.id))
 
 
 bot.run_forever()

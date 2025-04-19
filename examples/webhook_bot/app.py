@@ -1,5 +1,6 @@
 """Webhook Bot example. This example uses fastapi + uvicorn."""
 
+import asyncio
 import os
 import secrets
 from contextlib import asynccontextmanager
@@ -16,14 +17,13 @@ from telegrinder.verification_utils import verify_webapp_request
 
 token = Token.from_env()
 api = API(token=token)
-loop_wrapper = LoopWrapper()
+loop_wrapper = LoopWrapper().bind_loop(loop_factory=asyncio.new_event_loop)
 
 HOST = os.environ["HOST"]  # > host, for example: https://domain.com
 PORT = int(os.environ["PORT"])  # > port, can be either 443, 80, 88, or 8443.
 WEBHOOK_PATH = os.environ["WEBHOOK_PATH"] + token  # > webhook path, for example: /bot/ + token
 WEBHOOK_URL = HOST + WEBHOOK_PATH  # > host + webhook path
 SECRET_TOKEN = secrets.token_urlsafe(64)  # > random secret token
-SECRET_TOKEN_KEY = "X-Telegram-Bot-Api-Secret-Token"
 
 
 @asynccontextmanager

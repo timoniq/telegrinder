@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-import dataclasses
 import html
 import string
 import typing
 from contextlib import suppress
 
+from telegrinder.tools.formatting.deep_links import tg_mention_link
 from telegrinder.tools.parse_mode import ParseMode
 from telegrinder.types.enums import ProgrammingLanguage
-
-from .deep_links import tg_mention_link
-from .spec_html_formats import SpecialFormat, is_spec_format
 
 type HTMLFormat = str | TagFormat
 
@@ -54,18 +51,13 @@ class StringFormatter(string.Formatter):
 
         return fmt
 
-    def get_spec_formatter(self, value: SpecialFormat) -> typing.Callable[..., TagFormat]:
-        return globals()[value.__formatter_name__]
-
     def make_tag_format(self, value: typing.Any, fmts: list[HTMLFormat]) -> TagFormat:
-        if is_spec_format(value):
-            value = value.string
-
         current_format = globals()[fmts.pop(0)](
             str(value)
             if isinstance(value, TagFormat)
             else escape(FormatString(value) if not isinstance(value, str) else value)
         )
+
         for fmt in fmts:
             current_format = globals()[fmt](current_format)
 
@@ -81,20 +73,7 @@ class StringFormatter(string.Formatter):
 
     def format_field(self, value: typing.Any, fmt: str) -> HTMLFormatter:
         with suppress(ValueError):
-            return HTMLFormatter(
-                format(
-                    (
-                        value.formatting()
-                        if isinstance(value, TagFormat)
-                        else (
-                            self.get_spec_formatter(value)(**dataclasses.asdict(value)).formatting()
-                            if is_spec_format(value)
-                            else value
-                        )
-                    ),
-                    fmt,
-                )
-            )
+            return HTMLFormatter(format(value.formatting() if isinstance(value, TagFormat) else value, fmt))
 
         fmts = list(
             map(
@@ -102,13 +81,7 @@ class StringFormatter(string.Formatter):
                 fmt.split(HTML_UNION_SPECIFIERS_SEPARATOR),
             ),
         )
-        tag_format = self.make_tag_format(value, fmts)
-
-        if is_spec_format(value):
-            value.string = tag_format
-            tag_format = self.get_spec_formatter(value)(**dataclasses.asdict(value))
-
-        return tag_format.formatting()
+        return self.make_tag_format(value, fmts).formatting()
 
     def format(self, __string: str, *args: object, **kwargs: object) -> HTMLFormatter:
         return HTMLFormatter(super().format(__string, *args, **kwargs))
@@ -197,10 +170,10 @@ class HTMLFormatter(FormatString):
     'Hi, <i>Max</i>'
     """
 
-    PARSE_MODE = ParseMode.HTML
+    PARSE_MODE: typing.Final[str] = ParseMode.HTML
 
 
-def escape(string: str) -> EscapedString:
+def escape(string: str, /) -> EscapedString:
     if isinstance(string, EscapedString | HTMLFormatter):
         return EscapedString(string)
     return EscapedString(html.escape(string, quote=False))
@@ -226,45 +199,45 @@ def italic(string: str) -> TagFormat:
     return TagFormat(string, tag="i")
 
 
-def link(href: str, string: str | None = None) -> TagFormat:
+def link(href: str, /, *, text: str | None = None) -> TagFormat:
     return TagFormat(
-        string or href,
+        text or href,
         tag="a",
         href=QUOT_MARK + href + QUOT_MARK,
     )
 
 
-def pre_code(string: str, lang: str | ProgrammingLanguage | None = None) -> TagFormat:
+def pre_code(string: str, /, *, lang: str | ProgrammingLanguage | None = None) -> TagFormat:
     if lang is None:
         return TagFormat(string, tag="pre")
+
     lang = lang.value if isinstance(lang, ProgrammingLanguage) else lang
     return pre_code(TagFormat(string, tag="code", **{"class": f"language-{lang}"}))
 
 
-def spoiler(string: str) -> TagFormat:
+def spoiler(string: str, /) -> TagFormat:
     return TagFormat(string, tag="tg-spoiler")
 
 
-def strike(string: str) -> TagFormat:
+def strike(string: str, /) -> TagFormat:
     return TagFormat(string, tag="s")
 
 
-def mention(string: str, user_id: int) -> TagFormat:
-    return link(tg_mention_link(user_id=user_id), string)
+def mention(string: str, /, *, user_id: int) -> TagFormat:
+    return link(tg_mention_link(user_id=user_id), text=string)
 
 
-def tg_emoji(string: str, emoji_id: int) -> TagFormat:
+def tg_emoji(string: str, /, *, emoji_id: int) -> TagFormat:
     return TagFormat(string, tag="tg-emoji", emoji_id=emoji_id)
 
 
-def underline(string: str) -> TagFormat:
+def underline(string: str, /) -> TagFormat:
     return TagFormat(string, tag="u")
 
 
 __all__ = (
     "FormatString",
     "HTMLFormatter",
-    "SpecialFormat",
     "block_quote",
     "bold",
     "code_inline",

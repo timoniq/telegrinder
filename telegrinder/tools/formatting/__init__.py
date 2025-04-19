@@ -1,4 +1,4 @@
-from .deep_links import (
+from telegrinder.tools.formatting.deep_links import (
     tg_bot_attach_open_any_chat,
     tg_bot_attach_open_current_chat,
     tg_bot_attach_open_specific_chat,
@@ -25,7 +25,7 @@ from .deep_links import (
     tg_share_link,
     tg_story_link,
 )
-from .html_formatter import (
+from telegrinder.tools.formatting.html_formatter import (
     FormatString,
     HTMLFormatter,
     block_quote,
@@ -41,26 +41,10 @@ from .html_formatter import (
     tg_emoji,
     underline,
 )
-from .spec_html_formats import (
-    Base,
-    BlockQuote,
-    Link,
-    Mention,
-    PreCode,
-    SpecialFormat,
-    TgEmoji,
-)
 
 __all__ = (
-    "Base",
-    "BlockQuote",
     "FormatString",
     "HTMLFormatter",
-    "Link",
-    "Mention",
-    "PreCode",
-    "SpecialFormat",
-    "TgEmoji",
     "block_quote",
     "bold",
     "code_inline",

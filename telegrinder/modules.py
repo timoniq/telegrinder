@@ -74,77 +74,71 @@ elif logging_module == "logging":
     import logging
     import sys
 
-    import colorama
+    import termcolor
 
-    colorama.just_fix_windows_console()  # init & fix console
+    LOG_FORMAT = (
+        termcolor.colored(text=" | ", color="white").join(
+            fmt
+            for fmt in (
+                "{name}",
+                "{levelname}",
+                "{asctime}",
+                "{module}:{funcName}:{lineno}",
+            )
+        )
+        + " {arrow}".format(arrow=termcolor.colored(text=">", color="white"))
+        + " {message}"
+    )
 
-    FORMAT = (
-        "<white>{name: <4} |</white> <level>{levelname: <8}</level>"
-        " <white>|</white> <green>{asctime}</green> <white>|</white> <level_module>"
-        "{module}</level_module><white>:</white><level_func>"
-        "{funcName}</level_func><white>:</white><level_lineno>"
-        "{lineno}</level_lineno><white> > </white><level_message>"
-        "{message}</level_message>"
+    LEVEL_FORMAT_SETTINGS = dict(
+        DEBUG=dict(
+            levelname="light_blue",
+            module="blue",
+            funcName="blue",
+            lineno="light_yellow",
+            message="light_blue",
+        ),
+        INFO=dict(
+            levelname="cyan",
+            module="light_cyan",
+            funcName="light_cyan",
+            lineno="light_yellow",
+            message="light_green",
+        ),
+        WARNING=dict(
+            levelname="light_yellow",
+            module="light_magenta",
+            funcName="light_magenta",
+            lineno="light_blue",
+            message="light_yellow",
+        ),
+        ERROR=dict(
+            levelname="red",
+            module="light_yellow",
+            funcName="light_yellow",
+            lineno="light_blue",
+            message="light_red",
+        ),
+        CRITICAL=dict(
+            levelname="magenta",
+            module="light_red",
+            funcName="light_red",
+            lineno="light_yellow",
+            message="magenta",
+        ),
     )
-    COLORS = {
-        "red": colorama.Fore.LIGHTRED_EX,
-        "green": colorama.Fore.LIGHTGREEN_EX,
-        "blue": colorama.Fore.LIGHTBLUE_EX,
-        "white": colorama.Fore.LIGHTWHITE_EX,
-        "yellow": colorama.Fore.LIGHTYELLOW_EX,
-        "magenta": colorama.Fore.LIGHTMAGENTA_EX,
-        "cyan": colorama.Fore.LIGHTCYAN_EX,
-        "reset": colorama.Style.RESET_ALL,
+    NAME_FORMAT = termcolor.colored(text="{name: <4}", color="white")
+    ASCTIME_FORMAT = termcolor.colored(text="{asctime}", color="light_green")
+
+    LEVEL_FORMATS = {
+        level: LOG_FORMAT.format(
+            name=NAME_FORMAT,
+            levelname=termcolor.colored(text="{levelname: <8}", color=format_settings.pop("levelname")),
+            asctime=ASCTIME_FORMAT,
+            **{fmt: termcolor.colored(text="{%s}" % fmt, color=color) for fmt, color in format_settings.items()},
+        )
+        for level, format_settings in LEVEL_FORMAT_SETTINGS.items()
     }
-    LEVEL_SETTINGS = {
-        "INFO": {
-            "level": "green",
-            "level_module": "blue",
-            "level_func": "cyan",
-            "level_lineno": "white",
-            "level_message": "green",
-        },
-        "DEBUG": {
-            "level": "blue",
-            "level_module": "yellow",
-            "level_func": "green",
-            "level_lineno": "cyan",
-            "level_message": "blue",
-        },
-        "WARNING": {
-            "level": "yellow",
-            "level_module": "red",
-            "level_func": "green",
-            "level_lineno": "red",
-            "level_message": "yellow",
-        },
-        "ERROR": {
-            "level": "red",
-            "level_module": "magenta",
-            "level_func": "yellow",
-            "level_lineno": "green",
-            "level_message": "red",
-        },
-        "CRITICAL": {
-            "level": "cyan",
-            "level_module": "yellow",
-            "level_func": "yellow",
-            "level_lineno": "yellow",
-            "level_message": "cyan",
-        },
-    }
-    FORMAT = (
-        FORMAT.replace("<white>", COLORS["white"])
-        .replace("</white>", COLORS["reset"])
-        .replace("<green>", COLORS["green"])
-        .replace("</green>", COLORS["reset"])
-    )
-    LEVEL_FORMATS: dict[str, str] = {}
-    for level, settings in LEVEL_SETTINGS.items():
-        fmt = FORMAT
-        for name, color in settings.items():
-            fmt = fmt.replace(f"<{name}>", COLORS[color]).replace(f"</{name}>", COLORS["reset"])
-        LEVEL_FORMATS[level] = fmt
 
     class TelegrinderLoggingFormatter(logging.Formatter):
         def format(self, record: logging.LogRecord) -> str:

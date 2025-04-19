@@ -14,7 +14,7 @@ class Token(str):
         return super().__new__(cls, token)
 
     def __repr__(self) -> str:
-        return f"<Token: {self.bot_id}:{''.join(self.split(':')[-1])[:6]}...>"
+        return f"<Token: {self.bot_id}:{self.split(':')[1][:6]}...>"
 
     @classmethod
     def from_env(
