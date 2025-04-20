@@ -4418,7 +4418,7 @@ class BusinessBotRights(Model):
     can_read_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the bot can mark incoming private messages as read."""
 
-    can_delete_outgoing_messages: Option[bool] = field(default=..., converter=From[bool | None])
+    can_delete_sent_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the bot can delete messages sent by the bot."""
 
     can_delete_all_messages: Option[bool] = field(default=..., converter=From[bool | None])
