@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 from fntypes.co import Result, Variative
 
 from telegrinder.api.error import APIError
-from telegrinder.types.enums import *
+from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.methods_utils import ProxiedDict, full_result, get_params
-from telegrinder.types.objects import *
+from telegrinder.types.objects import *  # noqa: F403
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
@@ -4019,7 +4019,7 @@ class APIMethods[HTTPClient: ABCClient]:
     ) -> Result[bool, APIError]:
         """Method `deleteBusinessMessages`, see the [documentation](https://core.telegram.org/bots/api#deletebusinessmessages)
 
-        Delete messages on behalf of a business account. Requires the can_delete_outgoing_messages
+        Delete messages on behalf of a business account. Requires the can_delete_sent_messages
         business bot right to delete messages sent by the bot itself, or the can_delete_all_messages
         business bot right to delete any message. Returns True on success.
 
