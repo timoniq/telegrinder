@@ -114,7 +114,7 @@ class CallbackDataMap(CallbackQueryDataRule):
             return False
 
         if not self.allow_extra_fields and callback_data != self.mapping:
-            return False    
+            return False
 
         if await self.match(callback_data, self.mapping):
             ctx.update({k: callback_data[k] for k, _ in self.mapping})

@@ -29,10 +29,10 @@ __all__ = (
     "get_origin",
     "get_type_hints",
     "is_common_type",
+    "is_support_cast",
     "loads",
     "struct_asdict",
     "timedelta",
-    "is_support_cast",
     "to_builtins",
     "type_check",
 )

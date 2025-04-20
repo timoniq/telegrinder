@@ -256,9 +256,9 @@ __all__ = (
     "ViewBox",
     "WaiterMachine",
     "cache_translation",
+    "field",
     "get_cached_translation",
     "logger",
-    "field",
     "magic_bundle",
     "register_manager",
 )

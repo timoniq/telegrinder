@@ -38,7 +38,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "aiohttp (>=3.11.16,<4.0.0)",
+    "aiohttp (>=3.11.17,<4.0.0)",
     "termcolor>=3.0.1",
     "vbml (>=1.1.post1,<2.0)",
     "choicelib (>=0.1.5,<0.2.0)",
@@ -83,7 +83,7 @@ dev = [
 package = true
 
 [tool.uv.sources]
-fntypes = { git = "https://github.com/timoniq/fntypes", rev = "main" }
+fntypes = { git = "https://github.com/timoniq/fntypes.git", rev = "main" }
 
 [tool.ruff]
 line-length = 115

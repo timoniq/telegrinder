@@ -83,8 +83,8 @@ __all__ = (
     "NO_VALUE",
     "NoValue",
     "Parameter",
-    "get_query_params",
-    "parse_query_params",
     "get_parameter_metadata",
+    "get_query_params",
     "parse_deep_link",
+    "parse_query_params",
 )
