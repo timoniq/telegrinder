@@ -4,16 +4,12 @@ import datetime
 import typing
 
 from telegrinder.modules import logger
+from telegrinder.tools.aio import run_task
 from telegrinder.tools.fullname import fullname
 
 type CoroutineTask[T] = typing.Coroutine[typing.Any, typing.Any, T]
 type CoroutineFunc[**P, T] = typing.Callable[P, CoroutineTask[T]]
 type Task[**P, T] = CoroutineFunc[P, T] | CoroutineTask[T] | DelayedTask[typing.Callable[P, CoroutineTask[T]]]
-
-
-def run_task[T](task: CoroutineTask[T], /, *, loop: asyncio.AbstractEventLoop | None = None) -> T:
-    loop = loop or asyncio.get_event_loop()
-    return loop.run_until_complete(future=task)
 
 
 def to_coroutine_task[**P, T](task: Task[P, T], /) -> CoroutineTask[T]:

@@ -10,14 +10,12 @@ from telegrinder.node.base import NodeType, get_nodes, is_node
 from telegrinder.tools.adapter import ABCAdapter
 from telegrinder.tools.adapter.node import Event
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
-from telegrinder.tools.awaitable import maybe_awaitable
+from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.tools.fullname import fullname
-from telegrinder.tools.i18n.abc import ABCTranslator
-from telegrinder.tools.magic import (
-    cache_translation,
-    get_annotations,
-    get_cached_translation,
+from telegrinder.tools.i18n.abc import ABCTranslator, cache_translation, get_cached_translation
+from telegrinder.tools.magic.function import (
     get_default_args,
+    get_func_annotations,
 )
 from telegrinder.types.objects import Update as UpdateObject
 
@@ -125,7 +123,7 @@ class ABCRule(ABC, typing.Generic[AdaptTo]):
         node_col_values = node_col.values if node_col is not None else {}
         temp_ctx = get_default_args(bound_check_rule) | ctx
 
-        for i, (k, v) in enumerate(get_annotations(bound_check_rule).items()):
+        for i, (k, v) in enumerate(get_func_annotations(bound_check_rule).items()):
             if (isinstance(adapted_value, Event) and i == 0) or (  # First arg is Event
                 isinstance(v, type) and isinstance(adapted_value, v)
             ):

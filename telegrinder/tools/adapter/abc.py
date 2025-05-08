@@ -7,7 +7,7 @@ from fntypes.result import Result
 
 from telegrinder.modules import logger
 from telegrinder.tools.adapter.errors import AdapterError
-from telegrinder.tools.awaitable import maybe_awaitable
+from telegrinder.tools.aio import maybe_awaitable
 
 type AdaptResult[To] = Result[To, AdapterError] | typing.Awaitable[Result[To, AdapterError]]
 

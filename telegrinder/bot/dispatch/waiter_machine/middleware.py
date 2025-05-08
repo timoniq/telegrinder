@@ -15,6 +15,8 @@ if typing.TYPE_CHECKING:
     from .machine import WaiterMachine
     from .short_state import ShortState
 
+type State[Event: BaseCute] = ShortState[Event]
+
 
 class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
     def __init__(
@@ -80,7 +82,7 @@ class WaiterMiddleware[Event: BaseCute](ABCMiddleware[Event]):
     async def pass_runtime(
         self,
         event: Event,
-        short_state: "ShortState[Event]",
+        short_state: State[Event],
         ctx: Context,
     ) -> None:
         ctx.initiator = self.hasher

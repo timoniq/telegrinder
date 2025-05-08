@@ -4,7 +4,7 @@ from collections import OrderedDict
 from datetime import timedelta
 from urllib.parse import urlencode
 
-from telegrinder.tools.magic import get_annotations
+from telegrinder.tools.magic.function import get_func_annotations
 
 type DeepLinkFunction[**P] = typing.Callable[P, str]
 type NoValue = types.EllipsisType
@@ -19,7 +19,7 @@ def get_query_params(
     kwargs: dict[str, typing.Any],
     order_params: set[str] | None = None,
 ) -> dict[str, typing.Any]:
-    annotations = get_annotations(func)
+    annotations = get_func_annotations(func)
     params = OrderedDict()
     param_names = (
         [*order_params, *(p for p in annotations if p not in order_params)] if order_params else annotations

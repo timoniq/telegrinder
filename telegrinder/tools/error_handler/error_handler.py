@@ -8,7 +8,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 from telegrinder.tools.error_handler.abc import ABCErrorHandler
 from telegrinder.tools.error_handler.error import CatcherError
-from telegrinder.tools.magic import magic_bundle
+from telegrinder.tools.magic.function import bundle
 
 type FuncCatcher[Exc: BaseException] = typing.Callable[
     typing.Concatenate[Exc, ...],
@@ -64,10 +64,10 @@ class Catcher[Event]:
             logger.debug(
                 "Error handler caught an exception {!r}, running catcher {!r}...".format(
                     exception,
-                    self.func.__name__,
+                    self.func.__qualname__,
                 )
             )
-            return Ok(await self.func(exception, **magic_bundle(self.func, {"event": event, "api": api} | ctx)))
+            return Ok(await bundle(self.func, {"event": event, "api": api, **ctx})(exception))
 
         logger.debug("Failed to match exception {!r}.", exception.__class__.__name__)
         return Error(exception)

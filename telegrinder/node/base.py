@@ -8,7 +8,7 @@ from types import AsyncGeneratorType, CodeType, resolve_bases
 import typing_extensions as typing
 
 from telegrinder.node.scope import NodeScope
-from telegrinder.tools.magic import cache_magic_value, get_annotations
+from telegrinder.tools.magic.function import function_context, get_func_annotations
 from telegrinder.tools.strings import to_pascal_case
 
 if typing.TYPE_CHECKING:
@@ -16,13 +16,9 @@ if typing.TYPE_CHECKING:
 else:
 
     def generate_node(*args, **kwargs):
-        globalns = globals()
-        if "__generate_node" not in globalns:
-            import telegrinder.node.tools.generator
+        from telegrinder.node.tools.generator import generate_node
 
-            globals()["__generate_node"] = telegrinder.node.tools.generator.generate_node
-
-        return globals()["__generate_node"](*args, **kwargs)
+        return generate_node(*args, **kwargs)
 
 
 type NodeType = Node | NodeProto[typing.Any]
@@ -90,12 +86,12 @@ def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
     return maybe_nodes[0] if len(maybe_nodes) == 1 else maybe_nodes
 
 
-@cache_magic_value("__nodes__")
+@function_context("nodes")
 def get_nodes(function: typing.Callable[..., typing.Any], /) -> dict[str, type[NodeType]]:
-    return {k: v.as_node() for k, v in get_annotations(function).items() if is_node(v)}
+    return {k: v.as_node() for k, v in get_func_annotations(function).items() if is_node(v)}
 
 
-@cache_magic_value("__is_generator__")
+@function_context("is_generator")
 def is_generator(
     function: typing.Callable[..., typing.Any],
     /,

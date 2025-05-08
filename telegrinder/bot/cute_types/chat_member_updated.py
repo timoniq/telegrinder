@@ -5,13 +5,13 @@ from fntypes.result import Result
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
-from telegrinder.tools.magic import shortcut
+from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
 
 
 async def chat_member_interaction(
-    update: BaseCute[typing.Any],
+    update: typing.Any,
     method_name: str,
     params: dict[str, typing.Any],
 ) -> Result[typing.Any, APIError]:

@@ -12,10 +12,10 @@ from telegrinder.msgspec_utils.custom_types.datetime import datetime, timedelta
 from telegrinder.msgspec_utils.custom_types.enum_meta import BaseEnumMeta
 from telegrinder.msgspec_utils.custom_types.option import Option
 from telegrinder.msgspec_utils.tools import (
+    bundle,
     fullname,
     get_origin,
     is_common_type,
-    magic_bundle,
     type_check,
 )
 
@@ -270,7 +270,7 @@ class Decoder:
                     "You can implement decode hook for this type.",
                 )
 
-            return dec_hook_func(tp, obj, **magic_bundle(dec_hook_func, context or {}, start_idx=2))
+            return bundle(dec_hook_func, context or {}, start_idx=2)(tp, obj)
 
         return inner
 

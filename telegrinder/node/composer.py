@@ -14,8 +14,8 @@ from telegrinder.node.base import (
     NodeType,
     unwrap_node,
 )
-from telegrinder.tools.awaitable import maybe_awaitable
-from telegrinder.tools.magic import join_dicts, magic_bundle
+from telegrinder.tools.aio import maybe_awaitable
+from telegrinder.tools.magic import bundle, join_dicts
 
 type AsyncGenerator = typing.AsyncGenerator[typing.Any, None]
 
@@ -33,13 +33,17 @@ async def compose_node(
     data: dict[type[typing.Any], typing.Any] | None = None,
 ) -> "NodeSession":
     subnodes = node.get_subnodes()
-    kwargs = magic_bundle(node.compose, join_dicts(subnodes, linked))
+    compose_bundle = bundle(node.compose, join_dicts(subnodes, linked), bundle_kwargs=True)
+    args = compose_bundle.args
+    kwargs = compose_bundle.kwargs.copy()
 
     # Linking data via typebundle
     if data:
-        kwargs.update(magic_bundle(node.compose, data, typebundle=True))
+        compose_type_bundle = bundle(node.compose, data, typebundle=True)
+        args += compose_type_bundle.args
+        kwargs |= compose_type_bundle.kwargs
 
-    compose_result = node.compose(**kwargs)
+    compose_result = node.compose(*args, **kwargs)
     if node.is_generator():
         generator = typing.cast("AsyncGenerator", compose_result)
         value = await generator.asend(None)

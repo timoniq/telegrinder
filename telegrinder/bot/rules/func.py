@@ -3,7 +3,7 @@ import typing
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
-from telegrinder.tools.awaitable import maybe_awaitable
+from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.types.objects import Update
 
 from .abc import ABCRule, AdaptTo

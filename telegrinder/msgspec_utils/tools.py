@@ -6,7 +6,7 @@ from fntypes.co import Nothing, Variative
 
 if typing.TYPE_CHECKING:
     from telegrinder.tools.fullname import fullname
-    from telegrinder.tools.magic import magic_bundle
+    from telegrinder.tools.magic.function import bundle
 
     def get_class_annotations(obj: typing.Any, /) -> dict[str, typing.Any]: ...
 
@@ -15,10 +15,10 @@ if typing.TYPE_CHECKING:
 else:
     from msgspec._utils import get_class_annotations, get_type_hints
 
-    def magic_bundle(*args, **kwargs):
-        from telegrinder.tools.magic import magic_bundle
+    def bundle(*args, **kwargs):
+        from telegrinder.tools.magic.function import bundle
 
-        return magic_bundle(*args, **kwargs)
+        return bundle(*args, **kwargs)
 
     def fullname(*args, **kwargs):
         from telegrinder.tools.fullname import fullname

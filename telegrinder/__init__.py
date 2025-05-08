@@ -105,6 +105,8 @@ from .tools.i18n import (
     I18nEnum,
     SimpleI18n,
     SimpleTranslator,
+    cache_translation,
+    get_cached_translation,
 )
 from .tools.input_file_directory import InputFileDirectory
 from .tools.keyboard import (
@@ -126,7 +128,6 @@ from .tools.keyboard import (
 )
 from .tools.lifespan import Lifespan
 from .tools.loop_wrapper import DelayedTask, LoopWrapper
-from .tools.magic import cache_translation, get_cached_translation, magic_bundle
 from .tools.parse_mode import ParseMode
 from .tools.state_storage import ABCStateStorage, MemoryStateStorage, StateData
 
@@ -259,6 +260,5 @@ __all__ = (
     "field",
     "get_cached_translation",
     "logger",
-    "magic_bundle",
     "register_manager",
 )

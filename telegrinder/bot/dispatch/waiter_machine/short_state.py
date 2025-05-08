@@ -6,7 +6,7 @@ import typing
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.tools.magic import cancel_future
+from telegrinder.tools.aio import cancel_future
 
 if typing.TYPE_CHECKING:
     from .actions import WaiterActions

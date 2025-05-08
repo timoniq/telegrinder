@@ -9,9 +9,40 @@ from telegrinder.modules import logger
 from telegrinder.node.base import ComposeError, Node, get_nodes
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeSession, compose_nodes
 from telegrinder.node.scope import NodeScope
-from telegrinder.tools.awaitable import maybe_awaitable
-from telegrinder.tools.magic import get_polymorphic_implementations, impl, magic_bundle
+from telegrinder.tools.aio import maybe_awaitable
+from telegrinder.tools.magic.function import bundle
 from telegrinder.types.objects import Update
+
+type Impl = type[classmethod]
+
+MORPH_IMPLEMENTATIONS_KEY = "__morph_implementations__"
+IMPL_MARK: typing.Final[str] = "_is_impl"
+
+
+@typing.cast("typing.Callable[..., Impl]", lambda f: f)
+def impl(method: typing.Callable[..., typing.Any]):
+    setattr(method, IMPL_MARK, True)
+    return classmethod(method)
+
+
+def get_polymorphic_implementations(
+    cls: type["Polymorphic"],
+    /,
+) -> list[typing.Callable[typing.Concatenate[type["Polymorphic"], ...], typing.Any]]:
+    moprh_impls = getattr(cls, MORPH_IMPLEMENTATIONS_KEY, None)
+    if moprh_impls is not None:
+        return moprh_impls
+
+    impls = []
+    for cls_ in cls.mro():
+        impls += [
+            obj.__func__
+            for obj in vars(cls_).values()
+            if isinstance(obj, classmethod) and getattr(obj.__func__, IMPL_MARK, False)
+        ]
+
+    setattr(cls, MORPH_IMPLEMENTATIONS_KEY, impls)
+    return impls
 
 
 class Polymorphic(Node):
@@ -50,12 +81,8 @@ class Polymorphic(Node):
                 await node_collection.close_all()
                 return res.value
 
-            result = await maybe_awaitable(
-                impl_(
-                    cls,
-                    **node_collection.values | magic_bundle(impl_, data, typebundle=True),
-                ),
-            )
+            impl_bundle = bundle(impl_, data, typebundle=True)
+            result = await maybe_awaitable(impl_bundle(cls, **node_collection.values))
             if scope is NodeScope.PER_EVENT:
                 node_ctx[(cls, i)] = NodeSession(cls, result, {})
 

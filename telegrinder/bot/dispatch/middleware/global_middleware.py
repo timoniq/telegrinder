@@ -9,7 +9,7 @@ from telegrinder.bot.rules.abc import ABCRule, check_rule
 from telegrinder.node import IsNode, compose_nodes
 from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
-from telegrinder.tools.awaitable import maybe_awaitable
+from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.types import Update
 
 

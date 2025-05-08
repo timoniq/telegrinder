@@ -12,7 +12,7 @@ from telegrinder.bot.rules.payload import (
     PayloadModelRule,
 )
 from telegrinder.tools.adapter.event import EventAdapter
-from telegrinder.tools.awaitable import maybe_awaitable
+from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.types.enums import UpdateType
 
 CallbackQuery: typing.TypeAlias = CallbackQueryCute

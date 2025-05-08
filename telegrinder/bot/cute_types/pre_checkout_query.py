@@ -5,7 +5,7 @@ from fntypes.result import Result
 from telegrinder.api.api import API
 from telegrinder.api.error import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
-from telegrinder.tools.magic import shortcut
+from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import PreCheckoutQuery, User
 

@@ -19,6 +19,7 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 
+type MessageOrCallbackQuery = MessageCute | CallbackQueryCute
 type MediaType = typing.Literal[
     "animation",
     "audio",
@@ -304,7 +305,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"link_preview_options", "message_thread_id", "message_id"},
     )
     async def edit(
-        self,
+        self: MessageOrCallbackQuery,
         text: str,
         *,
         business_connection_id: str | None = None,
@@ -2405,7 +2406,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_live_location(
-        self,
+        self: MessageOrCallbackQuery,
         *,
         longitude: float,
         business_connection_id: str | None = None,
@@ -2453,7 +2454,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_caption(
-        self,
+        self: MessageOrCallbackQuery,
         caption: str | None = None,
         *,
         business_connection_id: str | None = None,
@@ -2591,7 +2592,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_reply_markup(
-        self,
+        self: MessageOrCallbackQuery,
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,

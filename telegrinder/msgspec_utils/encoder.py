@@ -10,7 +10,7 @@ from fntypes.variative import Variative
 from telegrinder.msgspec_utils.abc import SupportsCast
 from telegrinder.msgspec_utils.custom_types.datetime import _datetime, _timedelta
 from telegrinder.msgspec_utils.custom_types.enum_meta import BaseEnumMeta
-from telegrinder.msgspec_utils.tools import fullname, get_origin, magic_bundle
+from telegrinder.msgspec_utils.tools import bundle, fullname, get_origin
 
 type Context = dict[str, typing.Any]
 type Order = typing.Literal["deterministic", "sorted"]
@@ -122,7 +122,7 @@ class Encoder:
                     "You can implement encode hook for this object.",
                 )
 
-            return enc_hook_func(obj, **magic_bundle(enc_hook_func, context or {}, start_idx=1))
+            return bundle(enc_hook_func, context or {}, start_idx=1)(obj)
 
         return inner
 

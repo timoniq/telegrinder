@@ -8,10 +8,16 @@ from fntypes.co import Nothing, Result, Some, Variative, unwrapping
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
-from telegrinder.bot.cute_types.message import MediaType, MessageCute, ReplyMarkup, execute_method_edit
+from telegrinder.bot.cute_types.message import (
+    MediaType,
+    MessageCute,
+    MessageOrCallbackQuery,
+    ReplyMarkup,
+    execute_method_edit,
+)
 from telegrinder.model import UNSET, From, field
 from telegrinder.msgspec_utils import Option, decoder
-from telegrinder.tools.magic import shortcut
+from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
 
@@ -189,7 +195,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         custom_params={"message_thread_id"},
     )
     async def edit_text(
-        self,
+        self: MessageOrCallbackQuery,
         text: str,
         *,
         business_connection_id: str | None = None,
@@ -234,7 +240,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         custom_params={"message_thread_id"},
     )
     async def edit_live_location(
-        self,
+        self: MessageOrCallbackQuery,
         *,
         longitude: float,
         business_connection_id: str | None = None,
@@ -282,7 +288,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         custom_params={"message_thread_id"},
     )
     async def edit_caption(
-        self,
+        self: MessageOrCallbackQuery,
         caption: str | None = None,
         *,
         business_connection_id: str | None = None,
@@ -407,7 +413,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         custom_params={"message_thread_id"},
     )
     async def edit_reply_markup(
-        self,
+        self: MessageOrCallbackQuery,
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,

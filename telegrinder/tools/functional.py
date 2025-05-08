@@ -1,4 +1,4 @@
-from fntypes import Nothing, Option, Some
+from fntypes.option import Nothing, Option, Some
 
 
 def from_optional[Value](value: Value | None, /) -> Option[Value]:

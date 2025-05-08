@@ -5,6 +5,8 @@ import enum
 import typing
 
 from telegrinder.modules import logger
+from telegrinder.tools.aio import cancel_future, run_task
+from telegrinder.tools.final import Final
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.lifespan import (
     CoroutineFunc,
@@ -12,10 +14,8 @@ from telegrinder.tools.lifespan import (
     DelayedTask,
     Lifespan,
     Task,
-    run_task,
     to_coroutine_task,
 )
-from telegrinder.tools.magic import cancel_future
 from telegrinder.tools.singleton.singleton import Singleton
 
 type Tasks = set[asyncio.Task[typing.Any]]
@@ -43,16 +43,13 @@ class LoopWrapperState(enum.Enum):
 
 
 @typing.final
-class LoopWrapper(Singleton):
+class LoopWrapper(Singleton, Final):
     _loop: asyncio.AbstractEventLoop
     _lifespan: Lifespan
     _tasks: list[CoroutineTask[typing.Any]]
     _state: LoopWrapperState
 
     __slots__ = ("_loop", "_lifespan", "_tasks", "_state")
-
-    def __init_subclass__(cls) -> typing.NoReturn:
-        raise TypeError("LoopWrapper cannot be subclassed.")
 
     def __init__(self) -> None:
         self._loop = asyncio.get_event_loop()

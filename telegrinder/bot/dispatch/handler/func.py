@@ -5,6 +5,7 @@ import typing_extensions as typing
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import logger
 from telegrinder.node.base import NodeType, get_nodes
@@ -12,11 +13,10 @@ from telegrinder.node.composer import NodeCollection, compose_nodes
 from telegrinder.tools.adapter.abc import ABCAdapter
 from telegrinder.tools.adapter.dataclass import DataclassAdapter
 from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
-from telegrinder.tools.magic import get_annotations, magic_bundle
+from telegrinder.tools.fullname import fullname
+from telegrinder.tools.magic.function import bundle, get_func_annotations
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
-
-from .abc import ABCHandler
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
@@ -26,7 +26,7 @@ Function = typing.TypeVar("Function", bound="Func[..., typing.Any]")
 Event = typing.TypeVar("Event")
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
-type Func[**Rest, Result] = typing.Callable[Rest, typing.Coroutine[typing.Any, typing.Any, Result]]
+type Func[**P, Result] = typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, Result]]
 
 
 @dataclasses.dataclass(repr=False, slots=True)
@@ -55,9 +55,9 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
 
     def __repr__(self) -> str:
         return "<{}: {}={!r} with rules={!r}, dataclass={!r}, error_handler={!r}>".format(
-            self.__class__.__name__,
+            type(self).__name__,
             "final function" if self.final else "function",
-            self.function.__qualname__,
+            fullname(self.function),
             self.rules,
             self.dataclass,
             self.error_handler,
@@ -69,7 +69,7 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
 
     def get_name_event_param(self, event: Event) -> str | None:
         event_class = self.dataclass or event.__class__
-        for k, v in get_annotations(self.function).items():
+        for k, v in get_func_annotations(self.function).items():
             if isinstance(v := typing.get_origin(v) or v, type) and v is event_class:
                 self.func_event_param = k
                 return k
@@ -118,7 +118,8 @@ class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandle
         try:
             if event_param := self.get_name_event_param(event):
                 ctx = Context(**{event_param: event, **ctx})
-            return await self(**magic_bundle(self.function, ctx, start_idx=0, bundle_ctx=True))
+
+            return await bundle(self.function, ctx, start_idx=0, bundle_ctx=True)()
         except BaseException as exception:
             return await self.error_handler.run(exception, event, api, ctx)
         finally:

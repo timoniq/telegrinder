@@ -92,7 +92,7 @@ async def react(message: Message):
         on_miss=MessageReplyHandler("Your message has no text!"),
         lifespan=DummyMiddleware().to_lifespan(message),
     )
-    await msg.react("💋")
+    await msg.react("🔥")
 
 
 @bot.on.message(Markup("/reverse <text>"))
