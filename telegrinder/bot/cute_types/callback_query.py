@@ -195,7 +195,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         custom_params={"message_thread_id"},
     )
     async def edit_text(
-        self: MessageOrCallbackQuery,
+        self,
         text: str,
         *,
         business_connection_id: str | None = None,
@@ -240,7 +240,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         custom_params={"message_thread_id"},
     )
     async def edit_live_location(
-        self: MessageOrCallbackQuery,
+        self,
         *,
         longitude: float,
         business_connection_id: str | None = None,
@@ -288,7 +288,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         custom_params={"message_thread_id"},
     )
     async def edit_caption(
-        self: MessageOrCallbackQuery,
+        self,
         caption: str | None = None,
         *,
         business_connection_id: str | None = None,
@@ -413,7 +413,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         custom_params={"message_thread_id"},
     )
     async def edit_reply_markup(
-        self: MessageOrCallbackQuery,
+        self,
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,

@@ -305,7 +305,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"link_preview_options", "message_thread_id", "message_id"},
     )
     async def edit(
-        self: MessageOrCallbackQuery,
+        self,
         text: str,
         *,
         business_connection_id: str | None = None,
@@ -2406,7 +2406,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_live_location(
-        self: MessageOrCallbackQuery,
+        self,
         *,
         longitude: float,
         business_connection_id: str | None = None,
@@ -2454,7 +2454,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_caption(
-        self: MessageOrCallbackQuery,
+        self,
         caption: str | None = None,
         *,
         business_connection_id: str | None = None,
@@ -2592,7 +2592,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_reply_markup(
-        self: MessageOrCallbackQuery,
+        self,
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
