@@ -1,6 +1,6 @@
 ---
 name: "\U0001F41B Bug report \U0001F41B"
-about: "\U0001F41B Reporting a bug. \U0001F41B"
+about: "Reporting a bug."
 title: ""
 labels: ["bug"]
 assignees: []

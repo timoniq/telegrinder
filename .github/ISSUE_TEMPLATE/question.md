@@ -1,6 +1,6 @@
 ---
 name: "\U00002753 Question \U00002753"
-about: "Ask a question"
+about: "Ask a question."
 title: ""
 labels: ["question"]
 assignees: []
