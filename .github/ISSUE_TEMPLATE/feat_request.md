@@ -1,8 +1,8 @@
 ---
-name: "\U0001F680 New feature \U0001F680"
-about: "\U0001F680 I want to propose a new feature. \U0001F680"
+name: "\U0001F680 Feature request \U0001F680"
+about: "Creating a feature request."
 title: ""
-labels: ["new_feature"]
+labels: ["feature request"]
 assignees: []
 ---
 
