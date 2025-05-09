@@ -93,8 +93,8 @@ __all__ = (
     "StopGenerator",
     "cancel_future",
     "maybe_awaitable",
-    "run_task",
-    "stop_generator",
     "next_generator",
+    "run_task",
     "send_generator_value",
+    "stop_generator",
 )

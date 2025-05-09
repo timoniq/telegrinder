@@ -2408,6 +2408,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def edit_live_location(
         self: MessageOrCallbackQuery,
         *,
+        latitude: float,
         longitude: float,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
