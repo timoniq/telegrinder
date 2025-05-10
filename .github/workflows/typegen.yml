@@ -35,6 +35,7 @@ jobs:
       - name: "Create PR"
         uses: peter-evans/create-pull-request@v7
         with:
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           commit-message: >
             Update API types based on the latest schema changes.
           title: >
