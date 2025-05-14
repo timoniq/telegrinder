@@ -81,10 +81,21 @@ class Polling(ABCPolling, typing.Generic[HTTPClient]):
             case Ok(value):
                 return value
             case Error(err):
+                if err.code == HTTPStatus.TOO_MANY_REQUESTS:
+                    raise APIServerError(
+                        "Too many requests to get updates",
+                        err.retry_after.unwrap_or(int(self.reconnection_timeout)),
+                    ) from None
+
                 if err.code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.NOT_FOUND):
                     raise InvalidTokenError("Token seems to be invalid") from None
+
                 if err.code in (HTTPStatus.BAD_GATEWAY, HTTPStatus.GATEWAY_TIMEOUT):
-                    raise APIServerError("Unavilability of the API Telegram server") from None
+                    raise APIServerError(
+                        "Unavilability of the API Telegram server",
+                        int(self.reconnection_timeout),
+                    ) from None
+
                 raise err from None
 
     async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
@@ -106,8 +117,8 @@ class Polling(ABCPolling, typing.Generic[HTTPClient]):
                     self.stop()
                     sys.exit(3)
                 except APIServerError as e:
-                    logger.error(f"{e}, waiting {self.reconnection_timeout} seconds to the next request...")
-                    await asyncio.sleep(self.reconnection_timeout)
+                    logger.error(f"{e}, waiting {e.retry_after} seconds to the next request...")
+                    await asyncio.sleep(e.retry_after)
                 except asyncio.CancelledError:
                     logger.info("Caught cancel, polling stopping...")
                     self.stop()

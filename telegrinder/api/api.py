@@ -80,6 +80,7 @@ class API(APIMethods[HTTPClient], typing.Generic[HTTPClient]):
             APIError(
                 code=response.get("error_code", 400),
                 error=response.get("description", "Something went wrong"),
+                data=response.get("parameters", {}),
             ),
         )
 

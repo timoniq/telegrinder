@@ -22,7 +22,7 @@ keywords = [
     "telegram bot api framework",
     "telegrinder framework",
     "middleware",
-    "composition",
+    "nodes",
     "framework",
     "telegrinder",
     "waiter machine",
@@ -39,7 +39,7 @@ classifiers = [
 ]
 dependencies = [
     "aiohttp (>=3.11.17,<4.0.0)",
-    "termcolor>=3.1.0",
+    "termcolor (>=3.1.0,<4.0.0)",
     "vbml (>=1.1.post1,<2.0)",
     "choicelib (>=0.1.5,<0.2.0)",
     "envparse (>=0.2.0,<0.3.0)",
@@ -51,11 +51,11 @@ dependencies = [
 
 [project.optional-dependencies]
 all = [
-    "uvloop >= 0.21.0",
+    "uvloop >= 0.21.0; (sys_platform == 'darwin' or sys_platform == 'linux')",
     "loguru >= 0.7.3",
     "brotli >= 1.1.0",
 ]
-uvloop = ["uvloop >= 0.21.0"]
+uvloop = ["uvloop >= 0.21.0; (sys_platform == 'darwin' or sys_platform == 'linux')"]
 loguru = ["loguru >= 0.7.0"]
 brotli = ["brotli >= 1.1.0"]
 
