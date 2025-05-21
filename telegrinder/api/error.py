@@ -1,4 +1,6 @@
 import typing
+from functools import cached_property
+from http import HTTPStatus
 
 from fntypes.option import Nothing, Option, Some
 
@@ -18,12 +20,16 @@ class APIError(ReprErrorMixin, Exception):
         self.code, self.error, self.parameters = code, error, data
         super().__init__(code, error, data)
 
+    @cached_property
+    def status_code(self) -> HTTPStatus:
+        return HTTPStatus(self.code)
+
     @property
     def retry_after(self) -> Option[int]:
         return Some(v) if (v := self.parameters.get("retry_after")) is not None else Nothing()
 
     def __str__(self) -> str:
-        return f"[{self.code}] {self.error}"
+        return f"[{self.code}] ({self.status_code.name}) {self.error}"
 
 
 class APIServerError(ReprErrorMixin, Exception):

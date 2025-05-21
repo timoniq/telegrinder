@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import sys
 import typing
@@ -11,7 +13,79 @@ from telegrinder.api.error import APIServerError, InvalidTokenError
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import decoder
+from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.types.objects import Update, UpdateType
+
+
+class PollingErrorHandler(typing.Generic[HTTPClient]):
+    _handlers: dict[type[BaseException], typing.Callable[[BaseException], typing.Any]]
+
+    __slots__ = ("_polling", "_reconn_counter", "_handlers")
+
+    def __init__(self, polling: Polling[HTTPClient]) -> None:
+        self._polling = polling
+        self._reconn_counter = 0
+        self._handlers = {  # type: ignore
+            SystemExit: self._handle_system_exit,
+            InvalidTokenError: self._handle_invalid_token_error,
+            asyncio.CancelledError: self._handle_cancelled_error,
+            APIServerError: self._handle_api_server_error,
+            **{e: self._handle_connection_timeout_error for e in polling.api.http.CONNECTION_TIMEOUT_ERRORS},
+            **{e: self._handle_client_connection_error for e in polling.api.http.CLIENT_CONNECTION_ERRORS},
+        }
+
+    async def handle(self, error: BaseException) -> bool:
+        if type(error) not in self._handlers:
+            return False
+
+        try:
+            await maybe_awaitable(self._handlers[type(error)](error))
+            return True
+        except SystemExit as sys_exit_err:
+            self._handle_system_exit(sys_exit_err)
+
+    def _handle_system_exit(self, error: SystemExit) -> typing.NoReturn:
+        logger.error(f"Forced exit from the program with code {error.code}.")
+        raise error from None
+
+    def _handle_invalid_token_error(
+        self,
+        error: InvalidTokenError,
+    ) -> typing.NoReturn:
+        logger.error(error)
+        self._polling.stop()
+        sys.exit(3)
+
+    def _handle_cancelled_error(self, _: asyncio.CancelledError) -> None:
+        logger.info("Caught cancel, polling stopping...")
+        self._polling.stop()
+
+    async def _handle_connection_timeout_error(self, _: BaseException) -> None:
+        if self._reconn_counter > self._polling.max_reconnetions:
+            logger.error(
+                "Failed to reconnect to the server after {} attempts, polling stopping.",
+                self._polling.max_reconnetions,
+            )
+            self._polling.stop()
+            sys.exit(6)
+
+        logger.warning(
+            "Server disconnected, waiting {} seconds to reconnect...",
+            self._polling.reconnection_timeout,
+        )
+        self._reconn_counter += 1
+        await asyncio.sleep(self._polling.reconnection_timeout)
+
+    async def _handle_client_connection_error(self, _: BaseException) -> None:
+        logger.error("Client connection failed, attempted to reconnect...")
+        await asyncio.sleep(self._polling.reconnection_timeout)
+
+    async def _handle_api_server_error(
+        self,
+        error: APIServerError,
+    ) -> None:
+        logger.error(f"{error}, waiting {error.retry_after} seconds to the next request...")
+        await asyncio.sleep(error.retry_after)
 
 
 class Polling(ABCPolling, typing.Generic[HTTPClient]):
@@ -34,6 +108,7 @@ class Polling(ABCPolling, typing.Generic[HTTPClient]):
         self.max_reconnetions = 15 if max_reconnetions < 0 else max_reconnetions
         self.offset = offset
         self._stop = True
+        self._error_handler = PollingErrorHandler(self)
 
     def __repr__(self) -> str:
         return (
@@ -81,16 +156,16 @@ class Polling(ABCPolling, typing.Generic[HTTPClient]):
             case Ok(value):
                 return value
             case Error(err):
-                if err.code == HTTPStatus.TOO_MANY_REQUESTS:
+                if err.status_code == HTTPStatus.TOO_MANY_REQUESTS:
                     raise APIServerError(
                         "Too many requests to get updates",
                         err.retry_after.unwrap_or(int(self.reconnection_timeout)),
                     ) from None
 
-                if err.code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.NOT_FOUND):
+                if err.status_code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.NOT_FOUND):
                     raise InvalidTokenError("Token seems to be invalid") from None
 
-                if err.code in (HTTPStatus.BAD_GATEWAY, HTTPStatus.GATEWAY_TIMEOUT):
+                if err.status_code in (HTTPStatus.BAD_GATEWAY, HTTPStatus.GATEWAY_TIMEOUT):
                     raise APIServerError(
                         "Unavilability of the API Telegram server",
                         int(self.reconnection_timeout),
@@ -100,48 +175,19 @@ class Polling(ABCPolling, typing.Generic[HTTPClient]):
 
     async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
         logger.debug("Listening polling")
-        reconn_counter = 0
         self._stop = False
 
         with decoder(list[Update]) as dec:
             while not self._stop:
                 try:
                     updates = await self.get_updates()
-                    reconn_counter = 0
                     updates_list = dec.decode(updates)
                     if updates_list:
                         yield updates_list
                         self.offset = updates_list[-1].update_id + 1
-                except InvalidTokenError as e:
-                    logger.error(e)
-                    self.stop()
-                    sys.exit(3)
-                except APIServerError as e:
-                    logger.error(f"{e}, waiting {e.retry_after} seconds to the next request...")
-                    await asyncio.sleep(e.retry_after)
-                except asyncio.CancelledError:
-                    logger.info("Caught cancel, polling stopping...")
-                    self.stop()
-                except self.api.http.CONNECTION_TIMEOUT_ERRORS:
-                    if reconn_counter > self.max_reconnetions:
-                        logger.error(
-                            "Failed to reconnect to the server after {} attempts, polling stopping.",
-                            self.max_reconnetions,
-                        )
-                        self.stop()
-                        sys.exit(6)
-                    else:
-                        logger.warning(
-                            "Server disconnected, waiting {} seconds to reconnect...",
-                            self.reconnection_timeout,
-                        )
-                        reconn_counter += 1
-                        await asyncio.sleep(self.reconnection_timeout)
-                except self.api.http.CLIENT_CONNECTION_ERRORS:
-                    logger.error("Client connection failed, attempted to reconnect...")
-                    await asyncio.sleep(self.reconnection_timeout)
-                except BaseException as e:
-                    logger.exception("Traceback message below:")
+                except BaseException as error:
+                    if not await self._error_handler.handle(error):
+                        logger.exception("Traceback message below:")
 
     def stop(self) -> None:
         self._stop = True
