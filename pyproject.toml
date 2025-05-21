@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "telegrinder"
-version = "0.5.dev1"
+version = "0.5.dev2"
 description = "Modern visionary telegram bot framework."
 authors = [{ name = "timoniq", email = "tesseradecades@mail.ru" }]
 requires-python = ">=3.12,<4.0"
@@ -163,3 +163,4 @@ pythonPlatform = "All"
 pythonVersion = "3.12"
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportSelfClsParameterName = false

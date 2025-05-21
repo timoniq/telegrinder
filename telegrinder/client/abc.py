@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from telegrinder.client.form_data import MultipartFormProto, encode_form_data
 
 type Data = dict[str, typing.Any] | MultipartFormProto
+type Files = dict[str, tuple[str, typing.Any]]
 
 
 class ABCClient[MultipartForm: MultipartFormProto](ABC):
@@ -69,7 +70,7 @@ class ABCClient[MultipartForm: MultipartFormProto](ABC):
         cls,
         *,
         data: dict[str, typing.Any],
-        files: dict[str, tuple[str, typing.Any]] | None = None,
+        files: Files | None = None,
     ) -> MultipartForm:
         multipart_form = cls.multipart_form_factory()
         files = files or {}
