@@ -18,7 +18,7 @@ from telegrinder.types.methods import APIMethods
 type Json = str | int | float | bool | list[Json] | dict[str, Json] | None
 type Data = dict[str, typing.Any]
 type Files = dict[str, tuple[str, bytes]]
-type APIMethod[T: API[typing.Any], **P, R] = typing.Callable[
+type APIRequestMethod[T: API[typing.Any], **P, R] = typing.Callable[
     typing.Concatenate[T, P],
     typing.Coroutine[typing.Any, typing.Any, Result[R, APIError]],
 ]
@@ -36,7 +36,7 @@ def compose_data[MultipartForm: MultipartFormProto](
     return client.get_form(data=data, files=files)
 
 
-def retryer[T: API[typing.Any], **P, R](func: APIMethod[T, P, R], /) -> APIMethod[T, P, R]:
+def retryer[T: API[typing.Any], **P, R](func: APIRequestMethod[T, P, R], /) -> APIRequestMethod[T, P, R]:
     @wraps(func)
     async def wrapper(
         self: T,
