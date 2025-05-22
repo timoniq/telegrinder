@@ -20,7 +20,7 @@ class ABCView(ABC):
     async def process(
         self,
         event: Update,
-        api: API[typing.Any],
+        api: API,
         context: Context,
     ) -> bool:
         pass

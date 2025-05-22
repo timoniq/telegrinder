@@ -19,7 +19,7 @@ ToEvent = typing.TypeVar("ToEvent", bound=Model, default=typing.Any)
 
 async def run_middleware[Event: Model, R: bool | None](
     method: typing.Callable[typing.Concatenate[Event, Context, ...], typing.Awaitable[R]],
-    api: API[typing.Any],
+    api: API,
     event: Event,
     ctx: Context,
     raw_event: Update | None = None,

@@ -649,10 +649,10 @@ class MethodGenerator(ABCGenerator):
             "from telegrinder.types.enums import *  # noqa: F403\n"
             "from telegrinder.types.objects import *  # noqa: F403\n\n"
             "if typing.TYPE_CHECKING:\n",
-            "    from telegrinder.api.api import API\n    from telegrinder.client.abc import ABCClient\n\n\n",
-            "class APIMethods[HTTPClient: ABCClient]:\n" + docstring,
+            "    from telegrinder.api.api import API\n\n\n",
+            "class APIMethods:\n" + docstring,
             f"\n\n    default_params = ProxiedDict({default_params_typeddict},)\n\n",
-            '    def __init__(self, api: "API[HTTPClient]") -> None:\n',
+            '    def __init__(self, api: "API") -> None:\n',
             "        self.api = api\n\n",
         ]
 

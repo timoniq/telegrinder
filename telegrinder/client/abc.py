@@ -8,12 +8,17 @@ type Data = dict[str, typing.Any] | MultipartFormProto
 type Files = dict[str, tuple[str, typing.Any]]
 
 
-class ABCClient[MultipartForm: MultipartFormProto](ABC):
+class ABCClient(ABC):
     CONNECTION_TIMEOUT_ERRORS: tuple[type[BaseException], ...] = ()
     CLIENT_CONNECTION_ERRORS: tuple[type[BaseException], ...] = ()
 
     @abstractmethod
     def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+        pass
+
+    @property
+    @abstractmethod
+    def timeout(self) -> float:
         pass
 
     @abstractmethod
@@ -62,7 +67,7 @@ class ABCClient[MultipartForm: MultipartFormProto](ABC):
 
     @classmethod
     @abstractmethod
-    def multipart_form_factory(cls) -> MultipartForm:
+    def multipart_form_factory(cls) -> MultipartFormProto:
         pass
 
     @classmethod
@@ -71,7 +76,7 @@ class ABCClient[MultipartForm: MultipartFormProto](ABC):
         *,
         data: dict[str, typing.Any],
         files: Files | None = None,
-    ) -> MultipartForm:
+    ) -> MultipartFormProto:
         multipart_form = cls.multipart_form_factory()
         files = files or {}
 
@@ -93,9 +98,8 @@ class ABCClient[MultipartForm: MultipartFormProto](ABC):
         exc_type: type[BaseException],
         exc_val: typing.Any,
         exc_tb: typing.Any,
-    ) -> bool:
+    ) -> None:
         await self.close()
-        return not bool(exc_val)
 
 
 __all__ = ("ABCClient",)

@@ -14,6 +14,10 @@ class MockedHttpClient(ABCClient):
         self.return_value = return_value
         self.callback = callback or (lambda method, url, data: None)
 
+    @property
+    def timeout(self) -> float:
+        return 0.0
+
     async def request_text(
         self,
         url: str,

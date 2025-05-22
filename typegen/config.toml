@@ -24,6 +24,22 @@ type = "String"
 name = "explanation_parse_mode"
 type = "String"
 
+[[generator.api.typed-default-parameters]]
+name = "allow_paid_broadcast"
+type = "Boolean"
+
+[[generator.api.typed-default-parameters]]
+name = "disable_web_page_preview"
+type = "Boolean"
+
+[[generator.api.typed-default-parameters]]
+name = "disable_notification"
+type = "Boolean"
+
+[[generator.api.typed-default-parameters]]
+name = "protect_content"
+type = "Boolean"
+
 # Generator :: Objects :: Random id by default for fields
 
 [[generator.objects.id-by-default]]

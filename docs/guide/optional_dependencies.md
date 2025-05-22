@@ -4,31 +4,16 @@
 
 | Default      | Optional                                                                                           |
 | ------------ | ---------------------------------------------------------------------------------------------------|
-| [aiohttp](https://docs.aiohttp.org/en/stable)                  | [aiosonic](#aiosonic)                            |
 | [asyncio](https://docs.python.org/3/library/asyncio.html)      | [uvloop](#uvloop)                                |
 | [logging](https://docs.python.org/3/library/logging.html)      | [loguru](#loguru)                                |
 | [base64](https://docs.python.org/3/library/base64.html)        | [brotli](#brotli)                                |
+| *None*                                                         | [socks](#aiohttp-socks)                          |
 
 
-Install all optional dependecies
+Installing all optional dependecies:
 ```console
 pip install "telegrinder[all]"
 ```
-
-
-### [aiosonic](https://github.com/sonic182/aiosonic)
-```console
-pip install aiosonic
-```
-
-This dependency is required for the `AiosonicClient` class. This is a fast HTTP client that can be passed to the `API` class:
-```python
-from telegrinder.api import API, Token
-from telegrinder.client import AiosonicClient
-
-api = API(Token(...), http=AiosonicClient())
-```
-
 
 ### [uvloop](https://github.com/MagicStack/uvloop)
 ```console
@@ -63,4 +48,20 @@ logger.set_level("INFO")
 Brotli is required for `telegrinder.tools.callback_data_serilization.MsgPackSerializer`, which provides a much more compact encode data.
 ```console
 pip install "telegrinder[brotli]"
+```
+
+### [aiohttp-socks](https://github.com/romis2012/aiohttp-socks)
+```console
+pip install "telegrinder[socks]"
+```
+
+The `aiohttp-socks` dependency provides a proxy connector for `telegrinder.client.aiohttp.AiohttpClient`.
+
+```python
+from telegrinder.api.api import API
+from telegrinder.client.aiohttp import AiohttpClient
+
+SOCKS5_DSN = "socks5://user:password@127.0.0.1:1080"
+
+client = API(token=..., http=AiohttpClient(proxy=SOCKS5_DSN))
 ```

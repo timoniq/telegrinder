@@ -1,6 +1,6 @@
 import typing_extensions as typing
 
-from telegrinder.api.api import API, HTTPClient
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch import dispatch as dp
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.polling import polling as pg
@@ -9,16 +9,16 @@ from telegrinder.modules import logger
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
-Dispatch = typing.TypeVar("Dispatch", bound=ABCDispatch, default=dp.Dispatch[HTTPClient])
-Polling = typing.TypeVar("Polling", bound=ABCPolling, default=pg.Polling[HTTPClient])
+Dispatch = typing.TypeVar("Dispatch", bound=ABCDispatch, default=dp.Dispatch)
+Polling = typing.TypeVar("Polling", bound=ABCPolling, default=pg.Polling)
 
 CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
 
 
-class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
+class Telegrinder(typing.Generic[Dispatch, Polling]):
     def __init__(
         self,
-        api: API[HTTPClient],
+        api: API,
         *,
         dispatch: Dispatch | None = None,
         polling: Polling | None = None,
@@ -31,7 +31,7 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
 
     def __repr__(self) -> str:
         return "<{}: api={!r}, dispatch={!r}, polling={!r}, loop_wrapper={!r}>".format(
-            self.__class__.__name__,
+            type(self).__name__,
             self.api,
             self.dispatch,
             self.polling,
@@ -58,7 +58,6 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
                 logger.debug("Dropping pending updates")
                 await self.reset_webhook()
                 await self.api.delete_webhook(drop_pending_updates=True)
-            self.polling.offset = offset
 
             async for updates in self.polling.listen():
                 for update in updates:
@@ -68,6 +67,8 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
                         update.update_type,
                     )
                     self.loop_wrapper.add_task(self.dispatch.feed(update, self.api))
+
+        self.polling.offset = offset
 
         if self.loop_wrapper.running:
             await polling()

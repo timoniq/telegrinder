@@ -6,7 +6,7 @@ import typing_extensions as typing
 from fntypes import Nothing, Option, Some
 from vbml.patcher.abc import ABCPatcher
 
-from telegrinder.api.api import API, HTTPClient
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, Func, FuncHandler
@@ -55,7 +55,6 @@ class Dispatch(
         RawEventView,
     ],
     typing.Generic[
-        HTTPClient,
         CallbackQueryView,
         ChatJoinRequestView,
         ChatMemberView,
@@ -185,7 +184,7 @@ class Dispatch(
 
         return wrapper
 
-    async def feed(self, event: Update, api: API[HTTPClient]) -> bool:
+    async def feed(self, event: Update, api: API) -> bool:
         logger.debug(
             "Processing update (update_id={}, update_type={!r})",
             event.update_id,

@@ -17,7 +17,7 @@ class PathExistsError(BaseException):
 
 class ABCDispatch(ABC):
     @abstractmethod
-    async def feed(self, event: Update, api: API[typing.Any]) -> bool:
+    async def feed(self, event: Update, api: API) -> bool:
         pass
 
     @abstractmethod

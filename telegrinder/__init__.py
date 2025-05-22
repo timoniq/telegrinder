@@ -93,7 +93,7 @@ from .bot import (
     WaiterMachine,
     register_manager,
 )
-from .client import ABCClient, AiohttpClient, AiosonicClient
+from .client import ABCClient, AiohttpClient
 from .model import Model, field
 from .modules import logger
 from .tools.error_handler import ABCErrorHandler, ErrorHandler
@@ -165,7 +165,6 @@ __all__ = (
     "APIResponse",
     "APIServerError",
     "AiohttpClient",
-    "AiosonicClient",
     "AudioReplyHandler",
     "BaseButton",
     "BaseCute",

@@ -4,7 +4,7 @@ from functools import cached_property
 
 from envparse import env
 
-from .error import InvalidTokenError
+from telegrinder.api.error import InvalidTokenError
 
 
 class Token(str):

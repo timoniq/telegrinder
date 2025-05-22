@@ -2,7 +2,16 @@ import typing
 from functools import cached_property
 from http import HTTPStatus
 
-from fntypes.option import Nothing, Option, Some
+from fntypes.option import Option
+
+if typing.TYPE_CHECKING:
+    from telegrinder.tools.functional import from_optional
+else:
+
+    def from_optional(*args, **kwargs):
+        from telegrinder.tools.functional import from_optional
+
+        return from_optional(*args, **kwargs)
 
 
 class ReprErrorMixin:
@@ -26,7 +35,11 @@ class APIError(ReprErrorMixin, Exception):
 
     @property
     def retry_after(self) -> Option[int]:
-        return Some(v) if (v := self.parameters.get("retry_after")) is not None else Nothing()
+        return from_optional(self.parameters.get("retry_after"))
+
+    @property
+    def migrate_to_chat_id(self) -> Option[int]:
+        return from_optional(self.parameters.get("migrate_to_chat_id"))
 
     def __str__(self) -> str:
         return f"[{self.code}] ({self.status_code.name}) {self.error}"
