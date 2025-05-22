@@ -48,14 +48,16 @@ class LoopWrapper(Singleton, Final):
     _lifespan: Lifespan
     _tasks: list[CoroutineTask[typing.Any]]
     _state: LoopWrapperState
+    _all_tasks: set[asyncio.Task[typing.Any]]
 
-    __slots__ = ("_loop", "_lifespan", "_tasks", "_state")
+    __slots__ = ("_loop", "_lifespan", "_tasks", "_state", "_all_tasks")
 
     def __init__(self) -> None:
         self._loop = asyncio.get_event_loop()
         self._lifespan = Lifespan()
         self._tasks = list()
         self._state = LoopWrapperState.NOT_RUNNING
+        self._all_tasks = set()
 
         self._loop.create_task(self._run_async_event_loop())
 
@@ -119,7 +121,7 @@ class LoopWrapper(Singleton, Final):
     def _get_all_tasks(self) -> Tasks:
         """Get a set of all tasks from the loop (`exclude the current task if any`)."""
 
-        return asyncio.all_tasks(loop=self._loop).symmetric_difference(
+        return (self._all_tasks | asyncio.all_tasks(loop=self._loop)).symmetric_difference(
             set() if (task := asyncio.current_task(self.loop)) is None else {task},
         )
 
@@ -212,7 +214,13 @@ class LoopWrapper(Singleton, Final):
 
     def add_task(self, task: Task[..., typing.Any], /) -> None:
         coro = to_coroutine_task(task)
-        self._loop.create_task(coro) if self.running else self._tasks.append(coro)
+
+        if self.running:
+            new_task = self._loop.create_task(coro)
+            self._all_tasks.add(new_task)
+            new_task.add_done_callback(self._all_tasks.discard)
+        else:
+            self._tasks.append(coro)
 
     @typing.overload
     def timer[**P, R](self, delta: datetime.timedelta, /) -> DelayedFunctionDecorator[P, R]: ...

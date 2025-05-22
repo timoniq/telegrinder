@@ -137,7 +137,7 @@ class API(APIMethods):
         files: Files | None = None,
         **kwargs: typing.Any,
     ) -> Result[Json, APIError]:
-        """Request a `JSON` response using http method `POST`and passing data, files as `multipart/form-data`."""
+        """Request a `JSON` response using http method `POST` and passing data, files as `multipart/form-data`."""
         response = await self.http.request_json(
             url=self.request_url + method,
             method="POST",

@@ -21,6 +21,17 @@ DEFAULT_RECONNECT_AFTER: typing.Final[float] = 5.0
 DEFAULT_MAX_RECONNECTS: typing.Final[int] = 15
 
 
+def _compute_number(
+    default: int | float,
+    input_value: int | float,
+    conditional_value: int | float,
+    /,
+) -> int | float:
+    return max(default, input_value) * (input_value <= conditional_value) + input_value * (
+        input_value >= conditional_value
+    )
+
+
 class PollingErrorHandler:
     _handlers: dict[type[BaseException], typing.Callable[[BaseException], typing.Any]]
 
@@ -98,12 +109,10 @@ class PollingErrorHandler:
 
 
 class Polling(ABCPolling):
-    _ignore_errors: set[type[BaseException]] = {
-        TimeoutError,
-    }
-
     __slots__ = (
         "api",
+        "timeout",
+        "limit",
         "allowed_updates",
         "reconnect_after",
         "max_reconnects",
@@ -126,18 +135,14 @@ class Polling(ABCPolling):
         exclude_updates: set[UpdateType] | None = None,
     ) -> None:
         self.api = api
+        self.timeout = timeout
+        self.limit = limit
         self.allowed_updates = self.get_allowed_updates(
             include_updates=include_updates,
             exclude_updates=exclude_updates,
         )
-        self.reconnect_after = max(DEFAULT_RECONNECT_AFTER, reconnect_after) * (
-            reconnect_after <= 0.0
-        ) + reconnect_after * (reconnect_after >= 0.0)
-        self.max_reconnects = max(DEFAULT_MAX_RECONNECTS, max_reconnects) * (
-            max_reconnects <= 0
-        ) + max_reconnects * (max_reconnects >= 0)
-        self.timeout = timeout
-        self.limit = limit
+        self.reconnect_after = _compute_number(DEFAULT_RECONNECT_AFTER, reconnect_after, 0.0)
+        self.max_reconnects = _compute_number(DEFAULT_MAX_RECONNECTS, max_reconnects, 0)
         self.offset = max(DEFAULT_OFFSET, offset)
         self._running = False
         self._reconnects_counter = 0
