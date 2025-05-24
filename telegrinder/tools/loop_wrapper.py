@@ -59,7 +59,7 @@ class LoopWrapper(Singleton, Final):
         self._state = LoopWrapperState.NOT_RUNNING
         self._all_tasks = set()
 
-        self._loop.create_task(self._run_async_event_loop())
+        self._create_task(self._run_async_event_loop())
 
     def __call__(self) -> asyncio.AbstractEventLoop:
         """A loop factory."""
@@ -82,7 +82,7 @@ class LoopWrapper(Singleton, Final):
         logger.debug("Running loop wrapper")
 
         while self._tasks:
-            self._loop.create_task(self._tasks.pop(0))
+            self._create_task(self._tasks.pop(0))
 
         while self.running and (tasks := self._get_all_tasks()):
             await self._process_tasks(tasks)
@@ -118,8 +118,13 @@ class LoopWrapper(Singleton, Final):
         logger.debug("Shutdown loop wrapper")
         self._state = LoopWrapperState.SHUTDOWN
 
+    def _create_task(self, coro: CoroutineTask[typing.Any], /) -> None:
+        task = self._loop.create_task(coro)
+        self._all_tasks.add(task)
+        task.add_done_callback(self._all_tasks.discard)
+
     def _get_all_tasks(self) -> Tasks:
-        """Get a set of all tasks from the loop (`exclude the current task if any`)."""
+        """Get a set of all tasks from the loop wrapper and event loop (`exclude the current task if any`)."""
 
         return (self._all_tasks | asyncio.all_tasks(loop=self._loop)).symmetric_difference(
             set() if (task := asyncio.current_task(self.loop)) is None else {task},
@@ -208,19 +213,13 @@ class LoopWrapper(Singleton, Final):
         self._loop = loop_factory() if loop_factory else loop or self._loop
 
         if old_loop is not self._loop:
-            self._loop.create_task(self._run_async_event_loop())
+            self._create_task(self._run_async_event_loop())
 
         return self
 
     def add_task(self, task: Task[..., typing.Any], /) -> None:
         coro = to_coroutine_task(task)
-
-        if self.running:
-            new_task = self._loop.create_task(coro)
-            self._all_tasks.add(new_task)
-            new_task.add_done_callback(self._all_tasks.discard)
-        else:
-            self._tasks.append(coro)
+        return self._create_task(coro) if self.running else self._tasks.append(coro)
 
     @typing.overload
     def timer[**P, R](self, delta: datetime.timedelta, /) -> DelayedFunctionDecorator[P, R]: ...
