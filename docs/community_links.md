@@ -8,4 +8,4 @@ Feel free to add more community links if they are based on telegrinder framework
 
 ## RU
 
-* [@botoforum](https://t.me/botoforum) - Наш основной официальный форум по смешанным темам [несколько фреймворков и их авторские депенденси: fntypes, etc]. chill
+* [@botoforum](https://t.me/botoforum) - Наш основной официальный форум по смешанным темам [несколько фреймворков и их авторские депенденси: fntypes и т.д.]. chill
