@@ -1,7 +1,11 @@
 name: PR
 
 'on':
-  - pull_request
+  pull_request:
+    branches:
+    - tba
+    - dev
+    - main
 
 defaults:
   run:
@@ -29,8 +33,8 @@ jobs:
           path: ~/.cache/pre-commit
 
       - name: Run pre-commit
-        run: uv run pre-commit run --color=always
+        run: uv run pre-commit run --all-files --color=always
 
-      - name: Run pre-commit-ci-lite
-        uses: pre-commit-ci/lite-action@v1.1.0
-        if: failure() || cancelled()
+      - uses: pre-commit/action@v3.0.1
+      - uses: pre-commit-ci/lite-action@v1.1.0
+        if: always()
