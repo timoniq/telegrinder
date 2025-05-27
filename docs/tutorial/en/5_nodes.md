@@ -104,8 +104,6 @@ async def number_handler(r: TextInteger):
     return f"Thats awesome! So if R = {r}, C = {2 * pi * r}"
 ```
 
----
-
 ## Scopes
 
 As soon our nodes get a bit of compicated logic, like wrapping a database connection into a node, or some turning storage into a node we might need to control scope of the node. That is simple. In telegrinder we have 3 scopes:
@@ -138,6 +136,8 @@ class DB:
 async def some_handler(text: Text, connection: DB):
     ...
 ```
+
+Here we also used an awesome quality of nodes to work as a generator. We may finalize something after event processing is already done, just use `yield` keyboard to yield control over the value to the processor and after processing the control will be yielded back to you to close a database connection (for example).
 
 ```python
 from telegrinder.node import DataNode, global_node
