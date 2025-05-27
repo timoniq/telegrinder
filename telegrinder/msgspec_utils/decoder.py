@@ -10,6 +10,7 @@ from fntypes.variative import Variative
 from telegrinder.msgspec_utils.abc import SupportsCast
 from telegrinder.msgspec_utils.custom_types.datetime import datetime, timedelta
 from telegrinder.msgspec_utils.custom_types.enum_meta import BaseEnumMeta
+from telegrinder.msgspec_utils.custom_types.literal import _Literal
 from telegrinder.msgspec_utils.custom_types.option import Option
 from telegrinder.msgspec_utils.tools import (
     bundle,
@@ -153,6 +154,20 @@ def convert[T](
         )
 
 
+def literal_dec_hook(literal: type[_Literal], obj: typing.Any, /) -> typing.Any:
+    if obj in literal.__args__:
+        return obj
+
+    raise msgspec.ValidationError(
+        "Invalid literal value {!r} of either {}.".format(
+            obj,
+            literal.__args__[0]
+            if len(literal.__args__) == 1
+            else (", ".join(f"`{x}`" for x in literal.__args__[:-1])) + f" or `{literal.__args__[-1]}`",
+        )
+    )
+
+
 class Decoder:
     """Class `Decoder` for `msgspec` module with decode hook
     for objects with the specified type.
@@ -180,7 +195,7 @@ class Decoder:
     """
 
     dec_hooks: dict[typing.Any, DecHook[typing.Any]]
-    subclass_dec_hooks: dict[typing.Any, DecHook[typing.Any]]
+    abstract_dec_hooks: dict[typing.Any, DecHook[typing.Any]]
 
     def __init__(self) -> None:
         self.dec_hooks = {
@@ -191,12 +206,17 @@ class Decoder:
             fntypes.option.Some: option_dec_hook,
             fntypes.option.Nothing: option_dec_hook,
         }
-        self.subclass_dec_hooks = {
+        self.abstract_dec_hooks = {
             BaseEnumMeta: lambda enum_type, member: enum_type(member),
+            _Literal: literal_dec_hook,
         }
 
     def __repr__(self) -> str:
-        return "<{}: dec_hooks={!r}>".format(self.__class__.__name__, self.dec_hooks)
+        return "<{}: dec_hooks={!r}, abstract_dec_hooks={!r}>".format(
+            type(self).__name__,
+            self.dec_hooks,
+            self.abstract_dec_hooks,
+        )
 
     @typing.overload
     def __call__[T](
@@ -251,9 +271,15 @@ class Decoder:
 
         return decorator
 
-    def get_dec_hook_by_subclass(self, tp: type[typing.Any], /) -> DecHook[typing.Any] | None:
-        for subclass, dec_hook in self.subclass_dec_hooks.items():
-            if issubclass(tp, subclass) or issubclass(type(tp), subclass):
+    def add_abstract_dec_hook[T](self, abstract_type: type[T], /) -> typing.Callable[[DecHook[T]], DecHook[T]]:
+        def decorator(func: DecHook[T], /) -> DecHook[T]:
+            return self.abstract_dec_hooks.setdefault(get_origin(abstract_type), func)
+
+        return decorator
+
+    def get_abstract_dec_hook(self, subtype: type[typing.Any], /) -> DecHook[typing.Any] | None:
+        for abstract, dec_hook in self.abstract_dec_hooks.items():
+            if issubclass(subtype, abstract) or issubclass(type(subtype), abstract):
                 return dec_hook
 
         return None
@@ -263,7 +289,7 @@ class Decoder:
             origin_type = get_origin(tp)
 
             if (dec_hook_func := self.dec_hooks.get(origin_type)) is None and (
-                dec_hook_func := self.get_dec_hook_by_subclass(origin_type)
+                dec_hook_func := self.get_abstract_dec_hook(origin_type)
             ) is None:
                 raise NotImplementedError(
                     f"Not implemented decode hook for type `{fullname(origin_type)}`. "

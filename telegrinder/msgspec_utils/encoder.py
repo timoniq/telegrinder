@@ -58,7 +58,7 @@ class Encoder:
 
     cast_types: dict[type[typing.Any], type[SupportsCast]]
     enc_hooks: dict[typing.Any, EncHook[typing.Any]]
-    subclass_enc_hooks: dict[typing.Any, EncHook[typing.Any]]
+    abstract_enc_hooks: dict[typing.Any, EncHook[typing.Any]]
 
     def __init__(self) -> None:
         self.cast_types = {
@@ -72,12 +72,17 @@ class Encoder:
             _datetime: lambda date: int(date.timestamp()),
             _timedelta: lambda time: time.total_seconds(),
         }
-        self.subclass_enc_hooks = {
+        self.abstract_enc_hooks = {
             BaseEnumMeta: lambda enum_member: enum_member.value,
         }
 
     def __repr__(self) -> str:
-        return "<{}: enc_hooks={!r}>".format(type(self).__name__, self.enc_hooks)
+        return "<{}: cast_types={!r}, enc_hooks={!r}, abstract_enc_hooks={!r}>".format(
+            type(self).__name__,
+            self.cast_types,
+            self.enc_hooks,
+            self.abstract_enc_hooks,
+        )
 
     @contextmanager
     def __call__(
@@ -103,9 +108,15 @@ class Encoder:
 
         return decorator
 
-    def get_enc_hook_by_subclass(self, tp: type[typing.Any], /) -> EncHook[typing.Any] | None:
-        for subclass, enc_hook in self.subclass_enc_hooks.items():
-            if issubclass(tp, subclass) or issubclass(type(tp), subclass):
+    def add_abstract_enc_hook[T](self, abstract_type: type[T], /) -> typing.Callable[[EncHook[T]], EncHook[T]]:
+        def decorator(func: EncHook[T], /) -> EncHook[T]:
+            return self.abstract_enc_hooks.setdefault(get_origin(abstract_type), func)
+
+        return decorator
+
+    def get_abstract_enc_hook(self, subtype: type[typing.Any], /) -> EncHook[typing.Any] | None:
+        for abstract, enc_hook in self.abstract_enc_hooks.items():
+            if issubclass(subtype, abstract) or issubclass(type(subtype), abstract):
                 return enc_hook
 
         return None
@@ -115,7 +126,7 @@ class Encoder:
             origin_type = get_origin(obj)
 
             if (enc_hook_func := self.enc_hooks.get(origin_type)) is None and (
-                enc_hook_func := self.get_enc_hook_by_subclass(origin_type)
+                enc_hook_func := self.get_abstract_enc_hook(origin_type)
             ) is None:
                 raise NotImplementedError(
                     f"Not implemented encode hook for object of type `{fullname(origin_type)}`. "

@@ -1,10 +1,10 @@
 import keyword
 import types
-import typing
 from reprlib import recursive_repr
 
 import msgspec
-from fntypes.co import Nothing, Some
+import typing_extensions as typing
+from fntypes.co import Nothing
 
 from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
 
@@ -17,8 +17,8 @@ MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
 INSPECTED_MODEL_FIELDS_KEY: typing.Final[str] = "__inspected_struct_fields__"
 
 
-def is_none(obj: typing.Any, /) -> typing.TypeGuard[Nothing | None]:
-    return isinstance(obj, types.NoneType | Nothing)
+def is_none(obj: typing.Any, /) -> typing.TypeIs[Nothing | None]:
+    return isinstance(obj, Nothing | types.NoneType)
 
 
 if typing.TYPE_CHECKING:
@@ -78,7 +78,7 @@ else:
     type From[T] = T
 
     def field(**kwargs):
-        if "default" in kwargs and (default := kwargs["default"]) is Ellipsis:
+        if (default := kwargs.get("default")) is Ellipsis:
             kwargs["default"] = UNSET
 
         kwargs.pop("converter", None)
@@ -106,7 +106,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
                 return Nothing() if val is UNSET else val
 
             if val is UNSET:
-                raise AttributeError(f"{self.__class__.__name__!r} object has no attribute {name!r}")
+                raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
 
             return val
 
@@ -134,9 +134,9 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
 
     @classmethod
     def get_field(cls, field_name: str, /) -> Option[msgspec.inspect.Field]:
-        if (f := cls.get_fields().get(field_name)) is not None:
-            return Some(f)
-        return Nothing()
+        from telegrinder.tools.functional import from_optional
+
+        return from_optional(cls.get_fields().get(field_name))
 
     @classmethod
     def from_data[**P, T](cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:

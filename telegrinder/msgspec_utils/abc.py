@@ -4,7 +4,7 @@ import abc
 import typing
 
 
-def is_support_cast(obj: typing.Any, /) -> typing.TypeGuard[SupportsCast]:
+def is_supports_cast(obj: typing.Any, /) -> typing.TypeGuard[SupportsCast]:
     return isinstance(obj, SupportsCast)
 
 
@@ -15,4 +15,4 @@ class SupportsCast(typing.Protocol):
     def cast(cls, obj: typing.Any) -> typing.Self: ...
 
 
-__all__ = ("SupportsCast", "is_support_cast")
+__all__ = ("SupportsCast", "is_supports_cast")
