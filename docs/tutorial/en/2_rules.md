@@ -69,7 +69,7 @@ Done. This rule will check if the sender of the message. As you can see, there i
 MY_ID = 123
 
 @bot.on.message(IsMessageFromUserId(MY_ID), Text("/hey"))
-async hey_handler():
+async def hey_handler():
     return "Hey hey!"
 ```
 
