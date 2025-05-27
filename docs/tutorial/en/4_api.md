@@ -74,3 +74,5 @@ await m.edit("Oops wrong chat")
 await asyncio.sleep(1)
 await m.delete()
 ```
+
+[>> Next: Nodes](5_nodes.md)
