@@ -37,7 +37,68 @@ The `LoopWrapper` has several properties:
 * `running` – State of LW; True if the Loop Wrapper is running, otherwise False.
 
 
-Creating startup and shutdown tasks
+### Method `add_task`
+
+The `add_task` method is used to schedule a task in the `LoopWrapper`. If the `LoopWrapper` is not yet running, the task is simply added to an internal list of tasks and will be scheduled when the loop starts. If the `LoopWrapper` is already running, the task is immediately created and added to the list of active tasks.
+
+In summary:
+
+- If the loop is not running, tasks are queued.
+- If the loop is running, tasks are immediately scheduled.
+
+This allows you to prepare tasks before starting the loop or add new tasks on the fly while the loop is active.
+
+
+### Method `create_task`
+
+This method is an asynchronous and it does the same as `add_task`, but with an important difference when a task limit is set using the `limit()` method:
+
+- If a limit is defined, `create_task` will asynchronously wait for permission to create the task.
+- It uses the internal `semaphore's` acquire() method to determine whether a new task can be started immediately or if it needs to wait for another task to complete and release the semaphore.
+
+This behavior ensures that the task limit is respected:
+
+- If the limit has been reached, `create_task` waits for an available slot.
+- If a slot is available, it proceeds to create and schedule the task.
+
+For this reason, when the `LoopWrapper` is running and you want to schedule new tasks dynamically with a task limit in place, it is recommended to use `create_task`. This ensures that your code properly waits for available slots and respects the concurrency limit.
+
+
+### Limitation of the number of tasks
+
+If you need to limit the number of tasks created in the event loop, there is a method-builder `limit` that sets the limit on the number of created tasks.
+
+```python
+import asyncio
+
+from telegrinder.tools import LoopWrapper
+
+loop_wrapper = LoopWrapper().limit(10)
+
+
+async def task(identifier: int):
+    print(f"Task #{identifier}")
+    await asyncio.sleep(1)
+
+
+for identifier in range(15):
+    loop_wrapper.add_task(task(identifier + 1))
+
+
+loop_wrapper.run()
+```
+
+In this example, we use the `LoopWrapper` to limit the number of concurrent tasks. Internally, loop wrapper uses an `asyncio.Semaphore` to ensure that no more than 10 tasks are running at the same time. When one of the running tasks completes (after sleeping for 1 second in this example), the semaphore is released, allowing the next task to start.
+
+This behavior resembles a `"traffic light"` system:
+
+- The first 10 tasks are immediately started and "sleep" for 1 second.
+- The remaining tasks wait for the semaphore to be released ("the green light") before they can start.
+- As each task completes, it signals the semaphore, allowing new tasks to start in a controlled and safe manner.
+
+
+### Creating startup and shutdown tasks
+
 ```python
 from telegrinder.tools import LoopWrapper
 
@@ -64,7 +125,8 @@ loop_wrapper.add_task(main())
 loop_wrapper.run()
 ```
 
-Using with `asyncio`
+### Using with `asyncio`
+
 ```python
 import asyncio
 from contextlib import suppress

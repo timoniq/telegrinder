@@ -43,7 +43,7 @@ async def message_handler(message: Message) -> None:
 async def run_polling() -> None:
     async for updates in polling.listen():
         for update in updates:
-            lw.add_task(dp.feed(update, api))
+            await lw.create_task(dp.feed(update, api))
 
 
 lw.add_task(run_polling())

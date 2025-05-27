@@ -49,8 +49,18 @@ class LoopWrapper(Singleton, Final):
     _tasks: list[CoroutineTask[typing.Any]]
     _state: LoopWrapperState
     _all_tasks: set[asyncio.Task[typing.Any]]
+    _limit: int | None
+    _semaphore: asyncio.Semaphore | None
 
-    __slots__ = ("_loop", "_lifespan", "_tasks", "_state", "_all_tasks")
+    __slots__ = (
+        "_loop",
+        "_lifespan",
+        "_tasks",
+        "_state",
+        "_all_tasks",
+        "_limit",
+        "_semaphore",
+    )
 
     def __init__(self) -> None:
         self._loop = asyncio.get_event_loop()
@@ -58,6 +68,8 @@ class LoopWrapper(Singleton, Final):
         self._tasks = list()
         self._state = LoopWrapperState.NOT_RUNNING
         self._all_tasks = set()
+        self._limit = None
+        self._semaphore = None
 
         self._create_task(self._run_async_event_loop())
 
@@ -82,7 +94,7 @@ class LoopWrapper(Singleton, Final):
         logger.debug("Running loop wrapper")
 
         while self._tasks:
-            self._create_task(self._tasks.pop(0))
+            await self.create_task(self._tasks.pop(0))
 
         while self.running and (tasks := self._get_all_tasks()):
             await self._process_tasks(tasks)
@@ -117,6 +129,18 @@ class LoopWrapper(Singleton, Final):
         await self.lifespan._shutdown()
         logger.debug("Shutdown loop wrapper")
         self._state = LoopWrapperState.SHUTDOWN
+
+    async def _run_coro_with_semaphore(self, coro: CoroutineTask[typing.Any], /) -> None:
+        assert self._semaphore is not None
+        try:
+            await coro
+        finally:
+            self._semaphore.release()
+
+    async def _create_task_with_semaphore(self, coro: CoroutineTask[typing.Any], /) -> None:
+        assert self._semaphore is not None
+        await self._semaphore.acquire()
+        self._create_task(self._run_coro_with_semaphore(coro))
 
     def _create_task(self, coro: CoroutineTask[typing.Any], /) -> None:
         task = self._loop.create_task(coro)
@@ -183,6 +207,10 @@ class LoopWrapper(Singleton, Final):
     def shutdown(self) -> bool:
         return self._state is LoopWrapperState.SHUTDOWN
 
+    @property
+    def tasks_limit(self) -> int | None:
+        return self._limit
+
     def run(self, *, close_loop: bool = True) -> typing.NoReturn:  # type: ignore
         if self.running:
             raise RuntimeError("Loop wrapper already running.")
@@ -217,9 +245,25 @@ class LoopWrapper(Singleton, Final):
 
         return self
 
+    def limit(self, value: int, /) -> typing.Self:
+        self._limit = value
+        self._semaphore = asyncio.Semaphore(value)
+        return self
+
     def add_task(self, task: Task[..., typing.Any], /) -> None:
-        coro = to_coroutine_task(task)
-        return self._create_task(coro) if self.running else self._tasks.append(coro)
+        coro_task = to_coroutine_task(task)
+        return self._create_task(coro_task) if self.running else self._tasks.append(coro_task)
+
+    async def create_task(self, task: Task[..., typing.Any], /) -> None:
+        if not self.running:
+            self.add_task(task)
+            return
+
+        coro_task = to_coroutine_task(task)
+        if self._semaphore is not None:
+            await self._create_task_with_semaphore(coro_task)
+        else:
+            self._create_task(coro_task)
 
     @typing.overload
     def timer[**P, R](self, delta: datetime.timedelta, /) -> DelayedFunctionDecorator[P, R]: ...

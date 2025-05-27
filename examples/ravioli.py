@@ -31,8 +31,8 @@ class DummyDB:
             self.storage[user_id] = []
         self.storage[user_id].append(tinfo)
 
-    def new(self, name: str, time: int, message: Message) -> TimerInfo:
-        bot.loop_wrapper.add_task(self.timer(name, time, message))
+    async def new(self, name: str, time: int, message: Message) -> TimerInfo:
+        await bot.loop_wrapper.create_task(self.timer(name, time, message))
         return TimerInfo(name, datetime.datetime.now() + datetime.timedelta(seconds=time))
 
     async def timer(self, name: str, time: int, message: Message) -> None:
@@ -46,7 +46,7 @@ db = DummyDB()
 
 @bot.on.message(Markup(["/ravioli", "/ravioli <ravioli_name>"]))
 async def start(message: Message, ravioli_name: str = "Ravioli") -> str:
-    ravioli = db.new(ravioli_name, RAVIOLI_TIME_TO_COOK, message)
+    ravioli = await db.new(ravioli_name, RAVIOLI_TIME_TO_COOK, message)
     db.add(message.from_user.id, ravioli)
     return f"Timer for ravioli {ravioli_name!r} is set!"
 

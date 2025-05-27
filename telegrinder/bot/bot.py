@@ -62,11 +62,11 @@ class Telegrinder(typing.Generic[Dispatch, Polling]):
             async for updates in self.polling.listen():
                 for update in updates:
                     logger.debug(
-                        "Received update (update_id={}, update_type={!r})",
+                        "Received update (id={}, type={!r})",
                         update.update_id,
                         update.update_type,
                     )
-                    self.loop_wrapper.add_task(self.dispatch.feed(update, self.api))
+                    await self.loop_wrapper.create_task(self.dispatch.feed(update, self.api))
 
         self.polling.offset = offset
 
