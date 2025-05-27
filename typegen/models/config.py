@@ -24,6 +24,19 @@ class ObjectsFieldsLiteralTypesField(msgspec.Struct):
     name: str
     literals: list[str | int] = msgspec.field(default_factory=lambda: [])
     enum: str | None = None
+    default: str | None = None
+
+    @property
+    def enum_default(self) -> str | None:
+        if self.enum is not None and self.default is not None:
+            return f"{self.enum}.{self.default}"
+        return None
+
+    @property
+    def literals_default(self) -> str | None:
+        if self.enum is None and self.default is not None:
+            return self.default
+        return None
 
 
 class ObjectsFieldsLiteralTypes(msgspec.Struct):

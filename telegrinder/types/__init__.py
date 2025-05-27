@@ -276,6 +276,7 @@ __all__ = (
     "UniqueGiftBackdrop",
     "UniqueGiftBackdropColors",
     "UniqueGiftInfo",
+    "UniqueGiftInfoOriginType",
     "UniqueGiftModel",
     "UniqueGiftSymbol",
     "Update",

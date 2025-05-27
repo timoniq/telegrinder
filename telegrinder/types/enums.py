@@ -694,6 +694,13 @@ class TransactionPartnerUserTransactionType(enum.StrEnum, metaclass=BaseEnumMeta
     BUSINESS_ACCOUNT_TRANSFER = "business_account_transfer"
 
 
+class UniqueGiftInfoOriginType(enum.StrEnum, metaclass=BaseEnumMeta):
+    """Origin of the gift. Currently, either `upgrade` or `transfer`."""
+
+    UPGRADE = "upgrade"
+    TRANSFER = "transfer"
+
+
 __all__ = (
     "BotCommandScopeType",
     "ChatAction",
@@ -725,5 +732,6 @@ __all__ = (
     "StickerType",
     "TopicIconColor",
     "TransactionPartnerUserTransactionType",
+    "UniqueGiftInfoOriginType",
     "UpdateType",
 )

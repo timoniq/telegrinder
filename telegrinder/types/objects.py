@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import secrets
-import typing
 from functools import cached_property
 
 from fntypes.co import Nothing, Variative
 
 from telegrinder.model import From, Model, field
-from telegrinder.msgspec_utils.custom_types import Option, datetime, timedelta
+from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime, timedelta
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.input_file import InputFile
 
@@ -1154,7 +1153,7 @@ class InaccessibleMessage(MaybeInaccessibleMessage):
     message_id: int = field()
     """Unique message identifier inside the chat."""
 
-    date: typing.Literal[0] = field(default=0)
+    date: Literal[0] = field(default=0)
     """Always 0. The field can be used to differentiate regular and inaccessible
     messages."""
 
@@ -1360,7 +1359,7 @@ class MessageOriginUser(MessageOrigin):
     sender_user: User = field()
     """User that sent the message originally."""
 
-    type: typing.Literal["user"] = field(default="user")
+    type: Literal["user"] = field(default="user")
     """Type of the message origin, always `user`."""
 
 
@@ -1376,7 +1375,7 @@ class MessageOriginHiddenUser(MessageOrigin):
     sender_user_name: str = field()
     """Name of the user that sent the message originally."""
 
-    type: typing.Literal["hidden_user"] = field(default="hidden_user")
+    type: Literal["hidden_user"] = field(default="hidden_user")
     """Type of the message origin, always `hidden_user`."""
 
 
@@ -1392,7 +1391,7 @@ class MessageOriginChat(MessageOrigin):
     sender_chat: Chat = field()
     """Chat that sent the message originally."""
 
-    type: typing.Literal["chat"] = field(default="chat")
+    type: Literal["chat"] = field(default="chat")
     """Type of the message origin, always `chat`."""
 
     author_signature: Option[str] = field(default=..., converter=From[str | None])
@@ -1415,7 +1414,7 @@ class MessageOriginChannel(MessageOrigin):
     message_id: int = field()
     """Unique message identifier inside the chat."""
 
-    type: typing.Literal["channel"] = field(default="channel")
+    type: Literal["channel"] = field(default="channel")
     """Type of the message origin, always `channel`."""
 
     author_signature: Option[str] = field(default=..., converter=From[str | None])
@@ -1681,7 +1680,7 @@ class PaidMediaPreview(PaidMedia):
     The paid media isn't available before the payment.
     """
 
-    type: typing.Literal["preview"] = field(default="preview")
+    type: Literal["preview"] = field(default="preview")
     """Type of the paid media, always `preview`."""
 
     width: Option[int] = field(default=..., converter=From[int | None])
@@ -1703,7 +1702,7 @@ class PaidMediaPhoto(PaidMedia):
     photo: list[PhotoSize] = field()
     """The photo."""
 
-    type: typing.Literal["photo"] = field(default="photo")
+    type: Literal["photo"] = field(default="photo")
     """Type of the paid media, always `photo`."""
 
 
@@ -1716,7 +1715,7 @@ class PaidMediaVideo(PaidMedia):
     video: Video = field()
     """The video."""
 
-    type: typing.Literal["video"] = field(default="video")
+    type: Literal["video"] = field(default="video")
     """Type of the paid media, always `video`."""
 
 
@@ -1842,7 +1841,7 @@ class Poll(Model):
     allows_multiple_answers: bool = field()
     """True, if the poll allows multiple answers."""
 
-    type: typing.Literal["regular", "quiz"] = field(default="regular")
+    type: PollType = field(default=PollType.REGULAR)
     """Poll type, currently can be `regular` or `quiz`."""
 
     question_entities: Option[list[MessageEntity]] = field(
@@ -1991,7 +1990,7 @@ class BackgroundFillSolid(BackgroundFill):
     color: int = field()
     """The color of the background fill in the RGB24 format."""
 
-    type: typing.Literal["solid"] = field(default="solid")
+    type: Literal["solid"] = field(default="solid")
     """Type of the background fill, always `solid`."""
 
 
@@ -2010,7 +2009,7 @@ class BackgroundFillGradient(BackgroundFill):
     rotation_angle: int = field()
     """Clockwise rotation angle of the background fill in degrees; 0-359."""
 
-    type: typing.Literal["gradient"] = field(default="gradient")
+    type: Literal["gradient"] = field(default="gradient")
     """Type of the background fill, always `gradient`."""
 
 
@@ -2024,7 +2023,7 @@ class BackgroundFillFreeformGradient(BackgroundFill):
     """A list of the 3 or 4 base colors that are used to generate the freeform gradient
     in the RGB24 format."""
 
-    type: typing.Literal["freeform_gradient"] = field(default="freeform_gradient")
+    type: Literal["freeform_gradient"] = field(default="freeform_gradient")
     """Type of the background fill, always `freeform_gradient`."""
 
 
@@ -2042,7 +2041,7 @@ class BackgroundTypeFill(BackgroundType):
     dark_theme_dimming: int = field()
     """Dimming of the background in dark themes, as a percentage; 0-100."""
 
-    type: typing.Literal["fill"] = field(default="fill")
+    type: Literal["fill"] = field(default="fill")
     """Type of the background, always `fill`."""
 
 
@@ -2058,7 +2057,7 @@ class BackgroundTypeWallpaper(BackgroundType):
     dark_theme_dimming: int = field()
     """Dimming of the background in dark themes, as a percentage; 0-100."""
 
-    type: typing.Literal["wallpaper"] = field(default="wallpaper")
+    type: Literal["wallpaper"] = field(default="wallpaper")
     """Type of the background, always `wallpaper`."""
 
     is_blurred: Option[bool] = field(default=..., converter=From[bool | None])
@@ -2086,7 +2085,7 @@ class BackgroundTypePattern(BackgroundType):
     intensity: int = field()
     """Intensity of the pattern when it is shown above the filled background; 0-100."""
 
-    type: typing.Literal["pattern"] = field(default="pattern")
+    type: Literal["pattern"] = field(default="pattern")
     """Type of the background, always `pattern`."""
 
     is_inverted: Option[bool] = field(default=..., converter=From[bool | None])
@@ -2106,7 +2105,7 @@ class BackgroundTypeChatTheme(BackgroundType):
     theme_name: str = field()
     """Name of the chat theme, which is usually an emoji."""
 
-    type: typing.Literal["chat_theme"] = field(default="chat_theme")
+    type: Literal["chat_theme"] = field(default="chat_theme")
     """Type of the background, always `chat_theme`."""
 
 
@@ -2699,9 +2698,7 @@ class KeyboardButtonPollType(Model):
     This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
     """
 
-    type: Option[typing.Literal["quiz", "regular"]] = field(
-        default=..., converter=From[typing.Literal["quiz", "regular"] | None]
-    )
+    type: Option[PollType] = field(default=..., converter=From[PollType | None])
     """Optional. If quiz is passed, the user will be allowed to create only polls
     in the quiz mode. If regular is passed, only regular polls will be allowed.
     Otherwise, the user will be allowed to create a poll of any type."""
@@ -3130,7 +3127,7 @@ class ChatMemberOwner(ChatMember):
     is_anonymous: bool = field()
     """True, if the user's presence in the chat is hidden."""
 
-    status: typing.Literal["creator"] = field(default="creator")
+    status: Literal["creator"] = field(default="creator")
     """The member's status in the chat, always `creator`."""
 
     custom_title: Option[str] = field(default=..., converter=From[str | None])
@@ -3188,7 +3185,7 @@ class ChatMemberAdministrator(ChatMember):
     can_delete_stories: bool = field()
     """True, if the administrator can delete stories posted by other users."""
 
-    status: typing.Literal["administrator"] = field(default="administrator")
+    status: Literal["administrator"] = field(default="administrator")
     """The member's status in the chat, always `administrator`."""
 
     can_post_messages: Option[bool] = field(default=..., converter=From[bool | None])
@@ -3220,7 +3217,7 @@ class ChatMemberMember(ChatMember):
     user: User = field()
     """Information about the user."""
 
-    status: typing.Literal["member"] = field(default="member")
+    status: Literal["member"] = field(default="member")
     """The member's status in the chat, always `member`."""
 
     until_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
@@ -3287,7 +3284,7 @@ class ChatMemberRestricted(ChatMember):
     """Date when restrictions will be lifted for this user; Unix time. If 0, then
     the user is restricted forever."""
 
-    status: typing.Literal["restricted"] = field(default="restricted")
+    status: Literal["restricted"] = field(default="restricted")
     """The member's status in the chat, always `restricted`."""
 
 
@@ -3300,7 +3297,7 @@ class ChatMemberLeft(ChatMember):
     user: User = field()
     """Information about the user."""
 
-    status: typing.Literal["left"] = field(default="left")
+    status: Literal["left"] = field(default="left")
     """The member's status in the chat, always `left`."""
 
 
@@ -3317,7 +3314,7 @@ class ChatMemberBanned(ChatMember):
     """Date when restrictions will be lifted for this user; Unix time. If 0, then
     the user is banned forever."""
 
-    status: typing.Literal["kicked"] = field(default="kicked")
+    status: Literal["kicked"] = field(default="kicked")
     """The member's status in the chat, always `kicked`."""
 
 
@@ -3553,7 +3550,7 @@ class StoryAreaTypeLocation(StoryAreaType):
     longitude: float = field()
     """Location longitude in degrees."""
 
-    type: typing.Literal["location"] = field(default="location")
+    type: Literal["location"] = field(default="location")
     """Type of the area, always `location`."""
 
     address: Option[LocationAddress] = field(default=..., converter=From["LocationAddress | None"])
@@ -3571,7 +3568,7 @@ class StoryAreaTypeSuggestedReaction(StoryAreaType):
     )
     """Type of the reaction."""
 
-    type: typing.Literal["suggested_reaction"] = field(default="suggested_reaction")
+    type: Literal["suggested_reaction"] = field(default="suggested_reaction")
     """Type of the area, always `suggested_reaction`."""
 
     is_dark: Option[bool] = field(default=..., converter=From[bool | None])
@@ -3590,7 +3587,7 @@ class StoryAreaTypeLink(StoryAreaType):
     url: str = field()
     """HTTP or tg:// URL to be opened when the area is clicked."""
 
-    type: typing.Literal["link"] = field(default="link")
+    type: Literal["link"] = field(default="link")
     """Type of the area, always `link`."""
 
 
@@ -3609,7 +3606,7 @@ class StoryAreaTypeWeather(StoryAreaType):
     background_color: int = field()
     """A color of the area background in the ARGB format."""
 
-    type: typing.Literal["weather"] = field(default="weather")
+    type: Literal["weather"] = field(default="weather")
     """Type of the area, always `weather`."""
 
 
@@ -3622,7 +3619,7 @@ class StoryAreaTypeUniqueGift(StoryAreaType):
     name: str = field()
     """Unique name of the gift."""
 
-    type: typing.Literal["unique_gift"] = field(default="unique_gift")
+    type: Literal["unique_gift"] = field(default="unique_gift")
     """Type of the area, always `unique_gift`."""
 
 
@@ -3676,7 +3673,7 @@ class ReactionTypeEmoji(ReactionType):
     `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`,
     `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`."""
 
-    type: typing.Literal["emoji"] = field(default="emoji")
+    type: Literal["emoji"] = field(default="emoji")
     """Type of the reaction, always `emoji`."""
 
 
@@ -3689,7 +3686,7 @@ class ReactionTypeCustomEmoji(ReactionType):
     custom_emoji_id: str = field()
     """Custom emoji identifier."""
 
-    type: typing.Literal["custom_emoji"] = field(default="custom_emoji")
+    type: Literal["custom_emoji"] = field(default="custom_emoji")
     """Type of the reaction, always `custom_emoji`."""
 
 
@@ -3699,7 +3696,7 @@ class ReactionTypePaid(ReactionType):
     The reaction is paid.
     """
 
-    type: typing.Literal["paid"] = field(default="paid")
+    type: Literal["paid"] = field(default="paid")
     """Type of the reaction, always `paid`."""
 
 
@@ -3967,7 +3964,7 @@ class UniqueGiftInfo(Model):
     gift: UniqueGift = field()
     """Information about the gift."""
 
-    origin: typing.Literal["upgrade", "transfer"] = field(default="upgrade")
+    origin: UniqueGiftInfoOriginType = field(default=UniqueGiftInfoOriginType.UPGRADE)
     """Origin of the gift. Currently, either `upgrade` or `transfer`."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
@@ -3991,7 +3988,7 @@ class OwnedGiftRegular(OwnedGift):
     send_date: datetime = field(converter=From[datetime | int])
     """Date the gift was sent in Unix time."""
 
-    type: typing.Literal["regular"] = field(default="regular")
+    type: Literal["regular"] = field(default="regular")
     """Type of the gift, always `regular`."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
@@ -4043,7 +4040,7 @@ class OwnedGiftUnique(OwnedGift):
     send_date: datetime = field(converter=From[datetime | int])
     """Date the gift was sent in Unix time."""
 
-    type: typing.Literal["unique"] = field(default="unique")
+    type: Literal["unique"] = field(default="unique")
     """Type of the gift, always `unique`."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
@@ -4138,7 +4135,7 @@ class BotCommandScopeDefault(BotCommandScope):
     Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
     """
 
-    type: typing.Literal["default"] = field(default="default")
+    type: Literal["default"] = field(default="default")
     """Scope type, must be default."""
 
 
@@ -4148,7 +4145,7 @@ class BotCommandScopeAllPrivateChats(BotCommandScope):
     Represents the scope of bot commands, covering all private chats.
     """
 
-    type: typing.Literal["all_private_chats"] = field(default="all_private_chats")
+    type: Literal["all_private_chats"] = field(default="all_private_chats")
     """Scope type, must be all_private_chats."""
 
 
@@ -4158,7 +4155,7 @@ class BotCommandScopeAllGroupChats(BotCommandScope):
     Represents the scope of bot commands, covering all group and supergroup chats.
     """
 
-    type: typing.Literal["all_group_chats"] = field(default="all_group_chats")
+    type: Literal["all_group_chats"] = field(default="all_group_chats")
     """Scope type, must be all_group_chats."""
 
 
@@ -4168,7 +4165,7 @@ class BotCommandScopeAllChatAdministrators(BotCommandScope):
     Represents the scope of bot commands, covering all group and supergroup chat administrators.
     """
 
-    type: typing.Literal["all_chat_administrators"] = field(default="all_chat_administrators")
+    type: Literal["all_chat_administrators"] = field(default="all_chat_administrators")
     """Scope type, must be all_chat_administrators."""
 
 
@@ -4182,7 +4179,7 @@ class BotCommandScopeChat(BotCommandScope):
     """Unique identifier for the target chat or username of the target supergroup
     (in the format @supergroupusername)."""
 
-    type: typing.Literal["chat"] = field(default="chat")
+    type: Literal["chat"] = field(default="chat")
     """Scope type, must be chat."""
 
 
@@ -4196,7 +4193,7 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
     """Unique identifier for the target chat or username of the target supergroup
     (in the format @supergroupusername)."""
 
-    type: typing.Literal["chat_administrators"] = field(default="chat_administrators")
+    type: Literal["chat_administrators"] = field(default="chat_administrators")
     """Scope type, must be chat_administrators."""
 
 
@@ -4213,7 +4210,7 @@ class BotCommandScopeChatMember(BotCommandScope):
     user_id: int = field()
     """Unique identifier of the target user."""
 
-    type: typing.Literal["chat_member"] = field(default="chat_member")
+    type: Literal["chat_member"] = field(default="chat_member")
     """Scope type, must be chat_member."""
 
 
@@ -4253,7 +4250,7 @@ class MenuButtonCommands(MenuButton):
     Represents a menu button, which opens the bot's list of commands.
     """
 
-    type: typing.Literal["commands"] = field(default="commands")
+    type: Literal["commands"] = field(default="commands")
     """Type of the button, must be commands."""
 
 
@@ -4273,7 +4270,7 @@ class MenuButtonWebApp(MenuButton):
     to a Web App of the bot can be specified in the object instead of the Web App's
     URL, in which case the Web App will be opened as if the user pressed the link."""
 
-    type: typing.Literal["web_app"] = field(default="web_app")
+    type: Literal["web_app"] = field(default="web_app")
     """Type of the button, must be web_app."""
 
 
@@ -4283,7 +4280,7 @@ class MenuButtonDefault(MenuButton):
     Describes that no specific value for the menu button was set.
     """
 
-    type: typing.Literal["default"] = field(default="default")
+    type: Literal["default"] = field(default="default")
     """Type of the button, must be default."""
 
 
@@ -4296,7 +4293,7 @@ class ChatBoostSourcePremium(ChatBoostSource):
     user: User = field()
     """User that boosted the chat."""
 
-    source: typing.Literal["premium"] = field(default="premium")
+    source: Literal["premium"] = field(default="premium")
     """Source of the boost, always `premium`."""
 
 
@@ -4309,7 +4306,7 @@ class ChatBoostSourceGiftCode(ChatBoostSource):
     user: User = field()
     """User for which the gift code was created."""
 
-    source: typing.Literal["gift_code"] = field(default="gift_code")
+    source: Literal["gift_code"] = field(default="gift_code")
     """Source of the boost, always `gift_code`."""
 
 
@@ -4323,7 +4320,7 @@ class ChatBoostSourceGiveaway(ChatBoostSource):
     """Identifier of a message in the chat with the giveaway; the message could
     have been deleted already. May be 0 if the message isn't sent yet."""
 
-    source: typing.Literal["giveaway"] = field(default="giveaway")
+    source: Literal["giveaway"] = field(default="giveaway")
     """Source of the boost, always `giveaway`."""
 
     user: Option[User] = field(default=..., converter=From["User | None"])
@@ -4538,7 +4535,7 @@ class InputMediaPhoto(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["photo"] = field(default="photo")
+    type: Literal["photo"] = field(default="photo")
     """Type of the result, must be photo."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
@@ -4574,7 +4571,7 @@ class InputMediaVideo(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["video"] = field(default="video")
+    type: Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
     thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
@@ -4641,7 +4638,7 @@ class InputMediaAnimation(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["animation"] = field(default="animation")
+    type: Literal["animation"] = field(default="animation")
     """Type of the result, must be animation."""
 
     thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
@@ -4695,7 +4692,7 @@ class InputMediaAudio(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["audio"] = field(default="audio")
+    type: Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
     thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
@@ -4743,7 +4740,7 @@ class InputMediaDocument(InputMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["document"] = field(default="document")
+    type: Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
     thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
@@ -4789,7 +4786,7 @@ class InputPaidMediaPhoto(InputPaidMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["photo"] = field(default="photo")
+    type: Literal["photo"] = field(default="photo")
     """Type of the media, must be photo."""
 
 
@@ -4805,7 +4802,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["video"] = field(default="video")
+    type: Literal["video"] = field(default="video")
     """Type of the media, must be video."""
 
     thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
@@ -4852,7 +4849,7 @@ class InputProfilePhotoStatic(InputProfilePhoto):
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["static"] = field(default="static")
+    type: Literal["static"] = field(default="static")
     """Type of the profile photo, must be static."""
 
 
@@ -4868,7 +4865,7 @@ class InputProfilePhotoAnimated(InputProfilePhoto):
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["animated"] = field(default="animated")
+    type: Literal["animated"] = field(default="animated")
     """Type of the profile photo, must be animated."""
 
     main_frame_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | float | None])
@@ -4889,7 +4886,7 @@ class InputStoryContentPhoto(InputStoryContent):
     using multipart/form-data under <file_attach_name>. More information
     on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["photo"] = field(default="photo")
+    type: Literal["photo"] = field(default="photo")
     """Type of the content, must be photo."""
 
 
@@ -4907,7 +4904,7 @@ class InputStoryContentVideo(InputStoryContent):
     if the video was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    type: typing.Literal["video"] = field(default="video")
+    type: Literal["video"] = field(default="video")
     """Type of the content, must be video."""
 
     duration: Option[float] = field(default=..., converter=From[float | None])
@@ -4946,7 +4943,7 @@ class Sticker(Model):
     is_video: bool = field()
     """True, if the sticker is a video sticker."""
 
-    type: typing.Literal["regular", "mask", "custom_emoji"] = field(default="regular")
+    type: StickerSetStickerType = field(default=StickerSetStickerType.REGULAR)
     """Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`.
     The type of the sticker is independent from its format, which is determined
     by the fields is_animated and is_video."""
@@ -4993,7 +4990,7 @@ class StickerSet(Model):
     stickers: list[Sticker] = field()
     """List of all set stickers."""
 
-    sticker_type: typing.Literal["regular", "mask", "custom_emoji"] = field(default="regular")
+    sticker_type: StickerSetStickerType = field(default=StickerSetStickerType.REGULAR)
     """Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`."""
 
     thumbnail: Option[PhotoSize] = field(default=..., converter=From["PhotoSize | None"])
@@ -5019,12 +5016,7 @@ class MaskPosition(Model):
     scale: float = field()
     """Mask scaling coefficient. For example, 2.0 means double size."""
 
-    point: typing.Literal[
-        "forehead",
-        "eyes",
-        "mouth",
-        "chin",
-    ] = field(default="forehead")
+    point: MaskPositionPoint = field(default=MaskPositionPoint.FOREHEAD)
     """The part of the face relative to which the mask should be placed. One of `forehead`,
     `eyes`, `mouth`, or `chin`."""
 
@@ -5046,7 +5038,7 @@ class InputSticker(Model):
     emoji_list: list[str] = field()
     """List of 1-20 emoji associated with the sticker."""
 
-    format: typing.Literal["static", "animated", "video"] = field(default="static")
+    format: StickerFormat = field(default=StickerFormat.STATIC)
     """Format of the added sticker, must be one of `static` for a .WEBP or .PNG image,
     `animated` for a .TGS animation, `video` for a .WEBM video."""
 
@@ -5137,7 +5129,7 @@ class InlineQueryResultArticle(InlineQueryResult):
     )
     """Content of the message to be sent."""
 
-    type: typing.Literal["article"] = field(default="article")
+    type: Literal["article"] = field(default="article")
     """Type of the result, must be article."""
 
     id: str = field(
@@ -5177,7 +5169,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     thumbnail_url: str = field()
     """URL of the thumbnail for the photo."""
 
-    type: typing.Literal["photo"] = field(default="photo")
+    type: Literal["photo"] = field(default="photo")
     """Type of the result, must be photo."""
 
     id: str = field(
@@ -5246,7 +5238,7 @@ class InlineQueryResultGif(InlineQueryResult):
     thumbnail_url: str = field()
     """URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result."""
 
-    type: typing.Literal["gif"] = field(default="gif")
+    type: Literal["gif"] = field(default="gif")
     """Type of the result, must be gif."""
 
     id: str = field(
@@ -5263,8 +5255,8 @@ class InlineQueryResultGif(InlineQueryResult):
     gif_duration: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Duration of the GIF in seconds."""
 
-    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(
-        default=..., converter=From[typing.Literal["image/jpeg", "image/gif", "video/mp4"] | None]
+    thumbnail_mime_type: Option[InlineQueryResultMpeg4GifThumbnailMimeType] = field(
+        default=..., converter=From[InlineQueryResultMpeg4GifThumbnailMimeType | None]
     )
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`."""
@@ -5321,7 +5313,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     thumbnail_url: str = field()
     """URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result."""
 
-    type: typing.Literal["mpeg4_gif"] = field(default="mpeg4_gif")
+    type: Literal["mpeg4_gif"] = field(default="mpeg4_gif")
     """Type of the result, must be mpeg4_gif."""
 
     id: str = field(
@@ -5338,8 +5330,8 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     mpeg4_duration: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Video duration in seconds."""
 
-    thumbnail_mime_type: Option[typing.Literal["image/jpeg", "image/gif", "video/mp4"]] = field(
-        default=..., converter=From[typing.Literal["image/jpeg", "image/gif", "video/mp4"] | None]
+    thumbnail_mime_type: Option[InlineQueryResultMpeg4GifThumbnailMimeType] = field(
+        default=..., converter=From[InlineQueryResultMpeg4GifThumbnailMimeType | None]
     )
     """Optional. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`."""
@@ -5399,10 +5391,10 @@ class InlineQueryResultVideo(InlineQueryResult):
     title: str = field()
     """Title for the result."""
 
-    type: typing.Literal["video"] = field(default="video")
+    type: Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
-    mime_type: typing.Literal["text/html", "video/mp4"] = field(default="text/html")
+    mime_type: InlineQueryResultVideoMimeType = field(default=InlineQueryResultVideoMimeType.TEXT_HTML)
     """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
 
     id: str = field(
@@ -5473,7 +5465,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     title: str = field()
     """Title."""
 
-    type: typing.Literal["audio"] = field(default="audio")
+    type: Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
     id: str = field(
@@ -5532,7 +5524,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     title: str = field()
     """Recording title."""
 
-    type: typing.Literal["voice"] = field(default="voice")
+    type: Literal["voice"] = field(default="voice")
     """Type of the result, must be voice."""
 
     id: str = field(
@@ -5588,10 +5580,10 @@ class InlineQueryResultDocument(InlineQueryResult):
     document_url: str = field()
     """A valid URL for the file."""
 
-    type: typing.Literal["document"] = field(default="document")
+    type: Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    mime_type: typing.Literal["application/pdf", "application/zip"] = field(default="application/pdf")
+    mime_type: InlineQueryResultDocumentMimeType = field(default=InlineQueryResultDocumentMimeType.APPLICATION_PDF)
     """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
 
     id: str = field(
@@ -5660,7 +5652,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     title: str = field()
     """Location title."""
 
-    type: typing.Literal["location"] = field(default="location")
+    type: Literal["location"] = field(default="location")
     """Type of the result, must be location."""
 
     id: str = field(
@@ -5733,7 +5725,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     address: str = field()
     """Address of the venue."""
 
-    type: typing.Literal["venue"] = field(default="venue")
+    type: Literal["venue"] = field(default="venue")
     """Type of the result, must be venue."""
 
     id: str = field(
@@ -5795,7 +5787,7 @@ class InlineQueryResultContact(InlineQueryResult):
     first_name: str = field()
     """Contact's first name."""
 
-    type: typing.Literal["contact"] = field(default="contact")
+    type: Literal["contact"] = field(default="contact")
     """Type of the result, must be contact."""
 
     id: str = field(
@@ -5848,7 +5840,7 @@ class InlineQueryResultGame(InlineQueryResult):
     game_short_name: str = field()
     """Short name of the game."""
 
-    type: typing.Literal["game"] = field(default="game")
+    type: Literal["game"] = field(default="game")
     """Type of the result, must be game."""
 
     id: str = field(
@@ -5869,7 +5861,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     photo_file_id: str = field()
     """A valid file identifier of the photo."""
 
-    type: typing.Literal["photo"] = field(default="photo")
+    type: Literal["photo"] = field(default="photo")
     """Type of the result, must be photo."""
 
     id: str = field(
@@ -5929,7 +5921,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     gif_file_id: str = field()
     """A valid file identifier for the GIF file."""
 
-    type: typing.Literal["gif"] = field(default="gif")
+    type: Literal["gif"] = field(default="gif")
     """Type of the result, must be gif."""
 
     id: str = field(
@@ -5986,7 +5978,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     mpeg4_file_id: str = field()
     """A valid file identifier for the MPEG4 file."""
 
-    type: typing.Literal["mpeg4_gif"] = field(default="mpeg4_gif")
+    type: Literal["mpeg4_gif"] = field(default="mpeg4_gif")
     """Type of the result, must be mpeg4_gif."""
 
     id: str = field(
@@ -6043,7 +6035,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     sticker_file_id: str = field()
     """A valid file identifier of the sticker."""
 
-    type: typing.Literal["sticker"] = field(default="sticker")
+    type: Literal["sticker"] = field(default="sticker")
     """Type of the result, must be sticker."""
 
     id: str = field(
@@ -6083,7 +6075,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     document_file_id: str = field()
     """A valid file identifier for the file."""
 
-    type: typing.Literal["document"] = field(default="document")
+    type: Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
     id: str = field(
@@ -6140,7 +6132,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     title: str = field()
     """Title for the result."""
 
-    type: typing.Literal["video"] = field(default="video")
+    type: Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
     id: str = field(
@@ -6200,7 +6192,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     title: str = field()
     """Voice message title."""
 
-    type: typing.Literal["voice"] = field(default="voice")
+    type: Literal["voice"] = field(default="voice")
     """Type of the result, must be voice."""
 
     id: str = field(
@@ -6250,7 +6242,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     audio_file_id: str = field()
     """A valid file identifier for the audio file."""
 
-    type: typing.Literal["audio"] = field(default="audio")
+    type: Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
     id: str = field(
@@ -6699,7 +6691,7 @@ class RefundedPayment(Model):
     telegram_payment_charge_id: str = field()
     """Telegram payment identifier."""
 
-    currency: typing.Literal["XTR"] = field(default="XTR")
+    currency: Literal["XTR"] = field(default="XTR")
     """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
     Stars. Currently, always `XTR`."""
 
@@ -6777,7 +6769,7 @@ class RevenueWithdrawalStatePending(RevenueWithdrawalState):
     The withdrawal is in progress.
     """
 
-    type: typing.Literal["pending"] = field(default="pending")
+    type: Literal["pending"] = field(default="pending")
     """Type of the state, always `pending`."""
 
 
@@ -6793,7 +6785,7 @@ class RevenueWithdrawalStateSucceeded(RevenueWithdrawalState):
     url: str = field()
     """An HTTPS URL that can be used to see transaction details."""
 
-    type: typing.Literal["succeeded"] = field(default="succeeded")
+    type: Literal["succeeded"] = field(default="succeeded")
     """Type of the state, always `succeeded`."""
 
 
@@ -6803,7 +6795,7 @@ class RevenueWithdrawalStateFailed(RevenueWithdrawalState):
     The withdrawal failed and the transaction was refunded.
     """
 
-    type: typing.Literal["failed"] = field(default="failed")
+    type: Literal["failed"] = field(default="failed")
     """Type of the state, always `failed`."""
 
 
@@ -6850,7 +6842,7 @@ class TransactionPartnerUser(TransactionPartner):
     user: User = field()
     """Information about the user."""
 
-    type: typing.Literal["user"] = field(default="user")
+    type: Literal["user"] = field(default="user")
     """Type of the transaction partner, always `user`."""
 
     affiliate: Option[AffiliateInfo] = field(default=..., converter=From["AffiliateInfo | None"])
@@ -6894,7 +6886,7 @@ class TransactionPartnerChat(TransactionPartner):
     chat: Chat = field()
     """Information about the chat."""
 
-    type: typing.Literal["chat"] = field(default="chat")
+    type: Literal["chat"] = field(default="chat")
     """Type of the transaction partner, always `chat`."""
 
     gift: Option[Gift] = field(default=..., converter=From["Gift | None"])
@@ -6911,7 +6903,7 @@ class TransactionPartnerAffiliateProgram(TransactionPartner):
     """The number of Telegram Stars received by the bot for each 1000 Telegram Stars
     received by the affiliate program sponsor from referred users."""
 
-    type: typing.Literal["affiliate_program"] = field(default="affiliate_program")
+    type: Literal["affiliate_program"] = field(default="affiliate_program")
     """Type of the transaction partner, always `affiliate_program`."""
 
     sponsor_user: Option[User] = field(default=..., converter=From["User | None"])
@@ -6924,7 +6916,7 @@ class TransactionPartnerFragment(TransactionPartner):
     Describes a withdrawal transaction with Fragment.
     """
 
-    type: typing.Literal["fragment"] = field(default="fragment")
+    type: Literal["fragment"] = field(default="fragment")
     """Type of the transaction partner, always `fragment`."""
 
     withdrawal_state: Option[
@@ -6944,7 +6936,7 @@ class TransactionPartnerTelegramAds(TransactionPartner):
     Describes a withdrawal transaction to the Telegram Ads platform.
     """
 
-    type: typing.Literal["telegram_ads"] = field(default="telegram_ads")
+    type: Literal["telegram_ads"] = field(default="telegram_ads")
     """Type of the transaction partner, always `telegram_ads`."""
 
 
@@ -6958,7 +6950,7 @@ class TransactionPartnerTelegramApi(TransactionPartner):
     """The number of successful requests that exceeded regular limits and were
     therefore billed."""
 
-    type: typing.Literal["telegram_api"] = field(default="telegram_api")
+    type: Literal["telegram_api"] = field(default="telegram_api")
     """Type of the transaction partner, always `telegram_api`."""
 
 
@@ -6968,7 +6960,7 @@ class TransactionPartnerOther(TransactionPartner):
     Describes a transaction with an unknown source or recipient.
     """
 
-    type: typing.Literal["other"] = field(default="other")
+    type: Literal["other"] = field(default="other")
     """Type of the transaction partner, always `other`."""
 
 
@@ -7170,17 +7162,10 @@ class PassportElementErrorDataField(PassportElementError):
     message: str = field()
     """Error message."""
 
-    source: typing.Literal["data"] = field(default="data")
+    source: Literal["data"] = field(default="data")
     """Error source, must be data."""
 
-    type: typing.Literal[
-        "personal_details",
-        "passport",
-        "driver_license",
-        "identity_card",
-        "internal_passport",
-        "address",
-    ] = field(default="personal_details")
+    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PERSONAL_DETAILS)
     """The section of the user's Telegram Passport which has the error, one of `personal_details`,
     `passport`, `driver_license`, `identity_card`, `internal_passport`,
     `address`."""
@@ -7198,15 +7183,10 @@ class PassportElementErrorFrontSide(PassportElementError):
     message: str = field()
     """Error message."""
 
-    source: typing.Literal["front_side"] = field(default="front_side")
+    source: Literal["front_side"] = field(default="front_side")
     """Error source, must be front_side."""
 
-    type: typing.Literal[
-        "passport",
-        "driver_license",
-        "identity_card",
-        "internal_passport",
-    ] = field(default="passport")
+    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PASSPORT)
     """The section of the user's Telegram Passport which has the issue, one of `passport`,
     `driver_license`, `identity_card`, `internal_passport`."""
 
@@ -7223,10 +7203,10 @@ class PassportElementErrorReverseSide(PassportElementError):
     message: str = field()
     """Error message."""
 
-    source: typing.Literal["reverse_side"] = field(default="reverse_side")
+    source: Literal["reverse_side"] = field(default="reverse_side")
     """Error source, must be reverse_side."""
 
-    type: typing.Literal["driver_license", "identity_card"] = field(default="driver_license")
+    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.DRIVER_LICENSE)
     """The section of the user's Telegram Passport which has the issue, one of `driver_license`,
     `identity_card`."""
 
@@ -7243,15 +7223,10 @@ class PassportElementErrorSelfie(PassportElementError):
     message: str = field()
     """Error message."""
 
-    source: typing.Literal["selfie"] = field(default="selfie")
+    source: Literal["selfie"] = field(default="selfie")
     """Error source, must be selfie."""
 
-    type: typing.Literal[
-        "passport",
-        "driver_license",
-        "identity_card",
-        "internal_passport",
-    ] = field(default="passport")
+    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PASSPORT)
     """The section of the user's Telegram Passport which has the issue, one of `passport`,
     `driver_license`, `identity_card`, `internal_passport`."""
 
@@ -7268,16 +7243,10 @@ class PassportElementErrorFile(PassportElementError):
     message: str = field()
     """Error message."""
 
-    source: typing.Literal["file"] = field(default="file")
+    source: Literal["file"] = field(default="file")
     """Error source, must be file."""
 
-    type: typing.Literal[
-        "utility_bill",
-        "bank_statement",
-        "rental_agreement",
-        "passport_registration",
-        "temporary_registration",
-    ] = field(default="utility_bill")
+    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.UTILITY_BILL)
     """The section of the user's Telegram Passport which has the issue, one of `utility_bill`,
     `bank_statement`, `rental_agreement`, `passport_registration`,
     `temporary_registration`."""
@@ -7295,16 +7264,10 @@ class PassportElementErrorFiles(PassportElementError):
     message: str = field()
     """Error message."""
 
-    source: typing.Literal["files"] = field(default="files")
+    source: Literal["files"] = field(default="files")
     """Error source, must be files."""
 
-    type: typing.Literal[
-        "utility_bill",
-        "bank_statement",
-        "rental_agreement",
-        "passport_registration",
-        "temporary_registration",
-    ] = field(default="utility_bill")
+    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.UTILITY_BILL)
     """The section of the user's Telegram Passport which has the issue, one of `utility_bill`,
     `bank_statement`, `rental_agreement`, `passport_registration`,
     `temporary_registration`."""
@@ -7322,20 +7285,10 @@ class PassportElementErrorTranslationFile(PassportElementError):
     message: str = field()
     """Error message."""
 
-    source: typing.Literal["translation_file"] = field(default="translation_file")
+    source: Literal["translation_file"] = field(default="translation_file")
     """Error source, must be translation_file."""
 
-    type: typing.Literal[
-        "passport",
-        "driver_license",
-        "identity_card",
-        "internal_passport",
-        "utility_bill",
-        "bank_statement",
-        "rental_agreement",
-        "passport_registration",
-        "temporary_registration",
-    ] = field(default="passport")
+    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PASSPORT)
     """Type of element of the user's Telegram Passport which has the issue, one
     of `passport`, `driver_license`, `identity_card`, `internal_passport`,
     `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`,
@@ -7354,20 +7307,10 @@ class PassportElementErrorTranslationFiles(PassportElementError):
     message: str = field()
     """Error message."""
 
-    source: typing.Literal["translation_files"] = field(default="translation_files")
+    source: Literal["translation_files"] = field(default="translation_files")
     """Error source, must be translation_files."""
 
-    type: typing.Literal[
-        "passport",
-        "driver_license",
-        "identity_card",
-        "internal_passport",
-        "utility_bill",
-        "bank_statement",
-        "rental_agreement",
-        "passport_registration",
-        "temporary_registration",
-    ] = field(default="passport")
+    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PASSPORT)
     """Type of element of the user's Telegram Passport which has the issue, one
     of `passport`, `driver_license`, `identity_card`, `internal_passport`,
     `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`,
@@ -7389,7 +7332,7 @@ class PassportElementErrorUnspecified(PassportElementError):
     message: str = field()
     """Error message."""
 
-    source: typing.Literal["unspecified"] = field(default="unspecified")
+    source: Literal["unspecified"] = field(default="unspecified")
     """Error source, must be unspecified."""
 
 

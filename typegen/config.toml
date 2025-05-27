@@ -558,7 +558,7 @@ fields = [
 object_name = "InlineQueryResultDocument"
 fields = [
     { name = "type", literals = ["document",] },
-    { name = "mime_type", literals = ["application/pdf", "application/zip",] },
+    { name = "mime_type", enum = "InlineQueryResultDocumentMimeType", default = "APPLICATION_PDF" },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -571,7 +571,7 @@ fields = [
 object_name = "InlineQueryResultGif"
 fields = [
     { name = "type", literals = ["gif",] },
-    { name = "thumbnail_mime_type", literals = ["image/jpeg", "image/gif", "video/mp4",] },
+    { name = "thumbnail_mime_type", enum = "InlineQueryResultMpeg4GifThumbnailMimeType", default = "IMAGE_JPEG" },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -584,7 +584,7 @@ fields = [
 object_name = "InlineQueryResultMpeg4Gif"
 fields = [
     { name = "type", literals = ["mpeg4_gif",] },
-    { name = "thumbnail_mime_type", literals = ["image/jpeg", "image/gif", "video/mp4",] },
+    { name = "thumbnail_mime_type", enum = "InlineQueryResultMpeg4GifThumbnailMimeType", default = "IMAGE_JPEG" },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -603,7 +603,7 @@ fields = [
 object_name = "InlineQueryResultVideo"
 fields = [
     { name = "type", literals = ["video",] },
-    { name = "mime_type", literals = ["text/html", "video/mp4"] },
+    { name = "mime_type", enum = "InlineQueryResultVideoMimeType", default = "TEXT_HTML" },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -633,7 +633,7 @@ fields = [
 [[generator.objects.fields-literal-types]]
 object_name = "InputSticker"
 fields = [
-    { name = "format", literals = ["static", "animated", "video"] },
+    { name = "format", enum = "StickerFormat", default = "STATIC" },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -675,13 +675,13 @@ fields = [
 [[generator.objects.fields-literal-types]]
 object_name = "KeyboardButtonPollType"
 fields = [
-    { name = "type", literals = ["quiz", "regular",] },
+    { name = "type", enum = "PollType", default = "REGULAR" },
 ]
 
 [[generator.objects.fields-literal-types]]
 object_name = "MaskPosition"
 fields = [
-    { name = "point", literals = ["forehead", "eyes", "mouth", "chin",] },
+    { name = "point", enum = "MaskPositionPoint", default = "FOREHEAD" },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -735,7 +735,7 @@ fields = [
 [[generator.objects.fields-literal-types]]
 object_name = "UniqueGiftInfo"
 fields = [
-    { name = "origin", literals = ["upgrade", "transfer",] },
+    { name = "origin", enum = "UniqueGiftInfoOriginType", default = "UPGRADE" },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -754,95 +754,56 @@ fields = [
 object_name = "PassportElementErrorDataField"
 fields = [
     { name = "source", literals = ["data",] },
-    { name = "type", literals = [
-        "personal_details",
-        "passport",
-        "driver_license",
-        "identity_card",
-        "internal_passport",
-        "address",
-    ] },
+    { name = "type", enum = "EncryptedPassportElementType", default = "PERSONAL_DETAILS" },
 ]
 
 [[generator.objects.fields-literal-types]]
 object_name = "PassportElementErrorFile"
 fields = [
     { name = "source", literals = ["file",] },
-    { name = "type", literals = [
-        "utility_bill",
-        "bank_statement",
-        "rental_agreement",
-        "passport_registration",
-        "temporary_registration",
-    ] },
+    { name = "type", enum = "EncryptedPassportElementType", default = "UTILITY_BILL" },
 ]
 
 [[generator.objects.fields-literal-types]]
 object_name = "PassportElementErrorFiles"
 fields = [
     { name = "source", literals = ["files",] },
-    { name = "type", literals = [
-        "utility_bill",
-        "bank_statement",
-        "rental_agreement",
-        "passport_registration",
-        "temporary_registration",
-    ] },
+    { name = "type", enum = "EncryptedPassportElementType", default = "UTILITY_BILL" },
 ]
 
 [[generator.objects.fields-literal-types]]
 object_name = "PassportElementErrorFrontSide"
 fields = [
     { name = "source", literals = ["front_side",] },
-    { name = "type", literals = ["passport", "driver_license", "identity_card", "internal_passport",] },
+    { name = "type", enum = "EncryptedPassportElementType", default = "PASSPORT" },
 ]
 
 [[generator.objects.fields-literal-types]]
 object_name = "PassportElementErrorReverseSide"
 fields = [
     { name = "source", literals = ["reverse_side",] },
-    { name = "type", literals = ["driver_license", "identity_card",] },
+    { name = "type", enum = "EncryptedPassportElementType", default = "DRIVER_LICENSE" },
 ]
 
 [[generator.objects.fields-literal-types]]
 object_name = "PassportElementErrorSelfie"
 fields = [
     { name = "source", literals = ["selfie",] },
-    { name = "type", literals = ["passport", "driver_license", "identity_card", "internal_passport",] },
+    { name = "type", enum = "EncryptedPassportElementType", default = "PASSPORT" },
 ]
 
 [[generator.objects.fields-literal-types]]
 object_name = "PassportElementErrorTranslationFile"
 fields = [
     { name = "source", literals = ["translation_file",] },
-    { name = "type", literals = [
-        "passport",
-        "driver_license",
-        "identity_card",
-        "internal_passport",
-        "utility_bill",
-        "bank_statement",
-        "rental_agreement",
-        "passport_registration",
-        "temporary_registration",
-    ] },
+    { name = "type", enum = "EncryptedPassportElementType", default = "PASSPORT" },
 ]
 
 [[generator.objects.fields-literal-types]]
 object_name = "PassportElementErrorTranslationFiles"
 fields = [
     { name = "source", literals = ["translation_files",] },
-    { name = "type", literals = [
-        "passport",
-        "driver_license",
-        "identity_card",
-        "internal_passport",
-        "utility_bill",
-        "bank_statement",
-        "rental_agreement",
-        "passport_registration",
-        "temporary_registration",
-    ] },
+    { name = "type", enum = "EncryptedPassportElementType", default = "PASSPORT" },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -855,7 +816,7 @@ fields = [
 [[generator.objects.fields-literal-types]]
 object_name = "Poll"
 fields = [
-    { name = "type", literals = ["regular", "quiz",] },
+    { name = "type", enum = "PollType", default = "REGULAR" },
 ]
 
 [[generator.objects.fields-literal-types]]
@@ -879,13 +840,13 @@ fields = [
 [[generator.objects.fields-literal-types]]
 object_name = "Sticker"
 fields = [
-    { name = "type", literals = ["regular", "mask", "custom_emoji",] },
+    { name = "type", enum = "StickerSetStickerType", default = "REGULAR" },
 ]
 
 [[generator.objects.fields-literal-types]]
 object_name = "StickerSet"
 fields = [
-    { name = "sticker_type", literals = ["regular", "mask", "custom_emoji",] },
+    { name = "sticker_type", enum = "StickerSetStickerType", default = "REGULAR" },
 ]
 
 [[generator.objects.fields-literal-types]]

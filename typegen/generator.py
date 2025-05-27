@@ -232,7 +232,7 @@ class ObjectGenerator(ABCGenerator):
         )
 
         if literal_types is not None and any((literal_types.enum, literal_types.literals)):
-            literal_type_hint = literal_types.enum or "typing.Literal[%s]" % ", ".join(
+            literal_type_hint = literal_types.enum or "Literal[%s]" % ", ".join(
                 f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
             )
             if len(literal_types.literals) > 3:
@@ -376,11 +376,13 @@ class ObjectGenerator(ABCGenerator):
             for f in object_schema.fields:
                 literal_types = self.get_literal_types_field(object_name, f.name)
                 if literal_types is not None and literal_types.literals and f.required:
-                    f.default = (
+                    f.default = literal_types.default or (
                         f'"{literal_types.literals[0]}"'
                         if isinstance(literal_types.literals[0], str)
                         else str(literal_types.literals[0])
                     )
+                elif literal_types is not None and literal_types.enum_default is not None and f.required:
+                    f.default = literal_types.enum_default
 
                 generation_id_by_default = self.get_generation_id_by_default_field(object_name, f.name)
                 if generation_id_by_default is not None:
@@ -427,7 +429,7 @@ class ObjectGenerator(ABCGenerator):
             "from telegrinder.model import From, Model, field\n",
             "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
-            "from telegrinder.msgspec_utils.custom_types import Option, datetime, timedelta\n\n",
+            "from telegrinder.msgspec_utils.custom_types import Option, Literal, datetime, timedelta\n\n",
         ]
 
         if self.config.generator.objects.fields_literal_types:
