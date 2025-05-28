@@ -1,12 +1,14 @@
 import typing
 
-from fntypes.result import Ok
+from fntypes.result import Error, Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.modules import logger
 from telegrinder.node.base import ComposeError, FactoryNode, Node
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, GLOBAL_VALUE_KEY, compose_node, compose_nodes
 from telegrinder.node.scope import NodeScope, per_call
+from telegrinder.tools.fullname import fullname
 from telegrinder.types.objects import Update
 
 
@@ -68,6 +70,12 @@ class _Either(FactoryNode):
                         setattr(node, GLOBAL_VALUE_KEY, session.value)
 
                     return session.value
+                case Error(compose_error):
+                    logger.info(
+                        "Failed to compose either node {} with error: {!r}.",
+                        fullname(node),
+                        compose_error.message,
+                    )
 
         raise ComposeError("Cannot compose either nodes: {}.".format(", ".join(repr(n) for n in cls.nodes)))
 

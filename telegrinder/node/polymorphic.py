@@ -10,6 +10,7 @@ from telegrinder.node.base import ComposeError, Node, get_nodes
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeSession, compose_nodes
 from telegrinder.node.scope import NodeScope
 from telegrinder.tools.aio import maybe_awaitable
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.function import bundle
 from telegrinder.types.objects import Update
 
@@ -82,7 +83,16 @@ class Polymorphic(Node):
                 return res.value
 
             impl_bundle = bundle(impl_, data, typebundle=True)
-            result = await maybe_awaitable(impl_bundle(cls, **node_collection.values))
+
+            try:
+                result = await maybe_awaitable(impl_bundle(cls, **node_collection.values))
+            except ComposeError as compose_error:
+                logger.debug(
+                    "Failed to compose morph implementation {} with error: {!r}",
+                    fullname(impl_),
+                    compose_error.message,
+                )
+
             if scope is NodeScope.PER_EVENT:
                 node_ctx[(cls, i)] = NodeSession(cls, result, {})
 

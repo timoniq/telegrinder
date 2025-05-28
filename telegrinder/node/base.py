@@ -125,7 +125,9 @@ def unwrap_node(node: type[NodeType], /) -> tuple[type[NodeType], ...]:
 
 
 class ComposeError(BaseException):
-    pass
+    def __init__(self, message: str = "<no error description>", /) -> None:
+        self.message = message
+        super().__init__(message)
 
 
 @typing.runtime_checkable
