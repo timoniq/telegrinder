@@ -71,7 +71,7 @@ class _Either(FactoryNode):
 
                     return session.value
                 case Error(compose_error):
-                    logger.info(
+                    logger.debug(
                         "Failed to compose either node {} with error: {!r}.",
                         fullname(node),
                         compose_error.message,
