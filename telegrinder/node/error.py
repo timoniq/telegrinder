@@ -12,6 +12,9 @@ def can_catch(exc: Exception, exception_t: type[Exception] | tuple[type[Exceptio
     return isinstance(exc, exception_t)
 
 
+# TODO: *ExceptionTs
+# err: Error[RuntimeError, AnotherError]
+# passes on both errors; err.exception ~ Union[*ExceptionTs]
 class Error[ExceptionT: Exception](Node):
     def __init__(self, exception: ExceptionT):
         self.exception = exception
@@ -25,7 +28,7 @@ class Error[ExceptionT: Exception](Node):
         exception_t = typing.cast("type[Exception]", args["ExceptionT"])
 
         if exception_t is None:
-            # Any exception
+            # Any exception (err: Error)
             return cls(exception=exception)
 
         if not can_catch(exception, exception_t):

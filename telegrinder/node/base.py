@@ -89,7 +89,7 @@ def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
 def bind_orig(node: type[NodeType], orig: typing.Any) -> type[NodeType]:
     if issubclass(node, FactoryNode):
         return node
-    return type(node.__name__, (node,), {"__orig__": orig})
+    return type(node.__name__, (node,), {"__orig__": orig})  # type: ignore
 
 
 @function_context("nodes")
@@ -198,7 +198,15 @@ class scalar_node[T]:  # noqa: N801
         /,
         *,
         scope: NodeScope,
-    ) -> typing.Callable[[NodeComposeFunction[Composable[T]] | NodeComposeFunction[T]], type[T]]: ...
+    ) -> typing.Callable[[NodeComposeFunction[Composable[T]]], type[T]]: ...
+
+    @typing.overload
+    def __new__(
+        cls,
+        /,
+        *,
+        scope: NodeScope,
+    ) -> typing.Callable[[NodeComposeFunction[T]], type[T]]: ...
 
     def __new__(cls, x=None, /, *, scope=NodeScope.PER_EVENT) -> typing.Any:
         def inner(node_or_func, /) -> typing.Any:
