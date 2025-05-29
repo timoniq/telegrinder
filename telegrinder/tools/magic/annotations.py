@@ -6,8 +6,8 @@ import typing as _typing
 from functools import cached_property
 
 import typing_extensions as typing
+from fntypes.option import Nothing, Option, Some
 from fntypes.result import Error, Ok, Result
-from fntypes.option import Nothing, Some, Option
 
 from telegrinder.tools.fullname import fullname
 

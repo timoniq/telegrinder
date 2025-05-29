@@ -1,4 +1,4 @@
-from telegrinder.node.base import scalar_node, NodeType, ComposeError
+from telegrinder.node.base import ComposeError, NodeType, scalar_node
 from telegrinder.node.scope import NodeScope
 from telegrinder.tools.magic.annotations import get_generic_alias_args
 

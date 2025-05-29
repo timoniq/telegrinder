@@ -1,8 +1,9 @@
-from telegrinder.node.base import Node, ComposeError
-from telegrinder.bot.dispatch.context import Context
-from telegrinder.node.utility import TypeArgs
-from telegrinder.node.either import Optional
 import typing
+
+from telegrinder.bot.dispatch.context import Context
+from telegrinder.node.base import ComposeError, Node
+from telegrinder.node.either import Optional
+from telegrinder.node.utility import TypeArgs
 
 
 def can_catch(exc: Exception, exception_t: type[Exception] | tuple[type[Exception]]):
@@ -21,7 +22,7 @@ class Error[ExceptionT: Exception](Node):
             raise ComposeError("No exception")
 
         exception = ctx["_exception"]
-        exception_t= typing.cast("type[Exception]", args["ExceptionT"])
+        exception_t = typing.cast("type[Exception]", args["ExceptionT"])
 
         if exception_t is None:
             # Any exception

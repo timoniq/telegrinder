@@ -36,6 +36,7 @@ from .command import CommandInfo
 from .composer import NodeCollection, NodeSession, compose_node, compose_nodes
 from .container import ContainerNode
 from .either import Either, Optional
+from .error import Error
 from .event import EventNode
 from .file import File, FileId
 from .me import Me
@@ -54,7 +55,6 @@ from .scope import (
 from .source import ChatSource, Source, UserId, UserSource
 from .text import Text, TextInteger, TextLiteral
 from .tools import generate_node
-from .error import Error
 
 __all__ = (
     "Animation",

@@ -6,11 +6,11 @@ from telegrinder.bot.dispatch.view import (
     callback_query,
     chat_join_request,
     chat_member,
+    error,
     inline_query,
     message,
     pre_checkout_query,
     raw,
-    error,
 )
 from telegrinder.bot.dispatch.view.abc import ABCEventRawView, ABCView
 from telegrinder.types.enums import UpdateType

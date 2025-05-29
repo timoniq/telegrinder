@@ -17,11 +17,11 @@ from telegrinder.bot.dispatch.view.box import (
     CallbackQueryView,
     ChatJoinRequestView,
     ChatMemberView,
+    ErrorView,
     InlineQueryView,
     MessageView,
     PreCheckoutQueryView,
     RawEventView,
-    ErrorView,
     ViewBox,
 )
 from telegrinder.modules import logger

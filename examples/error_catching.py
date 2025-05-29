@@ -1,7 +1,7 @@
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
-from telegrinder.rules import Text, IsUser
 from telegrinder.node import Error
+from telegrinder.rules import IsUser, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
