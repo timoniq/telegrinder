@@ -13,19 +13,22 @@ from telegrinder.node.base import (
     NodeImpersonation,
     NodeScope,
     NodeType,
+    get_origin_node_class,
     unwrap_node,
 )
 from telegrinder.tools.aio import maybe_awaitable
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic import bundle, join_dicts
 
 type AsyncGenerator = typing.AsyncGenerator[typing.Any, None]
 
-CONTEXT_STORE_NODES_KEY = "_node_ctx"
-GLOBAL_VALUE_KEY = "_value"
+CONTEXT_STORE_NODES_KEY: typing.Final[str] = "_node_ctx"
+GLOBAL_VALUE_KEY: typing.Final[str] = "_value"
+NODE_SCOPE_KEY: typing.Final[str] = "scope"
 
 
 def get_scope(node: type[NodeType], /) -> NodeScope | None:
-    return getattr(node, "scope", None)
+    return getattr(node, NODE_SCOPE_KEY, None)
 
 
 async def compose_node(
@@ -60,12 +63,14 @@ async def compose_nodes(
     ctx: Context,
     data: dict[type[typing.Any], typing.Any] | None = None,
 ) -> Result["NodeCollection", ComposeError]:
-    logger.debug("Composing nodes: ({})...", " ".join(f"{k}={v!r}" for k, v in nodes.items()))
+    logger.debug("Composing nodes ({})...", ", ".join(f"{k}: {fullname(v)}" for k, v in nodes.items()))
 
     data = {Context: ctx} | (data or {})
     parent_nodes = dict[IsNode, NodeSession]()
     event_nodes: dict[IsNode, NodeSession] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
-    unwrapped_nodes = {(key, n := node.as_node(), getattr(node, "__orig__", None)): unwrap_node(n) for key, node in nodes.items()}
+    unwrapped_nodes = {
+        (key, n := node.as_node(), get_origin_node_class(node)): unwrap_node(n) for key, node in nodes.items()
+    }
 
     for (parent_node_name, parent_node_t, parent_original_type), linked_nodes in unwrapped_nodes.items():
         local_nodes = dict[type[NodeType], NodeSession]()
@@ -92,7 +97,7 @@ async def compose_nodes(
                 for t, local_node in local_nodes.items():
                     if get_scope(t) is NodeScope.PER_CALL:
                         await local_node.close()
-                return Error(ComposeError(f"Cannot compose {node_t!r}, error: {str(exc)}"))
+                return Error(ComposeError(f"Cannot compose {fullname(node_t)}, error: {exc.message!r}"))
 
             if scope is NodeScope.PER_EVENT:
                 event_nodes[node_t] = local_nodes[node_t]

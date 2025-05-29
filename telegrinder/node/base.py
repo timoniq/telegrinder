@@ -8,6 +8,7 @@ from types import AsyncGeneratorType, CodeType, resolve_bases
 import typing_extensions as typing
 
 from telegrinder.node.scope import NodeScope
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.function import function_context, get_func_annotations
 from telegrinder.tools.strings import to_pascal_case
 
@@ -28,7 +29,8 @@ T = typing.TypeVar("T", default=typing.Any)
 
 ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerator[T, None]
 
-UNWRAPPED_NODE_KEY = "__unwrapped_node__"
+UNWRAPPED_NODE_KEY: typing.Final[str] = "__unwrapped_node__"
+ORIGIN_NODE_CLASS_KEY: typing.Final[str] = "__origin_node_class__"
 
 
 @typing.overload
@@ -77,24 +79,29 @@ def as_node(*maybe_nodes: type[typing.Any] | typing.Any) -> tuple[IsNode, ...]: 
 def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
     for maybe_node in maybe_nodes:
         if not is_node(maybe_node):
-            is_type = isinstance(maybe_node, type)
             raise LookupError(
-                f"{'Type of' if is_type else 'Object of type'} "
-                f"{maybe_node.__name__ if is_type else maybe_node.__class__.__name__!r} "
-                "cannot be resolved as Node."
+                f"{'Type of' if isinstance(maybe_node, type) else 'Object of type'} "
+                f"{fullname(maybe_node)!r} cannot be resolved as Node.",
             )
+
     return maybe_nodes[0] if len(maybe_nodes) == 1 else maybe_nodes
 
 
-def bind_orig(node: type[NodeType], orig: typing.Any) -> type[NodeType]:
+def bind_origin_node_class(node: type[NodeType], orig: typing.Any) -> type[NodeType]:
     if issubclass(node, FactoryNode):
         return node
-    return type(node.__name__, (node,), {"__orig__": orig})  # type: ignore
+    return type(node.__name__, (node,), {ORIGIN_NODE_CLASS_KEY: orig})  # type: ignore
+
+
+def get_origin_node_class(node: IsNode | NodeImpersonation, /) -> type[typing.Any] | None:
+    return getattr(node, ORIGIN_NODE_CLASS_KEY, None)
 
 
 @function_context("nodes")
 def get_nodes(function: typing.Callable[..., typing.Any], /) -> dict[str, type[NodeType]]:
-    return {k: bind_orig(v.as_node(), v) for k, v in get_func_annotations(function).items() if is_node(v)}
+    return {
+        k: bind_origin_node_class(v.as_node(), v) for k, v in get_func_annotations(function).items() if is_node(v)
+    }
 
 
 @function_context("is_generator")
@@ -262,7 +269,7 @@ class Name:
 @scalar_node
 class NodeClass:
     @classmethod
-    def compose(cls) -> type: ...
+    def compose(cls) -> type[Node]: ...
 
 
 class GlobalNode[Value](Node):
@@ -301,13 +308,15 @@ __all__ = (
     "IsNode",
     "Name",
     "Node",
+    "NodeClass",
     "NodeImpersonation",
     "NodeProto",
     "NodeType",
     "as_node",
+    "bind_origin_node_class",
     "get_nodes",
+    "get_origin_node_class",
     "is_node",
     "scalar_node",
     "unwrap_node",
-    "NodeClass",
 )

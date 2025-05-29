@@ -17,6 +17,7 @@ class Context(dict[str, AnyValue]):
     """Per-event the context storage."""
 
     raw_update: Update
+    exception_update: BaseException | None = None
     node_col: NodeCollection | None = None
 
     def __init__(self, **kwargs: AnyValue) -> None:

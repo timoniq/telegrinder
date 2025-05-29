@@ -7,7 +7,6 @@ from telegrinder.types.objects import Update
 
 
 class ErrorView(BaseView[UpdateCute]):
-
     async def process(self, event: Update, api: API, context: Context) -> bool:
         return await process_inner(
             api,
@@ -18,3 +17,6 @@ class ErrorView(BaseView[UpdateCute]):
             self.handlers,
             self.return_manager,
         )
+
+
+__all__ = ("ErrorView",)

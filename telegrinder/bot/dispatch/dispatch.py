@@ -216,14 +216,14 @@ class Dispatch(
                     event.update_type.name,
                     view,
                 )
+
                 try:
                     if await view.process(event, api, context):
                         return True
-                except Exception as e:
-                    context["_exception"] = e
-                    result = await self.error.process(event, api, context)
-                    if not result:
-                        raise e
+                except BaseException as exception:
+                    context.exception_update = exception
+                    if not await self.error.process(event, api, context):
+                        raise exception
 
         await run_middleware(
             self.global_middleware.post,
@@ -254,7 +254,9 @@ class Dispatch(
 
     def get_views(self) -> dict[str, ABCView]:
         """Get all views."""
-        return {name: view for name, view in self.__dict__.items() if isinstance(view, ABCView) and name != "error"}
+        return {
+            name: view for name, view in self.__dict__.items() if isinstance(view, ABCView) and name != "error"
+        }
 
     __call__ = handle
 

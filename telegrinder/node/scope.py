@@ -2,7 +2,7 @@ import enum
 import typing
 
 if typing.TYPE_CHECKING:
-    from .base import IsNode
+    from telegrinder.node.base import Composable
 
 
 class NodeScope(enum.Enum):
@@ -16,17 +16,17 @@ PER_CALL = NodeScope.PER_CALL
 GLOBAL = NodeScope.GLOBAL
 
 
-def per_call[T: IsNode](node: type[T]) -> type[T]:
+def per_call[T: Composable[typing.Any]](node: type[T]) -> type[T]:
     setattr(node, "scope", PER_CALL)
     return node
 
 
-def per_event[T: IsNode](node: type[T]) -> type[T]:
+def per_event[T: Composable[typing.Any]](node: type[T]) -> type[T]:
     setattr(node, "scope", PER_EVENT)
     return node
 
 
-def global_node[T: IsNode](node: type[T]) -> type[T]:
+def global_node[T: Composable[typing.Any]](node: type[T]) -> type[T]:
     setattr(node, "scope", GLOBAL)
     return node
 

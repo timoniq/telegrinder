@@ -18,10 +18,10 @@ __all__ = (
     "CallbackQueryView",
     "ChatJoinRequestView",
     "ChatMemberView",
+    "ErrorView",
     "InlineQueryView",
     "MessageView",
     "PreCheckoutQueryView",
     "RawEventView",
     "ViewBox",
-    "ErrorView",
 )

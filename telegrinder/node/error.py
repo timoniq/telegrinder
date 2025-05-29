@@ -1,37 +1,44 @@
-import typing
+import dataclasses
+
+import typing_extensions as typing
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node.base import ComposeError, Node
-from telegrinder.node.either import Optional
+from telegrinder.node.base import ComposeError, DataNode
 from telegrinder.node.utility import TypeArgs
 
+type ExceptionType = type[BaseException]
 
-def can_catch(exc: Exception, exception_t: type[Exception] | tuple[type[Exception]]):
-    if isinstance(exc, type):
-        return issubclass(exc.__class__, exception_t)
-    return isinstance(exc, exception_t)
+ExceptionT = typing.TypeVar("ExceptionT", bound=BaseException, default=BaseException)
+ExceptionTs = typing.TypeVarTuple("ExceptionTs", default=typing.Unpack[tuple[BaseException, ...]])
 
 
-# TODO: *ExceptionTs
-# err: Error[RuntimeError, AnotherError]
-# passes on both errors; err.exception ~ Union[*ExceptionTs]
-class Error[ExceptionT: Exception](Node):
-    def __init__(self, exception: ExceptionT):
-        self.exception = exception
+def can_catch[ExceptionT: BaseException](
+    exc: BaseException | ExceptionType,
+    exc_types: type[ExceptionT] | tuple[type[ExceptionT], ...],
+) -> typing.TypeGuard[ExceptionT]:
+    return issubclass(exc, exc_types) if isinstance(exc, type) else isinstance(exc, exc_types)
+
+
+@dataclasses.dataclass(kw_only=True, frozen=True)
+class Error(DataNode, typing.Generic[*ExceptionTs]):
+    __module__ = __name__
+
+    exception_update: BaseException
+
+    @property
+    def exception(self: "Error[*tuple[ExceptionT, ...]]") -> ExceptionT:
+        return self.exception_update  # type: ignore
 
     @classmethod
-    def compose(cls, ctx: Context, args: TypeArgs) -> typing.Self:
-        if "_exception" not in ctx:
-            raise ComposeError("No exception")
+    def compose(cls, ctx: Context, type_args: TypeArgs) -> typing.Self:
+        if ctx.exception_update is None:
+            raise ComposeError("No exception.")
 
-        exception = ctx["_exception"]
-        exception_t = typing.cast("type[Exception]", args["ExceptionT"])
+        exception_types: tuple[ExceptionType, ...] | None = type_args.get(ExceptionTs.__name__)
+        if exception_types is None or can_catch(ctx.exception_update, exception_types):
+            return cls(exception_update=ctx.exception_update)
 
-        if exception_t is None:
-            # Any exception (err: Error)
-            return cls(exception=exception)
+        raise ComposeError("Foreign exception type.")
 
-        if not can_catch(exception, exception_t):
-            raise ComposeError("Foreign exception type")
 
-        return cls(exception=exception)
+__all__ = ("Error",)
