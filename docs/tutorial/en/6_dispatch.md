@@ -46,7 +46,7 @@ async def command_handler(m: Message, string: str, times: int = 5):
 
 Done! Thats just like ordinary bot but we already work with `bot.on`.
 
-Let's say we have this piece of code `in handlers/chat_utilities.py`.
+Let's say we have this piece of code in `handlers/chat_utilities.py`.
 
 Now what we want to to is load this dispatcher into our bot's one like this:
 

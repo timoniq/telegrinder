@@ -86,9 +86,13 @@ def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
     return maybe_nodes[0] if len(maybe_nodes) == 1 else maybe_nodes
 
 
+def bind_orig(node: type[NodeType], orig: typing.Any) -> type[NodeType]:
+    return type(node.__name__, (node,), {"__orig__": orig})
+
+
 @function_context("nodes")
 def get_nodes(function: typing.Callable[..., typing.Any], /) -> dict[str, type[NodeType]]:
-    return {k: v.as_node() for k, v in get_func_annotations(function).items() if is_node(v)}
+    return {k: bind_orig(v.as_node(), v) for k, v in get_func_annotations(function).items() if is_node(v)}
 
 
 @function_context("is_generator")
@@ -243,6 +247,12 @@ class DataNode(Node, abc.ABC):
 class Name:
     @classmethod
     def compose(cls) -> str: ...
+
+
+@scalar_node
+class NodeType:
+    @classmethod
+    def compose(cls) -> type: ...
 
 
 class GlobalNode[Value](Node):

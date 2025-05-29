@@ -7,6 +7,7 @@ from functools import cached_property
 
 import typing_extensions as typing
 from fntypes.result import Error, Ok, Result
+from fntypes.option import Nothing, Some, Option
 
 from telegrinder.tools.fullname import fullname
 
@@ -113,4 +114,30 @@ class AnnotationsEvaluator:
         )
 
 
-__all__ = ("AnnotationsEvaluator",)
+def get_generic_alias_args(obj: typing.Any, /) -> Option[dict[str, typing.Any]]:
+
+    origin_obj = _typing.get_origin(obj)
+    args = _typing.get_args(obj)
+    parameters: TypeParameters = getattr(origin_obj or obj, "__parameters__")
+
+    if not parameters:
+        return Nothing()
+
+    index = 0
+    generic_alias_args = dict[str, _typing.Any]()
+
+    for parameter in parameters:
+        if isinstance(parameter, _typing.TypeVarTuple):
+            stop_index = len(args) - index
+            generic_alias_args[parameter.__name__] = args[index : stop_index]
+            index = stop_index
+            continue
+
+        arg = args[index] if index < len(args) else None
+        generic_alias_args[parameter.__name__] = arg
+        index += 1
+
+    return Some(generic_alias_args)
+
+
+__all__ = ("AnnotationsEvaluator", "get_generic_alias_args")

@@ -8,6 +8,7 @@ from telegrinder.bot.dispatch.view.inline_query import InlineQueryView
 from telegrinder.bot.dispatch.view.message import MessageView
 from telegrinder.bot.dispatch.view.pre_checkout_query import PreCheckoutQueryView
 from telegrinder.bot.dispatch.view.raw import RawEventView
+from telegrinder.bot.dispatch.view.error import ErrorView
 
 __all__ = (
     "ABCStateView",
@@ -22,4 +23,5 @@ __all__ = (
     "PreCheckoutQueryView",
     "RawEventView",
     "ViewBox",
+    "ErrorView",
 )

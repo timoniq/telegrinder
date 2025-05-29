@@ -54,6 +54,7 @@ from .scope import (
 from .source import ChatSource, Source, UserId, UserSource
 from .text import Text, TextInteger, TextLiteral
 from .tools import generate_node
+from .error import Error
 
 __all__ = (
     "Animation",
@@ -118,4 +119,5 @@ __all__ = (
     "per_event",
     "scalar_node",
     "unwrap_node",
+    "Error",
 )

@@ -10,6 +10,7 @@ from telegrinder.bot.dispatch.view import (
     message,
     pre_checkout_query,
     raw,
+    error,
 )
 from telegrinder.bot.dispatch.view.abc import ABCEventRawView, ABCView
 from telegrinder.types.enums import UpdateType
@@ -33,6 +34,7 @@ ChatMemberView = typing.TypeVar("ChatMemberView", bound=ABCView, default=chat_me
 InlineQueryView = typing.TypeVar("InlineQueryView", bound=ABCView, default=inline_query.InlineQueryView)
 MessageView = typing.TypeVar("MessageView", bound=ABCView, default=message.MessageView)
 RawEventView = typing.TypeVar("RawEventView", bound=ABCEventRawView, default=raw.RawEventView)
+ErrorView = typing.TypeVar("ErrorView", bound=ABCView, default=error.ErrorView)
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -45,6 +47,7 @@ class ViewBox(
         MessageView,
         PreCheckoutQueryView,
         RawEventView,
+        ErrorView,
     ],
 ):
     callback_query_view: dataclasses.InitVar[CallbackQueryView | None] = None
@@ -62,6 +65,7 @@ class ViewBox(
     any_message_view: dataclasses.InitVar[MessageView | None] = None
     chat_member_updated_view: dataclasses.InitVar[ChatMemberView | None] = None
     raw_event_view: dataclasses.InitVar[RawEventView | None] = None
+    error_view: dataclasses.InitVar[ErrorView | None] = None
 
     def __post_init__(
         self,
@@ -80,6 +84,7 @@ class ViewBox(
         chat_member_updated_view: ChatMemberView | None = None,
         pre_checkout_query_view: PreCheckoutQueryView | None = None,
         raw_event_view: RawEventView | None = None,
+        error_view: ErrorView | None = None,
     ) -> None:
         self.callback_query = typing.cast(
             "CallbackQueryView",
@@ -135,6 +140,7 @@ class ViewBox(
             chat_member_updated_view or chat_member.ChatMemberView(),
         )
         self.raw_event = typing.cast("RawEventView", raw_event_view or raw.RawEventView())
+        self.error = typing.cast("ErrorView", error_view or error.ErrorView())
 
 
 __all__ = ("ViewBox",)

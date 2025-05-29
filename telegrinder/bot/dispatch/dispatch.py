@@ -21,6 +21,7 @@ from telegrinder.bot.dispatch.view.box import (
     MessageView,
     PreCheckoutQueryView,
     RawEventView,
+    ErrorView,
     ViewBox,
 )
 from telegrinder.modules import logger
@@ -53,6 +54,7 @@ class Dispatch(
         MessageView,
         PreCheckoutQueryView,
         RawEventView,
+        ErrorView,
     ],
     typing.Generic[
         CallbackQueryView,
@@ -62,6 +64,7 @@ class Dispatch(
         MessageView,
         PreCheckoutQueryView,
         RawEventView,
+        ErrorView,
     ],
 ):
     _global_context: TelegrinderContext = dataclasses.field(
@@ -213,8 +216,14 @@ class Dispatch(
                     event.update_type.name,
                     view,
                 )
-                if await view.process(event, api, context):
-                    return True
+                try:
+                    if await view.process(event, api, context):
+                        return True
+                except Exception as e:
+                    context["_exception"] = e
+                    result = await self.error.process(event, api, context)
+                    if not result:
+                        raise e
 
         await run_middleware(
             self.global_middleware.post,
@@ -245,7 +254,7 @@ class Dispatch(
 
     def get_views(self) -> dict[str, ABCView]:
         """Get all views."""
-        return {name: view for name, view in self.__dict__.items() if isinstance(view, ABCView)}
+        return {name: view for name, view in self.__dict__.items() if isinstance(view, ABCView) and name != "error"}
 
     __call__ = handle
 
