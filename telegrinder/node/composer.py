@@ -64,13 +64,13 @@ async def compose_nodes(
     data = {Context: ctx} | (data or {})
     parent_nodes = dict[IsNode, NodeSession]()
     event_nodes: dict[IsNode, NodeSession] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
-    unwrapped_nodes = {(key, n := node.as_node(), getattr(node, "__orig__")): unwrap_node(n) for key, node in nodes.items()}
+    unwrapped_nodes = {(key, n := node.as_node(), getattr(node, "__orig__", None)): unwrap_node(n) for key, node in nodes.items()}
 
     for (parent_node_name, parent_node_t, parent_original_type), linked_nodes in unwrapped_nodes.items():
         local_nodes = dict[type[NodeType], NodeSession]()
         subnodes = {}
         data[Name] = parent_node_name
-        data[NodeType] = parent_original_type
+        data[NodeType] = parent_original_type or parent_node_t
 
         for node_t in linked_nodes:
             scope = get_scope(node_t)
