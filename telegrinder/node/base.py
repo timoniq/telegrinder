@@ -87,6 +87,8 @@ def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
 
 
 def bind_orig(node: type[NodeType], orig: typing.Any) -> type[NodeType]:
+    if issubclass(node, FactoryNode):
+        return node
     return type(node.__name__, (node,), {"__orig__": orig})
 
 
