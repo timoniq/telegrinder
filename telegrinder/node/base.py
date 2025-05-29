@@ -252,7 +252,7 @@ class Name:
 
 
 @scalar_node
-class NodeType:
+class NodeClass:
     @classmethod
     def compose(cls) -> type: ...
 
@@ -301,4 +301,5 @@ __all__ = (
     "is_node",
     "scalar_node",
     "unwrap_node",
+    "NodeClass",
 )

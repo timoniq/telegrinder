@@ -9,6 +9,7 @@ from telegrinder.node.base import (
     ComposeError,
     IsNode,
     Name,
+    NodeClass,
     NodeImpersonation,
     NodeScope,
     NodeType,
@@ -70,7 +71,7 @@ async def compose_nodes(
         local_nodes = dict[type[NodeType], NodeSession]()
         subnodes = {}
         data[Name] = parent_node_name
-        data[NodeType] = parent_original_type or parent_node_t
+        data[NodeClass] = parent_original_type or parent_node_t
 
         for node_t in linked_nodes:
             scope = get_scope(node_t)
