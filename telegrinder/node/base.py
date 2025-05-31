@@ -88,12 +88,12 @@ def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
 
 
 def bind_origin_node_class(node: type[NodeType], orig: typing.Any) -> type[NodeType]:
-    if issubclass(node, FactoryNode):
-        return node
-    return type(node.__name__, (node,), {ORIGIN_NODE_CLASS_KEY: orig})  # type: ignore
+    if not hasattr(node, ORIGIN_NODE_CLASS_KEY):
+        setattr(node, ORIGIN_NODE_CLASS_KEY, orig)
+    return node
 
 
-def get_origin_node_class(node: IsNode | NodeImpersonation, /) -> type[typing.Any] | None:
+def get_origin_node_class(node: IsNode | NodeImpersonation, /) -> typing.Any | None:
     return getattr(node, ORIGIN_NODE_CLASS_KEY, None)
 
 
