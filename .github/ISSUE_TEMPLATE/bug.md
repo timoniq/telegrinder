@@ -1,29 +1,22 @@
 ---
 name: "\U0001F41B Bug report \U0001F41B"
 about: "Reporting a bug."
-title: ""
+title: "bug: "
 labels: ["bug"]
 assignees: []
 ---
 
-### ⚪️ Checklist ⚪️
-* [ ] ❕ I'm sure this is a **bug** in the **framework** ❕
-* [ ] 🔎 I have searched for **similar** *bugs* in `issues/PRs` 🔍
-* [ ] 🟢 I have the **latest** version of the **framework** installed 🟢
+**bug description:**  
+...
 
-### ✏️ Description ✏️
-<!-- Describe the bug. -->
-_No response_
-
-
-### 🪄 Code example 🪄
-<!--  Provide a minimal example. -->
+**code:**
+<!--  Provide a minimal example to reproduce -->
 ```python
-from telegrinder import ...
+import telegrinder
 ```
 
-### 📝 Logs 📝
-<!-- Provide logs/errors to review the issue. -->
+**logs:**
+<!-- Provide logs/errors if applicable-->
 ```console
 Traceback (most recent call last):
 File "main.py", line 1, in <module>
