@@ -60,14 +60,17 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
         api: API,
         event: Update,
         context: Context,
+        check: bool = True,
     ) -> Result[typing.Any, str]:
         logger.debug(f"Checking rules and composing nodes for handler `{self}`...")
 
         temp_ctx = context.copy()
         temp_ctx |= self.preset_context.copy()
-        for rule in self.rules:
-            if not await check_rule(api, rule, event, temp_ctx):
-                return Error(f"Rule {rule!r} failed!")
+
+        if check:
+            for rule in self.rules:
+                if not await check_rule(api, rule, event, temp_ctx):
+                    return Error(f"Rule {rule!r} failed!")
 
         context |= temp_ctx
         node_col = None

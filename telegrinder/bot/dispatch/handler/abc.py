@@ -12,7 +12,13 @@ class ABCHandler(ABC):
     final: bool
 
     @abstractmethod
-    async def run(self, api: API, event: Update, context: Context) -> Result[typing.Any, typing.Any]:
+    async def run(
+        self,
+        api: API,
+        event: Update,
+        context: Context,
+        check: bool = True,
+    ) -> Result[typing.Any, typing.Any]:
         pass
 
 
