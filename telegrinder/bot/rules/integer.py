@@ -1,8 +1,7 @@
+from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.node import NodeRule
 from telegrinder.node.base import as_node
 from telegrinder.node.text import TextInteger
-
-from .abc import ABCRule
-from .node import NodeRule
 
 
 class IsInteger(NodeRule):

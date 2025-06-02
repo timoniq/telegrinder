@@ -1,10 +1,11 @@
 import dataclasses
 import typing
 
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-
-from .abc import ABCRule, Update, check_rule
-from .func import FuncRule
+from telegrinder.bot.rules.abc import ABCRule, check_rule
+from telegrinder.bot.rules.func import FuncRule
+from telegrinder.types.objects import Update
 
 
 @dataclasses.dataclass(slots=True)
@@ -42,11 +43,11 @@ class RuleEnum(ABCRule):
 
     @classmethod
     def save_state(cls, ctx: Context, enum: RuleEnumState) -> None:
-        ctx.update({cls.__class__.__name__ + "_state": enum})
+        ctx.update({cls.__name__ + "_state": enum})
 
     @classmethod
     def check_state(cls, ctx: Context) -> RuleEnumState | None:
-        return ctx.get(cls.__class__.__name__ + "_state")
+        return ctx.get(cls.__name__ + "_state")
 
     @classmethod
     def must_be_state(cls, ctx: Context, state: RuleEnumState) -> bool:
@@ -55,13 +56,13 @@ class RuleEnum(ABCRule):
             return False
         return real_state == state
 
-    async def check(self, event: Update, ctx: Context) -> bool:
+    async def check(self, event: Update, api: API, ctx: Context) -> bool:
         if self.check_state(ctx):
             return True
 
         for enum in self.__enum__:
             ctx_copy = ctx.copy()
-            if await check_rule(event.ctx_api, enum.rule, event, ctx_copy):
+            if await check_rule(api, enum.rule, event, ctx_copy):
                 ctx.update(ctx_copy)
                 self.save_state(ctx, enum)
                 return True

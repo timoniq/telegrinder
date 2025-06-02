@@ -2,8 +2,7 @@ import pytest
 
 from telegrinder.bot.cute_types import CallbackQueryCute, MessageCute
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.rules import IsPrivate, MessageRule, PayloadEqRule
+from telegrinder.rules import ABCRule, IsPrivate, PayloadEqRule, check_rule
 from telegrinder.types.objects import CallbackQuery, Message
 
 message_event_with_text = {
@@ -45,7 +44,7 @@ cb_event_with_data = {
 }
 
 
-class Text(MessageRule):
+class Text(ABCRule):
     def __init__(self, text: str) -> None:
         self.text = text
 

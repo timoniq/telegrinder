@@ -11,7 +11,15 @@ from fntypes.result import Error, Ok, Result
 
 from telegrinder.tools.fullname import fullname
 
-type TypeParameters = tuple[typing.TypeVar | typing.TypeVarTuple | typing.ParamSpec, ...]
+type TypeParameter = typing.Union[
+    typing.TypeVar,
+    typing.TypeVarTuple,
+    typing.ParamSpec,
+    _typing.TypeVar,
+    _typing.TypeVarTuple,
+    _typing.ParamSpec,
+]
+type TypeParameters = tuple[TypeParameter, ...]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -114,8 +122,7 @@ class AnnotationsEvaluator:
         )
 
 
-def get_generic_alias_args(obj: typing.Any, /) -> Option[dict[str, typing.Any]]:
-
+def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, typing.Any]]:
     origin_obj = _typing.get_origin(obj)
     args = _typing.get_args(obj)
     parameters: TypeParameters = getattr(origin_obj or obj, "__parameters__")
@@ -124,20 +131,20 @@ def get_generic_alias_args(obj: typing.Any, /) -> Option[dict[str, typing.Any]]:
         return Nothing()
 
     index = 0
-    generic_alias_args = dict[str, _typing.Any]()
+    generic_alias_args = dict[TypeParameter, _typing.Any]()
 
     for parameter in parameters:
         if isinstance(parameter, _typing.TypeVarTuple):
             stop_index = len(args) - index
-            generic_alias_args[parameter.__name__] = args[index : stop_index]
+            generic_alias_args[parameter] = args[index:stop_index]
             index = stop_index
             continue
 
         arg = args[index] if index < len(args) else None
-        generic_alias_args[parameter.__name__] = arg
+        generic_alias_args[parameter] = arg
         index += 1
 
     return Some(generic_alias_args)
 
 
-__all__ = ("AnnotationsEvaluator", "get_generic_alias_args")
+__all__ = ("AnnotationsEvaluator", "get_generic_parameters")

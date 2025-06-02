@@ -35,7 +35,9 @@ def is_dunder(name: str) -> bool:
 
 
 def get_orig_class(obj: T) -> type[T]:
-    return getattr(obj, "__orig_class__", obj.__class__)
+    if "__orig_class__" not in obj.__dict__:
+        return type(obj)
+    return obj.__dict__["__orig_class__"]
 
 
 def root_protection(func: F) -> F:

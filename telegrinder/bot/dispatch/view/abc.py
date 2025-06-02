@@ -2,7 +2,6 @@ import typing
 from abc import ABC, abstractmethod
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.types.objects import Update
@@ -10,7 +9,7 @@ from telegrinder.types.objects import Update
 
 class ABCView(ABC):
     def __repr__(self) -> str:
-        return "<{}>".format(self.__class__.__name__)
+        return "<{}>".format(type(self).__name__)
 
     @abstractmethod
     async def check(self, event: Update) -> bool:
@@ -30,18 +29,8 @@ class ABCView(ABC):
         pass
 
 
-class ABCEventRawView[Event: BaseCute](ABCView, ABC):
-    handlers: list[ABCHandler[Event]]
+class ABCEventRawView(ABCView, ABC):
+    handlers: list[ABCHandler]
 
 
-class ABCStateView[Event: BaseCute](ABCView):
-    @abstractmethod
-    def get_state_key(self, event: Event) -> int | None:
-        pass
-
-
-__all__ = (
-    "ABCEventRawView",
-    "ABCStateView",
-    "ABCView",
-)
+__all__ = ("ABCEventRawView", "ABCView")

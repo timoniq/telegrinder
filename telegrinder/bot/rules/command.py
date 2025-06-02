@@ -2,12 +2,11 @@ import dataclasses
 import typing
 
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node.command import CommandInfo, single_split
 from telegrinder.node.me import Me
 from telegrinder.node.source import ChatSource
 from telegrinder.types.enums import ChatType
-
-from .abc import ABCRule
 
 type Validator = typing.Callable[[str], typing.Any | None]
 

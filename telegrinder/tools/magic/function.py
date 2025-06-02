@@ -12,8 +12,6 @@ from telegrinder.tools.magic.annotations import AnnotationsEvaluator
 type Function[**P, R] = typing.Callable[P, R]
 type AnyFunction = Function[..., typing.Any]
 
-CONTEXT_KEYS: typing.Final[tuple[str, ...]] = ("ctx", "context")
-
 
 def _to_str(obj: typing.Any, /) -> str:
     if isinstance(obj, enum.Enum):
@@ -27,8 +25,11 @@ def _resolve_arg_names(
     *,
     start_idx: int,
     stop_idx: int,
+    exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
-    return func.__code__.co_varnames[start_idx:stop_idx]
+    exclude = exclude or set()
+    varnames = func.__code__.co_varnames[start_idx:stop_idx]
+    return tuple(name for name in varnames if name not in exclude)
 
 
 class FunctionParameters(typing.TypedDict):
@@ -99,27 +100,48 @@ def function_context[**P, R](key: str, /) -> Function[[Function[P, R]], Function
     return wrapper
 
 
-def resolve_arg_names(func: AnyFunction, /, *, start_idx: int = 1) -> tuple[str, ...]:
+def resolve_arg_names(
+    func: AnyFunction,
+    /,
+    *,
+    start_idx: int = 1,
+    exclude: set[str] | None = None,
+) -> tuple[str, ...]:
     return _resolve_arg_names(
         func,
         start_idx=start_idx,
         stop_idx=func.__code__.co_argcount + func.__code__.co_kwonlyargcount,
+        exclude=exclude,
     )
 
 
-def resolve_kwonly_arg_names(func: AnyFunction, /, *, start_idx: int = 1) -> tuple[str, ...]:
+def resolve_kwonly_arg_names(
+    func: AnyFunction,
+    /,
+    *,
+    start_idx: int = 1,
+    exclude: set[str] | None = None,
+) -> tuple[str, ...]:
     return _resolve_arg_names(
         func,
         start_idx=func.__code__.co_argcount + start_idx,
         stop_idx=func.__code__.co_argcount + func.__code__.co_kwonlyargcount,
+        exclude=exclude,
     )
 
 
-def resolve_posonly_arg_names(func: AnyFunction, /, *, start_idx: int = 1) -> tuple[str, ...]:
+def resolve_posonly_arg_names(
+    func: AnyFunction,
+    /,
+    *,
+    start_idx: int = 1,
+    exclude: set[str] | None = None,
+) -> tuple[str, ...]:
     return _resolve_arg_names(
         func,
         start_idx=start_idx,
         stop_idx=func.__code__.co_posonlyargcount,
+        exclude=exclude,
     )
 
 
@@ -167,7 +189,6 @@ def bundle[R](
     *,
     start_idx: int = 1,
     bundle_kwargs: bool = False,
-    bundle_ctx: bool = False,
     typebundle: bool = False,
     omit_defaults: bool = False,
 ) -> Bundle[R]:
@@ -182,10 +203,7 @@ def bundle[R](
     if bundle_kwargs and "var_star_kwargs" in get_func_parameters(function):
         return Bundle.from_context(function, kwargs, start_idx=start_idx)
 
-    names = resolve_arg_names(function, start_idx=start_idx)
-    if bundle_ctx and (context_key := next((key for key in CONTEXT_KEYS if key in names), None)) is not None:
-        kwargs[context_key] = context.copy()
-
+    names = resolve_arg_names(function, start_idx=start_idx, exclude={"cls", "self"})
     kwargs = {k: v for k, v in kwargs.items() if k in names}
     return Bundle.from_context(
         function,

@@ -1,29 +1,14 @@
-import abc
-import typing
-
 from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
-from telegrinder.bot.rules.abc import ABCRule, CheckResult
-from telegrinder.tools.adapter.event import EventAdapter
-from telegrinder.types.enums import Currency, UpdateType
-
-PreCheckoutQuery: typing.TypeAlias = PreCheckoutQueryCute
+from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.types.enums import Currency
 
 
-class PaymentInvoiceRule(
-    ABCRule[PreCheckoutQuery],
-    abc.ABC,
-    adapter=EventAdapter(UpdateType.PRE_CHECKOUT_QUERY, PreCheckoutQuery),
-):
-    @abc.abstractmethod
-    def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult: ...
-
-
-class PaymentInvoiceCurrency(PaymentInvoiceRule):
-    def __init__(self, currency: str | Currency, /) -> None:
+class PaymentInvoiceCurrency(ABCRule):
+    def __init__(self, currency: Currency, /) -> None:
         self.currency = currency
 
-    def check(self, query: PreCheckoutQuery) -> bool:
+    def check(self, query: PreCheckoutQueryCute) -> bool:
         return self.currency == query.currency
 
 
-__all__ = ("PaymentInvoiceCurrency", "PaymentInvoiceRule")
+__all__ = ("PaymentInvoiceCurrency",)

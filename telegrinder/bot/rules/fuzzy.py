@@ -1,16 +1,15 @@
 import difflib
 
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node.text import Text
-
-from .abc import ABCRule
 
 
 class FuzzyText(ABCRule):
-    def __init__(self, texts: str | list[str], /, min_ratio: float = 0.7) -> None:
+    def __init__(self, texts: str | list[str], /, *, min_ratio: float = 0.7) -> None:
         if isinstance(texts, str):
             texts = [texts]
-        self.texts = texts
+        self.texts = set(texts)
         self.min_ratio = min_ratio
 
     def check(self, message_text: Text, ctx: Context) -> bool:

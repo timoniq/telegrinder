@@ -12,10 +12,10 @@ logger.set_level("INFO")
 
 
 @bot.on.message.register_middleware()
-class CountMiddleware(ABCMiddleware[Message]):
-    async def pre(self, event: Message, ctx: Context) -> bool:
+class CountMiddleware(ABCMiddleware):
+    def pre(self, message: Message, context: Context) -> bool:
         counter = global_ctx.get_value("counter", dict[int, int]).unwrap()
-        counter[event.chat.id] = ctx.count = counter.get(event.chat.id, 0) + 1
+        counter[message.chat.id] = context.count = counter.get(message.chat.id, 0) + 1
         return True
 
 

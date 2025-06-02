@@ -1,16 +1,15 @@
 import typing
 
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.is_from import IsPrivate
+from telegrinder.bot.rules.markup import Markup
+from telegrinder.bot.rules.message_entities import MessageEntities
 from telegrinder.types.enums import MessageEntityType
-
-from .is_from import IsPrivate
-from .markup import Markup
-from .message import MessageRule
-from .message_entities import MessageEntities
 
 
 class StartCommand(
-    MessageRule,
+    ABCRule,
     requires=[
         IsPrivate(),
         MessageEntities(MessageEntityType.BOT_COMMAND),

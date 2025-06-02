@@ -1,4 +1,4 @@
-from telegrinder.bot.rules.abc import ABCRule, AndRule, NotRule, OrRule
+from telegrinder.bot.rules.abc import ABCRule, AndRule, NotRule, OrRule, check_rule
 from telegrinder.bot.rules.callback_data import (
     CallbackDataEq,
     CallbackDataJsonEq,
@@ -6,11 +6,9 @@ from telegrinder.bot.rules.callback_data import (
     CallbackDataMap,
     CallbackDataMarkup,
     CallbackQueryDataRule,
-    CallbackQueryRule,
     HasData,
 )
 from telegrinder.bot.rules.chat_join import (
-    ChatJoinRequestRule,
     HasInviteLink,
     InviteLinkByCreator,
     InviteLinkName,
@@ -19,12 +17,10 @@ from telegrinder.bot.rules.command import Argument, Command
 from telegrinder.bot.rules.enum_text import EnumTextRule
 from telegrinder.bot.rules.func import FuncRule
 from telegrinder.bot.rules.fuzzy import FuzzyText
-from telegrinder.bot.rules.id import IdRule
 from telegrinder.bot.rules.inline import (
     HasLocation,
     InlineQueryChatType,
     InlineQueryMarkup,
-    InlineQueryRule,
     InlineQueryText,
 )
 from telegrinder.bot.rules.integer import IntegerInRange, IsInteger
@@ -49,7 +45,6 @@ from telegrinder.bot.rules.is_from import (
 from telegrinder.bot.rules.logic import If
 from telegrinder.bot.rules.markup import Markup
 from telegrinder.bot.rules.mention import HasMention
-from telegrinder.bot.rules.message import MessageRule
 from telegrinder.bot.rules.message_entities import HasEntities, MessageEntities
 from telegrinder.bot.rules.node import NodeRule
 from telegrinder.bot.rules.payload import (
@@ -59,10 +54,7 @@ from telegrinder.bot.rules.payload import (
     PayloadModelRule,
     PayloadRule,
 )
-from telegrinder.bot.rules.payment_invoice import (
-    PaymentInvoiceCurrency,
-    PaymentInvoiceRule,
-)
+from telegrinder.bot.rules.payment_invoice import PaymentInvoiceCurrency
 from telegrinder.bot.rules.regex import Regex
 from telegrinder.bot.rules.rule_enum import RuleEnum
 from telegrinder.bot.rules.start import StartCommand
@@ -80,8 +72,6 @@ __all__ = (
     "CallbackDataMap",
     "CallbackDataMarkup",
     "CallbackQueryDataRule",
-    "CallbackQueryRule",
-    "ChatJoinRequestRule",
     "Command",
     "EnumTextRule",
     "FuncRule",
@@ -93,11 +83,9 @@ __all__ = (
     "HasLocation",
     "HasMention",
     "HasText",
-    "IdRule",
     "If",
     "InlineQueryChatType",
     "InlineQueryMarkup",
-    "InlineQueryRule",
     "InlineQueryText",
     "IntegerInRange",
     "InviteLinkByCreator",
@@ -122,7 +110,6 @@ __all__ = (
     "IsUserId",
     "Markup",
     "MessageEntities",
-    "MessageRule",
     "NodeRule",
     "NotRule",
     "OrRule",
@@ -132,11 +119,11 @@ __all__ = (
     "PayloadModelRule",
     "PayloadRule",
     "PaymentInvoiceCurrency",
-    "PaymentInvoiceRule",
     "Regex",
     "RuleEnum",
     "StartCommand",
     "State",
     "StateMeta",
     "Text",
+    "check_rule",
 )

@@ -1,9 +1,7 @@
+from examples.blueprint_bot.client import wm
 from telegrinder import MESSAGE_FROM_USER, Dispatch, Message, MessageReplyHandler
-from telegrinder.bot.rules.message import MessageRule
 from telegrinder.modules import logger
-from telegrinder.rules import HasText, Markup, RuleEnum, Text
-
-from .client import wm  # type: ignore
+from telegrinder.rules import ABCRule, HasText, Markup, RuleEnum, Text
 
 dp = Dispatch()
 
@@ -14,7 +12,7 @@ class Commands(RuleEnum):
     COMMIT_SUICIDE = Markup(["/suicide", "/suicide <reason>"])
 
 
-class WasNaughty(MessageRule, requires=[HasText()]):
+class WasNaughty(ABCRule, requires=[HasText()]):
     async def check(self, message: Message) -> bool:
         await message.answer("Ok, but were you naughty this year?")
         m, _ = await wm.wait(

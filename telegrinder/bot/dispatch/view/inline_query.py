@@ -1,16 +1,12 @@
-from telegrinder.bot.cute_types.inline_query import InlineQueryCute
 from telegrinder.bot.dispatch.return_manager import InlineQueryReturnManager
-from telegrinder.bot.dispatch.view.base import BaseStateView
+from telegrinder.bot.dispatch.view.base import BaseView
+from telegrinder.types.enums import UpdateType
 
 
-class InlineQueryView(BaseStateView[InlineQueryCute]):
+class InlineQueryView(BaseView):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(UpdateType.INLINE_QUERY)
         self.return_manager = InlineQueryReturnManager()
-
-    @classmethod
-    def get_state_key(cls, event: InlineQueryCute) -> int | None:
-        return event.from_user.id
 
 
 __all__ = ("InlineQueryView",)

@@ -1,6 +1,5 @@
 import typing
 
-from telegrinder.api.api import API
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.base import BaseReplyHandler
@@ -29,8 +28,8 @@ class StickerReplyHandler(BaseReplyHandler):
             **default_params,
         )
 
-    async def run(self, _: API, event: MessageCute, __: Context) -> typing.Any:
-        method = event.answer_sticker if not self.as_reply else event.reply_sticker
+    async def handle(self, message: MessageCute) -> None:
+        method = message.answer_sticker if not self.as_reply else message.reply_sticker
         await method(sticker=self.sticker, emoji=self.emoji, **self.default_params)
 
 

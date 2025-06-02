@@ -1,18 +1,22 @@
+import typing
+
+from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity
 
-from .message import Message, MessageRule
-
 type Entity = str | MessageEntityType
 
+Message: typing.TypeAlias = MessageCute
 
-class HasEntities(MessageRule):
+
+class HasEntities(ABCRule):
     def check(self, message: Message) -> bool:
         return bool(message.entities)
 
 
-class MessageEntities(MessageRule, requires=[HasEntities()]):
+class MessageEntities(ABCRule, requires=[HasEntities()]):
     def __init__(self, entities: Entity | list[Entity], /) -> None:
         self.entities = [entities] if not isinstance(entities, list) else entities
 

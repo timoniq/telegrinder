@@ -1,15 +1,14 @@
 import enum
 
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node.text import Text
-
-from .abc import ABCRule
 
 
 class EnumTextRule[T: enum.Enum](ABCRule):
     def __init__(self, enum_t: type[T], *, lower_case: bool = True) -> None:
         self.enum_t = enum_t
-        self.texts = list(
+        self.texts = set[str](
             map(
                 lambda x: x.value.lower() if lower_case else x.value,
                 self.enum_t,
@@ -23,7 +22,7 @@ class EnumTextRule[T: enum.Enum](ABCRule):
         raise KeyError("Enumeration is undefined.")
 
     def check(self, text: Text, ctx: Context) -> bool:
-        text = text.lower()  # type: ignore
+        text = text.lower()
         if text not in self.texts:
             return False
         ctx.enum_text = self.find(text)

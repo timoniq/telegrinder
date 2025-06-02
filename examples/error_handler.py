@@ -1,5 +1,7 @@
 import typing
 
+import vbml
+
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.rules import Markup
@@ -10,7 +12,13 @@ bot = Telegrinder(api)
 logger.set_level("INFO")
 
 
-@bot.on.message(Markup(["/solve <a:int> <(+-/*)^operand> <b:int>"]))
+@bot.dispatch.global_context.vbml_patcher.validator("operand")
+class OperandValidator(vbml.ABCValidator):
+    def check(self, value: str) -> str | None:
+        return value if value in ("+", "-", "/", "*") else None
+
+
+@bot.on.message(Markup(["/solve <a:int> <operand:operand> <b:int>"]))
 async def solve(
     message: Message,
     a: int,
@@ -28,7 +36,7 @@ async def solve(
 
 
 @solve.error_handler(ZeroDivisionError)
-async def zero_division_catcher(_: ZeroDivisionError) -> str:
+async def zero_division_catcher() -> str:
     return "🧐 You can't divide by zero!!!"
 
 

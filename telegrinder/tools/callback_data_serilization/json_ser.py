@@ -5,8 +5,7 @@ from fntypes.result import Error, Ok, Result
 
 from telegrinder.modules import json
 from telegrinder.msgspec_utils import decoder
-
-from .abc import ABCDataSerializer, ModelType
+from telegrinder.tools.callback_data_serilization.abc import ABCDataSerializer, ModelType
 
 type Json = dict[str, typing.Any] | ModelType
 

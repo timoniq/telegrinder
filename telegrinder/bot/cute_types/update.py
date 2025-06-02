@@ -1,6 +1,5 @@
 from fntypes.co import Nothing, Some
 
-from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute
@@ -14,8 +13,6 @@ from telegrinder.types.objects import *
 
 
 class UpdateCute(BaseCute[Update], Update, kw_only=True):
-    api: API
-
     message: Option[MessageCute] = field(
         default=UNSET,
         converter=From[MessageCute | None],

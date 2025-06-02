@@ -35,7 +35,7 @@ class PayloadRule[Data](ABCRule):
         return True
 
 
-class PayloadModelRule[Model: ModelType](PayloadRule[Model]):
+class PayloadModelRule[Model: ModelType](PayloadRule):
     def __init__(
         self,
         model_t: type[Model],

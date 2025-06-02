@@ -13,24 +13,12 @@ name = "parse_mode"
 type = "String"
 
 [[generator.api.typed-default-parameters]]
-name = "text_parse_mode"
-type = "String"
-
-[[generator.api.typed-default-parameters]]
-name = "question_parse_mode"
-type = "String"
-
-[[generator.api.typed-default-parameters]]
-name = "explanation_parse_mode"
-type = "String"
-
-[[generator.api.typed-default-parameters]]
 name = "allow_paid_broadcast"
 type = "Boolean"
 
 [[generator.api.typed-default-parameters]]
-name = "disable_web_page_preview"
-type = "Boolean"
+name = "link_preview_options"
+type = "LinkPreviewOptions"
 
 [[generator.api.typed-default-parameters]]
 name = "disable_notification"

@@ -51,6 +51,10 @@ def fullname(obj: object, /) -> str:
         if not inspect.isroutine(obj) and not inspect.isgetsetdescriptor(obj) and not isinstance(obj, type)
         else obj
     )
+
+    if isinstance(obj, staticmethod | classmethod):
+        obj = obj.__func__
+
     qualname = obj.__qualname__
 
     if _is_routine_method(obj) or _is_routine_descriptor(obj):

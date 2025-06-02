@@ -89,14 +89,14 @@ else:
 class Model(msgspec.Struct, **MODEL_CONFIG):
     if not typing.TYPE_CHECKING:
 
-        def __post_init__(self):
-            for field in self.__struct_fields__:
-                if is_none(getattr(self, field)):
-                    setattr(self, field, UNSET)
-
         def __getattribute__(self, name, /):
+            class_ = type(self)
             val = super().__getattribute__(name)
-            field_info = super().__getattribute__("get_field")(name).unwrap_or_none()
+
+            if name not in class_.__struct_fields__:
+                return val
+
+            field_info = class_.get_field(name).unwrap_or_none()
 
             if (
                 field_info is not None
@@ -106,20 +106,21 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
                 return Nothing() if val is UNSET else val
 
             if val is UNSET:
-                raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
+                raise AttributeError(f"{class_.__name__!r} object has no attribute {name!r}")
 
             return val
 
-        @recursive_repr()
-        def __repr__(self) -> str:
-            return "{}({})".format(
-                type(self).__name__,
-                ", ".join(
-                    f"{f}={value!r}"
-                    for f in self.__struct_fields__
-                    if (value := getattr(self, f)) is not UNSET  # excluding UNSET fields
-                ),
-            )
+    def __post_init__(self) -> None:
+        for field_name in self.__struct_fields__:
+            if is_none(getattr(self, field_name)):
+                setattr(self, field_name, UNSET)
+
+    @recursive_repr()
+    def __repr__(self) -> str:
+        return "{}({})".format(
+            type(self).__name__,
+            ", ".join(f"{f}={getattr(self, f)!r}" for f in self.__struct_fields__),
+        )
 
     @classmethod
     def get_fields(cls) -> types.MappingProxyType[str, msgspec.inspect.Field]:

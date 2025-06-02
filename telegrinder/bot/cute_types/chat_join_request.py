@@ -2,16 +2,13 @@ import typing
 
 from fntypes.result import Result
 
-from telegrinder.api.api import API, APIError
-from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.api.api import APIError
+from telegrinder.bot.cute_types.base import BaseCute, shortcut
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberShortcuts, chat_member_interaction
-from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.objects import *
 
 
 class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMemberShortcuts, kw_only=True):
-    api: API
-
     @property
     def from_user(self) -> User:
         return self.from_

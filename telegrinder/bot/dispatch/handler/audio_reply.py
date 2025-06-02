@@ -1,6 +1,5 @@
 import typing
 
-from telegrinder.api.api import API
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.base import BaseReplyHandler
@@ -31,8 +30,8 @@ class AudioReplyHandler(BaseReplyHandler):
             **default_params,
         )
 
-    async def run(self, _: API, event: MessageCute, __: Context) -> typing.Any:
-        method = event.answer_audio if not self.as_reply else event.reply_audio
+    async def handle(self, message: MessageCute) -> None:
+        method = message.answer_audio if not self.as_reply else message.reply_audio
         await method(
             audio=self.audio,
             parse_mode=self.parse_mode,

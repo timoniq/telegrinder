@@ -6,7 +6,6 @@ from telegrinder import Dispatch, LoopWrapper, Message, Polling
 from telegrinder.api import API, Token
 from telegrinder.api.error import APIError
 from telegrinder.rules import Command
-from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import User
 
 
@@ -29,7 +28,7 @@ lw = LoopWrapper()
 dp = Dispatch()
 
 
-@dp.raw_event(Command("get_me"), update_type=UpdateType.MESSAGE, dataclass=Message)
+@dp.raw_event(Command("get_me"))
 async def message_handler(message: Message) -> None:
     me = (await api.get_me()).unwrap()
     await message.reply(

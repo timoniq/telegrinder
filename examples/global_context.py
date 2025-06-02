@@ -2,7 +2,6 @@ import typing
 from functools import reduce
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
-from telegrinder.bot import Context
 from telegrinder.modules import logger
 from telegrinder.rules import Markup, MessageEntities, Text
 from telegrinder.tools.formatting.html_formatter import HTMLFormatter, bold, code_inline
@@ -36,15 +35,15 @@ def formatting_text(*fmt_texts: str) -> dict[str, typing.Any]:
 
 
 @bot.dispatch.message.register_middleware()
-class UserRegistrarMiddleware(ABCMiddleware[Message]):
-    async def pre(self, event: Message, ctx: Context) -> bool:
+class UserRegistrarMiddleware(ABCMiddleware):
+    def pre(self, event: Message) -> bool:
         if event.from_:
             global_ctx.users[event.from_user.id] = event.from_user
         return True
 
 
 @bot.on.message(Text("/formatting"))
-async def formatting(_: Message) -> dict[str, typing.Any]:
+async def formatting() -> dict[str, typing.Any]:
     global_ctx.formatting = not global_ctx.formatting
     return formatting_text("Formatting ", bold("enabled!" if global_ctx.formatting else "disabled!"))
 

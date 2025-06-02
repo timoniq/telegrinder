@@ -22,7 +22,7 @@ def ECHO[T](__x: T) -> T:  # noqa
 class Hasher(typing.Generic[Event, Data]):
     def __init__(
         self,
-        view_class: type[BaseView[Event]],
+        view_class: type[BaseView],
         get_hash_from_data: typing.Callable[[Data], typing.Hashable | None] | None = None,
         get_data_from_event: typing.Callable[[Event], Data | None] | None = None,
     ) -> None:

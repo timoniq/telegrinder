@@ -39,7 +39,7 @@ class LoggerModule(typing.Protocol):
 logger: LoggerModule
 logging_level = os.getenv("LOGGER_LEVEL", default="DEBUG").upper()
 logging_module = choice_in_order(["loguru"], default="logging", do_import=False)
-asyncio_module = choice_in_order(["uvloop"], default="asyncio", do_import=False)
+asyncio_module = choice_in_order(["uvloop", "winloop"], default="asyncio", do_import=False)
 
 if logging_module == "loguru":
     import os
@@ -144,17 +144,17 @@ elif logging_module == "logging":
         def format(self, record: logging.LogRecord) -> str:
             if not record.funcName or record.funcName == "<module>":
                 record.funcName = "\b"
-            frame = next(
-                (
-                    frame
-                    for frame in inspect.stack()
-                    if frame.filename == record.pathname and frame.lineno == record.lineno
-                ),
-                None,
-            )
-            if frame:
-                module = inspect.getmodule(frame.frame)
-                record.module = module.__name__ if module else "<module>"
+
+            frame = sys._getframe(1)
+            while frame:
+                if frame.f_code.co_filename == record.pathname and frame.f_lineno == record.lineno:
+                    break
+
+                frame = frame.f_back
+
+            if frame is not None:
+                record.module = frame.f_globals.get("__name__", "<module>")
+
             return logging.Formatter(
                 LEVEL_FORMATS.get(record.levelname),
                 datefmt="%Y-%m-%d %H:%M:%S",
@@ -177,27 +177,24 @@ elif logging_module == "logging":
             extra: dict[str, typing.Any] | None = None,
         ) -> None:
             super().__init__(logger, extra or {})
+            self.log_arg_names = frozenset(inspect.getfullargspec(self.logger._log).args[1:])
 
-        def log(self, level: int, msg: object, *args: object, **kwargs: object) -> None:
+        def log(self, level: int, msg: object, *args: typing.Any, **kwargs: typing.Any) -> None:
             if self.isEnabledFor(level):
                 kwargs.setdefault("stacklevel", 2)
                 msg, args, kwargs = self.proc(msg, args, kwargs)
-                self.logger._log(level, msg, args, **kwargs)
+                self.logger._log(level, msg, args, **kwargs)  # type: ignore
 
         def proc(
             self,
-            msg: object,
-            args: tuple[object, ...],
-            kwargs: dict[str, object],
-        ) -> tuple[LogMessage | object, tuple[object, ...], dict[str, object]]:
-            log_kwargs = {
-                key: kwargs[key] for key in inspect.getfullargspec(self.logger._log).args[1:] if key in kwargs
-            }
-
+            msg: typing.Any,
+            args: tuple[typing.Any, ...],
+            kwargs: dict[str, typing.Any],
+        ) -> tuple[LogMessage | typing.Any, tuple[typing.Any, ...], dict[str, typing.Any]]:
             if isinstance(msg, str):
                 msg = LogMessage(msg, args, kwargs)
                 args = tuple()
-            return msg, args, log_kwargs
+            return msg, args, {name: kwargs[name] for name in self.log_arg_names if name in kwargs}
 
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(TelegrinderLoggingFormatter())
@@ -212,6 +209,13 @@ if asyncio_module == "uvloop":
     import uvloop  # type: ignore
 
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())  # type: ignore
+
+if asyncio_module == "winloop":
+    import asyncio
+
+    import winloop  # type: ignore
+
+    asyncio.set_event_loop_policy(winloop.EventLoopPolicy())  # type: ignore
 
 
 def _set_logger_level(level, /):

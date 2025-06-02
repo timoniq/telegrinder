@@ -7,7 +7,7 @@ import msgspec
 from fntypes.co import Nothing, Result, Some, Variative, unwrapping
 
 from telegrinder.api.api import API, APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.message import (
     MediaType,
     MessageCute,
@@ -17,14 +17,13 @@ from telegrinder.bot.cute_types.message import (
 )
 from telegrinder.model import UNSET, From, field
 from telegrinder.msgspec_utils import Option, decoder
-from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
 
+CACHED_CALLBACK_DATA_KEY: typing.Final[str] = "cached_callback_data"
+
 
 class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
-    api: API
-
     message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
         default=UNSET,
         converter=From[MessageCute | InaccessibleMessage | None],
@@ -91,20 +90,23 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         if not self.data:
             return Nothing()
 
-        if "cached_callback_data" in self.__dict__:
-            return self.__dict__["cached_callback_data"]
+        keys = self.__dict__.setdefault(CACHED_CALLBACK_DATA_KEY, {})
+        if to in keys:
+            return keys[to]
 
         data = Nothing()
+        orig_to = typing.get_origin(to) or to
+
         with suppress(msgspec.ValidationError, msgspec.DecodeError):
             data = (
                 Some(decoder.decode(self.data.unwrap(), type=to))
-                if not issubclass(to, str | bytes)
+                if not issubclass(orig_to, str | bytes)
                 else self.data
-                if issubclass(to, str)
+                if issubclass(orig_to, str)
                 else Some(base64.urlsafe_b64decode(self.data.unwrap()))
             )
 
-        self.__dict__["cached_callback_data"] = data
+        keys[to] = data
         return data  # type: ignore
 
     @shortcut("answer_callback_query", custom_params={"callback_query_id"})

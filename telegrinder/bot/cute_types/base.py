@@ -2,8 +2,8 @@ import typing
 
 import msgspec
 
-from telegrinder.api.api import API
 from telegrinder.model import Model, is_none
+from telegrinder.tools.magic.shortcut import shortcut
 
 
 def compose_method_params[Cute: BaseCute](
@@ -27,19 +27,26 @@ def compose_method_params[Cute: BaseCute](
 
 
 if typing.TYPE_CHECKING:
+    from telegrinder.api.api import API
     from telegrinder.node.base import Node
+    from telegrinder.types.objects import Update
 
-    class BaseCute[Update: Model](Model):
+    class BaseCute[T: Model](Model):
         api: API
 
         @classmethod
         def as_node(cls) -> type[Node]: ...
 
         @classmethod
-        def from_update(cls, update: Update, bound_api: API) -> typing.Self: ...
+        def from_update(cls, update: T, bound_api: API) -> typing.Self: ...
 
         @property
         def ctx_api(self) -> API: ...
+
+        @property
+        def raw_update(self) -> Update: ...
+
+        def bind_raw_update(self, raw_update: Update, /) -> typing.Self: ...
 
         def to_dict(
             self,
@@ -62,11 +69,17 @@ if typing.TYPE_CHECKING:
             ...
 
 else:
+    import types
+
     import msgspec
     from fntypes.co import Nothing, Some, Variative
 
     from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
+    from telegrinder.types.objects import Update
+
+    BOUND_API_KEY = "bound_api"
+    RAW_UPDATE_BIND_KEY = "raw_update_bind"
 
     def _get_cute_from_generic(generic_args, /):
         for arg in generic_args:
@@ -102,13 +115,11 @@ else:
                 value = value.value
         return value
 
-    class BaseCute[Update]:
-        api: API
-
+    class BaseCute[T]:
         def __init_subclass__(cls, *args, **kwargs):
             super().__init_subclass__(*args, **kwargs)
 
-            if not cls.__bases__ or not issubclass(cls.__bases__[0], BaseCute):
+            if not cls.__bases__ or BaseCute not in cls.__bases__:
                 return
 
             cls.__is_solved_annotations__ = False
@@ -118,9 +129,10 @@ else:
         @classmethod
         def as_node(cls):
             if cls.__event_node__ is None:
-                from telegrinder.node.event import _EventNode
+                from telegrinder.node.event import EventNode
 
-                cls.__event_node__ = _EventNode[cls]
+                cls.__event_node__ = EventNode[cls]
+
             return cls.__event_node__
 
         @classmethod
@@ -132,22 +144,44 @@ else:
             if cls.__cute_annotations__ is None:
                 cls.__cute_annotations__ = _get_cute_annotations(cls.__annotations__)
 
-            return cls(
+            cute = cls(
                 **{
                     field: decoder.convert(
                         cls.__cute_annotations__[field].from_update(_validate_value(value), bound_api=bound_api),
                         type=cls.__annotations__[field],
                     )
-                    if field in cls.__cute_annotations__ and not isinstance(value, Nothing | msgspec.UnsetType)
+                    if field in cls.__cute_annotations__
+                    and not isinstance(value, Nothing | msgspec.UnsetType | types.NoneType)
                     else value
                     for field, value in update.to_dict().items()
                 },
-                api=bound_api,
+            )._set_bound_api(api=bound_api)
+            return cute.bind_raw_update(update) if isinstance(update, Update) else cute
+
+        @property
+        def api(self):
+            return self.__dict__[BOUND_API_KEY]
+
+        @property
+        def raw_update(self):
+            assert RAW_UPDATE_BIND_KEY in self.__dict__, (
+                f"Cute model `{type(self).__name__}` has no bind `Update` object."
             )
+            return self.__dict__[RAW_UPDATE_BIND_KEY]
 
         @property
         def ctx_api(self):
             return self.api
+
+        def bind_raw_update(self, raw_update, /):
+            self.__dict__[RAW_UPDATE_BIND_KEY] = raw_update
+            if isinstance(cute := getattr(self, "incoming_update", None), BaseCute):
+                cute.bind_raw_update(raw_update)
+            return self
+
+        def _set_bound_api(self, api):
+            self.__dict__[BOUND_API_KEY] = api
+            return self
 
         def _to_dict(self, dct_name, exclude_fields, full):
             if dct_name not in self.__dict__:
@@ -181,4 +215,4 @@ else:
             return self.to_dict(exclude_fields=exclude_fields, full=True)
 
 
-__all__ = ("BaseCute", "compose_method_params")
+__all__ = ("BaseCute", "compose_method_params", "shortcut")

@@ -2,17 +2,13 @@ import typing
 
 from fntypes.result import Result
 
-from telegrinder.api.api import API
 from telegrinder.api.error import APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
-from telegrinder.tools.magic.shortcut import shortcut
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import PreCheckoutQuery, User
 
 
 class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only=True):
-    api: API
-
     @property
     def from_user(self) -> User:
         return self.from_

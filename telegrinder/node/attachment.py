@@ -68,6 +68,7 @@ class Attachment(DataNode):
             match getattr(message, attachment_type, Nothing()):
                 case Some(attachment):
                     return cls(attachment_type, **{attachment_type: Some(attachment)})
+
         raise ComposeError("No attachment found in message.")
 
 

@@ -6,11 +6,10 @@ import fntypes.option
 from fntypes.co import Result, Some, Variative
 
 from telegrinder.api.api import API, APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import compose_reactions, input_media
 from telegrinder.model import UNSET, From, field
 from telegrinder.msgspec_utils import Option
-from telegrinder.tools.magic import shortcut
 from telegrinder.types import *
 from telegrinder.types.methods_utils import get_params
 
@@ -128,8 +127,6 @@ def get_entity_value(
 
 
 class MessageCute(BaseCute[Message], Message, kw_only=True):
-    api: API
-
     reply_to_message: Option[MessageCute] = field(
         default=UNSET,
         converter=From["MessageCute | None"],

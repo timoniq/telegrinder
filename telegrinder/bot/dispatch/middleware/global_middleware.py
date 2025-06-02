@@ -1,45 +1,36 @@
 import typing
 from contextlib import contextmanager
 
-from telegrinder.api import API
-from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.rules.abc import ABCRule, check_rule
-from telegrinder.node import IsNode, compose_nodes
-from telegrinder.tools.adapter.abc import ABCAdapter
-from telegrinder.tools.adapter.raw_update import RawUpdateAdapter
-from telegrinder.tools.aio import maybe_awaitable
+from telegrinder.node.base import IsNode
+from telegrinder.node.composer import compose_nodes
 from telegrinder.types import Update
+from telegrinder.types.objects import Update
 
 
-class GlobalMiddleware(ABCMiddleware[UpdateCute]):
-    adapter = RawUpdateAdapter()
-
+class GlobalMiddleware(ABCMiddleware):
     def __init__(self) -> None:
         self.filters: set[ABCRule] = set()
-        self.source_filters: dict[ABCAdapter | IsNode, dict[typing.Any, ABCRule]] = {}
+        self.source_filters: dict[IsNode, dict[typing.Any, ABCRule]] = {}
 
-    async def pre(self, event: UpdateCute, ctx: Context) -> bool:
+    async def pre(self, event: Update, api: API, ctx: Context) -> bool:
         for filter in self.filters:
-            if not await check_rule(event.api, filter, event, ctx):
+            if not await check_rule(api, filter, event, ctx):
                 return False
 
-        # Simple implication.... Grouped by source categories
+        # Simple implication. Grouped by source categories
         for source, identifiers in self.source_filters.items():
-            if isinstance(source, ABCAdapter):
-                result = (await maybe_awaitable(source.adapt(event.api, event, ctx))).unwrap_or_none()
-                if result is None:
-                    return True
+            result = await compose_nodes({"value": source}, ctx, {Update: event, API: api})
+            if result := result.unwrap():
+                result = result.values["value"]
             else:
-                result = await compose_nodes({"value": source}, ctx, {Update: event, API: event.api})
-                if result := result.unwrap():
-                    result = result.values["value"]
-                else:
-                    return True
+                return True
 
             if result in identifiers:
-                return await check_rule(event.api, identifiers[result], event, ctx)
+                return await check_rule(api, identifiers[result], event, ctx)
 
         return True
 
@@ -47,7 +38,7 @@ class GlobalMiddleware(ABCMiddleware[UpdateCute]):
     def apply_filters(
         self,
         *filters: ABCRule,
-        source_filter: tuple[ABCAdapter | IsNode, typing.Any, ABCRule] | None = None,
+        source_filter: tuple[IsNode, typing.Any, ABCRule] | None = None,
     ) -> typing.Generator[None, typing.Any, None]:
         if source_filter is not None:
             self.source_filters.setdefault(source_filter[0], {})

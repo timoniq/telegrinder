@@ -31,14 +31,13 @@ class Error(DataNode, typing.Generic[*ExceptionTs]):
 
     @classmethod
     def compose(cls, ctx: Context, type_args: TypeArgs) -> typing.Self:
-        if ctx.exception_update is None:
-            raise ComposeError("No exception.")
+        exception = ctx.exception_update.expect(ComposeError("No exception."))
+        exception_types: tuple[ExceptionType, ...] | None = type_args.get(ExceptionTs)
 
-        exception_types: tuple[ExceptionType, ...] | None = type_args.get(ExceptionTs.__name__)
-        if exception_types is None or can_catch(ctx.exception_update, exception_types):
-            return cls(exception_update=ctx.exception_update)
+        if exception_types is None or can_catch(exception, exception_types):
+            return cls(exception_update=exception)
 
-        raise ComposeError("Foreign exception type.")
+        raise ComposeError("Foreign exception.")
 
 
 __all__ = ("Error",)

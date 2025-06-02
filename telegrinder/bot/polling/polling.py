@@ -191,6 +191,9 @@ class Polling(ABCPolling):
     def running(self) -> bool:
         return self._running
 
+    def _reset_reconnects_counter(self) -> None:
+        self._reconnects_counter = 0
+
     async def get_updates(self) -> msgspec.Raw:
         try:
             raw_updates = await self.api.request_raw(
@@ -240,7 +243,8 @@ class Polling(ABCPolling):
                         yield updates
                         self.offset = updates[-1].update_id + 1
 
-                    self._reconnects_counter = 0
+                    if self._reconnects_counter != 0:
+                        self._reset_reconnects_counter()
                 except BaseException as error:
                     if not await self._error_handler.handle(error):
                         logger.exception("Traceback message below:")
@@ -249,8 +253,8 @@ class Polling(ABCPolling):
                         self._reconnects_counter += 1
 
     def stop(self) -> None:
-        self._reconnects_counter = 0
         self._running = False
+        self._reset_reconnects_counter()
 
 
 __all__ = ("Polling",)

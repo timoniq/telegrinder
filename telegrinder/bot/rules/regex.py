@@ -2,10 +2,9 @@ import re
 import typing
 
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node.either import Either
 from telegrinder.node.text import Caption, Text
-
-from .abc import ABCRule
 
 type PatternLike = str | typing.Pattern[str]
 

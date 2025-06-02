@@ -16,13 +16,13 @@ from telegrinder.types.objects import Update
 
 type Impl = type[classmethod]
 
-MORPH_IMPLEMENTATIONS_KEY = "__morph_implementations__"
-IMPL_MARK: typing.Final[str] = "_is_impl"
+MORPH_IMPLEMENTATIONS_KEY: typing.Final[str] = "__morph_implementations__"
+IMPL_MARK_KEY: typing.Final[str] = "_is_impl"
 
 
 @typing.cast("typing.Callable[..., Impl]", lambda f: f)
 def impl(method: typing.Callable[..., typing.Any]):
-    setattr(method, IMPL_MARK, True)
+    setattr(method, IMPL_MARK_KEY, True)
     return classmethod(method)
 
 
@@ -39,7 +39,7 @@ def get_polymorphic_implementations(
         impls += [
             obj.__func__
             for obj in vars(cls_).values()
-            if isinstance(obj, classmethod) and getattr(obj.__func__, IMPL_MARK, False)
+            if isinstance(obj, classmethod) and getattr(obj.__func__, IMPL_MARK_KEY, False)
         ]
 
     setattr(cls, MORPH_IMPLEMENTATIONS_KEY, impls)
@@ -49,7 +49,7 @@ def get_polymorphic_implementations(
 class Polymorphic(Node):
     @classmethod
     async def compose(cls, raw_update: Update, update: UpdateCute, context: Context) -> typing.Any:
-        logger.debug(f"Composing polymorphic node {cls.__name__!r}...")
+        logger.debug(f"Composing polymorphic node `{fullname(cls)}`...")
         scope = getattr(cls, "scope", None)
         node_ctx = context.get_or_set(CONTEXT_STORE_NODES_KEY, {})
         data = {
@@ -59,7 +59,7 @@ class Polymorphic(Node):
         }
 
         for i, impl_ in enumerate(get_polymorphic_implementations(cls)):
-            logger.debug("Checking impl {!r}...", impl_.__name__)
+            logger.debug("Checking impl {!r}...", fullname(impl_))
             node_collection = None
 
             match await compose_nodes(get_nodes(impl_), context, data=data):
@@ -69,14 +69,14 @@ class Polymorphic(Node):
                     logger.debug(f"Composition failed with error: {err!r}")
 
             if node_collection is None:
-                logger.debug("Impl {!r} composition failed!", impl_.__name__)
+                logger.debug("Impl `{}` composition failed!", fullname(impl_))
                 continue
 
             # To determine whether this is a right morph, all subnodes must be resolved
             if scope is NodeScope.PER_EVENT and (cls, i) in node_ctx:
                 logger.debug(
-                    "Morph is already cached as per_event node, using its value. Impl {!r} succeeded!",
-                    impl_.__name__,
+                    "Morph is already cached as per_event node, using its value. Impl `{}` succeeded!",
+                    fullname(impl_),
                 )
                 res: NodeSession = node_ctx[(cls, i)]
                 await node_collection.close_all()
@@ -88,7 +88,7 @@ class Polymorphic(Node):
                 result = await maybe_awaitable(impl_bundle(cls, **node_collection.values))
             except ComposeError as compose_error:
                 logger.debug(
-                    "Failed to compose morph implementation {} with error: {!r}",
+                    "Failed to compose morph impl `{}`, error: {!r}",
                     fullname(impl_),
                     compose_error.message,
                 )
@@ -97,7 +97,7 @@ class Polymorphic(Node):
                 node_ctx[(cls, i)] = NodeSession(cls, result, {})
 
             await node_collection.close_all(with_value=result)
-            logger.debug("Impl {!r} succeeded with value: {!r}", impl_.__name__, result)
+            logger.debug("Impl `{}` composition succeeded", fullname(impl_), result)
             return result
 
         raise ComposeError("No implementation found.")

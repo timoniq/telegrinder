@@ -24,83 +24,85 @@ else:
 
 type NodeType = Node | NodeProto[typing.Any]
 type IsNode = NodeType | type[NodeType]
+type AnyNode = IsNode | NodeConvertable
 
 T = typing.TypeVar("T", default=typing.Any)
 
 ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerator[T, None]
 
 UNWRAPPED_NODE_KEY: typing.Final[str] = "__unwrapped_node__"
-ORIGIN_NODE_CLASS_KEY: typing.Final[str] = "__origin_node_class__"
+
+
+def is_node(maybe_node: typing.Any, /) -> typing.TypeIs[AnyNode]:
+    return hasattr(maybe_node, "as_node") or is_node_type(maybe_node)
 
 
 @typing.overload
-def is_node(maybe_node: type[typing.Any], /) -> typing.TypeIs[type[NodeType]]: ...
+def as_node(maybe_node: typing.Any, /) -> IsNode: ...
 
 
 @typing.overload
-def is_node(maybe_node: typing.Any, /) -> typing.TypeIs[NodeType]: ...
-
-
-def is_node(maybe_node: typing.Any, /) -> bool:
-    if isinstance(maybe_node, typing.TypeAliasType):
-        maybe_node = maybe_node.__value__
-    if not isinstance(maybe_node, type):
-        maybe_node = typing.get_origin(maybe_node) or maybe_node
-
-    return (
-        hasattr(maybe_node, "as_node")
-        or isinstance(maybe_node, type)
-        and issubclass(maybe_node, (Node, NodeProto))
-        or not isinstance(maybe_node, type)
-        and isinstance(maybe_node, (Node, NodeProto))
-    )
+def as_node(
+    maybe_node: typing.Any,
+    /,
+    *,
+    raise_exception: typing.Literal[False],
+) -> IsNode | None: ...
 
 
 @typing.overload
-def as_node(maybe_node: type[typing.Any], /) -> type[NodeType]: ...
+def as_node(*maybe_nodes: typing.Any) -> tuple[IsNode, ...]: ...
 
 
 @typing.overload
-def as_node(maybe_node: typing.Any, /) -> NodeType: ...
+def as_node(
+    *maybe_nodes: typing.Any,
+    raise_exception: typing.Literal[False],
+) -> tuple[IsNode, ...] | None: ...
 
 
-@typing.overload
-def as_node(*maybe_nodes: type[typing.Any]) -> tuple[type[NodeType], ...]: ...
+def as_node(
+    *maybe_nodes: typing.Any,
+    raise_exception: bool = True,
+) -> IsNode | tuple[IsNode, ...] | None:
+    nodes = []
 
-
-@typing.overload
-def as_node(*maybe_nodes: typing.Any) -> tuple[NodeType, ...]: ...
-
-
-@typing.overload
-def as_node(*maybe_nodes: type[typing.Any] | typing.Any) -> tuple[IsNode, ...]: ...
-
-
-def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
     for maybe_node in maybe_nodes:
-        if not is_node(maybe_node):
-            raise LookupError(
-                f"{'Type of' if isinstance(maybe_node, type) else 'Object of type'} "
-                f"{fullname(maybe_node)!r} cannot be resolved as Node.",
-            )
+        if isinstance(maybe_node, typing.TypeAliasType):
+            maybe_node = maybe_node.__value__
 
-    return maybe_nodes[0] if len(maybe_nodes) == 1 else maybe_nodes
+        if not is_node_type(orig := typing.get_origin(maybe_node) or maybe_node):
+            if not hasattr(orig, "as_node"):
+                if not raise_exception:
+                    return None
+
+                raise TypeError(
+                    f"{'Type of' if isinstance(maybe_node, type) else 'Object of type'} "
+                    f"{fullname(maybe_node)!r} cannot be resolved as Node.",
+                )
+
+            maybe_node = orig.as_node()
+
+        nodes.append(maybe_node)
+
+    return nodes[0] if len(nodes) == 1 else tuple(nodes)
 
 
-def bind_origin_node_class(node: type[NodeType], orig: typing.Any) -> type[NodeType]:
-    if not hasattr(node, ORIGIN_NODE_CLASS_KEY):
-        setattr(node, ORIGIN_NODE_CLASS_KEY, orig)
-    return node
-
-
-def get_origin_node_class(node: IsNode | NodeImpersonation, /) -> typing.Any | None:
-    return getattr(node, ORIGIN_NODE_CLASS_KEY, None)
+def is_node_type(obj: typing.Any, /) -> typing.TypeIs[IsNode]:
+    return isinstance(obj, Node | NodeProto) or (isinstance(obj, type) and issubclass(obj, Node | NodeProto))
 
 
 @function_context("nodes")
-def get_nodes(function: typing.Callable[..., typing.Any], /) -> dict[str, type[NodeType]]:
+def get_nodes(
+    function: typing.Callable[..., typing.Any],
+    /,
+    *,
+    start_idx: int = 0,
+) -> dict[str, IsNode]:
     return {
-        k: bind_origin_node_class(v.as_node(), v) for k, v in get_func_annotations(function).items() if is_node(v)
+        k: node
+        for index, (k, v) in enumerate(get_func_annotations(function).items())
+        if (node := as_node(v, raise_exception=False)) is not None and index >= start_idx
     }
 
 
@@ -112,7 +114,7 @@ def is_generator(
     return inspect.isasyncgenfunction(function)
 
 
-def unwrap_node(node: type[NodeType], /) -> tuple[type[NodeType], ...]:
+def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
     """Unwrap node as flattened tuple of node types in ordering required to calculate given node.
 
     Provides caching for passed node type.
@@ -121,7 +123,7 @@ def unwrap_node(node: type[NodeType], /) -> tuple[type[NodeType], ...]:
         return unwrapped
 
     stack = deque([(node, node.get_subnodes().values())])
-    visited = list[type[NodeType]]()
+    visited = list[IsNode]()
 
     while stack:
         parent, child_nodes = stack.pop()
@@ -149,7 +151,7 @@ class Composable[R](typing.Protocol):
     def compose(cls, *args: typing.Any, **kwargs: typing.Any) -> ComposeResult[R]: ...
 
 
-class NodeImpersonation(typing.Protocol):
+class NodeConvertable(typing.Protocol):
     @classmethod
     def as_node(cls) -> type[NodeProto[typing.Any]]: ...
 
@@ -162,9 +164,9 @@ class NodeComposeFunction[R](typing.Protocol):
 
 
 @typing.runtime_checkable
-class NodeProto[R](Composable[R], NodeImpersonation, typing.Protocol):
+class NodeProto[R](Composable[R], typing.Protocol):
     @classmethod
-    def get_subnodes(cls) -> dict[str, type[NodeType]]: ...
+    def get_subnodes(cls) -> dict[str, IsNode]: ...
 
     @classmethod
     def is_generator(cls) -> bool: ...
@@ -180,16 +182,17 @@ class Node(abc.ABC):
         pass
 
     @classmethod
-    def get_subnodes(cls) -> dict[str, type[NodeType]]:
+    def get_subnodes(cls) -> dict[str, IsNode]:
         return get_nodes(cls.compose)
-
-    @classmethod
-    def as_node(cls) -> type[typing.Self]:
-        return cls
 
     @classmethod
     def is_generator(cls) -> bool:
         return is_generator(cls.compose)
+
+
+class NodeAnnotation(typing.NamedTuple):
+    node_type: type[NodeType]
+    origin: typing.Any
 
 
 class scalar_node[T]:  # noqa: N801
@@ -309,14 +312,13 @@ __all__ = (
     "Name",
     "Node",
     "NodeClass",
-    "NodeImpersonation",
+    "NodeConvertable",
     "NodeProto",
     "NodeType",
     "as_node",
-    "bind_origin_node_class",
     "get_nodes",
-    "get_origin_node_class",
     "is_node",
+    "is_node_type",
     "scalar_node",
     "unwrap_node",
 )
