@@ -30,6 +30,7 @@ T = typing.TypeVar("T", default=typing.Any)
 
 ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerator[T, None]
 
+_NODEFAULT = object()
 UNWRAPPED_NODE_KEY: typing.Final[str] = "__unwrapped_node__"
 
 
@@ -218,15 +219,20 @@ class scalar_node[T]:  # noqa: N801
         scope: NodeScope,
     ) -> typing.Callable[[NodeComposeFunction[T]], type[T]]: ...
 
-    def __new__(cls, x=None, /, *, scope=NodeScope.PER_EVENT) -> typing.Any:
+    def __new__(cls, x=None, /, *, scope=_NODEFAULT) -> typing.Any:
         def inner(node_or_func, /) -> typing.Any:
-            namespace = {"node": "scalar", "scope": scope, "__module__": node_or_func.__module__}
+            namespace = {"node": "scalar", "__module__": node_or_func.__module__}
 
             if isinstance(node_or_func, type):
                 bases: list[type[typing.Any]] = [node_or_func]
                 node_bases = resolve_bases(node_or_func.__bases__)
+
                 if not any(issubclass(base, Node) for base in node_bases if isinstance(base, type)):
                     bases.append(Node)
+                    namespace["scope"] = NodeScope.PER_EVENT if scope is _NODEFAULT else scope
+                elif scope is not _NODEFAULT:
+                    namespace["scope"] = scope
+
                 return type(node_or_func.__name__, tuple(bases), namespace)
             else:
                 base_node = generate_node(

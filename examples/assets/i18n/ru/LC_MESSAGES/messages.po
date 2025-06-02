@@ -31,3 +31,6 @@ msgstr "привет"
 
 msgid "Hello, {name}!"
 msgstr "Привет, {name}!"
+
+msgid "im fine"
+msgstr "Все хорошо!"

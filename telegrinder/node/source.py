@@ -84,4 +84,11 @@ class UserId:
         return user.id
 
 
+@scalar_node
+class Locale:
+    @classmethod
+    def compose(cls, user: UserSource) -> str:
+        return user.language_code.expect(ComposeError("User has no language code."))
+
+
 __all__ = ("ChatSource", "Source", "UserId", "UserSource")
