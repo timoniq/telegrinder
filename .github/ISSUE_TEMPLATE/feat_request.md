@@ -6,7 +6,7 @@ labels: ["feature request"]
 assignees: []
 ---
 
-**feature description:**  
+**feature description:**
 ...
 
 **code:**
