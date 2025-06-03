@@ -115,8 +115,7 @@ __all__ = (
     "Video",
     "VideoNote",
     "Voice",
-    "ReplyMessage"
-    "as_node",
+    "ReplyMessageas_node",
     "compose_node",
     "compose_nodes",
     "generate_node",
