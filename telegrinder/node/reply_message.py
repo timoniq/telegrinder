@@ -1,5 +1,5 @@
 from telegrinder.bot.cute_types.message import MessageCute
-from telegrinder.node import ComposeError, scalar_node
+from telegrinder.node.base import ComposeError, scalar_node
 
 
 @scalar_node
