@@ -3,6 +3,7 @@ from telegrinder.tools.magic.dictionary import join_dicts
 from telegrinder.tools.magic.function import (
     Bundle,
     bundle,
+    function_context,
     get_default_args,
     get_func_annotations,
     get_func_parameters,
@@ -17,6 +18,7 @@ __all__ = (
     "Bundle",
     "Shortcut",
     "bundle",
+    "function_context",
     "get_default_args",
     "get_func_annotations",
     "get_func_parameters",

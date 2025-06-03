@@ -32,6 +32,7 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.cute_types.base import BaseCute
     from telegrinder.bot.rules.abc import ABCRule
+    from telegrinder.node.composer import Composer
 
 T = typing.TypeVar("T", default=typing.Any)
 R = typing.TypeVar("R", covariant=True, default=typing.Any)
@@ -78,6 +79,11 @@ class Dispatch(
     def patcher(self) -> ABCPatcher:
         """Alias `patcher` to get `vbml.Patcher` from the global context."""
         return self.global_context.vbml_patcher
+
+    @property
+    def composer(self) -> Composer:
+        """Alias `composer` to get `telegrinder.node.composer.Composer` from the global context."""
+        return self.global_context.composer.unwrap()
 
     @typing.overload
     def handle(

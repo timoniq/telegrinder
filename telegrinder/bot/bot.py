@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing_extensions as typing
 
 from telegrinder.api.api import API
@@ -8,6 +10,9 @@ from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.loop_wrapper import LoopWrapper
+
+if typing.TYPE_CHECKING:
+    from telegrinder.node.composer import Composer
 
 Dispatch = typing.TypeVar("Dispatch", bound=ABCDispatch, default=dp.Dispatch)
 Polling = typing.TypeVar("Polling", bound=ABCPolling, default=pg.Polling)
@@ -41,6 +46,10 @@ class Telegrinder(typing.Generic[Dispatch, Polling]):
     @property
     def on(self) -> Dispatch:
         return self.dispatch
+
+    @property
+    def composer(self) -> Composer:
+        return CONTEXT.composer.unwrap()
 
     async def reset_webhook(self) -> None:
         if not (await self.api.get_webhook_info()).unwrap().url:
