@@ -6,7 +6,7 @@ labels: ["bug"]
 assignees: []
 ---
 
-**bug description:**  
+**bug description:**
 ...
 
 **code:**
