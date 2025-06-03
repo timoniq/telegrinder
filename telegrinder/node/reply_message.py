@@ -9,4 +9,4 @@ class ReplyMessage:
         return message.reply_to_message.expect(ComposeError("Message doesn't have reply"))
 
 
-__all__ = "ReplyMessage"
+__all__ = ("ReplyMessage",)
