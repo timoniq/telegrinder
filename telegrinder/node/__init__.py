@@ -43,6 +43,7 @@ from .i18n import ABCTranslator, KeySeparator
 from .me import Me
 from .payload import Payload, PayloadData, PayloadSerializer
 from .polymorphic import Polymorphic, impl
+from .reply_message import ReplyMessage
 from .rule import RuleChain
 from .scope import (
     GLOBAL,
@@ -114,6 +115,7 @@ __all__ = (
     "Video",
     "VideoNote",
     "Voice",
+    "ReplyMessage"
     "as_node",
     "compose_node",
     "compose_nodes",
