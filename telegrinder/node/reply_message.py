@@ -1,4 +1,4 @@
-from telegrinder import MessageCute
+from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.node import ComposeError, scalar_node
 
 
