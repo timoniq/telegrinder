@@ -39,18 +39,20 @@ class _EventNode(FactoryNode):
 
     @classmethod
     def compose(cls, update_cute: UpdateNode, raw_update: Update, api: API) -> DataclassType:
-        if issubclass(cls.orig_dataclass, UpdateCute):
+        if cls.orig_dataclass is UpdateCute:
             return update_cute
 
-        if (
-            (
-                issubclass(cls.orig_dataclass, BaseCute)
-                and isinstance(update_cute.incoming_update, cls.orig_dataclass)
+        if issubclass(cls.orig_dataclass, BaseCute | Model):
+            incoming_update = (
+                update_cute.incoming_update
+                if issubclass(cls.orig_dataclass, BaseCute)
+                else raw_update.incoming_update
             )
-            or issubclass(cls.orig_dataclass, Model)
-            and isinstance(raw_update.incoming_update, cls.orig_dataclass)
-        ):
-            return update_cute.incoming_update
+
+            if type(incoming_update) is not cls.orig_dataclass:
+                raise ComposeError(f"Incoming update is not `{fullname(cls.orig_dataclass)}`.")
+
+            return incoming_update
 
         try:
             if issubclass(cls.orig_dataclass, msgspec.Struct) or dataclasses.is_dataclass(

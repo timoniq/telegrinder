@@ -32,18 +32,26 @@ class ABCDispatch(ABC):
         for external in externals:
             self.load(external)
 
-    def load_from_dir(self, directory: str | pathlib.Path) -> bool:
+    def load_from_dir(
+        self,
+        directory: str | pathlib.Path,
+        *,
+        recursive: bool = False,
+    ) -> bool:
         """Loads dispatchers from a directory containing Python modules where global variables
         are declared with instances of dispatch.
         Returns True if dispatchers were found, otherwise False.
         """
+
         directory = pathlib.Path(directory)
 
         if not directory.exists():
             raise PathExistsError(f"Path {str(directory)!r} does not exists.")
 
         dps: list[typing.Self] = []
-        for root, _, files in os.walk(directory):
+        files_iter = os.walk(directory) if recursive else [(directory, [], os.listdir(directory))]
+
+        for root, _, files in files_iter:
             for f in files:
                 if f.endswith(".py") and f != "__init__.py":
                     module_path = os.path.join(root, f)
@@ -59,7 +67,7 @@ class ABCDispatch(ABC):
                     spec.loader.exec_module(module)
 
                     for obj in module.__dict__.values():
-                        if isinstance(obj, self.__class__):
+                        if isinstance(obj, type(self)):
                             dps.append(obj)
 
         self.load_many(*dps)

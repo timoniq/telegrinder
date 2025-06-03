@@ -46,11 +46,6 @@ class DummyMiddleware(ABCMiddleware):
         return None
 
 
-@bot.on.message()
-async def hi() -> str:
-    return "hi!"
-
-
 @bot.on.message(Text("/start"))
 async def start(message: Message, me: Me):
     await message.answer(

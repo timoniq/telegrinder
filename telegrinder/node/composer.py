@@ -205,7 +205,7 @@ class Composer:
         if (typing.get_origin(impl) or impl) not in self.impls[for_type]:
             raise LookupError(f"Impl `{fullname(impl)}` is not defined for type of `{fullname(for_type)}`.")
 
-        self.selected_impls[typing.get_origin(for_type) or for_type] = impl
+        self.selected_impls[for_type] = impl
 
     def impl[T](self, for_type: typing.Any, /) -> typing.Callable[[type[T]], type[T]]:
         def decorator(impl: type[T], /) -> type[T]:
