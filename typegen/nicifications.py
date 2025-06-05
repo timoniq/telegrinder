@@ -131,9 +131,7 @@ class _Update(Update):
     @cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
-        return UpdateType(
-            next((x for x in self.__struct_fields__ if x != "update_id" and getattr(self, x))),
-        )
+        return UpdateType(next(iter(self.to_dict(exclude_fields={"update_id"}))))
 
     @cached_property
     def incoming_update(self) -> Model:

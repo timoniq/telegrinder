@@ -1,4 +1,3 @@
-import typing
 
 from fntypes.result import Ok
 
@@ -24,7 +23,7 @@ class NodeRule(ABCRule):
 
     async def check(self, update: Update, api: API, context: Context) -> bool:
         result = await compose_nodes(
-            nodes={f"node_{i}": typing.cast("IsNode", node) for i, node in enumerate(self.nodes)},
+            nodes={f"node_{i}": node for i, node in enumerate(self.nodes)},
             ctx=context,
             data={Update: update, API: api},
         )
@@ -39,6 +38,7 @@ class NodeRule(ABCRule):
             if (key := self.node_keys[i]) and node_key == key:
                 context[key] = node_value
 
+        await collection.close_all()
         return True
 
 

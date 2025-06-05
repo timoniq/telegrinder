@@ -2,16 +2,8 @@ import typing
 from functools import cached_property
 from http import HTTPStatus
 
+from fntypes.misc import from_optional
 from fntypes.option import Option
-
-if typing.TYPE_CHECKING:
-    from telegrinder.tools.functional import from_optional
-else:
-
-    def from_optional(*args, **kwargs):
-        from telegrinder.tools.functional import from_optional
-
-        return from_optional(*args, **kwargs)
 
 
 class ReprErrorMixin:

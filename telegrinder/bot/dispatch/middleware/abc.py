@@ -26,11 +26,6 @@ async def run_middleware(
     ctx: Context,
     required_nodes: typing.Mapping[str, IsNode] | None = None,
 ) -> bool | None:
-    class_name, method_name = method.__qualname__.split(".", maxsplit=1)
-
-    if class_name != ABCMiddleware.__name__:
-        logger.debug("Running {}-middleware {!r}...", method_name, class_name)
-
     node_col = None
     data = {API: api, Update: event, Context: ctx}
 
@@ -41,7 +36,7 @@ async def run_middleware(
             case Error(compose_error):
                 logger.debug(
                     "Cannot compose nodes for {}-middleware, error: {!r}",
-                    method_name,
+                    method.__name__,
                     compose_error.message,
                 )
                 return False
@@ -60,17 +55,15 @@ async def run_middleware(
 
 class ABCMiddleware(ABC):
     def __repr__(self) -> str:
-        has_pre = self.pre.__qualname__.split(".")[0] != ABCMiddleware.__name__
-        has_post = self.post.__qualname__.split(".")[0] != ABCMiddleware.__name__
         name = f"middleware {type(self).__name__!r}"
 
-        if has_post:
+        if self.post != ABCMiddleware.post:
             name = "post-" + name
 
-        if has_pre:
+        if self.pre != ABCMiddleware.pre:
             name = "pre-" + name
 
-        return "<{}>".format(name)
+        return f"<{name}>"
 
     if typing.TYPE_CHECKING:
 

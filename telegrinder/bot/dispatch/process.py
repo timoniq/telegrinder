@@ -27,18 +27,17 @@ async def process_inner(
 ) -> bool:
     ctx[CONTEXT_STORE_NODES_KEY] = {}  # For per-event shared nodes
 
-    logger.debug("Run pre-middlewares...")
     for m in middlewares:
         if m.pre is ABCMiddleware.pre:
             continue
 
         result = await run_middleware(m.pre, api, event, ctx, required_nodes=m.pre_required_nodes)
-        logger.debug("Middleware {!r} returned: {!r}", m, result)
         if result is False:
+            logger.debug(f"Processing failed: {m!r} returned False")
             return False
 
     found = False
-    responses = []
+    responses = list[typing.Any]()
     ctx_copy = ctx.copy()
 
     for handler in handlers:
@@ -58,7 +57,6 @@ async def process_inner(
     ctx = ctx_copy
     ctx.responses = responses
 
-    logger.debug("Run post-middlewares...")
     for m in middlewares:
         if m.post is not ABCMiddleware.post:
             await run_middleware(
@@ -69,11 +67,7 @@ async def process_inner(
                 required_nodes=m.post_pre_required_nodes,
             )
 
-    logger.debug(
-        "{} handlers, returns {!r}",
-        "No found" if not found else "Found",
-        found,
-    )
+    logger.debug("Processing failed: no found handlers" if not found else "Successful processing")
     return found
 
 

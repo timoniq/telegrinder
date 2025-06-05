@@ -53,7 +53,6 @@ from .formatting import (
     underline,
 )
 from .fullname import fullname
-from .functional import from_optional
 from .global_context import (
     ABCGlobalContext,
     CtxVar,
@@ -113,7 +112,6 @@ __all__ = (
     "code_inline",
     "ctx_var",
     "escape",
-    "from_optional",
     "fullname",
     "get_default_args",
     "get_func_annotations",

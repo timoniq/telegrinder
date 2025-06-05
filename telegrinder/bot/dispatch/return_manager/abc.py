@@ -117,11 +117,13 @@ class BaseReturnManager(ABCReturnManager):
         update: Update,
         context: Context,
     ) -> None:
-        logger.debug("Finding manager by `{}` for response: {!r}", fullname(self), response)
-
         for manager in self.managers:
             if typing.Any in manager.types or type(response) in manager.types:
-                logger.debug("Running manager `{}`...", fullname(manager.function))
+                logger.debug(
+                    "Running manager `{}` for response `{!r}`",
+                    fullname(manager.function),
+                    response,
+                )
                 await manager(response, update, api, context)
 
     def register_manager(self, return_type: typing.Any, /) -> typing.Callable[[ManagerFunction], Manager]:

@@ -86,11 +86,15 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
 
         try:
             data_bundle = bundle(
-                self.function, {API: api, Update: event, Context: context.copy()}, typebundle=True
+                self.function,
+                {API: api, Update: event, Context: context.copy()},
+                typebundle=True,
+                start_idx=0,
             )
             return Ok(
                 await bundle(self.function, context | ({} if node_col is None else node_col.values), start_idx=0)(
-                    *data_bundle.args, **data_bundle.kwargs
+                    *data_bundle.args,
+                    **data_bundle.kwargs,
                 ),
             )
         except BaseException as exception:

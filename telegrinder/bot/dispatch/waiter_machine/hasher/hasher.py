@@ -3,11 +3,11 @@ from __future__ import annotations
 import typing
 from functools import cached_property
 
+from fntypes.misc import from_optional
 from fntypes.option import Option
 
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.view.base import BaseView
-from telegrinder.tools.functional import from_optional
 
 type HasherWithData[Event: BaseCute, Data] = tuple[Hasher[Event, Data], Data]
 

@@ -91,15 +91,13 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
 
         def __getattribute__(self, name, /):
             class_ = type(self)
-            val = super().__getattribute__(name)
+            val = object.__getattribute__(self, name)
 
             if name not in class_.__struct_fields__:
                 return val
 
-            field_info = class_.get_field(name).unwrap_or_none()
-
             if (
-                field_info is not None
+                (field_info := class_.get_fields().get(name)) is not None
                 and isinstance(field_info.type, msgspec.inspect.CustomType)
                 and issubclass(field_info.type.cls, Option)
             ):
@@ -111,15 +109,18 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
             return val
 
     def __post_init__(self) -> None:
-        for field_name in self.__struct_fields__:
-            if is_none(getattr(self, field_name)):
-                setattr(self, field_name, UNSET)
+        for field, value in struct_asdict(self, exclude_unset=False).items():
+            if is_none(value):
+                setattr(self, field, UNSET)
 
     @recursive_repr()
     def __repr__(self) -> str:
         return "{}({})".format(
             type(self).__name__,
-            ", ".join(f"{f}={getattr(self, f)!r}" for f in self.__struct_fields__),
+            ", ".join(
+                f"{f}={val!r}"
+                for f, val in struct_asdict(self, exclude_unset=False, unset_as_nothing=True).items()
+            ),
         )
 
     @classmethod
@@ -132,12 +133,6 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         )
         setattr(cls, INSPECTED_MODEL_FIELDS_KEY, model_fields)
         return model_fields
-
-    @classmethod
-    def get_field(cls, field_name: str, /) -> Option[msgspec.inspect.Field]:
-        from telegrinder.tools.functional import from_optional
-
-        return from_optional(cls.get_fields().get(field_name))
 
     @classmethod
     def from_data[**P, T](cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
@@ -177,9 +172,6 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         *,
         exclude_fields: set[str] | None = None,
     ) -> dict[str, typing.Any]:
-        """:param exclude_fields: Model field names to exclude from the dictionary representation of this model.
-        :return: A dictionary representation of this model.
-        """
         return self._to_dict("model_as_dict", exclude_fields or set(), full=False)
 
     def to_full_dict(
@@ -187,9 +179,6 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         *,
         exclude_fields: set[str] | None = None,
     ) -> dict[str, typing.Any]:
-        """:param exclude_fields: Model field names to exclude from the dictionary representation of this model.
-        :return: A dictionary representation of this model including all models, structs, custom types.
-        """
         return self._to_dict("model_as_full_dict", exclude_fields or set(), full=True)
 
 

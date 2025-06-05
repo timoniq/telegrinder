@@ -41,11 +41,17 @@ def is_common_type[T](t: T, /) -> typing.TypeGuard[type[T]]:
     return t in _COMMON_TYPES or issubclass(t, msgspec.Struct) or hasattr(t, "__dataclass_fields__")
 
 
-def struct_asdict(struct: msgspec.Struct, /) -> dict[str, typing.Any]:
+def struct_asdict(
+    struct: msgspec.Struct,
+    /,
+    *,
+    exclude_unset: bool = True,
+    unset_as_nothing: bool = False,
+) -> dict[str, typing.Any]:
     return {
-        k: v
+        k: v if not unset_as_nothing else Nothing() if v is msgspec.UNSET else v
         for k, v in msgspec.structs.asdict(struct).items()
-        if not isinstance(v, msgspec.UnsetType | types.NoneType | Nothing)
+        if not (exclude_unset and isinstance(v, msgspec.UnsetType | types.NoneType | Nothing))
     }
 
 

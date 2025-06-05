@@ -49,7 +49,6 @@ def get_polymorphic_implementations(
 class Polymorphic(Node):
     @classmethod
     async def compose(cls, raw_update: Update, update: UpdateCute, context: Context) -> typing.Any:
-        logger.debug(f"Composing polymorphic node `{fullname(cls)}`...")
         scope = getattr(cls, "scope", None)
         node_ctx = context.get_or_set(CONTEXT_STORE_NODES_KEY, {})
         data = {
@@ -59,7 +58,6 @@ class Polymorphic(Node):
         }
 
         for i, impl_ in enumerate(get_polymorphic_implementations(cls)):
-            logger.debug("Checking impl {!r}...", fullname(impl_))
             node_collection = None
 
             match await compose_nodes(get_nodes(impl_), context, data=data):
@@ -74,10 +72,6 @@ class Polymorphic(Node):
 
             # To determine whether this is a right morph, all subnodes must be resolved
             if scope is NodeScope.PER_EVENT and (cls, i) in node_ctx:
-                logger.debug(
-                    "Morph is already cached as per_event node, using its value. Impl `{}` succeeded!",
-                    fullname(impl_),
-                )
                 res: NodeSession = node_ctx[(cls, i)]
                 await node_collection.close_all()
                 return res.value
@@ -97,7 +91,6 @@ class Polymorphic(Node):
                 node_ctx[(cls, i)] = NodeSession(cls, result, {})
 
             await node_collection.close_all(with_value=result)
-            logger.debug("Impl `{}` composition succeeded", fullname(impl_), result)
             return result
 
         raise ComposeError("No implementation found.")

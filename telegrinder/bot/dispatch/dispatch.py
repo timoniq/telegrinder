@@ -119,12 +119,6 @@ class Dispatch(
         return wrapper
 
     async def feed(self, event: Update, api: API) -> bool:
-        logger.debug(
-            "Processing update (id={}, type={!r}) by bot (id={})",
-            event.update_id,
-            event.update_type,
-            api.id,
-        )
         processed = False
         context = Context().add_update_cute(event, api)
         start_time = self.global_context.loop_wrapper.loop.time()
@@ -144,10 +138,11 @@ class Dispatch(
         for view in self.get_views().values():
             if await view.check(event):
                 logger.debug(
-                    "Update (id={}, type={!r}) matched view {!r}",
+                    "Processing update (id={}, type={!r}) using view {!r} by bot (id={})",
                     event.update_id,
                     event.update_type,
                     view,
+                    api.id,
                 )
 
                 try:

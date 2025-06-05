@@ -6,7 +6,6 @@ from fntypes.option import Some
 from fntypes.result import Error, Ok, Result
 
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.modules import logger
 from telegrinder.node.base import (
     AnyNode,
     ComposeError,
@@ -82,8 +81,6 @@ async def compose_nodes(
     data: dict[type[typing.Any], typing.Any] | None = None,
     impls: Impls | None = None,
 ) -> Result["NodeCollection", ComposeError]:
-    logger.debug("Composing nodes ({})...", ", ".join(f"{k}: {fullname(v)}" for k, v in nodes.items()))
-
     impls = impls or CONTEXT.composer.unwrap().selected_impls
     data = {Context: ctx} | (data or {})
     parent_nodes = dict[IsNode, NodeSession]()
@@ -152,7 +149,6 @@ class NodeSession:
         if self.generator is None:
             return
         try:
-            logger.debug("Closing session for node {}...", fullname(self.node))
             await self.generator.asend(with_value)
         except StopAsyncIteration:
             self.generator = None

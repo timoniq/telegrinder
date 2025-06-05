@@ -8,7 +8,7 @@ from fntypes.result import Error, Ok, Result
 from fntypes.variative import Variative
 
 from telegrinder.msgspec_utils.abc import SupportsCast
-from telegrinder.msgspec_utils.custom_types.datetime import _datetime, _timedelta
+from telegrinder.msgspec_utils.custom_types.datetime import datetime, timedelta
 from telegrinder.msgspec_utils.custom_types.enum_meta import BaseEnumMeta
 from telegrinder.msgspec_utils.tools import bundle, fullname, get_origin
 
@@ -61,16 +61,16 @@ class Encoder:
     abstract_enc_hooks: dict[typing.Any, EncHook[typing.Any]]
 
     def __init__(self) -> None:
-        self.cast_types = {
-            dt.datetime: _datetime,
-            dt.timedelta: _timedelta,
+        self.cast_types = {  # type: ignore
+            dt.datetime: datetime,
+            dt.timedelta: timedelta,
         }
         self.enc_hooks = {
             Some: lambda some: some.value,
             Nothing: lambda _: None,
             Variative: lambda variative: variative.v,
-            _datetime: lambda date: int(date.timestamp()),
-            _timedelta: lambda time: time.total_seconds(),
+            datetime: lambda date: int(date.timestamp()),
+            timedelta: lambda time: time.total_seconds(),
         }
         self.abstract_enc_hooks = {
             BaseEnumMeta: lambda enum_member: enum_member.value,

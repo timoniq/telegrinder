@@ -41,7 +41,7 @@ async def execute_method_answer(
         default_params={"chat_id", "message_thread_id"},
         validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
     )
-    result = await getattr(message.ctx_api, method_name)(**params)
+    result = await getattr(message.api, method_name)(**params)
     return result.map(
         lambda x: (
             x
