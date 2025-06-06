@@ -63,7 +63,6 @@ if typing.TYPE_CHECKING:
         ) -> dict[str, typing.Any]: ...
 
 else:
-
     from fntypes.co import Some, Variative
     from fntypes.misc import from_optional
 
