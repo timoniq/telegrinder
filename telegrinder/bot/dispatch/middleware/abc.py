@@ -35,8 +35,8 @@ async def run_middleware(
                 node_col = value
             case Error(compose_error):
                 logger.debug(
-                    "Cannot compose nodes for {}-middleware, error: {!r}",
-                    method.__name__,
+                    "Cannot compose nodes for `{}`, error: {!r}",
+                    method.__qualname__,
                     compose_error.message,
                 )
                 return False
@@ -57,10 +57,10 @@ class ABCMiddleware(ABC):
     def __repr__(self) -> str:
         name = f"middleware {type(self).__name__!r}"
 
-        if self.post != ABCMiddleware.post:
+        if self.post is not ABCMiddleware.post:
             name = "post-" + name
 
-        if self.pre != ABCMiddleware.pre:
+        if self.pre is not ABCMiddleware.pre:
             name = "pre-" + name
 
         return f"<{name}>"

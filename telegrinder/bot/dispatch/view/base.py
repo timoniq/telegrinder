@@ -23,6 +23,9 @@ class BaseView(ABCView):
         self.update_type = update_type
         self._auto_rules: ABCRule = Always()
 
+    def __repr__(self) -> str:
+        return "<{}>".format(type(self).__name__)
+
     @property
     def auto_rules(self) -> ABCRule:
         return self._auto_rules
@@ -144,9 +147,7 @@ class BaseView(ABCView):
                 api,
                 event,
                 context,
-                self.middlewares,
-                self.handlers,
-                self.return_manager,
+                self,
             )
         finally:
             for session in context.get(CONTEXT_STORE_NODES_KEY, {}).values():

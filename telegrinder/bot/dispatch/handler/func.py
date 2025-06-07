@@ -62,7 +62,7 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, str]:
-        logger.debug(f"Checking rules and composing nodes for handler `{self}`...")
+        logger.debug("Checking rules and composing nodes for handler `{}`...", self)
 
         temp_ctx = context.copy()
         temp_ctx |= self.preset_context.copy()
@@ -82,7 +82,7 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
                 case Error(compose_error):
                     return Error(f"Cannot compose nodes for handler `{self}`, error: {compose_error.message}")
 
-        logger.debug(f"All good, running handler `{self}`...")
+        logger.debug("All good, running handler `{}`", self)
 
         try:
             data_bundle = bundle(

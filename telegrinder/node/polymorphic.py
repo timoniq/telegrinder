@@ -64,10 +64,10 @@ class Polymorphic(Node):
                 case Ok(col):
                     node_collection = col
                 case Error(err):
-                    logger.debug(f"Composition failed with error: {err!r}")
+                    logger.debug("Composition failed with error: {!r}", err)
 
             if node_collection is None:
-                logger.debug("Impl `{}` composition failed!", fullname(impl_))
+                logger.debug("Impl `{}` composition failed", fullname(impl_))
                 continue
 
             # To determine whether this is a right morph, all subnodes must be resolved

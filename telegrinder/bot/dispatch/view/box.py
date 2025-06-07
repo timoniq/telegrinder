@@ -134,7 +134,6 @@ class ViewBox(
             "PreCheckoutQueryView",
             pre_checkout_query_view or pre_checkout_query.PreCheckoutQueryView(),
         )
-        self.any_message = typing.cast("MessageView", any_message_view or message.MessageView())
         self.raw_event = typing.cast("RawEventView", raw_event_view or raw.RawEventView())
         self.error = typing.cast("ErrorView", error_view or error.ErrorView())
 

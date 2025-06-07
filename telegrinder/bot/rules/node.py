@@ -1,4 +1,3 @@
-
 from fntypes.result import Ok
 
 from telegrinder.api.api import API

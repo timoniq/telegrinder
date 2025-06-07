@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 
 import typing_extensions as typing
-from fntypes import Nothing, Option, Some
+from fntypes.option import Nothing, Option, Some
 from vbml.patcher.abc import ABCPatcher
 
 from telegrinder.api.api import API
@@ -119,6 +119,7 @@ class Dispatch(
         return wrapper
 
     async def feed(self, event: Update, api: API) -> bool:
+        logger.info("New Update(id={}, type={!r})", event.update_id, event.update_type)
         processed = False
         context = Context().add_update_cute(event, api)
         start_time = self.global_context.loop_wrapper.loop.time()
@@ -138,7 +139,7 @@ class Dispatch(
         for view in self.get_views().values():
             if await view.check(event):
                 logger.debug(
-                    "Processing update (id={}, type={!r}) using view {!r} by bot (id={})",
+                    "Processing update (id={}, type={!r}) with view {!r} by bot (id={})",
                     event.update_id,
                     event.update_type,
                     view,
