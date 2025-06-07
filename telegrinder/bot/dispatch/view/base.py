@@ -119,7 +119,7 @@ class BaseView(ABCView):
     ) -> typing.Callable[..., typing.Any]:
         def wrapper(func: typing.Callable[..., typing.Any]):
             func_handler = FuncHandler(
-                function=func,
+                handler=func,
                 rules=[self.auto_rules, *rules],
                 final=final,
                 error_handler=error_handler or ErrorHandler(),

@@ -84,6 +84,7 @@ from .bot import (
     VideoReplyHandler,
     ViewBox,
     WaiterMachine,
+    action,
     register_manager,
 )
 from .client import ABCClient, AiohttpClient
@@ -227,6 +228,7 @@ __all__ = (
     "VideoReplyHandler",
     "ViewBox",
     "WaiterMachine",
+    "action",
     "field",
     "logger",
     "register_manager",

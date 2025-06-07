@@ -22,12 +22,12 @@ if typing.TYPE_CHECKING:
 Function = typing.TypeVar("Function", bound="Func[..., typing.Any]")
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
-type Func[**P, Result] = typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, Result]]
+type Func[**P, Result] = ABCHandler | typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, Result]]
 
 
 @dataclasses.dataclass(repr=False, slots=True)
 class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
-    function: Function
+    handler: Function
     rules: list["ABCRule"]
     final: bool = dataclasses.field(default=True, kw_only=True)
     error_handler: ErrorHandlerT = dataclasses.field(
@@ -37,23 +37,28 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
     preset_context: Context = dataclasses.field(default_factory=lambda: Context(), kw_only=True)
 
     @property
+    def function(self) -> Function:
+        assert not isinstance(self.handler, ABCHandler)
+        return self.handler
+
+    @property
     def __call__(self) -> Function:
         return self.function
 
     def __str__(self) -> str:
-        return fullname(self.function)
+        return fullname(self.handler)
 
     def __repr__(self) -> str:
         return "<{} {!r} with rules={!r}, error_handler={!r}>".format(
             ("final " if self.final else "") + type(self).__name__,
-            fullname(self.function),
+            fullname(self.handler),
             self.rules,
             self.error_handler,
         )
 
     @cached_property
     def required_nodes(self) -> dict[str, IsNode]:
-        return get_nodes(self.function)
+        return get_nodes(self.function)  # type: ignore
 
     async def run(
         self,
@@ -70,11 +75,14 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
         if check:
             for rule in self.rules:
                 if not await check_rule(api, rule, event, temp_ctx):
-                    return Error(f"Rule {rule!r} failed!")
+                    return Error(f"Rule {rule!r} failed.")
 
         context |= temp_ctx
-        node_col = None
 
+        if isinstance(self.handler, ABCHandler):
+            return await self.handler.run(api, event, context, check)
+
+        node_col = None
         if self.required_nodes:
             match await compose_nodes(self.required_nodes, context, data={Update: event, API: api}):
                 case Ok(value):
@@ -86,13 +94,13 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
 
         try:
             data_bundle = bundle(
-                self.function,
+                self.handler,
                 {API: api, Update: event, Context: context.copy()},
                 typebundle=True,
                 start_idx=0,
             )
             return Ok(
-                await bundle(self.function, context | ({} if node_col is None else node_col.values), start_idx=0)(
+                await bundle(self.handler, context | ({} if node_col is None else node_col.values), start_idx=0)(
                     *data_bundle.args,
                     **data_bundle.kwargs,
                 ),
