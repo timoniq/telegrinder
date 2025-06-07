@@ -127,7 +127,7 @@ class LoopWrapper(Singleton, Final):
 
     async def _shutdown(self) -> None:
         await self.lifespan._shutdown()
-        logger.debug("Shutdown loop wrapper")
+        logger.debug("Shutting down loop wrapper")
         self._state = LoopWrapperState.SHUTDOWN
 
     async def _run_coro_with_semaphore(self, coro: CoroutineTask[typing.Any], /) -> None:

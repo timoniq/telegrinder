@@ -165,22 +165,30 @@ elif logging_module == "structlog":
 
             return full_message
 
-    class LocationFilter(logging.Filter):
+    class LogLevelColumnFormatter:
+        def __call__(self, key: str, value: typing.Any) -> str:
+            color = LEVELS_COLORS[value]
+            return f"[{color}{value:^12}{colorama.Fore.RESET}]"
+
+    class Filter(logging.Filter):
         def filter(self, record: logging.LogRecord) -> bool:
             level_color = LEVELS_COLORS[record.levelname.lower()]
             location = (
                 f"{colorama.Fore.LIGHTCYAN_EX}{record.module}{colorama.Fore.RESET}:"
-                f"{level_color}{record.funcName}{colorama.Fore.RESET}{colorama.Fore.LIGHTBLACK_EX}"
-            )
-            dots_needed = 60 - len(record.module + record.funcName) - 1
-            location += (
-                f"{'.' * max(dots_needed, 1)}{colorama.Fore.RESET}{colorama.Fore.LIGHTYELLOW_EX}"
-                f"{record.lineno:<5}{colorama.Style.RESET_ALL}"
+                f"{level_color}{record.funcName}{colorama.Fore.RESET}:"
+                f"{colorama.Fore.LIGHTMAGENTA_EX}{record.lineno}{colorama.Fore.RESET} "
             )
             record.location = location
             return True
 
     def configure_logging() -> None:
+        console_renderer = structlog.dev.ConsoleRenderer(colors=True)
+
+        for column in console_renderer._columns:
+            if column.key == "level":
+                column.formatter = LogLevelColumnFormatter()
+                break
+
         structlog.configure(  # type: ignore
             processors=[
                 structlog.stdlib.filter_by_level,
@@ -189,7 +197,7 @@ elif logging_module == "structlog":
                 structlog.processors.StackInfoRenderer(),
                 structlog.processors.format_exc_info,
                 structlog.processors.UnicodeDecoder(),
-                structlog.dev.ConsoleRenderer(colors=True, pad_level=True),
+                console_renderer,
             ],
             context_class=dict,
             logger_factory=structlog.stdlib.LoggerFactory(),
@@ -207,7 +215,7 @@ elif logging_module == "structlog":
         telegrinder_logger.setLevel(logging_level)
 
         handler = logging.StreamHandler(sys.stderr)
-        handler.addFilter(LocationFilter())
+        handler.addFilter(Filter())
         formatter = logging.Formatter(fmt, datefmt="%Y-%m-%d %H:%M:%S", style="{")
         handler.setFormatter(formatter)
 
