@@ -120,7 +120,7 @@ class LoopWrapper(Singleton, Final):
             await self._lifespan._start()
             yield
         except asyncio.CancelledError:
-            logger.info("LoopWrapper task was cancelled, cancellation tasks...")
+            logger.info("LoopWrapper task was cancelled, cancelling tasks...")
             await self._cancel_tasks()
         finally:
             await self._shutdown()

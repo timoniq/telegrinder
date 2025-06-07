@@ -55,7 +55,6 @@ all = [
     "uvloop>=0.21.0; (sys_platform == 'darwin' or sys_platform == 'linux')",
     "winloop>=0.1.8; (sys_platform == 'cli' or sys_platform == 'cygwin' or sys_platform == 'win32')",
     "aiohttp-socks>=0.10.1",
-    "loguru>=0.7.3",
     "brotli>=1.1.0",
 ]
 uvloop = [
