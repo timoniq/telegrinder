@@ -67,12 +67,13 @@ from .lifespan import Lifespan
 from .limited_dict import LimitedDict
 from .loop_wrapper import DelayedTask, LoopWrapper
 from .magic import (
-    AnnotationsEvaluator,
+    Annotations,
     Bundle,
     bundle,
     get_default_args,
     get_func_annotations,
     get_func_parameters,
+    get_generic_parameters,
     join_dicts,
     resolve_arg_names,
     resolve_kwonly_arg_names,
@@ -87,7 +88,7 @@ __all__ = (
     "ABCGlobalContext",
     "ABCSingleton",
     "ABCSingletonMeta",
-    "AnnotationsEvaluator",
+    "Annotations",
     "Bundle",
     "CtxVar",
     "DelayedTask",
@@ -116,6 +117,7 @@ __all__ = (
     "get_default_args",
     "get_func_annotations",
     "get_func_parameters",
+    "get_generic_parameters",
     "italic",
     "join_dicts",
     "link",

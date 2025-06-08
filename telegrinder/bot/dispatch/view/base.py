@@ -14,6 +14,8 @@ from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, Error
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
 
+type Handler[**P, R] = ABCHandler | Func[P, R]
+
 
 class BaseView(ABCView):
     def __init__(self, update_type: UpdateType | None = None) -> None:
@@ -54,7 +56,7 @@ class BaseView(ABCView):
         cls,
         *rules: ABCRule,
     ) -> typing.Callable[
-        [Func[P, R]],
+        [Handler[P, R]],
         FuncHandler[Func[P, R], ErrorHandler],
     ]: ...
 
@@ -65,7 +67,7 @@ class BaseView(ABCView):
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
         final: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
+    ) -> typing.Callable[[Handler[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
 
     @typing.overload
     @classmethod
@@ -74,7 +76,7 @@ class BaseView(ABCView):
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
         final: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
+    ) -> typing.Callable[[Handler[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
 
     @classmethod
     def to_handler(
@@ -83,7 +85,7 @@ class BaseView(ABCView):
         error_handler: ABCErrorHandler | None = None,
         final: bool = True,
     ) -> typing.Callable[..., typing.Any]:
-        def wrapper(func):
+        def wrapper(func: Handler[..., typing.Any]) -> FuncHandler[Func[..., typing.Any], typing.Any]:
             return FuncHandler(
                 func,
                 list(rules),
@@ -99,7 +101,7 @@ class BaseView(ABCView):
         *rules: ABCRule,
         final: bool = True,
     ) -> typing.Callable[
-        [Func[P, R]],
+        [Handler[P, R]],
         FuncHandler[Func[P, R], ErrorHandler],
     ]: ...
 
@@ -109,7 +111,7 @@ class BaseView(ABCView):
         *rules: ABCRule,
         error_handler: ErrorHandlerT,
         final: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
+    ) -> typing.Callable[[Handler[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
 
     def __call__[**P, R](
         self,
@@ -117,7 +119,7 @@ class BaseView(ABCView):
         error_handler: ABCErrorHandler | None = None,
         final: bool = True,
     ) -> typing.Callable[..., typing.Any]:
-        def wrapper(func: typing.Callable[..., typing.Any]):
+        def wrapper(func: typing.Callable[..., typing.Any]) -> typing.Any:
             func_handler = FuncHandler(
                 handler=func,
                 rules=[self.auto_rules, *rules],
@@ -129,7 +131,11 @@ class BaseView(ABCView):
 
         return wrapper
 
-    def register_middleware[Middleware: ABCMiddleware](self, *args: typing.Any, **kwargs: typing.Any):
+    def register_middleware[Middleware: ABCMiddleware](
+        self,
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> typing.Callable[..., type[Middleware]]:  # type: ignore
         def wrapper(cls: type[Middleware]) -> type[Middleware]:
             self.middlewares.append(cls(*args, **kwargs))
             return cls

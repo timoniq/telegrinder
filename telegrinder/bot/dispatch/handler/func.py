@@ -19,15 +19,15 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
 
-Function = typing.TypeVar("Function", bound="Func[..., typing.Any]")
+Function = typing.TypeVar("Function", bound="Func[..., typing.Any]", default="Func[..., typing.Any]")
 ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
 
-type Func[**P, Result] = ABCHandler | typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, Result]]
+type Func[**P, Result] = typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, Result]]
 
 
 @dataclasses.dataclass(repr=False, slots=True)
 class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
-    handler: Function
+    handler: ABCHandler | Function
     rules: list["ABCRule"]
     final: bool = dataclasses.field(default=True, kw_only=True)
     error_handler: ErrorHandlerT = dataclasses.field(
@@ -45,20 +45,12 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
     def __call__(self) -> Function:
         return self.function
 
-    def __str__(self) -> str:
-        return fullname(self.handler)
-
     def __repr__(self) -> str:
-        return "<{} {!r} with rules={!r}, error_handler={!r}>".format(
-            ("final " if self.final else "") + type(self).__name__,
-            fullname(self.handler),
-            self.rules,
-            self.error_handler,
-        )
+        return fullname(self.handler)
 
     @cached_property
     def required_nodes(self) -> dict[str, IsNode]:
-        return get_nodes(self.function)  # type: ignore
+        return {} if isinstance(self.handler, ABCHandler) else get_nodes(self.handler)
 
     async def run(
         self,
@@ -67,7 +59,7 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, str]:
-        logger.debug("Checking rules and composing nodes for handler `{}`...", self)
+        logger.debug("Checking rules and composing nodes for handler `{!r}`...", self)
 
         temp_ctx = context.copy()
         temp_ctx |= self.preset_context.copy()
@@ -90,7 +82,7 @@ class FuncHandler(ABCHandler, typing.Generic[Function, ErrorHandlerT]):
                 case Error(compose_error):
                     return Error(f"Cannot compose nodes for handler `{self}`, error: {compose_error.message}")
 
-        logger.debug("All good, running handler `{}`", self)
+        logger.debug("All good, running handler `{!r}`", self)
 
         try:
             data_bundle = bundle(

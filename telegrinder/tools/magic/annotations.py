@@ -1,5 +1,4 @@
 import dataclasses
-import inspect
 import sys
 import types
 import typing as _typing
@@ -7,9 +6,8 @@ from functools import cached_property
 
 import typing_extensions as typing
 from fntypes.option import Nothing, Option, Some
-from fntypes.result import Error, Ok, Result
 
-from telegrinder.tools.fullname import fullname
+from telegrinder.tools.global_context.global_context import GlobalContext, ctx_var
 
 type TypeParameter = typing.Union[
     typing.TypeVar,
@@ -20,106 +18,119 @@ type TypeParameter = typing.Union[
     _typing.ParamSpec,
 ]
 type TypeParameters = tuple[TypeParameter, ...]
+type SupportsAnnotations = type[typing.Any] | types.ModuleType | typing.Callable[..., typing.Any]
+
+_CACHED_ANNOTATIONS: typing.Final[GlobalContext] = GlobalContext(
+    "cached_annotations",
+    annotations=ctx_var(default_factory=dict, const=True),
+)
 
 
-@dataclasses.dataclass(frozen=True)
-class AnnotationsEvaluator:
-    obj: typing.Any
+def _cache_annotations(obj: SupportsAnnotations, annotations: dict[str, typing.Any], /) -> None:
+    _CACHED_ANNOTATIONS.annotations[obj] = annotations
+
+
+def _get_cached_annotations(obj: SupportsAnnotations, /) -> dict[str, typing.Any] | None:
+    return _CACHED_ANNOTATIONS.annotations.get(obj)
+
+
+@dataclasses.dataclass
+class Annotations:
+    obj: SupportsAnnotations
 
     @cached_property
-    def obj_dicts(self) -> tuple[dict[str, typing.Any], dict[str, typing.Any]]:
-        return self._get_localns_and_globalns()
+    def forward_ref_parameters(self) -> dict[str, typing.Any]:
+        parameters = dict[str, typing.Any](
+            is_argument=False,
+            is_class=False,
+            module=None,
+        )
 
-    @property
-    def localns(self) -> dict[str, typing.Any]:
-        return self.obj_dicts[0].copy()
-
-    @property
-    def globalns(self) -> dict[str, typing.Any]:
-        return self.obj_dicts[1].copy()
-
-    def evaluate(self, *, ignore_name_errors: bool = False) -> Result[typing.Mapping[str, typing.Any], str]:
-        return self._evaluate(ignore_name_errors=ignore_name_errors)
-
-    @staticmethod
-    def evaluate_annotation(
-        annotation: typing.Any,
-        /,
-        *,
-        ignore_name_errors: bool,
-        type_params: TypeParameters,
-        localns: dict[str, typing.Any],
-        globalns: dict[str, typing.Any],
-    ) -> typing.Any:
-        annotation = _typing._type_convert(annotation)  # type: ignore
-
-        try:
-            return _typing._eval_type(  # type: ignore
-                annotation,
-                globalns,
-                localns,
-                type_params,
+        if isinstance(self.obj, type):
+            parameters["is_class"] = True
+            parameters["module"] = (
+                sys.modules[module] if (module := getattr(self.obj, "__module__", None)) is not None else None
             )
-        except NameError as exception:
-            if ignore_name_errors:
-                return annotation
-            raise exception
+        elif isinstance(self.obj, types.ModuleType):
+            parameters["module"] = self.obj
+        elif callable(self.obj):
+            parameters["is_argument"] = True
 
-    def get_type_parameters(self, /) -> TypeParameters:
-        params = ()
+        return parameters
 
-        if hasattr(self.obj, "__parameters__"):
-            params = self.obj.__parameters__
-        elif hasattr(self.obj, "__type_params__"):
-            params = self.obj.__type_params__
+    @classmethod
+    def from_obj(cls, obj: typing.Any, /) -> typing.Self:
+        if not isinstance(obj, type | types.ModuleType | typing.Callable):
+            obj = type(obj)
 
-        return params
+        return cls(obj)
 
-    def _evaluate(self, *, ignore_name_errors: bool = False) -> Result[dict[str, typing.Any], str]:
-        if not hasattr(self.obj, "__annotations__"):
-            return Error(f"`{fullname(self.obj)}` has no `__annotations__`.")
+    @typing.overload
+    def get(
+        self,
+        *,
+        ignore_failed_evals: bool = True,
+        allow_return_type: bool = False,
+        cache: bool = False,
+    ) -> dict[str, typing.Any | typing.ForwardRef]: ...
 
-        annotations = getattr(self.obj, "__annotations__")
-        if not isinstance(annotations, typing.Mapping):
-            return Error(f"`{fullname(self.obj)}.__annotations__ = {annotations!r}` is not a mapping.")
+    @typing.overload
+    def get(
+        self,
+        *,
+        exclude_forward_refs: typing.Literal[True],
+        ignore_failed_evals: bool = True,
+        allow_return_type: bool = False,
+        cache: bool = False,
+    ) -> dict[str, typing.Any]: ...
 
-        type_params = self.get_type_parameters()
-        return Ok(
-            {
-                name: self.evaluate_annotation(
-                    annotation,
-                    ignore_name_errors=ignore_name_errors,
-                    type_params=type_params,
-                    localns=self.localns,
-                    globalns=self.globalns,
+    def get(
+        self,
+        *,
+        exclude_forward_refs: bool = False,
+        ignore_failed_evals: bool = True,
+        allow_return_type: bool = True,
+        cache: bool = False,
+    ) -> dict[str, typing.Any]:
+        if (cached_annotations := _get_cached_annotations(self.obj)) is not None:
+            return cached_annotations
+
+        annotations = dict[str, typing.Any]()
+        for name, annotation in typing.get_annotations(
+            obj=self.obj,
+            format=typing.Format.FORWARDREF,
+        ).items():
+            if isinstance(annotation, str):
+                annotation = typing.ForwardRef(annotation, **self.forward_ref_parameters)
+
+            if not isinstance(annotation, typing.ForwardRef):
+                annotations[name] = annotation
+                continue
+
+            try:
+                value = typing.evaluate_forward_ref(
+                    forward_ref=annotation,
+                    owner=self.obj,
+                    format=typing.Format.VALUE,
                 )
-                for name, annotation in annotations.items()
-                if name != "return"
-            }
-        )
+            except NameError:
+                if not ignore_failed_evals:
+                    raise
 
-    def _get_module(self) -> types.ModuleType | None:
-        if isinstance(self.obj, types.ModuleType):
-            return self.obj
+                value = annotation
 
-        if hasattr(self.obj, "__module__"):
-            return sys.modules.get(self.obj.__module__, None)
+            if isinstance(value, typing.ForwardRef) and exclude_forward_refs:
+                continue
 
-        return None
+            annotations[name] = value
 
-    def _get_localns_and_globalns(self) -> tuple[dict[str, typing.Any], dict[str, typing.Any]]:
-        if inspect.isfunction(self.obj):
-            return dict(self.obj.__dict__), dict(self.obj.__globals__ or {})
+        if not allow_return_type:
+            annotations.pop("return", None)
 
-        if isinstance(self.obj, types.ModuleType):
-            ls = gs = dict(self.obj.__dict__ or {})
-            return ls, gs
+        if cache:
+            _cache_annotations(self.obj, annotations)
 
-        module = self._get_module()
-        return (
-            dict(getattr(self.obj, "__dict__", {})),
-            {} if module is None else dict(getattr(module, "__dict__", {})),
-        )
+        return annotations
 
 
 def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, typing.Any]]:
@@ -147,4 +158,4 @@ def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, typ
     return Some(generic_alias_args)
 
 
-__all__ = ("AnnotationsEvaluator", "get_generic_parameters")
+__all__ = ("Annotations", "get_generic_parameters")

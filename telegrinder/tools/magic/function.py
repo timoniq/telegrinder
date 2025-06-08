@@ -7,7 +7,7 @@ import types
 import typing
 from functools import cached_property, wraps
 
-from telegrinder.tools.magic.annotations import AnnotationsEvaluator
+from telegrinder.tools.magic.annotations import Annotations
 
 type Function[**P, R] = typing.Callable[P, R]
 type AnyFunction = Function[..., typing.Any]
@@ -179,7 +179,12 @@ def get_func_parameters(func: AnyFunction, /) -> FunctionParameters:
 
 @function_context("resolved_annotations")
 def get_func_annotations(func: AnyFunction, /) -> typing.Mapping[str, typing.Any]:
-    return AnnotationsEvaluator(func).evaluate(ignore_name_errors=True).unwrap()
+    return Annotations(obj=func).get(
+        ignore_failed_evals=True,
+        exclude_forward_refs=True,
+        allow_return_type=False,
+        cache=False,
+    )
 
 
 def bundle[R](

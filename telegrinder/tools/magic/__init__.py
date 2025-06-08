@@ -1,4 +1,4 @@
-from telegrinder.tools.magic.annotations import AnnotationsEvaluator
+from telegrinder.tools.magic.annotations import Annotations, get_generic_parameters
 from telegrinder.tools.magic.dictionary import join_dicts
 from telegrinder.tools.magic.function import (
     Bundle,
@@ -14,7 +14,7 @@ from telegrinder.tools.magic.function import (
 from telegrinder.tools.magic.shortcut import Shortcut, shortcut
 
 __all__ = (
-    "AnnotationsEvaluator",
+    "Annotations",
     "Bundle",
     "Shortcut",
     "bundle",
@@ -22,6 +22,7 @@ __all__ = (
     "get_default_args",
     "get_func_annotations",
     "get_func_parameters",
+    "get_generic_parameters",
     "join_dicts",
     "resolve_arg_names",
     "resolve_kwonly_arg_names",
