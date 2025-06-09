@@ -379,6 +379,8 @@ elif logging_module == "logging":
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(TelegrinderLoggingFormatter())
     logger = logging.getLogger("telegrinder")  # type: ignore
+    for h in logger.handlers:  # type: ignore
+        logger.removeHandler(h)  # type: ignore
     logger.setLevel(logging_level)  # type: ignore
     logger.addHandler(handler)  # type: ignore
     logger = TelegrinderLoggingStyleAdapter(logger)  # type: ignore
