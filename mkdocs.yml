@@ -26,7 +26,6 @@ nav:
     - Formatting: tools/formatting.md
     - Loop Wrapper: tools/loop_wrapper.md
     - Global Context: tools/global_context.md
-    - Error Handler: tools/error_handler.md
 
 theme:
   name: readthedocs
