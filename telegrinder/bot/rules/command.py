@@ -37,7 +37,8 @@ class Command(ABCRule):
         mention_needed_in_chat: bool = False,
         ignore_case: bool = False,
     ) -> None:
-        self.names = [names] if isinstance(names, str) else names
+        names = [names] if isinstance(names, str) else names
+        self.names = [n.lower() for n in names] if ignore_case else names
         self.arguments = arguments
         self.prefixes = prefixes
         self.separator = separator
