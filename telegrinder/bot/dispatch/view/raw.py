@@ -3,7 +3,8 @@ from telegrinder.bot.dispatch.view.base import BaseView
 
 
 class RawEventView(ABCEventRawView, BaseView):
-    pass
+    def __init__(self) -> None:
+        super().__init__()
 
 
 __all__ = ("RawEventView",)

@@ -84,13 +84,11 @@ from .bot import (
     VideoReplyHandler,
     ViewBox,
     WaiterMachine,
-    action,
     register_manager,
 )
 from .client import ABCClient, AiohttpClient
 from .model import Model, field
 from .modules import logger
-from .tools.error_handler import ABCErrorHandler, ErrorHandler
 from .tools.formatting import HTMLFormatter
 from .tools.global_context import ABCGlobalContext, GlobalContext, TelegrinderContext
 from .tools.input_file_directory import InputFileDirectory
@@ -129,7 +127,6 @@ Bot: typing.TypeAlias = Telegrinder
 __all__ = (
     "ABCClient",
     "ABCDispatch",
-    "ABCErrorHandler",
     "ABCGlobalContext",
     "ABCHandler",
     "ABCKeyboard",
@@ -176,7 +173,6 @@ __all__ = (
     "DelayedTask",
     "Dispatch",
     "DocumentReplyHandler",
-    "ErrorHandler",
     "FuncHandler",
     "GlobalContext",
     "HTMLFormatter",
@@ -228,7 +224,6 @@ __all__ = (
     "VideoReplyHandler",
     "ViewBox",
     "WaiterMachine",
-    "action",
     "field",
     "logger",
     "register_manager",

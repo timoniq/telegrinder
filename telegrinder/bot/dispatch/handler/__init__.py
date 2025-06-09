@@ -1,5 +1,4 @@
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
-from telegrinder.bot.dispatch.handler.action import ActionHandler
 from telegrinder.bot.dispatch.handler.audio_reply import AudioReplyHandler
 from telegrinder.bot.dispatch.handler.base import BaseReplyHandler
 from telegrinder.bot.dispatch.handler.document_reply import DocumentReplyHandler
@@ -12,7 +11,6 @@ from telegrinder.bot.dispatch.handler.video_reply import VideoReplyHandler
 
 __all__ = (
     "ABCHandler",
-    "ActionHandler",
     "AudioReplyHandler",
     "BaseReplyHandler",
     "DocumentReplyHandler",

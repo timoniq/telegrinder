@@ -3,18 +3,17 @@ import typing
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
-from telegrinder.bot.dispatch.handler.func import Func, FuncHandler
+from telegrinder.bot.dispatch.handler.func import FuncHandler, Function
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.rules.abc import ABCRule, Always
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope
-from telegrinder.tools.error_handler.error_handler import ABCErrorHandler, ErrorHandler
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
 
-type Handler[**P, R] = ABCHandler | Func[P, R]
+type Func[**P, T] = typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, T]]
 
 
 class BaseView(ABCView):
@@ -50,97 +49,42 @@ class BaseView(ABCView):
         else:
             self._auto_rules = value
 
-    @typing.overload
     @classmethod
-    def to_handler[**P, R](
-        cls,
-        *rules: ABCRule,
-    ) -> typing.Callable[
-        [Handler[P, R]],
-        FuncHandler[Func[P, R], ErrorHandler],
-    ]: ...
-
-    @typing.overload
-    @classmethod
-    def to_handler[**P, ErrorHandlerT: ABCErrorHandler, R](
-        cls,
-        *rules: ABCRule,
-        error_handler: ErrorHandlerT,
-        final: bool = True,
-    ) -> typing.Callable[[Handler[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
-
-    @typing.overload
-    @classmethod
-    def to_handler[**P, Dataclass, ErrorHandlerT: ABCErrorHandler, R](
-        cls,
-        *rules: ABCRule,
-        error_handler: ErrorHandlerT,
-        final: bool = True,
-    ) -> typing.Callable[[Handler[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
-
-    @classmethod
-    def to_handler(
-        cls,
-        *rules: ABCRule,
-        error_handler: ABCErrorHandler | None = None,
-        final: bool = True,
-    ) -> typing.Callable[..., typing.Any]:
-        def wrapper(func: Handler[..., typing.Any]) -> FuncHandler[Func[..., typing.Any], typing.Any]:
+    def to_handler[T: Function](cls, *rules: ABCRule, final: bool = True) -> typing.Callable[[T], FuncHandler[T]]:
+        def wrapper(func: T, /) -> FuncHandler[T]:
             return FuncHandler(
-                func,
-                list(rules),
+                function=func,
+                rules=list(rules),
                 final=final,
-                error_handler=error_handler or ErrorHandler(),
             )
 
         return wrapper
 
-    @typing.overload
-    def __call__[**P, R](
-        self,
-        *rules: ABCRule,
-        final: bool = True,
-    ) -> typing.Callable[
-        [Handler[P, R]],
-        FuncHandler[Func[P, R], ErrorHandler],
-    ]: ...
-
-    @typing.overload
-    def __call__[**P, ErrorHandlerT: ABCErrorHandler, R](
-        self,
-        *rules: ABCRule,
-        error_handler: ErrorHandlerT,
-        final: bool = True,
-    ) -> typing.Callable[[Handler[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
-
-    def __call__[**P, R](
-        self,
-        *rules: ABCRule,
-        error_handler: ABCErrorHandler | None = None,
-        final: bool = True,
-    ) -> typing.Callable[..., typing.Any]:
-        def wrapper(func: typing.Callable[..., typing.Any]) -> typing.Any:
-            func_handler = FuncHandler(
-                handler=func,
-                rules=[self.auto_rules, *rules],
-                final=final,
-                error_handler=error_handler or ErrorHandler(),
+    def __call__[T: Function](self, *rules: ABCRule, final: bool = True) -> typing.Callable[[T], T]:
+        def wrapper(func: T, /) -> T:
+            self.handlers.append(
+                FuncHandler(
+                    function=func,
+                    rules=[self.auto_rules, *rules],
+                    final=final,
+                ),
             )
-            self.handlers.append(func_handler)
-            return func_handler
+            return func
 
         return wrapper
 
-    def register_middleware[Middleware: ABCMiddleware](
+    @typing.overload
+    def register_middleware[T: ABCMiddleware](self, middleware_cls: type[T], /) -> type[T]: ...
+
+    @typing.overload
+    def register_middleware(self, middleware: ABCMiddleware, /) -> None: ...
+
+    def register_middleware(
         self,
-        *args: typing.Any,
-        **kwargs: typing.Any,
-    ) -> typing.Callable[..., type[Middleware]]:  # type: ignore
-        def wrapper(cls: type[Middleware]) -> type[Middleware]:
-            self.middlewares.append(cls(*args, **kwargs))
-            return cls
-
-        return wrapper
+        middleware: type[ABCMiddleware] | ABCMiddleware,
+    ) -> typing.Callable[..., typing.Any] | None:
+        self.middlewares.append(middleware() if isinstance(middleware, type) else middleware)
+        return middleware if isinstance(middleware, type) else None
 
     async def check(self, event: Update) -> bool:
         if self.update_type is not None and event.update_type != self.update_type:

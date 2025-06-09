@@ -9,7 +9,7 @@ from vbml.patcher.abc import ABCPatcher
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.handler.func import ErrorHandlerT, Func, FuncHandler
+from telegrinder.bot.dispatch.handler.func import FuncHandler, Function
 from telegrinder.bot.dispatch.middleware.abc import run_middleware
 from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
 from telegrinder.bot.dispatch.view.abc import ABCView
@@ -25,7 +25,6 @@ from telegrinder.bot.dispatch.view.box import (
     ViewBox,
 )
 from telegrinder.modules import logger
-from telegrinder.tools.error_handler.error_handler import ErrorHandler
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
 
@@ -85,36 +84,16 @@ class Dispatch(
         """Alias `composer` to get `telegrinder.node.composer.Composer` from the global context."""
         return self.global_context.composer.unwrap()
 
-    @typing.overload
-    def handle(
-        self,
-        *rules: "ABCRule",
-        final: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[Func[P, R], ErrorHandler]]: ...
-
-    @typing.overload
-    def handle(
-        self,
-        *rules: "ABCRule",
-        error_handler: ErrorHandlerT,
-        final: bool = True,
-    ) -> typing.Callable[[Func[P, R]], FuncHandler[Func[P, R], ErrorHandlerT]]: ...
-
-    def handle(
-        self,
-        *rules: "ABCRule",
-        error_handler: ErrorHandlerT | None = None,
-        final: bool = True,
-    ) -> typing.Callable[..., typing.Any]:
-        def wrapper(func):
-            handler = FuncHandler(
-                func,
-                list(rules),
-                final=final,
-                error_handler=error_handler or ErrorHandler(),
+    def handle[T: Function](self, *rules: ABCRule, final: bool = True) -> typing.Callable[[T], T]:
+        def wrapper(func: T, /) -> T:
+            self.raw_event.handlers.append(
+                FuncHandler(
+                    function=func,
+                    rules=list(rules),
+                    final=final,
+                ),
             )
-            self.raw_event.handlers.append(handler)
-            return handler
+            return func
 
         return wrapper
 

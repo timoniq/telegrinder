@@ -1,5 +1,4 @@
 from telegrinder.bot.dispatch.abc import ABCDispatch
-from telegrinder.bot.dispatch.action import action
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.dispatch import Dispatch, TelegrinderContext
 from telegrinder.bot.dispatch.handler import (
@@ -92,7 +91,6 @@ __all__ = (
     "VideoReplyHandler",
     "ViewBox",
     "WaiterMachine",
-    "action",
     "check_rule",
     "process_inner",
     "register_manager",

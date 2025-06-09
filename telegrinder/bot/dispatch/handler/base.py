@@ -20,7 +20,7 @@ class BaseReplyHandler(FuncHandler, abc.ABC):
         self.as_reply = as_reply
         self.default_params = default_params
         super().__init__(
-            handler=self.handle,
+            function=self.handle,
             rules=list(rules),
             final=final,
             preset_context=preset_context or Context(),

@@ -103,7 +103,7 @@ class DummyDatabase:
 db = DummyDatabase()
 
 
-@bot.on.message.register_middleware()
+@bot.on.message.register_middleware
 class UserRegistrarMiddleware(ABCMiddleware):
     async def pre(self, event: Message) -> bool:
         if event.from_:

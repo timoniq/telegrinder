@@ -38,19 +38,13 @@ class PostMiddleware(ABCMiddleware):
 async def test_register_middleware():
     view = CustomMessageView()
 
-    @view.register_middleware(one=1, two=2)
+    @view.register_middleware
     class SomeMiddleware(ABCMiddleware):
-        def __init__(self, one: int, two: int) -> None:
-            self.one = one
-            self.two = two
-
         async def pre(self, event: MessageCute) -> None:
             pass
 
     assert len(view.middlewares) == 1
     assert isinstance(view.middlewares[0], SomeMiddleware)
-    assert view.middlewares[0].one == 1
-    assert view.middlewares[0].two == 2
 
 
 @pytest.mark.asyncio()
@@ -63,8 +57,7 @@ async def test_register_func_handler():
 
     assert len(view.handlers) == 1
     assert isinstance(view.handlers[0], FuncHandler)
-    assert view.handlers[0] == func_handler
-    assert view.handlers[0].function == func_handler.function
+    assert view.handlers[0].function == func_handler
 
 
 @pytest.mark.asyncio()

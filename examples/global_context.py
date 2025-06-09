@@ -34,7 +34,7 @@ def formatting_text(*fmt_texts: str) -> dict[str, typing.Any]:
     return params
 
 
-@bot.dispatch.message.register_middleware()
+@bot.dispatch.message.register_middleware
 class UserRegistrarMiddleware(ABCMiddleware):
     def pre(self, event: Message) -> bool:
         if event.from_:

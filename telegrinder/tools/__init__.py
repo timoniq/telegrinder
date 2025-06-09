@@ -1,4 +1,4 @@
-from .aio import (
+from telegrinder.tools.aio import (
     cancel_future,
     maybe_awaitable,
     next_generator,
@@ -6,12 +6,12 @@ from .aio import (
     send_generator_value,
     stop_generator,
 )
-from .callback_data_serilization import (
+from telegrinder.tools.callback_data_serilization import (
     ABCDataSerializer,
     JSONSerializer,
     MsgPackSerializer,
 )
-from .formatting import (
+from telegrinder.tools.formatting import (
     FormatString,
     HTMLFormatter,
     block_quote,
@@ -52,8 +52,8 @@ from .formatting import (
     tg_story_link,
     underline,
 )
-from .fullname import fullname
-from .global_context import (
+from telegrinder.tools.fullname import fullname
+from telegrinder.tools.global_context import (
     ABCGlobalContext,
     CtxVar,
     GlobalContext,
@@ -62,11 +62,11 @@ from .global_context import (
     ctx_var,
     runtime_init,
 )
-from .input_file_directory import InputFileDirectory
-from .lifespan import Lifespan
-from .limited_dict import LimitedDict
-from .loop_wrapper import DelayedTask, LoopWrapper
-from .magic import (
+from telegrinder.tools.input_file_directory import InputFileDirectory
+from telegrinder.tools.lifespan import Lifespan
+from telegrinder.tools.limited_dict import LimitedDict
+from telegrinder.tools.loop_wrapper import DelayedTask, LoopWrapper
+from telegrinder.tools.magic import (
     Annotations,
     Bundle,
     bundle,
@@ -80,8 +80,8 @@ from .magic import (
     resolve_posonly_arg_names,
     shortcut,
 )
-from .parse_mode import ParseMode
-from .singleton import ABCSingleton, ABCSingletonMeta, Singleton, SingletonMeta
+from telegrinder.tools.parse_mode import ParseMode
+from telegrinder.tools.singleton import ABCSingleton, ABCSingletonMeta, Singleton, SingletonMeta
 
 __all__ = (
     "ABCDataSerializer",

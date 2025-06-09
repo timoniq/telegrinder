@@ -11,7 +11,7 @@ global_ctx = GlobalContext(counter=dict[int, int]())  # Let's imagine a dummy co
 logger.set_level("INFO")
 
 
-@bot.on.message.register_middleware()
+@bot.on.message.register_middleware
 class CountMiddleware(ABCMiddleware):
     def pre(self, message: Message, context: Context) -> bool:
         counter = global_ctx.get_value("counter", dict[int, int]).unwrap()
