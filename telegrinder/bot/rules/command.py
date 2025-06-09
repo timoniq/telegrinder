@@ -35,13 +35,16 @@ class Command(ABCRule):
         lazy: bool = False,
         validate_mention: bool = True,
         mention_needed_in_chat: bool = False,
+        ignore_case: bool = False,
     ) -> None:
-        self.names = [names] if isinstance(names, str) else names
+        names = [names] if isinstance(names, str) else names
+        self.names = [n.lower() for n in names] if ignore_case else names
         self.arguments = arguments
         self.prefixes = prefixes
         self.separator = separator
         self.lazy = lazy
         self.validate_mention = validate_mention
+        self.ignore_case = ignore_case
 
         # if true then we'll check for mention when message is from a group
         self.mention_needed_in_chat = mention_needed_in_chat
@@ -101,7 +104,9 @@ class Command(ABCRule):
         if name is None:
             return False
 
-        if name not in self.names:
+        target_name = name.lower() if self.ignore_case else name
+
+        if target_name not in self.names:
             return False
 
         if not command.mention and self.mention_needed_in_chat and chat.type is not ChatType.PRIVATE:
