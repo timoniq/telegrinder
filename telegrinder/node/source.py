@@ -2,6 +2,7 @@ import dataclasses
 import typing
 
 from fntypes.option import Nothing, Option, Some
+from fntypes.variative import Variative
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types import (
@@ -13,7 +14,26 @@ from telegrinder.bot.cute_types import (
 )
 from telegrinder.node.base import ComposeError, DataNode, scalar_node
 from telegrinder.node.polymorphic import Polymorphic, impl
-from telegrinder.types.objects import Chat, Message, User
+from telegrinder.types.objects import (
+    Chat,
+    ChatMemberAdministrator,
+    ChatMemberBanned,
+    ChatMemberLeft,
+    ChatMemberMember,
+    ChatMemberOwner,
+    ChatMemberRestricted,
+    Message,
+    User,
+)
+
+type ChatMemberKind = Variative[
+    ChatMemberOwner,
+    ChatMemberAdministrator,
+    ChatMemberMember,
+    ChatMemberRestricted,
+    ChatMemberLeft,
+    ChatMemberBanned,
+]
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
@@ -43,6 +63,7 @@ class Source(Polymorphic, DataNode):
 
     @impl
     def compose_chat_member_updated(cls, chat_member_updated: ChatMemberUpdatedCute) -> typing.Self:
+        chat_member_updated.old_chat_member
         return cls(
             api=chat_member_updated.api,
             from_user=chat_member_updated.from_user,
@@ -88,6 +109,19 @@ class UserSource:
         return source.from_user
 
 
+@dataclasses.dataclass(kw_only=True, slots=True)
+class ChatMemberSource(DataNode):
+    old: ChatMemberKind
+    new: ChatMemberKind
+
+    @classmethod
+    def compose(cls, chat_member_updated: ChatMemberUpdatedCute) -> typing.Self:
+        return cls(
+            old=chat_member_updated.old_chat_member,
+            new=chat_member_updated.new_chat_member,
+        )
+
+
 @scalar_node
 class UserId:
     @classmethod
@@ -102,4 +136,11 @@ class Locale:
         return user.language_code.expect(ComposeError("User has no language code."))
 
 
-__all__ = ("ChatSource", "Source", "UserId", "UserSource")
+__all__ = (
+    "ChatMemberSource",
+    "ChatSource",
+    "Locale",
+    "Source",
+    "UserId",
+    "UserSource",
+)
