@@ -63,7 +63,6 @@ class Source(Polymorphic, DataNode):
 
     @impl
     def compose_chat_member_updated(cls, chat_member_updated: ChatMemberUpdatedCute) -> typing.Self:
-        chat_member_updated.old_chat_member
         return cls(
             api=chat_member_updated.api,
             from_user=chat_member_updated.from_user,

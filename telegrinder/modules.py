@@ -5,6 +5,23 @@ from choicelib import choice_in_order
 
 from telegrinder.msgspec_utils import json
 
+if typing.TYPE_CHECKING:
+    from logging import Handler as LoggingBasicHandler
+
+    from loguru import AsyncHandlerConfig as LoguruAsyncHandlerConfig  # type: ignore
+    from loguru import BasicHandlerConfig as LoguruBasicHandlerConfig  # type: ignore
+    from loguru import FileHandlerConfig as LoguruFileHandlerConfig  # type: ignore
+    from loguru import HandlerConfig as LoguruHandlerConfig  # type: ignore
+else:
+    LoguruAsyncHandlerConfig = LoguruBasicHandlerConfig = LoguruFileHandlerConfig = dict
+
+type _LoggerHandler = LoggingBasicHandler | LoguruHandlerConfig
+
+
+def _remove_handlers(logger: typing.Any, /) -> None:
+    for hdlr in logger.handlers[:]:
+        logger.removeHandler(hdlr)
+
 
 @typing.runtime_checkable
 class LoggerModule(typing.Protocol):
@@ -34,6 +51,8 @@ class LoggerModule(typing.Protocol):
             ],
             /,
         ) -> None: ...
+
+        def set_new_handler(self, new_handler: _LoggerHandler, /) -> None: ...
 
 
 logger: LoggerModule
@@ -75,7 +94,7 @@ elif logging_module == "structlog":
     import structlog  # type: ignore
 
     LEVELS_COLORS = dict(
-        debug=colorama.Fore.LIGHTGREEN_EX,
+        debug=colorama.Fore.LIGHTBLUE_EX,
         info=colorama.Fore.LIGHTGREEN_EX,
         warning=colorama.Fore.LIGHTYELLOW_EX,
         error=colorama.Fore.LIGHTRED_EX,
@@ -218,10 +237,7 @@ elif logging_module == "structlog":
         handler.addFilter(Filter())
         formatter = logging.Formatter(fmt, datefmt="%Y-%m-%d %H:%M:%S", style="{")
         handler.setFormatter(formatter)
-
-        for h in telegrinder_logger.handlers:
-            telegrinder_logger.removeHandler(h)
-
+        _remove_handlers(telegrinder_logger)
         telegrinder_logger.addHandler(handler)
 
     configure_logging()
@@ -379,8 +395,7 @@ elif logging_module == "logging":
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(TelegrinderLoggingFormatter())
     logger = logging.getLogger("telegrinder")  # type: ignore
-    for h in logger.handlers:  # type: ignore
-        logger.removeHandler(h)  # type: ignore
+    _remove_handlers(logger)
     logger.setLevel(logging_level)  # type: ignore
     logger.addHandler(handler)  # type: ignore
     logger = TelegrinderLoggingStyleAdapter(logger)  # type: ignore
@@ -400,7 +415,7 @@ if asyncio_module == "winloop":
     asyncio.set_event_loop_policy(winloop.EventLoopPolicy())  # type: ignore
 
 
-def _set_logger_level(level, /):
+def _set_logger_level(level: str, /) -> None:
     level = level.upper()
     if logging_module in ("logging", "structlog"):
         import logging
@@ -413,7 +428,30 @@ def _set_logger_level(level, /):
             loguru.logger._core.handlers[handler_id]._levelno = loguru.logger.level(level).no  # type: ignore
 
 
-setattr(logger, "set_level", staticmethod(_set_logger_level))  # type: ignore
+def _set_logger_handler(new_handler: typing.Any, /):
+    if logging_module in ("logging", "structlog"):
+        import logging
+
+        telegrinder_logger = logging.getLogger("telegrinder")
+        _remove_handlers(telegrinder_logger)
+        telegrinder_logger.addHandler(new_handler)
+    elif logging_module == "loguru":
+        import loguru  # type: ignore
+
+        global handler_id  # type: ignore
+        loguru.logger.remove(handler_id)  # type: ignore
+        handler_id = loguru.logger.configure(handlers=(new_handler,))[0]  # type: ignore
 
 
-__all__ = ("LoggerModule", "json", "logger")
+setattr(logger, "set_level", staticmethod(_set_logger_level))
+setattr(logger, "set_new_handler", staticmethod(_set_logger_handler))
+
+
+__all__ = (
+    "LoggerModule",
+    "LoguruAsyncHandlerConfig",
+    "LoguruBasicHandlerConfig",
+    "LoguruFileHandlerConfig",
+    "json",
+    "logger",
+)
