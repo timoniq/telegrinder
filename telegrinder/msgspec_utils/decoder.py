@@ -79,10 +79,13 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any, /) -> Variative:
             *union_types,
         )
 
-    for t in union_types:
-        if not isinstance(obj, dict | list) and is_common_type(t) and type_check(obj, t):
-            return tp(obj)
+    if (
+        not isinstance(obj, dict | list)
+        and any(is_common_type(t) and type_check(obj, t) for t in union_types)
+    ):
+        return tp(obj)
 
+    for t in union_types:
         match convert(obj, t):
             case Ok(value):
                 return tp(value)
