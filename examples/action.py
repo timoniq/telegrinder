@@ -34,8 +34,8 @@ async def handler(message: Message) -> None:
 
 
 @bot.on.error()
-async def handle_not_admin_error(e: Error[IsNotAdminError]) -> str:
-    return str(e.exception)
+async def handle_not_admin_error(message: Message, e: Error[IsNotAdminError]) -> None:
+    await message.answer(str(e.exception))
 
 
 bot.run_forever(skip_updates=True)
