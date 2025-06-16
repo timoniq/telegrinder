@@ -2,7 +2,6 @@ import dataclasses
 import typing
 
 from fntypes.option import Nothing, Option, Some
-from fntypes.variative import Variative
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types import (
@@ -14,26 +13,7 @@ from telegrinder.bot.cute_types import (
 )
 from telegrinder.node.base import ComposeError, DataNode, scalar_node
 from telegrinder.node.polymorphic import Polymorphic, impl
-from telegrinder.types.objects import (
-    Chat,
-    ChatMemberAdministrator,
-    ChatMemberBanned,
-    ChatMemberLeft,
-    ChatMemberMember,
-    ChatMemberOwner,
-    ChatMemberRestricted,
-    Message,
-    User,
-)
-
-type ChatMemberKind = Variative[
-    ChatMemberOwner,
-    ChatMemberAdministrator,
-    ChatMemberMember,
-    ChatMemberRestricted,
-    ChatMemberLeft,
-    ChatMemberBanned,
-]
+from telegrinder.types.objects import Chat, Message, User
 
 
 @dataclasses.dataclass(kw_only=True, slots=True)
@@ -108,19 +88,6 @@ class UserSource:
         return source.from_user
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
-class ChatMemberSource(DataNode):
-    old: ChatMemberKind
-    new: ChatMemberKind
-
-    @classmethod
-    def compose(cls, chat_member_updated: ChatMemberUpdatedCute) -> typing.Self:
-        return cls(
-            old=chat_member_updated.old_chat_member,
-            new=chat_member_updated.new_chat_member,
-        )
-
-
 @scalar_node
 class UserId:
     @classmethod
@@ -136,7 +103,6 @@ class Locale:
 
 
 __all__ = (
-    "ChatMemberSource",
     "ChatSource",
     "Locale",
     "Source",

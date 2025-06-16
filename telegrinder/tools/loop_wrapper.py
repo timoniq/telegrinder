@@ -246,6 +246,9 @@ class LoopWrapper(Singleton, Final):
         return self
 
     def limit(self, value: int, /) -> typing.Self:
+        if self._limit is not None:
+            raise ValueError("Cannot reset limit value.")
+
         self._limit = value
         self._semaphore = asyncio.Semaphore(value)
         return self

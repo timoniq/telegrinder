@@ -358,7 +358,7 @@ elif logging_module == "logging":
             ).format(record)
 
     class LogMessage:
-        def __init__(self, fmt: typing.Any, args: typing.Any, kwargs: typing.Any) -> None:
+        def __init__(self, fmt: str, args: typing.Any, kwargs: typing.Any) -> None:
             self.fmt = fmt
             self.args = args
             self.kwargs = kwargs
@@ -367,6 +367,8 @@ elif logging_module == "logging":
             return self.fmt.format(*self.args, **self.kwargs)
 
     class TelegrinderLoggingStyleAdapter(logging.LoggerAdapter):
+        logger: logging.Logger
+
         def __init__(
             self,
             logger: logging.Logger,
@@ -375,21 +377,23 @@ elif logging_module == "logging":
             super().__init__(logger, extra=extra)
             self.log_arg_names = frozenset(inspect.getfullargspec(self.logger._log).args[1:])
 
-        def log(self, level: int, msg: object, *args: typing.Any, **kwargs: typing.Any) -> None:
+        def log(self, level: int, msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None:
             if self.isEnabledFor(level):
-                kwargs.setdefault("stacklevel", 2)
                 msg, args, kwargs = self.proc(msg, args, kwargs)
-                self.logger._log(level, msg, args, **kwargs)  # type: ignore
+                self.logger._log(level, msg, args, **kwargs)
 
         def proc(
             self,
             msg: typing.Any,
             args: tuple[typing.Any, ...],
             kwargs: dict[str, typing.Any],
-        ) -> tuple[LogMessage | typing.Any, tuple[typing.Any, ...], dict[str, typing.Any]]:
+        ) -> tuple[typing.Any, tuple[typing.Any, ...], dict[str, typing.Any]]:
+            kwargs.setdefault("stacklevel", 2)
+
             if isinstance(msg, str):
                 msg = LogMessage(msg, args, kwargs)
                 args = tuple()
+
             return msg, args, {name: kwargs[name] for name in self.log_arg_names if name in kwargs}
 
     handler = logging.StreamHandler(sys.stderr)
@@ -400,6 +404,7 @@ elif logging_module == "logging":
     logger.addHandler(handler)  # type: ignore
     logger = TelegrinderLoggingStyleAdapter(logger)  # type: ignore
 
+
 if asyncio_module == "uvloop":
     import asyncio
 
@@ -407,7 +412,7 @@ if asyncio_module == "uvloop":
 
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())  # type: ignore
 
-if asyncio_module == "winloop":
+elif asyncio_module == "winloop":
     import asyncio
 
     import winloop  # type: ignore
@@ -428,7 +433,7 @@ def _set_logger_level(level: str, /) -> None:
             loguru.logger._core.handlers[handler_id]._levelno = loguru.logger.level(level).no  # type: ignore
 
 
-def _set_logger_handler(new_handler: typing.Any, /):
+def _set_logger_handler(new_handler: typing.Any, /) -> None:
     if logging_module in ("logging", "structlog"):
         import logging
 

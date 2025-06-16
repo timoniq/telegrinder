@@ -111,7 +111,7 @@ async def hello(message: Message):
 async def freeze_handler(message: Message):
     msg = (
         await message.answer(
-            "Well ok freezing",
+            text="Well ok freezing",
             reply_markup=InlineKeyboard().add(InlineButton("Unfreeze", callback_data="unfreeze")).get_markup(),
         )
     ).unwrap()

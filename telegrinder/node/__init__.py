@@ -54,7 +54,7 @@ from .scope import (
     per_call,
     per_event,
 )
-from .source import ChatMemberSource, ChatSource, Locale, Source, UserId, UserSource
+from .source import ChatSource, Locale, Source, UserId, UserSource
 from .text import Text, TextInteger, TextLiteral
 from .tools import generate_node
 from .utility import TypeArgs
@@ -66,7 +66,6 @@ __all__ = (
     "Audio",
     "CallbackQueryData",
     "CallbackQueryDataJson",
-    "ChatMemberSource",
     "ChatSource",
     "CommandInfo",
     "Composable",
