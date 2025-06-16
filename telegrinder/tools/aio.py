@@ -1,6 +1,7 @@
 import asyncio
-import typing
 from inspect import isasyncgen, isawaitable
+
+import typing_extensions as typing
 
 type Generator[Yield, Send, Return] = typing.AsyncGenerator[Yield, Send] | typing.Generator[Yield, Send, Return]
 
@@ -33,7 +34,9 @@ async def send_generator_value[Yield, Send](
 
 
 async def stop_generator[Send, Return](
-    generator: Generator[typing.Any, Send, Return], with_value: Send | None = None, /
+    generator: Generator[typing.Any, Send, Return],
+    with_value: Send | None = None,
+    /,
 ) -> Return | None:
     try:
         await send_generator_value(generator, with_value)

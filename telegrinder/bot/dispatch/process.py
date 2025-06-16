@@ -79,7 +79,7 @@ async def process_inner(
         type(view).__name__,
         "No found corresponded handlers."
         if not found_handlers
-        else f"Handler{'s' if len(found_handlers) > 1 else ''}: {', '.join(f"`{x!r}`" for x in found_handlers)}",
+        else f"Handler{'s' if len(found_handlers) > 1 else ''}: {', '.join(f'`{x!r}`' for x in found_handlers)}",
     )
     return bool(found_handlers)
 
