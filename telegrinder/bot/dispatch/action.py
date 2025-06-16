@@ -30,7 +30,11 @@ type ActionFunctionResult = typing.Union[
 
 @unwrapping
 async def run_action_function[T: Handler](
-    func_handler: FuncHandler[T], function: ActionFunction, api: API, update: Update, context: Context
+    func_handler: FuncHandler[T],
+    function: ActionFunction,
+    api: API,
+    update: Update,
+    context: Context,
 ) -> Result[typing.Any, str]:
     data = {API: api, Update: update}
     node_col = (
