@@ -54,7 +54,7 @@ from .scope import (
     per_call,
     per_event,
 )
-from .source import ChatSource, Locale, Source, UserId, UserSource
+from .source import ChatId, ChatSource, Locale, Source, UserId, UserSource
 from .text import Text, TextInteger, TextLiteral
 from .tools import generate_node
 from .utility import TypeArgs
@@ -67,6 +67,7 @@ __all__ = (
     "CallbackQueryData",
     "CallbackQueryDataJson",
     "ChatSource",
+    "ChatId",
     "CommandInfo",
     "Composable",
     "ComposeError",

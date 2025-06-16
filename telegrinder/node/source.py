@@ -89,6 +89,13 @@ class UserSource:
 
 
 @scalar_node
+class ChatId:
+    @classmethod
+    def compose(cls, chat: ChatSource) -> int:
+        return chat.id
+
+
+@scalar_node
 class UserId:
     @classmethod
     def compose(cls, user: UserSource) -> int:
@@ -104,6 +111,7 @@ class Locale:
 
 __all__ = (
     "ChatSource",
+    "ChatId",
     "Locale",
     "Source",
     "UserId",

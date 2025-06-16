@@ -17,7 +17,7 @@ from telegrinder.tools.aio import maybe_awaitable, next_generator, stop_generato
 from telegrinder.tools.magic.function import bundle
 from telegrinder.types.objects import Update
 
-type On = ABCRule
+type When = ABCRule
 type Handler = typing.Callable[..., typing.Any]
 type ActionFunction = typing.Callable[..., ActionFunctionResult]
 type ActionFunctionResult = typing.Union[
@@ -70,17 +70,19 @@ async def run_action_function[T: Handler](
 def action[T: Handler](
     function: ActionFunction,
     *,
-    on: On | None = None,
+    when: When | None = None,
 ) -> typing.Callable[[T], T]:
     def decorator(handler: T, /) -> T:
         func_handler = FuncHandler(function=handler)
 
         async def action_wrapper(api: API, update: Update, context: Context) -> typing.Any:
-            if on and not await check_rule(api, on, update, context):
-                logger.debug("On action rule `{!r}` failed.", on)
-                return None
+            if when and not await check_rule(api, when, update, context):
+                logger.debug("When action rule `{!r}` failed.", when)
+                result = await func_handler.run(api, update, context)
+            else:
+                result = await run_action_function(func_handler, function, api, update, context)
 
-            match await run_action_function(func_handler, function, api, update, context):
+            match result:
                 case Ok(value):
                     return value
                 case Error(error):

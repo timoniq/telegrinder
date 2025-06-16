@@ -57,9 +57,7 @@ class ABCRule(ABC):
     def __ior__(self, other: object, /) -> "OrRule":
         return self.__or__(other)
 
-    def __invert__(self, other: object, /) -> "NotRule":
-        if not isinstance(other, ABCRule):
-            return NotImplemented
+    def __invert__(self) -> "NotRule":
         return NotRule(self)
 
     def __repr__(self) -> str:

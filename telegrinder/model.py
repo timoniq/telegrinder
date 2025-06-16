@@ -182,4 +182,4 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         return self._to_dict("model_as_full_dict", exclude_fields or set(), full=True)
 
 
-__all__ = ("MODEL_CONFIG", "Model", "UNSET", "field")
+__all__ = ("MODEL_CONFIG", "Model", "UNSET", "field", "is_none")
