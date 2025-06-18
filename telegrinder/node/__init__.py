@@ -32,6 +32,7 @@ from .callback_query import (
     CallbackQueryDataJson,
     Field,
 )
+from .collection import Collection
 from .command import CommandInfo
 from .composer import NodeCollection, NodeSession, compose_node, compose_nodes
 from .container import ContainerNode
@@ -66,8 +67,9 @@ __all__ = (
     "Audio",
     "CallbackQueryData",
     "CallbackQueryDataJson",
-    "ChatSource",
     "ChatId",
+    "ChatSource",
+    "Collection",
     "CommandInfo",
     "Composable",
     "ComposeError",

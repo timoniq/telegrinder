@@ -58,6 +58,10 @@ class Annotations:
 
         return parameters
 
+    @cached_property
+    def generic_parameters(self) -> Option[dict[TypeParameter, typing.Any]]:
+        return get_generic_parameters(self.obj)
+
     @classmethod
     def from_obj(cls, obj: typing.Any, /) -> typing.Self:
         if not isinstance(obj, type | types.ModuleType | typing.Callable):

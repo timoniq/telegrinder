@@ -110,8 +110,8 @@ class Locale:
 
 
 __all__ = (
-    "ChatSource",
     "ChatId",
+    "ChatSource",
     "Locale",
     "Source",
     "UserId",
