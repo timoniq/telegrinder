@@ -75,7 +75,7 @@ async def hey_handler():
 
 Done! Here we just made a simple handler to catch "hey" message from user with user id = `MY_ID`.
 
-I was also quite lazy and decided to use the telegrinder' syntaxic sugar which is that you can simply return a string from the handler function and it will used as an answer.
+I was also quite lazy and decided to use the telegrinder syntaxic sugar which is that you can simply return a string from the handler function and it will used as an answer.
 
 Here when we passed multiple rules into the decorator they are BOTH required to hold in order for the handler to run.
 
