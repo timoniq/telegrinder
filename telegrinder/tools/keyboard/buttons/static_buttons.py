@@ -5,7 +5,7 @@ import typing
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.payload import PayloadJsonEqRule, PayloadMarkupRule, PayloadModelRule
 from telegrinder.bot.rules.text import Text
-from telegrinder.tools.callback_data_serilization import ABCDataSerializer
+from telegrinder.tools.callback_data_serialization import ABCDataSerializer
 from telegrinder.tools.keyboard.buttons.base import BaseStaticButton
 from telegrinder.tools.keyboard.buttons.buttons import Button, InlineButton
 

@@ -7,7 +7,7 @@ import typing
 import msgspec
 
 from telegrinder.msgspec_utils import encoder
-from telegrinder.tools.callback_data_serilization import ABCDataSerializer, JSONSerializer
+from telegrinder.tools.callback_data_serialization import ABCDataSerializer, JSONSerializer
 from telegrinder.tools.keyboard.buttons.base import BaseButton
 from telegrinder.types.objects import (
     CallbackGame,

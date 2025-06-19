@@ -10,7 +10,7 @@ import msgspec
 from fntypes.result import Error, Ok, Result
 
 from telegrinder.msgspec_utils import decoder, encoder, get_class_annotations
-from telegrinder.tools.callback_data_serilization.abc import ABCDataSerializer, ModelType
+from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
 
 DESERIALIZE_EXCEPTIONS: typing.Final[set[type[BaseException]]] = {
     msgspec.DecodeError,

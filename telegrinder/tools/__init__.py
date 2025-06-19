@@ -6,7 +6,7 @@ from telegrinder.tools.aio import (
     send_generator_value,
     stop_generator,
 )
-from telegrinder.tools.callback_data_serilization import (
+from telegrinder.tools.callback_data_serialization import (
     ABCDataSerializer,
     JSONSerializer,
     MsgPackSerializer,

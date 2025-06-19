@@ -17,7 +17,7 @@ from telegrinder.rules import (
     PayloadModelRule,
     Text,
 )
-from telegrinder.tools.callback_data_serilization import MsgPackSerializer
+from telegrinder.tools.callback_data_serialization import MsgPackSerializer
 
 logger.set_level("DEBUG")
 api = API(token=Token.from_env())
