@@ -1,4 +1,5 @@
 import typing
+from collections import deque
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
@@ -18,8 +19,8 @@ type Func[**P, T] = typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, 
 
 class BaseView(ABCView):
     def __init__(self, update_type: UpdateType | None = None) -> None:
-        self.handlers: list[ABCHandler] = []
-        self.middlewares: list[ABCMiddleware] = []
+        self.handlers: deque[ABCHandler] = deque()
+        self.middlewares: deque[ABCMiddleware] = deque()
         self.return_manager: ABCReturnManager | None = None
         self.update_type = update_type
         self._auto_rules: ABCRule = Always()

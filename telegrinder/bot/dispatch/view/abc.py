@@ -1,5 +1,6 @@
 import typing
 from abc import ABC, abstractmethod
+from collections import deque
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
@@ -30,7 +31,7 @@ class ABCView(ABC):
 
 
 class ABCEventRawView(ABCView, ABC):
-    handlers: list[ABCHandler]
+    handlers: deque[ABCHandler]
 
 
 __all__ = ("ABCEventRawView", "ABCView")

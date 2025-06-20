@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections import deque
 from functools import cached_property
 
 import typing_extensions as typing
@@ -14,7 +15,7 @@ type CheckResult = bool | typing.Awaitable[bool]
 
 
 class ABCRule(ABC):
-    requires: list["ABCRule"] = []
+    requires: deque["ABCRule"] = deque()
 
     if typing.TYPE_CHECKING:
 
@@ -30,7 +31,7 @@ class ABCRule(ABC):
     def __init_subclass__(
         cls,
         *,
-        requires: list["ABCRule"] | None = None,
+        requires: typing.Iterable["ABCRule"] | None = None,
     ) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
         requirements = list[ABCRule]()
@@ -39,7 +40,7 @@ class ABCRule(ABC):
                 requirements.extend(base.requires or ())
 
         requirements.extend(requires or ())
-        cls.requires = list(dict.fromkeys(requirements))
+        cls.requires = deque(dict.fromkeys(requirements))
 
     def __and__(self, other: object, /) -> "AndRule":
         if not isinstance(other, ABCRule):

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import typing
+from collections import deque
 from functools import cached_property
 
 from fntypes.result import Error, Ok, Result
@@ -26,9 +27,12 @@ type Function = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, ty
 @dataclasses.dataclass(repr=False, slots=True)
 class FuncHandler[T: Function](ABCHandler):
     function: T
-    rules: list[ABCRule] = dataclasses.field(default_factory=lambda: [])
+    rules: dataclasses.InitVar[typing.Iterable[ABCRule] | None] = None
     final: bool = dataclasses.field(default=True, kw_only=True)
     preset_context: Context = dataclasses.field(default_factory=lambda: Context(), kw_only=True)
+
+    def __post_init__(self, rules: typing.Iterable[ABCRule] | None) -> None:
+        self.check_rules = deque(rules or ())
 
     @property
     def __call__(self) -> Function:
@@ -54,7 +58,7 @@ class FuncHandler[T: Function](ABCHandler):
         temp_ctx |= self.preset_context.copy()
 
         if check:
-            for rule in self.rules:
+            for rule in self.check_rules:
                 if not await check_rule(api, rule, event, temp_ctx):
                     return Error(f"Rule {rule!r} failed.")
 
