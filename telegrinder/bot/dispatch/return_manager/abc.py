@@ -74,15 +74,17 @@ class Manager:
                     )
                     return None
 
-        data_bundle = bundle(self.function, {**data, Context: context.copy()}, start_idx=1, typebundle=True)
+        temp_ctx = context.copy()
         try:
-            await maybe_awaitable(
-                bundle(
-                    self.function,
-                    context | ({} if node_col is None else node_col.values),
-                )(response, *data_bundle.args, **data_bundle.kwargs)
+            bundle_function = bundle(self.function, {**data, Context: temp_ctx}, typebundle=True)
+            bundle_function &= bundle(
+                self.function,
+                context | ({} if node_col is None else node_col.values),
             )
+            await maybe_awaitable(bundle_function(response))
         finally:
+            context |= temp_ctx
+
             if node_col is not None:
                 await node_col.close_all()
 

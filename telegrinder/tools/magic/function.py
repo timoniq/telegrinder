@@ -78,7 +78,24 @@ class Bundle[R]:
         )
 
     def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> R:
-        return self.function(*self.args, *args, **self.kwargs, **kwargs)
+        return self.function(*args, *self.args, **kwargs, **self.kwargs)
+
+    def __and__(self, other: object, /) -> typing.Self:
+        if not isinstance(other, Bundle):
+            return NotImplemented
+
+        if self.function != other.function:
+            raise ValueError(
+                f"Cannot merge contexts because bundle {other!r} is intended for a different function.",
+            )
+
+        return dataclasses.replace(
+            self,
+            context=types.MappingProxyType(mapping=self.context | other.context),
+        )
+
+    def __iand__(self, other: object, /) -> typing.Self:
+        return self.__and__(other)
 
 
 def function_context[**P, R](key: str, /) -> Function[[Function[P, R]], Function[P, R]]:
@@ -205,11 +222,10 @@ def bundle[R](
         )
 
     kwargs = {_to_str(k): v for k, v in context.items()}
-    if bundle_kwargs and "var_star_kwargs" in get_func_parameters(function):
-        return Bundle.from_context(function, kwargs, start_idx=start_idx)
+    if not bundle_kwargs or "var_star_kwargs" not in get_func_parameters(function):
+        names = resolve_arg_names(function, start_idx=start_idx, exclude={"cls", "self"})
+        kwargs = {k: v for k, v in kwargs.items() if k in names}
 
-    names = resolve_arg_names(function, start_idx=start_idx, exclude={"cls", "self"})
-    kwargs = {k: v for k, v in kwargs.items() if k in names}
     return Bundle.from_context(
         function,
         kwargs if omit_defaults else get_default_args(function) | kwargs,

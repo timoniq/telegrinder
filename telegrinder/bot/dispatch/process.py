@@ -28,10 +28,10 @@ async def process_inner(
     ctx[CONTEXT_STORE_NODES_KEY] = {}  # For per-event shared nodes
 
     for m in view.middlewares:
-        if m.pre is ABCMiddleware.pre:
-            continue
-
-        if await run_middleware(m.pre, api, event, ctx, required_nodes=m.pre_required_nodes) is False:
+        if (
+            type(m).pre is not ABCMiddleware.pre
+            and await run_middleware(m.pre, api, event, ctx, required_nodes=m.pre_required_nodes) is False
+        ):
             logger.info(
                 "Update(id={}, type={!r}) processed with view `{}`. Pre-middleware `{}` raised failure.",
                 event.update_id,
@@ -63,7 +63,7 @@ async def process_inner(
     ctx.responses = responses
 
     for m in view.middlewares:
-        if m.post is not ABCMiddleware.post:
+        if type(m).post is not ABCMiddleware.post:
             await run_middleware(
                 m.post,
                 api,
@@ -118,13 +118,9 @@ async def check_rule(
 
     # Running check
     try:
-        data_bundle = bundle(rule.check, data, typebundle=True)
-        return await maybe_awaitable(
-            bundle(rule.check, ctx | ({} if node_col is None else node_col.values))(
-                *data_bundle.args,
-                **data_bundle.kwargs,
-            ),
-        )
+        bundle_check = bundle(rule.check, data, typebundle=True)
+        bundle_check &= bundle(rule.check, ctx | ({} if node_col is None else node_col.values))
+        return await maybe_awaitable(bundle_check())
     finally:
         # Closing node sessions if there are any
         if node_col is not None:

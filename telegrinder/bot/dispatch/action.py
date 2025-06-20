@@ -49,22 +49,27 @@ async def run_action_function[T: Handler](
         .unwrap()
     )
 
-    data_bundle = bundle(function, {Context: context.copy(), **data}, start_idx=0, typebundle=True)
-    func_bundle = bundle(
+    temp_ctx = context.copy()
+    bundle_function = bundle(function, {Context: temp_ctx, **data}, start_idx=0, typebundle=True)
+    bundle_function &= bundle(
         function,
         context | ({} if node_col is None else node_col.values),
         start_idx=0,
     )
-    result = func_bundle(*data_bundle.args, **data_bundle.kwargs)
+    result = bundle_function()
 
-    if inspect.isasyncgen(result) or inspect.isgenerator(result):
-        value = await next_generator(result)
-        handler_result = await func_handler.run(api, update, context)
-        await stop_generator(result, value)
-        return handler_result
+    try:
+        if inspect.isasyncgen(result) or inspect.isgenerator(result):
+            value = await next_generator(result)
+            handler_result = await func_handler.run(api, update, context)
+            await stop_generator(result, value)
+            return handler_result
 
-    await maybe_awaitable(result)
-    return await func_handler.run(api, update, context)
+        await maybe_awaitable(result)
+        return await func_handler.run(api, update, context)
+    finally:
+        context |= temp_ctx
+        await node_col.close_all()
 
 
 def action[T: Handler](

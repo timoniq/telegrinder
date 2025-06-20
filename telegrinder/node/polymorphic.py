@@ -76,10 +76,13 @@ class Polymorphic(Node):
                 await node_collection.close_all()
                 return res.value
 
-            impl_bundle = bundle(impl_, data, typebundle=True)
-
             try:
-                result = await maybe_awaitable(impl_bundle(cls, **node_collection.values))
+                result = await maybe_awaitable(
+                    bundle(impl_, data, typebundle=True)(
+                        cls,
+                        **node_collection.values,
+                    ),
+                )
             except ComposeError as compose_error:
                 logger.debug(
                     "Failed to compose morph impl `{}`, error: {!r}",

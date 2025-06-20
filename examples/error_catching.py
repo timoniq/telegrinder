@@ -21,7 +21,7 @@ async def woops_handler(m: Message):
 
 
 @bot.on.error(IsUser())
-async def runtime_error_handler(err: Error[RuntimeError, ValueError], m: Message):
+async def error_handler(err: Error[RuntimeError, ValueError], m: Message):
     await m.answer(f"okay..( Something happened: {err.exception}")
 
 

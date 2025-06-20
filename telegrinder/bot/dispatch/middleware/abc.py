@@ -41,13 +41,10 @@ async def run_middleware(
                 )
                 return False
 
-    method_bundle = bundle(method, ctx)
-    method_type_bundle = bundle(method, data, typebundle=True)
-    args = method_type_bundle.args
-    kwargs = method_type_bundle.kwargs | (node_col.values if node_col is not None else {})
-
     try:
-        return await maybe_awaitable(method_bundle(*args, **kwargs))
+        bundle_method = bundle(method, ctx | ({} if node_col is None else node_col.values))
+        bundle_method &= bundle(method, data, typebundle=True)
+        return await maybe_awaitable(bundle_method())
     finally:
         if node_col is not None:
             await node_col.close_all()
@@ -56,11 +53,12 @@ async def run_middleware(
 class ABCMiddleware(ABC):
     def __repr__(self) -> str:
         name = f"middleware {type(self).__name__!r}"
+        middleware_class = type(self)
 
-        if self.post is not ABCMiddleware.post:
+        if middleware_class.post is not ABCMiddleware.post:
             name = "post-" + name
 
-        if self.pre is not ABCMiddleware.pre:
+        if middleware_class.pre is not ABCMiddleware.pre:
             name = "pre-" + name
 
         return f"<{name}>"

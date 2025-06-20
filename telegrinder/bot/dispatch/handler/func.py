@@ -63,10 +63,11 @@ class FuncHandler[T: Function](ABCHandler):
                     return Error(f"Rule {rule!r} failed.")
 
         context |= temp_ctx
+        data = {Update: event, API: api}
         node_col = None
 
         if self.required_nodes:
-            match await compose_nodes(self.required_nodes, context, data={Update: event, API: api}):
+            match await compose_nodes(self.required_nodes, context, data=data):
                 case Ok(value):
                     node_col = value
                 case Error(compose_error):
@@ -74,20 +75,21 @@ class FuncHandler[T: Function](ABCHandler):
 
         logger.debug("All good, running handler `{!r}`", self)
 
+        temp_ctx = context.copy()
         try:
-            data_bundle = bundle(
+            bundle_function = bundle(
                 self.function,
-                {API: api, Update: event, Context: context.copy()},
+                {**data, Context: temp_ctx},
                 typebundle=True,
                 start_idx=0,
             )
-            return Ok(
-                await bundle(self.function, context | ({} if node_col is None else node_col.values), start_idx=0)(
-                    *data_bundle.args,
-                    **data_bundle.kwargs,
-                ),
+            bundle_function &= bundle(
+                self.function, context | ({} if node_col is None else node_col.values), start_idx=0
             )
+            return Ok(await bundle_function())
         finally:
+            context |= temp_ctx
+
             if node_col is not None:
                 await node_col.close_all()
 

@@ -10,7 +10,6 @@ from telegrinder.bot.dispatch.process import process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.rules.abc import ABCRule, Always
-from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
 
@@ -93,16 +92,12 @@ class BaseView(ABCView):
         return bool(self.handlers or self.middlewares)
 
     async def process(self, event: Update, api: API, context: Context) -> bool:
-        try:
-            return await process_inner(
-                api,
-                event,
-                context,
-                self,
-            )
-        finally:
-            for session in context.get(CONTEXT_STORE_NODES_KEY, {}).values():
-                await session.close(scopes=(NodeScope.PER_EVENT,))
+        return await process_inner(
+            api,
+            event,
+            context,
+            self,
+        )
 
     def load(self, external: typing.Self, /) -> None:
         self.handlers.extend(external.handlers)

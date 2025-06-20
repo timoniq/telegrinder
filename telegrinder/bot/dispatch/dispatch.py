@@ -25,6 +25,7 @@ from telegrinder.bot.dispatch.view.box import (
     ViewBox,
 )
 from telegrinder.modules import logger
+from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
 
@@ -132,6 +133,9 @@ class Dispatch(
                 except BaseException as exception:
                     if not await self.error.process(event, api, context.add_exception_update(exception)):
                         raise exception
+                finally:
+                    for session in context.get(CONTEXT_STORE_NODES_KEY, {}).values():
+                        await session.close(scopes=(NodeScope.PER_EVENT,))
 
         await run_middleware(
             self.global_middleware.post,

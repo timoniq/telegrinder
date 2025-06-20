@@ -27,6 +27,7 @@ type Impls = dict[type[typing.Any], type[typing.Any]]
 CONTEXT_STORE_NODES_KEY: typing.Final[str] = "_node_ctx"
 GLOBAL_VALUE_KEY: typing.Final[str] = "_value"
 NODE_SCOPE_KEY: typing.Final[str] = "scope"
+TELEGRINDER_CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
 
 
 def get_scope(node: IsNode, /) -> NodeScope | None:
@@ -53,18 +54,15 @@ async def compose_node(
     impls: Impls | None = None,
 ) -> "NodeSession":
     subnodes = node.get_subnodes()
-    compose_bundle = bundle(node.compose, join_dicts(subnodes, linked), bundle_kwargs=True)
-    kwargs = compose_bundle.kwargs.copy()
+    bundle_compose = bundle(node.compose, join_dicts(subnodes, linked), bundle_kwargs=True)
 
     if data:
-        compose_type_bundle = bundle(node.compose, data, typebundle=True)
-        kwargs |= compose_type_bundle.kwargs
+        bundle_compose &= bundle(node.compose, data, typebundle=True)
 
     if impls:
-        compose_impls_bundle = bundle(node.compose, get_impls(node.compose, impls))
-        kwargs |= compose_impls_bundle.kwargs
+        bundle_compose &= bundle(node.compose, get_impls(node.compose, impls))
 
-    compose_result = node.compose(**kwargs)
+    compose_result = bundle_compose()
     if node.is_generator():
         generator = typing.cast("AsyncGenerator", compose_result)
         value = await generator.asend(None)
@@ -81,7 +79,7 @@ async def compose_nodes(
     data: dict[type[typing.Any], typing.Any] | None = None,
     impls: Impls | None = None,
 ) -> Result["NodeCollection", ComposeError]:
-    impls = impls or CONTEXT.composer.unwrap().selected_impls
+    impls = impls or TELEGRINDER_CONTEXT.composer.unwrap().selected_impls
     data = {Context: ctx} | (data or {})
     parent_nodes = dict[IsNode, NodeSession]()
     event_nodes: dict[IsNode, NodeSession] = ctx.get_or_set(CONTEXT_STORE_NODES_KEY, {})
@@ -219,8 +217,7 @@ class Composer:
         return await compose_nodes(nodes, ctx, data, self.selected_impls)
 
 
-CONTEXT = TelegrinderContext()
-CONTEXT.composer = Some(Composer())
+TELEGRINDER_CONTEXT.composer = Some(Composer())
 
 
 __all__ = ("NodeCollection", "NodeSession", "compose_node", "compose_nodes")

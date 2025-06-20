@@ -97,9 +97,9 @@ async def reverse(message: Message, text: str):
 #   1) declare patterns ordered by their broadness
 #   2) don't forget to set default value for optional arguments
 @bot.on.message(Markup(["/predict", "/predict <thing>"]))
-async def predict(message: Message, thing: str = "it"):
+async def predict(thing: str = "it"):
     probability_percent = random.randint(0, 100)
-    await message.answer(f"I predict the probability {thing} will happen is {probability_percent}%")
+    return f"I predict the probability {thing} will happen is {probability_percent}%"
 
 
 @bot.on.message(FuzzyText("hello"))
