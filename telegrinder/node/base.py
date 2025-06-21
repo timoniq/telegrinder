@@ -3,7 +3,9 @@ from __future__ import annotations
 import abc
 import inspect
 from collections import deque
-from types import AsyncGeneratorType, CodeType, resolve_bases
+from functools import reduce
+from itertools import islice
+from types import AsyncGeneratorType, CodeType, NoneType, UnionType, resolve_bases
 
 import typing_extensions as typing
 
@@ -31,6 +33,8 @@ T = typing.TypeVar("T", default=typing.Any)
 ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerator[T, None]
 
 _NODEFAULT = object()
+_NONES = {None, NoneType}
+_UNION_TYPES = {typing.Union, UnionType}
 UNWRAPPED_NODE_KEY: typing.Final[str] = "__unwrapped_node__"
 
 
@@ -49,6 +53,30 @@ def as_node(
     *,
     raise_exception: typing.Literal[False],
 ) -> IsNode | None: ...
+
+
+def union_as_node(union: UnionType, /) -> IsNode | None:
+    from telegrinder.node.either import _Either
+
+    args = typing.get_args(union)
+    if not args:
+        return None
+
+    plain, opt = [t for t in args if t not in _NONES], any(t in _NONES for t in args)
+    if not plain:
+        return None
+
+    nodes: tuple[IsNode, ...] | None = as_node(*plain, raise_exception=False)
+    if nodes is None:
+        return None
+
+    nodes = (nodes,) if not isinstance(nodes, tuple) else nodes
+    node = reduce(
+        lambda left, right: _Either[left, right],
+        islice(nodes, 1, None),
+        nodes[0],  # type: ignore
+    )
+    return _Either[node] if opt else node
 
 
 @typing.overload
@@ -71,6 +99,13 @@ def as_node(
     for maybe_node in maybe_nodes:
         if isinstance(maybe_node, typing.TypeAliasType):
             maybe_node = maybe_node.__value__
+
+        if (typing.get_origin(maybe_node) or maybe_node) in _UNION_TYPES and (
+            maybe_node := union_as_node(union := maybe_node)
+        ) is None:
+            if not raise_exception:
+                return None
+            raise TypeError(f"Union `{union!r}` doesn't contain all types of Node.")
 
         if not is_node_type(orig := typing.get_origin(maybe_node) or maybe_node):
             if not hasattr(orig, "as_node"):

@@ -56,7 +56,7 @@ from .scope import (
     per_event,
 )
 from .source import ChatId, ChatSource, Locale, Source, UserId, UserSource
-from .text import Text, TextInteger, TextLiteral
+from .text import Caption, Text, TextInteger, TextLiteral
 from .tools import generate_node
 from .utility import TypeArgs
 
@@ -67,6 +67,7 @@ __all__ = (
     "Audio",
     "CallbackQueryData",
     "CallbackQueryDataJson",
+    "Caption",
     "ChatId",
     "ChatSource",
     "Collection",

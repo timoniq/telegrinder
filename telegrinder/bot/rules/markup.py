@@ -5,7 +5,6 @@ import vbml
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node.either import Either
 from telegrinder.node.text import Caption, Text
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 
@@ -44,7 +43,7 @@ class Markup(ABCRule):
             for pattern in ([patterns] if not isinstance(patterns, list) else patterns)
         ]
 
-    def check(self, text: Either[Text, Caption], ctx: Context) -> bool:
+    def check(self, text: Text | Caption, ctx: Context) -> bool:
         return check_string(self.patterns, text, ctx)
 
 

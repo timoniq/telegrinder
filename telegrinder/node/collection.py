@@ -1,8 +1,11 @@
 import dataclasses
 import typing
 
+import msgspec
+
 from telegrinder.node.base import IsNode, Node, as_node
 from telegrinder.tools.magic.annotations import Annotations
+from telegrinder.tools.magic.dictionary import extract
 
 
 class Collection(Node):
@@ -21,15 +24,14 @@ class Collection(Node):
 
     @classmethod
     def compose(cls, **kwargs: typing.Any) -> typing.Self:
-        subnodes = cls.__subnodes__ or {}
+        nodes = extract(cls.__subnodes__ or (), kwargs)
 
-        if dataclasses.is_dataclass(cls):
-            return cls(**{name: kwargs[name] for name in subnodes if name in kwargs})
+        if dataclasses.is_dataclass(cls) or issubclass(cls, msgspec.Struct):
+            return cls(**nodes)
 
         instance = cls()
-        for name in subnodes:
-            if name in kwargs:
-                setattr(instance, name, kwargs[name])
+        for name, value in nodes.items():
+            setattr(instance, name, value)
 
         return instance
 

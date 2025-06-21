@@ -20,7 +20,7 @@ class Text(ABCRule):
         self.texts = set(texts) if not ignore_case else set(map(str.lower, texts))
         self.ignore_case = ignore_case
 
-    def check(self, text: node.either.Either[node.text.Text, node.text.Caption]) -> bool:
+    def check(self, text: node.text.Text | node.text.Caption) -> bool:
         return (text if not self.ignore_case else text.lower()) in self.texts
 
 
