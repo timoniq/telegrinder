@@ -1,4 +1,3 @@
-import dataclasses
 import typing
 from collections import defaultdict
 
@@ -16,6 +15,9 @@ from telegrinder.node.base import (
     as_node,
     unwrap_node,
 )
+from telegrinder.node.context import get_global_session, set_global_session
+from telegrinder.node.scope import get_scope
+from telegrinder.node.session import NodeSession
 from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
@@ -26,12 +28,7 @@ type Impls = dict[type[typing.Any], type[typing.Any]]
 
 CONTEXT_STORE_NODES_KEY: typing.Final[str] = "_node_ctx"
 GLOBAL_VALUE_KEY: typing.Final[str] = "_value"
-NODE_SCOPE_KEY: typing.Final[str] = "scope"
 TELEGRINDER_CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
-
-
-def get_scope(node: IsNode, /) -> NodeScope | None:
-    return getattr(node, NODE_SCOPE_KEY, None)
 
 
 def get_impls(
@@ -98,8 +95,8 @@ async def compose_nodes(
             if scope is NodeScope.PER_EVENT and node_t in event_nodes:
                 local_nodes[node_t] = event_nodes[node_t]
                 continue
-            elif scope is NodeScope.GLOBAL and hasattr(node_t, GLOBAL_VALUE_KEY):
-                local_nodes[node_t] = NodeSession(node_t, getattr(node_t, GLOBAL_VALUE_KEY), {})
+            elif scope is NodeScope.GLOBAL and (global_session := get_global_session(node_t)) is not None:
+                local_nodes[node_t] = global_session
                 continue
 
             subnodes |= {
@@ -116,40 +113,11 @@ async def compose_nodes(
             if scope is NodeScope.PER_EVENT:
                 event_nodes[node_t] = local_nodes[node_t]
             elif scope is NodeScope.GLOBAL:
-                setattr(node_t, GLOBAL_VALUE_KEY, local_nodes[node_t].value)
+                set_global_session(node_t, local_nodes[node_t])
 
         parent_nodes[parent_node_t] = local_nodes[parent_node_t]
 
-    return Ok(NodeCollection({k: parent_nodes[t] for k, t, _ in unwrapped_nodes}))
-
-
-@dataclasses.dataclass(slots=True, repr=False)
-class NodeSession:
-    node: IsNode | None
-    value: typing.Any
-    subnodes: dict[str, typing.Self]
-    generator: typing.AsyncGenerator[typing.Any, typing.Any | None] | None = None
-
-    def __repr__(self) -> str:
-        return f"<{type(self).__name__}: {self.value!r}" + (" (ACTIVE)>" if self.generator else ">")
-
-    async def close(
-        self,
-        with_value: typing.Any | None = None,
-        scopes: tuple[NodeScope, ...] = (NodeScope.PER_CALL,),
-    ) -> None:
-        if self.node is not None and get_scope(self.node) not in scopes:
-            return
-
-        for subnode in self.subnodes.values():
-            await subnode.close(scopes=scopes)
-
-        if self.generator is None:
-            return
-        try:
-            await self.generator.asend(with_value)
-        except StopAsyncIteration:
-            self.generator = None
+    return Ok(NodeCollection(sessions={k: parent_nodes[t] for k, t, _ in unwrapped_nodes}))
 
 
 class NodeCollection:
@@ -160,7 +128,7 @@ class NodeCollection:
         self._values: dict[str, typing.Any] = {}
 
     def __repr__(self) -> str:
-        return "<{}: sessions={!r}>".format(self.__class__.__name__, self.sessions)
+        return "<{}: sessions={!r}>".format(type(self).__name__, self.sessions)
 
     @property
     def values(self) -> dict[str, typing.Any]:
@@ -220,4 +188,4 @@ class Composer:
 TELEGRINDER_CONTEXT.composer = Some(Composer())
 
 
-__all__ = ("NodeCollection", "NodeSession", "compose_node", "compose_nodes")
+__all__ = ("Composer", "NodeCollection", "compose_node", "compose_nodes")

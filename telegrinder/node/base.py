@@ -9,7 +9,9 @@ from types import AsyncGeneratorType, CodeType, NoneType, UnionType, resolve_bas
 
 import typing_extensions as typing
 
+from telegrinder.node.context import NODE_CONTEXT
 from telegrinder.node.scope import NodeScope
+from telegrinder.node.session import NodeSession
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.function import function_context, get_func_annotations
 from telegrinder.tools.strings import to_pascal_case
@@ -226,11 +228,6 @@ class Node(abc.ABC):
         return is_generator(cls.compose)
 
 
-class NodeAnnotation(typing.NamedTuple):
-    node_type: type[NodeType]
-    origin: typing.Any
-
-
 class scalar_node[T]:  # noqa: N801
     @typing.overload
     def __new__(cls, x: NodeComposeFunction[Composable[T]], /) -> type[T]: ...
@@ -321,7 +318,7 @@ class GlobalNode[Value](Node):
 
     @classmethod
     def set(cls, value: Value, /) -> None:
-        setattr(cls, "_value", value)
+        NODE_CONTEXT.global_session[cls] = NodeSession(cls, value, {})
 
     @typing.overload
     @classmethod
@@ -335,12 +332,18 @@ class GlobalNode[Value](Node):
     def get(cls, **kwargs: typing.Any) -> typing.Any:
         sentinel = object()
         default = kwargs.pop("default", sentinel)
-        return getattr(cls, "_value") if default is sentinel else getattr(cls, "_value", default)
+
+        if default is not sentinel and cls not in NODE_CONTEXT.global_sessions:
+            return default
+
+        if (session := NODE_CONTEXT.global_sessions.get(cls)) is None and default is sentinel:
+            raise ValueError(f"Node `{fullname(cls)}` has no global value.")
+
+        return session.value if session is not None else default
 
     @classmethod
     def unset(cls) -> None:
-        if hasattr(cls, "_value"):
-            delattr(cls, "_value")
+        NODE_CONTEXT.global_sessions.pop(cls, None)
 
 
 __all__ = (

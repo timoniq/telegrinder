@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 import enum
 import typing
 
 if typing.TYPE_CHECKING:
     from telegrinder.node.base import Composable
+
+NODE_SCOPE_KEY: typing.Final[str] = "scope"
 
 
 class NodeScope(enum.Enum):
@@ -31,11 +35,16 @@ def global_node[T: Composable[typing.Any]](node: type[T]) -> type[T]:
     return node
 
 
+def get_scope(node: Composable[typing.Any], /) -> NodeScope | None:
+    return getattr(node, NODE_SCOPE_KEY, None)
+
+
 __all__ = (
     "GLOBAL",
     "NodeScope",
     "PER_CALL",
     "PER_EVENT",
+    "get_scope",
     "global_node",
     "per_call",
     "per_event",

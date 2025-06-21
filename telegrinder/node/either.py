@@ -8,10 +8,10 @@ from telegrinder.modules import logger
 from telegrinder.node.base import ComposeError, FactoryNode, IsNode
 from telegrinder.node.composer import (
     CONTEXT_STORE_NODES_KEY,
-    GLOBAL_VALUE_KEY,
     compose_nodes,
     get_scope,
 )
+from telegrinder.node.context import get_global_session
 from telegrinder.node.scope import NodeScope, per_call
 from telegrinder.tools.fullname import fullname
 from telegrinder.types.objects import Update
@@ -50,8 +50,8 @@ class _Either(FactoryNode):
 
             if get_scope(node) is NodeScope.PER_EVENT and node in node_ctx:
                 return node_ctx[node].value
-            elif get_scope(node) is NodeScope.GLOBAL and hasattr(node, GLOBAL_VALUE_KEY):
-                return getattr(node, GLOBAL_VALUE_KEY)
+            elif get_scope(node) is NodeScope.GLOBAL and (global_session := get_global_session(node)) is not None:
+                return global_session.value
 
             match await compose_nodes({"_either_node": node}, context, {API: api, Update: update}):
                 case Ok(col):

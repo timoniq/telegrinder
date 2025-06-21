@@ -36,6 +36,7 @@ from .collection import Collection
 from .command import CommandInfo
 from .composer import NodeCollection, NodeSession, compose_node, compose_nodes
 from .container import ContainerNode
+from .context import NODE_CONTEXT, NodeGlobalContext
 from .either import Either, Optional
 from .error import Error
 from .event import EventNode
@@ -91,11 +92,13 @@ __all__ = (
     "KeySeparator",
     "Locale",
     "Me",
+    "NODE_CONTEXT",
     "Name",
     "Node",
     "NodeCollection",
     "NodeComposeFunction",
     "NodeConvertable",
+    "NodeGlobalContext",
     "NodeProto",
     "NodeScope",
     "NodeSession",
