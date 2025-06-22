@@ -21,8 +21,6 @@ def can_catch[ExceptionT: BaseException](
 
 @dataclasses.dataclass(kw_only=True, frozen=True)
 class Error(DataNode, typing.Generic[*ExceptionTs]):
-    __module__ = __name__
-
     exception_update: BaseException
 
     @property

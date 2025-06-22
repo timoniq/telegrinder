@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from telegrinder.modules import logger
 from telegrinder.node.scope import NodeScope
-from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context import GlobalContext, ctx_var
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 
@@ -25,15 +23,10 @@ class NodeGlobalContext(GlobalContext):
     )
 
     async def close_global_scopes(self) -> None:
-        for node, session in self.global_sessions.items():
-            try:
-                await session.close(scopes=(NodeScope.GLOBAL,))
-            except BaseException as exc:
-                logger.error(
-                    "Uncaught `{!r}` was occurred when closing global session for node `{}`",
-                    exc,
-                    fullname(node),
-                )
+        for session in self.global_sessions.values():
+            await session.close(scopes=(NodeScope.GLOBAL,))
+
+        self.global_sessions.clear()
 
 
 def get_global_session(node: IsNode, /) -> NodeSession | None:

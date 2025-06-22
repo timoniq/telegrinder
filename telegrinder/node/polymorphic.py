@@ -8,7 +8,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 from telegrinder.node.base import ComposeError, Node, get_nodes
 from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeSession, compose_nodes
-from telegrinder.node.scope import NodeScope
+from telegrinder.node.scope import NodeScope, get_scope
 from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.function import bundle
@@ -49,7 +49,7 @@ def get_polymorphic_implementations(
 class Polymorphic(Node):
     @classmethod
     async def compose(cls, raw_update: Update, update: UpdateCute, context: Context) -> typing.Any:
-        scope = getattr(cls, "scope", None)
+        scope = get_scope(cls)
         node_ctx = context.get_or_set(CONTEXT_STORE_NODES_KEY, {})
         data = {
             API: update.ctx_api,
@@ -58,23 +58,22 @@ class Polymorphic(Node):
         }
 
         for i, impl_ in enumerate(get_polymorphic_implementations(cls)):
-            node_collection = None
+            # To determine whether this is a right morph, all subnodes must be resolved
+            if scope is NodeScope.PER_EVENT and (cls, i) in node_ctx:
+                return node_ctx[(cls, i)].value
 
             match await compose_nodes(get_nodes(impl_), context, data=data):
                 case Ok(col):
                     node_collection = col
                 case Error(err):
-                    logger.debug("Composition failed with error: {!r}", err)
+                    logger.debug(
+                        "Impl `{}` composition failed with error: {!r}",
+                        fullname(impl_),
+                        err,
+                    )
+                    continue
 
-            if node_collection is None:
-                logger.debug("Impl `{}` composition failed", fullname(impl_))
-                continue
-
-            # To determine whether this is a right morph, all subnodes must be resolved
-            if scope is NodeScope.PER_EVENT and (cls, i) in node_ctx:
-                res: NodeSession = node_ctx[(cls, i)]
-                await node_collection.close_all()
-                return res.value
+            result = None
 
             try:
                 result = await maybe_awaitable(
@@ -83,18 +82,19 @@ class Polymorphic(Node):
                         **node_collection.values,
                     ),
                 )
+
+                if scope is NodeScope.PER_EVENT:
+                    node_ctx[(cls, i)] = NodeSession(cls, result)
+
+                return result
             except ComposeError as compose_error:
                 logger.debug(
                     "Failed to compose morph impl `{}`, error: {!r}",
                     fullname(impl_),
                     compose_error.message,
                 )
-
-            if scope is NodeScope.PER_EVENT:
-                node_ctx[(cls, i)] = NodeSession(cls, result, {})
-
-            await node_collection.close_all(with_value=result)
-            return result
+            finally:
+                await node_collection.close_all(with_value=result)
 
         raise ComposeError("No implementation found.")
 

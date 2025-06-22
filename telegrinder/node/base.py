@@ -5,13 +5,15 @@ import inspect
 from collections import deque
 from functools import reduce
 from itertools import islice
-from types import AsyncGeneratorType, CodeType, NoneType, UnionType, resolve_bases
+from types import CodeType, NoneType, UnionType, resolve_bases
 
 import typing_extensions as typing
 
 from telegrinder.node.context import NODE_CONTEXT
+from telegrinder.node.exceptions import ComposeError
 from telegrinder.node.scope import NodeScope
 from telegrinder.node.session import NodeSession
+from telegrinder.tools.aio import Generator
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.function import function_context, get_func_annotations
 from telegrinder.tools.strings import to_pascal_case
@@ -32,7 +34,7 @@ type AnyNode = IsNode | NodeConvertable
 
 T = typing.TypeVar("T", default=typing.Any)
 
-ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerator[T, None]
+ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]
 
 _NODEFAULT = object()
 _NONES = {None, NoneType}
@@ -148,8 +150,8 @@ def get_nodes(
 def is_generator(
     function: typing.Callable[..., typing.Any],
     /,
-) -> typing.TypeGuard[AsyncGeneratorType[typing.Any, None]]:
-    return inspect.isasyncgenfunction(function)
+) -> typing.TypeGuard[Generator[typing.Any, typing.Any, typing.Any]]:
+    return inspect.isgeneratorfunction(function) or inspect.isasyncgenfunction(function)
 
 
 def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
@@ -175,12 +177,6 @@ def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
     unwrapped = tuple(visited)
     setattr(node, UNWRAPPED_NODE_KEY, unwrapped)
     return unwrapped
-
-
-class ComposeError(BaseException):
-    def __init__(self, message: str = "<no error description>", /) -> None:
-        self.message = message
-        super().__init__(message)
 
 
 @typing.runtime_checkable
@@ -318,7 +314,7 @@ class GlobalNode[Value](Node):
 
     @classmethod
     def set(cls, value: Value, /) -> None:
-        NODE_CONTEXT.global_session[cls] = NodeSession(cls, value, {})
+        NODE_CONTEXT.global_session[cls] = NodeSession(cls, value)
 
     @typing.overload
     @classmethod

@@ -1,5 +1,6 @@
 import typing
 from collections import defaultdict
+from typing import Any
 
 from fntypes.option import Some
 from fntypes.result import Error, Ok, Result
@@ -18,12 +19,12 @@ from telegrinder.node.base import (
 from telegrinder.node.context import get_global_session, set_global_session
 from telegrinder.node.scope import get_scope
 from telegrinder.node.session import NodeSession
-from telegrinder.tools.aio import maybe_awaitable
+from telegrinder.tools.aio import Generator, maybe_awaitable, next_generator
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.magic import bundle, get_func_annotations, join_dicts
 
-type AsyncGenerator = typing.AsyncGenerator[typing.Any, None]
+type ComposeGenerator = Generator[typing.Any, typing.Any, typing.Any]
 type Impls = dict[type[typing.Any], type[typing.Any]]
 
 CONTEXT_STORE_NODES_KEY: typing.Final[str] = "_node_ctx"
@@ -51,23 +52,23 @@ async def compose_node(
     impls: Impls | None = None,
 ) -> "NodeSession":
     subnodes = node.get_subnodes()
-    bundle_compose = bundle(node.compose, join_dicts(subnodes, linked), bundle_kwargs=True)
+    compose = bundle(node.compose, join_dicts(subnodes, linked), bundle_kwargs=True)
 
     if data:
-        bundle_compose &= bundle(node.compose, data, typebundle=True)
+        compose &= bundle(node.compose, data, typebundle=True)
 
     if impls:
-        bundle_compose &= bundle(node.compose, get_impls(node.compose, impls))
+        compose &= bundle(node.compose, get_impls(node.compose, impls))
 
-    compose_result = bundle_compose()
+    result = compose()
     if node.is_generator():
-        generator = typing.cast("AsyncGenerator", compose_result)
-        value = await generator.asend(None)
+        generator = typing.cast("ComposeGenerator", result)
+        value = await next_generator(generator)
     else:
         generator = None
-        value = await maybe_awaitable(compose_result)
+        value = await maybe_awaitable(result)
 
-    return NodeSession(node, value, subnodes={}, generator=generator)
+    return NodeSession(node, value, generator)
 
 
 async def compose_nodes(
@@ -83,10 +84,10 @@ async def compose_nodes(
     unwrapped_nodes = {(key, n := (as_node(node)), node): unwrap_node(n) for key, node in nodes.items()}
 
     for (parent_node_name, parent_node_t, parent_original_type), linked_nodes in unwrapped_nodes.items():
-        local_nodes = dict[IsNode, NodeSession]()
-        subnodes = {}
-        data[Name] = parent_node_name
-        data[NodeClass] = parent_original_type
+        data.update({Name: parent_node_name, NodeClass: parent_original_type})
+
+        local_nodes = LocalNodeCollection()
+        subnodes = dict[Any, Any]()
 
         for node_t in linked_nodes:
             node_t = as_node(node_t)
@@ -95,7 +96,8 @@ async def compose_nodes(
             if scope is NodeScope.PER_EVENT and node_t in event_nodes:
                 local_nodes[node_t] = event_nodes[node_t]
                 continue
-            elif scope is NodeScope.GLOBAL and (global_session := get_global_session(node_t)) is not None:
+
+            if scope is NodeScope.GLOBAL and (global_session := get_global_session(node_t)) is not None:
                 local_nodes[node_t] = global_session
                 continue
 
@@ -103,21 +105,40 @@ async def compose_nodes(
                 k: session.value for k, session in (local_nodes | event_nodes).items() if k not in subnodes
             }
             try:
-                local_nodes[node_t] = await compose_node(node_t, linked=subnodes, data=data, impls=impls)
-            except ComposeError as exc:
-                for t, local_node in local_nodes.items():
-                    if get_scope(t) is NodeScope.PER_CALL:
-                        await local_node.close()
-                return Error(ComposeError(f"Cannot compose {fullname(node_t)}, error: {exc.message!r}"))
+                session = await compose_node(node_t, linked=subnodes, data=data, impls=impls)
+            except ComposeError as error:
+                await local_nodes.close_local_sessions()
+                return Error(ComposeError(f"Cannot compose node `{fullname(node_t)}`, error: {error.message!r}"))
+
+            if scope is NodeScope.PER_CALL:
+                await local_nodes.set_local_session(node_t, session)
+            else:
+                local_nodes[node_t] = session
 
             if scope is NodeScope.PER_EVENT:
-                event_nodes[node_t] = local_nodes[node_t]
+                event_nodes[node_t] = session
             elif scope is NodeScope.GLOBAL:
-                set_global_session(node_t, local_nodes[node_t])
+                set_global_session(node_t, session)
 
         parent_nodes[parent_node_t] = local_nodes[parent_node_t]
 
     return Ok(NodeCollection(sessions={k: parent_nodes[t] for k, t, _ in unwrapped_nodes}))
+
+
+class LocalNodeCollection(dict[IsNode, NodeSession]):
+    def __init__(self) -> None:
+        super().__init__()
+
+    async def set_local_session(self, node: IsNode, session: NodeSession, /) -> NodeSession:
+        if node in self:
+            await self[node].close()
+
+        self[node] = session
+        return session
+
+    async def close_local_sessions(self) -> None:
+        for session in self.values():
+            await session.close(scopes=(NodeScope.PER_CALL,))
 
 
 class NodeCollection:

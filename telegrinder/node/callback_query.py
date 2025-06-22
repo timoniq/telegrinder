@@ -24,9 +24,9 @@ class CallbackQueryDataJson:
 
 
 class _Field(FactoryNode):
-    field_type: type[typing.Any]
+    field_type: typing.Any
 
-    def __class_getitem__(cls, field_type: type[typing.Any], /) -> typing.Self:
+    def __class_getitem__(cls, field_type: typing.Any, /) -> typing.Self:
         return cls(field_type=field_type)
 
     @classmethod
@@ -38,11 +38,11 @@ class _Field(FactoryNode):
                 case Error(err):
                     raise ComposeError(err)
 
-        raise ComposeError(f"Cannot find callback data with the name {data_name!r}.")
+        raise ComposeError(f"Cannot find callback data with name {data_name!r}.")
 
 
 if typing.TYPE_CHECKING:
-    type Field[FieldType] = typing.Annotated[FieldType, ...]
+    type Field[FieldType] = FieldType
 else:
     Field = _Field
 

@@ -1,18 +1,12 @@
 import typing
 
-from fntypes.result import Error, Ok
+from fntypes.result import Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.modules import logger
 from telegrinder.node.base import ComposeError, FactoryNode, IsNode
-from telegrinder.node.composer import (
-    CONTEXT_STORE_NODES_KEY,
-    compose_nodes,
-    get_scope,
-)
-from telegrinder.node.context import get_global_session
-from telegrinder.node.scope import NodeScope, per_call
+from telegrinder.node.composer import compose_nodes
+from telegrinder.node.scope import per_call
 from telegrinder.tools.fullname import fullname
 from telegrinder.types.objects import Update
 
@@ -41,29 +35,27 @@ class _Either(FactoryNode):
         return cls(nodes=nodes)
 
     @classmethod
-    async def compose(cls, api: API, update: Update, context: Context) -> typing.Any | None:
-        node_ctx = context.get_or_set(CONTEXT_STORE_NODES_KEY, {})
+    async def compose(cls, api: API, update: Update, context: Context) -> typing.Any:
+        composed = True
 
         for node in cls.nodes:
-            if node is None:
-                return None
+            if node is not None:
+                match await compose_nodes(dict(node_result=node), context, {API: api, Update: update}):
+                    case Ok(col):
+                        value = col.values["node_result"]
+                        yield value
+                        await col.close_all(with_value=value)
+                        break
+                    case _:
+                        composed = False
+            else:
+                yield None
+                break
 
-            if get_scope(node) is NodeScope.PER_EVENT and node in node_ctx:
-                return node_ctx[node].value
-            elif get_scope(node) is NodeScope.GLOBAL and (global_session := get_global_session(node)) is not None:
-                return global_session.value
-
-            match await compose_nodes({"_either_node": node}, context, {API: api, Update: update}):
-                case Ok(col):
-                    return col.values["_either_node"]
-                case Error(compose_error):
-                    logger.debug(
-                        "Failed to compose either node `{}` with error: {!r}.",
-                        fullname(node),
-                        compose_error.message,
-                    )
-
-        raise ComposeError("Cannot compose either nodes: {}.".format(", ".join(fullname(n) for n in cls.nodes)))
+        if not composed:
+            raise ComposeError(
+                "Cannot compose either nodes: {}.".format(", ".join(fullname(n) for n in cls.nodes))
+            )
 
 
 if typing.TYPE_CHECKING:

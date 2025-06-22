@@ -35,8 +35,8 @@ def global_node[T: Composable[typing.Any]](node: type[T]) -> type[T]:
     return node
 
 
-def get_scope(node: Composable[typing.Any], /) -> NodeScope | None:
-    return getattr(node, NODE_SCOPE_KEY, None)
+def get_scope(node: Composable[typing.Any], /) -> NodeScope:
+    return getattr(node, NODE_SCOPE_KEY, PER_EVENT)
 
 
 __all__ = (
