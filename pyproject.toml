@@ -84,7 +84,7 @@ dev = [
 package = true
 
 [tool.uv.sources]
-fntypes = { git = "https://github.com/timoniq/fntypes.git", rev = "370bd2b" }
+fntypes = { git = "https://github.com/timoniq/fntypes.git", rev = "370bd2b5392670c0463a8c12c823841fd360ecfc" }
 
 [tool.hatch.version]
 path = "telegrinder/__meta__.py"
