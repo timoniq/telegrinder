@@ -338,7 +338,7 @@ wheels = [
 [[package]]
 name = "fntypes"
 version = "0.2.1"
-source = { git = "https://github.com/timoniq/fntypes.git?rev=370bd2b#370bd2b5392670c0463a8c12c823841fd360ecfc" }
+source = { git = "https://github.com/timoniq/fntypes.git?rev=370bd2b5392670c0463a8c12c823841fd360ecfc#370bd2b5392670c0463a8c12c823841fd360ecfc" }
 dependencies = [
     { name = "typing-extensions" },
 ]
@@ -984,7 +984,7 @@ requires-dist = [
     { name = "choicelib", specifier = ">=0.1.5,<0.2.0" },
     { name = "colorama", specifier = ">=0.4.6,<0.5.0" },
     { name = "envparse", specifier = ">=0.2.0,<0.3.0" },
-    { name = "fntypes", git = "https://github.com/timoniq/fntypes.git?rev=370bd2b" },
+    { name = "fntypes", git = "https://github.com/timoniq/fntypes.git?rev=370bd2b5392670c0463a8c12c823841fd360ecfc" },
     { name = "loguru", marker = "extra == 'loguru'", specifier = ">=0.7.3" },
     { name = "msgspec", specifier = ">=0.19.0,<0.20.0" },
     { name = "structlog", marker = "extra == 'structlog'", specifier = ">=25.4.0" },
