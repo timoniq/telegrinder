@@ -1,4 +1,4 @@
-name: Generate TBA
+name: Telegram Bot API schema
 
 on:
   workflow_dispatch: {}
@@ -19,7 +19,7 @@ jobs:
       - run: uv lock --locked
 
   generation:
-    name: "TBA generation"
+    name: "TBA schema generation"
     runs-on: ubuntu-latest
     needs: lock-file
     steps:
@@ -37,9 +37,9 @@ jobs:
         with:
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           commit-message: >
-            Update TBA based on the latest schema changes.
+            types: Telegram Bot API schema changes
           title: >
-            Update TBA based on the latest schema changes
+            Update Telegram Bot API to the latest schema
           body: >
             This is an automated PR. Please check the diff, and the action logs, to check for any funky behavior.
           branch: automated/tba
