@@ -42,8 +42,16 @@ repos:
 
       - id: ruff
         name: ruff-isort
-        description: "Run 'ruff --select I --select F401 --fix' for extremely fast Python sorting imports"
+        description: "Run 'ruff check --select I --select F401 --fix' for extremely fast Python sorting imports"
         entry: uv run ruff check --select I --select F401 --fix
+        language: system
+        types: [ python ]
+        stages: [ pre-commit ]
+
+      - id: ruff
+        name: ruff-sortall
+        description: "Run 'ruff check --select RUF022 --fix' for extremely fast Python sorting dunder alls."
+        entry: uv run ruff check --select RUF022 --fix
         language: system
         types: [ python ]
         stages: [ pre-commit ]

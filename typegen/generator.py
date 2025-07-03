@@ -105,24 +105,24 @@ def makesafe_name(s: str, /) -> str:
     return s + "_" if keyword.iskeyword(s) else s
 
 
-def run_sort_all(path: pathlib.Path, /) -> None:
-    logger.debug("Run sort-all...")
-    files = tuple(str(p) for p in path.iterdir() if p.is_file() and p.suffix == ".py")
-    os.system(f"sort-all {' '.join(files)}")
-
-
-def run_ruff_linter(path: pathlib.Path, /) -> None:
+def run_ruff_formatter(path: pathlib.Path, /) -> None:
     logger.debug("Run ruff formatter...")
     if os.system(f"ruff format {path}") != 0:
-        logger.error("Ruff formatter failed.")
+        logger.error("ruff formatter failed.")
     else:
-        logger.info("Ruff formatter successfully formatted files.")
+        logger.info("ruff formatter successfully formatted files.")
 
     logger.debug("Run ruff-isort...")
     if os.system(f"ruff check {path} --select I --select F401 --fix") != 0:
         logger.error("ruff-isort failed.")
     else:
-        logger.info("Ruff-isort successfully sorted imports.")
+        logger.info("ruff-isort successfully sorted imports.")
+
+    logger.debug("Run ruff-sortall...")
+    if os.system(f"ruff check {path} --select RUF022 --fix") != 0:
+        logger.error("ruff-sortall failed.")
+    else:
+        logger.info("ruff-sortall successfully sorted dunder alls.")
 
 
 def to_optional(st: str) -> str:
@@ -707,8 +707,7 @@ def generate(
     method_generator.generate(directory)
     logger.info("Successful generation!")
 
-    run_sort_all(directory)
-    run_ruff_linter(directory)
+    run_ruff_formatter(directory)
     merge_shortcuts(path_api_methods=directory / "methods.py")
 
 

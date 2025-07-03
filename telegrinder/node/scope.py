@@ -41,9 +41,9 @@ def get_scope(node: Composable[typing.Any], /) -> NodeScope:
 
 __all__ = (
     "GLOBAL",
-    "NodeScope",
     "PER_CALL",
     "PER_EVENT",
+    "NodeScope",
     "get_scope",
     "global_node",
     "per_call",

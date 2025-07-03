@@ -908,18 +908,6 @@ wheels = [
 ]
 
 [[package]]
-name = "sort-all"
-version = "1.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "tokenize-rt" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/40/be/1325e717294bb01a69c9255ba397056b990abb2e03365554b5850a8483b3/sort_all-1.3.0.tar.gz", hash = "sha256:41fd883a4dcba38fef30e4dfc2c8ecf75dc6f450baa6c8bb2e6d30c7189fc148", size = 4946, upload-time = "2024-10-30T13:18:38.231Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7c/65/dc790a4bf84e0b695a9b1d2a217bad7c88fa31d76fa3569b8daec75f2bc2/sort_all-1.3.0-py3-none-any.whl", hash = "sha256:1e452564993c1084a85b0d4600d00e638492d2fd9db7443c38627e9899f8e06a", size = 4711, upload-time = "2024-10-30T13:18:37.241Z" },
-]
-
-[[package]]
 name = "structlog"
 version = "25.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -973,7 +961,6 @@ dev = [
     { name = "pytest-mock" },
     { name = "requests" },
     { name = "ruff" },
-    { name = "sort-all" },
     { name = "tomlkit" },
 ]
 
@@ -1009,17 +996,7 @@ dev = [
     { name = "pytest-mock", specifier = ">=3.14.1,<4" },
     { name = "requests", specifier = ">=2.32.4,<3" },
     { name = "ruff", specifier = ">=0.12.0,<1" },
-    { name = "sort-all", specifier = ">=1.3.0,<2" },
     { name = "tomlkit", specifier = ">=0.13.3,<1" },
-]
-
-[[package]]
-name = "tokenize-rt"
-version = "6.2.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/69/ed/8f07e893132d5051d86a553e749d5c89b2a4776eb3a579b72ed61f8559ca/tokenize_rt-6.2.0.tar.gz", hash = "sha256:8439c042b330c553fdbe1758e4a05c0ed460dbbbb24a606f11f0dee75da4cad6", size = 5476, upload-time = "2025-05-23T23:48:00.035Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/f0/3fe8c6e69135a845f4106f2ff8b6805638d4e85c264e70114e8126689587/tokenize_rt-6.2.0-py2.py3-none-any.whl", hash = "sha256:a152bf4f249c847a66497a4a95f63376ed68ac6abf092a2f7cfb29d044ecff44", size = 6004, upload-time = "2025-05-23T23:47:58.812Z" },
 ]
 
 [[package]]
