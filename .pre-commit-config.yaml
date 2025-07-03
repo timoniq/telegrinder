@@ -34,7 +34,7 @@ repos:
       - id: pytest
         name: pytest
         description: "Run tests for testing code"
-        entry: uv run pytest
+        entry: uv run pytest tests
         language: system
         pass_filenames: false
         types: [ python ]
