@@ -900,6 +900,9 @@ class Message(MaybeInaccessibleMessage):
     has_media_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the message media is covered by a spoiler animation."""
 
+    checklist: Option[Checklist] = field(default=..., converter=From["Checklist | None"])
+    """Optional. Message is a checklist."""
+
     contact: Option[Contact] = field(default=..., converter=From["Contact | None"])
     """Optional. Message is a shared contact, information about the contact."""
 
@@ -1028,6 +1031,23 @@ class Message(MaybeInaccessibleMessage):
 
     chat_background_set: Option[ChatBackground] = field(default=..., converter=From["ChatBackground | None"])
     """Optional. Service message: chat background set."""
+
+    checklist_tasks_done: Option[ChecklistTasksDone] = field(
+        default=..., converter=From["ChecklistTasksDone | None"]
+    )
+    """Optional. Service message: some tasks in a checklist were marked as done
+    or not done."""
+
+    checklist_tasks_added: Option[ChecklistTasksAdded] = field(
+        default=..., converter=From["ChecklistTasksAdded | None"]
+    )
+    """Optional. Service message: tasks were added to a checklist."""
+
+    direct_message_price_changed: Option[DirectMessagePriceChanged] = field(
+        default=..., converter=From["DirectMessagePriceChanged | None"]
+    )
+    """Optional. Service message: the price for paid messages in the corresponding
+    direct messages chat of a channel has changed."""
 
     forum_topic_created: Option[ForumTopicCreated] = field(default=..., converter=From["ForumTopicCreated | None"])
     """Optional. Service message: forum topic created."""
@@ -1275,6 +1295,9 @@ class ExternalReplyInfo(Model):
 
     has_media_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the message media is covered by a spoiler animation."""
+
+    checklist: Option[Checklist] = field(default=..., converter=From["Checklist | None"])
+    """Optional. Message is a checklist."""
 
     contact: Option[Contact] = field(default=..., converter=From["Contact | None"])
     """Optional. Message is a shared contact, information about the contact."""
@@ -1871,6 +1894,138 @@ class Poll(Model):
     closed."""
 
 
+class ChecklistTask(Model):
+    """Object `ChecklistTask`, see the [documentation](https://core.telegram.org/bots/api#checklisttask).
+
+    Describes a task in a checklist.
+    """
+
+    id: int = field()
+    """Unique identifier of the task."""
+
+    text: str = field()
+    """Text of the task."""
+
+    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities that appear in the task text."""
+
+    completed_by_user: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. User that completed the task; omitted if the task wasn't completed."""
+
+    completion_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
+    """Optional. Point in time (Unix timestamp) when the task was completed; 0
+    if the task wasn't completed."""
+
+
+class Checklist(Model):
+    """Object `Checklist`, see the [documentation](https://core.telegram.org/bots/api#checklist).
+
+    Describes a checklist.
+    """
+
+    title: str = field()
+    """Title of the checklist."""
+
+    tasks: list[ChecklistTask] = field()
+    """List of tasks in the checklist."""
+
+    title_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities that appear in the checklist title."""
+
+    others_can_add_tasks: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if users other than the creator of the list can add tasks
+    to the list."""
+
+    others_can_mark_tasks_as_done: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if users other than the creator of the list can mark tasks
+    as done or not done."""
+
+
+class InputChecklistTask(Model):
+    """Object `InputChecklistTask`, see the [documentation](https://core.telegram.org/bots/api#inputchecklisttask).
+
+    Describes a task to add to a checklist.
+    """
+
+    id: int = field()
+    """Unique identifier of the task; must be positive and unique among all task
+    identifiers currently present in the checklist."""
+
+    text: str = field()
+    """Text of the task; 1-100 characters after entities parsing."""
+
+    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Mode for parsing entities in the text. See formatting options
+    for more details."""
+
+    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. List of special entities that appear in the text, which can be
+    specified instead of parse_mode. Currently, only bold, italic, underline,
+    strikethrough, spoiler, and custom_emoji entities are allowed."""
+
+
+class InputChecklist(Model):
+    """Object `InputChecklist`, see the [documentation](https://core.telegram.org/bots/api#inputchecklist).
+
+    Describes a checklist to create.
+    """
+
+    title: str = field()
+    """Title of the checklist; 1-255 characters after entities parsing."""
+
+    tasks: list[InputChecklistTask] = field()
+    """List of 1-30 tasks in the checklist."""
+
+    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Mode for parsing entities in the title. See formatting options
+    for more details."""
+
+    title_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. List of special entities that appear in the title, which can be
+    specified instead of parse_mode. Currently, only bold, italic, underline,
+    strikethrough, spoiler, and custom_emoji entities are allowed."""
+
+    others_can_add_tasks: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if other users can add tasks to the checklist."""
+
+    others_can_mark_tasks_as_done: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if other users can mark tasks as done or not done in the
+    checklist."""
+
+
+class ChecklistTasksDone(Model):
+    """Object `ChecklistTasksDone`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksdone).
+
+    Describes a service message about checklist tasks marked as done or not done.
+    """
+
+    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the checklist whose tasks were marked as
+    done or not done. Note that the Message object in this field will not contain
+    the reply_to_message field even if it itself is a reply."""
+
+    marked_as_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
+    """Optional. Identifiers of the tasks that were marked as done."""
+
+    marked_as_not_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
+    """Optional. Identifiers of the tasks that were marked as not done."""
+
+
+class ChecklistTasksAdded(Model):
+    """Object `ChecklistTasksAdded`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksadded).
+
+    Describes a service message about tasks added to a checklist.
+    """
+
+    tasks: list[ChecklistTask] = field()
+    """List of tasks added to the checklist."""
+
+    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the checklist to which the tasks were added.
+    Note that the Message object in this field will not contain the reply_to_message
+    field even if it itself is a reply."""
+
+
 class Location(Model):
     """Object `Location`, see the [documentation](https://core.telegram.org/bots/api#location).
 
@@ -2317,6 +2472,21 @@ class PaidMessagePriceChanged(Model):
     paid_message_star_count: int = field()
     """The new number of Telegram Stars that must be paid by non-administrator
     users of the supergroup chat for each sent message."""
+
+
+class DirectMessagePriceChanged(Model):
+    """Object `DirectMessagePriceChanged`, see the [documentation](https://core.telegram.org/bots/api#directmessagepricechanged).
+
+    Describes a service message about a change in the price of direct messages sent to a channel chat.
+    """
+
+    are_direct_messages_enabled: bool = field()
+    """True, if direct messages are enabled for the channel chat; false otherwise."""
+
+    direct_message_star_count: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. The new number of Telegram Stars that must be paid by users for
+    each direct message sent to the channel. Does not apply to users who have
+    been exempted by administrators. Defaults to 0."""
 
 
 class GiveawayCreated(Model):
@@ -3002,8 +3172,9 @@ class ChatAdministratorRights(Model):
 
     can_manage_chat: bool = field()
     """True, if the administrator can access the chat event log, get boost list,
-    see hidden supergroup and channel members, report spam messages and ignore
-    slow mode. Implied by any other administrator privilege."""
+    see hidden supergroup and channel members, report spam messages, ignore
+    slow mode, and send messages to the chat without paying Telegram Stars.
+    Implied by any other administrator privilege."""
 
     can_delete_messages: bool = field()
     """True, if the administrator can delete messages of other users."""
@@ -3038,7 +3209,7 @@ class ChatAdministratorRights(Model):
 
     can_post_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can post messages in the channel,
-    or access channel statistics; for channels only."""
+    approve suggested posts, or access channel statistics; for channels only."""
 
     can_edit_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit messages of other users and
@@ -3149,8 +3320,9 @@ class ChatMemberAdministrator(ChatMember):
 
     can_manage_chat: bool = field()
     """True, if the administrator can access the chat event log, get boost list,
-    see hidden supergroup and channel members, report spam messages and ignore
-    slow mode. Implied by any other administrator privilege."""
+    see hidden supergroup and channel members, report spam messages, ignore
+    slow mode, and send messages to the chat without paying Telegram Stars.
+    Implied by any other administrator privilege."""
 
     can_delete_messages: bool = field()
     """True, if the administrator can delete messages of other users."""
@@ -3188,7 +3360,7 @@ class ChatMemberAdministrator(ChatMember):
 
     can_post_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can post messages in the channel,
-    or access channel statistics; for channels only."""
+    approve suggested posts, or access channel statistics; for channels only."""
 
     can_edit_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit messages of other users and
@@ -3257,7 +3429,7 @@ class ChatMemberRestricted(ChatMember):
     """True, if the user is allowed to send voice notes."""
 
     can_send_polls: bool = field()
-    """True, if the user is allowed to send polls."""
+    """True, if the user is allowed to send polls and checklists."""
 
     can_send_other_messages: bool = field()
     """True, if the user is allowed to send animations, games, stickers and use
@@ -3381,7 +3553,7 @@ class ChatPermissions(Model):
     """Optional. True, if the user is allowed to send voice notes."""
 
     can_send_polls: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the user is allowed to send polls."""
+    """Optional. True, if the user is allowed to send polls and checklists."""
 
     can_send_other_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to send animations, games, stickers
@@ -3963,7 +4135,12 @@ class UniqueGiftInfo(Model):
     """Information about the gift."""
 
     origin: UniqueGiftInfoOriginType = field(default=UniqueGiftInfoOriginType.UPGRADE)
-    """Origin of the gift. Currently, either `upgrade` or `transfer`."""
+    """Origin of the gift. Currently, either `upgrade` for gifts upgraded from
+    regular gifts, `transfer` for gifts transferred from other users or channels,
+    or `resale` for gifts bought from other users."""
+
+    last_resale_star_count: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. For gifts bought from other users, the price paid for the gift."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the received gift for the bot; only present
@@ -3972,6 +4149,10 @@ class UniqueGiftInfo(Model):
     transfer_star_count: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Number of Telegram Stars that must be paid to transfer the gift;
     omitted if the bot cannot transfer the gift."""
+
+    next_transfer_date: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Point in time (Unix timestamp) when the gift can be transferred.
+    If it is in the past, then the gift can be transferred now."""
 
 
 class OwnedGiftRegular(OwnedGift):
@@ -4059,6 +4240,10 @@ class OwnedGiftUnique(OwnedGift):
     transfer_star_count: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Number of Telegram Stars that must be paid to transfer the gift;
     omitted if the bot cannot transfer the gift."""
+
+    next_transfer_date: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Point in time (Unix timestamp) when the gift can be transferred.
+    If it is in the past, then the gift can be transferred now."""
 
 
 class OwnedGifts(Model):
@@ -4413,7 +4598,7 @@ class BusinessBotRights(Model):
     can_read_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the bot can mark incoming private messages as read."""
 
-    can_delete_outgoing_messages: Option[bool] = field(default=..., converter=From[bool | None])
+    can_delete_sent_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the bot can delete messages sent by the bot."""
 
     can_delete_all_messages: Option[bool] = field(default=..., converter=From[bool | None])
@@ -7449,10 +7634,15 @@ __all__ = (
     "ChatPermissions",
     "ChatPhoto",
     "ChatShared",
+    "Checklist",
+    "ChecklistTask",
+    "ChecklistTasksAdded",
+    "ChecklistTasksDone",
     "ChosenInlineResult",
     "Contact",
     "CopyTextButton",
     "Dice",
+    "DirectMessagePriceChanged",
     "Document",
     "EncryptedCredentials",
     "EncryptedPassportElement",
@@ -7501,6 +7691,8 @@ __all__ = (
     "InlineQueryResultVideo",
     "InlineQueryResultVoice",
     "InlineQueryResultsButton",
+    "InputChecklist",
+    "InputChecklistTask",
     "InputContactMessageContent",
     "InputFile",
     "InputInvoiceMessageContent",
