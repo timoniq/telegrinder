@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API version `9.0`, released `April 11, 2025`."""
+    """Telegram Bot API version `9.0`, released `July 3, 2025`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -1480,7 +1480,7 @@ class APIMethods:
         :param question_entities: A JSON-serialized list of special entities that appear in the poll question. \
         It can be specified instead of question_parse_mode.
 
-        :param options: A JSON-serialized list of 2-10 answer options.
+        :param options: A JSON-serialized list of 2-12 answer options.
 
         :param is_anonymous: True, if the poll needs to be anonymous, defaults to True.
 
@@ -1532,6 +1532,48 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "sendPoll",
+            get_params(locals()),
+        )
+        return full_result(method_response, Message)
+
+    async def send_checklist(
+        self,
+        *,
+        business_connection_id: str,
+        chat_id: int,
+        checklist: InputChecklist,
+        disable_notification: bool | None = default_params["disable_notification"],
+        protect_content: bool | None = default_params["protect_content"],
+        message_effect_id: str | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> Result[Message, APIError]:
+        """Method `sendChecklist`, see the [documentation](https://core.telegram.org/bots/api#sendchecklist)
+
+        Use this method to send a checklist on behalf of a connected business account.
+        On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
+
+        :param chat_id: Unique identifier for the target chat.
+
+        :param checklist: A JSON-serialized object for the checklist to send.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
+
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
+        :param reply_parameters: A JSON-serialized object for description of the message to reply to.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        """
+
+        method_response = await self.api.request_raw(
+            "sendChecklist",
             get_params(locals()),
         )
         return full_result(method_response, Message)
@@ -1898,8 +1940,9 @@ class APIMethods:
         :param is_anonymous: Pass True if the administrator's presence in the chat is hidden.
 
         :param can_manage_chat: Pass True if the administrator can access the chat event log, get boost list, \
-        see hidden supergroup and channel members, report spam messages and ignore \
-        slow mode. Implied by any other administrator privilege.
+        see hidden supergroup and channel members, report spam messages, ignore \
+        slow mode, and send messages to the chat without paying Telegram Stars. \
+        Implied by any other administrator privilege.
 
         :param can_delete_messages: Pass True if the administrator can delete messages of other users.
 
@@ -1924,8 +1967,8 @@ class APIMethods:
 
         :param can_delete_stories: Pass True if the administrator can delete stories posted by other users. \
 
-        :param can_post_messages: Pass True if the administrator can post messages in the channel, or access \
-        channel statistics; for channels only.
+        :param can_post_messages: Pass True if the administrator can post messages in the channel, approve \
+        suggested posts, or access channel statistics; for channels only.
 
         :param can_edit_messages: Pass True if the administrator can edit messages of other users and can pin \
         messages; for channels only.
@@ -3664,6 +3707,39 @@ class APIMethods:
         )
         return full_result(method_response, Variative[Message, bool])
 
+    async def edit_message_checklist(
+        self,
+        *,
+        business_connection_id: str,
+        chat_id: int,
+        message_id: int,
+        checklist: InputChecklist,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> Result[Message, APIError]:
+        """Method `editMessageChecklist`, see the [documentation](https://core.telegram.org/bots/api#editmessagechecklist)
+
+        Use this method to edit a checklist on behalf of a connected business account.
+        On success, the edited Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
+
+        :param chat_id: Unique identifier for the target chat.
+
+        :param message_id: Unique identifier for the target message.
+
+        :param checklist: A JSON-serialized object for the new checklist.
+
+        :param reply_markup: A JSON-serialized object for the new inline keyboard for the message.
+        """
+
+        method_response = await self.api.request_raw(
+            "editMessageChecklist",
+            get_params(locals()),
+        )
+        return full_result(method_response, Message)
+
     async def edit_message_reply_markup(
         self,
         *,
@@ -4024,7 +4100,7 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `deleteBusinessMessages`, see the [documentation](https://core.telegram.org/bots/api#deletebusinessmessages)
 
-        Delete messages on behalf of a business account. Requires the can_delete_outgoing_messages
+        Delete messages on behalf of a business account. Requires the can_delete_sent_messages
         business bot right to delete messages sent by the bot itself, or the can_delete_all_messages
         business bot right to delete any message. Returns True on success.
 
@@ -5370,6 +5446,19 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(method_response, bool)
+
+    async def get_my_star_balance(self, **other: typing.Any) -> Result[StarAmount, APIError]:
+        """Method `getMyStarBalance`, see the [documentation](https://core.telegram.org/bots/api#getmystarbalance)
+
+        A method to get the current Telegram Stars balance of the bot. Requires no
+        parameters. On success, returns a StarAmount object.
+        """
+
+        method_response = await self.api.request_raw(
+            "getMyStarBalance",
+            get_params(locals()),
+        )
+        return full_result(method_response, StarAmount)
 
     async def get_star_transactions(
         self,
