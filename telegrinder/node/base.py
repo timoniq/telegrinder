@@ -36,9 +36,9 @@ T = typing.TypeVar("T", default=typing.Any)
 
 ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]
 
-_NODEFAULT = object()
-_NONES = {None, NoneType}
-_UNION_TYPES = {typing.Union, UnionType}
+_NODEFAULT: typing.Final[object] = object()
+_NONE_TYPES: typing.Final[set[typing.Any]] = {None, NoneType}
+_UNION_TYPES: typing.Final[set[typing.Any]] = {typing.Union, UnionType}
 UNWRAPPED_NODE_KEY: typing.Final[str] = "__unwrapped_node__"
 
 
@@ -66,11 +66,11 @@ def union_as_node(union: UnionType, /) -> IsNode | None:
     if not args:
         return None
 
-    plain, opt = [t for t in args if t not in _NONES], any(t in _NONES for t in args)
+    plain, opt = [t for t in args if t not in _NONE_TYPES], any(t in _NONE_TYPES for t in args)
     if not plain:
         return None
 
-    nodes: tuple[IsNode, ...] | None = as_node(*plain, raise_exception=False)
+    nodes = typing.cast("IsNode | tuple[IsNode, ...] | None", as_node(*plain, raise_exception=False))
     if nodes is None:
         return None
 
@@ -162,17 +162,29 @@ def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
     if (unwrapped := getattr(node, UNWRAPPED_NODE_KEY, None)) is not None:
         return unwrapped
 
-    stack = deque([(node, node.get_subnodes().values())])
+    stack = deque([(node, node.get_subnodes().values(), [node])])
     visited = list[IsNode]()
 
     while stack:
-        parent, child_nodes = stack.pop()
+        parent, child_nodes, path = stack.pop()
+        dependencies = set(child_nodes)
+
+        if parent in dependencies:
+            raise ComposeError(f"Node `{fullname(parent)}` refers to itself in dependency tree.")
 
         if parent not in visited:
             visited.insert(0, parent)
 
         for child in child_nodes:
-            stack.append((child, child.get_subnodes().values()))
+            subnodes = child.get_subnodes().values()
+            dependencies.update(subnodes)
+            if child in path:
+                raise ComposeError(
+                    f"Cannot resolve node `{fullname(node)}` due to circular dependency "
+                    f"({' -> '.join(fullname(n) for n in path[path.index(child):] + [child])} <...>)",
+                )
+
+            stack.append((child, subnodes, path + [child]))
 
     unwrapped = tuple(visited)
     setattr(node, UNWRAPPED_NODE_KEY, unwrapped)

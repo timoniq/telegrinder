@@ -14,6 +14,7 @@ type RoutineDescriptorType = types.MethodDescriptorType | types.GetSetDescriptor
 _BUILTINS: typing.Final[frozenset[typing.Any]] = frozenset(
     x for name in dir(builtins) if getattr((x := getattr(builtins, name)), "__module__", None) == "builtins"
 )
+_CACHE_KEY: typing.Final[str] = "__fullname_cache__"
 
 
 def _is_builtin(obj: typing.Any, /) -> bool:
@@ -42,27 +43,41 @@ def _module_name(module: types.ModuleType, /) -> str:
 
 
 def fullname(obj: object, /) -> str:
-    """The full name (`__module__.__qualname__`) of the object."""
-    if inspect.ismodule(obj):
-        return _module_name(obj)
-
-    obj = (
-        type(obj)
-        if not inspect.isroutine(obj) and not inspect.isgetsetdescriptor(obj) and not isinstance(obj, type)
-        else obj
-    )
+    """The full name (`__module__.__name__`) of the object."""
 
     if isinstance(obj, staticmethod | classmethod):
         obj = obj.__func__
 
+    elif (
+        not inspect.isroutine(obj)
+        and not inspect.isgetsetdescriptor(obj)
+        and not isinstance(obj, type)
+        and not inspect.ismodule(obj)
+    ):
+        obj = type(obj)
+
+    if (name := fullname.__dict__.setdefault(_CACHE_KEY, dict()).get(obj)) is not None:
+        return name
+
+    if inspect.ismodule(obj):
+        fullname.__dict__[_CACHE_KEY][obj] = name = _module_name(obj)
+        return name
+
     qualname = obj.__qualname__
+    orig_obj = obj
 
     if _is_routine_method(obj) or _is_routine_descriptor(obj):
         obj_cls = obj.__objclass__ if _is_routine_descriptor(obj) else obj.__self__
         obj = type(obj_cls) if not isinstance(obj_cls, type) else obj_cls
 
-    module = builtins.__name__ if _is_builtin(obj) else _module_name(sys.modules[obj.__module__])
-    return ".".join((module, qualname))
+    module: str = getattr(orig_obj, "__module__", obj.__module__)
+    if _is_builtin(obj) and module != builtins.__name__:
+        module = builtins.__name__
+    else:
+        module = _module_name(sys.modules[module])
+
+    fullname.__dict__[_CACHE_KEY][orig_obj] = name = ".".join((module, qualname))
+    return name
 
 
 __all__ = ("fullname",)
