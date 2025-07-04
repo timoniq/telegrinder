@@ -181,7 +181,7 @@ def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
             if child in path:
                 raise ComposeError(
                     f"Cannot resolve node `{fullname(node)}` due to circular dependency "
-                    f"({' -> '.join(fullname(n) for n in path[path.index(child):] + [child])} <...>)",
+                    f"({' -> '.join(fullname(n) for n in path[path.index(child) :] + [child])} <...>)",
                 )
 
             stack.append((child, subnodes, path + [child]))

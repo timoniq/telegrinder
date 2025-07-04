@@ -25,7 +25,7 @@ __all__ = (
     "ObjectSchema",
     "ObjectsFieldsLiteralTypesField",
     "ObjectsIdByDefaultField",
-    "TypedDefaultParameter",
     "TelegramBotAPISchema",
+    "TypedDefaultParameter",
     "dec_hook",
 )
