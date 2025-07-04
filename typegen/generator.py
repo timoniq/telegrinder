@@ -476,12 +476,14 @@ class MethodGenerator(ABCGenerator):
         config: Config,
         parent_types: dict[str, list[str]],
         *,
-        release_date: str | None = None,
+        version: float,
+        release_date: str,
     ) -> None:
         self.methods = methods
         self.config = config
         self.parent_types = parent_types
         self.release_date = release_date
+        self.version = version
 
     @staticmethod
     def make_type_hint(
@@ -698,8 +700,9 @@ def generate(
         )
         method_generator = method_generator or MethodGenerator(
             methods=schema.methods,
-            parent_types=(object_generator.parent_types if isinstance(object_generator, ObjectGenerator) else {}),
+            parent_types=object_generator.parent_types if isinstance(object_generator, ObjectGenerator) else {},
             config=config,
+            version=float(schema.version.split()[-1]),
             release_date=schema.release_date,
         )
 

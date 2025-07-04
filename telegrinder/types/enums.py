@@ -695,10 +695,11 @@ class TransactionPartnerUserTransactionType(enum.StrEnum, metaclass=BaseEnumMeta
 
 
 class UniqueGiftInfoOriginType(enum.StrEnum, metaclass=BaseEnumMeta):
-    """Origin of the gift. Currently, either `upgrade` or `transfer`."""
+    """Origin of the gift. Currently, either `upgrade`, `transfer` or `resale`."""
 
     UPGRADE = "upgrade"
     TRANSFER = "transfer"
+    RESALE = "resale"
 
 
 __all__ = (
