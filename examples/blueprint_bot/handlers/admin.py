@@ -1,11 +1,11 @@
 import sys
 
 from telegrinder import Dispatch, Message
-from telegrinder.rules import MessageRule, Text
+from telegrinder.rules import ABCRule, Text
 
 
-class IsAdmin(MessageRule):
-    async def check(self, message: Message) -> bool:
+class IsAdmin(ABCRule):
+    def check(self, message: Message) -> bool:
         return message.from_user.username.unwrap_or_none() == "timoniq"
 
 

@@ -4,7 +4,13 @@ import typing
 from fntypes.option import Nothing, Option, Some
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types import CallbackQueryCute, ChatJoinRequestCute, MessageCute, PreCheckoutQueryCute
+from telegrinder.bot.cute_types import (
+    CallbackQueryCute,
+    ChatJoinRequestCute,
+    ChatMemberUpdatedCute,
+    MessageCute,
+    PreCheckoutQueryCute,
+)
 from telegrinder.node.base import ComposeError, DataNode, scalar_node
 from telegrinder.node.polymorphic import Polymorphic, impl
 from telegrinder.types.objects import Chat, Message, User
@@ -20,7 +26,7 @@ class Source(Polymorphic, DataNode):
     @impl
     def compose_message(cls, message: MessageCute) -> typing.Self:
         return cls(
-            api=message.ctx_api,
+            api=message.api,
             from_user=message.from_user,
             chat=Some(message.chat),
             thread_id=message.message_thread_id,
@@ -29,28 +35,33 @@ class Source(Polymorphic, DataNode):
     @impl
     def compose_callback_query(cls, callback_query: CallbackQueryCute) -> typing.Self:
         return cls(
-            api=callback_query.ctx_api,
+            api=callback_query.api,
             from_user=callback_query.from_user,
             chat=callback_query.chat,
             thread_id=callback_query.message_thread_id,
         )
 
     @impl
+    def compose_chat_member_updated(cls, chat_member_updated: ChatMemberUpdatedCute) -> typing.Self:
+        return cls(
+            api=chat_member_updated.api,
+            from_user=chat_member_updated.from_user,
+            chat=Some(chat_member_updated.chat),
+        )
+
+    @impl
     def compose_chat_join_request(cls, chat_join_request: ChatJoinRequestCute) -> typing.Self:
         return cls(
-            api=chat_join_request.ctx_api,
+            api=chat_join_request.api,
             from_user=chat_join_request.from_user,
             chat=Some(chat_join_request.chat),
-            thread_id=Nothing(),
         )
 
     @impl
     def compose_pre_checkout_query(cls, pre_checkout_query: PreCheckoutQueryCute) -> typing.Self:
         return cls(
-            api=pre_checkout_query.ctx_api,
+            api=pre_checkout_query.api,
             from_user=pre_checkout_query.from_user,
-            chat=Nothing(),
-            thread_id=Nothing(),
         )
 
     async def send(self, text: str, **kwargs: typing.Any) -> Message:
@@ -78,10 +89,31 @@ class UserSource:
 
 
 @scalar_node
+class ChatId:
+    @classmethod
+    def compose(cls, chat: ChatSource) -> int:
+        return chat.id
+
+
+@scalar_node
 class UserId:
     @classmethod
     def compose(cls, user: UserSource) -> int:
         return user.id
 
 
-__all__ = ("ChatSource", "Source", "UserId", "UserSource")
+@scalar_node
+class Locale:
+    @classmethod
+    def compose(cls, user: UserSource) -> str:
+        return user.language_code.expect(ComposeError("User has no language code."))
+
+
+__all__ = (
+    "ChatId",
+    "ChatSource",
+    "Locale",
+    "Source",
+    "UserId",
+    "UserSource",
+)

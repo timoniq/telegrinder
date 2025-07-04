@@ -2,17 +2,32 @@ import dataclasses
 import typing
 
 import msgspec
+from fntypes.option import Some
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types import BaseCute
+from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.msgspec_utils import decoder
-from telegrinder.node.base import ComposeError, FactoryNode
-from telegrinder.types.objects import Update
+from telegrinder.node.base import ComposeError, FactoryNode, scalar_node
+from telegrinder.tools.fullname import fullname
+from telegrinder.types.objects import Model, Update
 
 if typing.TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
 type DataclassType = DataclassInstance | msgspec.Struct | dict[str, typing.Any]
+
+
+@scalar_node
+class UpdateNode:
+    @classmethod
+    def compose(cls, update: Update, api: API, context: Context) -> UpdateCute:
+        match context.update_cute:
+            case Some(update_cute):
+                return update_cute
+            case _:
+                return context.add_update_cute(update, api).update_cute.unwrap()
 
 
 class _EventNode(FactoryNode):
@@ -23,13 +38,24 @@ class _EventNode(FactoryNode):
         return cls(dataclass=dataclass, orig_dataclass=typing.get_origin(dataclass) or dataclass)
 
     @classmethod
-    def compose(cls, raw_update: Update, api: API) -> DataclassType:
-        try:
-            if issubclass(cls.orig_dataclass, BaseCute):
-                update = raw_update if issubclass(cls.orig_dataclass, Update) else raw_update.incoming_update
-                dataclass = cls.orig_dataclass.from_update(update=update, bound_api=api)
+    def compose(cls, update_cute: UpdateNode, raw_update: Update, api: API) -> DataclassType:
+        if cls.orig_dataclass is UpdateCute:
+            return update_cute
 
-            elif issubclass(cls.orig_dataclass, msgspec.Struct) or dataclasses.is_dataclass(
+        if issubclass(cls.orig_dataclass, BaseCute | Model):
+            incoming_update = (
+                update_cute.incoming_update
+                if issubclass(cls.orig_dataclass, BaseCute)
+                else raw_update.incoming_update
+            )
+
+            if type(incoming_update) is not cls.orig_dataclass:
+                raise ComposeError(f"Incoming update is not `{fullname(cls.orig_dataclass)}`.")
+
+            return incoming_update
+
+        try:
+            if issubclass(cls.orig_dataclass, msgspec.Struct) or dataclasses.is_dataclass(
                 cls.orig_dataclass,
             ):
                 dataclass = decoder.convert(
@@ -42,13 +68,13 @@ class _EventNode(FactoryNode):
 
             return dataclass
         except Exception as exc:
-            raise ComposeError(f"Cannot parse an update object into {cls.dataclass!r}, error: {str(exc)}")
+            raise ComposeError(f"Cannot parse an update object into `{fullname(cls.dataclass)}`, error: {exc}")
 
 
 if typing.TYPE_CHECKING:
     type EventNode[Dataclass: DataclassType] = Dataclass
 else:
-    EventNode = _EventNode
+    EventNode = type("EventNode", (_EventNode,), {"__module__": __name__})
 
 
 __all__ = ("EventNode",)

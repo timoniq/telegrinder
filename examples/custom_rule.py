@@ -1,11 +1,11 @@
 from telegrinder import (
     API,
+    ABCRule,
     Message,
-    MessageRule,
     Telegrinder,
     Token,
 )
-from telegrinder.bot import MESSAGE_FROM_USER, Context, WaiterMachine
+from telegrinder.bot import MESSAGE_FROM_USER, WaiterMachine
 from telegrinder.modules import logger
 from telegrinder.rules import Text
 
@@ -16,13 +16,13 @@ wm = WaiterMachine(bot.dispatch)
 logger.set_level("INFO")
 
 
-class HasPhoto(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
+class HasPhoto(ABCRule):
+    async def check(self, message: Message) -> bool:
         return bool(message.photo and message.photo.unwrap())
 
 
-class HasNicePhoto(MessageRule, requires=[HasPhoto()]):
-    async def check(self, message: Message, ctx: Context) -> bool:
+class HasNicePhoto(ABCRule, requires=[HasPhoto()]):
+    async def check(self, message: Message) -> bool:
         return message.photo.unwrap()[0].width > message.photo.unwrap()[0].height
 
 
@@ -30,8 +30,7 @@ class HasNicePhoto(MessageRule, requires=[HasPhoto()]):
 async def start_handler(m: Message):
     await m.answer("Send me a photo please")
     m, _ = await wm.wait(
-        MESSAGE_FROM_USER,
-        m.from_user.id,
+        hasher=MESSAGE_FROM_USER(m.from_user.id),
         release=HasPhoto(),
     )
     await m.reply("Great photo! Chain completed.")

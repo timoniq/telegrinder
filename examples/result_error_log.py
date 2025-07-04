@@ -52,9 +52,4 @@ async def handle_error_manually_controlled(m: Message):
     # Thus, no log is going to happen, only two prints out of cases shown above
 
 
-@bot.on.message(Text("/works"))
-async def handler_that_works(m: Message):
-    await m.answer("This handler works 🤯🤯")
-
-
 bot.run_forever()

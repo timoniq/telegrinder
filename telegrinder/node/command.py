@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from fntypes.option import Nothing, Option, Some
 
 from telegrinder.node.base import DataNode
-from telegrinder.node.either import Either
 from telegrinder.node.text import Caption, Text
 
 
@@ -25,7 +24,7 @@ class CommandInfo(DataNode):
     mention: Option[str] = field(default_factory=Nothing)
 
     @classmethod
-    def compose(cls, text: Either[Text, Caption]) -> typing.Self:
+    def compose(cls, text: Text | Caption) -> typing.Self:
         name, arguments = single_split(text, separator=" ")
         name, mention = cut_mention(name)
         return cls(name, arguments, mention)

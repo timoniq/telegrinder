@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.model import get_params
+from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import (
     InputFile,
     InputMediaAnimation,

@@ -25,7 +25,7 @@ repos:
       - id: basedpyright
         name: basedpyright
         description: "Run 'basedpyright' for Python type checking"
-        entry: uv run basedpyright --level=ERROR
+        entry: uv run basedpyright --level error
         pass_filenames: false
         language: system
         types: [ python ]
@@ -34,9 +34,25 @@ repos:
       - id: pytest
         name: pytest
         description: "Run tests for testing code"
-        entry: uv run pytest
+        entry: uv run pytest tests
         language: system
         pass_filenames: false
+        types: [ python ]
+        stages: [ pre-commit ]
+
+      - id: ruff
+        name: ruff-isort
+        description: "Run 'ruff check --select I --select F401 --fix' for extremely fast Python sorting imports"
+        entry: uv run ruff check --select I --select F401 --fix
+        language: system
+        types: [ python ]
+        stages: [ pre-commit ]
+
+      - id: ruff
+        name: ruff-sortall
+        description: "Run 'ruff check --select RUF022 --fix' for extremely fast Python sorting dunder alls"
+        entry: uv run ruff check --select RUF022 --fix
+        language: system
         types: [ python ]
         stages: [ pre-commit ]
 
@@ -49,16 +65,8 @@ repos:
         stages: [ pre-commit ]
 
       - id: ruff
-        name: ruff-isort
-        description: "Run 'ruff --select I --select F401 --fix' for extremely fast Python sorting imports"
-        entry: uv run ruff check --select I --select F401 --fix
-        language: system
-        types: [ python ]
-        stages: [ pre-commit ]
-
-      - id: ruff
         name: ruff-check
-        description: "Run 'ruff-format' for extremely fast Python linting"
+        description: "Run 'ruff check --fix' for extremely fast Python linting"
         entry: uv run ruff check --fix
         language: system
         types: [ python ]

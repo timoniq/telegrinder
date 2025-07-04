@@ -3,22 +3,23 @@ import dataclasses
 import datetime
 import typing
 
-from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.tools.magic import cancel_future
+from telegrinder.tools.aio import cancel_future
 
 if typing.TYPE_CHECKING:
+    from telegrinder.bot.cute_types.base import BaseCute
+
     from .actions import WaiterActions
 
 
-class ShortStateContext[Event: BaseCute](typing.NamedTuple):
+class ShortStateContext[Event: BaseCute[typing.Any]](typing.NamedTuple):
     event: Event
     context: Context
 
 
 @dataclasses.dataclass(slots=True)
-class ShortState[Event: BaseCute]:
+class ShortState[Event: BaseCute[typing.Any]]:
     event: asyncio.Event
     actions: "WaiterActions[Event]"
 

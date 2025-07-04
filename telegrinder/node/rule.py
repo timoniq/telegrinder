@@ -1,5 +1,4 @@
 import dataclasses
-import importlib
 import typing
 
 from telegrinder.bot.cute_types.update import UpdateCute
@@ -9,6 +8,12 @@ from telegrinder.node.base import ComposeError, Node
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.process import check_rule
     from telegrinder.bot.rules.abc import ABCRule
+else:
+
+    def check_rule(*args, **kwargs):
+        from telegrinder.bot.dispatch.process import check_rule
+
+        return check_rule(*args, **kwargs)
 
 
 class RuleChain(dict[str, typing.Any], Node):
@@ -36,18 +41,6 @@ class RuleChain(dict[str, typing.Any], Node):
 
     @classmethod
     async def compose(cls, update: UpdateCute) -> typing.Any:
-        # Hack to avoid circular import
-        globalns = globals()
-        if "check_rule" not in globalns:
-            globalns.update(
-                {
-                    "check_rule": getattr(
-                        importlib.import_module("telegrinder.bot.dispatch.process"),
-                        "check_rule",
-                    ),
-                },
-            )
-
         ctx = Context()
         for rule in cls.rules:
             if not await check_rule(update.api, rule, update, ctx):

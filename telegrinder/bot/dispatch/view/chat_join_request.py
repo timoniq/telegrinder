@@ -1,11 +1,10 @@
-from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute
-from telegrinder.bot.dispatch.view.base import BaseStateView
+from telegrinder.bot.dispatch.view.base import BaseView
+from telegrinder.types.enums import UpdateType
 
 
-class ChatJoinRequestView(BaseStateView[ChatJoinRequestCute]):
-    @classmethod
-    def get_state_key(cls, event: ChatJoinRequestCute) -> int | None:
-        return event.chat_id
+class ChatJoinRequestView(BaseView):
+    def __init__(self) -> None:
+        super().__init__(UpdateType.CHAT_JOIN_REQUEST)
 
 
 __all__ = ("ChatJoinRequestView",)

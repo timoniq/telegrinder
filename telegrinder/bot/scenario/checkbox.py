@@ -29,7 +29,7 @@ class Choice[Key: typing.Hashable]:
     code: str
 
 
-class _Checkbox(ABCScenario[CallbackQueryCute]):
+class _Checkbox[T](ABCScenario[CallbackQueryCute]):
     INVALID_CODE = "Invalid code"
     CALLBACK_ANSWER = "Done"
     PARSE_MODE = ParseMode.HTML

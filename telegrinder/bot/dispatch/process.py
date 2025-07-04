@@ -1,151 +1,130 @@
+from __future__ import annotations
+
 import typing
 
-from fntypes.option import Nothing, Some
+from fntypes.result import Error, Ok
 
 from telegrinder.api.api import API
-from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware, run_middleware
-from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
-from telegrinder.model import Model
 from telegrinder.modules import logger
-from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope, compose_nodes
-from telegrinder.tools.adapter.abc import run_adapter
-from telegrinder.tools.i18n.abc import I18nEnum
+from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, compose_nodes
+from telegrinder.tools.aio import maybe_awaitable
+from telegrinder.tools.fullname import fullname
+from telegrinder.tools.magic.function import bundle
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.dispatch.handler.abc import ABCHandler
+    from telegrinder.bot.dispatch.view.base import BaseView
     from telegrinder.bot.rules.abc import ABCRule
 
 
-async def process_inner[Event: Model](
+async def process_inner(
     api: API,
-    event: Event,
-    raw_event: Update,
+    event: Update,
     ctx: Context,
-    middlewares: list[ABCMiddleware[Event]],
-    handlers: list["ABCHandler[Event]"],
-    return_manager: ABCReturnManager[Event] | None = None,
+    view: BaseView,
 ) -> bool:
-    logger.debug("Processing {!r}...", event.__class__.__name__)
     ctx[CONTEXT_STORE_NODES_KEY] = {}  # For per-event shared nodes
 
-    logger.debug("Run pre middlewares...")
-    for m in middlewares:
-        result = await run_middleware(m.pre, api, event, raw_event=raw_event, ctx=ctx, adapter=m.adapter)
-        logger.debug("Middleware {!r} returned: {!r}", m, result)
-        if result is False:
+    for m in view.middlewares:
+        if (
+            type(m).pre is not ABCMiddleware.pre
+            and await run_middleware(m.pre, api, event, ctx, required_nodes=m.pre_required_nodes) is False
+        ):
+            logger.info(
+                "Update(id={}, type={!r}) processed with view `{}`. Pre-middleware `{}` raised failure.",
+                event.update_id,
+                event.update_type,
+                type(view).__name__,
+                fullname(m),
+            )
             return False
 
-    found = False
-    responses = []
+    found_handlers = []
+    responses = list[typing.Any]()
     ctx_copy = ctx.copy()
 
-    for handler in handlers:
-        adapted_event = event
+    for handler in view.handlers:
+        match await handler.run(api, event, ctx):
+            case Ok(response):
+                found_handlers.append(handler)
+                responses.append(response)
 
-        if await handler.check(api, raw_event, ctx):
-            if handler.adapter is not None:
-                match await run_adapter(handler.adapter, api, raw_event, ctx):
-                    case Some(value):
-                        adapted_event = value
-                    case Nothing():
-                        continue
+                if view.return_manager is not None:
+                    await view.return_manager.run(response, api, event, ctx)
 
-            found = True
-            logger.debug("Handler {!r} matched, run...", handler)
-            response = await handler.run(api, adapted_event, ctx)
-            logger.debug("Handler {!r} returned: {!r}", handler, response)
-            responses.append(response)
+                if handler.final is True:
+                    break
+            case Error(error):
+                logger.debug(error)
 
-            if return_manager is not None:
-                await return_manager.run(response, event, ctx)
-            if handler.final:
-                break
+    ctx = ctx_copy
+    ctx.responses = responses
 
-        ctx = ctx_copy
+    for m in view.middlewares:
+        if type(m).post is not ABCMiddleware.post:
+            await run_middleware(
+                m.post,
+                api,
+                event,
+                ctx,
+                required_nodes=m.post_required_nodes,
+            )
 
-    logger.debug("Run post middlewares...")
-    ctx.set("responses", responses)
-
-    for m in middlewares:
-        await run_middleware(
-            m.post,
-            api,
-            event,
-            raw_event=raw_event,
-            ctx=ctx,
-            adapter=m.adapter,
-        )
-
-    for session in ctx.get(CONTEXT_STORE_NODES_KEY, {}).values():
-        await session.close(scopes=(NodeScope.PER_EVENT,))
-
-    logger.debug(
-        "{} handlers, returns {!r}",
-        "No found" if not found else "Found",
-        found,
+    logger.info(
+        "Update(id={}, type={!r}) processed with view `{}`. {}",
+        event.update_id,
+        event.update_type,
+        type(view).__name__,
+        "No found corresponded handlers."
+        if not found_handlers
+        else f"Handler{'s' if len(found_handlers) > 1 else ''}: {', '.join(f'`{x!r}`' for x in found_handlers)}",
     )
-    return found
+    return bool(found_handlers)
 
 
 async def check_rule(
     api: API,
-    rule: "ABCRule",
+    rule: ABCRule,
     update: Update,
     ctx: Context,
 ) -> bool:
     """Checks requirements, adapts update.
     Returns check result.
     """
-    update_cute = None if not isinstance(update, UpdateCute) else update
-
-    # Running adapter
-    match await run_adapter(rule.adapter, api, update, ctx):
-        case Some(val):
-            adapted_value = val
-        case Nothing():
-            return False
-
-    # Preparing update
-    if isinstance(adapted_value, UpdateCute):
-        update_cute = adapted_value
-    elif isinstance(adapted_val := ctx.get(rule.adapter.ADAPTED_VALUE_KEY or ""), UpdateCute):
-        update_cute = adapted_val
-    else:
-        update_cute = UpdateCute.from_update(update, bound_api=api)
-
     # Running subrules to fetch requirements
     ctx_copy = ctx.copy()
     for requirement in rule.requires:
-        if not await check_rule(api, requirement, update_cute, ctx_copy):
+        if not await check_rule(api, requirement, update, ctx_copy):
             return False
-
-    # Translating translatable rules
-    if I18nEnum.I18N in ctx:
-        rule = await rule.translate(ctx[I18nEnum.I18N])
 
     ctx |= ctx_copy
+    node_col = None
+    data = {Update: update, API: api, Context: ctx}
 
     # Composing required nodes
-    nodes = rule.required_nodes
-    node_col = None
-    if nodes:
-        result = await compose_nodes(nodes, ctx, data={Update: update, API: api})
-        if not result:
-            logger.debug(f"Cannot compose nodes for rule, error: {str(result.error)}")
-            return False
-        node_col = result.value
+    if rule.required_nodes:
+        match await compose_nodes(rule.required_nodes, ctx, data=data):
+            case Ok(value):
+                node_col = value
+            case Error(compose_error):
+                logger.debug(
+                    "Cannot compose nodes for rule `{!r}`, error: {!r}",
+                    rule,
+                    compose_error.message,
+                )
+                return False
 
     # Running check
-    result = await rule.bounding_check(ctx, adapted_value=adapted_value, node_col=node_col)
-
-    # Closing node sessions if there are any
-    if node_col is not None:
-        await node_col.close_all()
-
-    return result
+    try:
+        bundle_check = bundle(rule.check, data, typebundle=True)
+        bundle_check &= bundle(rule.check, ctx | ({} if node_col is None else node_col.values))
+        return await maybe_awaitable(bundle_check())
+    finally:
+        # Closing node sessions if there are any
+        if node_col is not None:
+            await node_col.close_all()
 
 
 __all__ = ("check_rule", "process_inner")

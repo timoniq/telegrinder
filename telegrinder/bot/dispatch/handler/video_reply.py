@@ -1,6 +1,5 @@
 import typing
 
-from telegrinder.api.api import API
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.base import BaseReplyHandler
@@ -31,8 +30,8 @@ class VideoReplyHandler(BaseReplyHandler):
             **default_params,
         )
 
-    async def run(self, _: API, event: MessageCute, __: Context) -> typing.Any:
-        method = event.answer_video if not self.as_reply else event.reply_video
+    async def run(self, message: MessageCute) -> None:
+        method = message.answer_video if not self.as_reply else message.reply_video
         await method(
             video=self.video,
             parse_mode=self.parse_mode,

@@ -7,11 +7,11 @@ import msgspec
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.markup import Markup, PatternLike, check_string
-from telegrinder.msgspec_json import loads
+from telegrinder.msgspec_utils.json import loads
 from telegrinder.node.base import Node
 from telegrinder.node.payload import Payload, PayloadData
-from telegrinder.tools.callback_data_serilization.abc import ABCDataSerializer, ModelType
-from telegrinder.tools.callback_data_serilization.json_ser import JSONSerializer
+from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
+from telegrinder.tools.callback_data_serialization.json_ser import JSONSerializer
 
 
 class PayloadRule[Data](ABCRule):
@@ -35,10 +35,11 @@ class PayloadRule[Data](ABCRule):
         return True
 
 
-class PayloadModelRule[Model: ModelType](PayloadRule[Model]):
+class PayloadModelRule[Model: ModelType](PayloadRule):
     def __init__(
         self,
         model_t: type[Model],
+        /,
         *,
         serializer: type[ABCDataSerializer[Model]] | None = None,
         alias: str | None = None,

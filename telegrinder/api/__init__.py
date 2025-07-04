@@ -1,7 +1,7 @@
-from .api import API
-from .error import APIError, APIServerError, InvalidTokenError
-from .response import APIResponse
-from .token import Token
+from telegrinder.api.api import API, compose_data, retryer
+from telegrinder.api.error import APIError, APIServerError, InvalidTokenError
+from telegrinder.api.response import APIResponse
+from telegrinder.api.token import Token
 
 __all__ = (
     "API",
@@ -10,4 +10,6 @@ __all__ = (
     "APIServerError",
     "InvalidTokenError",
     "Token",
+    "compose_data",
+    "retryer",
 )

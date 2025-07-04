@@ -1,10 +1,11 @@
-import typing
+from fntypes.result import Ok
 
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.node.base import IsNode, NodeType, is_node
-from telegrinder.tools.adapter.node import NodeAdapter
-
-from .abc import ABCRule
+from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.node.base import IsNode, is_node
+from telegrinder.node.composer import compose_nodes
+from telegrinder.types.objects import Update
 
 
 class NodeRule(ABCRule):
@@ -19,14 +20,24 @@ class NodeRule(ABCRule):
             self.nodes.append(node_t)
             self.node_keys.append(node_key)
 
-    @property
-    def adapter(self) -> NodeAdapter:
-        return NodeAdapter(*self.nodes)
+    async def check(self, update: Update, api: API, context: Context) -> bool:
+        result = await compose_nodes(
+            nodes={f"node_{i}": node for i, node in enumerate(self.nodes)},
+            ctx=context,
+            data={Update: update, API: api},
+        )
 
-    def check(self, resolved_nodes: tuple[NodeType, ...], ctx: Context) -> typing.Literal[True]:
-        for i, node in enumerate(resolved_nodes):
-            if key := self.node_keys[i]:
-                ctx[key] = node
+        match result:
+            case Ok(collection):
+                resolved_nodes = collection.sessions
+            case _:
+                return False
+
+        for i, (node_key, node_value) in enumerate(resolved_nodes.items()):
+            if (key := self.node_keys[i]) and node_key == key:
+                context[key] = node_value
+
+        await collection.close_all()
         return True
 
 

@@ -30,3 +30,6 @@ msgstr "cześć"
 
 msgid "Hello, {name}!"
 msgstr "Cześć, {name}!"
+
+msgid "im fine"
+msgstr "Wszystko jest w porządku!"

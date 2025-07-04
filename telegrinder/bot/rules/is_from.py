@@ -1,10 +1,11 @@
 import typing
 
+from telegrinder.bot.cute_types.message import MessageCute
+from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node.source import ChatSource, UserSource
 from telegrinder.types.enums import ChatType, DiceEmoji
 
-from .abc import ABCRule, Message
-from .message import MessageRule
+Message: typing.TypeAlias = MessageCute
 
 
 class IsBot(ABCRule):
@@ -71,12 +72,12 @@ class IsChat(ABCRule):
         return chat.type in (ChatType.GROUP, ChatType.SUPERGROUP)
 
 
-class IsDice(MessageRule):
+class IsDice(ABCRule):
     def check(self, message: Message) -> bool:
         return bool(message.dice)
 
 
-class IsDiceEmoji(MessageRule, requires=[IsDice()]):
+class IsDiceEmoji(ABCRule, requires=[IsDice()]):
     def __init__(self, dice_emoji: DiceEmoji, /) -> None:
         self.dice_emoji = dice_emoji
 
@@ -84,12 +85,12 @@ class IsDiceEmoji(MessageRule, requires=[IsDice()]):
         return message.dice.unwrap().emoji == self.dice_emoji
 
 
-class IsForward(MessageRule):
+class IsForward(ABCRule):
     def check(self, message: Message) -> bool:
         return bool(message.forward_origin)
 
 
-class IsForwardType(MessageRule, requires=[IsForward()]):
+class IsForwardType(ABCRule, requires=[IsForward()]):
     def __init__(self, fwd_type: typing.Literal["user", "hidden_user", "chat", "channel"], /) -> None:
         self.fwd_type = fwd_type
 
@@ -97,27 +98,27 @@ class IsForwardType(MessageRule, requires=[IsForward()]):
         return message.forward_origin.unwrap().v.type == self.fwd_type
 
 
-class IsReply(MessageRule):
+class IsReply(ABCRule):
     def check(self, message: Message) -> bool:
         return bool(message.reply_to_message)
 
 
-class IsSticker(MessageRule):
+class IsSticker(ABCRule):
     def check(self, message: Message) -> bool:
         return bool(message.sticker)
 
 
-class IsVideoNote(MessageRule):
+class IsVideoNote(ABCRule):
     def check(self, message: Message) -> bool:
         return bool(message.video_note)
 
 
-class IsDocument(MessageRule):
+class IsDocument(ABCRule):
     def check(self, message: Message) -> bool:
         return bool(message.document)
 
 
-class IsPhoto(MessageRule):
+class IsPhoto(ABCRule):
     def check(self, message: Message) -> bool:
         return bool(message.photo)
 

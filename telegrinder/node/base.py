@@ -3,12 +3,19 @@ from __future__ import annotations
 import abc
 import inspect
 from collections import deque
-from types import AsyncGeneratorType, CodeType, resolve_bases
+from functools import reduce
+from itertools import islice
+from types import CodeType, NoneType, UnionType, resolve_bases
 
 import typing_extensions as typing
 
+from telegrinder.node.context import NODE_CONTEXT
+from telegrinder.node.exceptions import ComposeError
 from telegrinder.node.scope import NodeScope
-from telegrinder.tools.magic import cache_magic_value, get_annotations
+from telegrinder.node.session import NodeSession
+from telegrinder.tools.aio import Generator
+from telegrinder.tools.fullname import fullname
+from telegrinder.tools.magic.function import function_context, get_func_annotations
 from telegrinder.tools.strings import to_pascal_case
 
 if typing.TYPE_CHECKING:
@@ -16,94 +23,138 @@ if typing.TYPE_CHECKING:
 else:
 
     def generate_node(*args, **kwargs):
-        globalns = globals()
-        if "__generate_node" not in globalns:
-            import telegrinder.node.tools.generator
+        from telegrinder.node.tools.generator import generate_node
 
-            globals()["__generate_node"] = telegrinder.node.tools.generator.generate_node
-
-        return globals()["__generate_node"](*args, **kwargs)
+        return generate_node(*args, **kwargs)
 
 
 type NodeType = Node | NodeProto[typing.Any]
 type IsNode = NodeType | type[NodeType]
+type AnyNode = IsNode | NodeConvertable
 
 T = typing.TypeVar("T", default=typing.Any)
 
-ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | typing.AsyncGenerator[T, None]
+ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]
 
-UNWRAPPED_NODE_KEY = "__unwrapped_node__"
+_NODEFAULT: typing.Final[object] = object()
+_NONE_TYPES: typing.Final[set[typing.Any]] = {None, NoneType}
+_UNION_TYPES: typing.Final[set[typing.Any]] = {typing.Union, UnionType}
+UNWRAPPED_NODE_KEY: typing.Final[str] = "__unwrapped_node__"
+
+
+def is_node(maybe_node: typing.Any, /) -> typing.TypeIs[AnyNode]:
+    return hasattr(maybe_node, "as_node") or is_node_type(maybe_node)
 
 
 @typing.overload
-def is_node(maybe_node: type[typing.Any], /) -> typing.TypeIs[type[NodeType]]: ...
+def as_node(maybe_node: typing.Any, /) -> IsNode: ...
 
 
 @typing.overload
-def is_node(maybe_node: typing.Any, /) -> typing.TypeIs[NodeType]: ...
+def as_node(
+    maybe_node: typing.Any,
+    /,
+    *,
+    raise_exception: typing.Literal[False],
+) -> IsNode | None: ...
 
 
-def is_node(maybe_node: typing.Any, /) -> bool:
-    if isinstance(maybe_node, typing.TypeAliasType):
-        maybe_node = maybe_node.__value__
-    if not isinstance(maybe_node, type):
-        maybe_node = typing.get_origin(maybe_node) or maybe_node
+def union_as_node(union: UnionType, /) -> IsNode | None:
+    from telegrinder.node.either import _Either
 
-    return (
-        hasattr(maybe_node, "as_node")
-        or isinstance(maybe_node, type)
-        and issubclass(maybe_node, (Node, NodeProto))
-        or not isinstance(maybe_node, type)
-        and isinstance(maybe_node, (Node, NodeProto))
+    args = typing.get_args(union)
+    if not args:
+        return None
+
+    plain, opt = [t for t in args if t not in _NONE_TYPES], any(t in _NONE_TYPES for t in args)
+    if not plain:
+        return None
+
+    nodes = typing.cast("IsNode | tuple[IsNode, ...] | None", as_node(*plain, raise_exception=False))
+    if nodes is None:
+        return None
+
+    nodes = (nodes,) if not isinstance(nodes, tuple) else nodes
+    node = reduce(
+        lambda left, right: _Either[left, right],
+        islice(nodes, 1, None),
+        nodes[0],  # type: ignore
     )
+    return _Either[node] if opt else node
 
 
 @typing.overload
-def as_node(maybe_node: type[typing.Any], /) -> type[NodeType]: ...
+def as_node(*maybe_nodes: typing.Any) -> tuple[IsNode, ...]: ...
 
 
 @typing.overload
-def as_node(maybe_node: typing.Any, /) -> NodeType: ...
+def as_node(
+    *maybe_nodes: typing.Any,
+    raise_exception: typing.Literal[False],
+) -> tuple[IsNode, ...] | None: ...
 
 
-@typing.overload
-def as_node(*maybe_nodes: type[typing.Any]) -> tuple[type[NodeType], ...]: ...
+def as_node(
+    *maybe_nodes: typing.Any,
+    raise_exception: bool = True,
+) -> IsNode | tuple[IsNode, ...] | None:
+    nodes = []
 
-
-@typing.overload
-def as_node(*maybe_nodes: typing.Any) -> tuple[NodeType, ...]: ...
-
-
-@typing.overload
-def as_node(*maybe_nodes: type[typing.Any] | typing.Any) -> tuple[IsNode, ...]: ...
-
-
-def as_node(*maybe_nodes: typing.Any) -> typing.Any | tuple[typing.Any, ...]:
     for maybe_node in maybe_nodes:
-        if not is_node(maybe_node):
-            is_type = isinstance(maybe_node, type)
-            raise LookupError(
-                f"{'Type of' if is_type else 'Object of type'} "
-                f"{maybe_node.__name__ if is_type else maybe_node.__class__.__name__!r} "
-                "cannot be resolved as Node."
-            )
-    return maybe_nodes[0] if len(maybe_nodes) == 1 else maybe_nodes
+        if isinstance(maybe_node, typing.TypeAliasType):
+            maybe_node = maybe_node.__value__
+
+        if (typing.get_origin(maybe_node) or maybe_node) in _UNION_TYPES and (
+            maybe_node := union_as_node(union := maybe_node)
+        ) is None:
+            if not raise_exception:
+                return None
+            raise TypeError(f"Union `{union!r}` doesn't contain all types of Node.")
+
+        if not is_node_type(orig := typing.get_origin(maybe_node) or maybe_node):
+            if not hasattr(orig, "as_node"):
+                if not raise_exception:
+                    return None
+
+                raise TypeError(
+                    f"{'Type of' if isinstance(maybe_node, type) else 'Object of type'} "
+                    f"{fullname(maybe_node)!r} cannot be resolved as Node.",
+                )
+
+            maybe_node = orig.as_node()
+
+        nodes.append(maybe_node)
+
+    return nodes[0] if len(nodes) == 1 else tuple(nodes)
 
 
-@cache_magic_value("__nodes__")
-def get_nodes(function: typing.Callable[..., typing.Any], /) -> dict[str, type[NodeType]]:
-    return {k: v.as_node() for k, v in get_annotations(function).items() if is_node(v)}
+def is_node_type(obj: typing.Any, /) -> typing.TypeIs[IsNode]:
+    return isinstance(obj, Node | NodeProto) or (isinstance(obj, type) and issubclass(obj, Node | NodeProto))
 
 
-@cache_magic_value("__is_generator__")
+@function_context("nodes")
+def get_nodes(
+    function: typing.Callable[..., typing.Any],
+    /,
+    *,
+    start_idx: int = 0,
+) -> dict[str, IsNode]:
+    return {
+        k: node
+        for index, (k, v) in enumerate(get_func_annotations(function).items())
+        if (node := as_node(v, raise_exception=False)) is not None and index >= start_idx
+    }
+
+
+@function_context("is_generator")
 def is_generator(
     function: typing.Callable[..., typing.Any],
     /,
-) -> typing.TypeGuard[AsyncGeneratorType[typing.Any, None]]:
-    return inspect.isasyncgenfunction(function)
+) -> typing.TypeGuard[Generator[typing.Any, typing.Any, typing.Any]]:
+    return inspect.isgeneratorfunction(function) or inspect.isasyncgenfunction(function)
 
 
-def unwrap_node(node: type[NodeType], /) -> tuple[type[NodeType], ...]:
+def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
     """Unwrap node as flattened tuple of node types in ordering required to calculate given node.
 
     Provides caching for passed node type.
@@ -111,25 +162,33 @@ def unwrap_node(node: type[NodeType], /) -> tuple[type[NodeType], ...]:
     if (unwrapped := getattr(node, UNWRAPPED_NODE_KEY, None)) is not None:
         return unwrapped
 
-    stack = deque([(node, node.get_subnodes().values())])
-    visited = list[type[NodeType]]()
+    stack = deque([(node, node.get_subnodes().values(), [node])])
+    visited = list[IsNode]()
 
     while stack:
-        parent, child_nodes = stack.pop()
+        parent, child_nodes, path = stack.pop()
+        dependencies = set(child_nodes)
+
+        if parent in dependencies:
+            raise ComposeError(f"Node `{fullname(parent)}` refers to itself in dependency tree.")
 
         if parent not in visited:
             visited.insert(0, parent)
 
         for child in child_nodes:
-            stack.append((child, child.get_subnodes().values()))
+            subnodes = child.get_subnodes().values()
+            dependencies.update(subnodes)
+            if child in path:
+                raise ComposeError(
+                    f"Cannot resolve node `{fullname(node)}` due to circular dependency "
+                    f"({' -> '.join(fullname(n) for n in path[path.index(child) :] + [child])} <...>)",
+                )
+
+            stack.append((child, subnodes, path + [child]))
 
     unwrapped = tuple(visited)
     setattr(node, UNWRAPPED_NODE_KEY, unwrapped)
     return unwrapped
-
-
-class ComposeError(BaseException):
-    pass
 
 
 @typing.runtime_checkable
@@ -138,7 +197,7 @@ class Composable[R](typing.Protocol):
     def compose(cls, *args: typing.Any, **kwargs: typing.Any) -> ComposeResult[R]: ...
 
 
-class NodeImpersonation(typing.Protocol):
+class NodeConvertable(typing.Protocol):
     @classmethod
     def as_node(cls) -> type[NodeProto[typing.Any]]: ...
 
@@ -151,9 +210,9 @@ class NodeComposeFunction[R](typing.Protocol):
 
 
 @typing.runtime_checkable
-class NodeProto[R](Composable[R], NodeImpersonation, typing.Protocol):
+class NodeProto[R](Composable[R], typing.Protocol):
     @classmethod
-    def get_subnodes(cls) -> dict[str, type[NodeType]]: ...
+    def get_subnodes(cls) -> dict[str, IsNode]: ...
 
     @classmethod
     def is_generator(cls) -> bool: ...
@@ -169,12 +228,8 @@ class Node(abc.ABC):
         pass
 
     @classmethod
-    def get_subnodes(cls) -> dict[str, type[NodeType]]:
+    def get_subnodes(cls) -> dict[str, IsNode]:
         return get_nodes(cls.compose)
-
-    @classmethod
-    def as_node(cls) -> type[typing.Self]:
-        return cls
 
     @classmethod
     def is_generator(cls) -> bool:
@@ -194,17 +249,30 @@ class scalar_node[T]:  # noqa: N801
         /,
         *,
         scope: NodeScope,
-    ) -> typing.Callable[[NodeComposeFunction[Composable[T]] | NodeComposeFunction[T]], type[T]]: ...
+    ) -> typing.Callable[[NodeComposeFunction[Composable[T]]], type[T]]: ...
 
-    def __new__(cls, x=None, /, *, scope=NodeScope.PER_EVENT) -> typing.Any:
+    @typing.overload
+    def __new__(
+        cls,
+        /,
+        *,
+        scope: NodeScope,
+    ) -> typing.Callable[[NodeComposeFunction[T]], type[T]]: ...
+
+    def __new__(cls, x=None, /, *, scope=_NODEFAULT) -> typing.Any:
         def inner(node_or_func, /) -> typing.Any:
-            namespace = {"node": "scalar", "scope": scope, "__module__": node_or_func.__module__}
+            namespace = {"node": "scalar", "__module__": node_or_func.__module__}
 
             if isinstance(node_or_func, type):
                 bases: list[type[typing.Any]] = [node_or_func]
                 node_bases = resolve_bases(node_or_func.__bases__)
+
                 if not any(issubclass(base, Node) for base in node_bases if isinstance(base, type)):
                     bases.append(Node)
+                    namespace["scope"] = NodeScope.PER_EVENT if scope is _NODEFAULT else scope
+                elif scope is not _NODEFAULT:
+                    namespace["scope"] = scope
+
                 return type(node_or_func.__name__, tuple(bases), namespace)
             else:
                 base_node = generate_node(
@@ -247,12 +315,18 @@ class Name:
     def compose(cls) -> str: ...
 
 
+@scalar_node
+class NodeClass:
+    @classmethod
+    def compose(cls) -> type[Node]: ...
+
+
 class GlobalNode[Value](Node):
     scope = NodeScope.GLOBAL
 
     @classmethod
     def set(cls, value: Value, /) -> None:
-        setattr(cls, "_value", value)
+        NODE_CONTEXT.global_session[cls] = NodeSession(cls, value)
 
     @typing.overload
     @classmethod
@@ -266,12 +340,18 @@ class GlobalNode[Value](Node):
     def get(cls, **kwargs: typing.Any) -> typing.Any:
         sentinel = object()
         default = kwargs.pop("default", sentinel)
-        return getattr(cls, "_value") if default is sentinel else getattr(cls, "_value", default)
+
+        if default is not sentinel and cls not in NODE_CONTEXT.global_sessions:
+            return default
+
+        if (session := NODE_CONTEXT.global_sessions.get(cls)) is None and default is sentinel:
+            raise ValueError(f"Node `{fullname(cls)}` has no global value.")
+
+        return session.value if session is not None else default
 
     @classmethod
     def unset(cls) -> None:
-        if hasattr(cls, "_value"):
-            delattr(cls, "_value")
+        NODE_CONTEXT.global_sessions.pop(cls, None)
 
 
 __all__ = (
@@ -283,12 +363,14 @@ __all__ = (
     "IsNode",
     "Name",
     "Node",
-    "NodeImpersonation",
+    "NodeClass",
+    "NodeConvertable",
     "NodeProto",
     "NodeType",
     "as_node",
     "get_nodes",
     "is_node",
+    "is_node_type",
     "scalar_node",
     "unwrap_node",
 )

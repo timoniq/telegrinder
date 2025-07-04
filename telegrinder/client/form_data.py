@@ -10,7 +10,7 @@ def encode_form_data(
 ) -> dict[str, str]:
     context = dict(files=files)
     return {
-        k: encoder.encode(v, context=context).removeprefix('"').removesuffix('"')  # Remove quoted strings
+        k: encoder.encode(v, context=context).strip('"')  # Remove quoted string
         if not isinstance(v, str)
         else v
         for k, v in data.items()

@@ -4,7 +4,7 @@ from functools import cached_property
 
 from envparse import env
 
-from .error import InvalidTokenError
+from telegrinder.api.error import InvalidTokenError
 
 
 class Token(str):
@@ -14,7 +14,7 @@ class Token(str):
         return super().__new__(cls, token)
 
     def __repr__(self) -> str:
-        return f"<Token: {self.bot_id}:{''.join(self.split(':')[-1])[:6]}...>"
+        return f"<Token: {self.bot_id}:{self.split(':')[1][:6]}...>"
 
     @classmethod
     def from_env(

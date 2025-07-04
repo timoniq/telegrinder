@@ -2,7 +2,7 @@ import typing
 
 from telegrinder.node.base import ComposeError, IsNode, Node
 from telegrinder.node.container import ContainerNode
-from telegrinder.tools.awaitable import maybe_awaitable
+from telegrinder.tools.aio import maybe_awaitable
 
 
 def cast_false_to_none[Value](value: Value) -> Value | None:

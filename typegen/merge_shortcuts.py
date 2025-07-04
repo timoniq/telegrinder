@@ -14,7 +14,6 @@ type APIMethodsMapping = dict[str, cst.FunctionDef]
 ANNOTATION_TYPING_ANY: typing.Final[cst.Annotation] = cst.parse_statement("x: typing.Any").body[0].annotation  # type: ignore
 DEFAULT_API_METHODS_CLASS_NAME: typing.Final[str] = "APIMethods"
 DEFAULT_PATH_CUTE_TYPES: typing.Final[pathlib.Path] = pathlib.Path("telegrinder") / "bot" / "cute_types"
-DEFAULT_PATH_API_METHODS: typing.Final[pathlib.Path] = pathlib.Path("telegrinder") / "types" / "methods.py"
 
 
 def is_cute_class(node: cst.ClassDef) -> bool:
@@ -25,6 +24,7 @@ def is_cute_class(node: cst.ClassDef) -> bool:
     for base in node.bases:
         if isinstance(base.value, cst.Name) and base.value.value == "BaseCute":
             return True
+
         if (
             isinstance(base.value, cst.Subscript)
             and isinstance(base.value.value, cst.Name)
@@ -35,14 +35,24 @@ def is_cute_class(node: cst.ClassDef) -> bool:
     return False
 
 
+def is_decorator_name(decorator_call_node: cst.Call, decorator_name: str) -> bool:
+    return isinstance(decorator_call_node.func, cst.Name) and decorator_call_node.func.value == decorator_name
+
+
 def get_func_params(node: cst.FunctionDef) -> tuple[dict[str, cst.Param], dict[str, cst.Param]]:
     result: tuple[dict[str, cst.Param], dict[str, cst.Param]] = tuple()
 
     for params in (node.params.params, node.params.kwonly_params):
-        params = tuple(params)
         params_dct = OrderedDict()
-        optional_params = params[-sum(1 for x in params if x.default is not None) :]
-        required_params = tuple(param for param in params[1 : -len(optional_params)])
+        optional_params = []
+        required_params = []
+
+        for param in params:
+            if param.name.value in ("cls", "self"):
+                params_dct[param.name.value] = param
+                continue
+
+            optional_params.append(param) if param.default is not None else required_params.append(param)
 
         for param in required_params + optional_params:
             params_dct[param.name.value] = param
@@ -95,29 +105,32 @@ def prepare_docstring(
     return None
 
 
-def merge(
-    path_api_methods: str | pathlib.Path | None = None,
-    path_cute_types: str | pathlib.Path | None = None,
-    api_methods_class_name: str | None = None,
+def merge_shortcuts(
+    *,
+    path_api_methods: str | pathlib.Path,
+    path_cute_types: str | pathlib.Path = DEFAULT_PATH_CUTE_TYPES,
+    api_methods_class_name: str = DEFAULT_API_METHODS_CLASS_NAME,
 ) -> None:
-    path_api_methods = pathlib.Path(path_api_methods or DEFAULT_PATH_API_METHODS)
-    path_cute_types = pathlib.Path(path_cute_types or DEFAULT_PATH_CUTE_TYPES)
-    api_methods_class_name = api_methods_class_name or DEFAULT_API_METHODS_CLASS_NAME
+    logger.info("Merging shortcut methods with the last changes in Telegram Bot API methods...")
 
-    logger.info("Merge shortcuts with API methods...")
+    path_api_methods = pathlib.Path(path_api_methods)
+    path_cute_types = pathlib.Path(path_cute_types)
 
     api_methods_source_tree = cst.parse_module(path_api_methods.read_text(encoding="UTF-8"))
     api_methods_visitor = APIMethodsCollector(api_methods_class_name)
     api_methods_source_tree.visit(api_methods_visitor)
 
     for path in path_cute_types.rglob("*.py"):
-        logger.info("Parsing module {!r}...", path.name)
-        cute_source_tree = cst.parse_module(path.read_text(encoding="UTF-8"))
+        if path.name == "__init__.py":
+            continue
 
+        logger.info("Visit cute module `{}`...", path.stem)
+
+        cute_source_tree = cst.parse_module(path.read_text(encoding="UTF-8"))
         shortcuts_visitor = ShortcutsCollector(api_methods_visitor.api_methods)
         cute_source_tree.visit(shortcuts_visitor)
 
-        transformer = ShortcutsCompatibilityTransformer(
+        transformer = ShortcutsTransformer(
             shortcuts_visitor.shortcuts,
             api_methods_visitor.api_methods,
         )
@@ -125,9 +138,9 @@ def merge(
         modified_cute_tree_code = modified_cute_tree.code
 
         if cute_source_tree.code != modified_cute_tree_code:
-            print("Rewritting file {!r}...".format(str(path)))
             path.write_text(modified_cute_tree_code, encoding="UTF-8")
 
+    logger.info("Formatting cuties with ruff formatter...")
     os.system("ruff format {}".format(path_cute_types))
 
 
@@ -153,14 +166,19 @@ class ShortcutsCollector(cst.CSTVisitor):
 
     def visit_FunctionDef_asynchronous(self, node: cst.FunctionDef) -> bool | None:
         """Visit the definition of an async function that are decorated with the `shortcut` decorator."""
+
         found = False
+
         for decorator in node.decorators:
-            if (
-                isinstance(decorator.decorator, cst.Call)
-                and isinstance(decorator.decorator.func, cst.Name)
-                and decorator.decorator.func.value == "shortcut"
-            ):
+            if not isinstance(decorator.decorator, cst.Call):
+                continue
+
+            if is_decorator_name(decorator.decorator, "staticmethod"):
+                return False
+
+            if is_decorator_name(decorator.decorator, "shortcut"):
                 kwargs = {}
+
                 for arg in decorator.decorator.args:
                     if isinstance(arg.value, cst.SimpleString):
                         kwargs["method_name"] = arg.value.value.removeprefix('"').removesuffix('"')
@@ -171,6 +189,7 @@ class ShortcutsCollector(cst.CSTVisitor):
                             if isinstance(e.value, cst.SimpleString)
                         }
 
+                found = True
                 self.shortcuts.append(
                     Shortcut(
                         node,
@@ -182,7 +201,6 @@ class ShortcutsCollector(cst.CSTVisitor):
                         **kwargs,
                     ),
                 )
-                found = True
 
         return found
 
@@ -204,7 +222,7 @@ class APIMethodsCollector(cst.CSTVisitor):
         return True
 
 
-class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
+class ShortcutsTransformer(cst.CSTTransformer):
     def __init__(self, shortcuts: list[Shortcut], api_methods: APIMethodsMapping) -> None:
         self.shortcuts = shortcuts
         self.api_methods = api_methods
@@ -235,16 +253,18 @@ class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
                         or name in shortcut.custom_params
                         or param.annotation is None
                         or name in shortcut_args
+                        or (param.default is not None and not isinstance(param.default, cst.Name))
                     ):
                         continue
-                    if param.default is not None and not isinstance(param.default, cst.Name):
-                        continue
+
                     shortcutargs[name] = param
 
-            shortcut_args.pop("self", None)
+            params = [
+                shortcut_args.pop("cls", None) or shortcut_args.pop("self", None) or cst.Param(cst.Name("self")),
+            ]
             return updated_node.with_changes(
                 params=cst.Parameters(
-                    params=[cst.Param(cst.Name("self"))] + sort_params(shortcut_args.values()),
+                    params=params + sort_params(shortcut_args.values()),
                     kwonly_params=sort_params(shortcut_kwargs.values()),
                     star_arg=cst.ParamStar() if shortcut_kwargs else cst.MaybeSentinel.DEFAULT,
                     star_kwarg=cst.Param(
@@ -272,8 +292,4 @@ class ShortcutsCompatibilityTransformer(cst.CSTTransformer):
         return updated_node
 
 
-if __name__ == "__main__":
-    merge()
-
-
-__all__ = ("merge",)
+__all__ = ("merge_shortcuts",)

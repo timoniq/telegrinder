@@ -3,20 +3,19 @@ from datetime import datetime
 
 from fntypes.result import Result
 
-from telegrinder.api.api import API, APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
-from telegrinder.model import get_params
-from telegrinder.tools.magic import shortcut
+from telegrinder.api.api import APIError
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
 
 
 async def chat_member_interaction(
-    update: BaseCute[typing.Any],
+    update: typing.Any,
     method_name: str,
     params: dict[str, typing.Any],
 ) -> Result[typing.Any, APIError]:
     params = compose_method_params(
-        get_params(locals()),
+        get_params(params),
         update,
         default_params={"chat_id", "user_id"},
     )
@@ -140,8 +139,6 @@ class ChatMemberShortcuts:
 
 
 class ChatMemberUpdatedCute(BaseCute[ChatMemberUpdated], ChatMemberUpdated, ChatMemberShortcuts, kw_only=True):
-    api: API
-
     @property
     def from_user(self) -> User:
         return self.from_

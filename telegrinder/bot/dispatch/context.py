@@ -4,45 +4,30 @@ import enum
 import typing
 from reprlib import recursive_repr
 
-from telegrinder.types.objects import Update
+from fntypes import Some
+from fntypes.option import Nothing, Option
 
 if typing.TYPE_CHECKING:
-    from telegrinder.node.composer import NodeCollection
+    from telegrinder.api.api import API
+    from telegrinder.bot.cute_types.update import UpdateCute
+    from telegrinder.types.objects import Update
 
 type Key = str | enum.Enum
 type AnyValue = typing.Any
 
 
 class Context(dict[str, AnyValue]):
-    """Context class like dict & dotdict.
+    """Low level per event context storage."""
 
-    For example:
-    ```python
-    class MyRule(ABCRule[T]):
-        async def check(self, event: T, ctx: Context) -> bool:
-            ctx.me = (await event.ctx_api.get_me()).unwrap()
-            ctx["items"] = [1, 2, 3]
-            return True
-    ```
-    """
-
-    raw_update: Update
-    node_col: NodeCollection | None = None
+    update_cute: Option[UpdateCute] = Nothing()
+    exception_update: Option[BaseException] = Nothing()
 
     def __init__(self, **kwargs: AnyValue) -> None:
-        cls_vars = vars(self.__class__)
-        defaults = {}
-
-        for k in self.__class__.__annotations__:
-            if k in cls_vars:
-                defaults[k] = cls_vars[k]
-                delattr(self.__class__, k)
-
-        dict.__init__(self, **defaults | kwargs)
+        dict.__init__(self, **kwargs)
 
     @recursive_repr()
     def __repr__(self) -> str:
-        return "{}({})".format(self.__class__.__name__, ", ".join(f"{k}={v!r}" for k, v in self.items()))
+        return "{}({})".format(type(self).__name__, ", ".join(f"{k}={v!r}" for k, v in self.items()))
 
     def __setitem__(self, __key: Key, __value: AnyValue) -> None:
         dict.__setitem__(self, self.key_to_str(__key), __value)
@@ -56,11 +41,29 @@ class Context(dict[str, AnyValue]):
     def __setattr__(self, __name: str, __value: AnyValue) -> None:
         self.__setitem__(__name, __value)
 
-    def __getattr__(self, __name: str) -> AnyValue:
+    def __getattribute__(self, __name: str) -> AnyValue:
+        cls = type(self)
+
+        if __name in cls.__annotations__:
+            return self[__name] if __name in self else super().__getattribute__(__name)
+
+        if __name in _CONTEXT_CLASS_ATTRS:
+            return super().__getattribute__(__name)
+
         return self.__getitem__(__name)
 
     def __delattr__(self, __name: str) -> None:
         self.__delitem__(__name)
+
+    def add_update_cute(self, update: Update, bound_api: API, /) -> typing.Self:
+        from telegrinder.bot.cute_types.update import UpdateCute
+
+        self.update_cute = Some(UpdateCute.from_update(update, bound_api))
+        return self
+
+    def add_exception_update(self, exception_update: BaseException, /) -> typing.Self:
+        self.exception_update = Some(exception_update)
+        return self
 
     @staticmethod
     def key_to_str(key: Key) -> str:
@@ -91,6 +94,9 @@ class Context(dict[str, AnyValue]):
 
     def delete(self, key: Key) -> None:
         del self[key]
+
+
+_CONTEXT_CLASS_ATTRS = frozenset(Context.__dict__ | dict.__dict__ | object.__dict__)
 
 
 __all__ = ("Context",)

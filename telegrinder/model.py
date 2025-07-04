@@ -1,52 +1,30 @@
 import keyword
-import typing
+import types
+from reprlib import recursive_repr
 
 import msgspec
-from fntypes.co import Nothing, Result, Some
+import typing_extensions as typing
+from fntypes.co import Nothing
 
-from telegrinder.msgspec_utils import decoder, encoder, struct_as_dict
+from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
 
-if typing.TYPE_CHECKING:
-    from telegrinder.api.error import APIError
-
+UNSET: typing.Final[typing.Any] = typing.cast("typing.Any", msgspec.UNSET)
+"""See [DOCS](https://jcristharif.com/msgspec/api.html#unset) about `msgspec.UNSET`."""
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "dict": True,
     "rename": {kw + "_": kw for kw in keyword.kwlist},
 }
-UNSET = typing.cast("typing.Any", msgspec.UNSET)
-"""Docs: https://jcristharif.com/msgspec/api.html#unset
-
-During decoding, if a field isn't explicitly set in the model,
-the default value of `UNSET` will be set instead. This lets downstream
-consumers determine whether a field was left unset, or explicitly set a value."""
+INSPECTED_MODEL_FIELDS_KEY: typing.Final[str] = "__inspected_struct_fields__"
 
 
-def full_result[T](
-    result: Result[msgspec.Raw, "APIError"],
-    full_t: type[T],
-) -> Result[T, "APIError"]:
-    return result.map(lambda v: decoder.decode(v, type=full_t))
-
-
-def is_none(value: typing.Any, /) -> typing.TypeGuard[None | Nothing]:
-    return value is None or isinstance(value, Nothing)
-
-
-def get_params(params: dict[str, typing.Any]) -> dict[str, typing.Any]:
-    validated_params = {}
-    for k, v in (
-        *params.pop("other", {}).items(),
-        *params.items(),
-    ):
-        if isinstance(v, Proxy):
-            v = v.get()
-        if k == "self" or is_none(v):
-            continue
-        validated_params[k] = v.unwrap() if isinstance(v, Some) else v
-    return validated_params
+def is_none(obj: typing.Any, /) -> typing.TypeIs[Nothing | None]:
+    return isinstance(obj, Nothing | types.NoneType)
 
 
 if typing.TYPE_CHECKING:
+
+    @typing.overload
+    def field() -> typing.Any: ...
 
     @typing.overload
     def field(*, name: str | None = ...) -> typing.Any: ...
@@ -100,6 +78,9 @@ else:
     type From[T] = T
 
     def field(**kwargs):
+        if (default := kwargs.get("default")) is Ellipsis:
+            kwargs["default"] = UNSET
+
         kwargs.pop("converter", None)
         return _field(**kwargs)
 
@@ -108,14 +89,50 @@ else:
 class Model(msgspec.Struct, **MODEL_CONFIG):
     if not typing.TYPE_CHECKING:
 
-        def __post_init__(self):
-            for field in self.__struct_fields__:
-                if is_none(getattr(self, field)):
-                    setattr(self, field, UNSET)
-
         def __getattribute__(self, name, /):
-            val = super().__getattribute__(name)
-            return Nothing() if val is UNSET else val
+            class_ = type(self)
+            val = object.__getattribute__(self, name)
+
+            if name not in class_.__struct_fields__:
+                return val
+
+            if (
+                (field_info := class_.get_fields().get(name)) is not None
+                and isinstance(field_info.type, msgspec.inspect.CustomType)
+                and issubclass(field_info.type.cls, Option)
+            ):
+                return Nothing() if val is UNSET else val
+
+            if val is UNSET:
+                raise AttributeError(f"{class_.__name__!r} object has no attribute {name!r}")
+
+            return val
+
+    def __post_init__(self) -> None:
+        for field, value in struct_asdict(self, exclude_unset=False).items():
+            if is_none(value):
+                setattr(self, field, UNSET)
+
+    @recursive_repr()
+    def __repr__(self) -> str:
+        return "{}({})".format(
+            type(self).__name__,
+            ", ".join(
+                f"{f}={val!r}"
+                for f, val in struct_asdict(self, exclude_unset=False, unset_as_nothing=True).items()
+            ),
+        )
+
+    @classmethod
+    def get_fields(cls) -> types.MappingProxyType[str, msgspec.inspect.Field]:
+        if (model_fields := getattr(cls, INSPECTED_MODEL_FIELDS_KEY, None)) is not None:
+            return model_fields
+
+        model_fields = types.MappingProxyType[str, msgspec.inspect.Field](
+            {f.name: f for f in msgspec.inspect.type_info(cls).fields},  # type: ignore
+        )
+        setattr(cls, INSPECTED_MODEL_FIELDS_KEY, model_fields)
+        return model_fields
 
     @classmethod
     def from_data[**P, T](cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
@@ -137,7 +154,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
     ) -> dict[str, typing.Any]:
         if dct_name not in self.__dict__:
             self.__dict__[dct_name] = (
-                struct_as_dict(self)
+                struct_asdict(self)
                 if not full
                 else encoder.to_builtins(self.to_dict(exclude_fields=exclude_fields), order="deterministic")
             )
@@ -155,9 +172,6 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         *,
         exclude_fields: set[str] | None = None,
     ) -> dict[str, typing.Any]:
-        """:param exclude_fields: Model field names to exclude from the dictionary representation of this model.
-        :return: A dictionary representation of this model.
-        """
         return self._to_dict("model_as_dict", exclude_fields or set(), full=False)
 
     def to_full_dict(
@@ -165,49 +179,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         *,
         exclude_fields: set[str] | None = None,
     ) -> dict[str, typing.Any]:
-        """:param exclude_fields: Model field names to exclude from the dictionary representation of this model.
-        :return: A dictionary representation of this model including all models, structs, custom types.
-        """
         return self._to_dict("model_as_full_dict", exclude_fields or set(), full=True)
 
 
-class Proxy[T]:
-    def __init__(self, cfg: "_ProxiedDict[T]", key: str) -> None:
-        self.key = key
-        self.cfg = cfg
-
-    def get(self) -> typing.Any | None:
-        return self.cfg._defaults.get(self.key)
-
-
-class _ProxiedDict[T]:
-    def __init__(self, tp: type[T]) -> None:
-        self.type = tp
-        self._defaults = {}
-
-    def __setattribute__(self, name: str, value: typing.Any, /) -> None:
-        self._defaults[name] = value
-
-    def __getitem__(self, key: str, /) -> None:
-        return Proxy(self, key)  # type: ignore
-
-    def __setitem__(self, key: str, value: typing.Any, /) -> None:
-        self._defaults[key] = value
-
-
-if typing.TYPE_CHECKING:
-
-    def ProxiedDict[T](typed_dct: type[T]) -> T | _ProxiedDict[T]:  # noqa: N802
-        ...
-else:
-    ProxiedDict = _ProxiedDict
-
-
-__all__ = (
-    "MODEL_CONFIG",
-    "Model",
-    "ProxiedDict",
-    "Proxy",
-    "full_result",
-    "get_params",
-)
+__all__ = ("MODEL_CONFIG", "UNSET", "Model", "field", "is_none")

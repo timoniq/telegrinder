@@ -1,16 +1,15 @@
 import pathlib
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.bot.dispatch.context import Context
-from telegrinder.rules import MessageRule
+from telegrinder.rules import ABCRule
 
 bot = Telegrinder(API(Token.from_env()))
 photos_path = pathlib.Path("photos")
 photos_path.mkdir(exist_ok=True)
 
 
-class HasPhoto(MessageRule):
-    async def check(self, message: Message, ctx: Context) -> bool:
+class HasPhoto(ABCRule):
+    async def check(self, message: Message) -> bool:
         return bool(message.photo.unwrap_or_none())
 
 

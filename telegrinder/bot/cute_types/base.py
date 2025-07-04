@@ -1,9 +1,7 @@
 import typing
 
-import msgspec
-
-from telegrinder.api.api import API
-from telegrinder.model import Model, is_none
+from telegrinder.model import Model
+from telegrinder.tools.magic.shortcut import shortcut
 
 
 def compose_method_params[Cute: BaseCute](
@@ -27,46 +25,53 @@ def compose_method_params[Cute: BaseCute](
 
 
 if typing.TYPE_CHECKING:
-    from telegrinder.node.base import Node
+    from fntypes.option import Option
 
-    class BaseCute[Update: Model](Model):
+    from telegrinder.api.api import API
+    from telegrinder.node.base import Node
+    from telegrinder.types.objects import Update
+
+    class BaseCute[T: Model](Model):
         api: API
 
         @classmethod
         def as_node(cls) -> type[Node]: ...
 
         @classmethod
-        def from_update(cls, update: Update, bound_api: API) -> typing.Self: ...
+        def from_update(cls, update: T, bound_api: API) -> typing.Self: ...
 
         @property
         def ctx_api(self) -> API: ...
+
+        @property
+        def raw_update(self) -> Update: ...
+
+        def bind_raw_update(self, raw_update: Update, /) -> typing.Self: ...
+
+        def get_raw_update(self) -> Option[Update]: ...
 
         def to_dict(
             self,
             *,
             exclude_fields: set[str] | None = None,
-        ) -> dict[str, typing.Any]:
-            """:param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
-            :return: A dictionary representation of this cute model.
-            """
-            ...
+        ) -> dict[str, typing.Any]: ...
 
         def to_full_dict(
             self,
             *,
             exclude_fields: set[str] | None = None,
-        ) -> dict[str, typing.Any]:
-            """:param exclude_fields: Cute model field names to exclude from the dictionary representation of this cute model.
-            :return: A dictionary representation of this model including all models, structs, custom types.
-            """
-            ...
+        ) -> dict[str, typing.Any]: ...
 
 else:
-    import msgspec
-    from fntypes.co import Nothing, Some, Variative
+    from fntypes.co import Some, Variative
+    from fntypes.misc import from_optional
 
-    from telegrinder.msgspec_utils import Option, decoder, encoder, struct_as_dict
+    from telegrinder.msgspec_utils import Option, encoder, struct_asdict
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
+    from telegrinder.types.objects import Update
+
+    BOUND_API_KEY = "bound_api"
+    RAW_UPDATE_BIND_KEY = "raw_update_bind"
 
     def _get_cute_from_generic(generic_args, /):
         for arg in generic_args:
@@ -94,79 +99,113 @@ else:
 
         return cute_annotations
 
-    def _validate_value(value, /):
+    def _maybe_wrapped(value, /):
+        wrapped_value = None
+
         while isinstance(value, Variative | Some):
+            wrapped_value = value
+
             if isinstance(value, Variative):
                 value = value.v
+
             if isinstance(value, Some):
                 value = value.value
-        return value
 
-    class BaseCute[Update]:
-        api: API
+        return wrapped_value if wrapped_value is not None else value
 
+    def _wrap_value(value, type_):
+        args = [type_]
+        types = []
+
+        while args:
+            arg = args.pop(0)
+            origin_arg = typing.get_origin(arg) or arg
+            if issubclass(origin_arg, Variative | Option):
+                args.extend(typing.get_args(arg))
+                types.append(Some if issubclass(origin_arg, Option) else arg)
+
+        result = value
+        for t in types[::-1]:
+            result = t(result)
+        return result
+
+    def _to_cute(cls, field, value, bound_api):
+        maybe_wrapped_value = _maybe_wrapped(value)
+        is_wrapped_value = isinstance(maybe_wrapped_value, Variative | Some)
+        cute = cls.__cute_annotations__[field].from_update(
+            maybe_wrapped_value._value if is_wrapped_value else maybe_wrapped_value,
+            bound_api=bound_api,
+        )
+        return _wrap_value(cute, cls.__annotations__[field]) if is_wrapped_value else cute
+
+    class BaseCute[T]:
         def __init_subclass__(cls, *args, **kwargs):
-            super().__init_subclass__(*args, **kwargs)
-
-            if not cls.__bases__ or not issubclass(cls.__bases__[0], BaseCute):
-                return
-
-            cls.__is_solved_annotations__ = False
+            cls.__is_resolved_annotations__ = False
             cls.__cute_annotations__ = None
             cls.__event_node__ = None
 
         @classmethod
         def as_node(cls):
             if cls.__event_node__ is None:
-                from telegrinder.node.event import _EventNode
+                from telegrinder.node.event import EventNode
 
-                cls.__event_node__ = _EventNode[cls]
+                cls.__event_node__ = EventNode[cls]
+
             return cls.__event_node__
 
         @classmethod
         def from_update(cls, update, bound_api):
-            if not cls.__is_solved_annotations__:
-                cls.__is_solved_annotations__ = True
+            if not cls.__is_resolved_annotations__:
+                cls.__is_resolved_annotations__ = True
                 cls.__annotations__ = _get_class_annotations(cls)
 
             if cls.__cute_annotations__ is None:
                 cls.__cute_annotations__ = _get_cute_annotations(cls.__annotations__)
 
-            return cls(
+            cute = cls(
                 **{
-                    field: decoder.convert(
-                        cls.__cute_annotations__[field].from_update(_validate_value(value), bound_api=bound_api),
-                        type=cls.__annotations__[field],
-                    )
-                    if field in cls.__cute_annotations__ and not isinstance(value, Nothing | msgspec.UnsetType)
-                    else value
+                    field: _to_cute(cls, field, value, bound_api) if field in cls.__cute_annotations__ else value
                     for field, value in update.to_dict().items()
                 },
-                api=bound_api,
+            )._set_bound_api(api=bound_api)
+            return cute.bind_raw_update(update) if isinstance(update, Update) else cute
+
+        @property
+        def api(self):
+            return self.__dict__[BOUND_API_KEY]
+
+        @property
+        def raw_update(self):
+            return self.get_raw_update().expect(
+                ValueError(f"Cute model `{type(self).__name__}` has no bind `Update` object."),
             )
 
         @property
         def ctx_api(self):
             return self.api
 
+        def get_raw_update(self):
+            return from_optional(self.__dict__.get(RAW_UPDATE_BIND_KEY))
+
+        def bind_raw_update(self, raw_update, /):
+            cuties = [self]
+
+            if isinstance(self, Update) and isinstance(cute := self.incoming_update, BaseCute):
+                cuties.append(cute)
+
+            for cute in cuties:
+                cute.__dict__[RAW_UPDATE_BIND_KEY] = raw_update
+
+            return self
+
+        def _set_bound_api(self, api):
+            self.__dict__[BOUND_API_KEY] = api
+            return self
+
         def _to_dict(self, dct_name, exclude_fields, full):
             if dct_name not in self.__dict__:
-                self.__dict__[dct_name] = (
-                    struct_as_dict(self)
-                    if not full
-                    else encoder.to_builtins(
-                        {
-                            k: field.to_dict(exclude_fields=exclude_fields)
-                            if isinstance(field, BaseCute)
-                            else field
-                            for k in self.__struct_fields__
-                            if k not in exclude_fields
-                            and not isinstance(field := _validate_value(getattr(self, k)), msgspec.UnsetType)
-                            and not is_none(field)
-                        },
-                        order="deterministic",
-                    )
-                )
+                dct = struct_asdict(self)
+                self.__dict__[dct_name] = dct if not full else encoder.to_builtins(dct, order="deterministic")
 
             if not exclude_fields:
                 return self.__dict__[dct_name]
@@ -174,11 +213,14 @@ else:
             return {key: value for key, value in self.__dict__[dct_name].items() if key not in exclude_fields}
 
         def to_dict(self, *, exclude_fields=None, full=False):
-            exclude_fields = exclude_fields or set()
-            return self._to_dict("model_as_dict", exclude_fields={"api"} | exclude_fields, full=full)
+            return self._to_dict(
+                "model_as_dict" if not full else "model_as_full_dict",
+                exclude_fields=exclude_fields or set(),
+                full=full,
+            )
 
         def to_full_dict(self, *, exclude_fields=None):
             return self.to_dict(exclude_fields=exclude_fields, full=True)
 
 
-__all__ = ("BaseCute", "compose_method_params")
+__all__ = ("BaseCute", "compose_method_params", "shortcut")

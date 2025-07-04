@@ -1,8 +1,7 @@
+from examples.blueprint_bot.client import wm
 from telegrinder import MESSAGE_FROM_USER, Dispatch, Message
 from telegrinder.modules import logger
 from telegrinder.rules import HasText, Text
-
-from .client import wm  # type: ignore
 
 dp = Dispatch()
 

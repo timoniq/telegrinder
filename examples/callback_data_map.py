@@ -15,8 +15,8 @@ async def start(message: Message):
     await message.answer("Hello, choose something", reply_markup=kb)
 
 
-@bot.on.callback_query(CallbackDataMap({"item": str, "amount": lambda v: v <= 20}))
-async def eat_item(item: str, amount: int) -> str:
+@bot.on.callback_query(CallbackDataMap({"item": str, "amount": lambda v: isinstance(v, int) and v <= 20}))
+async def chose(item: str, amount: int) -> str:
     return f"You chose: {item=}, {amount=}"
 
 

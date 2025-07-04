@@ -2,13 +2,15 @@ import hashlib
 import hmac
 import typing
 
+SECRET_TOKEN_KEY: typing.Final[str] = "X-Telegram-Bot-Api-Secret-Token"
+
 
 def verify_webapp_request(
     secret_token: str,
     request_headers: typing.Mapping[str, typing.Any],
 ) -> bool:
     """Verifies update request is from telegram."""
-    return request_headers.get("X-Telegram-Bot-Api-Secret-Token") == secret_token
+    return request_headers.get(SECRET_TOKEN_KEY) == secret_token
 
 
 def webapp_validate_request(

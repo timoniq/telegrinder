@@ -6,18 +6,19 @@ import fntypes.option
 from fntypes.co import Result, Some, Variative
 
 from telegrinder.api.api import API, APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params
+from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import compose_reactions, input_media
-from telegrinder.model import UNSET, From, field, get_params
+from telegrinder.model import UNSET, From, field
 from telegrinder.msgspec_utils import Option
-from telegrinder.tools.magic import shortcut
 from telegrinder.types import *
+from telegrinder.types.methods_utils import get_params
 
 if typing.TYPE_CHECKING:
-    from datetime import datetime
+    from datetime import datetime, timedelta
 
     from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 
+type MessageOrCallbackQuery = MessageCute | CallbackQueryCute
 type MediaType = typing.Literal[
     "animation",
     "audio",
@@ -40,7 +41,7 @@ async def execute_method_answer(
         default_params={"chat_id", "message_thread_id"},
         validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
     )
-    result = await getattr(message.ctx_api, method_name)(**params)
+    result = await getattr(message.api, method_name)(**params)
     return result.map(
         lambda x: (
             x
@@ -120,14 +121,12 @@ def get_entity_value(
 
     for entity in ents:
         if (obj := getattr(entity, entity_value, fntypes.option.Nothing())) is not fntypes.option.Nothing():
-            return obj if isinstance(obj, Some) else Some(obj)
+            return obj if isinstance(obj, fntypes.option.Some) else fntypes.option.Some(obj)
 
     return fntypes.option.Nothing()
 
 
 class MessageCute(BaseCute[Message], Message, kw_only=True):
-    api: API
-
     reply_to_message: Option[MessageCute] = field(
         default=UNSET,
         converter=From["MessageCute | None"],
@@ -180,7 +179,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         entities: list[MessageEntity] | None = None,
         link_preview_options: LinkPreviewOptions | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -232,7 +231,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         link_preview_options: LinkPreviewOptions | None = None,
         message_effect_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -273,7 +272,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         *,
         chat_id: int | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
@@ -303,7 +302,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"link_preview_options", "message_thread_id", "message_id"},
     )
     async def edit(
-        self,
+        self: MessageOrCallbackQuery,
         text: str,
         *,
         business_connection_id: str | None = None,
@@ -312,7 +311,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         inline_message_id: str | None = None,
         link_preview_options: LinkPreviewOptions | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
@@ -356,13 +355,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         from_chat_id: int | str | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
-        video_start_timestamp: int | None = None,
+        video_start_timestamp: timedelta | int | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
@@ -401,7 +400,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         is_big: bool | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.set_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
@@ -430,9 +429,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         from_chat_id: int | str | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
-        video_start_timestamp: int | None = None,
+        video_start_timestamp: timedelta | int | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.forward_message()`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
@@ -473,7 +472,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.pin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
@@ -505,7 +504,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.unpin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
@@ -545,7 +544,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         duration: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         performer: str | None = None,
         protect_content: bool | None = None,
@@ -613,7 +612,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -680,7 +679,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -739,7 +738,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         has_spoiler: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -794,7 +793,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         emoji: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -847,12 +846,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
-        start_timestamp: int | None = None,
+        start_timestamp: timedelta | int | None = None,
         supports_streaming: bool | None = None,
         thumbnail: InputFile | str | None = None,
         width: int | None = None,
@@ -921,7 +920,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         duration: int | None = None,
         length: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -975,7 +974,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         duration: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -1040,7 +1039,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         is_anonymous: bool | None = None,
         is_closed: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         open_period: int | None = None,
         protect_content: bool | None = None,
         question_entities: list[MessageEntity] | None = None,
@@ -1066,7 +1065,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param question_entities: A JSON-serialized list of special entities that appear in the poll question.It can be specified instead of question_parse_mode.
 
-        :param options: A JSON-serialized list of 2-10 answer options.
+        :param options: A JSON-serialized list of 2-12 answer options.
 
         :param is_anonymous: True, if the poll needs to be anonymous, defaults to True.
 
@@ -1121,7 +1120,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         google_place_id: str | None = None,
         google_place_type: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -1179,7 +1178,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -1222,7 +1221,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -1271,7 +1270,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         is_flexible: bool | None = None,
         max_tip_amount: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         need_email: bool | None = None,
         need_name: bool | None = None,
         need_phone_number: bool | None = None,
@@ -1307,7 +1306,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.send_chat_action()`, see the [documentation](https://core.telegram.org/bots/api#sendchataction)
@@ -1339,7 +1338,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         media_type: MediaType | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
@@ -1386,7 +1385,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         horizontal_accuracy: float | None = None,
         live_period: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         proximity_alert_radius: int | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -1440,7 +1439,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         last_name: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -1493,7 +1492,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         duration: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         performer: str | None = None,
         protect_content: bool | None = None,
@@ -1561,7 +1560,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -1628,7 +1627,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -1687,7 +1686,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         has_spoiler: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -1742,7 +1741,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         emoji: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -1795,12 +1794,12 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
-        start_timestamp: int | None = None,
+        start_timestamp: timedelta | int | None = None,
         supports_streaming: bool | None = None,
         thumbnail: InputFile | str | None = None,
         width: int | None = None,
@@ -1869,7 +1868,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         duration: int | None = None,
         length: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -1923,7 +1922,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         duration: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -1988,7 +1987,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         is_anonymous: bool | None = None,
         is_closed: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         open_period: int | None = None,
         protect_content: bool | None = None,
         question_entities: list[MessageEntity] | None = None,
@@ -2014,7 +2013,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param question_entities: A JSON-serialized list of special entities that appear in the poll question.It can be specified instead of question_parse_mode.
 
-        :param options: A JSON-serialized list of 2-10 answer options.
+        :param options: A JSON-serialized list of 2-12 answer options.
 
         :param is_anonymous: True, if the poll needs to be anonymous, defaults to True.
 
@@ -2069,7 +2068,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         google_place_id: str | None = None,
         google_place_type: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -2127,7 +2126,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -2170,7 +2169,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -2219,7 +2218,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         is_flexible: bool | None = None,
         max_tip_amount: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         need_email: bool | None = None,
         need_name: bool | None = None,
         need_phone_number: bool | None = None,
@@ -2261,7 +2260,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
@@ -2308,7 +2307,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         horizontal_accuracy: float | None = None,
         live_period: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         proximity_alert_radius: int | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -2362,7 +2361,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         disable_notification: bool | None = None,
         last_name: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -2404,8 +2403,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_live_location(
-        self,
+        self: MessageOrCallbackQuery,
         *,
+        latitude: float,
         longitude: float,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
@@ -2414,7 +2414,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         inline_message_id: str | None = None,
         live_period: int | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         proximity_alert_radius: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
@@ -2452,7 +2452,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_caption(
-        self,
+        self: MessageOrCallbackQuery,
         caption: str | None = None,
         *,
         business_connection_id: str | None = None,
@@ -2460,7 +2460,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         inline_message_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         parse_mode: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         show_caption_above_media: bool | None = None,
@@ -2490,6 +2490,37 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
 
+    @typing.overload
+    async def edit_media(
+        self,
+        media: InputMedia,
+        *,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        inline_message_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> Result[Variative[MessageCute, bool], APIError]: ...
+
+    @typing.overload
+    async def edit_media(
+        self,
+        media: InputFile | str,
+        type: MediaType,
+        *,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        inline_message_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> Result[Variative[MessageCute, bool], APIError]: ...
+
     @shortcut(
         "edit_message_media",
         custom_params={
@@ -2506,6 +2537,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     async def edit_media(
         self,
         media: InputFile | InputMedia | str,
+        type: MediaType | None = None,
         *,
         business_connection_id: str | None = None,
         caption: str | None = None,
@@ -2513,10 +2545,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         chat_id: int | str | None = None,
         inline_message_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
-        parse_mode: str | None = None,
+        message_thread_id: str | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
         reply_markup: InlineKeyboardMarkup | None = None,
-        type: MediaType | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
@@ -2559,13 +2590,13 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_reply_markup(
-        self,
+        self: MessageOrCallbackQuery,
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         inline_message_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: int | None = None,
+        message_thread_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Variative[MessageCute, bool], APIError]:

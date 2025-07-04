@@ -1,128 +1,96 @@
+from __future__ import annotations
+
 import dataclasses
+import typing
+from collections import deque
 from functools import cached_property
 
-import typing_extensions as typing
+from fntypes.result import Error, Ok, Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import logger
-from telegrinder.node.base import NodeType, get_nodes
-from telegrinder.node.composer import NodeCollection, compose_nodes
-from telegrinder.tools.adapter.abc import ABCAdapter
-from telegrinder.tools.adapter.dataclass import DataclassAdapter
-from telegrinder.tools.error_handler import ABCErrorHandler, ErrorHandler
-from telegrinder.tools.magic import get_annotations, magic_bundle
-from telegrinder.types.enums import UpdateType
+from telegrinder.node.base import IsNode, get_nodes
+from telegrinder.node.composer import compose_nodes
+from telegrinder.tools.fullname import fullname
+from telegrinder.tools.magic.function import bundle
 from telegrinder.types.objects import Update
-
-from .abc import ABCHandler
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
-    from telegrinder.node.composer import NodeCollection
 
-Function = typing.TypeVar("Function", bound="Func[..., typing.Any]")
-Event = typing.TypeVar("Event")
-ErrorHandlerT = typing.TypeVar("ErrorHandlerT", bound=ABCErrorHandler, default=ErrorHandler)
-
-type Func[**Rest, Result] = typing.Callable[Rest, typing.Coroutine[typing.Any, typing.Any, Result]]
+type Function = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]
 
 
 @dataclasses.dataclass(repr=False, slots=True)
-class FuncHandler(ABCHandler[Event], typing.Generic[Event, Function, ErrorHandlerT]):
-    function: Function
-    rules: list["ABCRule"]
-    adapter: ABCAdapter[Update, Event] | None = dataclasses.field(default=None, kw_only=True)
+class FuncHandler[T: Function](ABCHandler):
+    function: T
+    rules: dataclasses.InitVar[typing.Iterable[ABCRule] | None] = None
     final: bool = dataclasses.field(default=True, kw_only=True)
-    dataclass: type[typing.Any] | None = dataclasses.field(default=None, kw_only=True)
-    error_handler: ErrorHandlerT = dataclasses.field(
-        default_factory=lambda: typing.cast("ErrorHandlerT", ErrorHandler()),
-        kw_only=True,
-    )
     preset_context: Context = dataclasses.field(default_factory=lambda: Context(), kw_only=True)
-    update_type: UpdateType | None = dataclasses.field(default=None, kw_only=True)
 
-    def __post_init__(self) -> None:
-        self.dataclass = typing.get_origin(self.dataclass) or self.dataclass
-
-        if self.dataclass is not None and self.adapter is None:
-            self.adapter = DataclassAdapter(self.dataclass, self.update_type)
+    def __post_init__(self, rules: typing.Iterable[ABCRule] | None) -> None:
+        self.check_rules = deque(rules or ())
 
     @property
     def __call__(self) -> Function:
         return self.function
 
     def __repr__(self) -> str:
-        return "<{}: {}={!r} with rules={!r}, dataclass={!r}, error_handler={!r}>".format(
-            self.__class__.__name__,
-            "final function" if self.final else "function",
-            self.function.__qualname__,
-            self.rules,
-            self.dataclass,
-            self.error_handler,
-        )
+        return fullname(self.function)
 
     @cached_property
-    def required_nodes(self) -> dict[str, type[NodeType]]:
+    def required_nodes(self) -> dict[str, IsNode]:
         return get_nodes(self.function)
-
-    def get_name_event_param(self, event: Event) -> str | None:
-        event_class = self.dataclass or event.__class__
-        for k, v in get_annotations(self.function).items():
-            if isinstance(v := typing.get_origin(v) or v, type) and v is event_class:
-                self.func_event_param = k
-                return k
-        return None
-
-    async def check(self, api: API, event: Update, ctx: Context | None = None) -> bool:
-        if self.update_type is not None and self.update_type != event.update_type:
-            return False
-
-        logger.debug("Checking handler {!r}...", self)
-        ctx = Context(raw_update=event) if ctx is None else ctx
-        temp_ctx = ctx.copy()
-        temp_ctx |= self.preset_context.copy()
-        update = event
-
-        for rule in self.rules:
-            if not await check_rule(api, rule, update, temp_ctx):
-                logger.debug("Rule {!r} failed!", rule)
-                return False
-
-        nodes = self.required_nodes
-        node_col = None
-        if nodes:
-            result = await compose_nodes(nodes, ctx, data={Update: update, API: api})
-            if not result:
-                logger.debug(f"Cannot compose nodes for handler, error: {str(result.error)}")
-                return False
-
-            node_col = result.value
-            temp_ctx |= node_col.values
-
-        logger.debug("All checks passed for handler.")
-        temp_ctx["node_col"] = node_col
-        ctx |= temp_ctx
-        return True
 
     async def run(
         self,
         api: API,
-        event: Event,
-        ctx: Context,
-        node_col: "NodeCollection | None" = None,
-    ) -> typing.Any:
-        logger.debug(f"Running handler {self!r}...")
+        event: Update,
+        context: Context,
+        check: bool = True,
+    ) -> Result[typing.Any, str]:
+        logger.debug("Checking rules and composing nodes for handler `{!r}`...", self)
 
+        temp_ctx = context.copy()
+        temp_ctx |= self.preset_context.copy()
+
+        if check:
+            for rule in self.check_rules:
+                if not await check_rule(api, rule, event, temp_ctx):
+                    return Error(f"Rule {rule!r} failed.")
+
+        context |= temp_ctx
+        data = {Update: event, API: api}
+        node_col = None
+
+        if self.required_nodes:
+            match await compose_nodes(self.required_nodes, context, data=data):
+                case Ok(value):
+                    node_col = value
+                case Error(compose_error):
+                    return Error(f"Cannot compose nodes for handler `{self}`, error: {compose_error.message}")
+
+        logger.debug("All good, running handler `{!r}`", self)
+
+        temp_ctx = context.copy()
         try:
-            if event_param := self.get_name_event_param(event):
-                ctx = Context(**{event_param: event, **ctx})
-            return await self(**magic_bundle(self.function, ctx, start_idx=0, bundle_ctx=True))
-        except BaseException as exception:
-            return await self.error_handler.run(exception, event, api, ctx)
+            bundle_function = bundle(
+                self.function,
+                {**data, Context: temp_ctx},
+                typebundle=True,
+                start_idx=0,
+            )
+            bundle_function &= bundle(
+                self.function, context | ({} if node_col is None else node_col.values), start_idx=0
+            )
+            return Ok(await bundle_function())
         finally:
-            if node_col := ctx.node_col:
+            context |= temp_ctx
+
+            if node_col is not None:
                 await node_col.close_all()
 
 

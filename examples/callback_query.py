@@ -17,11 +17,11 @@ from telegrinder.rules import (
     PayloadModelRule,
     Text,
 )
-from telegrinder.tools.callback_data_serilization import MsgPackSerializer
+from telegrinder.tools.callback_data_serialization import MsgPackSerializer
 
+logger.set_level("DEBUG")
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logger.set_level("DEBUG")
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
@@ -50,29 +50,29 @@ kb = (
 
 
 @bot.on.message(Text("/action"))
-async def action(m: Message):
+async def action(m: Message) -> None:
     await m.answer("Please confirm doing action.", reply_markup=kb)
 
 
 @bot.on.callback_query(final=False)
-async def handle_fruit_item(item: PayloadData[Item, MsgPackSerializer[Item]]):
+async def handle_fruit_item(item: PayloadData[Item, MsgPackSerializer[Item]]) -> None:
     logger.info("Got fruit item={!r}", item)
 
 
 @bot.on.callback_query(PayloadEqRule("confirm/action"))
-async def callback_confirm_handler(cb: CallbackQuery):
+async def callback_confirm_handler(cb: CallbackQuery) -> None:
     await cb.answer("Okay! Confirmed.")
     await cb.edit_text(text="Action happens.")
     # *some action happens*
 
 
 @bot.on.callback_query(PayloadMarkupRule("number/<n:int>"))
-async def callback_number_handler(cb: CallbackQuery, n: int):
+async def callback_number_handler(cb: CallbackQuery, n: int) -> None:
     await cb.answer("{0} + (7 * 6) - {0} = 42🤯🤯🤯".format(n))
 
 
 @bot.on.callback_query(PayloadModelRule(Item, serializer=MsgPackSerializer, alias="item"))
-async def select_item(cb: CallbackQuery, item: Item):
+async def select_item(cb: CallbackQuery, item: Item) -> None:
     await cb.answer(f"You ate an {item.name!r} for {item.amount} cents 😋")
 
 

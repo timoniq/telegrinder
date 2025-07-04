@@ -7,30 +7,28 @@ import typing_extensions as typing
 
 T = typing.TypeVar("T", default=typing.Any)
 
+NODEFAULT: typing.Final[object] = object()
 
-@dataclasses.dataclass(repr=False, frozen=True)
+
+@dataclasses.dataclass(frozen=True)
 class CtxVar(typing.Generic[T]):
     value: T
+    factory: typing.Any = dataclasses.field(default=NODEFAULT, kw_only=True)
     const: bool = dataclasses.field(default=False, kw_only=True)
-
-    def __repr__(self) -> str:
-        return "<{}(value={!r})>".format(
-            ("Const" if self.const else "") + CtxVar.__name__,
-            self.value,
-        )
 
 
 @dataclasses.dataclass(repr=False, frozen=True)
 class GlobalCtxVar(CtxVar[T], typing.Generic[T]):
     name: str
     value: T
+    factory: typing.Any = dataclasses.field(default=NODEFAULT, kw_only=True)
     const: bool = dataclasses.field(default=False, kw_only=True)
 
     def __repr__(self) -> str:
         return "<{}({}={})>".format(
             self.__class__.__name__,
             self.name,
-            repr(CtxVar(self.value, const=self.const)),
+            repr(CtxVar(self.value, const=self.const, factory=self.factory)),
         )
 
     @classmethod
@@ -41,6 +39,8 @@ class GlobalCtxVar(CtxVar[T], typing.Generic[T]):
         const: bool = False,
     ) -> typing.Self:
         var = CtxVar(ctx_value, const=const) if not isinstance(ctx_value, CtxVar | GlobalCtxVar) else ctx_value
+        if var.value is NODEFAULT and var.factory is not NODEFAULT:
+            var = dataclasses.replace(var, value=var.factory())
         return cls(**dict(var.__dict__) | dict(name=name))
 
 

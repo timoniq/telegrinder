@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import typing_extensions as typing
 
-from telegrinder.api.api import API, HTTPClient
+from telegrinder.api.api import API
 from telegrinder.bot.dispatch import dispatch as dp
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.polling import polling as pg
@@ -9,16 +11,19 @@ from telegrinder.modules import logger
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
-Dispatch = typing.TypeVar("Dispatch", bound=ABCDispatch, default=dp.Dispatch[HTTPClient])
-Polling = typing.TypeVar("Polling", bound=ABCPolling, default=pg.Polling[HTTPClient])
+if typing.TYPE_CHECKING:
+    from telegrinder.node.composer import Composer
+
+Dispatch = typing.TypeVar("Dispatch", bound=ABCDispatch, default=dp.Dispatch)
+Polling = typing.TypeVar("Polling", bound=ABCPolling, default=pg.Polling)
 
 CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
 
 
-class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
+class Telegrinder(typing.Generic[Dispatch, Polling]):
     def __init__(
         self,
-        api: API[HTTPClient],
+        api: API,
         *,
         dispatch: Dispatch | None = None,
         polling: Polling | None = None,
@@ -31,7 +36,7 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
 
     def __repr__(self) -> str:
         return "<{}: api={!r}, dispatch={!r}, polling={!r}, loop_wrapper={!r}>".format(
-            self.__class__.__name__,
+            type(self).__name__,
             self.api,
             self.dispatch,
             self.polling,
@@ -41,6 +46,10 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
     @property
     def on(self) -> Dispatch:
         return self.dispatch
+
+    @property
+    def composer(self) -> Composer:
+        return CONTEXT.composer.unwrap()
 
     async def reset_webhook(self) -> None:
         if not (await self.api.get_webhook_info()).unwrap().url:
@@ -53,23 +62,19 @@ class Telegrinder(typing.Generic[HTTPClient, Dispatch, Polling]):
         offset: int = 0,
         skip_updates: bool = False,
     ) -> typing.NoReturn:
-        async def polling() -> typing.NoReturn:
+        async def polling() -> typing.NoReturn:  # type: ignore
             if skip_updates:
                 logger.debug("Dropping pending updates")
                 await self.reset_webhook()
                 await self.api.delete_webhook(drop_pending_updates=True)
-            self.polling.offset = offset
 
             async for updates in self.polling.listen():
                 for update in updates:
-                    logger.debug(
-                        "Received update (update_id={}, update_type={!r})",
-                        update.update_id,
-                        update.update_type.name,
-                    )
-                    self.loop_wrapper.add_task(self.dispatch.feed(update, self.api))
+                    await self.loop_wrapper.create_task(self.dispatch.feed(update, self.api))
 
-        if self.loop_wrapper.is_running:
+        self.polling.offset = offset
+
+        if self.loop_wrapper.running:
             await polling()
         else:
             self.loop_wrapper.add_task(polling())

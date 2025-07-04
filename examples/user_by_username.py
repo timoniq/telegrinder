@@ -7,7 +7,7 @@ from fntypes.option import Nothing
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.rules.message import MessageRule
+from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.model import decoder
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import Option
@@ -103,9 +103,9 @@ class DummyDatabase:
 db = DummyDatabase()
 
 
-@bot.on.message.register_middleware()
-class UserRegistrarMiddleware(ABCMiddleware[Message]):
-    async def pre(self, event: Message, ctx: Context) -> bool:
+@bot.on.message.register_middleware
+class UserRegistrarMiddleware(ABCMiddleware):
+    async def pre(self, event: Message) -> bool:
         if event.from_:
             await db.set_user(event.from_user)
         if event.reply_to_message and event.reply_to_message.unwrap().from_:
@@ -114,7 +114,7 @@ class UserRegistrarMiddleware(ABCMiddleware[Message]):
 
 
 class MentionRule(
-    MessageRule,
+    ABCRule,
     requires=[
         Text("/get_user") & IsReply()
         | Markup("/get_user id<user_id:int>")
@@ -139,12 +139,13 @@ class MentionRule(
 
         if user is None:
             return False
+
         ctx.set("mentioned_user", user)
         return True
 
 
 @bot.on.message(MentionRule())
-async def get_user(_: Message, mentioned_user: User) -> str:
+async def get_user(mentioned_user: User) -> str:
     return f"""
     Id -> {mentioned_user.id}
     Is bot -> {"✅" if mentioned_user.is_bot else "❌"}

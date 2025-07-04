@@ -1,33 +1,37 @@
+from __future__ import annotations
+
 import typing
 from functools import cached_property
 
+from fntypes.misc import from_optional
 from fntypes.option import Option
 
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.view.base import BaseView
-from telegrinder.tools.functional import from_optional
+
+type HasherWithData[Event: BaseCute, Data] = tuple[Hasher[Event, Data], Data]
 
 Event = typing.TypeVar("Event", bound=BaseCute, covariant=True)
 Data = typing.TypeVar("Data", covariant=True)
 
 
-def _echo[T](__x: T) -> T:
+def ECHO[T](__x: T) -> T:  # noqa
     return __x
-
-
-ECHO = _echo
 
 
 class Hasher(typing.Generic[Event, Data]):
     def __init__(
         self,
-        view_class: type[BaseView[Event]],
+        view_class: type[BaseView],
         get_hash_from_data: typing.Callable[[Data], typing.Hashable | None] | None = None,
         get_data_from_event: typing.Callable[[Event], Data | None] | None = None,
     ) -> None:
         self.view_class = view_class
         self._get_hash_from_data = get_hash_from_data
         self._get_data_from_event = get_data_from_event
+
+    def __call__[D](self: "Hasher[Event, D]", data: D, /) -> HasherWithData[Event, D]:
+        return (self, data)
 
     def __hash__(self) -> int:
         return hash(self.name)
@@ -53,7 +57,7 @@ class Hasher(typing.Generic[Event, Data]):
         self: "Hasher[E, Data]",
         event: E,
     ) -> Option[typing.Hashable]:
-        return self.get_data_from_event(event).and_then(self.get_hash_from_data)  # type: ignore
+        return self.get_data_from_event(event).then(self.get_hash_from_data)  # type: ignore
 
 
 __all__ = ("Hasher",)

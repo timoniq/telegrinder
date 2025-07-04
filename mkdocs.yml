@@ -1,11 +1,11 @@
 site_name: Telegrinder
 site_author: timoniq
-site_description: Modern visionary telegram bot framework
+site_description: Modern visionary telegram bot framework.
 site_url: https://telegrinder.rtfd.io/
 repo_name: timoniq/telegrinder
 repo_url: https://github.com/timoniq/telegrinder
 edit_uri: edit/dev/docs/
-copyright: timoniq, 2024 <a href="https://github.com/timoniq/telegrinder/blob/main/LICENSE" target="_blank" rel="noopener">(View license)</a>
+copyright: timoniq, 2025 <a href="https://github.com/timoniq/telegrinder/blob/main/LICENSE" target="_blank" rel="noopener">(View license)</a>
 
 extra:
   generator: false
@@ -24,9 +24,8 @@ nav:
   - Tools:
     - Checkbox: tools/checkbox.md
     - Formatting: tools/formatting.md
-    - Keyboard Set: tools/keyboard_set.md
+    - Loop Wrapper: tools/loop_wrapper.md
     - Global Context: tools/global_context.md
-    - Error Handler: tools/error_handler.md
 
 theme:
   name: readthedocs

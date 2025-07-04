@@ -2,7 +2,6 @@ import typing
 
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.node.base import ComposeError, FactoryNode, scalar_node
-from telegrinder.node.either import Either
 
 
 @scalar_node
@@ -26,7 +25,7 @@ class Text:
 @scalar_node
 class TextInteger:
     @classmethod
-    def compose(cls, text: Either[Text, Caption]) -> int:
+    def compose(cls, text: Text | Caption) -> int:
         if not text.isdigit():
             raise ComposeError("Text is not digit.")
         return int(text)

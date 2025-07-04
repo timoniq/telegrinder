@@ -1,16 +1,16 @@
-name: Generate Telegram Bot API types
+name: Telegram Bot API schema
 
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "0 13 * * *"
+    - cron: "0 16 * * *"
 
 jobs:
   lock-file:
     name: "Lock uv"
     runs-on: ubuntu-latest
     steps:
-      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/install-dependencies
         with:
@@ -18,37 +18,32 @@ jobs:
 
       - run: uv lock --locked
 
-  type-generation:
-    name: "Type-generation"
+  generation:
+    name: "TBA schema generation"
     runs-on: ubuntu-latest
     needs: lock-file
     steps:
-      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/install-dependencies
         with:
           python-version: "3.13"
 
-      - name: "Run type-generator"
+      - name: "Run generator"
         run: uv run typegen
 
-  open-pr:
-    name: "Open PR"
-    runs-on: ubuntu-latest
-    needs: type-generation
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: peter-evans/create-pull-request@v7
+      - name: "Create PR"
+        uses: peter-evans/create-pull-request@v7
         with:
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           commit-message: >
-            Update API types based on the latest schema changes.
+            types: Telegram Bot API schema changes
           title: >
-            Update API types based on the latest schema changes
+            Update Telegram Bot API to the latest schema
           body: >
             This is an automated PR. Please check the diff, and the action logs, to check for any funky behavior.
-          branch: automated/types
+          branch: automated/tba
           reviewers: luwqz1
           assignees: luwqz1
-          labels: automated, types
+          labels: automated, TBA
           delete-branch: true

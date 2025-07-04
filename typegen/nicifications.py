@@ -46,7 +46,9 @@ class _Birthdate(Birthdate):
 
 class _Chat(Chat):
     def __eq__(self, other: object, /) -> bool:
-        return isinstance(other, self.__class__) and self.id == other.id
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.id == other.id
 
     @property
     def full_name(self) -> Option[str]:
@@ -72,21 +74,17 @@ class _ChatMemberUpdated(ChatMemberUpdated):
 
 class _Message(Message):
     def __eq__(self, other: object, /) -> bool:
-        return (
-            isinstance(other, self.__class__)
-            and self.message_id == other.message_id
-            and self.chat_id == other.chat_id
-        )
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.message_id == other.message_id and self.chat_id == other.chat_id
 
     @cached_property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
         for content in ContentType:
-            if content.value in self.__struct_fields__ and not isinstance(
-                getattr(self, content.value, Nothing()),
-                Nothing,
-            ):
+            if not isinstance(getattr(self, content.value, Nothing()), Nothing):
                 return content
+
         return ContentType.UNKNOWN
 
     @property
@@ -109,7 +107,9 @@ class _Message(Message):
 
 class _User(User):
     def __eq__(self, other: object, /) -> bool:
-        return isinstance(other, self.__class__) and self.id == other.id
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.id == other.id
 
     @property
     def default_accent_color(self) -> DefaultAccentColor:
@@ -124,20 +124,14 @@ class _User(User):
 
 class _Update(Update):
     def __eq__(self, other: object, /) -> bool:
-        return isinstance(other, self.__class__) and self.update_type == other.update_type
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.update_type == other.update_type
 
     @cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
-        return UpdateType(
-            next(
-                (
-                    x
-                    for x in self.__struct_fields__
-                    if x != "update_id" and not isinstance(getattr(self, x), Nothing)
-                )
-            ),
-        )
+        return UpdateType(next(iter(self.to_dict(exclude_fields={"update_id"}))))
 
     @cached_property
     def incoming_update(self) -> Model:

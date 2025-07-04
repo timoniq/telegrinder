@@ -1,16 +1,12 @@
-from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.dispatch.return_manager.callback_query import CallbackQueryReturnManager
-from telegrinder.bot.dispatch.view.base import BaseStateView
+from telegrinder.bot.dispatch.view.base import BaseView
+from telegrinder.types.enums import UpdateType
 
 
-class CallbackQueryView(BaseStateView[CallbackQueryCute]):
+class CallbackQueryView(BaseView):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(UpdateType.CALLBACK_QUERY)
         self.return_manager = CallbackQueryReturnManager()
-
-    @classmethod
-    def get_state_key(cls, event: CallbackQueryCute) -> int | None:
-        return event.message_id.unwrap_or_none()
 
 
 __all__ = ("CallbackQueryView",)
