@@ -1,5 +1,4 @@
 import abc
-import datetime
 import importlib
 import keyword
 import os
@@ -476,7 +475,7 @@ class MethodGenerator(ABCGenerator):
         config: Config,
         parent_types: dict[str, list[str]],
         *,
-        version: float,
+        version: str,
         release_date: str,
     ) -> None:
         self.methods = methods
@@ -634,8 +633,8 @@ class MethodGenerator(ABCGenerator):
 
         logger.debug("Generate methods...")
         docstring = '    """Telegram Bot API version `{}`, released `{}`."""\n\n'.format(
-            self.config.telegram_bot_api.version_number,
-            self.release_date or datetime.datetime.now().ctime(),
+            self.version,
+            self.release_date,
         )
         default_params_typeddict = 'typing.TypedDict("DefaultParams", {},)'.format(
             "{%s}"
@@ -702,7 +701,7 @@ def generate(
             methods=schema.methods,
             parent_types=object_generator.parent_types if isinstance(object_generator, ObjectGenerator) else {},
             config=config,
-            version=float(schema.version.split()[-1]),
+            version=schema.version.split()[-1],
             release_date=schema.release_date,
         )
 
