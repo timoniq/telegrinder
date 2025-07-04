@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API version `9.0`, released `July 3, 2025`."""
+    """Telegram Bot API version `9.1`, released `July 3, 2025`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
