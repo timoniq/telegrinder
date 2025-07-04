@@ -75,7 +75,7 @@ pip install git+https://github.com/timoniq/telegrinder/archive/dev.zip
 
 # Documentation
 
-[Readthedocs](https://telegrinder.readthedocs.io)
+[Tutorial](/docs/tutorial/en/0_tutorial.md)
 
 # Community
 
