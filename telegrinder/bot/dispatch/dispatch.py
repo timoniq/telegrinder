@@ -142,7 +142,7 @@ class Dispatch(
             api,
             event,
             context,
-            required_nodes=self.global_middleware.post_pre_required_nodes,
+            required_nodes=self.global_middleware.post_required_nodes,
         )
         logger.debug(
             "Update (id={}, type={!r}) processed in {} ms by bot (id={})",

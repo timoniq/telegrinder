@@ -80,7 +80,7 @@ class ABCMiddleware(ABC):
         return get_nodes(self.pre)
 
     @cached_property
-    def post_pre_required_nodes(self) -> dict[str, IsNode]:
+    def post_required_nodes(self) -> dict[str, IsNode]:
         return get_nodes(self.post)
 
     def to_lifespan(
@@ -112,7 +112,7 @@ class ABCMiddleware(ABC):
                     api,
                     event,
                     ctx,
-                    required_nodes=self.post_pre_required_nodes,
+                    required_nodes=self.post_required_nodes,
                 ),
             ],
         )

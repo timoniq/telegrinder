@@ -69,7 +69,7 @@ async def process_inner(
                 api,
                 event,
                 ctx,
-                required_nodes=m.post_pre_required_nodes,
+                required_nodes=m.post_required_nodes,
             )
 
     logger.info(
