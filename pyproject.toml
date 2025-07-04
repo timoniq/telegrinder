@@ -45,20 +45,20 @@ dependencies = [
     "envparse (>=0.2.0,<0.3.0)",
     "certifi (>=2025.6.15,<2026.0.0)",
     "msgspec (>=0.19.0,<0.20.0)",
-    "typing-extensions (>=4.14.0,<5.0.0)",
+    "typing-extensions (>=4.14.1,<5.0.0)",
     "colorama (>=0.4.6,<0.5.0)",
     "fntypes",
 ]
 
 [project.optional-dependencies]
 uvloop = [
-    "uvloop>=0.21.0; (sys_platform == 'darwin' or sys_platform == 'linux')",
-    "winloop>=0.1.8; (sys_platform == 'cli' or sys_platform == 'cygwin' or sys_platform == 'win32')",
+    "uvloop; (sys_platform == 'darwin' or sys_platform == 'linux')",
+    "winloop; (sys_platform == 'cli' or sys_platform == 'cygwin' or sys_platform == 'win32')",
 ]
-structlog = ["structlog>=25.4.0"]
-loguru = ["loguru>=0.7.3"]
-brotli = ["brotli>=1.1.0"]
-socks = ["aiohttp-socks>=0.10.1"]
+structlog = ["structlog"]
+loguru = ["loguru"]
+brotli = ["brotli"]
+socks = ["aiohttp-socks"]
 
 [project.urls]
 Source = "https://github.com/timoniq/telegrinder"
@@ -67,7 +67,7 @@ Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.12.0,<1",
+    "ruff>=0.12.2,<1",
     "basedpyright>=1.29.4,<2",
     "requests>=2.32.4,<3",
     "tomlkit>=0.13.3,<1",
