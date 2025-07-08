@@ -30,6 +30,9 @@ type InputMediaType = str | InputMedia | InputFile
 type ReplyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 
 
+MEDIA_GROUP_MESSAGES_KEY = "_media_group_messages"
+
+
 async def execute_method_answer(
     message: MessageCute,
     method_name: str,
@@ -142,6 +145,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     """Optional. Specified message was pinned. Note that the Message object in
     this field will not contain further reply_to_message fields even if it
     itself is a reply."""
+
+    @property
+    def media_group_messages(self) -> fntypes.Option[list[MessageCute]]:
+        if MEDIA_GROUP_MESSAGES_KEY not in self.__dict__:
+            return fntypes.Nothing()
+        return fntypes.Some(self.__dict__[MEDIA_GROUP_MESSAGES_KEY])
+    
+    @media_group_messages.setter
+    def media_group_messages(self, messages: list[MessageCute]):
+        self.__dict__[MEDIA_GROUP_MESSAGES_KEY] = messages
 
     @property
     def mentioned_user(self) -> fntypes.option.Option[User]:

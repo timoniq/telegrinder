@@ -22,6 +22,7 @@ from telegrinder.bot.dispatch.view.box import (
     MessageView,
     PreCheckoutQueryView,
     RawEventView,
+    MediaGroupView,
     ViewBox,
 )
 from telegrinder.modules import logger
@@ -48,6 +49,7 @@ class Dispatch(
         ChatJoinRequestView,
         ChatMemberView,
         InlineQueryView,
+        MediaGroupView,
         MessageView,
         PreCheckoutQueryView,
         RawEventView,
@@ -58,6 +60,7 @@ class Dispatch(
         ChatJoinRequestView,
         ChatMemberView,
         InlineQueryView,
+        MediaGroupView,
         MessageView,
         PreCheckoutQueryView,
         RawEventView,

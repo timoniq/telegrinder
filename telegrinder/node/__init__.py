@@ -8,6 +8,7 @@ from .attachment import (
     Video,
     VideoNote,
     Voice,
+    MediaGroup,
 )
 from .base import (
     Composable,
@@ -95,6 +96,7 @@ __all__ = (
     "KeySeparator",
     "Locale",
     "Me",
+    "MediaGroup",
     "Name",
     "Node",
     "NodeCollection",

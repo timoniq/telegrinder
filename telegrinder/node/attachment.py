@@ -155,6 +155,19 @@ class SuccessfulPayment:
         return attachment.successful_payment.unwrap()
 
 
+@dataclasses.dataclass(slots=True)
+class MediaGroup(DataNode):
+    id: str
+    items: list[MessageCute]
+
+    @classmethod
+    def compose(cls, message: MessageCute) -> typing.Self:
+        return cls(
+            id=message.media_group_id.expect(ComposeError("No media group id")),
+            items=message.media_group_messages.expect(ComposeError("No messages collected for media group.")),
+        )
+
+
 __all__ = (
     "Animation",
     "Attachment",
@@ -166,4 +179,5 @@ __all__ = (
     "Video",
     "VideoNote",
     "Voice",
+    "MediaGroup",
 )

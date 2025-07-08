@@ -8,6 +8,7 @@ from telegrinder.bot.dispatch.view import (
     chat_member,
     error,
     inline_query,
+    media_group,
     message,
     pre_checkout_query,
     raw,
@@ -32,6 +33,7 @@ ChatJoinRequestView = typing.TypeVar(
 )
 ChatMemberView = typing.TypeVar("ChatMemberView", bound=ABCView, default=chat_member.ChatMemberView)
 InlineQueryView = typing.TypeVar("InlineQueryView", bound=ABCView, default=inline_query.InlineQueryView)
+MediaGroupView = typing.TypeVar("MediaGroupView", bound=ABCView, default=media_group.MediaGroupView)
 MessageView = typing.TypeVar("MessageView", bound=ABCView, default=message.MessageView)
 RawEventView = typing.TypeVar("RawEventView", bound=ABCEventRawView, default=raw.RawEventView)
 ErrorView = typing.TypeVar("ErrorView", bound=ABCView, default=error.ErrorView)
@@ -44,6 +46,7 @@ class ViewBox(
         ChatJoinRequestView,
         ChatMemberView,
         InlineQueryView,
+        MediaGroupView,
         MessageView,
         PreCheckoutQueryView,
         RawEventView,
@@ -55,6 +58,7 @@ class ViewBox(
     chat_member_view: dataclasses.InitVar[ChatMemberView | None] = None
     my_chat_member_view: dataclasses.InitVar[ChatMemberView | None] = None
     inline_query_view: dataclasses.InitVar[InlineQueryView | None] = None
+    media_group_view: dataclasses.InitVar[MediaGroupView | None] = None
     message_view: dataclasses.InitVar[MessageView | None] = None
     business_message_view: dataclasses.InitVar[MessageView | None] = None
     channel_post_view: dataclasses.InitVar[MessageView | None] = None
@@ -74,6 +78,7 @@ class ViewBox(
         chat_member_view: ChatMemberView | None = None,
         my_chat_member_view: ChatMemberView | None = None,
         inline_query_view: InlineQueryView | None = None,
+        media_group_view: MediaGroupView | None = None,
         message_view: MessageView | None = None,
         business_message_view: MessageView | None = None,
         channel_post_view: MessageView | None = None,
@@ -105,6 +110,10 @@ class ViewBox(
         self.inline_query = typing.cast(
             "InlineQueryView",
             inline_query_view or inline_query.InlineQueryView(),
+        )
+        self.media_group = typing.cast(
+            "MediaGroupView",
+            media_group_view or media_group.MediaGroupView(),
         )
         self.message = typing.cast(
             "MessageView",
