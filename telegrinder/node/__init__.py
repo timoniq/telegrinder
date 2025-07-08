@@ -3,12 +3,12 @@ from .attachment import (
     Attachment,
     Audio,
     Document,
+    MediaGroup,
     Photo,
     SuccessfulPayment,
     Video,
     VideoNote,
     Voice,
-    MediaGroup,
 )
 from .base import (
     Composable,

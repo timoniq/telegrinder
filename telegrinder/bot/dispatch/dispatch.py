@@ -19,10 +19,10 @@ from telegrinder.bot.dispatch.view.box import (
     ChatMemberView,
     ErrorView,
     InlineQueryView,
+    MediaGroupView,
     MessageView,
     PreCheckoutQueryView,
     RawEventView,
-    MediaGroupView,
     ViewBox,
 )
 from telegrinder.modules import logger

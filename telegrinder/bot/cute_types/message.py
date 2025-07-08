@@ -151,7 +151,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         if MEDIA_GROUP_MESSAGES_KEY not in self.__dict__:
             return fntypes.Nothing()
         return fntypes.Some(self.__dict__[MEDIA_GROUP_MESSAGES_KEY])
-    
+
     @media_group_messages.setter
     def media_group_messages(self, messages: list[MessageCute]):
         self.__dict__[MEDIA_GROUP_MESSAGES_KEY] = messages

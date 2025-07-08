@@ -173,11 +173,11 @@ __all__ = (
     "Attachment",
     "Audio",
     "Document",
+    "MediaGroup",
     "Photo",
     "Poll",
     "SuccessfulPayment",
     "Video",
     "VideoNote",
     "Voice",
-    "MediaGroup",
 )
