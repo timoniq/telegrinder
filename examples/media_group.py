@@ -5,24 +5,23 @@ media groups sent by users. Media groups are collections
 of photos, videos or other media sent together.
 """
 
+from fntypes.option import Option
+
 from telegrinder import API, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.node import Caption, MediaGroup
 
-logger.set_level("DEBUG")
+logger.set_level("INFO")
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 
 
 @bot.on.media_group()
-async def handle_media_group(
-    media_group: MediaGroup,
-    caption: Caption | None = None,  # fntypes.Option[Caption] (https://github.com/timoniq/telegrinder/issues/287)
-) -> str:
+async def handle_media_group(media_group: MediaGroup, caption: Option[Caption]) -> str:
     return (
         f"📁 Received media group with {len(media_group.items)} items!\n"
         f"🏷️ Media types: {', '.join(set(message.content_type.value for message in media_group.items))}\n"
-        f"📝 Caption: {caption or 'no caption'}"
+        f"📝 Caption: {caption.unwrap_or('no caption')}"
     )
 
 

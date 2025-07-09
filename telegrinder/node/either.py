@@ -1,9 +1,11 @@
 import typing
 
+from fntypes.option import Nothing, Some
 from fntypes.result import Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.model import is_none
 from telegrinder.node.base import ComposeError, FactoryNode, IsNode
 from telegrinder.node.composer import compose_nodes
 from telegrinder.node.scope import per_call
@@ -27,34 +29,41 @@ class _Either(FactoryNode):
     ```
     """
 
-    nodes: tuple[IsNode, IsNode | None]
+    nodes: tuple[IsNode, IsNode | Nothing | None]
+    is_option: bool
 
     def __class_getitem__(cls, node: IsNode | tuple[IsNode, IsNode], /) -> typing.Any:
         nodes = (node, None) if not isinstance(node, tuple) else node
         assert len(nodes) == 2, "Node `Either` must have at least two nodes."
-        return cls(nodes=nodes)
+        return cls(nodes=nodes, is_option=isinstance(nodes[1], Nothing))
 
     @classmethod
     async def compose(cls, api: API, update: Update, context: Context) -> typing.Any:
-        composed = True
+        composed = False
 
         for node in cls.nodes:
-            if node is not None:
+            if not is_none(node):
                 match await compose_nodes(dict(node_result=node), context, {API: api, Update: update}):
                     case Ok(col):
                         value = col.values["node_result"]
-                        yield value
+                        yield Some(value) if cls.is_option else value
                         await col.close_all(with_value=value)
+                        composed = True
                         break
                     case _:
-                        composed = False
+                        pass
             else:
-                yield None
+                yield cls.nodes[-1]
+                composed = True
                 break
 
         if not composed:
             raise ComposeError(
                 "Cannot compose either nodes: {}.".format(", ".join(fullname(n) for n in cls.nodes))
+                if not is_none(cls.nodes[-1])
+                else "Cannot compose {} node: `{}`.".format(
+                    "option" if cls.is_option else "optional", fullname(cls.nodes[0])
+                )
             )
 
 

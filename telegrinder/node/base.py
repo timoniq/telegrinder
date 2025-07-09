@@ -8,6 +8,7 @@ from itertools import islice
 from types import CodeType, NoneType, UnionType, resolve_bases
 
 import typing_extensions as typing
+from fntypes.option import Nothing, Option
 
 from telegrinder.node.context import NODE_CONTEXT
 from telegrinder.node.exceptions import ComposeError
@@ -59,6 +60,15 @@ def as_node(
 ) -> IsNode | None: ...
 
 
+def option_as_node(option: typing.Any, /) -> IsNode | None:
+    from telegrinder.node.either import _Either
+
+    maybe_node = as_node(typing.get_args(option)[0], raise_exception=False)
+    if maybe_node is None:
+        return None
+    return _Either[maybe_node, Nothing()]
+
+
 def union_as_node(union: UnionType, /) -> IsNode | None:
     from telegrinder.node.either import _Either
 
@@ -98,34 +108,43 @@ def as_node(
     *maybe_nodes: typing.Any,
     raise_exception: bool = True,
 ) -> IsNode | tuple[IsNode, ...] | None:
-    nodes = []
+    nodes: list[IsNode] | None = []
 
     for maybe_node in maybe_nodes:
         if isinstance(maybe_node, typing.TypeAliasType):
             maybe_node = maybe_node.__value__
 
-        if (typing.get_origin(maybe_node) or maybe_node) in _UNION_TYPES and (
-            maybe_node := union_as_node(union := maybe_node)
-        ) is None:
-            if not raise_exception:
-                return None
+        if (
+            (typing.get_origin(maybe_node) or maybe_node) in _UNION_TYPES
+            and (maybe_node := union_as_node(union := maybe_node)) is None
+            and raise_exception
+        ):
             raise TypeError(f"Union `{union!r}` doesn't contain all types of Node.")
 
-        if not is_node_type(orig := typing.get_origin(maybe_node) or maybe_node):
+        elif typing.get_origin(maybe_node) is Option:
+            maybe_node = option_as_node(maybe_node)
+            if maybe_node is None and raise_exception:
+                raise TypeError(f"Option `{maybe_node!r}` doesn't contain type of Node.")
+
+        elif not is_node_type(orig := typing.get_origin(maybe_node) or maybe_node):
             if not hasattr(orig, "as_node"):
-                if not raise_exception:
-                    return None
+                maybe_node = orig = None
 
-                raise TypeError(
-                    f"{'Type of' if isinstance(maybe_node, type) else 'Object of type'} "
-                    f"{fullname(maybe_node)!r} cannot be resolved as Node.",
-                )
+                if raise_exception:
+                    raise TypeError(
+                        f"{'Type of' if isinstance(maybe_node, type) else 'Object of type'} "
+                        f"`{fullname(maybe_node)!r}` cannot be resolved as Node.",
+                    )
 
-            maybe_node = orig.as_node()
+            if orig is not None:
+                maybe_node = orig.as_node()
 
+        if maybe_node is None:
+            nodes = None
+            break
         nodes.append(maybe_node)
 
-    return nodes[0] if len(nodes) == 1 else tuple(nodes)
+    return (nodes[0] if len(nodes) == 1 else tuple(nodes)) if nodes is not None else None
 
 
 def is_node_type(obj: typing.Any, /) -> typing.TypeIs[IsNode]:
