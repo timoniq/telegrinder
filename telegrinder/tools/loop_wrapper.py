@@ -142,10 +142,11 @@ class LoopWrapper(Singleton, Final):
         await self._semaphore.acquire()
         self._create_task(self._run_coro_with_semaphore(coro))
 
-    def _create_task(self, coro: CoroutineTask[typing.Any], /) -> None:
+    def _create_task[T](self, coro: CoroutineTask[T], /) -> asyncio.Task[T]:
         task = self._loop.create_task(coro)
         self._all_tasks.add(task)
         task.add_done_callback(self._all_tasks.discard)
+        return task
 
     def _get_all_tasks(self) -> Tasks:
         """Get a set of all tasks from the loop wrapper and event loop (`exclude the current task if any`)."""
@@ -255,7 +256,7 @@ class LoopWrapper(Singleton, Final):
 
     def add_task(self, task: Task[..., typing.Any], /) -> None:
         coro_task = to_coroutine_task(task)
-        return self._create_task(coro_task) if self.running else self._tasks.append(coro_task)
+        self._create_task(coro_task) if self.running else self._tasks.append(coro_task)
 
     async def create_task(self, task: Task[..., typing.Any], /) -> None:
         if not self.running:

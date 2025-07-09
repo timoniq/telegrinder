@@ -163,7 +163,7 @@ class MediaGroup(DataNode):
     @classmethod
     def compose(cls, message: MessageCute) -> typing.Self:
         return cls(
-            id=message.media_group_id.expect(ComposeError("No media group id")),
+            id=message.media_group_id.expect(ComposeError("No media group id.")),
             items=message.media_group_messages.expect(ComposeError("No messages collected for media group.")),
         )
 

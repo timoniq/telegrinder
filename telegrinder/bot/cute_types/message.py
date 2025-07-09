@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import typing
+from functools import cached_property
 
 import fntypes.option
 from fntypes.co import Result, Some, Variative
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
-from telegrinder.bot.cute_types.utils import compose_reactions, input_media
+from telegrinder.bot.cute_types.utils import MediaType, compose_reactions, input_media
 from telegrinder.model import UNSET, From, field
 from telegrinder.msgspec_utils import Option
 from telegrinder.types import *
@@ -19,18 +20,8 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 
 type MessageOrCallbackQuery = MessageCute | CallbackQueryCute
-type MediaType = typing.Literal[
-    "animation",
-    "audio",
-    "document",
-    "photo",
-    "video",
-]
 type InputMediaType = str | InputMedia | InputFile
 type ReplyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
-
-
-MEDIA_GROUP_MESSAGES_KEY = "_media_group_messages"
 
 
 async def execute_method_answer(
@@ -146,15 +137,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     this field will not contain further reply_to_message fields even if it
     itself is a reply."""
 
-    @property
+    @cached_property
     def media_group_messages(self) -> fntypes.Option[list[MessageCute]]:
-        if MEDIA_GROUP_MESSAGES_KEY not in self.__dict__:
-            return fntypes.Nothing()
-        return fntypes.Some(self.__dict__[MEDIA_GROUP_MESSAGES_KEY])
-
-    @media_group_messages.setter
-    def media_group_messages(self, messages: list[MessageCute]):
-        self.__dict__[MEDIA_GROUP_MESSAGES_KEY] = messages
+        return fntypes.Nothing()
 
     @property
     def mentioned_user(self) -> fntypes.option.Option[User]:
@@ -175,6 +160,9 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     def custom_emoji_id(self) -> fntypes.option.Option[str]:
         """Unique identifier of the custom emoji."""
         return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)
+
+    def set_media_group_messages(self, messages: list[MessageCute], /) -> None:
+        self.__dict__["media_group_messages"] = Some(messages)
 
     @shortcut(
         "send_message",

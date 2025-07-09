@@ -1,5 +1,6 @@
 import typing
 
+from telegrinder.types.enums import ContentType
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import (
     InputFile,
@@ -22,13 +23,23 @@ type InputMedia = typing.Union[
     InputMediaVideo,
 ]
 
-INPUT_MEDIA_TYPES: typing.Final[dict[str, type[InputMedia]]] = {
-    "animation": InputMediaAnimation,
-    "audio": InputMediaAudio,
-    "document": InputMediaDocument,
-    "photo": InputMediaPhoto,
-    "video": InputMediaVideo,
-}
+type MediaType = typing.Literal["animation", "audio", "document", "photo", "video"]
+
+MEDIA_TYPES: typing.Final[tuple[ContentType, ...]] = (
+    ContentType.ANIMATION,
+    ContentType.AUDIO,
+    ContentType.DOCUMENT,
+    ContentType.PHOTO,
+    ContentType.VIDEO,
+)
+INPUT_TYPES: typing.Final[tuple[type[InputMedia], ...]] = (
+    InputMediaAnimation,
+    InputMediaAudio,
+    InputMediaDocument,
+    InputMediaPhoto,
+    InputMediaVideo,
+)
+INPUT_MEDIA_TYPES: typing.Final[dict[ContentType, type[InputMedia]]] = dict(zip(MEDIA_TYPES, INPUT_TYPES))
 
 
 def compose_reactions(
@@ -48,7 +59,7 @@ def compose_reactions(
 
 
 def input_media(
-    type: typing.Literal["animation", "audio", "document", "photo", "video"],
+    type: MediaType,
     media: str | InputFile,
     *,
     caption: str | None = None,
@@ -56,7 +67,7 @@ def input_media(
     caption_entities: list[MessageEntity] | None = None,
     **other: typing.Any,
 ) -> InputMedia:
-    return INPUT_MEDIA_TYPES[type](**get_params(locals()))
+    return INPUT_MEDIA_TYPES[ContentType(type)](**get_params(locals()))
 
 
 __all__ = ("compose_reactions", "input_media")

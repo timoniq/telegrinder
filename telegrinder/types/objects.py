@@ -3,9 +3,9 @@ from __future__ import annotations
 import secrets
 from functools import cached_property
 
-from fntypes.co import Nothing, Variative
+from fntypes.co import Variative
 
-from telegrinder.model import From, Model, field
+from telegrinder.model import From, Model, field, is_none
 from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime, timedelta
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.input_file import InputFile
@@ -1123,7 +1123,7 @@ class Message(MaybeInaccessibleMessage):
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
         for content in ContentType:
-            if not isinstance(getattr(self, content.value, Nothing()), Nothing):
+            if not is_none(getattr(self, content.value, None)):
                 return content
 
         return ContentType.UNKNOWN

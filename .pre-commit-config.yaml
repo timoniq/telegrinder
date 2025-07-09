@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-merge-conflict
         stages: [ pre-commit, pre-push ]
@@ -25,7 +25,7 @@ repos:
       - id: basedpyright
         name: basedpyright
         description: "Run 'basedpyright' for Python type checking"
-        entry: uv run basedpyright --level error
+        entry: uv run basedpyright telegrinder tests examples --level error
         pass_filenames: false
         language: system
         types: [ python ]

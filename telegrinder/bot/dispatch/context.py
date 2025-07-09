@@ -4,8 +4,7 @@ import enum
 import typing
 from reprlib import recursive_repr
 
-from fntypes import Some
-from fntypes.option import Nothing, Option
+from fntypes.option import Nothing, Option, Some
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
