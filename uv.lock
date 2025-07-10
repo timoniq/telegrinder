@@ -333,14 +333,6 @@ wheels = [
 ]
 
 [[package]]
-name = "fntypes"
-version = "0.2.1"
-source = { git = "https://github.com/timoniq/fntypes.git?rev=370bd2b5392670c0463a8c12c823841fd360ecfc#370bd2b5392670c0463a8c12c823841fd360ecfc" }
-dependencies = [
-    { name = "typing-extensions" },
-]
-
-[[package]]
 name = "frozenlist"
 version = "1.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -398,6 +390,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/31/8fbc5af2d183bff20f21aa743b4088eac4445d2bb1cdece449ae80e4e2d1/frozenlist-1.7.0-cp313-cp313t-win32.whl", hash = "sha256:3a14027124ddb70dfcee5148979998066897e79f89f64b13328595c4bdf77c81", size = 43059, upload-time = "2025-06-09T23:02:02.072Z" },
     { url = "https://files.pythonhosted.org/packages/bb/ed/41956f52105b8dbc26e457c5705340c67c8cc2b79f394b79bffc09d0e938/frozenlist-1.7.0-cp313-cp313t-win_amd64.whl", hash = "sha256:3bf8010d71d4507775f658e9823210b7427be36625b387221642725b515dcf3e", size = 47516, upload-time = "2025-06-09T23:02:03.779Z" },
     { url = "https://files.pythonhosted.org/packages/ee/45/b82e3c16be2182bff01179db177fe144d58b5dc787a7d4492c6ed8b9317f/frozenlist-1.7.0-py3-none-any.whl", hash = "sha256:9a5af342e34f7e97caf8c995864c7a396418ae2859cc6fdf1b1073020d516a7e", size = 13106, upload-time = "2025-06-09T23:02:34.204Z" },
+]
+
+[[package]]
+name = "funtypes"
+version = "0.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a2/59/dc2bcf2bdacbd45b964bc8f588c87c8684f7d1828251eaaa46248b78bbc1/funtypes-0.2.1.tar.gz", hash = "sha256:f1b35a355c52193c4dfd6a06b39cbbb07125be3d5331ebc0aac9c3d2b3e5c193", size = 8006, upload-time = "2025-07-10T11:23:58.351Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/10/d4/2c623f3aa7336f7347d07c92a419eb9450fd517c9b20e7624637e5f7dc3b/funtypes-0.2.1-py3-none-any.whl", hash = "sha256:878129ec67117cad9719579897bd4cd7c35a332972bc226c860f7fc39336a658", size = 13270, upload-time = "2025-07-10T11:23:57.276Z" },
 ]
 
 [[package]]
@@ -919,7 +923,7 @@ dependencies = [
     { name = "choicelib" },
     { name = "colorama" },
     { name = "envparse" },
-    { name = "fntypes" },
+    { name = "funtypes" },
     { name = "msgspec" },
     { name = "typing-extensions" },
     { name = "vbml" },
@@ -967,7 +971,7 @@ requires-dist = [
     { name = "choicelib", specifier = ">=0.1.5,<0.2.0" },
     { name = "colorama", specifier = ">=0.4.6,<0.5.0" },
     { name = "envparse", specifier = ">=0.2.0,<0.3.0" },
-    { name = "fntypes", git = "https://github.com/timoniq/fntypes.git?rev=370bd2b5392670c0463a8c12c823841fd360ecfc" },
+    { name = "funtypes", specifier = "==0.2.1" },
     { name = "loguru", marker = "extra == 'loguru'" },
     { name = "msgspec", specifier = ">=0.19.0,<0.20.0" },
     { name = "structlog", marker = "extra == 'structlog'" },
