@@ -39,15 +39,15 @@ classifiers = [
 ]
 dependencies = [
     "aiohttp (>=3.12.13,<4.0.0)",
-    "aiodns (>=3.5.0,<4.0.0)",
+    "aiodns (>=3.5.0,<4.0.0); (sys_platform != 'darwin')",
     "vbml (>=1.1.post1,<2.0)",
     "choicelib (>=0.1.5,<0.2.0)",
     "envparse (>=0.2.0,<0.3.0)",
-    "certifi (>=2025.6.15,<2026.0.0)",
+    "certifi (>=2025.7.9,<2026.0.0)",
     "msgspec (>=0.19.0,<0.20.0)",
     "typing-extensions (>=4.14.1,<5.0.0)",
     "colorama (>=0.4.6,<0.5.0)",
-    "fntypes",
+    "fntypes @ git+https://github.com/timoniq/fntypes.git@370bd2b5392670c0463a8c12c823841fd360ecfc",
 ]
 
 [project.optional-dependencies]
@@ -82,11 +82,11 @@ dev = [
 [tool.uv]
 package = true
 
-[tool.uv.sources]
-fntypes = { git = "https://github.com/timoniq/fntypes.git", rev = "370bd2b5392670c0463a8c12c823841fd360ecfc" }
-
 [tool.hatch.version]
 path = "telegrinder/__meta__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.ruff]
 line-length = 115
