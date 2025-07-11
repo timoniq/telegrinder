@@ -112,7 +112,7 @@ class InlineButton(BaseButton, ConvertButtonMixin["InlineKeyboard"]):
     login_url: LoginUrl | None = dataclasses.field(default=None, kw_only=True)
     pay: bool | None = dataclasses.field(default=None, kw_only=True)
     callback_data: CallbackData | None = dataclasses.field(default=None, kw_only=True)
-    callback_data_serializer: dataclasses.InitVar[ABCDataSerializer[typing.Any] | None] = dataclasses.field(
+    callback_data_serializer: ABCDataSerializer[typing.Any] | None = dataclasses.field(
         default=None,
         kw_only=True,
     )
@@ -126,18 +126,18 @@ class InlineButton(BaseButton, ConvertButtonMixin["InlineKeyboard"]):
     )
     web_app: str | WebAppInfo | None = dataclasses.field(default=None, kw_only=True)
 
-    def __post_init__(self, callback_data_serializer: ABCDataSerializer[typing.Any] | None) -> None:
+    def __post_init__(self) -> None:
         if (
-            callback_data_serializer is None
+            self.callback_data_serializer is None
             and isinstance(self.callback_data, msgspec.Struct | dict)
             or dataclasses.is_dataclass(self.callback_data)
         ):
-            callback_data_serializer = callback_data_serializer or JSONSerializer(
+            self.callback_data_serializer = self.callback_data_serializer or JSONSerializer(
                 type(self.callback_data),
             )
 
-        if callback_data_serializer is not None:
-            self.callback_data = callback_data_serializer.serialize(self.callback_data)
+        if self.callback_data_serializer is not None:
+            self.callback_data = self.callback_data_serializer.serialize(self.callback_data)
         elif self.callback_data is not None and not isinstance(self.callback_data, str | bytes):
             self.callback_data = encoder.encode(self.callback_data)
 
