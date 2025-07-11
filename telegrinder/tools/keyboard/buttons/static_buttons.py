@@ -1,13 +1,15 @@
 import dataclasses
 import types
 import typing
+from functools import cached_property
 
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.payload import PayloadJsonEqRule, PayloadMarkupRule, PayloadModelRule
 from telegrinder.bot.rules.text import Text
-from telegrinder.tools.callback_data_serialization import ABCDataSerializer
+from telegrinder.node.base import Node
+from telegrinder.node.payload import PayloadData
 from telegrinder.tools.keyboard.buttons.base import BaseStaticButton
-from telegrinder.tools.keyboard.buttons.buttons import Button, InlineButton
+from telegrinder.tools.keyboard.buttons.buttons import Button, CallbackData, InlineButton
 
 
 @dataclasses.dataclass
@@ -28,6 +30,8 @@ class StaticButton(StaticButtonMixin, Button, Text):
 
 @dataclasses.dataclass
 class StaticInlineButton(StaticButtonMixin, InlineButton, ABCRule):
+    callback_data_type: type[CallbackData | None]
+
     if not typing.TYPE_CHECKING:
 
         def __init__(self, *args, **kwargs):
@@ -39,7 +43,9 @@ class StaticInlineButton(StaticButtonMixin, InlineButton, ABCRule):
 
         def check(self, *args: typing.Any, **kwargs: typing.Any) -> bool: ...
 
-    def __post_init__(self, callback_data_serializer: ABCDataSerializer[typing.Any] | None) -> None:
+    def __post_init__(self) -> None:
+        self.callback_data_type = type(self.callback_data)
+
         if isinstance(self.callback_data, str):
             self.check = PayloadMarkupRule(self.callback_data).check
         elif isinstance(self.callback_data, dict):
@@ -47,10 +53,14 @@ class StaticInlineButton(StaticButtonMixin, InlineButton, ABCRule):
         elif not isinstance(self.callback_data, (bytes, types.NoneType)):
             self.check = PayloadModelRule(
                 type(self.callback_data),
-                serializer=type(callback_data_serializer) if callback_data_serializer else None,
+                serializer=type(self.callback_data_serializer) if self.callback_data_serializer else None,
             ).check
 
-        super().__post_init__(callback_data_serializer)
+        super().__post_init__()
+
+    @cached_property
+    def required_nodes(self) -> dict[str, type[Node]]:
+        return {"payload": PayloadData[self.callback_data_type, type(self.callback_data_serializer)]}  # type: ignore
 
 
 __all__ = ("StaticButton", "StaticInlineButton")
