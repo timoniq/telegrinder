@@ -13,7 +13,7 @@ from telegrinder.node.payload import Payload, PayloadData
 from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
 from telegrinder.tools.callback_data_serialization.json_ser import JSONSerializer
 
-_sentinel = object()
+_ANY: typing.Final = object()
 
 
 class PayloadRule[Data](ABCRule):
@@ -43,7 +43,7 @@ class PayloadModelRule[Model: ModelType](PayloadRule):
         model_t: type[Model],
         /,
         *,
-        payload: typing.Any = _sentinel,
+        payload: typing.Any = _ANY,
         serializer: type[ABCDataSerializer[Model]] | None = None,
         alias: str | None = None,
     ) -> None:
@@ -51,9 +51,12 @@ class PayloadModelRule[Model: ModelType](PayloadRule):
         self.payload = payload
 
     def check(self, payload: PayloadData[Model], context: Context) -> bool:
-        if self.payload is not _sentinel and payload != self.payload:
-            return False
-        context.set(self.alias, payload)
+        if self.payload is not _ANY:
+            if payload != self.payload:
+                return False
+
+            context.set(self.alias, payload)
+
         return True
 
 
