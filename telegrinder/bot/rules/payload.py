@@ -51,12 +51,10 @@ class PayloadModelRule[Model: ModelType](PayloadRule):
         self.payload = payload
 
     def check(self, payload: PayloadData[Model], context: Context) -> bool:
-        if self.payload is not _ANY:
-            if payload != self.payload:
-                return False
+        if self.payload is not _ANY and payload != self.payload:
+            return False
 
-            context.set(self.alias, payload)
-
+        context.set(self.alias, payload)
         return True
 
 
