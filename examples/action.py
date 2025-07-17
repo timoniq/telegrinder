@@ -28,7 +28,7 @@ class IsAdmin(ABCRule):
 
 
 @bot.on.message(Text("im boss"))
-@action(is_not_admin, when=~IsAdmin())
+@action(is_not_admin).on(~IsAdmin())
 async def handler(message: Message) -> None:
     await message.answer("hi boss 😎")
 

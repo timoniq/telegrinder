@@ -3,8 +3,7 @@ import typing
 
 from fntypes.co import Error, Ok, Result, unwrapping
 
-if typing.TYPE_CHECKING:
-    from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.abc import ABCRule, Always, AndRule
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
@@ -72,20 +71,26 @@ async def run_action_function[T: Handler](
         await node_col.close_all()
 
 
-def action[T: Handler](
-    function: ActionFunction,
-    *,
-    when: When | None = None,
-) -> typing.Callable[[T], T]:
-    def decorator(handler: T, /) -> T:
+class Action:
+
+    def __init__(self, function: ActionFunction):
+
+        self.function = function
+        self._on: ABCRule = Always()
+
+    def on(self, *rules: ABCRule) -> typing.Self:
+        self._on &= AndRule(*rules)
+        return self
+    
+    def __call__[T: Handler](self, handler: T) -> T:
         func_handler = FuncHandler(function=handler)
 
         async def action_wrapper(api: API, update: Update, context: Context) -> typing.Any:
-            if when and not await check_rule(api, when, update, context):
-                logger.debug("When action rule `{!r}` failed.", when)
+            if not await check_rule(api, self._on, update, context):
+                logger.debug("When action rule `{!r}` failed.", self._on)
                 result = await func_handler.run(api, update, context)
             else:
-                result = await run_action_function(func_handler, function, api, update, context)
+                result = await run_action_function(func_handler, self.function, api, update, context)
 
             match result:
                 case Ok(value):
@@ -98,7 +103,11 @@ def action[T: Handler](
         action_wrapper.__qualname__ = f"<action for {handler.__qualname__}>"
         return action_wrapper  # type: ignore
 
-    return decorator
+
+def action(
+    function: ActionFunction,
+) -> Action:
+    return Action(function)
 
 
 __all__ = ("action",)
