@@ -16,7 +16,6 @@ from telegrinder.node.session import NodeSession
 from telegrinder.tools.aio import Generator
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.function import function_context, get_func_annotations
-from telegrinder.tools.strings import to_pascal_case
 
 if typing.TYPE_CHECKING:
     from telegrinder.node.tools.generator import generate_node
@@ -244,7 +243,7 @@ def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
 @typing.runtime_checkable
 class Composable[R](typing.Protocol):
     @classmethod
-    def compose(cls, *args: typing.Any, **kwargs: typing.Any) -> ComposeResult[R]: ...
+    def compose(cls, *args: typing.Any, **kwargs: typing.Any) -> R: ...
 
 
 class NodeConvertable(typing.Protocol):
@@ -256,7 +255,7 @@ class NodeComposeFunction[R](typing.Protocol):
     __name__: str
     __code__: CodeType
 
-    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> ComposeResult[R]: ...
+    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> R: ...
 
 
 @typing.runtime_checkable
@@ -289,52 +288,50 @@ class Node(abc.ABC):
         return is_generator(cls.compose)
 
 
+class ScopedDec[T](typing.Protocol):
+    @typing.overload
+    def __call__(
+        self,
+        x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]],
+        /,
+    ) -> type[T]: ...
+
+    @typing.overload
+    def __call__(self, x: Composable[T], /) -> type[T]: ...
+
+
 class scalar_node[T]:  # noqa: N801
     @typing.overload
-    def __new__(cls, x: NodeComposeFunction[Composable[T]], /) -> type[T]: ...
+    def __new__(cls, x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]], /) -> type[T]: ...
 
     @typing.overload
-    def __new__(cls, x: NodeComposeFunction[T], /) -> type[T]: ...
+    def __new__(cls, x: Composable[T], /) -> type[T]: ...
 
     @typing.overload
-    def __new__(
-        cls,
-        /,
-        *,
-        scope: NodeScope,
-    ) -> typing.Callable[[NodeComposeFunction[Composable[T]]], type[T]]: ...
+    def __new__(cls, x: T, /) -> type[T]: ...
 
     @typing.overload
-    def __new__(
-        cls,
-        /,
-        *,
-        scope: NodeScope,
-    ) -> typing.Callable[[NodeComposeFunction[T]], type[T]]: ...
+    def __new__(cls, /, *, scope: NodeScope) -> ScopedDec[T]: ...
 
-    def __new__(cls, x=None, /, *, scope=_NOSCOPE) -> typing.Any:
-        def inner(node_or_func, /) -> typing.Any:
-            namespace = {"node": "scalar", "__module__": node_or_func.__module__}
+    @typing.overload
+    def __new__(cls, /, *, scope: NodeScope) -> typing.Callable[[NodeComposeFunction[T]], type[T]]: ...
 
-            if isinstance(node_or_func, type):
-                bases: list[type[typing.Any]] = [node_or_func]
-                node_bases = resolve_bases(node_or_func.__bases__)
+    def __new__(cls, x: typing.Any = None, /, *, scope: typing.Any = _NOSCOPE) -> typing.Any:
+        def wrapper(node_class: typing.Any, /) -> typing.Any:
+            namespace = {"node": "scalar", "__module__": node_class.__module__}
+            bases: list[type[typing.Any]] = [node_class]
 
-                if not any(issubclass(base, Node) for base in node_bases if isinstance(base, type)):
-                    bases.append(Node)
-                    namespace["scope"] = NodeScope.PER_EVENT if scope is _NOSCOPE else scope
-                elif scope is not _NOSCOPE:
-                    namespace["scope"] = scope
+            if not any(
+                issubclass(base, Node) for base in resolve_bases(node_class.__bases__) if isinstance(base, type)
+            ):
+                bases.append(Node)
+                namespace["scope"] = NodeScope.PER_EVENT if scope is _NOSCOPE else scope
+            elif scope is not _NOSCOPE:
+                namespace["scope"] = scope
 
-                return type(node_or_func.__name__, tuple(bases), namespace)
-            else:
-                base_node = generate_node(
-                    func=node_or_func,
-                    subnodes=tuple(get_nodes(node_or_func).values()),
-                )
-                return type(to_pascal_case(node_or_func.__name__), (base_node,), namespace)
+            return type(node_class.__name__, tuple(bases), namespace)
 
-        return inner if x is None else inner(x)
+        return wrapper if x is None else wrapper(x)
 
 
 @typing.dataclass_transform(kw_only_default=True)
