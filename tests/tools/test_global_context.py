@@ -18,7 +18,7 @@ def test_init_anonymous_global_ctx():
 
 
 def test_init_with_name_global_ctx():
-    ctx = GlobalContext("context", number=1)
+    ctx = GlobalContext("test1", number=1)
 
     assert ctx
     assert "number" in ctx
@@ -26,7 +26,7 @@ def test_init_with_name_global_ctx():
 
 
 def test_get_value_from_global_ctx():
-    ctx = GlobalContext(first_name="Alex")
+    ctx = GlobalContext("test2", first_name="Alex")
     ctx.country = "Russia"
 
     assert ctx.first_name == "Alex"
@@ -42,7 +42,7 @@ def test_get_value_from_global_ctx():
 
 
 def test_set_value_in_global_ctx():
-    ctx = GlobalContext()
+    ctx = GlobalContext("test3")
     ctx.counter = {}
     ctx.start_id = CtxVar(20, const=True)
     ctx.colors = GlobalCtxVar(value=("Red", "Green", "Blue"), name="colors", const=True)
@@ -62,7 +62,7 @@ def test_set_value_in_global_ctx():
 
 
 def test_del_value_from_global_ctx():
-    ctx = GlobalContext(ip="123.123.123.123", port=8888, flag=False)
+    ctx = GlobalContext("test4", ip="123.123.123.123", port=8888, flag=False)
     del ctx.ip
     del ctx.port
 
@@ -78,7 +78,7 @@ def test_del_value_from_global_ctx():
 
 def test_global_ctx_with_generic():
     IntGlobalContext = GlobalContext[int]  # noqa: N806
-    ctx = IntGlobalContext(one=1, two=2)
+    ctx = IntGlobalContext("test5", one=1, two=2)
 
     assert isinstance(ctx.one, int)
     assert isinstance(ctx.two, int)
@@ -87,7 +87,7 @@ def test_global_ctx_with_generic():
 
 
 def test_rename_var_in_global_ctx():
-    ctx = GlobalContext(name="Alex", user_id=CtxVar("123", const=True))
+    ctx = GlobalContext("test6", name="Alex", user_id=CtxVar("123", const=True))
 
     assert ctx.rename("name", "first_name")
     assert "name" not in ctx
@@ -101,17 +101,17 @@ def test_rename_var_in_global_ctx():
 
 
 def test_clear_global_ctx():
-    ctx = GlobalContext(temp=[], state=True)
+    ctx = GlobalContext("test7", temp=[], state=True)
     ctx.clear()
     assert not ctx
 
-    ctx = GlobalContext(machine=CtxVar("Machine", const=True))
+    ctx = GlobalContext("test8", machine=CtxVar("Machine", const=True))
     ctx.clear(include_consts=True)
     assert not ctx
 
 
 def test_copy_global_ctx():
-    ctx = GlobalContext(first=1, second=2, third=3)
+    ctx = GlobalContext("test9", first=1, second=2, third=3)
     new_ctx = ctx.copy()
     del new_ctx.first
 
@@ -121,11 +121,11 @@ def test_copy_global_ctx():
 
 
 def test_delete_ctx_from_global_ctx():
-    ctx = GlobalContext("my_context", gun="m4a1", name="John")
+    ctx = GlobalContext("test10", gun="m4a1", name="John")
 
     assert ctx.delete_ctx()
     del ctx
-    assert not GlobalContext("my_context")
+    assert not GlobalContext("test10")
 
 
 def test_create_global_ctx_with_inheritance():

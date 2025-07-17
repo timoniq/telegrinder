@@ -7,13 +7,13 @@ import typing_extensions as typing
 
 T = typing.TypeVar("T", default=typing.Any)
 
-NODEFAULT: typing.Final[object] = object()
+NOVALUE: typing.Final[object] = object()
 
 
 @dataclasses.dataclass(frozen=True)
 class CtxVar(typing.Generic[T]):
     value: T
-    factory: typing.Any = dataclasses.field(default=NODEFAULT, kw_only=True)
+    factory: typing.Any = dataclasses.field(default=NOVALUE, kw_only=True)
     const: bool = dataclasses.field(default=False, kw_only=True)
 
 
@@ -21,7 +21,7 @@ class CtxVar(typing.Generic[T]):
 class GlobalCtxVar(CtxVar[T], typing.Generic[T]):
     name: str
     value: T
-    factory: typing.Any = dataclasses.field(default=NODEFAULT, kw_only=True)
+    factory: typing.Any = dataclasses.field(default=NOVALUE, kw_only=True)
     const: bool = dataclasses.field(default=False, kw_only=True)
 
     def __repr__(self) -> str:
@@ -39,7 +39,7 @@ class GlobalCtxVar(CtxVar[T], typing.Generic[T]):
         const: bool = False,
     ) -> typing.Self:
         var = CtxVar(ctx_value, const=const) if not isinstance(ctx_value, CtxVar | GlobalCtxVar) else ctx_value
-        if var.value is NODEFAULT and var.factory is not NODEFAULT:
+        if var.value is NOVALUE and var.factory is not NOVALUE:
             var = dataclasses.replace(var, value=var.factory())
         return cls(**dict(var.__dict__) | dict(name=name))
 

@@ -1,14 +1,17 @@
+from __future__ import annotations
+
 import dataclasses
 from copy import deepcopy
 from functools import wraps
 
 import typing_extensions as typing
 from fntypes.co import Error, Nothing, Ok, Option, Result, Some
+from fntypes.misc import from_optional
 
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import convert
 from telegrinder.tools.fullname import fullname
-from telegrinder.tools.global_context.abc import NODEFAULT, ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
+from telegrinder.tools.global_context.abc import NOVALUE, ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
 
 T = typing.TypeVar("T")
 F = typing.TypeVar("F", bound=typing.Callable)
@@ -99,8 +102,8 @@ def ctx_var(
 
 def ctx_var(
     *,
-    default: typing.Any = NODEFAULT,
-    default_factory: typing.Any = NODEFAULT,
+    default: typing.Any = NOVALUE,
+    default_factory: typing.Any = NOVALUE,
     const: bool = False,
     **_: typing.Any,
 ) -> typing.Any:
@@ -157,24 +160,26 @@ class RootAttr:
 
 @dataclasses.dataclass(repr=False, frozen=True, slots=True)
 class Storage:
-    _storage: dict[str, "GlobalContext"] = dataclasses.field(
+    _storage: dict[str | None, GlobalContext] = dataclasses.field(
         default_factory=lambda: {},
         init=False,
     )
 
     def __repr__(self) -> str:
-        return "<Storage: %s>" % ", ".join(repr(x) for x in self._storage)
+        return "<{}: {}>".format(
+            type(self).__name__,
+            ", ".join(repr(x) for x in self._storage),
+        )
 
     @property
-    def storage(self) -> dict[str, "GlobalContext"]:
+    def storage(self) -> dict[str | None, GlobalContext]:
         return self._storage.copy()
 
-    def set(self, name: str, ctx: "GlobalContext") -> None:
-        self._storage.setdefault(name, ctx)
+    def set(self, name: str | None, context: GlobalContext) -> None:
+        self._storage.setdefault(name, context)
 
-    def get(self, ctx_name: str) -> Option["GlobalContext"]:
-        ctx = self._storage.get(ctx_name)
-        return Some(ctx) if ctx is not None else Nothing()
+    def get(self, ctx_name: str) -> Option[GlobalContext]:
+        return from_optional(self._storage.get(ctx_name))
 
     def delete(self, ctx_name: str) -> None:
         assert self._storage.pop(ctx_name, None) is not None, f"Context {ctx_name!r} is not defined in storage."
@@ -238,11 +243,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             variables = defaults | variables
 
         ctx_name = getattr(cls, "__ctx_name__", ctx_name)
-        if ctx_name is None:
-            ctx = dict.__new__(cls)
-        elif ctx_name in cls.__storage__.storage:
-            ctx = cls.__storage__.get(ctx_name).unwrap()
-        else:
+        if (ctx := cls.__storage__.storage.get(ctx_name)) is None:
             ctx = dict.__new__(cls, ctx_name)
             cls.__storage__.set(ctx_name, ctx)
 
@@ -280,7 +281,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
             raise NameError("Cannot set a context variable with a dunder name.")
 
         var = self.get(__name)
-        if var and (var.value.const and var.value.value is not NODEFAULT):
+        if var and (var.value.const and var.value.value is not NOVALUE):
             raise TypeError(f"Unable to set variable {__name!r}, because it's a constant.")
 
         dict.__setitem__(
@@ -295,7 +296,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
 
     def __getitem__(self, __name: str) -> CtxValueT:
         value = self.get(__name).unwrap().value
-        if value is NODEFAULT:
+        if value is NOVALUE:
             raise NameError(f"Variable {__name!r} is not defined in {self.ctx_name!r}.")
         return value
 
@@ -304,7 +305,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
         if var.const:
             raise TypeError(f"Unable to delete variable {__name!r}, because it's a constant.")
 
-        if var.value is NODEFAULT:
+        if var.value is NOVALUE:
             raise NameError(f"Variable {__name!r} is not defined in {self.ctx_name!r}.")
 
         dict.__delitem__(self, __name)
@@ -333,7 +334,7 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     @property
     def ctx_name(self) -> str:
         """Global context name."""
-        return self.__ctx_name__ or "<Unnamed global context at %#x>" % id(self)
+        return self.__ctx_name__ or "<anonymous global context at %#x>" % id(self)
 
     @classmethod
     def is_root_attribute(cls, name: str) -> bool:
