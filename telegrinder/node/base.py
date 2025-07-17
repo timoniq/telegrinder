@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import abc
 import inspect
-from collections import deque
 from functools import reduce
 from itertools import islice
 from types import CodeType, NoneType, UnionType, resolve_bases
@@ -148,7 +147,9 @@ def as_node(
 
 
 def is_node_type(obj: typing.Any, /) -> typing.TypeIs[IsNode]:
-    return isinstance(obj, Node | NodeProto) or (isinstance(obj, type) and issubclass(obj, Node | NodeProto))
+    # error: Data protocols (which include non-method attributes) are not allowed in issubclass calls
+    # scope in NodeProto exists only for type checking
+    return isinstance(obj, Node | NodeProto) or (isinstance(obj, type) and issubclass(obj, Node | NodeProto))  # pyright: ignore[reportGeneralTypeIssues]
 
 
 @function_context("nodes")
@@ -173,6 +174,51 @@ def is_generator(
     return inspect.isgeneratorfunction(function) or inspect.isasyncgenfunction(function)
 
 
+def resolve_node_dependencies_topological_order(
+    node: IsNode,
+    current_node: IsNode,
+    path: list[IsNode],
+    temp_visited: set[IsNode],
+    visited: set[IsNode],
+    ordered_dependencies: list[IsNode],
+) -> None:
+    if current_node in temp_visited:
+        cycle_path = path[path.index(current_node) :] + [current_node]
+        raise ComposeError(
+            (
+                f"Cannot resolve node `{fullname(node)}` due to circular dependency "
+                f"({' -> '.join(fullname(n) for n in cycle_path)} <...>)"
+            ),
+        )
+
+    if current_node in visited:
+        return None
+
+    temp_visited.add(current_node)
+
+    subnodes = current_node.get_subnodes().values()
+    if current_node in subnodes:
+        raise ComposeError(f"Node `{fullname(current_node)}` refers to itself in dependency tree.")
+
+    for child in subnodes:
+        resolve_node_dependencies_topological_order(
+            node=node,
+            current_node=child,
+            path=path + [child],
+            temp_visited=temp_visited,
+            visited=visited,
+            ordered_dependencies=ordered_dependencies,
+        )
+
+    temp_visited.remove(current_node)
+    visited.add(current_node)
+
+    if current_node.scope == NodeScope.PER_CALL or current_node not in ordered_dependencies:
+        ordered_dependencies.append(current_node)
+
+    return None
+
+
 def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
     """Unwrap node as flattened tuple of node types in ordering required to calculate given node.
 
@@ -181,31 +227,19 @@ def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
     if (unwrapped := getattr(node, UNWRAPPED_NODE_KEY, None)) is not None:
         return unwrapped
 
-    stack = deque([(node, node.get_subnodes().values(), [node])])
-    visited = list[IsNode]()
+    # Use topological sorting to maintain correct dependency order
+    ordered_dependencies = list[IsNode]()
 
-    while stack:
-        parent, child_nodes, path = stack.pop()
-        dependencies = set(child_nodes)
+    resolve_node_dependencies_topological_order(
+        node=node,
+        current_node=node,
+        path=[node],
+        temp_visited=set(),
+        visited=set(),
+        ordered_dependencies=ordered_dependencies,
+    )
 
-        if parent in dependencies:
-            raise ComposeError(f"Node `{fullname(parent)}` refers to itself in dependency tree.")
-
-        if parent not in visited:
-            visited.insert(0, parent)
-
-        for child in child_nodes:
-            subnodes = child.get_subnodes().values()
-            dependencies.update(subnodes)
-            if child in path:
-                raise ComposeError(
-                    f"Cannot resolve node `{fullname(node)}` due to circular dependency "
-                    f"({' -> '.join(fullname(n) for n in path[path.index(child) :] + [child])} <...>)",
-                )
-
-            stack.append((child, subnodes, path + [child]))
-
-    unwrapped = tuple(visited)
+    unwrapped = tuple(ordered_dependencies)
     setattr(node, UNWRAPPED_NODE_KEY, unwrapped)
     return unwrapped
 
@@ -230,6 +264,9 @@ class NodeComposeFunction[R](typing.Protocol):
 
 @typing.runtime_checkable
 class NodeProto[R](Composable[R], typing.Protocol):
+    if typing.TYPE_CHECKING:
+        scope: NodeScope
+
     @classmethod
     def get_subnodes(cls) -> dict[str, IsNode]: ...
 

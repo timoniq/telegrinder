@@ -138,7 +138,7 @@ class Dispatch(
                         raise exception
                 finally:
                     for session in context.get(CONTEXT_STORE_NODES_KEY, {}).values():
-                        await session.close(scopes=(NodeScope.PER_EVENT,))
+                        await session.close(scopes=(NodeScope.PER_EVENT, NodeScope.PER_CALL))
 
         await run_middleware(
             self.global_middleware.post,

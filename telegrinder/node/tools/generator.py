@@ -1,7 +1,8 @@
 import typing
 
-from telegrinder.node.base import ComposeError, IsNode, Node
+from telegrinder.node.base import IsNode, Node
 from telegrinder.node.container import ContainerNode
+from telegrinder.node.exceptions import ComposeError
 from telegrinder.tools.aio import maybe_awaitable
 
 
