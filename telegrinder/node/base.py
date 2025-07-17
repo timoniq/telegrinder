@@ -180,19 +180,18 @@ def resolve_node_dependencies_topological_order(
     path: list[IsNode],
     temp_visited: set[IsNode],
     visited: set[IsNode],
-    ordered_dependencies: list[IsNode],
-) -> None:
+) -> list[IsNode]:
+    ordered_dependencies = list[IsNode]()
+
     if current_node in temp_visited:
         cycle_path = path[path.index(current_node) :] + [current_node]
         raise ComposeError(
-            (
-                f"Cannot resolve node `{fullname(node)}` due to circular dependency "
-                f"({' -> '.join(fullname(n) for n in cycle_path)} <...>)"
-            ),
+            f"Cannot resolve node `{fullname(node)}` due to circular dependency "
+            f"({' -> '.join(fullname(n) for n in cycle_path)} <...>)",
         )
 
     if current_node in visited:
-        return None
+        return []
 
     temp_visited.add(current_node)
 
@@ -201,13 +200,14 @@ def resolve_node_dependencies_topological_order(
         raise ComposeError(f"Node `{fullname(current_node)}` refers to itself in dependency tree.")
 
     for child in subnodes:
-        resolve_node_dependencies_topological_order(
-            node=node,
-            current_node=child,
-            path=path + [child],
-            temp_visited=temp_visited,
-            visited=visited,
-            ordered_dependencies=ordered_dependencies,
+        ordered_dependencies.extend(
+            resolve_node_dependencies_topological_order(
+                node=node,
+                current_node=child,
+                path=path + [child],
+                temp_visited=temp_visited,
+                visited=visited,
+            ),
         )
 
     temp_visited.remove(current_node)
@@ -216,7 +216,7 @@ def resolve_node_dependencies_topological_order(
     if current_node.scope == NodeScope.PER_CALL or current_node not in ordered_dependencies:
         ordered_dependencies.append(current_node)
 
-    return None
+    return ordered_dependencies
 
 
 def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
@@ -228,15 +228,12 @@ def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
         return unwrapped
 
     # Use topological sorting to maintain correct dependency order
-    ordered_dependencies = list[IsNode]()
-
-    resolve_node_dependencies_topological_order(
+    ordered_dependencies = resolve_node_dependencies_topological_order(
         node=node,
         current_node=node,
         path=[node],
         temp_visited=set(),
         visited=set(),
-        ordered_dependencies=ordered_dependencies,
     )
 
     unwrapped = tuple(ordered_dependencies)
