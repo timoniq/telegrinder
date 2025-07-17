@@ -80,7 +80,7 @@ pip install git+https://github.com/timoniq/telegrinder/archive/dev.zip
 
 # Community
 
-Join our [telegram forum](https://t.me/botoforum).
+Join one of our [forums](https://github.com/timoniq/telegrinder/blob/dev/docs/community_links.md).
 
 # License
 
