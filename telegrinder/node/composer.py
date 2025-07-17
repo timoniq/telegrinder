@@ -120,7 +120,8 @@ async def compose_nodes(
             elif scope is NodeScope.GLOBAL:
                 set_global_session(node_t, session)
 
-        parent_nodes[parent_node_t] = local_nodes[parent_node_t]
+        parent_nodes[parent_node_t] = local_nodes.pop(parent_node_t)
+        await local_nodes.close_local_sessions()
 
     return Ok(NodeCollection(sessions={k: parent_nodes[t] for k, t, _ in unwrapped_nodes}))
 

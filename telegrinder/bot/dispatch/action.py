@@ -1,14 +1,15 @@
+from __future__ import annotations
+
 import inspect
 import typing
 
 from fntypes.co import Error, Ok, Result, unwrapping
 
-from telegrinder.bot.rules.abc import ABCRule, Always, AndRule
-
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.process import check_rule
+from telegrinder.bot.rules.abc import ABCRule, Always, AndRule
 from telegrinder.modules import logger
 from telegrinder.node.base import get_nodes
 from telegrinder.node.composer import compose_nodes
@@ -71,17 +72,21 @@ async def run_action_function[T: Handler](
         await node_col.close_all()
 
 
+def action(function: ActionFunction, /) -> Action:
+    return Action(function)
+
+
 class Action:
+    _on: ABCRule
 
-    def __init__(self, function: ActionFunction):
-
+    def __init__(self, function: ActionFunction) -> None:
         self.function = function
-        self._on: ABCRule = Always()
+        self._on = Always()
 
     def on(self, *rules: ABCRule) -> typing.Self:
         self._on &= AndRule(*rules)
         return self
-    
+
     def __call__[T: Handler](self, handler: T) -> T:
         func_handler = FuncHandler(function=handler)
 
@@ -104,10 +109,4 @@ class Action:
         return action_wrapper  # type: ignore
 
 
-def action(
-    function: ActionFunction,
-) -> Action:
-    return Action(function)
-
-
-__all__ = ("action",)
+__all__ = ("Action", "action")

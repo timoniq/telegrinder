@@ -36,7 +36,7 @@ T = typing.TypeVar("T", default=typing.Any)
 
 ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]
 
-_NODEFAULT: typing.Final[object] = object()
+_NOSCOPE: typing.Final[object] = object()
 _NONE_TYPES: typing.Final[set[typing.Any]] = {None, NoneType}
 _UNION_TYPES: typing.Final[set[typing.Any]] = {typing.Union, UnionType}
 UNWRAPPED_NODE_KEY: typing.Final[str] = "__unwrapped_node__"
@@ -312,7 +312,7 @@ class scalar_node[T]:  # noqa: N801
         scope: NodeScope,
     ) -> typing.Callable[[NodeComposeFunction[T]], type[T]]: ...
 
-    def __new__(cls, x=None, /, *, scope=_NODEFAULT) -> typing.Any:
+    def __new__(cls, x=None, /, *, scope=_NOSCOPE) -> typing.Any:
         def inner(node_or_func, /) -> typing.Any:
             namespace = {"node": "scalar", "__module__": node_or_func.__module__}
 
@@ -322,8 +322,8 @@ class scalar_node[T]:  # noqa: N801
 
                 if not any(issubclass(base, Node) for base in node_bases if isinstance(base, type)):
                     bases.append(Node)
-                    namespace["scope"] = NodeScope.PER_EVENT if scope is _NODEFAULT else scope
-                elif scope is not _NODEFAULT:
+                    namespace["scope"] = NodeScope.PER_EVENT if scope is _NOSCOPE else scope
+                elif scope is not _NOSCOPE:
                     namespace["scope"] = scope
 
                 return type(node_or_func.__name__, tuple(bases), namespace)

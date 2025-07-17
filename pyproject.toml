@@ -43,7 +43,7 @@ dependencies = [
     "vbml (>=1.1.post1,<2.0)",
     "choicelib (>=0.1.5,<0.2.0)",
     "envparse (>=0.2.0,<0.3.0)",
-    "certifi (>=2025.7.9,<2026.0.0)",
+    "certifi (>=2025.7.14,<2026.0.0)",
     "msgspec (>=0.19.0,<0.20.0)",
     "typing-extensions (>=4.14.1,<5.0.0)",
     "colorama (>=0.4.6,<0.5.0)",
@@ -67,8 +67,8 @@ Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.12.2,<1",
-    "basedpyright>=1.29.4,<2",
+    "ruff>=0.12.3,<1",
+    "basedpyright>=1.31.0,<2",
     "requests>=2.32.4,<3",
     "tomlkit>=0.13.3,<1",
     "libcst>=1.8.2,<2",

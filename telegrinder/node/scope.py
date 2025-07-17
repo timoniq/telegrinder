@@ -3,9 +3,6 @@ from __future__ import annotations
 import enum
 import typing
 
-if typing.TYPE_CHECKING:
-    from telegrinder.node.base import Composable
-
 NODE_SCOPE_KEY: typing.Final[str] = "scope"
 
 
@@ -20,22 +17,22 @@ PER_CALL = NodeScope.PER_CALL
 GLOBAL = NodeScope.GLOBAL
 
 
-def per_call[T: Composable[typing.Any]](node: type[T]) -> type[T]:
+def per_call[T](node: type[T]) -> type[T]:
     setattr(node, "scope", PER_CALL)
     return node
 
 
-def per_event[T: Composable[typing.Any]](node: type[T]) -> type[T]:
+def per_event[T](node: type[T]) -> type[T]:
     setattr(node, "scope", PER_EVENT)
     return node
 
 
-def global_node[T: Composable[typing.Any]](node: type[T]) -> type[T]:
+def global_node[T](node: type[T]) -> type[T]:
     setattr(node, "scope", GLOBAL)
     return node
 
 
-def get_scope(node: Composable[typing.Any], /) -> NodeScope:
+def get_scope(node: typing.Any, /) -> NodeScope:
     return getattr(node, NODE_SCOPE_KEY, PER_EVENT)
 
 
