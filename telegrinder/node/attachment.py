@@ -5,7 +5,8 @@ from fntypes.option import Nothing, Option, Some
 
 import telegrinder.types
 from telegrinder.bot.cute_types.message import MessageCute
-from telegrinder.node.base import ComposeError, DataNode, scalar_node
+from telegrinder.node.base import DataNode, scalar_node
+from telegrinder.node.exceptions import ComposeError
 
 type AttachmentType = typing.Literal[
     "audio",
