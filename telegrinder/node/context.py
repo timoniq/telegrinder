@@ -23,7 +23,7 @@ class NodeGlobalContext(GlobalContext):
     )
 
     async def close_global_scopes(self) -> None:
-        for session in self.global_sessions.values():
+        for session in reversed(self.global_sessions.values()):
             await session.close(scopes=(NodeScope.GLOBAL,))
 
         self.global_sessions.clear()
