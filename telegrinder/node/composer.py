@@ -159,7 +159,7 @@ class LocalNodeCollection(dict[IsNode, NodeSession]):
         return session
 
     async def close_per_call_sessions(self) -> None:
-        for session in self.values():
+        for session in reversed(self.values()):
             await session.close()
 
 
