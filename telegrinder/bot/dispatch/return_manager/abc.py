@@ -84,7 +84,7 @@ class Manager:
             await maybe_awaitable(bundle_function(response))
         finally:
             context |= temp_ctx
-
+            # Closing per call node sessions if there are any
             if node_col is not None:
                 await node_col.close_all()
 

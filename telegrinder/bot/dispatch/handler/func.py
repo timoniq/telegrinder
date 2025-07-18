@@ -84,12 +84,14 @@ class FuncHandler[T: Function](ABCHandler):
                 start_idx=0,
             )
             bundle_function &= bundle(
-                self.function, context | ({} if node_col is None else node_col.values), start_idx=0
+                self.function,
+                context | ({} if node_col is None else node_col.values),
+                start_idx=0,
             )
             return Ok(await bundle_function())
         finally:
             context |= temp_ctx
-
+            # Closing per call node sessions if there are any
             if node_col is not None:
                 await node_col.close_all()
 

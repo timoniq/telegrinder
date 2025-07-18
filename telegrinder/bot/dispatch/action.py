@@ -69,6 +69,7 @@ async def run_action_function[T: Handler](
         return await func_handler.run(api, update, context)
     finally:
         context |= temp_ctx
+        # Closing per call node sessions
         await node_col.close_all()
 
 

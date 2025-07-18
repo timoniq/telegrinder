@@ -46,6 +46,7 @@ async def run_middleware(
         bundle_method &= bundle(method, data, typebundle=True)
         return await maybe_awaitable(bundle_method())
     finally:
+        # Closing per call node sessions if there are any
         if node_col is not None:
             await node_col.close_all()
 

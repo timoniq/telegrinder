@@ -4,7 +4,7 @@ import abc
 import inspect
 from functools import reduce
 from itertools import islice
-from types import CodeType, NoneType, UnionType, resolve_bases
+from types import NoneType, UnionType, resolve_bases
 
 import typing_extensions as typing
 from fntypes.option import Nothing, Option
@@ -251,13 +251,6 @@ class NodeConvertable(typing.Protocol):
     def as_node(cls) -> type[NodeProto[typing.Any]]: ...
 
 
-class NodeComposeFunction[R](typing.Protocol):
-    __name__: str
-    __code__: CodeType
-
-    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> R: ...
-
-
 @typing.runtime_checkable
 class NodeProto[R](Composable[R], typing.Protocol):
     if typing.TYPE_CHECKING:
@@ -299,6 +292,9 @@ class ScopedDec[T](typing.Protocol):
     @typing.overload
     def __call__(self, x: Composable[T], /) -> type[T]: ...
 
+    @typing.overload
+    def __call__(cls, x: T, /) -> type[T]: ...
+
 
 class scalar_node[T]:  # noqa: N801
     @typing.overload
@@ -312,9 +308,6 @@ class scalar_node[T]:  # noqa: N801
 
     @typing.overload
     def __new__(cls, /, *, scope: NodeScope) -> ScopedDec[T]: ...
-
-    @typing.overload
-    def __new__(cls, /, *, scope: NodeScope) -> typing.Callable[[NodeComposeFunction[T]], type[T]]: ...
 
     def __new__(cls, x: typing.Any = None, /, *, scope: typing.Any = _NOSCOPE) -> typing.Any:
         def wrapper(node_class: typing.Any, /) -> typing.Any:

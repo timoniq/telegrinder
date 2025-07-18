@@ -122,7 +122,7 @@ async def check_rule(
         bundle_check &= bundle(rule.check, ctx | ({} if node_col is None else node_col.values))
         return await maybe_awaitable(bundle_check())
     finally:
-        # Closing node sessions if there are any
+        # Closing per call node sessions if there are any
         if node_col is not None:
             await node_col.close_all()
 

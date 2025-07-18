@@ -1,6 +1,7 @@
+import types
 import typing
 from collections import defaultdict
-from typing import Any
+from functools import cached_property
 
 from fntypes.option import Some
 from fntypes.result import Error, Ok, Result
@@ -45,6 +46,20 @@ def get_impls(
     }
 
 
+async def close_per_event_sessions(
+    context: Context,
+    /,
+    *,
+    with_value: typing.Any | None = None,
+) -> None:
+    sessions = context.get(CONTEXT_STORE_NODES_KEY, {})
+
+    for session in reversed(sessions.values()):
+        await session.close(with_value, scopes=(NodeScope.PER_EVENT,))
+
+    return sessions.clear()
+
+
 async def compose_node(
     node: IsNode,
     linked: dict[type[typing.Any], typing.Any],
@@ -87,7 +102,7 @@ async def compose_nodes(
         data.update({Name: parent_node_name, NodeClass: parent_original_type})
 
         local_nodes = LocalNodeCollection()
-        subnodes = dict[Any, Any]()
+        subnodes = dict[typing.Any, typing.Any]()
 
         for node_t in linked_nodes:
             node_t = as_node(node_t)
@@ -105,15 +120,14 @@ async def compose_nodes(
                 k: session.value for k, session in (local_nodes | event_nodes).items() if k not in subnodes
             }
             try:
-                session = await compose_node(node_t, linked=subnodes, data=data, impls=impls)
+                session = await local_nodes.set_session(
+                    node_t,
+                    await compose_node(node_t, linked=subnodes, data=data, impls=impls),
+                    scope,
+                )
             except ComposeError as error:
-                await local_nodes.close_local_sessions()
+                await local_nodes.close_per_call_sessions()
                 return Error(ComposeError(f"Cannot compose node `{fullname(node_t)}`, error: {error.message!r}"))
-
-            if scope is NodeScope.PER_CALL:
-                await local_nodes.set_local_session(node_t, session)
-            else:
-                local_nodes[node_t] = session
 
             if scope is NodeScope.PER_EVENT:
                 event_nodes[node_t] = session
@@ -121,7 +135,7 @@ async def compose_nodes(
                 set_global_session(node_t, session)
 
         parent_nodes[parent_node_t] = local_nodes.pop(parent_node_t)
-        await local_nodes.close_local_sessions()
+        await local_nodes.close_per_call_sessions()
 
     return Ok(NodeCollection(sessions={k: parent_nodes[t] for k, t, _ in unwrapped_nodes}))
 
@@ -130,38 +144,35 @@ class LocalNodeCollection(dict[IsNode, NodeSession]):
     def __init__(self) -> None:
         super().__init__()
 
-    async def set_local_session(self, node: IsNode, session: NodeSession, /) -> NodeSession:
-        if node in self:
+    async def set_session(
+        self,
+        node: IsNode,
+        session: NodeSession,
+        scope: NodeScope,
+        /,
+    ) -> NodeSession:
+        # Close old per call session when rewriting with new one
+        if node in self and scope is NodeScope.PER_CALL:
             await self[node].close()
 
         self[node] = session
         return session
 
-    async def close_local_sessions(self) -> None:
+    async def close_per_call_sessions(self) -> None:
         for session in self.values():
-            await session.close(scopes=(NodeScope.PER_CALL,))
+            await session.close()
 
 
 class NodeCollection:
-    __slots__ = ("sessions", "_values")
-
     def __init__(self, sessions: dict[str, NodeSession]) -> None:
         self.sessions = sessions
-        self._values: dict[str, typing.Any] = {}
 
     def __repr__(self) -> str:
         return "<{}: sessions={!r}>".format(type(self).__name__, self.sessions)
 
-    @property
-    def values(self) -> dict[str, typing.Any]:
-        if self._values.keys() == self.sessions.keys():
-            return self._values
-
-        for name, session in self.sessions.items():
-            if name not in self._values:
-                self._values[name] = session.value
-
-        return self._values
+    @cached_property
+    def values(self) -> types.MappingProxyType[str, typing.Any]:
+        return types.MappingProxyType({name: session.value for name, session in self.sessions.items()})
 
     async def close_all(
         self,
@@ -210,4 +221,4 @@ class Composer:
 TELEGRINDER_CONTEXT.composer = Some(Composer())
 
 
-__all__ = ("Composer", "NodeCollection", "compose_node", "compose_nodes")
+__all__ = ("Composer", "NodeCollection", "close_per_event_sessions", "compose_node", "compose_nodes")

@@ -26,7 +26,7 @@ from telegrinder.bot.dispatch.view.box import (
     ViewBox,
 )
 from telegrinder.modules import logger
-from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope
+from telegrinder.node.composer import close_per_event_sessions
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
 
@@ -107,54 +107,54 @@ class Dispatch(
         context = Context().add_update_cute(event, api)
         start_time = self.global_context.loop_wrapper.loop.time()
 
-        if (
+        try:
+            if (
+                await run_middleware(
+                    self.global_middleware.pre,
+                    api,
+                    event,
+                    context,
+                    required_nodes=self.global_middleware.pre_required_nodes,
+                )
+                is False
+            ):
+                return processed
+
+            for view in self.get_views().values():
+                if await view.check(event):
+                    logger.debug(
+                        "Processing update (id={}, type={!r}) with view {!r} by bot (id={})",
+                        event.update_id,
+                        event.update_type,
+                        view,
+                        api.id,
+                    )
+
+                    try:
+                        if await view.process(event, api, context):
+                            processed = True
+                            break
+                    except BaseException as exception:
+                        if not await self.error.process(event, api, context.add_exception_update(exception)):
+                            raise exception
+
             await run_middleware(
-                self.global_middleware.pre,
+                self.global_middleware.post,
                 api,
                 event,
                 context,
-                required_nodes=self.global_middleware.pre_required_nodes,
+                required_nodes=self.global_middleware.post_required_nodes,
             )
-            is False
-        ):
+            logger.debug(
+                "Update (id={}, type={!r}) processed in {} ms by bot (id={})",
+                event.update_id,
+                event.update_type,
+                int((self.global_context.loop_wrapper.loop.time() - start_time) * 1000),
+                api.id,
+            )
             return processed
-
-        for view in self.get_views().values():
-            if await view.check(event):
-                logger.debug(
-                    "Processing update (id={}, type={!r}) with view {!r} by bot (id={})",
-                    event.update_id,
-                    event.update_type,
-                    view,
-                    api.id,
-                )
-
-                try:
-                    if await view.process(event, api, context):
-                        processed = True
-                        break
-                except BaseException as exception:
-                    if not await self.error.process(event, api, context.add_exception_update(exception)):
-                        raise exception
-                finally:
-                    for session in context.get(CONTEXT_STORE_NODES_KEY, {}).values():
-                        await session.close(scopes=(NodeScope.PER_EVENT,))
-
-        await run_middleware(
-            self.global_middleware.post,
-            api,
-            event,
-            context,
-            required_nodes=self.global_middleware.post_required_nodes,
-        )
-        logger.debug(
-            "Update (id={}, type={!r}) processed in {} ms by bot (id={})",
-            event.update_id,
-            event.update_type,
-            int((self.global_context.loop_wrapper.loop.time() - start_time) * 1000),
-            api.id,
-        )
-        return processed
+        finally:
+            await close_per_event_sessions(context)
 
     def load(self, external: typing.Self) -> None:
         views_external = external.get_views()

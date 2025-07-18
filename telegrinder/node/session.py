@@ -31,7 +31,7 @@ class NodeSession:
 
         if self.generator is not None and get_scope(self.node) in scopes:
             try:
-                await stop_generator(self.generator, with_value)
+                result = await stop_generator(self.generator, with_value)
             except ComposeError as compose_error:
                 logger.debug(
                     "Caught compose error when closing session for node `{}`: {}",
