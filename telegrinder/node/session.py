@@ -15,27 +15,30 @@ if typing.TYPE_CHECKING:
 
 
 async def close_sessions(
-    sessions: dict[IsNode, NodeSession],
+    sessions_map: dict[IsNode, NodeSession],
     /,
     *,
     scopes: tuple[NodeScope, ...] = (NodeScope.PER_CALL,),
     with_value: typing.Any | None = None,
     clear_sessions: bool = True,
+    reverse: bool = True,
 ) -> None:
-    stack = deque(sessions.values())
+    input_sessions = sessions_map.values()
+    stack = deque(input_sessions)
     output = deque[NodeSession]()
 
     while stack:
         session = stack.pop()
         if session.is_active and get_scope(session.node) in scopes:
-            output.append(session)
             stack.extend(session.subsessions.values())
+            if session not in output:
+                output.appendleft(session) if not reverse and session in input_sessions else output.append(session)
 
     for session in output:
         await session.close(with_value, scopes=scopes)
 
-    if clear_sessions and sessions:
-        sessions.clear()
+    if clear_sessions and sessions_map:
+        sessions_map.clear()
 
 
 class NodeSession:

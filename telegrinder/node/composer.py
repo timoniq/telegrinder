@@ -162,8 +162,12 @@ class NodeCollection:
         with_value: typing.Any | None = None,
         scopes: tuple[NodeScope, ...] = (NodeScope.PER_CALL,),
     ) -> None:
-        for session in self.sessions.values():
-            await close_sessions({session.node: session}, scopes=scopes, with_value=with_value)
+        await close_sessions(
+            {session.node: session for session in self.sessions.values()},
+            scopes=scopes,
+            with_value=with_value,
+            reverse=False,  # Do not reverse the order of sessions, because the order in NodeCollection is already correct
+        )
 
 
 class Composer:
