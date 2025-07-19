@@ -19,7 +19,7 @@ class Context(dict[str, AnyValue]):
     """Low level per event context storage."""
 
     update_cute: Option[UpdateCute] = Nothing()
-    exception_update: Option[BaseException] = Nothing()
+    exception_update: Option[Exception] = Nothing()
 
     def __init__(self, **kwargs: AnyValue) -> None:
         dict.__init__(self, **kwargs)
@@ -60,7 +60,7 @@ class Context(dict[str, AnyValue]):
         self.update_cute = Some(UpdateCute.from_update(update, bound_api))
         return self
 
-    def add_exception_update(self, exception_update: BaseException, /) -> typing.Self:
+    def add_exception_update(self, exception_update: Exception, /) -> typing.Self:
         self.exception_update = Some(exception_update)
         return self
 

@@ -6,14 +6,14 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import ComposeError, DataNode
 from telegrinder.node.utility import TypeArgs
 
-type ExceptionType = type[BaseException]
+type ExceptionType = type[Exception]
 
-ExceptionT = typing.TypeVar("ExceptionT", bound=BaseException, default=BaseException)
-ExceptionTs = typing.TypeVarTuple("ExceptionTs", default=typing.Unpack[tuple[BaseException, ...]])
+ExceptionT = typing.TypeVar("ExceptionT", bound=Exception, default=Exception)
+ExceptionTs = typing.TypeVarTuple("ExceptionTs", default=typing.Unpack[tuple[Exception, ...]])
 
 
-def can_catch[ExceptionT: BaseException](
-    exc: BaseException | ExceptionType,
+def can_catch[ExceptionT: Exception](
+    exc: Exception | ExceptionType,
     exc_types: type[ExceptionT] | tuple[type[ExceptionT], ...],
 ) -> typing.TypeGuard[ExceptionT]:
     return issubclass(exc, exc_types) if isinstance(exc, type) else isinstance(exc, exc_types)
@@ -21,7 +21,7 @@ def can_catch[ExceptionT: BaseException](
 
 @dataclasses.dataclass(kw_only=True, frozen=True)
 class Error(DataNode, typing.Generic[*ExceptionTs]):
-    exception_update: BaseException
+    exception_update: Exception
 
     @property
     def exception(self: "Error[*tuple[ExceptionT, ...]]") -> ExceptionT:

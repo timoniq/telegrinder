@@ -136,7 +136,7 @@ class Dispatch(
                         if await view.process(event, api, context):
                             processed = True
                             break
-                    except BaseException as exception:
+                    except Exception as exception:
                         if not await self.error.process(event, api, context.add_exception_update(exception)):
                             raise exception
 
@@ -169,6 +169,7 @@ class Dispatch(
             view.load(views_external[name])
             setattr(external, name, view)
 
+        self.error.load(external.error)
         self.global_middleware.filters.difference_update(external.global_middleware.filters)
 
     def get_view(self, of_type: type[T]) -> Option[T]:
