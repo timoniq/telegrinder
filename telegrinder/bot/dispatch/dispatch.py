@@ -26,7 +26,9 @@ from telegrinder.bot.dispatch.view.box import (
     ViewBox,
 )
 from telegrinder.modules import logger
-from telegrinder.node.composer import close_per_event_sessions
+from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY
+from telegrinder.node.scope import NodeScope
+from telegrinder.node.session import close_sessions
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
 
@@ -145,6 +147,12 @@ class Dispatch(
                 context,
                 required_nodes=self.global_middleware.post_required_nodes,
             )
+            return processed
+        finally:
+            await close_sessions(
+                context.get(CONTEXT_STORE_NODES_KEY, {}),
+                scopes=(NodeScope.PER_CALL, NodeScope.PER_EVENT),
+            )
             logger.debug(
                 "Update (id={}, type={!r}) processed in {} ms by bot (id={})",
                 event.update_id,
@@ -152,9 +160,6 @@ class Dispatch(
                 int((self.global_context.loop_wrapper.loop.time() - start_time) * 1000),
                 api.id,
             )
-            return processed
-        finally:
-            await close_per_event_sessions(context)
 
     def load(self, external: typing.Self) -> None:
         views_external = external.get_views()

@@ -19,7 +19,7 @@ from telegrinder.node.base import (
 )
 from telegrinder.node.context import get_global_session, set_global_session
 from telegrinder.node.scope import get_scope
-from telegrinder.node.session import NodeSession
+from telegrinder.node.session import NodeSession, close_sessions
 from telegrinder.tools.aio import Generator, maybe_awaitable, next_generator
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
@@ -44,20 +44,6 @@ def get_impls(
         if typing.get_origin(annotation) is type
         and (typing.get_origin(tp := typing.get_args(annotation)[0]) or tp) in impls
     }
-
-
-async def close_per_event_sessions(
-    context: Context,
-    /,
-    *,
-    with_value: typing.Any | None = None,
-) -> None:
-    sessions = context.get(CONTEXT_STORE_NODES_KEY, {})
-
-    for session in reversed(sessions.values()):
-        await session.close(with_value, scopes=(NodeScope.PER_EVENT,))
-
-    return sessions.clear()
 
 
 async def compose_node(
@@ -126,7 +112,7 @@ async def compose_nodes(
                     scope,
                 )
             except ComposeError as error:
-                await local_nodes.close_per_call_sessions()
+                await close_sessions(local_nodes)
                 return Error(ComposeError(f"Cannot compose node `{fullname(node_t)}`, error: {error.message!r}"))
 
             if scope is NodeScope.PER_EVENT:
@@ -134,8 +120,9 @@ async def compose_nodes(
             elif scope is NodeScope.GLOBAL:
                 set_global_session(node_t, session)
 
-        parent_nodes[parent_node_t] = local_nodes.pop(parent_node_t)
-        await local_nodes.close_per_call_sessions()
+        parent_session = local_nodes.pop(parent_node_t)
+        parent_session.subsessions |= local_nodes
+        parent_nodes[parent_node_t] = parent_session
 
     return Ok(NodeCollection(sessions={k: parent_nodes[t] for k, t, _ in unwrapped_nodes}))
 
@@ -158,10 +145,6 @@ class LocalNodeCollection(dict[IsNode, NodeSession]):
         self[node] = session
         return session
 
-    async def close_per_call_sessions(self) -> None:
-        for session in reversed(self.values()):
-            await session.close()
-
 
 class NodeCollection:
     def __init__(self, sessions: dict[str, NodeSession]) -> None:
@@ -180,7 +163,7 @@ class NodeCollection:
         scopes: tuple[NodeScope, ...] = (NodeScope.PER_CALL,),
     ) -> None:
         for session in self.sessions.values():
-            await session.close(with_value, scopes=scopes)
+            await close_sessions({session.node: session}, scopes=scopes, with_value=with_value)
 
 
 class Composer:
@@ -221,4 +204,4 @@ class Composer:
 TELEGRINDER_CONTEXT.composer = Some(Composer())
 
 
-__all__ = ("Composer", "NodeCollection", "close_per_event_sessions", "compose_node", "compose_nodes")
+__all__ = ("Composer", "NodeCollection", "compose_node", "compose_nodes")

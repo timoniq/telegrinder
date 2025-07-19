@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 from telegrinder.node.scope import NodeScope
+from telegrinder.node.session import close_sessions
 from telegrinder.tools.global_context import GlobalContext, ctx_var
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 
@@ -22,12 +23,6 @@ class NodeGlobalContext(GlobalContext):
         default_factory=dict,
     )
 
-    async def close_global_scopes(self) -> None:
-        for session in reversed(self.global_sessions.values()):
-            await session.close(scopes=(NodeScope.GLOBAL,))
-
-        self.global_sessions.clear()
-
 
 def get_global_session(node: IsNode, /) -> NodeSession | None:
     return NODE_CONTEXT.global_sessions.get(node)
@@ -39,7 +34,7 @@ def set_global_session(node: IsNode, session: NodeSession, /) -> None:
 
 @TELEGRINDER_CONTEXT.loop_wrapper.lifespan.on_shutdown
 async def close_nodes_global_scopes() -> None:
-    await NODE_CONTEXT.close_global_scopes()
+    await close_sessions(NODE_CONTEXT.global_sessions, scopes=(NodeScope.PER_CALL, NodeScope.GLOBAL))
 
 
 NODE_CONTEXT: typing.Final[NodeGlobalContext] = NodeGlobalContext()

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import dataclasses
 import typing
+from collections import deque
+from reprlib import recursive_repr
 
 from telegrinder.modules import logger
 from telegrinder.node.exceptions import ComposeError
@@ -13,14 +14,59 @@ if typing.TYPE_CHECKING:
     from telegrinder.node.base import IsNode
 
 
-@dataclasses.dataclass(slots=True, repr=False)
-class NodeSession:
-    node: IsNode
-    value: typing.Any
-    generator: Generator[typing.Any, typing.Any, typing.Any] | None = None
+async def close_sessions(
+    sessions: dict[IsNode, NodeSession],
+    /,
+    *,
+    scopes: tuple[NodeScope, ...] = (NodeScope.PER_CALL,),
+    with_value: typing.Any | None = None,
+    clear_sessions: bool = True,
+) -> None:
+    stack = deque(sessions.values())
+    output = deque[NodeSession]()
 
+    while stack:
+        session = stack.pop()
+        if session.is_active and get_scope(session.node) in scopes:
+            output.append(session)
+            stack.extend(session.subsessions.values())
+
+    for session in output:
+        await session.close(with_value, scopes=scopes)
+
+    if clear_sessions and sessions:
+        sessions.clear()
+
+
+class NodeSession:
+    subsessions: dict[IsNode, NodeSession]
+
+    __slots__ = ("node", "value", "generator", "subsessions")
+
+    def __init__(
+        self,
+        node: IsNode,
+        value: typing.Any,
+        generator: Generator[typing.Any, typing.Any, typing.Any] | None = None,
+    ) -> None:
+        self.node = node
+        self.value = value
+        self.generator = generator
+        self.subsessions = {}
+
+    @property
+    def is_active(self) -> bool:
+        return self.generator is not None
+
+    @recursive_repr()
     def __repr__(self) -> str:
-        return f"<{type(self).__name__}: {self.value!r}" + (" (ACTIVE)>" if self.generator else ">")
+        return "<{}{}: node={!r}, value={!r}, subsessions={!r}>".format(
+            type(self).__name__,
+            (" (ACTIVE)" if self.is_active else ""),
+            self.node,
+            self.value,
+            self.subsessions,
+        )
 
     async def close(
         self,
@@ -50,4 +96,4 @@ class NodeSession:
         return result
 
 
-__all__ = ("NodeSession",)
+__all__ = ("NodeSession", "close_sessions")
