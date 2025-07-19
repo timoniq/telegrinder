@@ -17,7 +17,7 @@ class CallbackQueryData:
 @scalar_node
 class CallbackQueryDataJson:
     @classmethod
-    def compose(cls, callback_query: CallbackQueryCute) -> dict:
+    def compose(cls, callback_query: CallbackQueryCute) -> dict[str, typing.Any]:
         return callback_query.decode_data().expect(
             ComposeError("Cannot complete decode callback query data."),
         )

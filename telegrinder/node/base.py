@@ -31,9 +31,7 @@ type NodeType = Node | NodeProto[typing.Any]
 type IsNode = NodeType | type[NodeType]
 type AnyNode = IsNode | NodeConvertable
 
-T = typing.TypeVar("T", default=typing.Any)
-
-ComposeResult: typing.TypeAlias = T | typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]
+type ComposeResult[T = typing.Any] = T | typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]
 
 _NOSCOPE: typing.Final[object] = object()
 _NONE_TYPES: typing.Final[set[typing.Any]] = {None, NoneType}
@@ -281,24 +279,36 @@ class Node(abc.ABC):
         return is_generator(cls.compose)
 
 
-class ScopedDec[T](typing.Protocol):
+class UnspecializedDecorator(typing.Protocol):
+    @typing.overload
+    def __call__[T](
+        self, x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]], /
+    ) -> type[T]: ...
+
+    @typing.overload
+    def __call__[T](self, x: Composable[T], /) -> type[T]: ...
+
+
+class SpecializedDecorator[T](typing.Protocol):
     @typing.overload
     def __call__(
-        self,
-        x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]],
-        /,
+        self, x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]], /
     ) -> type[T]: ...
 
     @typing.overload
     def __call__(self, x: Composable[T], /) -> type[T]: ...
 
-    @typing.overload
-    def __call__(cls, x: T, /) -> type[T]: ...
+
+class _Unspecialized:
+    pass
 
 
-class scalar_node[T]:  # noqa: N801
+class scalar_node[T = _Unspecialized]:  # noqa: N801
     @typing.overload
-    def __new__(cls, x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]], /) -> type[T]: ...
+    def __new__(cls, x: Composable[typing.Awaitable[T]], /) -> type[T]: ...
+
+    @typing.overload
+    def __new__(cls, x: Composable[Generator[T, typing.Any, typing.Any]], /) -> type[T]: ...
 
     @typing.overload
     def __new__(cls, x: Composable[T], /) -> type[T]: ...
@@ -307,7 +317,10 @@ class scalar_node[T]:  # noqa: N801
     def __new__(cls, x: T, /) -> type[T]: ...
 
     @typing.overload
-    def __new__(cls, /, *, scope: NodeScope) -> ScopedDec[T]: ...
+    def __new__(cls: type[scalar_node[_Unspecialized]], /, *, scope: NodeScope) -> UnspecializedDecorator: ...
+
+    @typing.overload
+    def __new__(cls, /, *, scope: NodeScope) -> SpecializedDecorator[T]: ...
 
     def __new__(cls, x: typing.Any = None, /, *, scope: typing.Any = _NOSCOPE) -> typing.Any:
         def wrapper(node_class: typing.Any, /) -> typing.Any:
@@ -352,7 +365,7 @@ class DataNode(Node, abc.ABC):
         pass
 
 
-@scalar_node(scope=NodeScope.PER_CALL)
+@scalar_node
 class Name:
     @classmethod
     def compose(cls) -> str: ...

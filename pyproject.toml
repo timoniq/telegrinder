@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "telegrinder"
 description = "Modern visionary telegram bot framework."
 authors = [{ name = "timoniq", email = "tesseradecades@mail.ru" }]
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.13,<4.0"
 readme = "readme.md"
 license = { file = "LICENSE" }
 maintainers = [{ name = "luwqz1", email = "howluwqz1@gmail.com" }]
@@ -67,7 +67,7 @@ Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.12.3,<1",
+    "ruff>=0.12.4,<1",
     "basedpyright>=1.31.0,<2",
     "requests>=2.32.4,<3",
     "tomlkit>=0.13.3,<1",
@@ -90,7 +90,7 @@ allow-direct-references = true
 
 [tool.ruff]
 line-length = 115
-target-version = "py312"
+target-version = "py313"
 
 [tool.ruff.format]
 quote-style = "double"
@@ -161,7 +161,7 @@ exclude = [
 ]
 typeCheckingMode = "basic"
 pythonPlatform = "All"
-pythonVersion = "3.12"
+pythonVersion = "3.13"
 reportMissingImports = true
 reportMissingTypeStubs = false
 reportSelfClsParameterName = false

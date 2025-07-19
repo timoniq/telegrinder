@@ -5,8 +5,8 @@ from telegrinder.node.scope import per_call
 from telegrinder.tools.magic.annotations import TypeParameter, get_generic_parameters
 
 
-@scalar_node
 @per_call
+@scalar_node
 class TypeArgs:
     @classmethod
     def compose(cls, node_cls: NodeClass) -> dict[TypeParameter, typing.Any]:
