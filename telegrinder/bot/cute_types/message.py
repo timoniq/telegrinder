@@ -1348,7 +1348,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         Use this method to send a group of photos, videos, documents or audios as
         an album. Documents and audio files can be only grouped in an album with messages
-        of the same type. On success, an array of Messages that were sent is returned.
+        of the same type. On success, an array of Message objects that were sent is
+        returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
@@ -2270,7 +2271,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         Use this method to send a group of photos, videos, documents or audios as
         an album. Documents and audio files can be only grouped in an album with messages
-        of the same type. On success, an array of Messages that were sent is returned.
+        of the same type. On success, an array of Message objects that were sent is
+        returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
