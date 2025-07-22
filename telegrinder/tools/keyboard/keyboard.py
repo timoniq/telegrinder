@@ -117,6 +117,7 @@ class InlineKeyboard(BaseKeyboard[InlineButton], ABCKeyboard):
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: keyboard={self.keyboard!r}>"
 
+    @bound_keyboard_method
     def copy(self, **with_changes: typing.Any) -> typing.Self:
         new_keyboard = type(self)()
         new_keyboard.keyboard = copy_keyboard(self.keyboard)
