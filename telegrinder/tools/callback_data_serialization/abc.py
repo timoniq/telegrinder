@@ -8,24 +8,9 @@ import msgspec
 from fntypes.result import Result
 
 if typing.TYPE_CHECKING:
-    from dataclasses import Field
-
     from _typeshed import DataclassInstance
 
-type ModelType = DataclassWithIdentKey | ModelWithIdentKey | msgspec.Struct | DataclassInstance
-
-
-@typing.runtime_checkable
-class DataclassWithIdentKey(typing.Protocol):
-    __key__: str
-    __dataclass_fields__: typing.ClassVar[dict[str, Field[typing.Any]]]
-
-
-@typing.runtime_checkable
-class ModelWithIdentKey(typing.Protocol):
-    __key__: str
-    __struct_fields__: typing.ClassVar[tuple[str, ...]]
-    __struct_config__: typing.ClassVar[msgspec.structs.StructConfig]
+type ModelType = msgspec.Struct | DataclassInstance
 
 
 class ABCDataSerializer[Data](abc.ABC):

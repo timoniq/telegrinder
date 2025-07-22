@@ -11,6 +11,7 @@ from fntypes.result import Error, Ok, Result
 
 from telegrinder.msgspec_utils import decoder, encoder, get_class_annotations
 from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
+from telegrinder.tools.callback_data_serialization.utils import get_model_ident_key
 
 DESERIALIZE_EXCEPTIONS: typing.Final[set[type[BaseException]]] = {
     msgspec.DecodeError,
@@ -147,7 +148,7 @@ class MsgPackSerializer[Model: ModelType](ABCDataSerializer[Model]):
 
     def __init__(self, model_t: type[Model], /, *, ident_key: str | None = None) -> None:
         self.model_t = model_t
-        self.ident_key: str | None = ident_key or getattr(model_t, "__key__", None)
+        self.ident_key = ident_key or get_model_ident_key(model_t)
         self._model_parser = ModelParser(model_t)
 
     @classmethod

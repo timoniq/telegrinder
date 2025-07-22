@@ -1,5 +1,6 @@
 import dataclasses
 import enum
+import typing
 
 from telegrinder import (
     API,
@@ -12,8 +13,7 @@ from telegrinder.modules import logger
 from telegrinder.node import ChatId
 from telegrinder.rules import PayloadModelRule, Text
 from telegrinder.tools import MsgPackSerializer
-from telegrinder.tools.keyboard.buttons.static_buttons import StaticInlineButton
-from telegrinder.tools.keyboard.static_keyboard import StaticInlineKeyboard
+from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 logger.set_level("DEBUG")
 api = API(token=Token.from_env())
@@ -36,52 +36,47 @@ class StoreAction(enum.Enum):
 @dataclasses.dataclass(slots=True, frozen=True)
 class MenuCallback:
     __key__ = "menu"
+    __serializer__ = MsgPackSerializer[typing.Self]
+
     action: MenuAction
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
 class StoreCallback:
     __key__ = "store"
+    __serializer__ = MsgPackSerializer[typing.Self]
+
     action: StoreAction
     item: str = ""
     price: int = 0
 
 
-class MainMenuKeyboard(StaticInlineKeyboard):
-    serializer = MsgPackSerializer(MenuCallback)
-
-    show_fact = StaticInlineButton(
+class MainMenuKeyboard(InlineKeyboard):
+    show_fact = InlineButton(
         "🎯 Show Random Fact",
         callback_data=MenuCallback(action=MenuAction.show_fact),
-        callback_data_serializer=serializer,
-        row=True,
+        new_row=True,
     )
-    show_store = StaticInlineButton(
+    show_store = InlineButton(
         "🛒 Open Store",
         callback_data=MenuCallback(action=MenuAction.show_store),
-        callback_data_serializer=serializer,
     )
 
 
-class StoreKeyboard(StaticInlineKeyboard):
-    serializer = MsgPackSerializer(StoreCallback)
-
-    buy_coffee = StaticInlineButton(
+class StoreKeyboard(InlineKeyboard):
+    buy_coffee = InlineButton(
         "☕ Coffee - $3",
         callback_data=StoreCallback(action=StoreAction.buy_coffee, item="Coffee", price=3),
-        callback_data_serializer=serializer,
-        row=True,
+        new_row=True,
     )
-    buy_tea = StaticInlineButton(
+    buy_tea = InlineButton(
         "🍵 Tea - $2",
         callback_data=StoreCallback(action=StoreAction.buy_tea, item="Tea", price=2),
-        callback_data_serializer=serializer,
-        row=True,
+        new_row=True,
     )
-    back_to_menu = StaticInlineButton(
+    back_to_menu = InlineButton(
         "⬅️ Back to Menu",
         callback_data=StoreCallback(action=StoreAction.back_to_menu),
-        callback_data_serializer=serializer,
     )
 
 
@@ -105,7 +100,7 @@ async def back_menu(cb: CallbackQuery, chat_id: ChatId) -> None:
 
 @bot.on.callback_query(MainMenuKeyboard.show_fact)
 async def interest_fact(cb: CallbackQuery) -> None:
-    await cb.answer(f"brace yourself: he comes again", show_alert=True)
+    await cb.answer("brace yourself: he comes again", show_alert=True)
 
 
 @bot.on.callback_query(MainMenuKeyboard.show_store)
@@ -114,7 +109,7 @@ async def store(cb: CallbackQuery) -> None:
     await cb.answer()
 
 
-@bot.on.callback_query(PayloadModelRule(StoreCallback, alias="my_model", serializer=MsgPackSerializer))
+@bot.on.callback_query(PayloadModelRule(StoreCallback, alias="my_model"))
 async def view_store(cb: CallbackQuery, chat_id: ChatId, my_model: StoreCallback) -> None:
     await cb.api.send_message(chat_id=chat_id, text=f"your choice - {my_model.item}; price - {my_model.price}")
     await cb.answer()
