@@ -9,8 +9,10 @@ type Payload = dict[str, typing.Any]
 
 
 class MemoryStateStorage(ABCStateStorage[Payload]):
+    storage: dict[int, StateData[Payload]]
+
     def __init__(self) -> None:
-        self.storage: dict[int, StateData[Payload]] = {}
+        self.storage = {}
 
     async def get(self, user_id: int) -> Option[StateData[Payload]]:
         return from_optional(self.storage.get(user_id))

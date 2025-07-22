@@ -8,7 +8,9 @@ from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.node.base import ComposeError, DataNode, FactoryNode, GlobalNode, scalar_node
 from telegrinder.node.polymorphic import Polymorphic, impl
-from telegrinder.tools.callback_data_serialization import ABCDataSerializer, JSONSerializer
+from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer
+from telegrinder.tools.callback_data_serialization.json_ser import JSONSerializer
+from telegrinder.tools.callback_data_serialization.utils import get_model_serializer
 
 
 @scalar_node[str]
@@ -47,7 +49,7 @@ class _PayloadData(FactoryNode):
         /,
     ):
         data_type, serializer = (data_type, None) if not isinstance(data_type, tuple) else data_type
-        return cls(data_type=data_type, serializer=serializer)
+        return cls(data_type=data_type, serializer=get_model_serializer(data_type) or serializer)
 
     @classmethod
     def compose(cls, payload: Payload, payload_serializer: PayloadSerializer) -> typing.Any:
@@ -62,11 +64,12 @@ class _PayloadData(FactoryNode):
 if typing.TYPE_CHECKING:
     import typing_extensions
 
+    AnySerializer = typing.NewType("AnySerializer", ABCDataSerializer[typing.Any])
     DataType = typing.TypeVar("DataType")
     Serializer = typing_extensions.TypeVar(
         "Serializer",
         bound=ABCDataSerializer,
-        default=JSONSerializer[typing.Any],
+        default=AnySerializer,
     )
 
     type PayloadDataType[DataType, Serializer] = typing.Annotated[DataType, Serializer]

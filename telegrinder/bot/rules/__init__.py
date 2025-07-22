@@ -1,4 +1,5 @@
 from telegrinder.bot.rules.abc import ABCRule, AndRule, NotRule, OrRule, check_rule
+from telegrinder.bot.rules.button import ButtonRule
 from telegrinder.bot.rules.callback_data import (
     CallbackDataEq,
     CallbackDataJsonEq,
@@ -66,6 +67,7 @@ __all__ = (
     "ABCRule",
     "AndRule",
     "Argument",
+    "ButtonRule",
     "CallbackDataEq",
     "CallbackDataJsonEq",
     "CallbackDataJsonModel",

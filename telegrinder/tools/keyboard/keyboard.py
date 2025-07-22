@@ -1,34 +1,39 @@
-from __future__ import annotations
-
 import dataclasses
 import typing
-from copy import deepcopy
 
-from telegrinder.tools.keyboard.base import BaseKeyboard, DictStrAny
-from telegrinder.tools.keyboard.data import KeyboardModel
-from telegrinder.types.objects import (
-    InlineKeyboardMarkup,
-    ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
+from telegrinder.tools.keyboard.abc import ABCKeyboard, DictStrAny, RawKeyboard
+from telegrinder.tools.keyboard.base import BaseKeyboard
+from telegrinder.tools.keyboard.button import Button, InlineButton
+from telegrinder.tools.keyboard.data import KeyboardModel, KeyboardParams
+from telegrinder.tools.keyboard.utils import (
+    bound_keyboard_method,
+    copy_keyboard,
+    init_keyboard,
 )
-
-if typing.TYPE_CHECKING:
-    from telegrinder.tools.keyboard.abc import RawKeyboard
+from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 
-@dataclasses.dataclass(kw_only=True, frozen=True)
-class KeyboardModelMixin(KeyboardModel if typing.TYPE_CHECKING else object):
-    keyboard_model: KeyboardModel = dataclasses.field(init=False)
+class Keyboard(BaseKeyboard[Button], ABCKeyboard):
+    __button_class__ = Button
+    __slots__ = ("keyboard_model",)
 
-    if not typing.TYPE_CHECKING:
-        keyboard_model = dataclasses.field(
-            default_factory=lambda: KeyboardModel(keyboard=[[]]),
-            repr=False,
-        )
+    def __init_subclass__(cls, *, max_in_row: int = 0, **kwargs: typing.Unpack[KeyboardParams]) -> None:
+        cls.__keyboard_instance__ = init_keyboard(cls(**kwargs), max_in_row=max_in_row)
+
+    def __init__(
+        self,
+        *,
+        keyboard_model: KeyboardModel | None = None,
+        **kwargs: typing.Unpack[KeyboardParams],
+    ) -> None:
+        self.keyboard_model = keyboard_model or KeyboardModel(keyboard=[[]], **kwargs)
+
+    def __repr__(self) -> str:
+        return f"<{type(self).__name__}: keyboard_model={self.keyboard_model!r}>"
 
     @property
     def keyboard(self) -> RawKeyboard:
-        return self.keyboard_model.keyboard  # type: ignore
+        return self.keyboard_model.keyboard
 
     @property
     def is_persistent(self) -> bool:
@@ -44,41 +49,35 @@ class KeyboardModelMixin(KeyboardModel if typing.TYPE_CHECKING else object):
 
     @property
     def is_selective(self) -> bool:
-        return self.keyboard_model.selective
+        return self.keyboard_model.is_selective
 
     @property
     def input_field_placeholder(self) -> str | None:
         return self.keyboard_model.input_field_placeholder
 
+    @bound_keyboard_method
+    def copy(self, **with_changes: typing.Any) -> typing.Self:
+        keyboard_model = dataclasses.replace(
+            self.keyboard_model,
+            keyboard=copy_keyboard(self.keyboard),
+            **with_changes,
+        )
+        return type(self)(keyboard_model=keyboard_model)
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class Keyboard(KeyboardModelMixin, BaseKeyboard):
-    if not typing.TYPE_CHECKING:
-
-        def __init__(self, **kwargs):
-            super().__init__(keyboard_model=kwargs.pop("keyboard_model", None) or KeyboardModel(**kwargs))
-
+    @bound_keyboard_method
     def dict(self) -> DictStrAny:
-        return dataclasses.asdict(self.keyboard_model) | {"keyboard": [row for row in self.keyboard if row]}
+        return self.keyboard_model.dict()
 
+    @bound_keyboard_method
     def get_markup(self) -> ReplyKeyboardMarkup:
         return ReplyKeyboardMarkup.from_dict(self.dict())
 
-    def copy(self, **with_changes: typing.Any) -> typing.Self:
-        return dataclasses.replace(
-            self,
-            keyboard_model=dataclasses.replace(
-                self.keyboard_model,
-                keyboard=deepcopy(self.keyboard_model.keyboard),
-                **with_changes,
-            ),
-        )
-
+    @bound_keyboard_method
     def get_keyboard_remove(self) -> ReplyKeyboardRemove:
-        return ReplyKeyboardRemove.from_data(
-            remove_keyboard=True,
-            selective=self.keyboard_model.selective,
-        )
+        return ReplyKeyboardRemove(remove_keyboard=True, selective=self.is_selective)
+
+    def placeholder(self, value: str | None, /) -> typing.Self:
+        return self.copy(input_field_placeholder=value)
 
     def resize(self) -> typing.Self:
         return self.copy(resize_keyboard=True)
@@ -87,7 +86,7 @@ class Keyboard(KeyboardModelMixin, BaseKeyboard):
         return self.copy(one_time_keyboard=True)
 
     def selective(self) -> typing.Self:
-        return self.copy(selective=True)
+        return self.copy(is_selective=True)
 
     def persistent(self) -> typing.Self:
         return self.copy(is_persistent=True)
@@ -99,33 +98,37 @@ class Keyboard(KeyboardModelMixin, BaseKeyboard):
         return self.copy(one_time_keyboard=False)
 
     def no_selective(self) -> typing.Self:
-        return self.copy(selective=False)
+        return self.copy(is_selective=False)
 
     def no_persistent(self) -> typing.Self:
         return self.copy(is_persistent=False)
 
-    def placeholder(self, value: str | None, /) -> typing.Self:
-        return self.copy(input_field_placeholder=value)
 
+class InlineKeyboard(BaseKeyboard[InlineButton], ABCKeyboard):
+    __button_class__ = InlineButton
+    __slots__ = ("keyboard",)
 
-@dataclasses.dataclass(frozen=True)
-class InlineKeyboard(BaseKeyboard):
-    keyboard: RawKeyboard = dataclasses.field(init=False)
+    def __init_subclass__(cls, *, max_in_row: int = 0) -> None:
+        cls.__keyboard_instance__ = init_keyboard(cls(), max_in_row=max_in_row)
 
-    if not typing.TYPE_CHECKING:
-        keyboard = dataclasses.field(
-            default_factory=lambda: [[]],
-            repr=False,
-        )
+    def __init__(self) -> None:
+        self.keyboard = [[]]
 
+    def __repr__(self) -> str:
+        return f"<{type(self).__name__}: keyboard={self.keyboard!r}>"
+
+    def copy(self, **with_changes: typing.Any) -> typing.Self:
+        new_keyboard = type(self)()
+        new_keyboard.keyboard = copy_keyboard(self.keyboard)
+        return new_keyboard
+
+    @bound_keyboard_method
     def dict(self) -> DictStrAny:
         return dict(inline_keyboard=[row for row in self.keyboard if row])
 
+    @bound_keyboard_method
     def get_markup(self) -> InlineKeyboardMarkup:
         return InlineKeyboardMarkup.from_dict(self.dict())
-
-    def copy(self, **_: typing.Any) -> typing.Self:
-        return dataclasses.replace(self, keyboard=deepcopy(self.keyboard))
 
 
 __all__ = ("InlineKeyboard", "Keyboard")

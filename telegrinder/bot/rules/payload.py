@@ -12,20 +12,21 @@ from telegrinder.node.base import Node
 from telegrinder.node.payload import Payload, PayloadData
 from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
 from telegrinder.tools.callback_data_serialization.json_ser import JSONSerializer
+from telegrinder.tools.callback_data_serialization.utils import get_model_serializer
 
-_ANY: typing.Final = object()
+_ANY: typing.Final[object] = object()
 
 
 class PayloadRule[Data](ABCRule):
     def __init__(
         self,
         data_type: type[Data],
-        serializer: type[ABCDataSerializer[Data]],
+        serializer: type[ABCDataSerializer[Data]] | None = None,
         *,
         alias: str | None = None,
     ) -> None:
         self.data_type = data_type
-        self.serializer = serializer
+        self.serializer = serializer or get_model_serializer(data_type) or JSONSerializer
         self.alias = alias or "data"
 
     @cached_property
@@ -47,7 +48,7 @@ class PayloadModelRule[Model: ModelType](PayloadRule):
         serializer: type[ABCDataSerializer[Model]] | None = None,
         alias: str | None = None,
     ) -> None:
-        super().__init__(model_t, serializer or JSONSerializer, alias=alias or "model")
+        super().__init__(model_t, serializer, alias=alias or "model")
         self.payload = payload
 
     def check(self, payload: PayloadData[Model], context: Context) -> bool:

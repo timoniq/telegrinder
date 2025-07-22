@@ -6,6 +6,7 @@ from fntypes.result import Error, Ok, Result
 from telegrinder.modules import json
 from telegrinder.msgspec_utils import decoder
 from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
+from telegrinder.tools.callback_data_serialization.utils import get_model_ident_key
 
 type Json = dict[str, typing.Any] | ModelType
 
@@ -24,11 +25,11 @@ class JSONSerializer[JsonT: Json](ABCDataSerializer[JsonT]):
         ident_key: str | None = None,
     ) -> None:
         self.model_t = model_t
-        self.ident_key: str | None = ident_key or getattr(model_t, "__key__", None)
+        self.ident_key = ident_key or get_model_ident_key(model_t)
 
     @classmethod
     def serialize_from_json(cls, data: JsonT, *, ident_key: str | None = None) -> str:
-        return cls(data.__class__, ident_key=ident_key).serialize(data)
+        return cls(type(data), ident_key=ident_key).serialize(data)
 
     @classmethod
     def deserialize_to_json(cls, serialized_data: str, model_t: type[JsonT]) -> Result[JsonT, str]:
