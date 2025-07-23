@@ -16,7 +16,6 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.12"
           - "3.13"
         os:
           - ubuntu-latest
