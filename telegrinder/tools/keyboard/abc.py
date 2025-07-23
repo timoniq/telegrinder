@@ -13,7 +13,7 @@ from telegrinder.tools.keyboard.utils import RowButtons, copy_keyboard
 type DictStrAny = dict[str, typing.Any]
 type AnyMarkup = ReplyKeyboardMarkup | InlineKeyboardMarkup
 type RawKeyboard = list[list[DictStrAny]]
-type Button = DictStrAny | list[DictStrAny] | BaseButton | RowButtons[BaseButton]
+type Button = DictStrAny | list[DictStrAny] | BaseButton[typing.Any] | RowButtons[BaseButton[typing.Any]]
 
 
 class ABCKeyboard(typing.Protocol):
