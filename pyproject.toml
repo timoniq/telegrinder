@@ -50,14 +50,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+brotli = ["brotli"]
 uvloop = [
     "uvloop; (sys_platform == 'darwin' or sys_platform == 'linux')",
     "winloop; (sys_platform == 'cli' or sys_platform == 'cygwin' or sys_platform == 'win32')",
 ]
-structlog = ["structlog"]
 loguru = ["loguru"]
-brotli = ["brotli"]
-socks = ["aiohttp-socks"]
+structlog = ["structlog"]
 
 [project.urls]
 Source = "https://github.com/timoniq/telegrinder"
@@ -72,7 +71,7 @@ dev = [
     "tomlkit>=0.13.3,<1",
     "libcst>=1.8.2,<2",
     "pytest>=8.4.1,<9",
-    "pytest-asyncio>=1.0.0,<2",
+    "pytest-asyncio>=1.1.0,<2",
     "pytest-cov>=6.2.1,<7",
     "pytest-mock>=3.14.1,<4",
     "pre-commit>=4.2.0,<5",

@@ -62,7 +62,7 @@ class ABCClient(ABC):
         pass
 
     @abstractmethod
-    async def close(self) -> None:
+    async def close(self, **kwargs: typing.Any) -> None:
         pass
 
     @classmethod
