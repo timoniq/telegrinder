@@ -8,6 +8,7 @@ from telegrinder.bot.cute_types import (
     CallbackQueryCute,
     ChatJoinRequestCute,
     ChatMemberUpdatedCute,
+    InlineQueryCute,
     MessageCute,
     PreCheckoutQueryCute,
 )
@@ -39,6 +40,13 @@ class Source(Polymorphic, DataNode):
             from_user=callback_query.from_user,
             chat=callback_query.chat,
             thread_id=callback_query.message_thread_id,
+        )
+
+    @impl
+    def compose_inline_query(cls, inline_query: InlineQueryCute) -> typing.Self:
+        return cls(
+            api=inline_query.api,
+            from_user=inline_query.from_user,
         )
 
     @impl
