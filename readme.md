@@ -1,6 +1,6 @@
 <p>
   <a href="https://github.com/timoniq/telegrinder">
-    <img width="200px" height="145px" alt="Telegrinder" src="https://raw.githubusercontent.com/timoniq/telegrinder/main/docs/logo.svg">
+    <img width="200px" height="175px" alt="Telegrinder" src="https://raw.githubusercontent.com/timoniq/telegrinder/main/docs/logo.svg">
   </a>
 </p>
 
