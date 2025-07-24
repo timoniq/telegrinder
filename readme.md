@@ -70,8 +70,8 @@ Or install from source (unstable):
 
 ```console
 uv add "telegrinder @ git+https://github.com/timoniq/telegrinder@dev"
-poetry add git+https://github.com/timoniq/telegrinder.git#dev
-pip install git+https://github.com/timoniq/telegrinder/archive/dev.zip
+poetry add git+https://github.com/timoniq/telegrinder@dev
+pip install git+https://github.com/timoniq/telegrinder@dev
 ```
 
 # Documentation
