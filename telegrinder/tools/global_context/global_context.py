@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import dataclasses
+import typing
 from copy import deepcopy
 from functools import wraps
 
-import typing_extensions as typing
 from fntypes.co import Error, Nothing, Ok, Option, Result, Some
 from fntypes.misc import from_optional
 
@@ -13,17 +13,13 @@ from telegrinder.msgspec_utils import convert
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context.abc import NOVALUE, ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
 
-T = typing.TypeVar("T")
-F = typing.TypeVar("F", bound=typing.Callable)
-CtxValueT = typing.TypeVar("CtxValueT", default=typing.Any)
-
 if typing.TYPE_CHECKING:
     _: typing.TypeAlias = None
 else:
     _ = lambda: None
 
 
-def type_check(value: object, value_type: type[T]) -> typing.TypeGuard[T]:
+def type_check[T = typing.Any](value: typing.Any, value_type: type[T]) -> typing.TypeGuard[T]:
     if value_type in (typing.Any, object):
         return True
     match convert(value, value_type):
@@ -37,13 +33,13 @@ def is_dunder(name: str) -> bool:
     return name.startswith("__") and name.endswith("__")
 
 
-def get_orig_class(obj: T) -> type[T]:
+def get_orig_class[T = typing.Any](obj: T) -> type[T]:
     if "__orig_class__" not in obj.__dict__:
         return type(obj)
     return obj.__dict__["__orig_class__"]
 
 
-def root_protection(func: F) -> F:
+def root_protection[F: typing.Callable[..., typing.Any]](func: F) -> F:
     if func.__name__ not in ("__setattr__", "__getattr__", "__delattr__"):
         raise RuntimeError(
             "You cannot decorate a {!r} function with this decorator, only "
@@ -53,7 +49,7 @@ def root_protection(func: F) -> F:
         )
 
     @wraps(func)
-    def wrapper(self: "GlobalContext", name: str, /, *args) -> typing.Any:
+    def wrapper(self: GlobalContext, name: str, /, *args: typing.Any) -> typing.Any:
         if self.is_root_attribute(name) and name in (self.__dict__ | self.__class__.__dict__):
             root_attr = self.get_root_attribute(name).unwrap()
             if all((not root_attr.can_be_rewritten, not root_attr.can_be_read)):
@@ -191,7 +187,7 @@ class Storage:
     frozen_default=False,
     field_specifiers=(ctx_var,),
 )
-class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, GlobalCtxVar[CtxValueT]]):
+class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCtxVar[CtxValueT]]):
     """This is class to store the context globally.
 
     `GlobalContext` is a dictionary with additional methods for working with context.
@@ -382,15 +378,15 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def pop(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]: ...
 
     @typing.overload
-    def pop(
+    def pop[T = typing.Any](
         self,
         var_name: str,
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
-    def pop(self, var_name: str, var_value_type=object):  # type: ignore
+    def pop(self, var_name: str, var_value_type: typing.Any = object) -> typing.Any:
         """Pop context variable by name."""
-        val = self.get(var_name, var_value_type)  # type: ignore
+        val = self.get(var_name, var_value_type)
         if val:
             del self[var_name]
             return val
@@ -400,13 +396,13 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def get(self, var_name: str) -> Option[GlobalCtxVar[CtxValueT]]: ...
 
     @typing.overload
-    def get(
+    def get[T = typing.Any](
         self,
         var_name: str,
         var_value_type: type[T],
     ) -> Option[GlobalCtxVar[T]]: ...
 
-    def get(self, var_name, var_value_type=object):  # type: ignore
+    def get(self, var_name: str, var_value_type: typing.Any = object) -> typing.Any:
         """Get context variable by name."""
         var_value_type = typing.Any if var_value_type is object else var_value_type
         generic_types = typing.get_args(get_orig_class(self))
@@ -434,13 +430,13 @@ class GlobalContext(ABCGlobalContext, typing.Generic[CtxValueT], dict[str, Globa
     def get_value(self, var_name: str) -> Option[CtxValueT]: ...
 
     @typing.overload
-    def get_value(
+    def get_value[T = typing.Any](
         self,
         var_name: str,
         var_value_type: type[T],
     ) -> Option[T]: ...
 
-    def get_value(self, var_name, var_value_type=object):  # type: ignore
+    def get_value(self, var_name: str, var_value_type: typing.Any = object) -> typing.Any:
         """Get context variable value by name."""
         return self.get(var_name, var_value_type).map(lambda var: var.value)
 

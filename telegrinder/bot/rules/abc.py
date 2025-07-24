@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from collections import deque
-from functools import cached_property
 
 import typing_extensions as typing
 
@@ -15,7 +16,7 @@ type CheckResult = bool | typing.Awaitable[bool]
 
 
 class ABCRule(ABC):
-    requires: deque["ABCRule"] = deque()
+    requires: deque[ABCRule] = deque()
 
     if typing.TYPE_CHECKING:
 
@@ -31,7 +32,7 @@ class ABCRule(ABC):
     def __init_subclass__(
         cls,
         *,
-        requires: typing.Iterable["ABCRule"] | None = None,
+        requires: typing.Iterable[ABCRule] | None = None,
     ) -> None:
         """Merges requirements from inherited classes and rule-specific requirements."""
         requirements = list[ABCRule]()
@@ -42,36 +43,36 @@ class ABCRule(ABC):
         requirements.extend(requires or ())
         cls.requires = deque(dict.fromkeys(requirements))
 
-    def __and__(self, other: object, /) -> "AndRule":
+    def __and__(self, other: object, /) -> AndRule:
         if not isinstance(other, ABCRule):
             return NotImplemented
         return AndRule(self, other)
 
-    def __iadd__(self, other: object, /) -> "AndRule":
+    def __iadd__(self, other: object, /) -> AndRule:
         return self.__and__(other)
 
-    def __or__(self, other: object, /) -> "OrRule":
+    def __or__(self, other: object, /) -> OrRule:
         if not isinstance(other, ABCRule):
             return NotImplemented
         return OrRule(self, other)
 
-    def __ior__(self, other: object, /) -> "OrRule":
+    def __ior__(self, other: object, /) -> OrRule:
         return self.__or__(other)
 
-    def __invert__(self) -> "NotRule":
+    def __invert__(self) -> NotRule:
         return NotRule(self)
 
     def __repr__(self) -> str:
         return "<{}, requires={!r}>".format(fullname(self), self.requires)
 
-    @cached_property
+    @property
     def required_nodes(self) -> dict[str, IsNode]:
         return get_nodes(self.check)
 
-    def as_optional(self) -> "ABCRule":
+    def as_optional(self) -> ABCRule:
         return self | Always()
 
-    def should_fail(self) -> "ABCRule":
+    def should_fail(self) -> ABCRule:
         return self & Never()
 
 

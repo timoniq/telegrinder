@@ -1,24 +1,21 @@
 from __future__ import annotations
 
 import dataclasses
+import typing
 from abc import ABC, abstractmethod
-
-import typing_extensions as typing
-
-T = typing.TypeVar("T", default=typing.Any)
 
 NOVALUE: typing.Final[object] = object()
 
 
 @dataclasses.dataclass(frozen=True)
-class CtxVar(typing.Generic[T]):
+class CtxVar[T = typing.Any]:
     value: T
     factory: typing.Any = dataclasses.field(default=NOVALUE, kw_only=True)
     const: bool = dataclasses.field(default=False, kw_only=True)
 
 
 @dataclasses.dataclass(repr=False, frozen=True)
-class GlobalCtxVar(CtxVar[T], typing.Generic[T]):
+class GlobalCtxVar[T = typing.Any](CtxVar[T]):
     name: str
     value: T
     factory: typing.Any = dataclasses.field(default=NOVALUE, kw_only=True)
@@ -44,7 +41,7 @@ class GlobalCtxVar(CtxVar[T], typing.Generic[T]):
         return cls(**dict(var.__dict__) | dict(name=name))
 
 
-class ABCGlobalContext(ABC, typing.Generic[T]):
+class ABCGlobalContext[T = typing.Any](ABC):
     @abstractmethod
     def __getattr__(self, __name: str) -> typing.Any:
         pass
@@ -58,7 +55,7 @@ class ABCGlobalContext(ABC, typing.Generic[T]):
         pass
 
 
-CtxVariable = CtxVar[T] | GlobalCtxVar[T]
+type CtxVariable[T = typing.Any] = CtxVar[T] | GlobalCtxVar[T]
 
 
 __all__ = (

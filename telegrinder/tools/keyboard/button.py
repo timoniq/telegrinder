@@ -38,7 +38,7 @@ type InlineKeyboard = keyboard.InlineKeyboard
 
 
 @dataclasses.dataclass(kw_only=True)
-class BaseButton[T: BaseKeyboard](abc.ABC):
+class BaseButton[T: BaseKeyboard = typing.Any](abc.ABC):
     new_row: bool = dataclasses.field(default=False)
 
     @property

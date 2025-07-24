@@ -1,4 +1,4 @@
-from telegrinder.bot.cute_types import MessageCute as Message
+from telegrinder.bot.cute_types.message import MessageCute as Message
 from telegrinder.bot.dispatch.view import MessageView
 from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher
 

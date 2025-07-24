@@ -12,7 +12,8 @@ if typing.TYPE_CHECKING:
 
 @cache
 def get_keyboard_button_rules(
-    keyboard_class: type[ABCKeyboard], /
+    keyboard_class: type[ABCKeyboard],
+    /,
 ) -> dict[str, ButtonRule[BaseButton[typing.Any]]]:
     from telegrinder.bot.rules.button import ButtonRule
 
@@ -31,7 +32,7 @@ def copy_keyboard(keyboard: RawKeyboard, /) -> RawKeyboard:
     return [row.copy() for row in keyboard if row]
 
 
-def freaky_keyboard_merge[T: BaseKeyboard](
+def freaky_keyboard_merge[T: BaseKeyboard = typing.Any](
     button: BaseButton[T],
     keyboard_or_button: T | BaseButton[T],
     /,
@@ -52,7 +53,7 @@ def freaky_keyboard_merge[T: BaseKeyboard](
     )
 
 
-def init_keyboard[T: BaseKeyboard](
+def init_keyboard[T: BaseKeyboard = typing.Any](
     keyboard_instance: T,
     /,
     *,
@@ -67,7 +68,7 @@ def init_keyboard[T: BaseKeyboard](
     return keyboard_instance
 
 
-class bound_keyboard_method[T: BaseKeyboard, **P, R]:  # noqa: N801
+class bound_keyboard_method[T: BaseKeyboard = typing.Any, **P = ..., R = typing.Any]:  # noqa: N801
     def __init__(self, func: typing.Callable[typing.Concatenate[T, P], R], /) -> None:
         self.func = func
 

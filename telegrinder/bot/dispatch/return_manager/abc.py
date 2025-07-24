@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import dataclasses
-import types
 import typing
 from abc import ABC, abstractmethod
 from functools import cached_property
@@ -8,6 +9,7 @@ from fntypes.result import Error, Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.dispatch.return_manager.utils import _get_types
 from telegrinder.modules import logger
 from telegrinder.node.base import IsNode, get_nodes
 from telegrinder.node.composer import compose_nodes
@@ -19,23 +21,8 @@ from telegrinder.types.objects import Update
 type ManagerFunction = typing.Callable[..., typing.Any | typing.Awaitable[typing.Any]]
 
 
-def _get_types(x: typing.Any, /) -> type[typing.Any] | tuple[typing.Any, ...]:
-    while True:
-        if isinstance(x, types.UnionType | typing._UnionGenericAlias):  # type: ignore
-            return tuple(_get_types(x) for x in typing.get_args(x))
-
-        if isinstance(x, typing.TypeAliasType):
-            x = x.__value__
-
-        if isinstance(x, types.GenericAlias | typing._GenericAlias):  # type: ignore
-            x = typing.get_origin(x)
-
-        if isinstance(x, type):
-            return x
-
-
-def register_manager(return_type: typing.Any, /) -> typing.Callable[[ManagerFunction], "Manager"]:
-    def wrapper(function: ManagerFunction, /) -> "Manager":
+def register_manager(return_type: typing.Any, /) -> typing.Callable[[ManagerFunction], Manager]:
+    def wrapper(function: ManagerFunction, /) -> Manager:
         function = function.__func__ if isinstance(function, classmethod | staticmethod) else function
         types = _get_types(return_type)
         return Manager((types,) if not isinstance(types, tuple) else types, function)

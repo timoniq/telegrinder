@@ -3,8 +3,7 @@ import inspect
 import os.path
 import sys
 import types
-
-import typing_extensions as typing
+import typing
 
 type RoutineMethodType = (
     types.MethodType | types.MethodDescriptorType | types.MethodWrapperType | types.BuiltinMethodType

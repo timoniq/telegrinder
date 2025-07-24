@@ -31,7 +31,7 @@ class Payload(Polymorphic):
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
-class PayloadSerializer[T: type[ABCDataSerializer[typing.Any]]](DataNode, GlobalNode[T]):
+class PayloadSerializer[T: type[ABCDataSerializer]](DataNode, GlobalNode[T]):
     serializer: type[ABCDataSerializer[typing.Any]]
 
     @classmethod
@@ -41,11 +41,11 @@ class PayloadSerializer[T: type[ABCDataSerializer[typing.Any]]](DataNode, Global
 
 class _PayloadData(FactoryNode):
     data_type: type[typing.Any]
-    serializer: type[ABCDataSerializer[typing.Any]] | None = None
+    serializer: type[ABCDataSerializer] | None = None
 
     def __class_getitem__(
         cls,
-        data_type: type[typing.Any] | tuple[type[typing.Any], type[ABCDataSerializer[typing.Any]]],
+        data_type: type[typing.Any] | tuple[type[typing.Any], type[ABCDataSerializer]],
         /,
     ):
         data_type, serializer = (data_type, None) if not isinstance(data_type, tuple) else data_type
@@ -62,18 +62,12 @@ class _PayloadData(FactoryNode):
 
 
 if typing.TYPE_CHECKING:
-    import typing_extensions
+    type PayloadData[
+        DataType,
+        Serializer: ABCDataSerializer = AnySerializer,
+    ] = typing.Annotated[DataType, Serializer]
 
-    AnySerializer = typing.NewType("AnySerializer", ABCDataSerializer[typing.Any])
-    DataType = typing.TypeVar("DataType")
-    Serializer = typing_extensions.TypeVar(
-        "Serializer",
-        bound=ABCDataSerializer,
-        default=AnySerializer,
-    )
-
-    type PayloadDataType[DataType, Serializer] = typing.Annotated[DataType, Serializer]
-    PayloadData: typing.TypeAlias = PayloadDataType[DataType, Serializer]
+    AnySerializer = typing.NewType("AnySerializer", ABCDataSerializer)
 else:
     PayloadData = _PayloadData
 

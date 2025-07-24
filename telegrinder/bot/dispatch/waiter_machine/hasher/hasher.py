@@ -30,7 +30,7 @@ class Hasher(typing.Generic[Event, Data]):
         self._get_hash_from_data = get_hash_from_data
         self._get_data_from_event = get_data_from_event
 
-    def __call__[D](self: "Hasher[Event, D]", data: D, /) -> HasherWithData[Event, D]:
+    def __call__[D](self: Hasher[Event, D], data: D, /) -> HasherWithData[Event, D]:
         return (self, data)
 
     def __hash__(self) -> int:
@@ -43,21 +43,21 @@ class Hasher(typing.Generic[Event, Data]):
     def name(self) -> str:
         return f"{self.view_class.__name__}_{id(self)}"
 
-    def get_hash_from_data[D](self: "Hasher[Event, D]", data: D) -> Option[typing.Hashable]:
+    def get_hash_from_data[D](self: Hasher[Event, D], data: D) -> Option[typing.Hashable]:
         if self._get_hash_from_data is None:
             raise NotImplementedError
         return from_optional(self._get_hash_from_data(data))
 
-    def get_data_from_event[E: BaseCute](self: "Hasher[E, Data]", event: E) -> Option[Data]:
+    def get_data_from_event[E: BaseCute](self: Hasher[E, Data], event: E) -> Option[Data]:
         if not self._get_data_from_event:
             raise NotImplementedError
         return from_optional(self._get_data_from_event(event))
 
     def get_hash_from_data_from_event[E: BaseCute](
-        self: "Hasher[E, Data]",
+        self: Hasher[E, Data],
         event: E,
     ) -> Option[typing.Hashable]:
-        return self.get_data_from_event(event).then(self.get_hash_from_data)  # type: ignore
+        return self.get_data_from_event(event).then(self.get_hash_from_data)
 
 
 __all__ = ("Hasher",)

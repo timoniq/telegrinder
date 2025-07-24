@@ -1,6 +1,6 @@
 from fntypes.option import Some
 
-from telegrinder.bot.cute_types import CallbackQueryCute as CallbackQuery
+from telegrinder.bot.cute_types.callback_query import CallbackQueryCute as CallbackQuery
 from telegrinder.bot.dispatch.view import CallbackQueryView
 from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher
 

@@ -73,7 +73,7 @@ class Dispatch(
         init=False,
         default_factory=TelegrinderContext,
     )
-    global_middleware: "GlobalMiddleware" = dataclasses.field(
+    global_middleware: GlobalMiddleware = dataclasses.field(
         default_factory=lambda: GlobalMiddleware(),
     )
 
@@ -174,7 +174,7 @@ class Dispatch(
 
     def get_view(self, of_type: type[T]) -> Option[T]:
         for view in self.get_views().values():
-            if isinstance(view, of_type):
+            if type(view) is of_type:
                 return Some(view)
         return Nothing()
 

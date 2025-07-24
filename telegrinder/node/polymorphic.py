@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing
 
 from fntypes.result import Error, Ok
@@ -21,15 +23,15 @@ IMPL_MARK_KEY: typing.Final[str] = "_is_impl"
 
 
 @typing.cast("typing.Callable[..., Impl]", lambda f: f)
-def impl(method: typing.Callable[..., typing.Any]):
+def impl(method: typing.Callable[..., typing.Any]) -> typing.Any:
     setattr(method, IMPL_MARK_KEY, True)
     return classmethod(method)
 
 
 def get_polymorphic_implementations(
-    cls: type["Polymorphic"],
+    cls: type[Polymorphic],
     /,
-) -> list[typing.Callable[typing.Concatenate[type["Polymorphic"], ...], typing.Any]]:
+) -> list[typing.Callable[typing.Concatenate[type[Polymorphic], ...], typing.Any]]:
     moprh_impls = getattr(cls, MORPH_IMPLEMENTATIONS_KEY, None)
     if moprh_impls is not None:
         return moprh_impls

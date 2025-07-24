@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 type ModelType = msgspec.Struct | DataclassInstance
 
 
-class ABCDataSerializer[Data](abc.ABC):
+class ABCDataSerializer[Data = typing.Any](abc.ABC):
     ident_key: str | None = None
 
     @abc.abstractmethod

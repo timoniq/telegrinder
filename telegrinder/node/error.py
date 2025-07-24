@@ -1,15 +1,13 @@
-import dataclasses
+from __future__ import annotations
 
-import typing_extensions as typing
+import dataclasses
+import typing
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import ComposeError, DataNode
 from telegrinder.node.utility import TypeArgs
 
 type ExceptionType = type[Exception]
-
-ExceptionT = typing.TypeVar("ExceptionT", bound=Exception, default=Exception)
-ExceptionTs = typing.TypeVarTuple("ExceptionTs", default=typing.Unpack[tuple[Exception, ...]])
 
 
 def can_catch[ExceptionT: Exception](
@@ -20,17 +18,17 @@ def can_catch[ExceptionT: Exception](
 
 
 @dataclasses.dataclass(kw_only=True, frozen=True)
-class Error(DataNode, typing.Generic[*ExceptionTs]):
+class Error[*Exceptions = *tuple[Exception, ...]](DataNode):
     exception_update: Exception
 
     @property
-    def exception(self: "Error[*tuple[ExceptionT, ...]]") -> ExceptionT:
-        return self.exception_update  # type: ignore
+    def exception[T: Exception = Exception](self: Error[*tuple[T, ...]]) -> T:
+        return self.exception_update  # type: ignore[UnknownReturnType]
 
     @classmethod
     def compose(cls, ctx: Context, type_args: TypeArgs) -> typing.Self:
         exception = ctx.exception_update.expect(ComposeError("No exception."))
-        exception_types: tuple[ExceptionType, ...] | None = type_args.get(ExceptionTs)
+        exception_types: tuple[ExceptionType, ...] | None = type_args.get(Exceptions)
 
         if exception_types is None or can_catch(exception, exception_types):
             return cls(exception_update=exception)

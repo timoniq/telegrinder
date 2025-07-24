@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import abc
 import inspect
+import typing
 from functools import reduce
 from itertools import islice
 from types import NoneType, UnionType, resolve_bases
 
-import typing_extensions as typing
 from fntypes.option import Nothing, Option
 
 from telegrinder.node.context import NODE_CONTEXT

@@ -1,7 +1,6 @@
 import asyncio
+import typing
 from inspect import isasyncgen, isawaitable
-
-import typing_extensions as typing
 
 type Generator[Yield, Send, Return] = typing.AsyncGenerator[Yield, Send] | typing.Generator[Yield, Send, Return]
 

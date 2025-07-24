@@ -32,7 +32,7 @@ class ABCBaseKeyboard(typing._ProtocolMeta, KeyboardMeta):  # type: ignore
     pass
 
 
-class BaseKeyboard[KeyboardButton: BaseButton](typing.Protocol, metaclass=ABCBaseKeyboard):
+class BaseKeyboard[KeyboardButton: BaseButton = typing.Any](typing.Protocol, metaclass=ABCBaseKeyboard):
     keyboard: RawKeyboard
 
     __keyboard_instance__: typing.ClassVar[typing.Self]

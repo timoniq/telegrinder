@@ -8,7 +8,7 @@ from telegrinder.bot.scenario.checkbox import Checkbox, ChoiceAction
 
 class Choice[Key: typing.Hashable](Checkbox[Key]):
     async def handle(self, cb: CallbackQueryCute) -> bool:
-        code = cb.data.unwrap().replace(self.random_code + "/", "", 1)
+        code = cb.data.unwrap().replace(f"{self.random_code}/", "", 1)
         if code == ChoiceAction.READY:
             return False
 

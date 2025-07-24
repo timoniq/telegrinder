@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import typing_extensions as typing
+import typing
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch import dispatch as dp
@@ -14,13 +14,10 @@ from telegrinder.tools.loop_wrapper import LoopWrapper
 if typing.TYPE_CHECKING:
     from telegrinder.node.composer import Composer
 
-Dispatch = typing.TypeVar("Dispatch", bound=ABCDispatch, default=dp.Dispatch)
-Polling = typing.TypeVar("Polling", bound=ABCPolling, default=pg.Polling)
-
-CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
+TELEGRINDER_CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
 
 
-class Telegrinder(typing.Generic[Dispatch, Polling]):
+class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.Polling]:
     def __init__(
         self,
         api: API,
@@ -32,7 +29,7 @@ class Telegrinder(typing.Generic[Dispatch, Polling]):
         self.api = api
         self.dispatch = typing.cast("Dispatch", dispatch or dp.Dispatch())
         self.polling = typing.cast("Polling", polling or pg.Polling(api))
-        self.loop_wrapper = loop_wrapper or CONTEXT.loop_wrapper
+        self.loop_wrapper = loop_wrapper or TELEGRINDER_CONTEXT.loop_wrapper
 
     def __repr__(self) -> str:
         return "<{}: api={!r}, dispatch={!r}, polling={!r}, loop_wrapper={!r}>".format(
@@ -49,7 +46,7 @@ class Telegrinder(typing.Generic[Dispatch, Polling]):
 
     @property
     def composer(self) -> Composer:
-        return CONTEXT.composer.unwrap()
+        return TELEGRINDER_CONTEXT.composer.unwrap()
 
     async def reset_webhook(self) -> None:
         if not (await self.api.get_webhook_info()).unwrap().url:
@@ -61,8 +58,8 @@ class Telegrinder(typing.Generic[Dispatch, Polling]):
         *,
         offset: int = 0,
         skip_updates: bool = False,
-    ) -> typing.NoReturn:
-        async def polling() -> typing.NoReturn:  # type: ignore
+    ) -> typing.NoReturn:  # type: ignore[ReturnType]
+        async def polling() -> None:
             if skip_updates:
                 logger.debug("Dropping pending updates")
                 await self.reset_webhook()

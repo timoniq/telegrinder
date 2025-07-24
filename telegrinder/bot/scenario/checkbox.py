@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import enum
 import secrets
@@ -30,6 +32,8 @@ class Choice[Key: typing.Hashable]:
 
 
 class _Checkbox[T](ABCScenario[CallbackQueryCute]):
+    choices: list[Choice[typing.Hashable]]
+
     INVALID_CODE = "Invalid code"
     CALLBACK_ANSWER = "Done"
     PARSE_MODE = ParseMode.HTML
@@ -46,7 +50,7 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
     ) -> None:
         self.chat_id = chat_id
         self.message = message
-        self.choices: list[Choice[typing.Hashable]] = []
+        self.choices = []
         self.ready = ready_text
         self.max_in_row = max_in_row
         self.random_code = secrets.token_hex(8)
@@ -58,7 +62,7 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
             "<{}@{!r}: (choices={!r}, max_in_row={}) with waiter_machine={!r}, ready_text={!r} "
             "for chat_id={} with message={!r}>"
         ).format(
-            self.__class__.__name__,
+            type(self).__name__,
             self.random_code,
             self.choices,
             self.max_in_row,
@@ -96,7 +100,7 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
         picked_text: str,
         *,
         is_picked: bool = False,
-    ) -> "Checkbox[Key]":
+    ) -> Checkbox[Key]:
         self.choices.append(
             Choice(key, is_picked, default_text, picked_text, secrets.token_hex(8)),
         )
@@ -128,7 +132,7 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
     async def wait(
         self,
         hasher: Hasher[CallbackQueryCute, int],
-        api: "API",
+        api: API,
     ) -> tuple[dict[typing.Hashable, bool], int]:
         assert len(self.choices) > 0
         message = (
@@ -164,7 +168,7 @@ if typing.TYPE_CHECKING:
         async def wait(
             self,
             hasher: Hasher[CallbackQueryCute, int],
-            api: "API",
+            api: API,
         ) -> tuple[dict[Key, bool], int]: ...
 
 else:

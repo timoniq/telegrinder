@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import dataclasses
 import datetime
@@ -9,19 +11,18 @@ from telegrinder.tools.aio import cancel_future
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.cute_types.base import BaseCute
+    from telegrinder.bot.dispatch.waiter_machine.actions import WaiterActions
 
-    from .actions import WaiterActions
 
-
-class ShortStateContext[Event: BaseCute[typing.Any]](typing.NamedTuple):
+class ShortStateContext[Event: BaseCute[typing.Any] = typing.Any](typing.NamedTuple):
     event: Event
     context: Context
 
 
 @dataclasses.dataclass(slots=True)
-class ShortState[Event: BaseCute[typing.Any]]:
+class ShortState[Event: BaseCute[typing.Any] = typing.Any]:
     event: asyncio.Event
-    actions: "WaiterActions[Event]"
+    actions: WaiterActions[Event]
 
     release: ABCRule | None = dataclasses.field(
         default=None,
