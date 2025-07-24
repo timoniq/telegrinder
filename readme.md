@@ -90,9 +90,12 @@ Copyright © 2024 [luwqz1](https://github.com/luwqz1)
 
 # Contributors
 
+
 [How to contribute](https://github.com/timoniq/telegrinder/blob/main/contributing.md)
 
 
-<a href="https://github.com/timoniq/telegrinder/graphs/contributors">
- <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder" />
-</a>
+<p>
+  <a href="https://github.com/timoniq/telegrinder/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder" />
+  </a>
+</p>
