@@ -51,7 +51,7 @@ class MediaGroupView(MessageView):
             lambda update_cute: update_cute,
         )
         message_cute = update_cute.map(
-            lambda update_cute: typing.cast("MessageCute", update_cute.incoming_update)
+            lambda update_cute: typing.cast("MessageCute", update_cute.incoming_update),
         ).unwrap()
         media_group_id = message_cute.media_group_id.unwrap()
 
@@ -100,7 +100,11 @@ class MediaGroupView(MessageView):
 
             if messages:
                 await self.process_media_group(
-                    group_data.raw_update, group_data.update_cute, messages, api, context
+                    group_data.raw_update,
+                    group_data.update_cute,
+                    messages,
+                    api,
+                    context,
                 )
 
     async def process_media_group(
@@ -116,7 +120,7 @@ class MediaGroupView(MessageView):
 
         context.update_cute = Some(initiating_event_cute)
         message = typing.cast("MessageCute", initiating_event_cute.incoming_update)
-        message.set_media_group_messages(messages)
+        message.media_group_messages = Some(messages)
         return await process_inner(api, initiating_event, context, self)
 
 

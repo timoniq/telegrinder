@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-from functools import cached_property
 
 from fntypes.library import Result, Some, Variative
 from fntypes.library.monad import option
@@ -9,8 +8,9 @@ from fntypes.library.monad import option
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import MediaType, compose_reactions, input_media
-from telegrinder.model import UNSET, From, field
+from telegrinder.model import From, field
 from telegrinder.msgspec_utils import Option
+from telegrinder.tools.magic.descriptors import additional_property
 from telegrinder.types import *
 from telegrinder.types.methods_utils import get_params
 
@@ -122,7 +122,7 @@ def get_entity_value(
 
 class MessageCute(BaseCute[Message], Message, kw_only=True):
     reply_to_message: Option[MessageCute] = field(
-        default=UNSET,
+        default=...,
         converter=From["MessageCute | None"],
     )
     """Optional. For replies in the same chat and message thread, the original
@@ -130,14 +130,14 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     reply_to_message fields even if it itself is a reply."""
 
     pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
-        default=UNSET,
+        default=...,
         converter=From["MessageCute | InaccessibleMessage | None"],
     )
     """Optional. Specified message was pinned. Note that the Message object in
     this field will not contain further reply_to_message fields even if it
     itself is a reply."""
 
-    @cached_property
+    @additional_property
     def media_group_messages(self) -> Option[list[MessageCute]]:
         return option.Nothing()
 
@@ -160,9 +160,6 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     def custom_emoji_id(self) -> option.Option[str]:
         """Unique identifier of the custom emoji."""
         return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)
-
-    def set_media_group_messages(self, messages: list[MessageCute], /) -> None:
-        self.__dict__["media_group_messages"] = Some(messages)
 
     @shortcut(
         "send_message",

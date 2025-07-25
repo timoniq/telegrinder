@@ -70,6 +70,7 @@ from telegrinder.tools.loop_wrapper import DelayedTask, LoopWrapper
 from telegrinder.tools.magic import (
     Annotations,
     Bundle,
+    additional_property,
     bundle,
     get_default_args,
     get_func_annotations,
@@ -117,6 +118,7 @@ __all__ = (
     "SingletonMeta",
     "StateData",
     "TelegrinderContext",
+    "additional_property",
     "block_quote",
     "bold",
     "bundle",
