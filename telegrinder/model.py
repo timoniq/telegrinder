@@ -4,7 +4,7 @@ from reprlib import recursive_repr
 
 import msgspec
 import typing_extensions as typing
-from fntypes.co import Nothing
+from fntypes.library.monad.option import Nothing
 
 from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
 

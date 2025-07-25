@@ -1,7 +1,7 @@
 import typing
 
 import msgspec
-from fntypes.result import Error, Ok, Result
+from fntypes.library.monad.result import Error, Ok, Result
 
 from telegrinder.modules import json
 from telegrinder.msgspec_utils import decoder

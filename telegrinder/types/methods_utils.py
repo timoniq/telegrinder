@@ -4,7 +4,7 @@ import dataclasses
 import typing
 
 import msgspec
-from fntypes.result import Result
+from fntypes.library.monad.result import Result
 
 from telegrinder.msgspec_utils.decoder import decoder
 from telegrinder.msgspec_utils.encoder import encoder

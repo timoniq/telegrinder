@@ -7,7 +7,7 @@ from functools import reduce
 from itertools import islice
 from types import NoneType, UnionType, resolve_bases
 
-from fntypes.option import Nothing, Option
+from fntypes.library.monad.option import Nothing, Option
 
 from telegrinder.node.context import NODE_CONTEXT
 from telegrinder.node.exceptions import ComposeError

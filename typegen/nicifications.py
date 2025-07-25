@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import datetime
 from functools import cached_property
 
-from fntypes.option import Option
+from fntypes.library.monad.option import Option
 
 from telegrinder.model import Model, is_none
 from telegrinder.types import (

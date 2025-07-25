@@ -1,6 +1,6 @@
 import typing
 
-from fntypes.co import Error, Ok, Result
+from fntypes.library.monad.result import Error, Ok, Result
 
 from telegrinder import Dispatch, LoopWrapper, Message, Polling
 from telegrinder.api import API, Token

@@ -1,4 +1,5 @@
-from fntypes.result import RESULT_ERROR_LOGGER, Error
+from fntypes.library.monad.result import Error
+from fntypes.utilities.log_factory import RESULT_ERROR_LOGGER
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger

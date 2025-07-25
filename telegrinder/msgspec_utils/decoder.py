@@ -2,10 +2,8 @@ import datetime as dt
 import typing
 from contextlib import contextmanager
 
-import fntypes.co
+import fntypes.library
 import msgspec
-from fntypes.result import Error, Ok, Result
-from fntypes.variative import Variative
 
 from telegrinder.msgspec_utils.abc import SupportsCast
 from telegrinder.msgspec_utils.custom_types.datetime import datetime, timedelta
@@ -28,19 +26,19 @@ def option_dec_hook(
     tp: type[Option[typing.Any]],
     obj: typing.Any,
     /,
-) -> fntypes.co.Option[typing.Any] | msgspec.UnsetType:
+) -> fntypes.library.Option[typing.Any] | msgspec.UnsetType:
     if obj is msgspec.UNSET:
         return obj
 
-    if obj is None or isinstance(obj, fntypes.co.Nothing):
-        return fntypes.co.Nothing()
+    if obj is None or isinstance(obj, fntypes.library.Nothing):
+        return fntypes.library.Nothing()
 
     (value_type,) = typing.get_args(tp) or (typing.Any,)
     orig_value_type = typing.get_origin(value_type) or value_type
     orig_obj = obj
 
     if not isinstance(orig_obj, dict | list) and is_common_type(orig_value_type):
-        if orig_value_type is Variative:
+        if orig_value_type is fntypes.library.Variative:
             obj = value_type(orig_obj)  # type: ignore
             orig_value_type = typing.get_args(value_type)
 
@@ -49,12 +47,12 @@ def option_dec_hook(
                 f"Expected `{fullname(orig_value_type)}` or `builtins.None`, got `{fullname(orig_obj)}`.",
             )
 
-        return fntypes.co.Some(obj)
+        return fntypes.library.Some(obj)
 
-    return fntypes.co.Some(decoder.convert(orig_obj, type=value_type))
+    return fntypes.library.Some(decoder.convert(orig_obj, type=value_type))
 
 
-def variative_dec_hook(tp: type[Variative], obj: typing.Any, /) -> Variative:
+def variative_dec_hook(tp: type[fntypes.library.Variative], obj: typing.Any, /) -> fntypes.library.Variative:
     union_types = typing.get_args(tp)
 
     if isinstance(obj, dict):
@@ -84,9 +82,9 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any, /) -> Variative:
 
     for t in union_types:
         match convert(obj, t):
-            case Ok(value):
+            case fntypes.library.Ok(value):
                 return tp(value)
-            case Error(_):
+            case fntypes.library.Error(_):
                 continue
             case _ as arg:
                 typing.assert_never(arg)
@@ -94,7 +92,7 @@ def variative_dec_hook(tp: type[Variative], obj: typing.Any, /) -> Variative:
     raise msgspec.ValidationError(
         "Object of type `{}` doesn't belong to `{}[{}]`.".format(
             fullname(obj),
-            fullname(Variative),
+            fullname(fntypes.library.Variative),
             ", ".join(fullname(get_origin(x)) for x in union_types),
         )
     )
@@ -142,11 +140,11 @@ def convert[T](
     /,
     *,
     context: Context | None = None,
-) -> Result[T, str]:
+) -> fntypes.library.Result[T, str]:
     try:
-        return Ok(decoder.convert(obj, type=t, strict=True, context=context))
+        return fntypes.library.Ok(decoder.convert(obj, type=t, strict=True, context=context))
     except msgspec.ValidationError:
-        return Error(
+        return fntypes.library.Error(
             "Expected object of type `{}`, got `{}`.".format(
                 fullname(t),
                 fullname(obj),
@@ -200,11 +198,11 @@ class Decoder:
     def __init__(self) -> None:
         self.dec_hooks = {
             Option: option_dec_hook,
-            Variative: variative_dec_hook,
+            fntypes.library.Variative: variative_dec_hook,
             datetime: datetime_dec_hook,
             timedelta: timedelta_dec_hook,
-            fntypes.option.Some: option_dec_hook,
-            fntypes.option.Nothing: option_dec_hook,
+            fntypes.library.Some: option_dec_hook,
+            fntypes.library.Nothing: option_dec_hook,
         }
         self.abstract_dec_hooks = {
             BaseEnumMeta: lambda enum_type, member: enum_type(member),

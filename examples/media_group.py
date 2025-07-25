@@ -5,7 +5,7 @@ media groups sent by users. Media groups are collections
 of photos, videos or other media sent together.
 """
 
-from fntypes.option import Option
+from fntypes.library.monad.option import Option
 
 from telegrinder import API, Telegrinder, Token
 from telegrinder.modules import logger

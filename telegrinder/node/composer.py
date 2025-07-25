@@ -3,8 +3,8 @@ import typing
 from collections import defaultdict
 from functools import cached_property
 
-from fntypes.option import Some
-from fntypes.result import Error, Ok, Result
+from fntypes.library.monad.option import Some
+from fntypes.library.monad.result import Error, Ok, Result
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import (

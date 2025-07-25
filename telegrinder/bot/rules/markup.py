@@ -18,10 +18,11 @@ def check_string(patterns: list[vbml.Pattern], s: str, ctx: Context) -> bool:
         match TELEGRINDER_CONTEXT.vbml_patcher.check(pattern, s):
             case {**response}:
                 ctx |= response
-            case None | False:
+                return True
+            case True:
+                return True
+            case _:
                 continue
-
-        return True
 
     return False
 

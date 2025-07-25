@@ -5,7 +5,7 @@ import typing as _typing
 from functools import cached_property
 
 import typing_extensions as typing
-from fntypes.option import Nothing, Option, Some
+from fntypes.library.monad.option import Nothing, Option, Some
 
 from telegrinder.tools.global_context.global_context import GlobalContext, ctx_var
 

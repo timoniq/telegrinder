@@ -3,7 +3,7 @@ import contextlib
 import dataclasses
 import typing
 
-from fntypes.option import Some
+from fntypes.library.monad.option import Some
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.message import MessageCute

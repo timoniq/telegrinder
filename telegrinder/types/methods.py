@@ -1,7 +1,7 @@
 import typing
 from datetime import datetime, timedelta
 
-from fntypes.co import Result, Variative
+from fntypes.library import Result, Variative
 
 from telegrinder.api.error import APIError
 from telegrinder.types.enums import *  # noqa: F403

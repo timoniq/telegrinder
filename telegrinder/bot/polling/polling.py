@@ -4,7 +4,7 @@ import typing
 from http import HTTPStatus
 
 import msgspec
-from fntypes.misc import is_ok
+from fntypes.library.misc import is_ok
 
 from telegrinder.api.api import API
 from telegrinder.api.error import APIServerError, InvalidTokenError

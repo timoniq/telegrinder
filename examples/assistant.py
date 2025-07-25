@@ -1,6 +1,6 @@
 import time
 
-from fntypes.result import Error, Ok
+from fntypes.library.monad.result import Error, Ok
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger

@@ -7,8 +7,8 @@ from http import HTTPStatus
 
 import msgspec
 import typing_extensions as typing
-from fntypes.misc import is_ok
-from fntypes.result import Error, Ok, Result
+from fntypes.library.misc import is_ok
+from fntypes.library.monad.result import Error, Ok, Result
 
 from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse

@@ -7,7 +7,7 @@ from contextlib import suppress
 from functools import cached_property
 
 import msgspec
-from fntypes.result import Error, Ok, Result
+from fntypes.library.monad.result import Error, Ok, Result
 
 from telegrinder.msgspec_utils import decoder, encoder, get_class_annotations
 from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType

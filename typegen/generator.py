@@ -424,7 +424,7 @@ class ObjectGenerator(ABCGenerator):
             "import pathlib\n",
             "import secrets\n",
             "import typing\n\n",
-            "from fntypes.co import Variative\n",
+            "from fntypes.library import Variative\n",
             "from telegrinder.model import From, Model, field, is_none\n",
             "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
@@ -646,7 +646,7 @@ class MethodGenerator(ABCGenerator):
         lines = [
             "import typing\n",
             "from datetime import datetime, timedelta\n\n"
-            "from fntypes.co import Result, Variative\n"
+            "from fntypes.library import Result, Variative\n"
             "from telegrinder.api.error import APIError\n",
             "from telegrinder.types.methods_utils import ProxiedDict, full_result, get_params\n",
             "from telegrinder.types.enums import *  # noqa: F403\n"

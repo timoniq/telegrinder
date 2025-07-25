@@ -4,7 +4,7 @@ from contextlib import suppress
 from datetime import timedelta
 
 import msgspec
-from fntypes.co import Nothing, Result, Some, Variative, unwrapping
+from fntypes.library import Nothing, Result, Some, Variative, unwrapping
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut

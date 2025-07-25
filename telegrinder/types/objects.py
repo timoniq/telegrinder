@@ -3,7 +3,7 @@ from __future__ import annotations
 import secrets
 from functools import cached_property
 
-from fntypes.co import Variative
+from fntypes.library import Variative
 
 from telegrinder.model import From, Model, field, is_none
 from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime, timedelta

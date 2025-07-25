@@ -3,7 +3,7 @@ to work with databases.
 """
 
 import aiosqlite  # type: ignore
-from fntypes.option import Nothing
+from fntypes.library.monad.option import Nothing
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot.dispatch.context import Context

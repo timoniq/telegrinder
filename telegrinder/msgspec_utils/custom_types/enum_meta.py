@@ -1,6 +1,9 @@
 import enum
 import typing
 
+NOT_SUPPORTED: typing.Final = "NOT_SUPPORTED"
+ENUM_FRIENDS: typing.Final = (str, int, float)
+
 
 class BaseEnumMeta(enum.EnumMeta, type):
     if typing.TYPE_CHECKING:
@@ -34,7 +37,11 @@ class BaseEnumMeta(enum.EnumMeta, type):
             _simple=False,
             **kwds,
         ):
-            classdict["NOT_SUPPORTED"] = "NOT_SUPPORTED" if any(x in bases for x in (str, enum.StrEnum)) else -1
+            if any(friend in bases for friend in ENUM_FRIENDS):
+                classdict["NOT_SUPPORTED"] = (
+                    NOT_SUPPORTED if str in bases else math.inf if float in bases else sys.maxsize
+                )
+
             classdict["_missing_"] = classmethod(BaseEnumMeta._member_missing)
             new_type = super().__new__(metacls, cls, bases, classdict, boundary=boundary, _simple=_simple, **kwds)
             return new_type

@@ -5,7 +5,7 @@ import typing
 from collections import deque
 from functools import cached_property
 
-from fntypes.result import Error, Ok, Result
+from fntypes.library.monad.result import Error, Ok, Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context

@@ -1,7 +1,7 @@
 import typing
 
 import pytest
-from fntypes.option import Nothing
+from fntypes.library.monad.option import Nothing
 
 from telegrinder.tools.global_context import (
     CtxVar,

@@ -1,4 +1,4 @@
-from fntypes.co import Nothing, Some
+from fntypes.library.monad.option import Nothing, Some
 
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute

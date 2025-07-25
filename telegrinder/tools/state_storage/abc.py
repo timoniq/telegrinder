@@ -5,7 +5,7 @@ import dataclasses
 import enum
 import typing
 
-from fntypes.option import Option
+from fntypes.library.monad.option import Option
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.state import State, StateMeta

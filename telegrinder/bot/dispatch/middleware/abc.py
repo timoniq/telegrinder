@@ -2,7 +2,7 @@ from abc import ABC
 from functools import cached_property
 
 import typing_extensions as typing
-from fntypes.result import Error, Ok
+from fntypes.library.monad.result import Error, Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute

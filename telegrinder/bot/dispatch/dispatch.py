@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 
 import typing_extensions as typing
-from fntypes.option import Nothing, Option, Some
+from fntypes.library.monad.option import Nothing, Option, Some
 from vbml.patcher.abc import ABCPatcher
 
 from telegrinder.api.api import API

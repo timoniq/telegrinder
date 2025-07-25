@@ -2,7 +2,7 @@ import dataclasses
 import typing
 
 import msgspec
-from fntypes.option import Some
+from fntypes.library.monad.option import Some
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute

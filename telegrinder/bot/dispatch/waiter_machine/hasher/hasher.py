@@ -3,8 +3,8 @@ from __future__ import annotations
 import typing
 from functools import cached_property
 
-from fntypes.misc import from_optional
-from fntypes.option import Option
+from fntypes.library.misc import from_optional
+from fntypes.library.monad.option import Option
 
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.view.base import BaseView

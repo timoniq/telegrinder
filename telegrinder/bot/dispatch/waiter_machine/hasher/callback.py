@@ -1,4 +1,4 @@
-from fntypes.option import Some
+from fntypes.library.monad.option import Some
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute as CallbackQuery
 from telegrinder.bot.dispatch.view import CallbackQueryView

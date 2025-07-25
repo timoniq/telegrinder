@@ -5,7 +5,7 @@ import typing
 from abc import ABC, abstractmethod
 from functools import cached_property
 
-from fntypes.result import Error, Ok
+from fntypes.library.monad.result import Error, Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context

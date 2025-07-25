@@ -5,7 +5,7 @@ import typing
 from functools import cached_property
 
 import msgspec
-from fntypes.result import Result
+from fntypes.library.monad.result import Result
 
 if typing.TYPE_CHECKING:
     from _typeshed import DataclassInstance

@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 import typing
 
-from fntypes.co import Error, Ok, Result, unwrapping
+from fntypes.library import Error, Ok, Result, unwrapping
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context

@@ -5,8 +5,8 @@ import typing
 from copy import deepcopy
 from functools import wraps
 
-from fntypes.co import Error, Nothing, Ok, Option, Result, Some
-from fntypes.misc import from_optional
+from fntypes.library.misc import from_optional
+from fntypes.library.monad import Error, Nothing, Ok, Option, Result, Some
 
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import convert

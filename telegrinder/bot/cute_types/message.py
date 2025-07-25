@@ -3,8 +3,8 @@ from __future__ import annotations
 import typing
 from functools import cached_property
 
-import fntypes.option
-from fntypes.co import Result, Some, Variative
+from fntypes.library import Result, Some, Variative
+from fntypes.library.monad import option
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
@@ -106,18 +106,18 @@ async def execute_method_edit(
 
 def get_entity_value(
     entity_value: typing.Literal["user", "url", "custom_emoji_id", "language"],
-    entities: fntypes.option.Option[list[MessageEntity]],
-    caption_entities: fntypes.option.Option[list[MessageEntity]],
-) -> fntypes.option.Option[typing.Any]:
+    entities: option.Option[list[MessageEntity]],
+    caption_entities: option.Option[list[MessageEntity]],
+) -> option.Option[typing.Any]:
     ents = entities.unwrap_or(caption_entities.unwrap_or_none())
     if not ents:
-        return fntypes.option.Nothing()
+        return option.Nothing()
 
     for entity in ents:
-        if (obj := getattr(entity, entity_value, fntypes.option.Nothing())) is not fntypes.option.Nothing():
-            return obj if isinstance(obj, fntypes.option.Some) else fntypes.option.Some(obj)
+        if (obj := getattr(entity, entity_value, option.Nothing())) is not option.Nothing():
+            return obj if isinstance(obj, option.Some) else option.Some(obj)
 
-    return fntypes.option.Nothing()
+    return option.Nothing()
 
 
 class MessageCute(BaseCute[Message], Message, kw_only=True):
@@ -138,26 +138,26 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     itself is a reply."""
 
     @cached_property
-    def media_group_messages(self) -> fntypes.Option[list[MessageCute]]:
-        return fntypes.Nothing()
+    def media_group_messages(self) -> Option[list[MessageCute]]:
+        return option.Nothing()
 
     @property
-    def mentioned_user(self) -> fntypes.option.Option[User]:
+    def mentioned_user(self) -> option.Option[User]:
         """Mentioned user without username."""
         return get_entity_value("user", self.entities, self.caption_entities)
 
     @property
-    def url(self) -> fntypes.option.Option[str]:
+    def url(self) -> option.Option[str]:
         """Clickable text URL."""
         return get_entity_value("url", self.entities, self.caption_entities)
 
     @property
-    def programming_language(self) -> fntypes.option.Option[str]:
+    def programming_language(self) -> option.Option[str]:
         """The programming language of the entity text."""
         return get_entity_value("language", self.entities, self.caption_entities)
 
     @property
-    def custom_emoji_id(self) -> fntypes.option.Option[str]:
+    def custom_emoji_id(self) -> option.Option[str]:
         """Unique identifier of the custom emoji."""
         return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)
 

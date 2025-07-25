@@ -25,7 +25,7 @@ def compose_method_params[Cute: BaseCute](
 
 
 if typing.TYPE_CHECKING:
-    from fntypes.option import Option
+    from fntypes.library.monad.option import Option
 
     from telegrinder.api.api import API
     from telegrinder.node.base import Node
@@ -63,8 +63,8 @@ if typing.TYPE_CHECKING:
         ) -> dict[str, typing.Any]: ...
 
 else:
-    from fntypes.co import Some, Variative
-    from fntypes.misc import from_optional
+    from fntypes.library import Some, Variative
+    from fntypes.library.misc import from_optional
 
     from telegrinder.msgspec_utils import Option, encoder, struct_asdict
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations

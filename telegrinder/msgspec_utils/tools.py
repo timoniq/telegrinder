@@ -1,8 +1,8 @@
 import types
 import typing
 
+import fntypes.library
 import msgspec
-from fntypes.co import Nothing, Variative
 
 if typing.TYPE_CHECKING:
     from telegrinder.tools.fullname import fullname
@@ -26,7 +26,8 @@ else:
         return fullname(*args, **kwargs)
 
 
-_COMMON_TYPES = frozenset((str, int, float, bool, None, Variative))
+_NOTHING = fntypes.library.Nothing()
+_COMMON_TYPES = frozenset((str, int, float, bool, None, fntypes.library.Variative))
 
 
 def get_origin[T](t: T, /) -> type[T]:
@@ -49,9 +50,9 @@ def struct_asdict(
     unset_as_nothing: bool = False,
 ) -> dict[str, typing.Any]:
     return {
-        k: v if not unset_as_nothing else Nothing() if v is msgspec.UNSET else v
+        k: v if not unset_as_nothing else _NOTHING if v is msgspec.UNSET else v
         for k, v in msgspec.structs.asdict(struct).items()
-        if not (exclude_unset and isinstance(v, msgspec.UnsetType | types.NoneType | Nothing))
+        if not (exclude_unset and isinstance(v, msgspec.UnsetType | types.NoneType | fntypes.library.Nothing))
     }
 
 

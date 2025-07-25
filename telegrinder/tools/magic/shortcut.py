@@ -6,7 +6,7 @@ import typing
 from collections import OrderedDict
 from functools import wraps
 
-from fntypes.result import Result
+from fntypes.library.monad.result import Result
 
 from telegrinder.tools.magic.function import get_func_parameters
 from telegrinder.types.methods_utils import get_params

@@ -1,7 +1,7 @@
 import typing
 from dataclasses import dataclass, field
 
-from fntypes.option import Nothing, Option, Some
+from fntypes.library.monad.option import Nothing, Option, Some
 
 from telegrinder.node.base import DataNode
 from telegrinder.node.text import Caption, Text

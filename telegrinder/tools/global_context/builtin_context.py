@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import typing
 
-from fntypes.option import Nothing, Option
+from fntypes.library.monad.option import Nothing, Option
 from vbml.patcher.abc import ABCPatcher
 from vbml.patcher.patcher import Patcher
 

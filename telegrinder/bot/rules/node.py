@@ -1,4 +1,4 @@
-from fntypes.result import Ok
+from fntypes.library.monad.result import Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context

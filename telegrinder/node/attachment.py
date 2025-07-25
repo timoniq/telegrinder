@@ -1,7 +1,7 @@
 import dataclasses
 import typing
 
-from fntypes.option import Nothing, Option, Some
+from fntypes.library.monad.option import Nothing, Option, Some
 
 import telegrinder.types
 from telegrinder.bot.cute_types.message import MessageCute
