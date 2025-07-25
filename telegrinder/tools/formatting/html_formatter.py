@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 import string
+import types
 import typing
 from contextlib import suppress
 
@@ -10,10 +11,73 @@ from telegrinder.tools.parse_mode import ParseMode
 from telegrinder.types.enums import ProgrammingLanguage
 
 type HTMLFormat = str | TagFormat
+type Formatter = typing.Callable[[str], TagFormat]
 
 HTML_UNION_SPECIFIERS_SEPARATOR: typing.Final[str] = "+"
 TAG_FORMAT: typing.Final[str] = "<{tag}{data}>{content}</{tag}>"
 QUOT_MARK: typing.Final[str] = '"'
+
+
+def escape(string: str, /) -> EscapedString:
+    if isinstance(string, EscapedString | HTMLFormatter):
+        return EscapedString(string)
+    return EscapedString(html.escape(string, quote=False))
+
+
+def block_quote(string: str, /, *, expandable: bool = False) -> TagFormat:
+    return TagFormat(
+        string,
+        tag="blockquote",
+        **{} if not expandable else dict(expandable=None),
+    )
+
+
+def bold(string: str, /) -> TagFormat:
+    return TagFormat(string, tag="b")
+
+
+def code_inline(string: str, /) -> TagFormat:
+    return TagFormat(string, tag="code")
+
+
+def italic(string: str, /) -> TagFormat:
+    return TagFormat(string, tag="i")
+
+
+def link(href: str, /, *, text: str | None = None) -> TagFormat:
+    return TagFormat(
+        text or href,
+        tag="a",
+        href=QUOT_MARK + href + QUOT_MARK,
+    )
+
+
+def pre_code(string: str, /, *, lang: str | ProgrammingLanguage | None = None) -> TagFormat:
+    if lang is None:
+        return TagFormat(string, tag="pre")
+
+    lang = lang.value if isinstance(lang, ProgrammingLanguage) else lang
+    return pre_code(TagFormat(string, tag="code", **{"class": f"language-{lang}"}))
+
+
+def spoiler(string: str, /) -> TagFormat:
+    return TagFormat(string, tag="tg-spoiler")
+
+
+def strike(string: str, /) -> TagFormat:
+    return TagFormat(string, tag="s")
+
+
+def mention(string: str, /, *, user_id: int) -> TagFormat:
+    return link(tg_mention_link(user_id=user_id), text=string)
+
+
+def tg_emoji(string: str, /, *, emoji_id: int) -> TagFormat:
+    return TagFormat(string, tag="tg-emoji", emoji_id=emoji_id)
+
+
+def underline(string: str, /) -> TagFormat:
+    return TagFormat(string, tag="u")
 
 
 class StringFormatterProto(typing.Protocol):
@@ -28,20 +92,22 @@ class StringFormatter(string.Formatter):
     specifiers: `bold`, `italic`, `underline`, `strike` etc...
     """
 
-    __formats__: typing.ClassVar[tuple[str, ...]] = (
-        "bold",
-        "code_inline",
-        "italic",
-        "spoiler",
-        "strike",
-        "underline",
+    __formatters__: typing.ClassVar[types.MappingProxyType[str, Formatter]] = types.MappingProxyType(
+        mapping={
+            "bold": bold,
+            "code_inline": code_inline,
+            "italic": italic,
+            "spoiler": spoiler,
+            "strike": strike,
+            "underline": underline,
+        },
     )
 
     def validate_html_format(self, value: typing.Any, fmt: str) -> HTMLFormat:
         if not fmt:
             raise ValueError("Formats union should be: format+format.")
 
-        if fmt not in self.__formats__:
+        if fmt not in self.__formatters__:
             raise ValueError(
                 "Unknown format {!r} for object of type {!r}.".format(
                     fmt,
@@ -52,14 +118,15 @@ class StringFormatter(string.Formatter):
         return fmt
 
     def make_tag_format(self, value: typing.Any, fmts: list[HTMLFormat]) -> TagFormat:
-        current_format = globals()[fmts.pop(0)](
+        formatters = type(self).__formatters__
+        current_format = formatters[fmts.pop(0)](
             str(value)
             if isinstance(value, TagFormat)
             else escape(FormatString(value) if not isinstance(value, str) else value)
         )
 
         for fmt in fmts:
-            current_format = globals()[fmt](current_format)
+            current_format = formatters[fmt](current_format)
 
         return (
             TagFormat(
@@ -108,11 +175,15 @@ class FormatString(str):
         """Returns value+self."""
         return HTMLFormatter(FormatString.__add__(FormatString(value), self).as_str())
 
+    def __iadd__(self, value: str) -> HTMLFormatter:
+        """Returns self+=value."""
+        return self.__add__(value)
+
     def as_str(self) -> str:
         """Returns self as a standart string."""
         return self.__str__()
 
-    def format(self, *args: object, **kwargs: object) -> "HTMLFormatter":
+    def format(self, *args: object, **kwargs: object) -> HTMLFormatter:
         return self.STRING_FORMATTER.format(self, *args, **kwargs)
 
 
@@ -171,68 +242,6 @@ class HTMLFormatter(FormatString):
     """
 
     PARSE_MODE: typing.Final[str] = ParseMode.HTML
-
-
-def escape(string: str, /) -> EscapedString:
-    if isinstance(string, EscapedString | HTMLFormatter):
-        return EscapedString(string)
-    return EscapedString(html.escape(string, quote=False))
-
-
-def block_quote(string: str, expandable: bool = False) -> TagFormat:
-    return TagFormat(
-        string,
-        tag="blockquote",
-        **{} if not expandable else {"expandable": None},
-    )
-
-
-def bold(string: str) -> TagFormat:
-    return TagFormat(string, tag="b")
-
-
-def code_inline(string: str) -> TagFormat:
-    return TagFormat(string, tag="code")
-
-
-def italic(string: str) -> TagFormat:
-    return TagFormat(string, tag="i")
-
-
-def link(href: str, /, *, text: str | None = None) -> TagFormat:
-    return TagFormat(
-        text or href,
-        tag="a",
-        href=QUOT_MARK + href + QUOT_MARK,
-    )
-
-
-def pre_code(string: str, /, *, lang: str | ProgrammingLanguage | None = None) -> TagFormat:
-    if lang is None:
-        return TagFormat(string, tag="pre")
-
-    lang = lang.value if isinstance(lang, ProgrammingLanguage) else lang
-    return pre_code(TagFormat(string, tag="code", **{"class": f"language-{lang}"}))
-
-
-def spoiler(string: str, /) -> TagFormat:
-    return TagFormat(string, tag="tg-spoiler")
-
-
-def strike(string: str, /) -> TagFormat:
-    return TagFormat(string, tag="s")
-
-
-def mention(string: str, /, *, user_id: int) -> TagFormat:
-    return link(tg_mention_link(user_id=user_id), text=string)
-
-
-def tg_emoji(string: str, /, *, emoji_id: int) -> TagFormat:
-    return TagFormat(string, tag="tg-emoji", emoji_id=emoji_id)
-
-
-def underline(string: str, /) -> TagFormat:
-    return TagFormat(string, tag="u")
 
 
 __all__ = (
