@@ -85,6 +85,7 @@ from telegrinder.tools.magic import (
 from telegrinder.tools.parse_mode import ParseMode
 from telegrinder.tools.singleton import ABCSingleton, ABCSingletonMeta, Singleton, SingletonMeta
 from telegrinder.tools.state_storage import ABCStateStorage, MemoryStateStorage, StateData
+from telegrinder.tools.strings import to_utf16_map, utf16_to_py_index
 
 __all__ = (
     "ABCDataSerializer",
@@ -174,5 +175,7 @@ __all__ = (
     "tg_public_username_link",
     "tg_share_link",
     "tg_story_link",
+    "to_utf16_map",
     "underline",
+    "utf16_to_py_index",
 )

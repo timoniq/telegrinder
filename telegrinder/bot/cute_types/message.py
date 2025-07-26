@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import typing
+from functools import cached_property
 
 from fntypes.library import Result, Some, Variative
 from fntypes.library.monad import option
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
-from telegrinder.bot.cute_types.utils import MediaType, compose_reactions, input_media
+from telegrinder.bot.cute_types.utils import MediaType, build_html, compose_reactions, input_media
 from telegrinder.model import From, field
 from telegrinder.msgspec_utils import Option
 from telegrinder.tools.magic.descriptors import additional_property
@@ -137,8 +138,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     this field will not contain further reply_to_message fields even if it
     itself is a reply."""
 
+    @cached_property
+    def html_text(self) -> option.Option[str]:
+        return self.build_html_text(self.text, self.entities)
+
+    @cached_property
+    def html_caption(self) -> option.Option[str]:
+        return self.build_html_text(self.caption, self.caption_entities)
+
     @additional_property
-    def media_group_messages(self) -> Option[list[MessageCute]]:
+    def media_group_messages(self) -> option.Option[list[MessageCute]]:
         return option.Nothing()
 
     @property
@@ -160,6 +169,16 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
     def custom_emoji_id(self) -> option.Option[str]:
         """Unique identifier of the custom emoji."""
         return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)
+
+    def build_html_text(self, text: Option[str], entities: Option[list[MessageEntity]], /) -> Option[str]:
+        if not text:
+            return option.Nothing()
+
+        match entities:
+            case option.Some(ents) if ents:
+                return option.Some(build_html(text.unwrap(), ents))
+            case _:
+                return option.Nothing()
 
     @shortcut(
         "send_message",

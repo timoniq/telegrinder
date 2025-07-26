@@ -95,11 +95,16 @@ class StringFormatter(string.Formatter):
     __formatters__: typing.ClassVar[types.MappingProxyType[str, Formatter]] = types.MappingProxyType(
         mapping={
             "bold": bold,
+            "code": code_inline,
             "code_inline": code_inline,
             "italic": italic,
             "spoiler": spoiler,
+            "strikethrough": strike,
             "strike": strike,
             "underline": underline,
+            "block_quote": block_quote,
+            "blockquote": block_quote,
+            "expandable_blockquote": lambda string: block_quote(string, expandable=True),
         },
     )
 
@@ -157,12 +162,12 @@ class StringFormatter(string.Formatter):
 class FormatString(str):
     STRING_FORMATTER: StringFormatterProto = StringFormatter()
 
-    def __new__(cls, string: str, /) -> typing.Self:
+    def __new__(cls, string: str = "", /) -> typing.Self:
         if isinstance(string, TagFormat):
             return super().__new__(cls, string.formatting())
         return super().__new__(cls, string)
 
-    def __add__(self, value: str) -> HTMLFormatter:
+    def __add__(self, value: str, /) -> HTMLFormatter:
         """Returns self+value."""
         return HTMLFormatter(
             str.__add__(
@@ -171,11 +176,11 @@ class FormatString(str):
             )
         )
 
-    def __radd__(self, value: str) -> HTMLFormatter:
+    def __radd__(self, value: str, /) -> HTMLFormatter:
         """Returns value+self."""
         return HTMLFormatter(FormatString.__add__(FormatString(value), self).as_str())
 
-    def __iadd__(self, value: str) -> HTMLFormatter:
+    def __iadd__(self, value: str, /) -> HTMLFormatter:
         """Returns self+=value."""
         return self.__add__(value)
 
@@ -185,6 +190,18 @@ class FormatString(str):
 
     def format(self, *args: object, **kwargs: object) -> HTMLFormatter:
         return self.STRING_FORMATTER.format(self, *args, **kwargs)
+
+    def join(self, iterable: typing.Iterable[str], /) -> HTMLFormatter:
+        html_string = HTMLFormatter()
+        max_index = sum(1 for _ in iterable) - 1
+
+        for cur_index, string in enumerate(iterable):
+            html_string += string
+
+            if self and cur_index != max_index:
+                html_string += self
+
+        return html_string
 
 
 class EscapedString(FormatString):
