@@ -3,7 +3,7 @@ from __future__ import annotations
 import abc
 import inspect
 import typing
-from functools import reduce
+from functools import cache, reduce
 from itertools import islice
 from types import NoneType, UnionType, resolve_bases
 
@@ -216,15 +216,12 @@ def resolve_node_dependencies_topological_order(
     return ordered_dependencies
 
 
+@cache
 def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
     """Unwrap node as flattened tuple of node types in ordering required to calculate given node.
 
     Provides caching for passed node type.
     """
-    if (unwrapped := getattr(node, UNWRAPPED_NODE_KEY, None)) is not None:
-        return unwrapped
-
-    # Use topological sorting to maintain correct dependency order
     ordered_dependencies = resolve_node_dependencies_topological_order(
         node=node,
         current_node=node,
@@ -232,10 +229,7 @@ def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
         temp_visited=set(),
         visited=set(),
     )
-
-    unwrapped = tuple(ordered_dependencies)
-    setattr(node, UNWRAPPED_NODE_KEY, unwrapped)
-    return unwrapped
+    return tuple(ordered_dependencies)
 
 
 @typing.runtime_checkable

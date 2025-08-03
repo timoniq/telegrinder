@@ -5,9 +5,9 @@ import enum
 import inspect
 import types
 import typing
-from functools import cached_property, wraps
+from functools import cache, cached_property, wraps
 
-from telegrinder.tools.magic.annotations import Annotations
+from telegrinder.tools.magic.annotations import Annotations, MappingAnnotations
 
 type Function[**P, R] = typing.Callable[P, R]
 type AnyFunction = Function[..., typing.Any]
@@ -162,7 +162,7 @@ def resolve_posonly_arg_names(
     )
 
 
-@function_context("default_arguments")
+@cache
 def get_default_args(func: AnyFunction, /) -> dict[str, typing.Any]:
     parameters = get_func_parameters(func)
     return {
@@ -173,7 +173,7 @@ def get_default_args(func: AnyFunction, /) -> dict[str, typing.Any]:
     }
 
 
-@function_context("signature_parameters")
+@cache
 def get_func_parameters(func: AnyFunction, /) -> FunctionParameters:
     func_params = FunctionParameters(args=[], kwargs=[])
 
@@ -194,12 +194,11 @@ def get_func_parameters(func: AnyFunction, /) -> FunctionParameters:
     return func_params
 
 
-@function_context("resolved_annotations")
-def get_func_annotations(func: AnyFunction, /) -> typing.Mapping[str, typing.Any]:
+@cache
+def get_func_annotations(func: AnyFunction, /) -> MappingAnnotations:
     return Annotations(obj=func).get(
         ignore_failed_evals=True,
         exclude_forward_refs=True,
-        allow_return_type=False,
         cache=False,
     )
 

@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import dataclasses
 import sys
 import types
 import typing as _typing
 from functools import cached_property
+from reprlib import recursive_repr
 
 import typing_extensions as typing
+from fntypes.library.misc import from_optional
 from fntypes.library.monad.option import Nothing, Option, Some
 
 from telegrinder.tools.global_context.global_context import GlobalContext, ctx_var
@@ -19,6 +23,7 @@ type TypeParameter = typing.Union[
 ]
 type TypeParameters = tuple[TypeParameter, ...]
 type SupportsAnnotations = type[typing.Any] | types.ModuleType | typing.Callable[..., typing.Any]
+type AnnotationForm = typing.Any
 
 _CACHED_ANNOTATIONS: typing.Final[GlobalContext] = GlobalContext(
     "cached_annotations",
@@ -26,12 +31,22 @@ _CACHED_ANNOTATIONS: typing.Final[GlobalContext] = GlobalContext(
 )
 
 
-def _cache_annotations(obj: SupportsAnnotations, annotations: dict[str, typing.Any], /) -> None:
-    _CACHED_ANNOTATIONS.annotations[obj] = annotations
+def _cache_annotations(obj: SupportsAnnotations, annotations: dict[str, AnnotationForm], /) -> None:
+    _CACHED_ANNOTATIONS.annotations[obj] = MappingAnnotations(annotations)
 
 
-def _get_cached_annotations(obj: SupportsAnnotations, /) -> dict[str, typing.Any] | None:
+def _get_cached_annotations(obj: SupportsAnnotations, /) -> MappingAnnotations | None:
     return _CACHED_ANNOTATIONS.annotations.get(obj)
+
+
+class MappingAnnotations[T = AnnotationForm](dict[str, T]):
+    def __init__(self, annotations: typing.Mapping[str, AnnotationForm], /) -> None:
+        super().__init__(annotations)
+        self.return_type: Option[T] = from_optional(self.pop("return", None))
+
+    @recursive_repr()
+    def __repr__(self) -> str:
+        return f"annotations={super().__repr__()}, return_type={self.return_type!r}"
 
 
 @dataclasses.dataclass
@@ -74,9 +89,8 @@ class Annotations:
         self,
         *,
         ignore_failed_evals: bool = True,
-        allow_return_type: bool = False,
         cache: bool = False,
-    ) -> dict[str, typing.Any | typing.ForwardRef]: ...
+    ) -> MappingAnnotations[typing.ForwardRef | AnnotationForm]: ...
 
     @typing.overload
     def get(
@@ -84,18 +98,16 @@ class Annotations:
         *,
         exclude_forward_refs: typing.Literal[True],
         ignore_failed_evals: bool = True,
-        allow_return_type: bool = False,
         cache: bool = False,
-    ) -> dict[str, typing.Any]: ...
+    ) -> MappingAnnotations: ...
 
     def get(
         self,
         *,
         exclude_forward_refs: bool = False,
         ignore_failed_evals: bool = True,
-        allow_return_type: bool = True,
         cache: bool = False,
-    ) -> dict[str, typing.Any]:
+    ) -> MappingAnnotations:
         if (cached_annotations := _get_cached_annotations(self.obj)) is not None:
             return cached_annotations
 
@@ -128,16 +140,13 @@ class Annotations:
 
             annotations[name] = value
 
-        if not allow_return_type:
-            annotations.pop("return", None)
-
         if cache:
             _cache_annotations(self.obj, annotations)
 
-        return annotations
+        return MappingAnnotations(annotations)
 
 
-def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, typing.Any]]:
+def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, AnnotationForm]]: 
     origin_obj = _typing.get_origin(obj)
     args = _typing.get_args(obj)
     parameters: TypeParameters = getattr(origin_obj or obj, "__parameters__")
