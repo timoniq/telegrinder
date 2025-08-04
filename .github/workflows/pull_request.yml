@@ -23,12 +23,15 @@ jobs:
           key: ${{ env.cache-name }}-${{ hashFiles('**/.pre-commit-config.yaml', '~/.cache/pre-commit/*') }}
           path: ~/.cache/pre-commit
 
-      - name: Run pre-commit
+      - name: Checkout code
         uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+
+      - name: Install dependencies
         uses: ./.github/actions/install-dependencies
         with:
           python-version: "3.13"
 
+      - name: Run pre-commit
         run: uv run pre-commit run --show-diff-on-failure --color=always --all-files
 
       - uses: pre-commit-ci/lite-action@v1.1.0
