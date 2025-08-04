@@ -2,14 +2,12 @@ import typing
 from functools import reduce
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
-from telegrinder.modules import logger
 from telegrinder.rules import Markup, MessageEntities, Text
 from telegrinder.tools.formatting.html_formatter import HTMLFormatter, bold, code_inline
 from telegrinder.tools.global_context import GlobalContext, ctx_var
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity, User
 
-logger.set_level("INFO")
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 

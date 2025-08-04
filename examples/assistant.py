@@ -3,13 +3,11 @@ import time
 from fntypes.library.monad.result import Error, Ok
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.modules import logger
 from telegrinder.rules import ABCRule, IsChat, Markup, Text
 from telegrinder.types import ChatPermissions
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logger.set_level("INFO")
 
 
 class WithReply(ABCRule):

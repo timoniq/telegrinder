@@ -11,10 +11,8 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
-from telegrinder.modules import logger
 from telegrinder.rules import PayloadModelRule, Text
 
-logger.set_level("DEBUG")
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 

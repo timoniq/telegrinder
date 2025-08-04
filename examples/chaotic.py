@@ -11,12 +11,12 @@ from telegrinder import (
     Message,
     Telegrinder,
     Token,
+    setup_logger,
 )
 from telegrinder.bot import WaiterMachine
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
 from telegrinder.bot.rules.is_from import IsPrivate, IsUser
-from telegrinder.modules import logger
 from telegrinder.node import Me, UserId, as_node
 from telegrinder.rules import (
     CallbackDataEq,
@@ -29,11 +29,13 @@ from telegrinder.rules import (
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import InputFile
 
+setup_logger()
+
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine(bot.dispatch)
 kitten_pic = InputFile.from_path(pathlib.Path("examples/assets/kitten.jpg"))
-logger.set_level("DEBUG")
+
 
 bot.dispatch.message.auto_rules = IsPrivate() & IsUser()
 

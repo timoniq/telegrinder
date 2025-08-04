@@ -4,14 +4,12 @@ from examples.nodes import DB, create_tables
 from telegrinder import API, Message, Telegrinder, Token, node
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
-from telegrinder.modules import logger
 from telegrinder.node import ChatSource, TextLiteral, scalar_node
 
 MessageId = type("MessageId", (int,), {})
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logger.set_level("DEBUG")
 
 
 class IsChat(ABCRule):

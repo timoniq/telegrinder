@@ -20,7 +20,6 @@ from telegrinder.rules import (
 )
 from telegrinder.tools.callback_data_serialization import MsgPackSerializer
 
-logger.set_level("DEBUG")
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 

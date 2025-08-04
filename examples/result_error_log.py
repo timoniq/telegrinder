@@ -5,7 +5,6 @@ from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.rules import Text
 
-logger.set_level("INFO")
 RESULT_ERROR_LOGGER.set_log(logger.error)
 
 api = API(token=Token.from_env())

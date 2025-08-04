@@ -6,14 +6,11 @@ from telegrinder import (
     Token,
 )
 from telegrinder.bot import MESSAGE_FROM_USER, WaiterMachine
-from telegrinder.modules import logger
 from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine(bot.dispatch)
-
-logger.set_level("INFO")
 
 
 class HasPhoto(ABCRule):

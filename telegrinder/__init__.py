@@ -11,10 +11,10 @@ Basic example:
 
 ```python
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.modules import logger
+from telegrinder.modules import setup_logger
 from telegrinder.rules import Text
 
-logger.set_level("INFO")
+setup_logger(level="INFO")
 api = API(token=Token("123:token"))
 bot = Telegrinder(api)
 
@@ -90,7 +90,7 @@ from .bot import (
 )
 from .client import ABCClient, AiohttpClient
 from .model import Model, field
-from .modules import logger
+from .modules import logger, setup_logger
 from .tools.formatting import HTMLFormatter
 from .tools.global_context import ABCGlobalContext, GlobalContext, TelegrinderContext
 from .tools.input_file_directory import InputFileDirectory
@@ -212,4 +212,5 @@ __all__ = (
     "field",
     "logger",
     "register_manager",
+    "setup_logger",
 )

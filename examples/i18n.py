@@ -1,12 +1,11 @@
 from telegrinder import API, Telegrinder, Token
-from telegrinder.modules import logger
 from telegrinder.node.i18n import BaseTranslator, I18NConfig, KeySeparator
 from telegrinder.node.source import UserSource
 from telegrinder.rules import Text
 
 bot = Telegrinder(API(Token.from_env()))
 
-logger.set_level("INFO")
+
 BaseTranslator.configure(I18NConfig(domain="messages", folder="examples/assets/i18n"))
 KeySeparator.set(" ")
 

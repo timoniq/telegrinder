@@ -8,10 +8,8 @@ of photos, videos or other media sent together.
 from fntypes.library.monad.option import Option
 
 from telegrinder import API, Telegrinder, Token
-from telegrinder.modules import logger
 from telegrinder.node import Caption, MediaGroup
 
-logger.set_level("INFO")
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 

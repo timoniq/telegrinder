@@ -11,14 +11,11 @@ from telegrinder import (
     Token,
     WaiterMachine,
 )
-from telegrinder.modules import logger
 from telegrinder.rules import EnumTextRule, StartCommand
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine(bot.dispatch)
-
-logger.set_level("INFO")
 
 
 class YesOrNo(enum.Enum):

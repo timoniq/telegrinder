@@ -1,10 +1,8 @@
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.modules import logger
 from telegrinder.rules import StartCommand
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logger.set_level("INFO")
 
 
 @bot.on.message(StartCommand(lambda x: (int(x) if x.isdigit() else None)))

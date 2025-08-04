@@ -9,13 +9,11 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
-from telegrinder.modules import logger
 from telegrinder.node import ChatId
 from telegrinder.rules import PayloadModelRule, Text
 from telegrinder.tools import MsgPackSerializer
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
-logger.set_level("DEBUG")
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 

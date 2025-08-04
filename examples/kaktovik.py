@@ -1,15 +1,12 @@
 import pathlib
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.modules import logger
 from telegrinder.rules import IsInteger, IsPrivate
 from telegrinder.tools.formatting import HTMLFormatter, link
 
 api = API(Token.from_env())
 bot = Telegrinder(api)
 glossary = pathlib.Path("examples/assets/kaktovik.txt").read_text(encoding="UTF-8")
-
-logger.set_level("INFO")
 
 
 @bot.on.message(IsInteger())
