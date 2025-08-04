@@ -4,7 +4,9 @@ import dataclasses
 import typing
 from abc import ABC, abstractmethod
 
-NOVALUE: typing.Final[object] = object()
+type CtxVariable[T = typing.Any] = CtxVar[T] | GlobalCtxVar[T]
+
+NOVALUE: typing.Final = object()
 
 
 @dataclasses.dataclass(frozen=True)
@@ -23,7 +25,7 @@ class GlobalCtxVar[T = typing.Any](CtxVar[T]):
 
     def __repr__(self) -> str:
         return "<{}({}={})>".format(
-            self.__class__.__name__,
+            type(self).__name__,
             self.name,
             repr(CtxVar(self.value, const=self.const, factory=self.factory)),
         )
@@ -53,9 +55,6 @@ class ABCGlobalContext[T = typing.Any](ABC):
     @abstractmethod
     def __delattr__(self, __name: str) -> None:
         pass
-
-
-type CtxVariable[T = typing.Any] = CtxVar[T] | GlobalCtxVar[T]
 
 
 __all__ = (

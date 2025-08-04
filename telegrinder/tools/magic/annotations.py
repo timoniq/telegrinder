@@ -25,8 +25,10 @@ type TypeParameters = tuple[TypeParameter, ...]
 type SupportsAnnotations = type[typing.Any] | types.ModuleType | typing.Callable[..., typing.Any]
 type AnnotationForm = typing.Any
 
-_CACHED_ANNOTATIONS: typing.Final[GlobalContext] = GlobalContext(
+_UNION_TYPES: typing.Final = frozenset((_typing.Union, types.UnionType))
+_CACHED_ANNOTATIONS: typing.Final = GlobalContext(
     "cached_annotations",
+    thread_safe=True,
     annotations=ctx_var(default_factory=dict, const=True),
 )
 
@@ -37,6 +39,10 @@ def _cache_annotations(obj: SupportsAnnotations, annotations: dict[str, Annotati
 
 def _get_cached_annotations(obj: SupportsAnnotations, /) -> MappingAnnotations | None:
     return _CACHED_ANNOTATIONS.annotations.get(obj)
+
+
+def is_union_type(obj: typing.Any, /) -> bool:
+    return _typing.get_origin(obj) in _UNION_TYPES
 
 
 class MappingAnnotations[T = AnnotationForm](dict[str, T]):
@@ -146,7 +152,7 @@ class Annotations:
         return MappingAnnotations(annotations)
 
 
-def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, AnnotationForm]]: 
+def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, AnnotationForm]]:
     origin_obj = _typing.get_origin(obj)
     args = _typing.get_args(obj)
     parameters: TypeParameters = getattr(origin_obj or obj, "__parameters__")

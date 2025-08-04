@@ -15,8 +15,8 @@ if typing.TYPE_CHECKING:
 
 
 @runtime_init
-class TelegrinderContext(GlobalContext):
-    """The type-hinted telegrinder context called `telegrinder`.
+class TelegrinderContext(GlobalContext, thread_safe=True):
+    """The thread-safe type-hinted telegrinder context.
 
     Example:
     ```
