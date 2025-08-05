@@ -348,7 +348,7 @@ if logging_module == "structlog":
             record.location = location
             return True
 
-    def _configure_structlog(level: str, /) -> LoggerModule:
+    def _configure_structlog(level: str, /) -> None:
         console_renderer = structlog.dev.ConsoleRenderer(colors=True)
 
         for column in console_renderer._columns:
@@ -372,7 +372,7 @@ if logging_module == "structlog":
         handler.setFormatter(logging.Formatter(fmt, datefmt="%Y-%m-%d %H:%M:%S", style="{"))
         telegrinder_logger.addHandler(handler)
 
-        return structlog.wrap_logger(
+        struct_logger = structlog.wrap_logger(
             logger=telegrinder_logger,
             processors=[
                 structlog.stdlib.filter_by_level,
@@ -387,7 +387,45 @@ if logging_module == "structlog":
             context_class=dict,
             cache_logger_on_first_use=True,
         )
+        logger._set_logger(struct_logger)
 
+
+elif logging_module == "loguru":
+
+    def _configure_loguru(level: str, /) -> None:
+        import atexit
+        import sys
+
+        from loguru._logger import Core, Logger
+
+        loguru_logger = Logger(
+            core=Core(),
+            exception=None,
+            depth=0,
+            record=False,
+            lazy=False,
+            colors=True,
+            raw=False,
+            capture=True,
+            patchers=[],
+            extra=dict(telegrinder=True),
+        )
+        handler_id = loguru_logger.add(
+            sink=sys.stderr,
+            level=level,
+            enqueue=True,
+            colorize=True,
+            format=(
+                "telegrinder | <level>{level: <8}</level> | "
+                "<lg>{time:YYYY-MM-DD HH:mm:ss}</lg> | "
+                "<le>{name}</le>:<le>{function}</le>:"
+                "<le>{line}</le> > <lw>{message}</lw>"
+            ),
+            filter=lambda record: record["extra"].get("telegrinder", False) is True,  # type: ignore
+        )
+
+        atexit.register(lambda: loguru_logger.remove(logger._handler_id))
+        logger._set_logger(loguru_logger, handler_id=handler_id)
 
 elif logging_module == "logging":
     import inspect
@@ -520,63 +558,42 @@ elif logging_module == "logging":
 
             return msg, args, {name: kwargs[name] for name in self.log_arg_names if name in kwargs}
 
+    def _configure_logging(level: str, /) -> None:
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setFormatter(TelegrinderLoggingFormatter())
+        _logger = logging.getLogger("telegrinder")
+        _logger.setLevel(level)
+        _remove_handlers(_logger)
+        _logger.addHandler(handler)
+        logger._set_logger(TelegrinderLoggingStyleAdapter(_logger))
 
-if asyncio_module == "uvloop":
+
+if asyncio_module in ("uvloop", "winloop"):
     import asyncio
 
-    import uvloop
-
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-
-elif asyncio_module == "winloop":
-    import asyncio
-
-    import winloop
-
-    asyncio.set_event_loop_policy(winloop.EventLoopPolicy())
+    asyncio.set_event_loop_policy(policy=__import__(name=asyncio_module).EventLoopPolicy())
 
 
-def setup_logger(*, level: _LoggerLevel | None = None) -> None:
-    import sys
+def setup_logger(*, level: _LoggerLevel | None = None) -> LoggerModule:
+    if logger._logger is not None:
+        return logger
 
     import colorama
 
     colorama.just_fix_windows_console()
     colorama.init(wrap=False)
 
-    log_level = level or os.getenv("LOGGER_LEVEL", "DEBUG").upper()
+    log_level = level or os.environ.setdefault("TELEGRINDER_LOGGER_LEVEL", "DEBUG").upper()
 
-    if logging_module in ("logging", "structlog"):
-        if logging_module == "logging":
-            handler = logging.StreamHandler(sys.stderr)
-            handler.setFormatter(TelegrinderLoggingFormatter())
-            _logger = logging.getLogger("telegrinder")
-            _logger.setLevel(log_level)
-            _remove_handlers(_logger)
-            _logger.addHandler(handler)
-            logger._set_logger(TelegrinderLoggingStyleAdapter(_logger))
-        else:
-            logger._set_logger(_configure_structlog(log_level))
+    match logging_module:
+        case "logging":
+            _configure_logging(log_level)
+        case "loguru":
+            _configure_loguru(log_level)
+        case "structlog":
+            _configure_structlog(log_level)
 
-    if logging_module == "loguru":
-        import loguru
-
-        handler_id = loguru.logger.add(
-            sink=sys.stderr,
-            level=log_level,
-            enqueue=True,
-            colorize=True,
-            format=(
-                "<level>{level: <8}</level> | "
-                "<lg>{time:YYYY-MM-DD HH:mm:ss}</lg> | "
-                "<le>{name}</le>:<le>{function}</le>:"
-                "<le>{line}</le> > <lw>{message}</lw>"
-            ),
-            filter=lambda record: record["extra"].get("telegrinder", False) is True,
-        )
-        telegrinder_logger = loguru.logger.bind(telegrinder=True)
-        telegrinder_logger._core.handlers = {handler_id: telegrinder_logger._core.handlers[handler_id]}
-        logger._set_logger(telegrinder_logger, handler_id=handler_id)
+    return logger
 
 
 __all__ = (
