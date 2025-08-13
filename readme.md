@@ -76,7 +76,7 @@ pip install git+https://github.com/timoniq/telegrinder@dev
 
 # Documentation
 
-[Tutorial](/docs/tutorial/en/0_tutorial.md)
+[**Tutorial 📖**](/docs/tutorial/en/0_tutorial.md)
 
 # Community
 
