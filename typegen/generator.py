@@ -27,7 +27,9 @@ from .models import (
 )
 
 try:
-    from telegrinder.modules import logger
+    from telegrinder.modules import logger, setup_logger
+
+    setup_logger(level="DEBUG")
 except ImportError:
     import logging
 
@@ -447,16 +449,20 @@ class ObjectGenerator(ABCGenerator):
         with open(file=objects_file, mode="w+", encoding="UTF-8") as f:
             f.writelines(lines)
 
-        enums_all = tuple(
-            set(
+        enums_all = (
+            *set(
                 importlib.import_module(name=(path / "enums").as_posix().replace("/", ".")).__all__,
+            ),
+            *set(
+                importlib.import_module(name=(path / "webapp").as_posix().replace("/", ".")).__all__,
             ),
         )
         with open(file=path / "__init__.py", mode="w+", encoding="UTF-8") as f:
             f.writelines(
                 [
                     "from telegrinder.types.enums import *\n",
-                    "from telegrinder.types.objects import *\n\n",
+                    "from telegrinder.types.objects import *\n",
+                    "from telegrinder.types.webapp import *\n\n",
                     f"__all__ = {enums_all + tuple(all_)}\n",
                 ],
             )

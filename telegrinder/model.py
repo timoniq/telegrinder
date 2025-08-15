@@ -1,5 +1,6 @@
 import keyword
 import types
+from functools import cache
 from reprlib import recursive_repr
 
 import msgspec
@@ -14,7 +15,6 @@ MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "dict": True,
     "rename": {kw + "_": kw for kw in keyword.kwlist},
 }
-INSPECTED_MODEL_FIELDS_KEY: typing.Final[str] = "__inspected_struct_fields__"
 
 
 def is_none(obj: typing.Any, /) -> typing.TypeIs[Nothing | None]:
@@ -124,15 +124,11 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         )
 
     @classmethod
+    @cache
     def get_fields(cls) -> types.MappingProxyType[str, msgspec.inspect.Field]:
-        if (model_fields := getattr(cls, INSPECTED_MODEL_FIELDS_KEY, None)) is not None:
-            return model_fields
-
-        model_fields = types.MappingProxyType[str, msgspec.inspect.Field](
-            {f.name: f for f in msgspec.inspect.type_info(cls).fields},  # type: ignore
+        return types.MappingProxyType(
+            mapping={f.name: f for f in msgspec.inspect.type_info(cls).fields},  # type: ignore
         )
-        setattr(cls, INSPECTED_MODEL_FIELDS_KEY, model_fields)
-        return model_fields
 
     @classmethod
     def from_data[**P, T](cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:

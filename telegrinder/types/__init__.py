@@ -302,6 +302,7 @@ __all__ = (
     "VideoNote",
     "Voice",
     "WebAppChat",
+    "WebAppData",
     "WebAppInfo",
     "WebAppInitData",
     "WebAppUser",
