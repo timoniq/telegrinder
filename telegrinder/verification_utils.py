@@ -26,7 +26,10 @@ def webapp_validate_request(
         hashlib.sha256,
     ).digest()
     data_chk = hmac.new(secret, data_check_string.encode(), hashlib.sha256)
-    return data_chk.hexdigest() == request_query_params.get("hash")
+
+    if (hash_ := request_query_params.get("hash")) is None:
+        return False
+    return hmac.compare_digest(data_chk.hexdigest(), hash_)
 
 
 __all__ = ("verify_webapp_request", "webapp_validate_request")

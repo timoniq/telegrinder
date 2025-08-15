@@ -1,5 +1,6 @@
 from telegrinder.types.enums import *
 from telegrinder.types.objects import *
+from telegrinder.types.webapp import *
 
 __all__ = (
     "AcceptedGiftTypes",
@@ -300,8 +301,10 @@ __all__ = (
     "VideoChatStarted",
     "VideoNote",
     "Voice",
-    "WebAppData",
+    "WebAppChat",
     "WebAppInfo",
+    "WebAppInitData",
+    "WebAppUser",
     "WebhookInfo",
     "WriteAccessAllowed",
 )

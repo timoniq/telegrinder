@@ -818,7 +818,7 @@ provides-extras = ["brotli", "loguru", "structlog", "uvloop"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "basedpyright", specifier = ">=1.31.0,<2" },
+    { name = "basedpyright", specifier = ">=1.31.2,<2" },
     { name = "libcst", specifier = ">=1.8.2,<2" },
     { name = "pre-commit", specifier = ">=4.3.0,<5" },
     { name = "pytest", specifier = ">=8.4.1,<9" },
@@ -826,7 +826,7 @@ dev = [
     { name = "pytest-cov", specifier = ">=6.2.1,<7" },
     { name = "pytest-mock", specifier = ">=3.14.1,<4" },
     { name = "requests", specifier = ">=2.32.4,<3" },
-    { name = "ruff", specifier = ">=0.12.8,<1" },
+    { name = "ruff", specifier = ">=0.12.9,<1" },
     { name = "tomlkit", specifier = ">=0.13.3,<1" },
 ]
 

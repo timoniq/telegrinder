@@ -388,7 +388,7 @@ class GlobalNode[Value = _Unspecialized](Node):
 
     @classmethod
     def set(cls, value: Value | typing.Self, /) -> None:
-        NODE_CONTEXT.global_session[cls] = NodeSession(cls, value)
+        NODE_CONTEXT.global_sessions[cls] = NodeSession(cls, value)
 
     @typing.overload
     @classmethod
