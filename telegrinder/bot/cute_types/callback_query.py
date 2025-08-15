@@ -145,6 +145,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         allow_paid_broadcast: bool | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
+        direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = None,
         from_chat_id: int | str | None = None,
         message_id: int | None = None,
@@ -154,6 +155,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
         video_start_timestamp: timedelta | int | None = None,
         **other: typing.Any,
     ) -> Result[MessageId, APIError]:
@@ -187,8 +189,10 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         messages in private chats. - Bots granted can_post_messages permissions
         can delete outgoing messages in channels. - If the bot is an administrator
         of a group, it can delete any message there. - If the bot has can_delete_messages
-        permission in a supergroup or a channel, it can delete any message there.
-        Returns True on success."""
+        administrator right in a supergroup or a channel, it can delete any message
+        there. - If the bot has can_manage_direct_messages administrator right
+        in a channel, it can delete any message in the corresponding direct messages
+        chat. Returns True on success."""
         return await MessageCute.delete(self, **get_params(locals()))  # type: ignore
 
     @shortcut(
