@@ -8,6 +8,7 @@ from itertools import islice
 from types import NoneType, UnionType, resolve_bases
 
 from fntypes.library.monad.option import Nothing, Option
+from typing_extensions import Sentinel
 
 from telegrinder.node.context import NODE_CONTEXT
 from telegrinder.node.exceptions import ComposeError
@@ -34,6 +35,7 @@ type AnyNode = IsNode | NodeConvertable
 type ComposeResult[T = typing.Any] = T | typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]
 
 _NOSCOPE: typing.Final[object] = object()
+_NODEFAULT: typing.Final[Sentinel] = Sentinel("NoDefault", "<nodefault>")
 _NONE_TYPES: typing.Final[set[typing.Any]] = {None, NoneType}
 _UNION_TYPES: typing.Final[set[typing.Any]] = {typing.Union, UnionType}
 UNWRAPPED_NODE_KEY: typing.Final[str] = "__unwrapped_node__"
@@ -276,7 +278,9 @@ class Node(abc.ABC):
 class UnspecializedDecorator(typing.Protocol):
     @typing.overload
     def __call__[T](
-        self, x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]], /
+        self,
+        x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]],
+        /,
     ) -> type[T]: ...
 
     @typing.overload
@@ -371,12 +375,25 @@ class NodeClass:
     def compose(cls) -> type[Node]: ...
 
 
-class GlobalNode[Value](Node):
+class GlobalNode[Value = _Unspecialized](Node):
     scope = NodeScope.GLOBAL
 
+    @typing.overload
     @classmethod
-    def set(cls, value: Value, /) -> None:
+    def set(cls: type[GlobalNode[_Unspecialized]], value: typing.Self, /) -> None: ...  # type: ignore
+
+    @typing.overload
+    @classmethod
+    def set(cls, value: Value, /) -> None: ...
+
+    @classmethod
+    def set(cls, value: Value | typing.Self, /) -> None:
         NODE_CONTEXT.global_session[cls] = NodeSession(cls, value)
+
+    @typing.overload
+    @classmethod
+    def get(cls: type[GlobalNode[_Unspecialized]], /) -> typing.Self:  # type: ignore
+        ...
 
     @typing.overload
     @classmethod
@@ -384,24 +401,30 @@ class GlobalNode[Value](Node):
 
     @typing.overload
     @classmethod
+    def get[Default](cls: type[GlobalNode[_Unspecialized]], *, default: Default) -> typing.Self | Default:  # type: ignore
+        ...
+
+    @typing.overload
+    @classmethod
     def get[Default](cls, *, default: Default) -> Value | Default: ...
 
     @classmethod
-    def get(cls, **kwargs: typing.Any) -> typing.Any:
-        sentinel = object()
-        default = kwargs.pop("default", sentinel)
-
-        if default is not sentinel and cls not in NODE_CONTEXT.global_sessions:
+    def get(cls, *, default: typing.Any = _NODEFAULT) -> typing.Any:
+        if default is not _NODEFAULT and cls not in NODE_CONTEXT.global_sessions:
             return default
 
-        if (session := NODE_CONTEXT.global_sessions.get(cls)) is None and default is sentinel:
-            raise ValueError(f"Node `{fullname(cls)}` has no global value.")
+        if (session := NODE_CONTEXT.global_sessions.get(cls)) is None and default is _NODEFAULT:
+            raise ComposeError(f"Node `{fullname(cls)}` has no global value.")
 
         return session.value if session is not None else default
 
     @classmethod
     def unset(cls) -> None:
         NODE_CONTEXT.global_sessions.pop(cls, None)
+
+    @classmethod
+    def compose(cls) -> typing.Any:
+        return cls.get()
 
 
 __all__ = (
