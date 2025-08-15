@@ -70,11 +70,9 @@ class LoopWrapper(Singleton, Final):
         self._all_tasks = set()
         self._limit = None
         self._semaphore = None
-
-        self._create_task(self._run_async_event_loop())
+        self._async_event_loop_task = self._create_task(self._run_async_event_loop())
 
     def __call__(self) -> asyncio.AbstractEventLoop:
-        """A loop factory."""
         return self._loop
 
     def __repr__(self) -> str:
@@ -167,9 +165,9 @@ class LoopWrapper(Singleton, Final):
             yield
         except KeyboardInterrupt:
             logger.info("Caught KeyboardInterrupt, cancelling tasks...")
-            run_task(self._cancel_tasks())
+            run_task(self._cancel_tasks(), loop=self._loop)
         finally:
-            run_task(self._shutdown())
+            run_task(self._shutdown(), loop=self._loop)
             if close_loop:
                 self._close_loop()
 
@@ -218,7 +216,7 @@ class LoopWrapper(Singleton, Final):
 
         self._state = LoopWrapperState.RUNNING_MANUALLY
         with self._wrap_loop(close_loop=close_loop):
-            run_task(self._run())
+            run_task(self._run(), loop=self._loop)
 
     @typing.overload
     def bind_loop(self, *, loop_factory: LoopFactory) -> typing.Self: ...
@@ -242,7 +240,9 @@ class LoopWrapper(Singleton, Final):
         self._loop = loop_factory() if loop_factory else loop or self._loop
 
         if old_loop is not self._loop:
-            self._create_task(self._run_async_event_loop())
+            self._all_tasks.discard(self._async_event_loop_task)
+            self._async_event_loop_task.cancel()
+            self._async_event_loop_task = self._create_task(self._run_async_event_loop())
 
         return self
 

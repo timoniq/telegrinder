@@ -42,8 +42,8 @@ jobs:
             Update Telegram Bot API to the latest schema
           body: >
             This is an automated PR. Please check the diff, and the action logs, to check for any funky behavior.
-          branch: automated/tba
+          branch: automated/telegram-bot-api-types
           reviewers: luwqz1
           assignees: luwqz1
-          labels: automated, TBA
+          labels: automated, TBA types
           delete-branch: true

@@ -5,7 +5,7 @@ import typing
 SECRET_TOKEN_KEY: typing.Final[str] = "X-Telegram-Bot-Api-Secret-Token"
 
 
-def verify_webapp_request(
+def verify_secret_token(
     secret_token: str,
     request_headers: typing.Mapping[str, typing.Any],
 ) -> bool:
@@ -32,4 +32,4 @@ def webapp_validate_request(
     return hmac.compare_digest(data_chk.hexdigest(), hash_)
 
 
-__all__ = ("verify_webapp_request", "webapp_validate_request")
+__all__ = ("verify_secret_token", "webapp_validate_request")

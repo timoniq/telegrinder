@@ -90,12 +90,6 @@ class Lifespan:
         self.shutdown_tasks.extend(other.shutdown_tasks)
         return self
 
-    def __enter__(self) -> None:
-        self.start()
-
-    def __exit__(self, *args: typing.Any) -> None:
-        self.shutdown()
-
     async def __aenter__(self) -> None:
         await self._start()
 
@@ -123,11 +117,11 @@ class Lifespan:
             self._started = False
             await self._run_tasks(self.shutdown_tasks)
 
-    def start(self) -> None:
-        run_task(self._start())
+    def start(self, loop: asyncio.AbstractEventLoop | None = None) -> None:
+        run_task(self._start(), loop=loop)
 
-    def shutdown(self) -> None:
-        run_task(self._shutdown())
+    def shutdown(self, loop: asyncio.AbstractEventLoop | None = None) -> None:
+        run_task(self._shutdown(), loop=loop)
 
     def on_startup[**P, T](self, task: Task[P, T], /) -> Task[P, T]:
         self.startup_tasks.append(to_coroutine_task(task))
