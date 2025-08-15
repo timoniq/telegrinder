@@ -533,6 +533,9 @@ class Chat(Model):
     is_forum: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
 
+    is_direct_messages: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the chat is the direct messages chat of a channel."""
+
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -587,6 +590,9 @@ class ChatFullInfo(Model):
     is_forum: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the supergroup chat is a forum (has topics enabled)."""
 
+    is_direct_messages: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the chat is the direct messages chat of a channel."""
+
     photo: Option[ChatPhoto] = field(default=..., converter=From["ChatPhoto | None"])
     """Optional. Chat photo."""
 
@@ -612,6 +618,10 @@ class ChatFullInfo(Model):
 
     personal_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
     """Optional. For private chats, the personal channel of the user."""
+
+    parent_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
+    """Optional. Information about the corresponding channel chat; for direct
+    messages chats only."""
 
     available_reactions: Option[list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]] = (
         field(
@@ -750,6 +760,12 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Unique identifier of a message thread to which the message belongs;
     for supergroups only."""
 
+    direct_messages_topic: Option[DirectMessagesTopic] = field(
+        default=..., converter=From["DirectMessagesTopic | None"]
+    )
+    """Optional. Information about the direct messages chat topic that contains
+    the message."""
+
     from_: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. Sender of the message; may be empty for messages sent to channels.
     For backward compatibility, if the message was sent on behalf of a chat,
@@ -811,6 +827,10 @@ class Message(MaybeInaccessibleMessage):
     reply_to_story: Option[Story] = field(default=..., converter=From["Story | None"])
     """Optional. For replies to a story, the original story."""
 
+    reply_to_checklist_task_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Identifier of the specific checklist task that is being replied
+    to."""
+
     via_bot: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. Bot through which the message was sent."""
 
@@ -823,6 +843,10 @@ class Message(MaybeInaccessibleMessage):
     is_from_offline: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the message was sent by an implicit action, for example,
     as an away or a greeting business message, or as a scheduled message."""
+
+    is_paid_post: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the message is a paid post. Note that such posts must not
+    be deleted for 24 hours to receive the payment and can't be edited."""
 
     media_group_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The unique identifier of a media message group this message belongs
@@ -848,6 +872,11 @@ class Message(MaybeInaccessibleMessage):
     )
     """Optional. Options used for link preview generation for the message, if
     it is a text message and link preview options were changed."""
+
+    suggested_post_info: Option[SuggestedPostInfo] = field(default=..., converter=From["SuggestedPostInfo | None"])
+    """Optional. Information about suggested post parameters if the message
+    is a suggested post in a channel direct messages chat. If the message is an
+    approved or declined suggested post, then it can't be edited."""
 
     effect_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the message effect added to the message."""
@@ -1090,6 +1119,29 @@ class Message(MaybeInaccessibleMessage):
     )
     """Optional. Service message: the price for paid messages has changed in the
     chat."""
+
+    suggested_post_approved: Option[SuggestedPostApproved] = field(
+        default=..., converter=From["SuggestedPostApproved | None"]
+    )
+    """Optional. Service message: a suggested post was approved."""
+
+    suggested_post_approval_failed: Option[SuggestedPostApprovalFailed] = field(
+        default=..., converter=From["SuggestedPostApprovalFailed | None"]
+    )
+    """Optional. Service message: approval of a suggested post has failed."""
+
+    suggested_post_declined: Option[SuggestedPostDeclined] = field(
+        default=..., converter=From["SuggestedPostDeclined | None"]
+    )
+    """Optional. Service message: a suggested post was declined."""
+
+    suggested_post_paid: Option[SuggestedPostPaid] = field(default=..., converter=From["SuggestedPostPaid | None"])
+    """Optional. Service message: payment for a suggested post was received."""
+
+    suggested_post_refunded: Option[SuggestedPostRefunded] = field(
+        default=..., converter=From["SuggestedPostRefunded | None"]
+    )
+    """Optional. Service message: payment for a suggested post was refunded."""
 
     video_chat_scheduled: Option[VideoChatScheduled] = field(
         default=..., converter=From["VideoChatScheduled | None"]
@@ -1342,7 +1394,8 @@ class ReplyParameters(Model):
     chat_id: Option[Variative[int, str]] = field(default=..., converter=From[int | str | None])
     """Optional. If the message to be replied to is from a different chat, unique
     identifier for the chat or username of the channel (in the format @channelusername).
-    Not supported for messages sent on behalf of a business account."""
+    Not supported for messages sent on behalf of a business account and messages
+    from channel direct messages chats."""
 
     allow_sending_without_reply: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the message should be sent even if the specified message
@@ -1366,6 +1419,9 @@ class ReplyParameters(Model):
 
     quote_position: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Position of the quote in the original message in UTF-16 code units."""
+
+    checklist_task_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Identifier of the specific checklist task to be replied to."""
 
 
 class MessageOriginUser(MessageOrigin):
@@ -2489,6 +2545,96 @@ class DirectMessagePriceChanged(Model):
     been exempted by administrators. Defaults to 0."""
 
 
+class SuggestedPostApproved(Model):
+    """Object `SuggestedPostApproved`, see the [documentation](https://core.telegram.org/bots/api#suggestedpostapproved).
+
+    Describes a service message about the approval of a suggested post.
+    """
+
+    send_date: datetime = field(converter=From[datetime | int])
+    """Date when the post will be published."""
+
+    suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the suggested post. Note that the Message
+    object in this field will not contain the reply_to_message field even if
+    it itself is a reply."""
+
+    price: Option[SuggestedPostPrice] = field(default=..., converter=From["SuggestedPostPrice | None"])
+    """Optional. Amount paid for the post."""
+
+
+class SuggestedPostApprovalFailed(Model):
+    """Object `SuggestedPostApprovalFailed`, see the [documentation](https://core.telegram.org/bots/api#suggestedpostapprovalfailed).
+
+    Describes a service message about the failed approval of a suggested post. Currently, only caused by insufficient user funds at the time of approval.
+    """
+
+    price: SuggestedPostPrice = field()
+    """Expected price of the post."""
+
+    suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the suggested post whose approval has failed.
+    Note that the Message object in this field will not contain the reply_to_message
+    field even if it itself is a reply."""
+
+
+class SuggestedPostDeclined(Model):
+    """Object `SuggestedPostDeclined`, see the [documentation](https://core.telegram.org/bots/api#suggestedpostdeclined).
+
+    Describes a service message about the rejection of a suggested post.
+    """
+
+    suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the suggested post. Note that the Message
+    object in this field will not contain the reply_to_message field even if
+    it itself is a reply."""
+
+    comment: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Comment with which the post was declined."""
+
+
+class SuggestedPostPaid(Model):
+    """Object `SuggestedPostPaid`, see the [documentation](https://core.telegram.org/bots/api#suggestedpostpaid).
+
+    Describes a service message about a successful payment for a suggested post.
+    """
+
+    currency: str = field()
+    """Currency in which the payment was made. Currently, one of `XTR` for Telegram
+    Stars or `TON` for toncoins."""
+
+    suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the suggested post. Note that the Message
+    object in this field will not contain the reply_to_message field even if
+    it itself is a reply."""
+
+    amount: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. The amount of the currency that was received by the channel in
+    nanotoncoins; for payments in toncoins only."""
+
+    star_amount: Option[StarAmount] = field(default=..., converter=From["StarAmount | None"])
+    """Optional. The amount of Telegram Stars that was received by the channel;
+    for payments in Telegram Stars only."""
+
+
+class SuggestedPostRefunded(Model):
+    """Object `SuggestedPostRefunded`, see the [documentation](https://core.telegram.org/bots/api#suggestedpostrefunded).
+
+    Describes a service message about a payment refund for a suggested post.
+    """
+
+    reason: str = field()
+    """Reason for the refund. Currently, one of `post_deleted` if the post was
+    deleted within 24 hours of being posted or removed from scheduled messages
+    without being posted, or `payment_refunded` if the payer refunded their
+    payment."""
+
+    suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the suggested post. Note that the Message
+    object in this field will not contain the reply_to_message field even if
+    it itself is a reply."""
+
+
 class GiveawayCreated(Model):
     """Object `GiveawayCreated`, see the [documentation](https://core.telegram.org/bots/api#giveawaycreated).
 
@@ -2634,6 +2780,74 @@ class LinkPreviewOptions(Model):
     show_above_text: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the link preview must be shown above the message text;
     otherwise, the link preview will be shown below the message text."""
+
+
+class SuggestedPostPrice(Model):
+    """Object `SuggestedPostPrice`, see the [documentation](https://core.telegram.org/bots/api#suggestedpostprice).
+
+    Desribes price of a suggested post.
+    """
+
+    currency: str = field()
+    """Currency in which the post will be paid. Currently, must be one of `XTR` for
+    Telegram Stars or `TON` for toncoins."""
+
+    amount: int = field()
+    """The amount of the currency that will be paid for the post in the smallest units
+    of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price
+    in Telegram Stars must be between 5 and 100000, and price in nanotoncoins
+    must be between 10000000 and 10000000000000."""
+
+
+class SuggestedPostInfo(Model):
+    """Object `SuggestedPostInfo`, see the [documentation](https://core.telegram.org/bots/api#suggestedpostinfo).
+
+    Contains information about a suggested post.
+    """
+
+    state: str = field()
+    """State of the suggested post. Currently, it can be one of `pending`, `approved`,
+    `declined`."""
+
+    price: Option[SuggestedPostPrice] = field(default=..., converter=From["SuggestedPostPrice | None"])
+    """Optional. Proposed price of the post. If the field is omitted, then the post
+    is unpaid."""
+
+    send_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
+    """Optional. Proposed send date of the post. If the field is omitted, then the
+    post can be published at any time within 30 days at the sole discretion of
+    the user or administrator who approves it."""
+
+
+class SuggestedPostParameters(Model):
+    """Object `SuggestedPostParameters`, see the [documentation](https://core.telegram.org/bots/api#suggestedpostparameters).
+
+    Contains parameters of a post that is being suggested by the bot.
+    """
+
+    price: Option[SuggestedPostPrice] = field(default=..., converter=From["SuggestedPostPrice | None"])
+    """Optional. Proposed price for the post. If the field is omitted, then the
+    post is unpaid."""
+
+    send_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
+    """Optional. Proposed send date of the post. If specified, then the date must
+    be between 300 second and 2678400 seconds (30 days) in the future. If the
+    field is omitted, then the post can be published at any time within 30 days
+    at the sole discretion of the user who approves it."""
+
+
+class DirectMessagesTopic(Model):
+    """Object `DirectMessagesTopic`, see the [documentation](https://core.telegram.org/bots/api#directmessagestopic).
+
+    Describes a topic of a direct messages chat.
+    """
+
+    topic_id: int = field()
+    """Unique identifier of the topic."""
+
+    user: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. Information about the user that created the topic. Currently,
+    it is always present."""
 
 
 class UserProfilePhotos(Model):
@@ -2937,8 +3151,8 @@ class InlineKeyboardButton(Model):
     """Optional. If set, pressing the button will prompt the user to select one
     of their chats, open that chat and insert the bot's username and the specified
     inline query in the input field. May be empty, in which case just the bot's
-    username will be inserted. Not supported for messages sent on behalf of
-    a Telegram Business account."""
+    username will be inserted. Not supported for messages sent in channel direct
+    messages chats and on behalf of a Telegram Business account."""
 
     switch_inline_query_current_chat: Option[str] = field(default=..., converter=From[str | None])
     """Optional. If set, pressing the button will insert the bot's username and
@@ -2946,7 +3160,8 @@ class InlineKeyboardButton(Model):
     in which case only the bot's username will be inserted. This offers a quick
     way for the user to open your bot in inline mode in the same chat - good for selecting
     something from multiple options. Not supported in channels and for messages
-    sent on behalf of a Telegram Business account."""
+    sent in channel direct messages chats and on behalf of a Telegram Business
+    account."""
 
     switch_inline_query_chosen_chat: Option[SwitchInlineQueryChosenChat] = field(
         default=..., converter=From["SwitchInlineQueryChosenChat | None"]
@@ -2954,7 +3169,8 @@ class InlineKeyboardButton(Model):
     """Optional. If set, pressing the button will prompt the user to select one
     of their chats of the specified type, open that chat and insert the bot's
     username and the specified inline query in the input field. Not supported
-    for messages sent on behalf of a Telegram Business account."""
+    for messages sent in channel direct messages chats and on behalf of a Telegram
+    Business account."""
 
     copy_text: Option[CopyTextButton] = field(default=..., converter=From["CopyTextButton | None"])
     """Optional. Description of the button that copies the specified text to the
@@ -3223,6 +3439,10 @@ class ChatAdministratorRights(Model):
     """Optional. True, if the user is allowed to create, rename, close, and reopen
     forum topics; for supergroups only."""
 
+    can_manage_direct_messages: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the administrator can manage direct messages of the
+    channel and decline suggested posts; for channels only."""
+
 
 class ChatMemberUpdated(Model):
     """Object `ChatMemberUpdated`, see the [documentation](https://core.telegram.org/bots/api#chatmemberupdated).
@@ -3373,6 +3593,10 @@ class ChatMemberAdministrator(ChatMember):
     can_manage_topics: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to create, rename, close, and reopen
     forum topics; for supergroups only."""
+
+    can_manage_direct_messages: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the administrator can manage direct messages of the
+    channel and decline suggested posts; for channels only."""
 
     custom_title: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Custom title for this user."""
@@ -3983,6 +4207,9 @@ class Gift(Model):
     """Optional. The number of remaining gifts of this type that can be sent; for
     limited gifts only."""
 
+    publisher_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
+    """Optional. Information about the chat that published the gift."""
+
 
 class Gifts(Model):
     """Object `Gifts`, see the [documentation](https://core.telegram.org/bots/api#gifts).
@@ -4088,6 +4315,9 @@ class UniqueGift(Model):
 
     backdrop: UniqueGiftBackdrop = field()
     """Backdrop of the gift."""
+
+    publisher_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
+    """Optional. Information about the chat that published the gift."""
 
 
 class GiftInfo(Model):
@@ -4360,7 +4590,8 @@ class BotCommandScopeChat(BotCommandScope):
 
     chat_id: Variative[int, str] = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
-    (in the format @supergroupusername)."""
+    (in the format @supergroupusername). Channel direct messages chats and
+    channel chats aren't supported."""
 
     type: Literal["chat"] = field(default="chat")
     """Scope type, must be chat."""
@@ -4374,7 +4605,8 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
 
     chat_id: Variative[int, str] = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
-    (in the format @supergroupusername)."""
+    (in the format @supergroupusername). Channel direct messages chats and
+    channel chats aren't supported."""
 
     type: Literal["chat_administrators"] = field(default="chat_administrators")
     """Scope type, must be chat_administrators."""
@@ -4388,7 +4620,8 @@ class BotCommandScopeChatMember(BotCommandScope):
 
     chat_id: Variative[int, str] = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
-    (in the format @supergroupusername)."""
+    (in the format @supergroupusername). Channel direct messages chats and
+    channel chats aren't supported."""
 
     user_id: int = field()
     """Unique identifier of the target user."""
@@ -7643,6 +7876,7 @@ __all__ = (
     "CopyTextButton",
     "Dice",
     "DirectMessagePriceChanged",
+    "DirectMessagesTopic",
     "Document",
     "EncryptedCredentials",
     "EncryptedPassportElement",
@@ -7810,6 +8044,14 @@ __all__ = (
     "StoryAreaTypeUniqueGift",
     "StoryAreaTypeWeather",
     "SuccessfulPayment",
+    "SuggestedPostApprovalFailed",
+    "SuggestedPostApproved",
+    "SuggestedPostDeclined",
+    "SuggestedPostInfo",
+    "SuggestedPostPaid",
+    "SuggestedPostParameters",
+    "SuggestedPostPrice",
+    "SuggestedPostRefunded",
     "SwitchInlineQueryChosenChat",
     "TextQuote",
     "TransactionPartner",
