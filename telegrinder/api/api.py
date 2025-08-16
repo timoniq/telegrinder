@@ -63,9 +63,20 @@ def retryer[T: API, **P, R](func: APIRequestMethod[T, P, R], /) -> APIRequestMet
             elif result.error.migrate_to_chat_id:
                 kwargs["chat_id"] = result.error.migrate_to_chat_id.value
 
+            else:
+                return result
+
             retries_counter += 1
 
     return wrapper  # type: ignore
+
+
+def retry_on_error(func: typing.Callable[..., typing.Any], /) -> typing.Callable[..., typing.Any]:
+    @wraps(func)
+    async def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        return await func(*args, **kwargs)
+
+    return wrapper
 
 
 class API(APIMethods):
@@ -81,12 +92,12 @@ class API(APIMethods):
         token: Token,
         *,
         http: ABCClient | None = None,
-        enable_retryer: bool = True,
+        retryer: bool = True,
         max_retries: int = DEFAULT_MAX_RETRIES,
     ) -> None:
         self.token = token
         self.http = http or AiohttpClient()
-        self._retryer_enabled = enable_retryer
+        self._retryer_enabled = retryer
         self._max_retries = max_retries
         super().__init__(api=self)
 
