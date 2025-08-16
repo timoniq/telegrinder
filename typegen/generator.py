@@ -16,11 +16,13 @@ from .models import (
     Config,
     MethodParameter,
     MethodSchema,
+    MethodsParamsAnnotationsAnnotationsParam,
     MethodsParamsLiteralTypesParam,
     ObjectField,
     ObjectSchema,
+    ObjectsFieldsAnnotationsAnnotationsField,
+    ObjectsFieldsIdByDefaultField,
     ObjectsFieldsLiteralTypesField,
-    ObjectsIdByDefaultField,
     TelegramBotAPISchema,
     TypedDefaultParameter,
     dec_hook,
@@ -104,6 +106,25 @@ def chunks_str(s: str, sep: str = "\n"):
 
 def makesafe_name(s: str, /) -> str:
     return s + "_" if keyword.iskeyword(s) else s
+
+
+def make_field_function(field: ObjectField, **kwargs: str | None) -> str:
+    args: list[str] = []
+    default = kwargs.pop("default", None) or field.default
+
+    if not field.required or default is not None:
+        args.append(f"default={default or '...'}")
+
+    for k, v in kwargs.items():
+        if not v:
+            continue
+
+        if k == "converter":
+            args.append(f"converter=From[{to_optional(v) if not field.required else v}]")
+        else:
+            args.append(f"{k}={v}")
+
+    return "field({})".format(", ".join(args))
 
 
 def run_ruff_formatter(path: pathlib.Path, /) -> None:
@@ -202,7 +223,7 @@ class ObjectGenerator(ABCGenerator):
         self.parent_types: dict[str, list[str]] = {obj.name: obj.subtypes for obj in objects if obj.subtypes}
 
     def get_literal_types_field(self, object_name: str, field_name: str) -> ObjectsFieldsLiteralTypesField | None:
-        for object_literal_types in self.config.generator.objects.fields_literal_types:
+        for object_literal_types in self.config.generator.objects.fields.annotations.literals:
             if object_literal_types.object_name == object_name:
                 for field in object_literal_types.fields:
                     if field_name == field.name:
@@ -210,10 +231,25 @@ class ObjectGenerator(ABCGenerator):
 
         return None
 
+    def get_object_field_annotation(
+        self,
+        object_name: str,
+        field_name: str,
+    ) -> ObjectsFieldsAnnotationsAnnotationsField | None:
+        for object_annotation in self.config.generator.objects.fields.annotations.annotations:
+            if object_annotation.object_name == object_name:
+                for field in object_annotation.fields:
+                    if field_name == field.name:
+                        return field
+
+        return None
+
     def get_generation_id_by_default_field(
-        self, object_name: str, field_name: str
-    ) -> ObjectsIdByDefaultField | None:
-        for id_by_default in self.config.generator.objects.id_by_default:
+        self,
+        object_name: str,
+        field_name: str,
+    ) -> ObjectsFieldsIdByDefaultField | None:
+        for id_by_default in self.config.generator.objects.fields.defaults.random_id:
             if object_name == id_by_default.object_name:
                 for field in id_by_default.fields:
                     if field_name == field.name:
@@ -221,18 +257,20 @@ class ObjectGenerator(ABCGenerator):
 
         return None
 
-    def make_object_field(
+    def make_object_field(  # noqa: PLR0915
         self,
         field: ObjectField,
         literal_types: ObjectsFieldsLiteralTypesField | None = None,
+        annotation: ObjectsFieldsAnnotationsAnnotationsField | None = None,
     ) -> str:
         code = makesafe_name(field.name) + ": "
         field_type = "typing.Any"
-        field_value = (
-            "field(default=..., converter={converter})" if not field.required else "field(converter={converter})"
-        )
+        field_value = make_field_function(field, converter='"{converter}"')
 
-        if literal_types is not None and any((literal_types.enum, literal_types.literals)):
+        if annotation is not None:
+            field_type = annotation.annotation
+            field_value = make_field_function(field, converter=annotation.convert_from)
+        elif literal_types is not None and any((literal_types.enum, literal_types.literals)):
             literal_type_hint = literal_types.enum or "Literal[%s]" % ", ".join(
                 f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
             )
@@ -242,13 +280,7 @@ class ObjectGenerator(ABCGenerator):
             field_type = (
                 f"list[{literal_type_hint}]" if any("Array of" in x for x in field.types) else literal_type_hint
             )
-            field_value = (
-                "field(default={})".format(field.default)
-                if field.required and field.default is not None
-                else "field()"
-                if field.required
-                else f"field(default=..., converter=From[{field_type} | None])"
-            )
+            field_value = make_field_function(field, converter=field_type if not field.required else None)
         else:
             if is_timestamp_type(field.name, field.types):
                 field_type = "timedelta"
@@ -261,20 +293,11 @@ class ObjectGenerator(ABCGenerator):
                     field.types.remove("Float")
                     converter_type += "| float"
 
-                field_value = (
-                    "field(default=..., converter=From[{} | None])"
-                    if not field.required
-                    else "field(converter=From[{}])"
-                ).format(converter_type)
-
+                field_value = make_field_function(field, converter=converter_type)
             elif is_unixtime_type(field.name, field.types, field.description or ""):
                 field.types.remove("Integer")
                 field_type = "datetime"
-                field_value = (
-                    "field(default=..., converter=From[datetime | int | None])"
-                    if not field.required
-                    else "field(converter=From[datetime | int])"
-                )
+                field_value = make_field_function(field, converter="datetime | int")
 
             if "InputFile" in field.types:
                 field.types.append(field.types.pop(field.types.index("InputFile")))
@@ -292,29 +315,39 @@ class ObjectGenerator(ABCGenerator):
                 )
                 if '"' in union_types:
                     union_types = '"{}"'.format(union_types.replace('"', ""))
-                field_value = field_value.format(
-                    converter="From[%s]" % (to_optional(union_types) if not field.required else union_types)
-                )
+                field_value = make_field_function(field, converter=union_types)
 
             elif len(field.types) == 1:
                 field_type = convert_to_python_type(field.types[0], self.parent_types)
                 converted_type = convert_to_python_type(
                     field.types[0],
                     self.parent_types,
-                    as_forward_ref=True,
                     as_union=True,
                 )
-                field_value = (
-                    field_value.format(
-                        converter="From[%s]"
-                        % (to_optional(converted_type) if not field.required else converted_type),
-                    )
-                    if ("|" in converted_type or not field.required)
-                    else "field()"
+                converted_type_with_quotes = convert_to_python_type(
+                    field.types[0],
+                    self.parent_types,
+                    as_union=True,
+                    as_forward_ref=True,
                 )
+
+                if not field.required or "|" in converted_type:
+                    if not (
+                        "|" in converted_type and any(x in converted_type.split("|") for x in TYPES.values())
+                    ) and not any(x == converted_type.split("[")[0] for x in TYPES.values()):
+                        converted_type = converted_type_with_quotes
+
+                    field_value = make_field_function(field, converter=converted_type)
+                else:
+                    field_value = make_field_function(field)
 
         if not field.required:
             field_type = f"Option[{field_type}]"
+
+        if "{converter}" in field_value:
+            field_value = make_field_function(
+                field, converter='"{}"'.format(field_type) if not field.required else None
+            )
 
         if field.default_factory is not None:
             field_value = field_value.replace(")", f"default_factory={field.default_factory},)")
@@ -402,7 +435,8 @@ class ObjectGenerator(ABCGenerator):
                 *filter(lambda f: not f.required, object_schema.fields),
             ):
                 literal_types = self.get_literal_types_field(object_name, field.name)
-                code += f"\n{TAB}" + self.make_object_field(field, literal_types)
+                annotation = self.get_object_field_annotation(object_name, field.name)
+                code += f"\n{TAB}" + self.make_object_field(field, literal_types, annotation)
 
         for nicification in nicifications:
             if object_schema.fields:
@@ -433,7 +467,7 @@ class ObjectGenerator(ABCGenerator):
             "from telegrinder.msgspec_utils.custom_types import Option, Literal, datetime, timedelta\n\n",
         ]
 
-        if self.config.generator.objects.fields_literal_types:
+        if self.config.generator.objects.fields.annotations.literals:
             lines.append("from telegrinder.types.enums import *  # noqa: F403\n")
 
         all_ = ["Model"]
@@ -519,7 +553,7 @@ class MethodGenerator(ABCGenerator):
         param_name: str,
         /,
     ) -> MethodsParamsLiteralTypesParam | None:
-        for p_literal_types in self.config.generator.methods.params_literal_types:
+        for p_literal_types in self.config.generator.methods.params.annotations.literals:
             if method_name == p_literal_types.method_name:
                 for param in p_literal_types.params:
                     if param.name == param_name:
@@ -533,6 +567,17 @@ class MethodGenerator(ABCGenerator):
         for param in self.config.generator.api.typed_default_parameters:
             if param.name == name:
                 return param
+
+        return None
+
+    def get_param_annotation(
+        self, method_name: str, param_name: str, /
+    ) -> MethodsParamsAnnotationsAnnotationsParam | None:
+        for p_annotation in self.config.generator.methods.params.annotations.annotations:
+            if method_name == p_annotation.method_name:
+                for param in p_annotation.params:
+                    if param.name == param_name:
+                        return param
 
         return None
 
@@ -582,10 +627,14 @@ class MethodGenerator(ABCGenerator):
             *filter(lambda x: x.required and not self.get_typed_default_param(x.name), params),
             *filter(lambda x: not x.required or self.get_typed_default_param(x.name), params),
         ):
+            annotation = self.get_param_annotation(method_name, p.name)
             literal_types = self.get_param_literal_types(method_name, p.name)
             param_name = makesafe_name(p.name)
 
-            if literal_types is not None:
+            if annotation is not None:
+                p.types = [annotation.annotation]
+
+            elif literal_types is not None:
                 tp = literal_types.enum or "typing.Literal[%s]" % ", ".join(
                     f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
                 )

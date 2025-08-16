@@ -71,14 +71,6 @@ def retryer[T: API, **P, R](func: APIRequestMethod[T, P, R], /) -> APIRequestMet
     return wrapper  # type: ignore
 
 
-def retry_on_error(func: typing.Callable[..., typing.Any], /) -> typing.Callable[..., typing.Any]:
-    @wraps(func)
-    async def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        return await func(*args, **kwargs)
-
-    return wrapper
-
-
 class API(APIMethods):
     """Bot API with available API methods and http client."""
 

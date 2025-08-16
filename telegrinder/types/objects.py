@@ -2599,7 +2599,7 @@ class SuggestedPostPaid(Model):
     Describes a service message about a successful payment for a suggested post.
     """
 
-    currency: str = field()
+    currency: Currency = field()
     """Currency in which the payment was made. Currently, one of `XTR` for Telegram
     Stars or `TON` for toncoins."""
 
@@ -2623,7 +2623,7 @@ class SuggestedPostRefunded(Model):
     Describes a service message about a payment refund for a suggested post.
     """
 
-    reason: str = field()
+    reason: Literal["post_deleted", "payment_refunded"] = field(default="post_deleted")
     """Reason for the refund. Currently, one of `post_deleted` if the post was
     deleted within 24 hours of being posted or removed from scheduled messages
     without being posted, or `payment_refunded` if the payer refunded their
@@ -2788,7 +2788,7 @@ class SuggestedPostPrice(Model):
     Desribes price of a suggested post.
     """
 
-    currency: str = field()
+    currency: Currency = field()
     """Currency in which the post will be paid. Currently, must be one of `XTR` for
     Telegram Stars or `TON` for toncoins."""
 
@@ -2805,7 +2805,7 @@ class SuggestedPostInfo(Model):
     Contains information about a suggested post.
     """
 
-    state: str = field()
+    state: Literal["pending", "approved", "declined"] = field(default="pending")
     """State of the suggested post. Currently, it can be one of `pending`, `approved`,
     `declined`."""
 
@@ -2813,7 +2813,7 @@ class SuggestedPostInfo(Model):
     """Optional. Proposed price of the post. If the field is omitted, then the post
     is unpaid."""
 
-    send_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
+    send_date: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Proposed send date of the post. If the field is omitted, then the
     post can be published at any time within 30 days at the sole discretion of
     the user or administrator who approves it."""
@@ -2829,7 +2829,7 @@ class SuggestedPostParameters(Model):
     """Optional. Proposed price for the post. If the field is omitted, then the
     post is unpaid."""
 
-    send_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
+    send_date: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Proposed send date of the post. If specified, then the date must
     be between 300 second and 2678400 seconds (30 days) in the future. If the
     field is omitted, then the post can be published at any time within 30 days

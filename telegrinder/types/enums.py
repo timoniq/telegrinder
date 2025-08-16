@@ -368,6 +368,8 @@ class Currency(enum.StrEnum, metaclass=BaseEnumMeta):
     ZAR = "ZAR"
     XTR = "XTR"
     """Telegram stars."""
+    TON = "TON"
+    """Toncoin."""
 
 
 class InlineQueryResultType(enum.StrEnum, metaclass=BaseEnumMeta):

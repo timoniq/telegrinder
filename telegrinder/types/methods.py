@@ -20,6 +20,7 @@ class APIMethods:
             "DefaultParams",
             {
                 "parse_mode": str,
+                "text_parse_mode": str,
                 "allow_paid_broadcast": bool,
                 "link_preview_options": LinkPreviewOptions,
                 "disable_notification": bool,
@@ -3634,7 +3635,7 @@ class APIMethods:
         chat_id: int | str | None = None,
         pay_for_upgrade: bool | None = None,
         text: str | None = None,
-        text_parse_mode: str | None = None,
+        text_parse_mode: str | None = default_params["text_parse_mode"],
         text_entities: list[MessageEntity] | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -3678,9 +3679,9 @@ class APIMethods:
         *,
         user_id: int,
         month_count: typing.Literal[3, 6, 12],
-        star_count: int,
+        star_count: typing.Literal[1000, 1500, 2500],
         text: str | None = None,
-        text_parse_mode: str | None = None,
+        text_parse_mode: str | None = default_params["text_parse_mode"],
         text_entities: list[MessageEntity] | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
