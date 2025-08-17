@@ -13,6 +13,7 @@ from aiohttp import ClientSession, TCPConnector
 from telegrinder.__meta__ import __version__
 from telegrinder.client.abc import ABCClient
 from telegrinder.msgspec_utils import json
+from telegrinder.tools.singleton.abc import ABCSingleton
 
 if typing.TYPE_CHECKING:
     from aiohttp import BaseConnector, ClientResponse
@@ -199,4 +200,10 @@ class AiohttpClient(ABCClient):
             await asyncio.sleep(0.250)
 
 
-__all__ = ("AiohttpClient",)
+class SingleAiohttpClient(AiohttpClient, ABCSingleton):
+    async def __exit__(self, *_: typing.Any) -> None:
+        # Do not close the session
+        ...
+
+
+__all__ = ("AiohttpClient", "SingleAiohttpClient")

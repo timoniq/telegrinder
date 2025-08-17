@@ -13,7 +13,7 @@ from fntypes.library.monad.result import Error, Ok, Result
 from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
 from telegrinder.api.token import Token
-from telegrinder.client import ABCClient, AiohttpClient, MultipartFormProto
+from telegrinder.client import ABCClient, MultipartFormProto, SingleAiohttpClient
 from telegrinder.client.aiohttp import DEFAULT_TIMEOUT
 from telegrinder.model import decoder
 from telegrinder.types.methods import APIMethods
@@ -88,7 +88,7 @@ class API(APIMethods):
         max_retries: int = DEFAULT_MAX_RETRIES,
     ) -> None:
         self.token = token
-        self.http = http or AiohttpClient()
+        self.http = http or SingleAiohttpClient()
         self._retryer_enabled = retryer
         self._max_retries = max_retries
         super().__init__(api=self)

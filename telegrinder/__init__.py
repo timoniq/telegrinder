@@ -88,7 +88,7 @@ from .bot import (
     action,
     register_manager,
 )
-from .client import ABCClient, AiohttpClient
+from .client import ABCClient, AiohttpClient, SingleAiohttpClient
 from .model import Model, field
 from .modules import logger, setup_logger
 from .tools.formatting import HTMLFormatter
@@ -197,6 +197,7 @@ __all__ = (
     "RawEventView",
     "RowButtons",
     "ShortState",
+    "SingleAiohttpClient",
     "StateData",
     "StateData",
     "StickerReplyHandler",

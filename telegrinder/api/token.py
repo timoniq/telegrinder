@@ -10,11 +10,11 @@ from telegrinder.api.error import InvalidTokenError
 class Token(str):
     def __new__(cls, token: str, /) -> typing.Self:
         if token.count(":") != 1 or not token.split(":")[0].isdigit():
-            raise InvalidTokenError("Invalid token, it should look like this: 12345:ABCdef")
+            raise InvalidTokenError("Invalid token format, it should look like 12345:ABCdef")
         return super().__new__(cls, token)
 
     def __repr__(self) -> str:
-        return f"<Token: {self.bot_id}:{self.split(':')[1][:6]}...>"
+        return f"<Token: {self.bot_id}:{self.token[:9]}...>"
 
     @classmethod
     def from_env(
@@ -27,6 +27,10 @@ class Token(str):
         if not is_read:
             env.read_envfile(path_to_envfile)
         return cls(env.str(var_name))
+
+    @cached_property
+    def token(self) -> str:
+        return self.split(":")[1]
 
     @cached_property
     def bot_id(self) -> int:
