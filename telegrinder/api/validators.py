@@ -7,7 +7,7 @@ from telegrinder.api.error import InvalidTokenError
 from telegrinder.api.token import Token
 
 
-async def validate_bot_token(token: str, /) -> Result[Token, InvalidTokenError]:
+async def validate_token(token: str, /) -> Result[Token, InvalidTokenError]:
     try:
         token = Token(token)
         api = API(token)
@@ -27,4 +27,4 @@ async def validate_bot_token(token: str, /) -> Result[Token, InvalidTokenError]:
         return Error(error)
 
 
-__all__ = ("validate_bot_token",)
+__all__ = ("validate_token",)
