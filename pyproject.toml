@@ -39,13 +39,13 @@ classifiers = [
 dependencies = [
     "aiohttp (>=3.12.15,<4.0.0)",
     "aiodns (>=3.5.0,<4.0.0); (sys_platform != 'darwin')",
-    "vbml (>=2.0.0,<3.0.0)",
     "choicelib (>=0.1.5,<0.2.0)",
     "envparse (>=0.2.0,<0.3.0)",
     "certifi (>=2025.8.3,<2026.0.0)",
     "msgspec (>=0.19.0,<0.20.0)",
     "typing-extensions (>=4.14.1,<5.0.0)",
     "colorama (>=0.4.6,<0.5.0)",
+    "vbml",
     "fntypes",
 ]
 
