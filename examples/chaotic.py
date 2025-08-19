@@ -1,5 +1,6 @@
 import pathlib
 import random
+import sys
 
 from telegrinder import (
     API,
@@ -29,13 +30,16 @@ from telegrinder.rules import (
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import InputFile
 
-setup_logger()
+setup_logger(
+    console_sink=sys.stderr,
+    level="DEBUG",
+    format="<level>{levelname: <8}</level>{module}:{funcName}:{lineno}:<light_white>{message}</light_white>",
+)
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine(bot.dispatch)
 kitten_pic = InputFile.from_path(pathlib.Path("examples/assets/kitten.jpg"))
-
 
 bot.dispatch.message.auto_rules = IsPrivate() & IsUser()
 

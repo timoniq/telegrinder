@@ -4,7 +4,7 @@ import dataclasses
 import threading
 import typing
 from copy import deepcopy
-from functools import wraps
+from functools import cached_property, wraps
 
 from fntypes.library.misc import from_optional
 from fntypes.library.monad import Error, Nothing, Ok, Option, Result, Some
@@ -330,8 +330,8 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
             self.set_context_variables(variables)
 
     def __repr__(self) -> str:
-        return "<{} contains variables: {{ {} }}>".format(
-            f"{fullname(self)}@{self.ctx_name}",
+        return "<{}: {{ {} }}>".format(
+            f"{fullname(self)}@{self.ctx_name}{' (thread-safe)' if self.thread_safe else ''}",
             ", ".join(var_name for var_name in self),
         )
 
@@ -344,7 +344,7 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
         return self.__ctx_name__ == __value.__ctx_name__ and self == __value
 
     def __setitem__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]) -> None:
-        with self._get_lock_context():
+        with self.lock_context:
             if is_dunder(__name):
                 raise NameError("Cannot set a context variable with a dunder name.")
 
@@ -363,14 +363,14 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
             )
 
     def __getitem__(self, __name: str) -> CtxValueT:
-        with self._get_lock_context():
+        with self.lock_context:
             value = self.get(__name).unwrap().value
             if value is NOVALUE:
                 raise NameError(f"Variable {__name!r} is not defined in {self.ctx_name!r}.")
             return value
 
     def __delitem__(self, __name: str) -> None:
-        with self._get_lock_context():
+        with self.lock_context:
             var = self.get(__name).unwrap()
             if var.const:
                 raise TypeError(f"Unable to delete variable {__name!r}, because it's a constant.")
@@ -408,11 +408,12 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
 
     @property
     def thread_safe(self) -> bool:
-        return getattr(self, "__thread_safe__", False)
+        return self.__thread_safe__
 
-    def _get_lock_context(self) -> ConditionalLock:
-        """Get conditional lock context manager based on thread_safe setting."""
-        return ConditionalLock(self.__context_lock__, self.thread_safe)
+    @cached_property
+    def lock_context(self) -> ConditionalLock:
+        """Conditional lock context manager based on thread_safe setting."""
+        return ConditionalLock(type(self).__context_lock__, self.__thread_safe__)
 
     @classmethod
     def is_root_attribute(cls, name: str) -> bool:
@@ -421,7 +422,7 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
 
     def set_context_variables(self, variables: typing.Mapping[str, CtxValueT | CtxVariable[CtxValueT]]) -> None:
         """Set context variables from mapping."""
-        with self._get_lock_context():
+        with self.lock_context:
             for name, var in variables.items():
                 if is_dunder(name):
                     raise NameError("Cannot set a context variable with a dunder name.")
@@ -461,7 +462,7 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
         return list(dict.values(self))
 
     def update(self, other: typing.Self) -> None:
-        with self._get_lock_context():
+        with self.lock_context:
             dict.update(self, dict(other.items()))
 
     def copy(self) -> typing.Self:
@@ -485,7 +486,7 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
     ) -> Option[GlobalCtxVar[T]]: ...
 
     def pop(self, var_name: str, var_value_type: typing.Any = object) -> typing.Any:
-        with self._get_lock_context():
+        with self.lock_context:
             val = self.get(var_name, var_value_type)
 
             if val:
@@ -548,7 +549,7 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
         return self.get(var_name, var_value_type).map(lambda var: var.value)
 
     def rename(self, old_var_name: str, new_var_name: str) -> Result[_, str]:
-        with self._get_lock_context():
+        with self.lock_context:
             var = self.get(old_var_name).unwrap()
             if var.const:
                 return Error(f"Unable to rename variable {old_var_name!r}, because it's a constant.")
@@ -568,7 +569,7 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
 
     def clear(self, *, include_consts: bool = False) -> None:
         """Clear context. If `include_consts = True`, the context is fully cleared."""
-        with self._get_lock_context():
+        with self.lock_context:
             if not self:
                 return
 
@@ -589,7 +590,7 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
 
     def delete_ctx(self) -> Result[_, str]:
         """Delete context by `ctx_name`."""
-        with self._get_lock_context():
+        with self.lock_context:
             if not self.__ctx_name__:
                 return Error("Cannot delete unnamed context.")
 

@@ -50,7 +50,7 @@ class ErrorHandler:
         self,
         error: InvalidTokenError,
     ) -> typing.NoReturn:
-        logger.error(error)
+        logger.error("{}", error)
         self._polling.stop()
         sys.exit(3)
 

@@ -1,7 +1,12 @@
+import dataclasses
 import logging
 import os
+import re
+import traceback
 import typing
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
 
+import colorama
 from choicelib import choice_in_order
 
 from telegrinder.msgspec_utils import json
@@ -9,43 +14,165 @@ from telegrinder.msgspec_utils import json
 # pyright: reportMissingImports=none, reportAttributeAccessIssue=none
 
 if typing.TYPE_CHECKING:
-    from logging import Handler as LoggingBasicHandler
-
-    from loguru import AsyncHandlerConfig as LoguruAsyncHandlerConfig
-    from loguru import BasicHandlerConfig as LoguruBasicHandlerConfig
-    from loguru import FileHandlerConfig as LoguruFileHandlerConfig
-    from loguru import HandlerConfig as LoguruHandlerConfig
+    from loguru import FileHandlerConfig as _LoguruFileHandler
 else:
-    LoguruAsyncHandlerConfig = LoguruBasicHandlerConfig = LoguruFileHandlerConfig = dict
 
-type _LoggerHandler = LoggingBasicHandler | LoguruHandlerConfig
-type _LoggerLevel = typing.Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "EXCEPTION"]
+    class _LoguruFileHandler(dict):
+        def __new__(cls, *args, **kwargs):
+            if logging_module != "loguru":
+                raise ModuleNotFoundError("FileHandlerConfig uses for loguru.") from None
+
+            return super().__new__(cls)
+
+
+type _LoggerLevel = typing.Literal["DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL", "EXCEPTION"]
+type _Sink = typing.TextIO | typing.Any
+
+_LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFileHandler | logging.FileHandler
+
+DEFAULT_LOGGING_FORMAT = (
+    "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
+    " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
+    "|</light_white> <level_module>{module}</level_module><light_white>:</light_white>"
+    "<func_name>{funcName}</func_name><light_white>:</light_white><lineno>{lineno}</lineno>"
+    " <light_white>></light_white> <message>{message}</message>"
+)
+DEFAULT_STRUCTLOG_FORMAT = (
+    "[<light_blue>{name}</light_blue>] {location} "
+    "[<light_black>{asctime}</light_black>] "
+    "<light_white>~</light_white> {message}"
+)
+DEFAULT_LOGURU_FORMAT = (
+    "telegrinder | <level>{level: <8}</level> | "
+    "<lg>{time:YYYY-MM-DD HH:mm:ss}</lg> | "
+    "<le>{name}</le>:<le>{function}</le>:"
+    "<le>{line}</le> > <lw>{message}</lw>"
+)
+
+COLORS = dict(
+    reset=colorama.Style.RESET_ALL,
+    red=colorama.Fore.RED,
+    green=colorama.Fore.GREEN,
+    blue=colorama.Fore.BLUE,
+    white=colorama.Fore.WHITE,
+    yellow=colorama.Fore.YELLOW,
+    magenta=colorama.Fore.MAGENTA,
+    cyan=colorama.Fore.CYAN,
+    black=colorama.Fore.BLACK,
+    light_red=colorama.Fore.LIGHTRED_EX,
+    light_green=colorama.Fore.LIGHTGREEN_EX,
+    light_blue=colorama.Fore.LIGHTBLUE_EX,
+    light_white=colorama.Fore.LIGHTWHITE_EX,
+    light_yellow=colorama.Fore.LIGHTYELLOW_EX,
+    light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
+    light_cyan=colorama.Fore.LIGHTCYAN_EX,
+    light_black=colorama.Fore.LIGHTBLACK_EX,
+)
+LEVEL_FORMAT_SETTINGS = dict(
+    DEBUG=dict(
+        level="light_blue",
+        level_module="blue",
+        func_name="blue",
+        lineno="light_yellow",
+        message="light_blue",
+    ),
+    INFO=dict(
+        level="cyan",
+        level_module="light_cyan",
+        func_name="light_cyan",
+        lineno="light_yellow",
+        message="light_green",
+    ),
+    WARNING=dict(
+        level="light_yellow",
+        level_module="light_magenta",
+        func_name="light_magenta",
+        lineno="light_blue",
+        message="light_yellow",
+    ),
+    ERROR=dict(
+        level="red",
+        level_module="light_yellow",
+        func_name="light_yellow",
+        lineno="light_blue",
+        message="light_red",
+    ),
+    CRITICAL=dict(
+        level="magenta",
+        level_module="light_red",
+        func_name="light_red",
+        lineno="light_yellow",
+        message="light_magenta",
+    ),
+)
+_ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
 @typing.runtime_checkable
 class LoggerModule(typing.Protocol):
-    def debug(self, __msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+    logger: typing.Any
 
-    def info(self, __msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+    def debug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-    def warning(self, __msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+    def info(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-    def error(self, __msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+    def warning(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-    def critical(self, __msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+    def success(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-    def exception(self, __msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+    def error(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-    if typing.TYPE_CHECKING:
+    def critical(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-        def set_level(self, level: _LoggerLevel, /) -> None: ...
+    def exception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-        def set_new_handler(self, new_handler: _LoggerHandler, /) -> None: ...
+
+class LoggingFormatter(logging.Formatter):
+    def __init__(self, format: str, colorize: bool, /) -> None:
+        self.level_formats = _get_level_format(format, colorize)
+        self.colorize = colorize
+        super().__init__()
+
+    def format(self, record: logging.LogRecord) -> str:
+        if logging_module == "logging":
+            record = _rich_log_record(record)
+
+        message = logging.Formatter(
+            fmt=self.level_formats.get(record.levelname),
+            datefmt="%Y-%m-%d %H:%M:%S",
+            style="{",
+        ).format(record)
+
+        if not self.colorize:
+            message = _remove_ansi_colors(message)
+
+        return message
 
 
 def _remove_handlers(logger: typing.Any, /) -> None:
     for hdlr in logger.handlers[:]:
         logger.removeHandler(hdlr)
+
+
+def _get_level_format(format: str, colorize: bool, /) -> dict[str, str]:
+    level_formats = {}
+
+    for level, settings in LEVEL_FORMAT_SETTINGS.items():
+        fmt = format
+
+        for name, color in COLORS.items():
+            fmt = fmt.replace(f"<{name}>", color if colorize else "").replace(
+                f"</{name}>", COLORS["reset"] if colorize else ""
+            )
+
+        for name, color in settings.items():
+            fmt = fmt.replace(f"<{name}>", COLORS[color] if colorize else "").replace(
+                f"</{name}>", COLORS["reset"] if colorize else ""
+            )
+
+        level_formats[level] = fmt
+
+    return level_formats
 
 
 def _rich_log_record(record: logging.LogRecord, /) -> logging.LogRecord:
@@ -71,61 +198,84 @@ def _rich_log_record(record: logging.LogRecord, /) -> logging.LogRecord:
     return record
 
 
-class _Logger:
-    _logger: LoggerModule | None
-    _handler_id: int | None
+def _remove_ansi_colors(text: str) -> str:
+    return _ANSI_ESCAPE.sub("", text)
 
+
+class _LoggerProxy:
     def __init__(self) -> None:
-        self._logger = None
-        self._handler_id = None
+        self.logger = None
 
     def __repr__(self) -> str:
-        return "<Logger {}: {}>".format(
+        return "<LoggerProxy {}: {}>".format(
             logging_module,
-            "(NOT SETUP)" if self._logger is None else repr(self._logger),
+            "(NOT SETUP)" if self.logger is None else repr(self.logger),
         )
 
     def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         return None
 
     def __getattr__(self, __name: str) -> typing.Any:
-        if self._logger is None:
+        if self.logger is None:
+            if __name == "exception" and (exception := sys.exception()) is not None:
+                traceback.print_exception(exception, chain=True, colorize=True)  # type: ignore
+
             return self
-        return getattr(self._logger, __name)
 
-    def _set_logger(self, logger: LoggerModule, /, *, handler_id: int | None = None) -> None:
-        self._logger = logger
-        self._handler_id = handler_id
+        if __name == "success" and logging_module != "loguru":
+            return getattr(self.logger, "info")
 
-    def set_level(self, level: str, /) -> None:
-        if self._logger is None:
-            return
+        return getattr(self.logger, __name)
 
-        level = level.upper()
-
-        if logging_module in ("logging", "structlog"):
-            self._logger.setLevel(level)
-
-        if (
-            logging_module == "loguru"
-            and self._handler_id is not None
-            and self._handler_id in self._logger._core.handlers
-        ):
-            self._logger._core.handlers[self._handler_id]._levelno = self._logger.level(level).no
-
-    def set_new_handler(self, new_handler: typing.Any, /) -> None:
-        if self._logger is None:
-            return
-
-        if logging_module in ("logging", "structlog"):
-            _remove_handlers(self._logger)
-            self._logger.addHandler(new_handler)
-        elif logging_module == "loguru" and self._handler_id is not None:
-            self._logger.remove(self._handler_id)
-            self._handler_id = self._logger.configure(handlers=(new_handler,))[0]
+    def _set_logger(self, logger: LoggerModule, /) -> None:
+        self.logger = logger
 
 
-logger: LoggerModule = typing.cast("LoggerModule", _Logger())
+class _LoguruFileHandlerConfig(_LoguruFileHandler):
+    pass
+
+
+@dataclasses.dataclass
+class FileHandlerConfig:
+    handler: _LoggingFileHandler | _LoguruFileHandlerConfig
+    format: str | None = None
+    colorize: bool = False
+
+    def __post_init__(self) -> None:
+        self.format = (
+            os.environ.get("TELEGRINDER_LOGGER_FILE_HANDLER_FORMAT", None)
+            or self.format
+            or (
+                DEFAULT_LOGGING_FORMAT
+                if logging_module == "logging"
+                else DEFAULT_STRUCTLOG_FORMAT
+                if logging_module == "structlog"
+                else DEFAULT_LOGURU_FORMAT
+            )
+        )
+        self.colorize = (
+            os.environ.get("TELEGRINDER_LOGGER_FILE_HANDLER_COLORIZE", "0").lower() in ("1", "true", "on")
+            or self.colorize
+        )
+
+    @classmethod
+    def from_logging(
+        cls,
+        handler: _LoggingFileHandler,
+        format: str | None = None,
+        colorize: bool = False,
+    ) -> typing.Self:
+        return cls(handler, format, colorize)
+
+    @classmethod
+    def from_loguru(
+        cls,
+        **kwargs: typing.Unpack[_LoguruFileHandlerConfig],  # type: ignore
+    ) -> typing.Self:
+        return cls(kwargs)  # type: ignore
+
+
+logger: LoggerModule = typing.cast("LoggerModule", _LoggerProxy())
 logging_module = choice_in_order(["structlog", "loguru"], default="logging", do_import=False)
 asyncio_module = choice_in_order(["uvloop", "winloop"], default="asyncio", do_import=False)
 
@@ -139,7 +289,7 @@ if logging_module == "structlog":
     import colorama
     import structlog
 
-    LEVELS_COLORS = dict(
+    _LEVELS_COLORS = dict(
         debug=colorama.Fore.LIGHTBLUE_EX,
         info=colorama.Fore.LIGHTGREEN_EX,
         warning=colorama.Fore.LIGHTYELLOW_EX,
@@ -159,8 +309,8 @@ if logging_module == "structlog":
             self,
             logger: typing.Any,
             method_name: str,
-            event_dict: dict[str, typing.Any],
-        ) -> dict[str, typing.Any]:
+            event_dict: typing.MutableMapping[str, typing.Any],
+        ) -> typing.MutableMapping[str, typing.Any]:
             args = event_dict.get("positional_args", ())
             event = event_dict.pop("event", "")
             if not isinstance(event, str):
@@ -191,7 +341,7 @@ if logging_module == "structlog":
             return event_dict
 
         def _colorize(self, value: typing.Any, log_level: str) -> str:
-            return f"{LEVELS_COLORS[log_level]}{value}{colorama.Fore.RESET}" if self.colors else value
+            return f"{_LEVELS_COLORS[log_level]}{value}{colorama.Fore.RESET}" if self.colors else value
 
         def _format_braces(
             self,
@@ -332,52 +482,75 @@ if logging_module == "structlog":
             return full_message
 
     class LogLevelColumnFormatter:
+        def __init__(self, colorize: bool) -> None:
+            self.colorize = colorize
+
         def __call__(self, key: str, value: typing.Any) -> str:
-            color = LEVELS_COLORS[value]
-            return f"[{color}{value:^12}{colorama.Fore.RESET}]"
+            if self.colorize:
+                color = _LEVELS_COLORS[value]
+                return f"[{color}{value:^12}{colorama.Fore.RESET}]"
+
+            return f"[{value:^12}]"
 
     class Filter(logging.Filter):
+        def __init__(self, colorize: bool) -> None:
+            self.colorize = colorize
+            super().__init__()
+
         def filter(self, record: logging.LogRecord) -> bool:
             record = _rich_log_record(record)
-            level_color = LEVELS_COLORS[record.levelname.lower()]
-            location = (
-                f"{colorama.Fore.LIGHTCYAN_EX}{record.module}{colorama.Fore.RESET}:"
-                f"{level_color}{record.funcName}{colorama.Fore.RESET}:"
-                f"{colorama.Fore.LIGHTMAGENTA_EX}{record.lineno}{colorama.Fore.RESET} "
-            )
+
+            if self.colorize:
+                level_color = _LEVELS_COLORS[record.levelname.lower()]
+                location = (
+                    f"{colorama.Fore.LIGHTCYAN_EX}{record.module}{colorama.Fore.RESET}:"
+                    f"{level_color}{record.funcName}{colorama.Fore.RESET}:"
+                    f"{colorama.Fore.LIGHTMAGENTA_EX}{record.lineno}{colorama.Fore.RESET} "
+                )
+            else:
+                location = f"{record.module}:{record.funcName}:{record.lineno} "
+
             record.location = location
             return True
 
-    def _configure_structlog(level: str, /) -> None:
+    def _configure_structlog(
+        level: str,
+        format: str | None = None,
+        colorize: bool = True,
+        console_sink: _Sink | None = None,
+        file: FileHandlerConfig | None = None,
+        /,
+    ) -> None:
         console_renderer = structlog.dev.ConsoleRenderer(colors=True)
 
         for column in console_renderer._columns:
             if column.key == "level":
-                column.formatter = LogLevelColumnFormatter()
+                column.formatter = LogLevelColumnFormatter(colorize)
                 break
-
-        fmt = (
-            f"[{colorama.Fore.LIGHTBLUE_EX}{{name}}{colorama.Style.RESET_ALL}] "
-            f"{colorama.Fore.LIGHTWHITE_EX}{{location}}{colorama.Style.RESET_ALL}"
-            f"[{colorama.Fore.LIGHTBLACK_EX}{{asctime}}{colorama.Style.RESET_ALL}] "
-            f"{colorama.Fore.LIGHTWHITE_EX}~{colorama.Style.RESET_ALL} {{message}}"
-        )
 
         telegrinder_logger = logging.getLogger("telegrinder")
         telegrinder_logger.setLevel(level)
         _remove_handlers(telegrinder_logger)
 
-        handler = logging.StreamHandler(sys.stderr)
-        handler.addFilter(Filter())
-        handler.setFormatter(logging.Formatter(fmt, datefmt="%Y-%m-%d %H:%M:%S", style="{"))
-        telegrinder_logger.addHandler(handler)
+        if console_sink is not None:
+            console_handler = logging.StreamHandler(console_sink)
+            console_handler.setFormatter(LoggingFormatter(format or DEFAULT_STRUCTLOG_FORMAT, colorize))
+            console_handler.addFilter(Filter(colorize))
+            telegrinder_logger.addHandler(console_handler)
+
+        if file is not None and isinstance(file.handler, _LoggingFileHandler):
+            if file.handler.formatter is None:
+                file.handler.setFormatter(LoggingFormatter(file.format, file.colorize))  # type: ignore
+
+            file.handler.addFilter(Filter(file.colorize))
+            telegrinder_logger.addHandler(file.handler)
 
         struct_logger = structlog.wrap_logger(
             logger=telegrinder_logger,
             processors=[
                 structlog.stdlib.filter_by_level,
                 structlog.stdlib.add_log_level,
-                SLF4JStyleFormatter(colors=True),
+                SLF4JStyleFormatter(),
                 structlog.processors.StackInfoRenderer(),
                 structlog.processors.format_exc_info,
                 structlog.processors.UnicodeDecoder(),
@@ -392,9 +565,15 @@ if logging_module == "structlog":
 
 elif logging_module == "loguru":
 
-    def _configure_loguru(level: str, /) -> None:
+    def _configure_loguru(
+        level: str,
+        format: str | None = None,
+        colorize: bool = True,
+        console_sink: _Sink | None = None,
+        file: FileHandlerConfig | None = None,
+        /,
+    ) -> None:
         import atexit
-        import sys
 
         from loguru._logger import Core, Logger
 
@@ -410,114 +589,39 @@ elif logging_module == "loguru":
             patchers=[],
             extra=dict(telegrinder=True),
         )
-        handler_id = loguru_logger.add(
-            sink=sys.stderr,
-            level=level,
-            enqueue=True,
-            colorize=True,
-            format=(
-                "telegrinder | <level>{level: <8}</level> | "
-                "<lg>{time:YYYY-MM-DD HH:mm:ss}</lg> | "
-                "<le>{name}</le>:<le>{function}</le>:"
-                "<le>{line}</le> > <lw>{message}</lw>"
-            ),
-            filter=lambda record: record["extra"].get("telegrinder", False) is True,  # type: ignore
-        )
+        handlers = []
 
-        atexit.register(lambda: loguru_logger.remove(logger._handler_id))
-        logger._set_logger(loguru_logger, handler_id=handler_id)
+        if console_sink is not None:
+            handlers.append(
+                dict(
+                    sink=console_sink,
+                    level=level,
+                    enqueue=True,
+                    colorize=colorize,
+                    format=format or DEFAULT_LOGURU_FORMAT,
+                    filter=lambda record: record["extra"].get("telegrinder", False) is True,
+                ),
+            )
+
+        if file is not None and isinstance(file.handler, dict):  # type: ignore
+            file.handler.setdefault("format", file.format or DEFAULT_LOGURU_FORMAT)
+            file.handler.setdefault("colorize", file.colorize)
+            handlers.append(file.handler)
+
+        if handlers:
+            handlers_ids = loguru_logger.configure(handlers=handlers)
+
+            @atexit.register
+            def _() -> None:
+                for handler_id in handlers_ids:
+                    loguru_logger.remove(handler_id)
+
+        logger._set_logger(loguru_logger)
+
 
 elif logging_module == "logging":
     import inspect
     import sys
-
-    import colorama
-
-    LOG_FORMAT = (
-        "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
-        " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
-        "|</light_white> <level_module>{module}</level_module><light_white>:</light_white>"
-        "<func_name>{funcName}</func_name><light_white>:</light_white><lineno>{lineno}</lineno>"
-        " <light_white>></light_white> <message>{message}</message>"
-    )
-    COLORS = dict(
-        reset=colorama.Style.RESET_ALL,
-        red=colorama.Fore.RED,
-        green=colorama.Fore.GREEN,
-        blue=colorama.Fore.BLUE,
-        white=colorama.Fore.WHITE,
-        yellow=colorama.Fore.YELLOW,
-        magenta=colorama.Fore.MAGENTA,
-        cyan=colorama.Fore.CYAN,
-        light_red=colorama.Fore.LIGHTRED_EX,
-        light_green=colorama.Fore.LIGHTGREEN_EX,
-        light_blue=colorama.Fore.LIGHTBLUE_EX,
-        light_white=colorama.Fore.LIGHTWHITE_EX,
-        light_yellow=colorama.Fore.LIGHTYELLOW_EX,
-        light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
-        light_cyan=colorama.Fore.LIGHTCYAN_EX,
-    )
-    LEVEL_FORMAT_SETTINGS = dict(
-        DEBUG=dict(
-            level="light_blue",
-            level_module="blue",
-            func_name="blue",
-            lineno="light_yellow",
-            message="light_blue",
-        ),
-        INFO=dict(
-            level="cyan",
-            level_module="light_cyan",
-            func_name="light_cyan",
-            lineno="light_yellow",
-            message="light_green",
-        ),
-        WARNING=dict(
-            level="light_yellow",
-            level_module="light_magenta",
-            func_name="light_magenta",
-            lineno="light_blue",
-            message="light_yellow",
-        ),
-        ERROR=dict(
-            level="red",
-            level_module="light_yellow",
-            func_name="light_yellow",
-            lineno="light_blue",
-            message="light_red",
-        ),
-        CRITICAL=dict(
-            level="magenta",
-            level_module="light_red",
-            func_name="light_red",
-            lineno="light_yellow",
-            message="light_magenta",
-        ),
-    )
-    LOG_FORMAT = (
-        LOG_FORMAT.replace("<light_white>", COLORS["light_white"])
-        .replace("</light_white>", COLORS["reset"])
-        .replace("<light_green>", COLORS["light_green"])
-        .replace("</light_green>", COLORS["reset"])
-    )
-    LEVEL_FORMATS = dict[str, str]()
-
-    for level, settings in LEVEL_FORMAT_SETTINGS.items():
-        fmt = LOG_FORMAT
-
-        for name, color in settings.items():
-            fmt = fmt.replace(f"<{name}>", COLORS[color]).replace(f"</{name}>", COLORS["reset"])
-
-        LEVEL_FORMATS[level] = fmt
-
-    class TelegrinderLoggingFormatter(logging.Formatter):
-        def format(self, record: logging.LogRecord) -> str:
-            record = _rich_log_record(record)
-            return logging.Formatter(
-                fmt=LEVEL_FORMATS.get(record.levelname),
-                datefmt="%Y-%m-%d %H:%M:%S",
-                style="{",
-            ).format(record)
 
     class LogMessage:
         def __init__(self, fmt: str, args: typing.Any, kwargs: typing.Any) -> None:
@@ -528,7 +632,7 @@ elif logging_module == "logging":
         def __str__(self) -> str:
             return self.fmt.format(*self.args, **self.kwargs)
 
-    class TelegrinderLoggingStyleAdapter(logging.LoggerAdapter):
+    class LoggingStyleAdapter(logging.LoggerAdapter):
         logger: logging.Logger
 
         def __init__(
@@ -536,7 +640,7 @@ elif logging_module == "logging":
             logger: logging.Logger,
             **extra: typing.Any,
         ) -> None:
-            super().__init__(logger, extra=extra)
+            super().__init__(logger, extra=extra or None)
             self.log_arg_names = frozenset(inspect.getfullargspec(self.logger._log).args[1:])
 
         def log(self, level: int, msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None:
@@ -558,14 +662,30 @@ elif logging_module == "logging":
 
             return msg, args, {name: kwargs[name] for name in self.log_arg_names if name in kwargs}
 
-    def _configure_logging(level: str, /) -> None:
-        handler = logging.StreamHandler(sys.stderr)
-        handler.setFormatter(TelegrinderLoggingFormatter())
+    def _configure_logging(
+        level: str,
+        format: str | None = None,
+        colorize: bool = True,
+        console_sink: _Sink | None = None,
+        file: FileHandlerConfig | None = None,
+        /,
+    ) -> None:
         _logger = logging.getLogger("telegrinder")
         _logger.setLevel(level)
         _remove_handlers(_logger)
-        _logger.addHandler(handler)
-        logger._set_logger(TelegrinderLoggingStyleAdapter(_logger))
+
+        if console_sink is not None:
+            console_handler = logging.StreamHandler(console_sink)
+            console_handler.setFormatter(LoggingFormatter(format or DEFAULT_LOGGING_FORMAT, colorize))
+            _logger.addHandler(console_handler)
+
+        if file is not None and isinstance(file.handler, _LoggingFileHandler):
+            if file.handler.formatter is None:
+                file.handler.setFormatter(LoggingFormatter(file.format, file.colorize))  # type: ignore
+
+            _logger.addHandler(file.handler)
+
+        logger._set_logger(LoggingStyleAdapter(logger=_logger))
 
 
 if asyncio_module in ("uvloop", "winloop"):
@@ -574,8 +694,15 @@ if asyncio_module in ("uvloop", "winloop"):
     asyncio.set_event_loop_policy(policy=__import__(name=asyncio_module).EventLoopPolicy())
 
 
-def setup_logger(*, level: _LoggerLevel | None = None) -> LoggerModule:
-    if logger._logger is not None:
+def setup_logger(
+    *,
+    console_sink: _Sink | None = None,
+    level: _LoggerLevel | None = None,
+    format: str | None = None,
+    colorize: bool = True,
+    file: FileHandlerConfig | None = None,
+) -> LoggerModule:
+    if logger.logger is not None:
         return logger
 
     import colorama
@@ -583,25 +710,23 @@ def setup_logger(*, level: _LoggerLevel | None = None) -> LoggerModule:
     colorama.just_fix_windows_console()
     colorama.init(wrap=False)
 
-    log_level = level or os.environ.setdefault("TELEGRINDER_LOGGER_LEVEL", "DEBUG").upper()
+    args: tuple[typing.Any, ...] = (
+        (os.environ.get("TELEGRINDER_LOGGER_LEVEL", None) or level or "debug").upper(),
+        os.environ.get("TELEGRINDER_LOGGER_FORMAT", None) or format,
+        os.environ.get("TELEGRINDER_LOGGER_COLORIZE", "0").lower() in ("1", "true", "on") or colorize,
+        console_sink,
+        file,
+    )
 
     match logging_module:
         case "logging":
-            _configure_logging(log_level)
+            _configure_logging(*args)
         case "loguru":
-            _configure_loguru(log_level)
+            _configure_loguru(*args)
         case "structlog":
-            _configure_structlog(log_level)
+            _configure_structlog(*args)
 
     return logger
 
 
-__all__ = (
-    "LoggerModule",
-    "LoguruAsyncHandlerConfig",
-    "LoguruBasicHandlerConfig",
-    "LoguruFileHandlerConfig",
-    "json",
-    "logger",
-    "setup_logger",
-)
+__all__ = ("FileHandlerConfig", "json", "logger", "setup_logger")

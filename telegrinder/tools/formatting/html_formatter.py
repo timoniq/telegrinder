@@ -40,6 +40,9 @@ def code_inline(string: str, /) -> TagFormat:
     return TagFormat(string, tag="code")
 
 
+monospace = code_inline
+
+
 def italic(string: str, /) -> TagFormat:
     return TagFormat(string, tag="i")
 
@@ -97,6 +100,7 @@ class StringFormatter(string.Formatter):
             "bold": bold,
             "code": code_inline,
             "code_inline": code_inline,
+            "monospace": code_inline,
             "italic": italic,
             "spoiler": spoiler,
             "strikethrough": strike,
@@ -171,8 +175,8 @@ class FormatString(str):
         """Returns self+value."""
         return HTMLFormatter(
             str.__add__(
-                escape(self),
-                value.formatting() if isinstance(value, TagFormat) else escape(value),
+                self,
+                value.formatting() if isinstance(value, TagFormat) else value,
             )
         )
 
@@ -271,6 +275,7 @@ __all__ = (
     "italic",
     "link",
     "mention",
+    "monospace",
     "pre_code",
     "spoiler",
     "strike",

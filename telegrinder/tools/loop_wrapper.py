@@ -164,6 +164,7 @@ class LoopWrapper(Singleton, Final):
             self.lifespan.start()
             yield
         except KeyboardInterrupt:
+            print(flush=True)
             logger.info("Caught KeyboardInterrupt, cancelling tasks...")
             run_task(self._cancel_tasks(), loop=self._loop)
         finally:

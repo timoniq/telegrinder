@@ -88,7 +88,7 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        *MESSAGE_IN_CHAT(message.chat.id),
+        hasher=MESSAGE_IN_CHAT(message.chat.id),
         release=HasText(),
         on_miss=MessageReplyHandler("Im still waiting for your message!"),
     )
@@ -105,8 +105,7 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        MESSAGE_IN_CHAT,
-        message.chat.id,
+        hasher=MESSAGE_IN_CHAT(message.chat.id),
         release=IntegerInRange(range(1, 11)),
         on_miss=MessageReplyHandler("Send a number between 1 and 10!"),
     )
