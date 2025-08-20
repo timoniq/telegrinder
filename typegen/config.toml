@@ -915,6 +915,12 @@ fields = [
     { name = "allowed_updates", enum = "UpdateType" },
 ]
 
+# Generator :: Methods :: Params :: Annotations :: Annotations
+
+[[generator.methods.params.annotations.annotations]]
+method_name = "getChatAdministrators"
+return_type = "list[Variative[ChatMemberOwner, ChatMemberAdministrator]]"
+
 # Generator :: Methods :: Params :: Annotations :: Literals (typing.Literal, enum.Enum)
 
 [[generator.methods.params.annotations.literals]]

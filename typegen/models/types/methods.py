@@ -19,7 +19,8 @@ class MethodsParamsAnnotationsAnnotationsParam(msgspec.Struct):
 
 class MethodsParamsAnnotationsAnnotations(msgspec.Struct):
     method_name: str
-    params: list[MethodsParamsAnnotationsAnnotationsParam]
+    params: list[MethodsParamsAnnotationsAnnotationsParam] = msgspec.field(default_factory=list)
+    return_type: str | None = msgspec.field(default=None)
 
 
 class MethodsParamsAnnotations(msgspec.Struct):

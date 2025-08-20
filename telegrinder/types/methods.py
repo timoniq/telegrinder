@@ -2736,19 +2736,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[
-        list[
-            Variative[
-                ChatMemberOwner,
-                ChatMemberAdministrator,
-                ChatMemberMember,
-                ChatMemberRestricted,
-                ChatMemberLeft,
-                ChatMemberBanned,
-            ]
-        ],
-        APIError,
-    ]:
+    ) -> Result[list[Variative[ChatMemberOwner, ChatMemberAdministrator]], APIError]:
         """Method `getChatAdministrators`, see the [documentation](https://core.telegram.org/bots/api#getchatadministrators)
 
         Use this method to get a list of administrators in a chat, which aren't bots.
@@ -2762,19 +2750,7 @@ class APIMethods:
             "getChatAdministrators",
             get_params(locals()),
         )
-        return full_result(
-            method_response,
-            list[
-                Variative[
-                    ChatMemberOwner,
-                    ChatMemberAdministrator,
-                    ChatMemberMember,
-                    ChatMemberRestricted,
-                    ChatMemberLeft,
-                    ChatMemberBanned,
-                ]
-            ],
-        )
+        return full_result(method_response, list[Variative[ChatMemberOwner, ChatMemberAdministrator]])
 
     async def get_chat_member_count(
         self,

@@ -562,7 +562,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
             default_params={"chat_id", "message_id", "message_thread_id"},
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return await self.ctx_api.pin_chat_message(**params)
+        return await self.ctx_api.unpin_chat_message(**params)
 
     @shortcut(
         "send_audio",

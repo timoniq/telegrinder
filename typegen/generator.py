@@ -31,7 +31,7 @@ from .models import (
 try:
     from telegrinder.modules import logger, setup_logger
 
-    setup_logger(level="DEBUG")
+    setup_logger(console_sink=sys.stderr, level="DEBUG")
 except ImportError:
     import logging
 
@@ -571,13 +571,23 @@ class MethodGenerator(ABCGenerator):
         return None
 
     def get_param_annotation(
-        self, method_name: str, param_name: str, /
+        self,
+        method_name: str,
+        param_name: str,
+        /,
     ) -> MethodsParamsAnnotationsAnnotationsParam | None:
         for p_annotation in self.config.generator.methods.params.annotations.annotations:
             if method_name == p_annotation.method_name:
                 for param in p_annotation.params:
                     if param.name == param_name:
                         return param
+
+        return None
+
+    def get_method_return_type(self, method_name: str, /) -> str | None:
+        for annotations in self.config.generator.methods.params.annotations.annotations:
+            if method_name == annotations.method_name:
+                return annotations.return_type
 
         return None
 
@@ -669,6 +679,11 @@ class MethodGenerator(ABCGenerator):
         return f"Result[{self.make_type_hint(returns, self.parent_types, is_return_type=True)}, APIError]"
 
     def make_method(self, method_schema: MethodSchema) -> str:
+        return_type = self.get_method_return_type(method_schema.name)
+
+        if return_type is not None:
+            method_schema.returns = [return_type]
+
         code = (
             f"{TAB}async def {camel_to_snake(method_schema.name)}(self,"
             + ("*,\n" if method_schema.params else "")
