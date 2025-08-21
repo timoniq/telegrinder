@@ -7,9 +7,7 @@ from telegrinder.node.text import Text
 
 class FuzzyText(ABCRule):
     def __init__(self, texts: str | list[str], /, *, min_ratio: float = 0.7) -> None:
-        if isinstance(texts, str):
-            texts = [texts]
-        self.texts = set(texts)
+        self.texts = (texts,) if isinstance(texts, str) else tuple(texts)
         self.min_ratio = min_ratio
 
     def check(self, message_text: Text, ctx: Context) -> bool:

@@ -1,13 +1,10 @@
-import typing
-
-from telegrinder.bot.cute_types import InlineQueryCute
+from telegrinder.bot.cute_types.inline_query import InlineQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.markup import Markup, PatternLike, check_string
 from telegrinder.types.enums import ChatType
 
-from .markup import Markup, PatternLike, check_string
-
-InlineQuery: typing.TypeAlias = InlineQueryCute
+type InlineQuery = InlineQueryCute
 
 
 class HasLocation(ABCRule):
