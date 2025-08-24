@@ -25,7 +25,7 @@ async def process_inner(
     ctx: Context,
     view: BaseView,
 ) -> bool:
-    ctx[CONTEXT_STORE_NODES_KEY] = {}  # For per-event shared nodes
+    ctx.setdefault(CONTEXT_STORE_NODES_KEY, {})  # For per-event shared nodes
 
     for m in view.middlewares:
         if (
@@ -57,7 +57,7 @@ async def process_inner(
                 if handler.final is True:
                     break
             case Error(error):
-                logger.debug(error)
+                logger.debug("{}", error)
 
     ctx = ctx_copy
     ctx.responses = responses

@@ -108,7 +108,6 @@ LEVEL_FORMAT_SETTINGS = dict(
 _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
-@typing.runtime_checkable
 class LoggerModule(typing.Protocol):
     logger: typing.Any
 
