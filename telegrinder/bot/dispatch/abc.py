@@ -55,8 +55,8 @@ class ABCDispatch(ABC):
             for f in files:
                 if f.endswith(".py") and f != "__init__.py":
                     module_path = os.path.join(root, f)
-                    module_name = os.path.splitext(os.path.relpath(module_path, directory))[0]
-                    module_name = module_name.replace(os.sep, ".")
+                    relative_path = os.path.relpath(module_path, sys.path[0])
+                    module_name = os.path.splitext(relative_path)[0].replace(os.sep, ".")
 
                     spec = importlib_util.spec_from_file_location(module_name, module_path)
                     if spec is None or spec.loader is None:
@@ -66,7 +66,7 @@ class ABCDispatch(ABC):
                     sys.modules[module_name] = module
                     spec.loader.exec_module(module)
 
-                    for obj in module.__dict__.values():
+                    for obj in vars(module).values():
                         if isinstance(obj, type(self)):
                             dps.append(obj)
 
