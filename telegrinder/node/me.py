@@ -13,4 +13,12 @@ class Me:
         return me.expect(ComposeError("Can't complete api.get_me() request."))
 
 
-__all__ = ("Me",)
+@global_node
+@scalar_node
+class BotUsername:
+    @classmethod
+    def compose(cls, me: Me) -> str:
+        return me.username.unwrap()
+
+
+__all__ = ("BotUsername", "Me")

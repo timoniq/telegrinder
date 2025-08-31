@@ -9,8 +9,20 @@ from functools import cache, cached_property, wraps
 
 from telegrinder.tools.magic.annotations import Annotations, MappingAnnotations
 
-type Function[**P, R] = typing.Callable[P, R]
-type AnyFunction = Function[..., typing.Any]
+type AnyFunction = Func[..., typing.Any]
+type Func[**P, R] = typing.Callable[P, R]
+type Function[**P, R] = typing.Callable[
+    P,
+    typing.Union[
+        typing.Coroutine[typing.Any, typing.Any, R],
+        typing.Awaitable[R],
+        typing.AsyncGenerator[R, typing.Any],
+        typing.Generator[typing.Any, typing.Any, R],
+        typing.AsyncContextManager[R, typing.Any],
+        typing.ContextManager[R, typing.Any],
+        R,
+    ],
+]
 
 
 def _to_str(obj: typing.Any, /) -> str:
@@ -41,7 +53,7 @@ class FunctionParameters(typing.TypedDict):
 
 @dataclasses.dataclass(frozen=True, repr=False)
 class Bundle[R]:
-    function: Function[..., R]
+    function: Func[..., R]
     start_idx: int
     context: types.MappingProxyType[str, typing.Any]
 
@@ -61,7 +73,7 @@ class Bundle[R]:
     @classmethod
     def from_context(
         cls,
-        function: Function[..., R],
+        function: Func[..., R],
         context: typing.Mapping[str, typing.Any],
         /,
         *,
@@ -98,9 +110,9 @@ class Bundle[R]:
         return self.__and__(other)
 
 
-def function_context[**P, R](key: str, /) -> Function[[Function[P, R]], Function[P, R]]:
-    @lambda wrapper: typing.cast("Function[[Function[P, R]], Function[P, R]]", wrapper)
-    def wrapper(func: Function[typing.Concatenate[AnyFunction, P], R], /) -> AnyFunction:
+def function_context[**P, R](key: str, /) -> Func[[Func[P, R]], Func[P, R]]:
+    @lambda wrapper: typing.cast("Func[[Func[P, R]], Func[P, R]]", wrapper)
+    def wrapper(func: Func[typing.Concatenate[AnyFunction, P], R], /) -> AnyFunction:
         @wraps(func)
         def inner(passed_function: AnyFunction, /, *args: P.args, **kwargs: P.kwargs) -> R:
             sentinel = object()

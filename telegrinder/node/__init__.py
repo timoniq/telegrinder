@@ -42,7 +42,8 @@ from .error import Error
 from .event import EventNode
 from .file import File, FileId
 from .i18n import ABCTranslator, KeySeparator
-from .me import Me
+from .me import BotUsername, Me
+from .message_entities import MessageEntities
 from .payload import Payload, PayloadData, PayloadSerializer
 from .polymorphic import Polymorphic, impl
 from .reply_message import ReplyMessage
@@ -70,6 +71,7 @@ __all__ = (
     "Animation",
     "Attachment",
     "Audio",
+    "BotUsername",
     "CallbackQueryData",
     "CallbackQueryDataJson",
     "Caption",
@@ -96,6 +98,7 @@ __all__ = (
     "Locale",
     "Me",
     "MediaGroup",
+    "MessageEntities",
     "Name",
     "Node",
     "NodeCollection",
