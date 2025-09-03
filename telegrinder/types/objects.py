@@ -2785,7 +2785,7 @@ class LinkPreviewOptions(Model):
 class SuggestedPostPrice(Model):
     """Object `SuggestedPostPrice`, see the [documentation](https://core.telegram.org/bots/api#suggestedpostprice).
 
-    Desribes price of a suggested post.
+    Describes the price of a suggested post.
     """
 
     currency: Currency = field()
@@ -2843,7 +2843,10 @@ class DirectMessagesTopic(Model):
     """
 
     topic_id: int = field()
-    """Unique identifier of the topic."""
+    """Unique identifier of the topic. This number may have more than 32 significant
+    bits and some programming languages may have difficulty/silent defects
+    in interpreting it. But it has at most 52 significant bits, so a 64-bit integer
+    or double-precision float type are safe for storing this identifier."""
 
     user: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. Information about the user that created the topic. Currently,
