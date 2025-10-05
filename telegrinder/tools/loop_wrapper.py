@@ -46,7 +46,7 @@ class LoopWrapperState(enum.Enum):
 class LoopWrapper(Singleton, Final):
     _loop: asyncio.AbstractEventLoop
     _lifespan: Lifespan
-    _tasks: list[CoroutineTask[typing.Any]]
+    _future_tasks: list[CoroutineTask[typing.Any]]
     _state: LoopWrapperState
     _all_tasks: set[asyncio.Task[typing.Any]]
     _limit: int | None
@@ -55,22 +55,23 @@ class LoopWrapper(Singleton, Final):
     __slots__ = (
         "_loop",
         "_lifespan",
-        "_tasks",
+        "_future_tasks",
         "_state",
         "_all_tasks",
         "_limit",
         "_semaphore",
+        "_handle_run_async_event_loop",
     )
 
     def __init__(self) -> None:
         self._loop = asyncio.get_event_loop()
         self._lifespan = Lifespan()
-        self._tasks = list()
+        self._future_tasks = list()
         self._state = LoopWrapperState.NOT_RUNNING
         self._all_tasks = set()
         self._limit = None
         self._semaphore = None
-        self._async_event_loop_task = self._create_task(self._run_async_event_loop())
+        self._soon_run_event_loop()
 
     def __call__(self) -> asyncio.AbstractEventLoop:
         return self._loop
@@ -91,8 +92,8 @@ class LoopWrapper(Singleton, Final):
     async def _run(self) -> None:
         logger.debug("Running loop wrapper")
 
-        while self._tasks:
-            await self.create_task(self._tasks.pop(0))
+        while self._future_tasks:
+            await self.create_task(self._future_tasks.pop(0))
 
         while self.running and (tasks := self._get_all_tasks()):
             await self._process_tasks(tasks)
@@ -120,6 +121,7 @@ class LoopWrapper(Singleton, Final):
         except asyncio.CancelledError:
             logger.info("LoopWrapper task was cancelled, cancelling tasks...")
             await self._cancel_tasks()
+            print(flush=True)
         finally:
             await self._shutdown()
 
@@ -139,6 +141,11 @@ class LoopWrapper(Singleton, Final):
         assert self._semaphore is not None
         await self._semaphore.acquire()
         self._create_task(self._run_coro_with_semaphore(coro))
+
+    def _soon_run_event_loop(self) -> None:
+        self._handle_run_async_event_loop = self._loop.call_soon_threadsafe(
+            callback=lambda: self._loop.create_task(self._run_async_event_loop()),
+        )
 
     def _create_task[T](self, coro: CoroutineTask[T], /) -> asyncio.Task[T]:
         task = self._loop.create_task(coro)
@@ -241,9 +248,8 @@ class LoopWrapper(Singleton, Final):
         self._loop = loop_factory() if loop_factory else loop or self._loop
 
         if old_loop is not self._loop:
-            self._all_tasks.discard(self._async_event_loop_task)
-            self._async_event_loop_task.cancel()
-            self._async_event_loop_task = self._create_task(self._run_async_event_loop())
+            self._handle_run_async_event_loop.cancel()
+            self._soon_run_event_loop()
 
         return self
 
@@ -257,15 +263,14 @@ class LoopWrapper(Singleton, Final):
 
     def add_task(self, task: Task[..., typing.Any], /) -> None:
         coro_task = to_coroutine_task(task)
-        self._create_task(coro_task) if self.running else self._tasks.append(coro_task)
+        self._create_task(coro_task) if self.running else self._future_tasks.append(coro_task)
 
     async def create_task(self, task: Task[..., typing.Any], /) -> None:
-        if not self.running:
-            self.add_task(task)
-            return
-
         coro_task = to_coroutine_task(task)
-        if self._semaphore is not None:
+
+        if not self.running:
+            self._future_tasks.append(coro_task)
+        elif self._semaphore is not None:
             await self._create_task_with_semaphore(coro_task)
         else:
             self._create_task(coro_task)
@@ -300,35 +305,26 @@ class LoopWrapper(Singleton, Final):
             seconds=delta or seconds,
         )
 
-    @typing.overload
-    def interval[**P, R](self, delta: datetime.timedelta, /) -> DelayedFunctionDecorator[P, R]: ...
+    if typing.TYPE_CHECKING:
+        interval = timer
 
-    @typing.overload
-    def interval[**P, R](
-        self,
-        *,
-        days: int = ...,
-        hours: int = ...,
-        minutes: int = ...,
-        seconds: float = ...,
-    ) -> DelayedFunctionDecorator[P, R]: ...
-
-    def interval(
-        self,
-        delta: datetime.timedelta | None = None,
-        *,
-        days: int = 0,
-        hours: int = 0,
-        minutes: int = 0,
-        seconds: float = 0.0,
-    ) -> DelayedFunctionDecorator[..., typing.Any]:
-        return self._get_delayed_task_decorator(
-            repeat=True,
-            days=days,
-            hours=hours,
-            minutes=minutes,
-            seconds=delta or seconds,
-        )
+    else:
+        def interval(
+            self,
+            delta: datetime.timedelta | None = None,
+            *,
+            days: int = 0,
+            hours: int = 0,
+            minutes: int = 0,
+            seconds: float = 0.0,
+        ) -> DelayedFunctionDecorator[..., typing.Any]:
+            return self._get_delayed_task_decorator(
+                repeat=True,
+                days=days,
+                hours=hours,
+                minutes=minutes,
+                seconds=delta or seconds,
+            )
 
 
 __all__ = ("DelayedTask", "LoopWrapper", "to_coroutine_task")
