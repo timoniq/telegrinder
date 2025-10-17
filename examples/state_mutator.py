@@ -1,7 +1,7 @@
 import dataclasses
-from telegrinder.tools.state_mutator import mutation, State, StateMutator
 import datetime
 
+from telegrinder.tools.state_mutator import State, StateMutator, mutation
 
 # State declaration
 
@@ -19,13 +19,12 @@ class AliveState(State):
 
 @dataclasses.dataclass
 class DeadState(State):
-
     reason: str
 
     @mutation
     def resurrect(self) -> "AliveState":
         return AliveState()
-    
+
     @property
     def __description__(self) -> str:
         return f"not living because you died of {self.reason}"
@@ -37,37 +36,42 @@ be_born = mutation(AliveState)
 
 # or as function
 
+
 @mutation
 def login_as_ghost(silently: bool = False):
     if not silently:
         print("Ghost just logged in ~*_*~")
     return DeadState(reason="~*being a ghost*~")
 
+
 # State use
 
 
-from telegrinder import Bot, API, Token, setup_logger
+from telegrinder import API, Bot, Token, setup_logger
 from telegrinder.rules import Text
-
 
 bot = Bot(API(Token.from_env()))
 setup_logger(level="DEBUG")
+
 
 @bot.on.message(Text("/die"))
 async def die_handler(alive: AliveState):
     new = await alive.die("sadness")
     return f"You died because of {new.reason}"
 
+
 @bot.on.message(Text("/resurrect"))
 async def resurrect_handler(dead: DeadState):
     await dead.resurrect()
     return "You resurrected"
+
 
 @bot.on.message(Text("/trick"))
 async def trick_handler(mutator: StateMutator):
     # To inject mutation from any state: await AliveState().bind(mutator).die("oops")
     await (await be_born(mutator)).die("oops")
     return "Trick was unsuccessful"
+
 
 @bot.on.message(Text("/song"))
 async def sing_a_song_handler(state: AliveState):
@@ -83,6 +87,7 @@ async def ghost_handler(m: StateMutator):
 @bot.on.message()
 async def in_state_handler(state: AliveState | DeadState):
     return f"You are {state.__description__}"
+
 
 @bot.on.message(Text("/be_born"))
 async def be_born_handler(mutator: StateMutator):

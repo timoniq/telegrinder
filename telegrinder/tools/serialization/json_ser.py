@@ -5,8 +5,8 @@ from fntypes.library.monad.result import Error, Ok, Result
 
 from telegrinder.modules import json
 from telegrinder.msgspec_utils import decoder
-from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
-from telegrinder.tools.callback_data_serialization.utils import get_model_ident_key
+from telegrinder.tools.serialization.abc import ABCDataSerializer, ModelType
+from telegrinder.tools.serialization.utils import get_model_ident_key
 
 type Json = dict[str, typing.Any] | ModelType
 

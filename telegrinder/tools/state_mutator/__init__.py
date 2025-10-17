@@ -1,4 +1,4 @@
-from telegrinder.tools.state_mutator.mutation import mutation
 from telegrinder.node.state_mutator import State, StateMutator
+from telegrinder.tools.state_mutator.mutation import mutation
 
-__all__ = ("mutation", "State", "StateMutator")
+__all__ = ("State", "StateMutator", "mutation")

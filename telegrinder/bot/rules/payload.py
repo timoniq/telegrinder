@@ -10,9 +10,9 @@ from telegrinder.bot.rules.markup import Markup, PatternLike, check_string
 from telegrinder.msgspec_utils.json import loads
 from telegrinder.node.base import Node
 from telegrinder.node.payload import Payload, PayloadData
-from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
-from telegrinder.tools.callback_data_serialization.json_ser import JSONSerializer
-from telegrinder.tools.callback_data_serialization.utils import get_model_serializer
+from telegrinder.tools.serialization.abc import ABCDataSerializer, ModelType
+from telegrinder.tools.serialization.json_ser import JSONSerializer
+from telegrinder.tools.serialization.utils import get_model_serializer
 
 _ANY: typing.Final[object] = object()
 

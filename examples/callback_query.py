@@ -18,7 +18,7 @@ from telegrinder.rules import (
     PayloadModelRule,
     Text,
 )
-from telegrinder.tools.callback_data_serialization import MsgPackSerializer
+from telegrinder.tools.serialization import MsgPackSerializer
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

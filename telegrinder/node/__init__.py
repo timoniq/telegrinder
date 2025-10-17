@@ -58,6 +58,7 @@ from .scope import (
     per_event,
 )
 from .source import ChatId, ChatSource, Locale, Source, UserId, UserSource
+from .state_mutator import State, StateMutator
 from .text import Caption, Text, TextInteger, TextLiteral
 from .tools import generate_node
 from .utility import TypeArgs
@@ -117,6 +118,8 @@ __all__ = (
     "ReplyMessage",
     "RuleChain",
     "Source",
+    "State",
+    "StateMutator",
     "SuccessfulPayment",
     "Text",
     "TextInteger",

@@ -6,11 +6,6 @@ from telegrinder.tools.aio import (
     send_generator_value,
     stop_generator,
 )
-from telegrinder.tools.callback_data_serialization import (
-    ABCDataSerializer,
-    JSONSerializer,
-    MsgPackSerializer,
-)
 from telegrinder.tools.formatting import (
     FormatString,
     HTMLFormatter,
@@ -84,6 +79,11 @@ from telegrinder.tools.magic import (
     shortcut,
 )
 from telegrinder.tools.parse_mode import ParseMode
+from telegrinder.tools.serialization import (
+    ABCDataSerializer,
+    JSONSerializer,
+    MsgPackSerializer,
+)
 from telegrinder.tools.singleton import ABCSingleton, ABCSingletonMeta, Singleton, SingletonMeta
 from telegrinder.tools.state_storage import ABCStateStorage, MemoryStateStorage, StateData
 from telegrinder.tools.strings import to_utf16_map, utf16_to_py_index

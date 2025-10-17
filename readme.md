@@ -34,13 +34,11 @@
 Basic example:
 
 ```python
-import sys
-
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.modules import setup_logger
 from telegrinder.rules import Text
 
-setup_logger(console_sink=sys.stderr, level="INFO")
+setup_logger(level="INFO")
 api = API(token=Token("123:token"))
 bot = Telegrinder(api)
 

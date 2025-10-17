@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 if typing.TYPE_CHECKING:
-    from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer
+    from telegrinder.tools.serialization.abc import ABCDataSerializer
 
 IDENT_KEY: typing.Final[str] = "__key__"
 SERIALIZER_KEY: typing.Final[str] = "__serializer__"

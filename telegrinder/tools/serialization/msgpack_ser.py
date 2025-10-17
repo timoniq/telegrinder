@@ -10,21 +10,27 @@ import msgspec
 from fntypes.library.monad.result import Error, Ok, Result
 
 from telegrinder.msgspec_utils import decoder, encoder, get_class_annotations
-from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
-from telegrinder.tools.callback_data_serialization.utils import get_model_ident_key
-
-DESERIALIZE_EXCEPTIONS: typing.Final[set[type[BaseException]]] = {
-    msgspec.DecodeError,
-    msgspec.ValidationError,
-    binascii.Error,
-}
+from telegrinder.tools.serialization.abc import ABCDataSerializer, ModelType
+from telegrinder.tools.serialization.utils import get_model_ident_key
 
 try:
     import brotli  # type: ignore
 
-    DESERIALIZE_EXCEPTIONS.add(brotli.error)  # type: ignore
 except ImportError:
     brotli = None
+
+DESERIALIZE_EXCEPTIONS: typing.Final[frozenset[type[BaseException]]] = frozenset(
+    filter(
+        None,
+        (
+            msgspec.DecodeError,
+            msgspec.ValidationError,
+            binascii.Error,
+            ValueError,
+            brotli.error if brotli is not None else None,  # type: ignore
+        ),
+    ),
+)
 
 
 @dataclasses.dataclass(frozen=True, slots=True)

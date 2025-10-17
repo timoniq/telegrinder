@@ -8,9 +8,9 @@ from functools import cached_property
 import msgspec
 
 from telegrinder.msgspec_utils.encoder import encoder
-from telegrinder.tools.callback_data_serialization.json_ser import JSONSerializer
-from telegrinder.tools.callback_data_serialization.utils import get_model_serializer
 from telegrinder.tools.keyboard.utils import freaky_keyboard_merge
+from telegrinder.tools.serialization.json_ser import JSONSerializer
+from telegrinder.tools.serialization.utils import get_model_serializer
 from telegrinder.types.objects import (
     CallbackGame,
     CopyTextButton,
@@ -27,10 +27,10 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.bot.rules.abc import ABCRule
     from telegrinder.bot.rules.button import ButtonRule
-    from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer
     from telegrinder.tools.keyboard import keyboard
     from telegrinder.tools.keyboard.base import BaseKeyboard
     from telegrinder.tools.keyboard.button import BaseButton
+    from telegrinder.tools.serialization.abc import ABCDataSerializer
 
 type CallbackData = str | dict[str, typing.Any] | DataclassInstance | msgspec.Struct
 type Keyboard = keyboard.Keyboard

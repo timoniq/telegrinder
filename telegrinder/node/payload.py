@@ -8,9 +8,9 @@ from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.node.base import ComposeError, DataNode, FactoryNode, GlobalNode, scalar_node
 from telegrinder.node.polymorphic import Polymorphic, impl
-from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer
-from telegrinder.tools.callback_data_serialization.json_ser import JSONSerializer
-from telegrinder.tools.callback_data_serialization.utils import get_model_serializer
+from telegrinder.tools.serialization.abc import ABCDataSerializer
+from telegrinder.tools.serialization.json_ser import JSONSerializer
+from telegrinder.tools.serialization.utils import get_model_serializer
 
 
 @scalar_node[str]

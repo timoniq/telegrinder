@@ -69,7 +69,7 @@ def fullname(obj: object, /) -> str:
         obj_cls = obj.__objclass__ if _is_routine_descriptor(obj) else obj.__self__
         obj = type(obj_cls) if not isinstance(obj_cls, type) else obj_cls
 
-    module: str = getattr(orig_obj, "__module__", obj.__module__)
+    module: str = getattr(orig_obj, "__module__", None) or obj.__module__
     if _is_builtin(obj) and module != builtins.__name__:
         module = builtins.__name__
     else:
