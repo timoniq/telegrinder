@@ -30,8 +30,6 @@ type _Sink = typing.TextIO | typing.Any
 
 _LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFileHandler | logging.FileHandler
 
-_NO_SINK: typing.Any = object()
-
 DEFAULT_LOGGING_FORMAT = (
     "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
     " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
@@ -697,7 +695,7 @@ if asyncio_module in ("uvloop", "winloop"):
 
 def setup_logger(
     *,
-    console_sink: _Sink | None = _NO_SINK,
+    console_sink: _Sink = sys.stderr,
     level: _LoggerLevel | None = None,
     format: str | None = None,
     colorize: bool = True,
@@ -715,7 +713,7 @@ def setup_logger(
         (os.environ.get("TELEGRINDER_LOGGER_LEVEL", None) or level or "debug").upper(),
         os.environ.get("TELEGRINDER_LOGGER_FORMAT", None) or format,
         os.environ.get("TELEGRINDER_LOGGER_COLORIZE", "0").lower() in ("1", "true", "on") or colorize,
-        sys.stderr if console_sink is _NO_SINK else console_sink,
+        console_sink,
         file,
     )
 
