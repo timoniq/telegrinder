@@ -8,6 +8,7 @@ from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.polling import polling as pg
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
+from telegrinder.tools.aio import loop_is_running
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
@@ -71,7 +72,7 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
 
         self.polling.offset = offset
 
-        if self.loop_wrapper.running:
+        if self.loop_wrapper.running or loop_is_running():
             await polling()
         else:
             self.loop_wrapper.add_task(polling())

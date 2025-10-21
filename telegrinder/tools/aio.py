@@ -1,8 +1,17 @@
 import asyncio
 import typing
+from contextlib import suppress
 from inspect import isasyncgen, isawaitable
 
 type Generator[Yield, Send, Return] = typing.AsyncGenerator[Yield, Send] | typing.Generator[Yield, Send, Return]
+
+
+def loop_is_running() -> bool:
+    with suppress(RuntimeError):
+        asyncio.get_running_loop()
+        return True
+
+    return False
 
 
 def run_task[T](
@@ -94,6 +103,7 @@ class StopGenerator(Exception):
 __all__ = (
     "StopGenerator",
     "cancel_future",
+    "loop_is_running",
     "maybe_awaitable",
     "next_generator",
     "run_task",
