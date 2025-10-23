@@ -25,11 +25,10 @@
 
 * Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
 * Customizable and extensible
-* Ready to use scenarios and rules
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
 * Both low-level and high-level API
 * Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
-
+* <details> <summary>A variety of state management tools</summary><p>○ <a href="https://github.com/timoniq/telegrinder/blob/01b5e269dd15dc2cbd3915cb54d16c85d21fe0ca/examples/blueprint_bot/handlers/with_enum.py#L18">waiter machine</a> for runtime inline short state funneling<br>○  <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/state_mutator_player.py">state mutator</a> to declare complex state sets</p></details> 
 
 Basic example:
 
@@ -90,12 +89,13 @@ Copyright © 2024 [luwqz1](https://github.com/luwqz1)
 
 # Contributors
 
-
-[How to contribute](https://github.com/timoniq/telegrinder/blob/main/contributing.md)
-
-
 <p>
-  <a href="https://github.com/timoniq/telegrinder/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder" />
-  </a>
+    <img src="https://arseny.neocities.org/assets/te_agradezco.png" height="50px" style="vertical-align: middle;">
 </p>
+
+<a href="https://github.com/timoniq/telegrinder/graphs/contributors">
+ <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder" />
+</a>
+
+
+We welcome your pull requests ([contrubution notes](https://github.com/timoniq/telegrinder/blob/main/contributing.md)). Telegrinder is built by the community
