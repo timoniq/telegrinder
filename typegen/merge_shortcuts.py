@@ -40,7 +40,7 @@ def is_decorator_name(decorator_call_node: cst.Call, decorator_name: str) -> boo
 
 
 def get_func_params(node: cst.FunctionDef) -> tuple[dict[str, cst.Param], dict[str, cst.Param]]:
-    result: tuple[dict[str, cst.Param], dict[str, cst.Param]] = tuple()
+    result: tuple[dict[str, cst.Param], dict[str, cst.Param]] = tuple()  # type: ignore
 
     for params in (node.params.params, node.params.kwonly_params):
         params_dct = OrderedDict()

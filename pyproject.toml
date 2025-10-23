@@ -158,6 +158,7 @@ exclude = [
   ".idea",
   ".ruff_cache",
   ".pytest_cache",
+  "typegen",
   "docs",
   "local",
 ]
