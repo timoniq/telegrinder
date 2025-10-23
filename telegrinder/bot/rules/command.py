@@ -18,6 +18,9 @@ class Argument:
     optional: bool = dataclasses.field(default=False, kw_only=True)
 
     def check(self, data: str) -> typing.Any | None:
+        if data == "":
+            return None
+
         for validator in self.validators:
             data = validator(data)  # type: ignore
             if data is None:
