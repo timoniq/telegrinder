@@ -695,7 +695,7 @@ if asyncio_module in ("uvloop", "winloop"):
 
 def setup_logger(
     *,
-    console_sink: _Sink = sys.stderr,
+    console_sink: _Sink | None = sys.stderr,
     level: _LoggerLevel | None = None,
     format: str | None = None,
     colorize: bool = True,

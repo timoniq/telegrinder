@@ -2,18 +2,22 @@ from __future__ import annotations
 
 import typing
 
+from telegrinder.tools.aio import maybe_awaitable
+
 if typing.TYPE_CHECKING:
     from telegrinder.node.state_mutator import State, StateMutator
 
+    class BoundMethod[**P, T, R](typing.Protocol):
+        @staticmethod
+        def __call__(
+            self: T, *args: P.args, **kwargs: P.kwargs
+        ) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
 
-class BoundMethod[**P, T, R](typing.Protocol):
-    @staticmethod
-    def __call__(self: T, *args: P.args, **kwargs: P.kwargs) -> R: ...
-
-
-@typing.runtime_checkable
-class NotBoundFunction[**P, R](typing.Protocol):
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R: ...
+    @typing.runtime_checkable
+    class NotBoundFunction[**P, R](typing.Protocol):
+        def __call__(
+            self, *args: P.args, **kwargs: P.kwargs
+        ) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
 
 
 class mutation[**P, IntoState: State, BoundState: State | None]:  # noqa: N801
@@ -31,7 +35,10 @@ class mutation[**P, IntoState: State, BoundState: State | None]:  # noqa: N801
         construct_mutation: NotBoundFunction[P, IntoState],
     ) -> None: ...
 
-    def __init__(self, construct_mutation: typing.Callable[..., IntoState]) -> None:
+    def __init__(
+        self,
+        construct_mutation: typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, IntoState] | IntoState],
+    ) -> None:
         self.construct_mutation = construct_mutation
         self.from_state = None
 
@@ -60,7 +67,7 @@ class mutation[**P, IntoState: State, BoundState: State | None]:  # noqa: N801
 
             await self.from_state.exit()
 
-            new_state = self.construct_mutation(self.from_state, *args, **kwargs)
+            new_state = await maybe_awaitable(self.construct_mutation(self.from_state, *args, **kwargs))
             mutator = self.from_state.__mutator__
         else:
             mutator, args = args[0], args[1:]
@@ -68,7 +75,7 @@ class mutation[**P, IntoState: State, BoundState: State | None]:  # noqa: N801
             if (state := await mutator.get()) is not None:
                 await state.exit()
 
-            new_state = self.construct_mutation(*args, **kwargs)
+            new_state = await maybe_awaitable(self.construct_mutation(*args, **kwargs))
 
         new_state.bind(mutator)
         await new_state.enter()

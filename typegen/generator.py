@@ -31,7 +31,7 @@ from .models import (
 try:
     from telegrinder.modules import logger, setup_logger
 
-    setup_logger(console_sink=sys.stderr, level="DEBUG")
+    setup_logger(level="DEBUG")
 except ImportError:
     import logging
 
