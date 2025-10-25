@@ -309,6 +309,7 @@ class LoopWrapper(Singleton, Final):
         interval = timer
 
     else:
+
         def interval(
             self,
             delta: datetime.timedelta | None = None,

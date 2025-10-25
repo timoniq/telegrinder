@@ -59,6 +59,7 @@ from telegrinder.bot.rules.is_from import (
     IsVideoNote,
 )
 from telegrinder.bot.rules.logic import If
+from telegrinder.bot.rules.magic import Magic
 from telegrinder.bot.rules.markup import Markup
 from telegrinder.bot.rules.mention import HasMention
 from telegrinder.bot.rules.message_entities import HasEntities, MessageEntities
@@ -140,6 +141,7 @@ __all__ = (
     "IsUserId",
     "IsVenue",
     "IsVideoNote",
+    "Magic",
     "Markup",
     "MemberStatus",
     "MessageEntities",
