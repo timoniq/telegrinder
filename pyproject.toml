@@ -37,7 +37,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "aiohttp (>=3.13.0,<4.0.0)",
+    "aiohttp (>=3.13.1,<4.0.0)",
     "aiodns (>=3.5.0,<4.0.0); (sys_platform != 'darwin')",
     "choicelib (>=0.1.5,<0.2.0)",
     "envparse (>=0.2.0,<0.3.0)",
@@ -108,7 +108,8 @@ select = [
   "COM",
   "TC",
   "YTT",
-  "SIM"
+  "SIM",
+  "RUF022",
 ]
 ignore = [
   "COM812",
@@ -141,6 +142,7 @@ ignore = [
   "PLR0913"
 ]
 fixable = ["ALL"]
+unfixable = ["ERA"]
 exclude = [".venv", ".idea", "docs"]
 
 [tool.ruff.lint.per-file-ignores]

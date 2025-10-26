@@ -2,6 +2,7 @@ import asyncio
 import dataclasses
 import datetime
 import typing
+from contextlib import asynccontextmanager
 
 from telegrinder.modules import logger
 from telegrinder.tools.aio import run_task
@@ -67,6 +68,8 @@ class DelayedTask[Function: CoroutineFunc[..., typing.Any]]:
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class Lifespan:
     _started: bool = dataclasses.field(default=False, init=False)
+    _lifespan_context: typing.AsyncContextManager[typing.Any] | None = dataclasses.field(default=None, init=False)
+    lifespan_function: typing.Callable[[], typing.AsyncContextManager[typing.Any]] | None = dataclasses.field(default=None)
     startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
     shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
 
@@ -93,8 +96,21 @@ class Lifespan:
     async def __aenter__(self) -> None:
         await self._start()
 
-    async def __aexit__(self, *args: typing.Any) -> None:
-        await self._shutdown()
+    async def __aexit__(
+        self,
+        exc_type: typing.Any | None,
+        exc_value: typing.Any | None,
+        exc_tb: typing.Any | None,
+    ) -> None:
+        await self._shutdown(exc_type, exc_value, exc_tb)
+
+    def __call__[Function: typing.Callable[[], typing.AsyncGenerator[typing.Any, None]]](
+        self,
+        func: Function,
+        /,
+    ) -> Function:
+        self.lifespan_function = asynccontextmanager(func)
+        return func
 
     @property
     def started(self) -> bool:
@@ -109,19 +125,29 @@ class Lifespan:
         if not self._started:
             logger.debug("Running lifespan startup tasks")
             self._started = True
+
+            if self.lifespan_function is not None:
+                self._lifespan_context = self.lifespan_function()
+                await self._lifespan_context.__aenter__()
+
             await self._run_tasks(self.startup_tasks)
 
-    async def _shutdown(self) -> None:
+    async def _shutdown(self, *suppress_args: typing.Any) -> None:
         if self._started:
             logger.debug("Running lifespan shutdown tasks")
             self._started = False
+
+            if self._lifespan_context is not None:
+                await self._lifespan_context.__aexit__(*suppress_args)
+                self._lifespan_context = None
+
             await self._run_tasks(self.shutdown_tasks)
 
     def start(self, loop: asyncio.AbstractEventLoop | None = None) -> None:
         run_task(self._start(), loop=loop)
 
     def shutdown(self, loop: asyncio.AbstractEventLoop | None = None) -> None:
-        run_task(self._shutdown(), loop=loop)
+        run_task(self._shutdown(None, None, None), loop=loop)
 
     def on_startup[**P, T](self, task: Task[P, T], /) -> Task[P, T]:
         self.startup_tasks.append(to_coroutine_task(task))

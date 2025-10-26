@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.13, <4.0"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -1023,7 +1023,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiodns", marker = "sys_platform != 'darwin'", specifier = ">=3.5.0,<4.0.0" },
-    { name = "aiohttp", specifier = ">=3.13.0,<4.0.0" },
+    { name = "aiohttp", specifier = ">=3.13.1,<4.0.0" },
     { name = "brotli", marker = "extra == 'brotli'" },
     { name = "certifi", specifier = ">=2025.10.5,<2026.0.0" },
     { name = "choicelib", specifier = ">=0.1.5,<0.2.0" },

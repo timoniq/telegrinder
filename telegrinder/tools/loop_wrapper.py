@@ -126,7 +126,7 @@ class LoopWrapper(Singleton, Final):
             await self._shutdown()
 
     async def _shutdown(self) -> None:
-        await self.lifespan._shutdown()
+        await self.lifespan._shutdown(None, None, None)
         logger.debug("Shutting down loop wrapper")
         self._state = LoopWrapperState.SHUTDOWN
 
