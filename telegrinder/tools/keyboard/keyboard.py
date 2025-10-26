@@ -1,16 +1,23 @@
+from __future__ import annotations
+
 import dataclasses
 import typing
 
 from telegrinder.tools.keyboard.abc import ABCKeyboard, DictStrAny, RawKeyboard
+from telegrinder.tools.keyboard.abc import Button as ButtonType
 from telegrinder.tools.keyboard.base import BaseKeyboard
-from telegrinder.tools.keyboard.button import Button, InlineButton
+from telegrinder.tools.keyboard.button import BaseButton, Button, InlineButton
 from telegrinder.tools.keyboard.data import KeyboardModel, KeyboardParams
 from telegrinder.tools.keyboard.utils import (
+    RowButtons,
     bound_keyboard_method,
     copy_keyboard,
     init_keyboard,
 )
 from telegrinder.types.objects import InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
+
+if typing.TYPE_CHECKING:
+    from telegrinder.tools.serialization.abc import ABCDataSerializer
 
 
 class Keyboard(BaseKeyboard[Button], ABCKeyboard):
@@ -106,16 +113,36 @@ class Keyboard(BaseKeyboard[Button], ABCKeyboard):
 
 class InlineKeyboard(BaseKeyboard[InlineButton], ABCKeyboard):
     __button_class__ = InlineButton
-    __slots__ = ("keyboard",)
+    __serializer__: ABCDataSerializer | None
+    __slots__ = ("keyboard", "serializer")
 
-    def __init_subclass__(cls, *, max_in_row: int = 0) -> None:
+    def __init_subclass__(
+        cls,
+        *,
+        max_in_row: int = 0,
+        serializer: ABCDataSerializer | None = None,
+    ) -> None:
         cls.__keyboard_instance__ = init_keyboard(cls(), max_in_row=max_in_row)
+        cls.__serializer__ = serializer
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        serializer: ABCDataSerializer | None = None,
+    ) -> None:
         self.keyboard = [[]]
+        self.serializer = serializer or self.__serializer__
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: keyboard={self.keyboard!r}>"
+
+    def add(self, button: ButtonType, /) -> typing.Self:
+        if isinstance(button, BaseButton | RowButtons):
+            for b in button.buttons if isinstance(button, RowButtons) else (button,):
+                if isinstance(b, InlineButton) and b.callback_data_serializer is None:
+                    b.callback_data_serializer = self.serializer
+
+        return super().add(button)
 
     @bound_keyboard_method
     def copy(self, **with_changes: typing.Any) -> typing.Self:

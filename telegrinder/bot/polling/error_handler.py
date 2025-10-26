@@ -84,7 +84,11 @@ class ErrorHandler:
         self,
         error: APIServerError,
     ) -> None:
-        logger.error(f"{error}, waiting {error.retry_after} seconds to the next request...")
+        if error.retry_after is None:
+            logger.error("{}", error)
+            sys.exit(9)
+
+        logger.error("{}, waiting {} seconds to the next request...", error, error.retry_after)
         await asyncio.sleep(error.retry_after)
 
 

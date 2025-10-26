@@ -125,11 +125,8 @@ class Polling(ABCPolling):
             return raw_updates.value
 
         match (error := raw_updates.error).status_code:
-            case HTTPStatus.TOO_MANY_REQUESTS:
-                error = APIServerError(
-                    message="Too many requests to get updates",
-                    retry_after=error.retry_after.unwrap_or(int(self.reconnect_after)),
-                )
+            case HTTPStatus.CONFLICT:
+                error = APIServerError("Cannot run polling, because another bot instance is already running.")
             case HTTPStatus.UNAUTHORIZED | HTTPStatus.NOT_FOUND as status:
                 error = InvalidTokenError(
                     "Token seems to be invalid"
