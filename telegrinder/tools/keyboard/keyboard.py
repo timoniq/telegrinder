@@ -113,7 +113,7 @@ class Keyboard(BaseKeyboard[Button], ABCKeyboard):
 
 class InlineKeyboard(BaseKeyboard[InlineButton], ABCKeyboard):
     __button_class__ = InlineButton
-    __serializer__: ABCDataSerializer | None
+    __serializer__: ABCDataSerializer | None = None
     __slots__ = ("keyboard", "serializer")
 
     def __init_subclass__(
