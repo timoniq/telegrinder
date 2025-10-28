@@ -2,6 +2,7 @@ import dataclasses
 import logging
 import os
 import re
+import sys
 import traceback
 import typing
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
