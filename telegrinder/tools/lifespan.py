@@ -49,9 +49,9 @@ class DelayedTask[Function: CoroutineFunc[..., typing.Any]]:
             await asyncio.sleep(self.delay)
             try:
                 await self.function(*args, **kwargs)
-            except BaseException:
+            except Exception:
                 logger.exception(
-                    "Delayed task for function `{}` caught an exception, traceback message below:",
+                    "Delayed task `{}` failed with exception, traceback message below:",
                     fullname(self.function),
                 )
             finally:
@@ -69,7 +69,9 @@ class DelayedTask[Function: CoroutineFunc[..., typing.Any]]:
 class Lifespan:
     _started: bool = dataclasses.field(default=False, init=False)
     _lifespan_context: typing.AsyncContextManager[typing.Any] | None = dataclasses.field(default=None, init=False)
-    lifespan_function: typing.Callable[[], typing.AsyncContextManager[typing.Any]] | None = dataclasses.field(default=None)
+    lifespan_function: typing.Callable[[], typing.AsyncContextManager[typing.Any]] | None = dataclasses.field(
+        default=None
+    )
     startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
     shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
 

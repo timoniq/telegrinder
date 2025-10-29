@@ -87,7 +87,7 @@ class NodeSession:
                     fullname(self.node),
                     compose_error.message,
                 )
-            except BaseException as exception:
+            except Exception as exception:
                 logger.debug(
                     "Uncaught {!r} was occurred when closing session for node `{}`",
                     exception,

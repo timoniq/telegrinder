@@ -59,7 +59,7 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
         *,
         offset: int = 0,
         skip_updates: bool = False,
-    ) -> typing.NoReturn:  # type: ignore[ReturnType]
+    ) -> typing.NoReturn:  # pyright: ignore[reportReturnType]
         async def polling() -> None:
             if skip_updates:
                 logger.debug("Dropping pending updates")

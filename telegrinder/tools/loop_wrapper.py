@@ -96,22 +96,21 @@ class LoopWrapper(Singleton, Final):
             await self.create_task(self._future_tasks.pop(0))
 
         while self.running and (tasks := self._get_all_tasks()):
-            await self._process_tasks(tasks)
-
-    async def _process_tasks(self, tasks: Tasks, /) -> None:
-        """Processes the given tasks, checks for exceptions, and raises them if any."""
-
-        tasks_results, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
-        for task_result in tasks_results:
-            try:
-                if not task_result.cancelled() and (exception := task_result.exception()) is not None:
-                    raise exception from None  # Raise the exception that was set on the task.
-            except BaseException:
-                logger.exception("Traceback message below:")
+            tasks_results, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+            for task_result in tasks_results:
+                try:
+                    task_result.result()
+                except Exception:
+                    logger.exception("Traceback message below:")
 
     async def _cancel_tasks(self) -> None:
+        future = asyncio.gather(*self._get_all_tasks(), return_exceptions=True)
+
         with contextlib.suppress(asyncio.CancelledError, asyncio.InvalidStateError):
-            await cancel_future(asyncio.gather(*self._get_all_tasks(), return_exceptions=True))
+            await cancel_future(future)
+
+        with contextlib.suppress(asyncio.CancelledError):
+            await future
 
     @contextlib.asynccontextmanager
     async def _async_wrap_loop(self) -> typing.AsyncGenerator[typing.Any, None]:

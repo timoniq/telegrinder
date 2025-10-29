@@ -105,7 +105,7 @@ class Dispatch(
 
     async def feed(self, event: Update, api: API) -> bool:
         logger.info("New Update(id={}, type={!r})", event.update_id, event.update_type)
-        processed = False
+        processed = failed = False
         context = Context().add_update_cute(event, api)
         start_time = self.global_context.loop_wrapper.loop.time()
 
@@ -137,8 +137,11 @@ class Dispatch(
                             processed = True
                             break
                     except Exception as exception:
-                        if not await self.error.process(event, api, context.add_exception_update(exception)):
-                            raise exception
+                        processed = await self.error.process(event, api, context.add_exception_update(exception))
+                        failed = not processed
+
+                        if not processed:
+                            raise
 
             await run_middleware(
                 self.global_middleware.post,
@@ -147,19 +150,28 @@ class Dispatch(
                 context,
                 required_nodes=self.global_middleware.post_required_nodes,
             )
-            return processed
+        except Exception:
+            logger.exception(
+                "Update (id={}, type={!r}) processed with exception, traceback message below:",
+                event.update_id,
+                event.update_type,
+            )
         finally:
             await close_sessions(
                 context.get(CONTEXT_STORE_NODES_KEY, {}),
                 scopes=(NodeScope.PER_CALL, NodeScope.PER_EVENT),
             )
-            logger.debug(
-                "Update (id={}, type={!r}) processed in {} ms by bot (id={})",
-                event.update_id,
-                event.update_type,
-                int((self.global_context.loop_wrapper.loop.time() - start_time) * 1000),
-                api.id,
-            )
+
+            if not failed:
+                logger.debug(
+                    "Update (id={}, type={!r}) processed in {} ms by bot (id={})",
+                    event.update_id,
+                    event.update_type,
+                    int((self.global_context.loop_wrapper.loop.time() - start_time) * 1000),
+                    api.id,
+                )
+
+        return processed
 
     def load(self, external: typing.Self) -> None:
         views_external = external.get_views()
