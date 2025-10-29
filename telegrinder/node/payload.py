@@ -21,13 +21,13 @@ class Payload(Polymorphic):
 
     @impl
     def compose_callback_query(cls, event: CallbackQueryCute) -> str:
-        return event.data.expect("CallbackQuery has no data.")
+        return event.data.expect(ComposeError("CallbackQuery has no data."))
 
     @impl
     def compose_message(cls, event: MessageCute) -> str:
         return event.successful_payment.map(
             lambda payment: payment.invoice_payload,
-        ).expect("Message has no successful payment.")
+        ).expect(ComposeError("Message has no successful payment."))
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
