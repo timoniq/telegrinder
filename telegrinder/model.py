@@ -89,7 +89,17 @@ else:
 class Model(msgspec.Struct, **MODEL_CONFIG):
     if not typing.TYPE_CHECKING:
 
-        def __getattribute__(self, name, /):
+        def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
+            from telegrinder.tools.member_descriptor_proxy import MemberDescriptorProxy
+
+            result = super().__init_subclass__(*args, **kwargs)
+
+            for field_name in getattr(cls, "__slots__", ()):
+                setattr(cls, field_name, MemberDescriptorProxy(getattr(cls, field_name)))
+
+            return result
+
+        def __getattribute__(self, name: str, /) -> typing.Any:
             class_ = type(self)
             val = object.__getattribute__(self, name)
 

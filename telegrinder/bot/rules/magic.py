@@ -1,11 +1,11 @@
-import inspect
-import types
 import typing
+from contextlib import suppress
 
 import fntypes
 
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node import EventNode, is_node
+from telegrinder.node import EventNode, IsNode, as_node, is_node
+from telegrinder.tools.member_descriptor_proxy import MemberDescriptorProxy, evaluate_operations
 
 
 class Magic[R, **P = [R]](fntypes.F[R, P], ABCRule):
@@ -13,15 +13,11 @@ class Magic[R, **P = [R]](fntypes.F[R, P], ABCRule):
         self,
         field: R,
         parent: typing.Any = None,
-    ):
-        is_member = isinstance(field, types.MemberDescriptorType) or inspect.ismemberdescriptor(field)
-
-        if is_member:
-            owner_cls = getattr(field, "__objclass__")
-            attr_name = getattr(field, "__name__")
-
+    ) -> None:
+        if isinstance(field, MemberDescriptorProxy):
+            owner_cls, member_name, operations = field._objclass, field._member_name, field._operations
             self.node = EventNode[owner_cls]
-            super().__init__(lambda x: getattr(x, attr_name))  # type: ignore
+            super().__init__(lambda obj: evaluate_operations(obj, member_name, operations))  # type: ignore
 
         elif is_node(field):
             self.node = field
@@ -31,19 +27,19 @@ class Magic[R, **P = [R]](fntypes.F[R, P], ABCRule):
             self.node = parent
             super().__init__(field)  # type: ignore
 
-    async def check(self, node) -> bool:
-        try:
-            self(node)  # type: ignore
-        except fntypes.UnwrapError:
-            return False
-        return True
-
-    def new(self, f):
-        return Magic(f, parent=self.node)
-
     @property
-    def required_nodes(self):
-        return {"node": self.node}
+    def required_nodes(self) -> dict[str, IsNode]:
+        return {"node": as_node(self.node)}
+
+    def check(self, node: typing.Any) -> bool:
+        with suppress(fntypes.UnwrapError):
+            self(node)  # type: ignore
+            return True
+
+        return False
+
+    def new(self, f: typing.Any) -> typing.Any:
+        return Magic(f, parent=self.node)
 
     if typing.TYPE_CHECKING:
 
@@ -59,3 +55,6 @@ class Magic[R, **P = [R]](fntypes.F[R, P], ABCRule):
             self: fntypes.F[fntypes.Result[T, Err], P],
             error: typing.Callable[[fntypes.Result[T, Err]], BaseException] | BaseException | str | None = None,
         ) -> "Magic[T, P]": ...
+
+
+__all__ = ("Magic",)
