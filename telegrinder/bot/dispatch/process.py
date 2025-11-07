@@ -15,6 +15,7 @@ from telegrinder.tools.magic.function import bundle
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
+    from telegrinder.bot.dispatch.handler.abc import ABCHandler
     from telegrinder.bot.dispatch.view.base import BaseView
     from telegrinder.bot.rules.abc import ABCRule
 
@@ -41,8 +42,8 @@ async def process_inner(
             )
             return False
 
-    found_handlers = []
-    responses = list[typing.Any]()
+    found_handlers: list[ABCHandler] = []
+    responses: list[typing.Any] = []
     ctx_copy = ctx.copy()
 
     for handler in view.handlers:
@@ -57,7 +58,7 @@ async def process_inner(
                 if handler.final is True:
                     break
             case Error(error):
-                logger.debug("{}", error)
+                logger.debug("Running handler `{!r}` failed with error: {}", handler, error)
 
     ctx = ctx_copy
     ctx.responses = responses
@@ -72,14 +73,17 @@ async def process_inner(
                 required_nodes=m.post_required_nodes,
             )
 
+    found_handlers_message = (
+        "No found corresponded handlers."
+        if not found_handlers
+        else f"Handler{'s' if len(found_handlers) > 1 else ''}: " + "".join("`{!r}`" for _ in found_handlers)
+    )
     logger.info(
-        "Update(id={}, type={!r}) processed with view `{}`. {}",
+        "Update(id={}, type={!r}) processed with view `{}`. " + found_handlers_message,
         event.update_id,
         event.update_type,
         type(view).__name__,
-        "No found corresponded handlers."
-        if not found_handlers
-        else f"Handler{'s' if len(found_handlers) > 1 else ''}: {', '.join(f'`{x!r}`' for x in found_handlers)}",
+        *found_handlers,
     )
     return bool(found_handlers)
 

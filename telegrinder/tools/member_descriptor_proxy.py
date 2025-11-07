@@ -5,6 +5,8 @@ import operator
 import types
 import typing
 
+type Operation = GetAttribute | GetItem | MethodCall
+
 
 def evaluate_operations(
     obj: typing.Any,
@@ -15,31 +17,36 @@ def evaluate_operations(
     obj = getattr(obj, member_name)
 
     for operation in operations:
-        if operation.getattribute is not None:
-            obj = operator.attrgetter(operation.getattribute)(obj)
-        elif operation.getitem is not None:
-            obj = operator.itemgetter(operation.getitem)(obj)
-        elif operation.method_call is not None:
-            obj = operation.method_call(obj)
+        match operation:
+            case GetAttribute(attribute_name=attribute_name):
+                obj = getattr(obj, attribute_name)
+            case GetItem():
+                obj = operation[obj]
+            case MethodCall():
+                obj = operation(obj)
 
     return obj
 
 
 @dataclasses.dataclass(slots=True, frozen=True, kw_only=True)
 class MethodCall:
-    method_name: str
-    args: tuple[typing.Any, ...] = dataclasses.field(default_factory=tuple[typing.Any, ...])
-    kwargs: dict[str, typing.Any] = dataclasses.field(default_factory=dict[str, typing.Any])
+    caller: operator.methodcaller
 
     def __call__(self, obj: typing.Any, /) -> typing.Any:
-        return operator.methodcaller(self.method_name, *self.args, **self.kwargs)(obj)
+        return self.caller(obj)
 
 
 @dataclasses.dataclass(slots=True, frozen=True, kw_only=True)
-class Operation:
-    getattribute: str | None = None
-    getitem: typing.Any | None = None
-    method_call: MethodCall | None = None
+class GetAttribute:
+    attribute_name: str
+
+
+@dataclasses.dataclass(slots=True, frozen=True, kw_only=True)
+class GetItem:
+    itemgetter: operator.itemgetter[typing.Any]
+
+    def __getitem__(self, obj: typing.Any, /) -> typing.Any:
+        return self.itemgetter(obj)
 
 
 class MemberDescriptorProxy:
@@ -58,25 +65,19 @@ class MemberDescriptorProxy:
         if __name in getattr(type(self), "__static_attributes__"):
             return super().__getattribute__(__name)
 
-        self._operations.append(Operation(getattribute=__name))
+        self._operations.append(GetAttribute(attribute_name=__name))
         return self
 
     def __getitem__(self, __item: typing.Any) -> typing.Any:
-        self._operations.append(Operation(getitem=__item))
+        self._operations.append(GetItem(itemgetter=operator.itemgetter(__item)))
         return self
 
     def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        if not self._operations or (operation := self._operations.pop(-1)).getattribute is None:
+        if not self._operations or not isinstance(operation := self._operations.pop(-1), GetAttribute):
             raise SyntaxError("No operations to call.")
 
         self._operations.append(
-            Operation(
-                method_call=MethodCall(
-                    method_name=operation.getattribute,
-                    args=args,
-                    kwargs=kwargs,
-                ),
-            ),
+            MethodCall(caller=operator.methodcaller(operation.attribute_name, *args, **kwargs))
         )
         return self
 
