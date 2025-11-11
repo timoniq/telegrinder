@@ -46,9 +46,9 @@ class ABCDispatch(ABC):
         directory = pathlib.Path(directory)
 
         if not directory.exists():
-            raise PathExistsError(f"Path {str(directory)!r} does not exists.")
+            raise PathExistsError(f"Path `{directory!s}` doesn't exists.")
 
-        dps: list[typing.Self] = []
+        found = False
         files_iter = os.walk(directory) if recursive else [(directory, [], os.listdir(directory))]
 
         for root, _, files in files_iter:
@@ -58,20 +58,23 @@ class ABCDispatch(ABC):
                     relative_path = os.path.relpath(module_path, sys.path[0])
                     module_name = os.path.splitext(relative_path)[0].replace(os.sep, ".")
 
-                    spec = importlib_util.spec_from_file_location(module_name, module_path)
-                    if spec is None or spec.loader is None:
-                        continue
-
-                    module = importlib_util.module_from_spec(spec)
-                    sys.modules[module_name] = module
-                    spec.loader.exec_module(module)
+                    if module_name not in sys.modules:
+                        spec = importlib_util.spec_from_file_location(module_name, module_path)
+                        if spec is None or spec.loader is None:
+                            continue
+    
+                        module = importlib_util.module_from_spec(spec)
+                        sys.modules[module_name] = module
+                        spec.loader.exec_module(module)
+                    else:
+                        module = sys.modules[module_name]
 
                     for obj in vars(module).values():
                         if isinstance(obj, type(self)):
-                            dps.append(obj)
+                            found = True
+                            self.load(obj)
 
-        self.load_many(*dps)
-        return bool(dps)
+        return found
 
 
 __all__ = ("ABCDispatch",)
