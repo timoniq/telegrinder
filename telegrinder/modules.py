@@ -112,6 +112,8 @@ _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 class LoggerModule(typing.Protocol):
     logger: typing.Any
 
+    def set_logger(self, __logger: typing.Any) -> None: ...
+
     def debug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
     def info(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
@@ -227,7 +229,7 @@ class _LoggerProxy:
 
         return getattr(self.logger, __name)
 
-    def _set_logger(self, logger: LoggerModule, /) -> None:
+    def set_logger(self, logger: LoggerModule, /) -> None:
         self.logger = logger
 
 
@@ -560,7 +562,7 @@ if logging_module == "structlog":
             context_class=dict,
             cache_logger_on_first_use=True,
         )
-        logger._set_logger(struct_logger)
+        logger.set_logger(struct_logger)
 
 
 elif logging_module == "loguru":
@@ -616,7 +618,7 @@ elif logging_module == "loguru":
                 for handler_id in handlers_ids:
                     loguru_logger.remove(handler_id)
 
-        logger._set_logger(loguru_logger)
+        logger.set_logger(loguru_logger)
 
 
 elif logging_module == "logging":
@@ -685,7 +687,7 @@ elif logging_module == "logging":
 
             _logger.addHandler(file.handler)
 
-        logger._set_logger(LoggingStyleAdapter(logger=_logger))
+        logger.set_logger(LoggingStyleAdapter(logger=_logger))
 
 
 if asyncio_module in ("uvloop", "winloop"):
