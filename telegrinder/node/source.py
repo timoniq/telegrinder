@@ -28,7 +28,7 @@ class Source(Polymorphic, DataNode):
     def compose_message(cls, message: MessageCute) -> typing.Self:
         return cls(
             api=message.api,
-            from_user=message.from_user,
+            from_user=message.from_.expect(ComposeError("Message is from a channel.")),
             chat=Some(message.chat),
             thread_id=message.message_thread_id,
         )
