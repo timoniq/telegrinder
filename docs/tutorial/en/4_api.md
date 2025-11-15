@@ -1,4 +1,4 @@
-# Telergam API
+# Telegram API
 
 The essential part to build something for telegram is of course running telegram API methods.
 
