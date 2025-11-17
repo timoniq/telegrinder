@@ -42,6 +42,10 @@ class WaiterMiddleware(ABCMiddleware):
         if not short_state:
             return True
 
+        # Just ignore update if state expired, so it will be dropped automatically by WaiterMachine
+        if short_state.expiration_date is not None and datetime.datetime.now() >= short_state.expiration_date:
+            return True
+
         preset_context = Context(short_state=short_state)
         if short_state.context is not None:
             preset_context.update(short_state.context.context)
@@ -53,9 +57,6 @@ class WaiterMiddleware(ABCMiddleware):
             preset_context,
         ):
             logger.debug("Filter rule {!r} failed!", short_state.filter)
-            return True
-
-        if short_state.expiration_date is not None and datetime.datetime.now() >= short_state.expiration_date:
             return True
 
         result = await FuncHandler(
