@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
 
 class WaiterActions[Event: BaseCute[typing.Any] = typing.Any](typing.TypedDict):
     on_miss: typing.NotRequired[ABCHandler]
-    on_drop: typing.NotRequired[typing.Callable[[ShortState[Event]], None]]
+    on_drop: typing.NotRequired[typing.Callable[[ShortState[Event]], typing.Awaitable[typing.Any] | typing.Any]]
 
 
 __all__ = ("WaiterActions",)

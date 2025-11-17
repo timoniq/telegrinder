@@ -15,6 +15,7 @@ from telegrinder.bot.dispatch.waiter_machine.short_state import (
     ShortStateContext,
 )
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.lifespan import Lifespan
 from telegrinder.tools.limited_dict import LimitedDict
@@ -118,7 +119,7 @@ class WaiterMachine:
             )
 
         if on_drop := short_state.actions.get("on_drop"):
-            on_drop(short_state, **context)
+            await maybe_awaitable(on_drop(short_state, **context))
 
         await short_state.cancel()
 
