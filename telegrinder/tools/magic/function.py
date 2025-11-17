@@ -5,7 +5,7 @@ import enum
 import inspect
 import types
 import typing
-from functools import cache, cached_property, wraps
+from functools import cache, cached_property
 
 from telegrinder.tools.magic.annotations import Annotations, MappingAnnotations
 
@@ -110,25 +110,6 @@ class Bundle[R]:
         return self.__and__(other)
 
 
-def function_context[**P, R](key: str, /) -> Func[[Func[P, R]], Func[P, R]]:
-    @lambda wrapper: typing.cast("Func[[Func[P, R]], Func[P, R]]", wrapper)
-    def wrapper(func: Func[typing.Concatenate[AnyFunction, P], R], /) -> AnyFunction:
-        @wraps(func)
-        def inner(passed_function: AnyFunction, /, *args: P.args, **kwargs: P.kwargs) -> R:
-            sentinel = object()
-            context: dict[str, typing.Any] = passed_function.__dict__.setdefault("__function_context__", {})
-
-            if (value := context.get(key, sentinel)) is not sentinel:
-                return value
-
-            context[key] = result = func(passed_function, *args, **kwargs)
-            return result
-
-        return inner
-
-    return wrapper
-
-
 def resolve_arg_names(
     func: AnyFunction,
     /,
@@ -136,6 +117,7 @@ def resolve_arg_names(
     start_idx: int = 1,
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
+    func = inspect.unwrap(func)
     return _resolve_arg_names(
         func,
         start_idx=start_idx,
@@ -151,6 +133,7 @@ def resolve_kwonly_arg_names(
     start_idx: int = 1,
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
+    func = inspect.unwrap(func)
     return _resolve_arg_names(
         func,
         start_idx=func.__code__.co_argcount + start_idx,
@@ -166,6 +149,7 @@ def resolve_posonly_arg_names(
     start_idx: int = 1,
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
+    func = inspect.unwrap(func)
     return _resolve_arg_names(
         func,
         start_idx=start_idx,
@@ -247,7 +231,6 @@ def bundle[R](
 __all__ = (
     "Bundle",
     "bundle",
-    "function_context",
     "get_default_args",
     "get_func_annotations",
     "get_func_parameters",

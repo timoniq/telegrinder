@@ -16,7 +16,7 @@ from telegrinder.node.scope import NodeScope
 from telegrinder.node.session import NodeSession
 from telegrinder.tools.aio import Generator
 from telegrinder.tools.fullname import fullname
-from telegrinder.tools.magic.function import function_context, get_func_annotations
+from telegrinder.tools.magic.function import get_func_annotations
 
 if typing.TYPE_CHECKING:
     from telegrinder.node.tools.generator import generate_node
@@ -151,7 +151,7 @@ def is_node_type(obj: typing.Any, /) -> typing.TypeIs[IsNode]:
     return isinstance(obj, Node | NodeProto) or (isinstance(obj, type) and issubclass(obj, Node | NodeProto))  # pyright: ignore[reportGeneralTypeIssues]
 
 
-@function_context("nodes")
+@cache
 def get_nodes(
     function: typing.Callable[..., typing.Any],
     /,
@@ -165,7 +165,6 @@ def get_nodes(
     }
 
 
-@function_context("is_generator")
 def is_generator(
     function: typing.Callable[..., typing.Any],
     /,

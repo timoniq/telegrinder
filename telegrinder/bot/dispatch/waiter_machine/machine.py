@@ -19,6 +19,7 @@ from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.lifespan import Lifespan
 from telegrinder.tools.limited_dict import LimitedDict
+from telegrinder.tools.magic.function import bundle
 
 type Storage[Event: BaseCute, HasherData] = dict[
     Hasher[Event, HasherData],
@@ -119,7 +120,7 @@ class WaiterMachine:
             )
 
         if on_drop := short_state.actions.get("on_drop"):
-            await maybe_awaitable(on_drop(short_state, **context))
+            await maybe_awaitable(bundle(on_drop, context)(short_state))
 
         await short_state.cancel()
 
