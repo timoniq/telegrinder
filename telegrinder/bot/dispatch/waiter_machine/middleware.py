@@ -46,7 +46,6 @@ class WaiterMiddleware(ABCMiddleware):
         if short_state.context is not None:
             preset_context.update(short_state.context.context)
 
-        # Run filter rule
         if short_state.filter and not await check_rule(
             api,
             short_state.filter,
@@ -57,11 +56,6 @@ class WaiterMiddleware(ABCMiddleware):
             return True
 
         if short_state.expiration_date is not None and datetime.datetime.now() >= short_state.expiration_date:
-            await self.machine.drop(
-                self.hasher,
-                self.hasher.get_data_from_event(event).unwrap(),
-                **preset_context.copy(),
-            )
             return True
 
         result = await FuncHandler(

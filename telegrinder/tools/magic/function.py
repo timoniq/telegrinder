@@ -5,7 +5,7 @@ import enum
 import inspect
 import types
 import typing
-from functools import cache, cached_property
+from functools import cache, cached_property, partial
 
 from telegrinder.tools.magic.annotations import Annotations, MappingAnnotations
 
@@ -29,6 +29,12 @@ def _to_str(obj: typing.Any, /) -> str:
     if isinstance(obj, enum.Enum):
         return str(obj.value)
     return str(obj) if not isinstance(obj, str) else obj
+
+
+def _unwrap_func(obj: typing.Any, /) -> typing.Any:
+    if isinstance(obj, partial):
+        obj = obj.func
+    return inspect.unwrap(obj)
 
 
 def _resolve_arg_names(
@@ -117,7 +123,7 @@ def resolve_arg_names(
     start_idx: int = 1,
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
-    func = inspect.unwrap(func)
+    func = _unwrap_func(func)
     return _resolve_arg_names(
         func,
         start_idx=start_idx,
@@ -133,7 +139,7 @@ def resolve_kwonly_arg_names(
     start_idx: int = 1,
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
-    func = inspect.unwrap(func)
+    func = _unwrap_func(func)
     return _resolve_arg_names(
         func,
         start_idx=func.__code__.co_argcount + start_idx,
@@ -149,7 +155,7 @@ def resolve_posonly_arg_names(
     start_idx: int = 1,
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
-    func = inspect.unwrap(func)
+    func = _unwrap_func(func)
     return _resolve_arg_names(
         func,
         start_idx=start_idx,

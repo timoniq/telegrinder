@@ -15,8 +15,8 @@ from telegrinder.bot.dispatch.waiter_machine.short_state import (
     ShortStateContext,
 )
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.modules import logger
 from telegrinder.tools.aio import maybe_awaitable
-from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.lifespan import Lifespan
 from telegrinder.tools.limited_dict import LimitedDict
 from telegrinder.tools.magic.function import bundle
@@ -31,12 +31,6 @@ _NODATA: typing.Final[typing.Any] = object()
 MAX_STORAGE_SIZE: typing.Final[int] = 10000
 ONE_MINUTE: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=1)
 WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
-CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
-
-
-async def clear_wm_storage_worker(wm: WaiterMachine, interval: float) -> None:
-    await wm.clear_storage()
-    await asyncio.sleep(interval)
 
 
 def unpack_to_context(context: Context, /) -> tuple[Context]:
@@ -67,10 +61,6 @@ class WaiterMachine:
         self.base_state_lifetime = base_state_lifetime
         self.storage: Storage[typing.Any, typing.Any] = {}
 
-        CONTEXT.loop_wrapper.add_task(
-            clear_wm_storage_worker(self, clear_storage_interval.total_seconds()),
-        )
-
     def __repr__(self) -> str:
         return "<{}: with {} storage items and max_storage_size={}, base_state_lifetime={!r}>".format(
             self.__class__.__name__,
@@ -91,7 +81,6 @@ class WaiterMachine:
         view.middlewares.insert(0, WaiterMiddleware(self, hasher))
 
     async def drop_all(self) -> None:
-        """Drops all waiters in storage."""
         for hasher in self.storage.copy():
             for ident, short_state in self.storage[hasher].items():
                 if short_state.context:
@@ -105,6 +94,8 @@ class WaiterMachine:
         self,
         hasher: Hasher[Event, HasherData],
         data: HasherData,
+        *,
+        expired: bool = False,
         **context: typing.Any,
     ) -> None:
         if hasher not in self.storage:
@@ -119,10 +110,43 @@ class WaiterMachine:
                 "Waiter with identificator {} is not found for hasher {!r}.".format(waiter_id, hasher)
             )
 
-        if on_drop := short_state.actions.get("on_drop"):
-            await maybe_awaitable(bundle(on_drop, context)(short_state))
+        try:
+            if not expired:
+                short_state.cancel_drop()
 
-        await short_state.cancel()
+            context["short_state"] = short_state
+
+            if on_drop := short_state.actions.get("on_drop"):
+                await maybe_awaitable(bundle(on_drop, context)())
+        finally:
+            await short_state.cancel()
+
+    async def drop_state[Event: BaseCute, HasherData](
+        self,
+        short_state: ShortState[Event],
+        hasher: Hasher[Event, HasherData],
+        data: HasherData,
+        *,
+        expired: bool = False,
+        **context: typing.Any,
+    ) -> None:
+        preset_context = short_state.context.context.copy() if short_state.context is not None else Context()
+        preset_context.update(context)
+
+        try:
+            await self.drop(hasher, data, expired=expired, **preset_context)
+        except Exception as e:
+            logger.error("Error dropping state for hasher {!r}: {}", hasher, e)
+
+    async def drop_state_many[Event: BaseCute, HasherData](
+        self,
+        short_state: ShortState[Event],
+        *hashers: HasherWithData[Event, HasherData],
+        expired: bool = False,
+        **context: typing.Any,
+    ) -> None:
+        for hasher, data in hashers:
+            await self.drop_state(short_state, hasher, data, expired=expired, **context)
 
     async def wait[Event: BaseCute, HasherData](
         self,
@@ -137,6 +161,8 @@ class WaiterMachine:
     ) -> ShortStateContext[Event]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
+        elif lifetime is None:
+            lifetime = self.base_state_lifetime
 
         lifespan = lifespan or Lifespan()
         event = asyncio.Event()
@@ -145,7 +171,7 @@ class WaiterMachine:
             actions,
             release=release,
             filter=filter,
-            lifetime=lifetime or self.base_state_lifetime,
+            expiration=lifetime,
         )
 
         hasher, data = hasher if not isinstance(hasher, Hasher) else (hasher, data)
@@ -156,10 +182,13 @@ class WaiterMachine:
             self.add_hasher(hasher)
 
         if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
+            deleted_short_state.cancel_drop()
             await deleted_short_state.cancel()
 
         async with lifespan:
+            short_state.schedule_drop(self.drop_state, hasher, data, lifetime=lifetime)
             await event.wait()
+            short_state.cancel_drop()
 
         self.storage[hasher].pop(waiter_hash, None)
 
@@ -179,6 +208,8 @@ class WaiterMachine:
     ) -> tuple[HasherWithData[Event, Data], Event, *Ts]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
+        elif lifetime is None:
+            lifetime = self.base_state_lifetime
 
         lifespan = lifespan or Lifespan()
         event = asyncio.Event()
@@ -187,7 +218,7 @@ class WaiterMachine:
             actions,
             release=release,
             filter=filter,
-            lifetime=lifetime or self.base_state_lifetime,
+            expiration=lifetime,
         )
         waiter_hashes: dict[Hasher[Event, Data], typing.Hashable] = {}
 
@@ -198,12 +229,15 @@ class WaiterMachine:
                 self.add_hasher(hasher)
 
             if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
+                deleted_short_state.cancel_drop()
                 await deleted_short_state.cancel()
 
             waiter_hashes[hasher] = waiter_hash
 
         async with lifespan:
+            short_state.schedule_drop_many(self.drop_state_many, *hashers, lifetime=lifetime)
             await event.wait()
+            short_state.cancel_drop()
 
         if short_state.context is None:
             raise LookupError("No context in short_state.")
@@ -220,15 +254,6 @@ class WaiterMachine:
             short_state.context.event,
             *unpack(short_state.context.context),
         )
-
-    async def clear_storage(self) -> None:
-        """Clears storage."""
-        now = datetime.datetime.now()
-
-        for hasher in self.storage:
-            for ident, short_state in self.storage.get(hasher, {}).copy().items():
-                if short_state.expiration_date is not None and now > short_state.expiration_date:
-                    await self.drop(hasher, data=ident, force=True)
 
 
 __all__ = ("WaiterMachine",)

@@ -1,6 +1,8 @@
 import pathlib
 import random
 import sys
+from datetime import timedelta
+from functools import partial
 
 from telegrinder import (
     API,
@@ -44,6 +46,10 @@ kitten_pic = InputFile.from_path(pathlib.Path("examples/assets/kitten.jpg"))
 bot.dispatch.message.auto_rules = IsPrivate() & IsUser()
 
 
+async def on_drop(user_id: int) -> None:
+    await api.send_message(chat_id=user_id, text="Okay, never mind....")
+
+
 class DummyMiddleware(ABCMiddleware):
     def pre(self) -> bool:
         return True
@@ -63,7 +69,9 @@ async def start(message: Message, me: Me):
     m, _ = await wm.wait(
         hasher=MESSAGE_FROM_USER_IN_CHAT((message.from_user.id, message.chat_id)),
         release=Text(["fine", "bad"], ignore_case=True),
+        lifetime=timedelta(seconds=60),
         on_miss=MessageReplyHandler("Fine or bad", as_reply=True),
+        on_drop=partial(on_drop, user_id=message.from_user.id),
     )
 
     match m.text.unwrap().lower():
