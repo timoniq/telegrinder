@@ -4,17 +4,17 @@ from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine(bot.dispatch)
+wm = WaiterMachine()
 
 
 @bot.on.message(Text("/checkbox"))
-async def action(m: Message):
+async def action(m: Message) -> None:
     picked, m_id = await (
         Checkbox(wm, m.chat.id, "Check your checkbox", cancel_text="Cancel", max_in_row=2)
         .add_option("apple", "Apple", "Apple 🍏")
         .add_option("banana", "Banana", "Banana 🍌", is_picked=True)
         .add_option("pear", "Pear", "Pear 🍐")
-        .wait(CALLBACK_QUERY_FOR_MESSAGE, m.ctx_api)
+        .wait(CALLBACK_QUERY_FOR_MESSAGE, bot.on.callback_query, m.ctx_api)
     )
     await m.edit(
         text="You picked: {}".format(", ".join(c for c in picked if picked[c])),

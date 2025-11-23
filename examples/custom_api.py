@@ -5,6 +5,7 @@ from fntypes.library.monad.result import Error, Ok, Result
 from telegrinder import Dispatch, LoopWrapper, Message, Polling
 from telegrinder.api import API, Token
 from telegrinder.api.error import APIError
+from telegrinder.modules import setup_logger
 from telegrinder.rules import Command
 from telegrinder.types.objects import User
 
@@ -22,13 +23,14 @@ class DummyAPI(API):
         return Ok(self._cached_me)
 
 
+setup_logger()
 api = DummyAPI(token=Token.from_env())
 polling = Polling(api=api)
 lw = LoopWrapper()
 dp = Dispatch()
 
 
-@dp.raw_event(Command("get_me"))
+@dp.raw(Command("get_me"))
 async def message_handler(message: Message) -> None:
     me = (await api.get_me()).unwrap()
     await message.reply(
@@ -42,7 +44,7 @@ async def message_handler(message: Message) -> None:
 async def run_polling() -> None:
     async for updates in polling.listen():
         for update in updates:
-            await lw.create_task(dp.feed(update, api))
+            await lw.create_task(dp.feed(api, update))
 
 
 lw.add_task(run_polling())

@@ -34,8 +34,8 @@ class ABCRule(ABC):
         *,
         requires: typing.Iterable[ABCRule] | None = None,
     ) -> None:
-        """Merges requirements from inherited classes and rule-specific requirements."""
-        requirements = list[ABCRule]()
+        requirements: list[ABCRule] = []
+
         for base in cls.__mro__:
             if issubclass(base, ABCRule) and base != cls:
                 requirements.extend(base.requires or ())

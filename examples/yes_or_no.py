@@ -15,7 +15,7 @@ from telegrinder.rules import EnumTextRule, StartCommand
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine(bot.dispatch)
+wm = WaiterMachine()
 
 
 class YesOrNo(enum.Enum):
@@ -27,8 +27,7 @@ class YesOrNo(enum.Enum):
 async def start(message: Message) -> str:
     await message.answer("Do you want some tee?")
     _, ctx = await wm.wait(
-        MESSAGE_FROM_USER,
-        message.from_user.id,
+        MESSAGE_FROM_USER(bot.on.message, message.from_user.id),
         release=EnumTextRule(YesOrNo),
         on_miss=MessageReplyHandler("You want, dont you?", as_reply=True),
     )

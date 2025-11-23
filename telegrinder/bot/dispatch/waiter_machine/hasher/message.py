@@ -1,5 +1,4 @@
 from telegrinder.bot.cute_types.message import MessageCute as Message
-from telegrinder.bot.dispatch.view import MessageView
 from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher
 
 
@@ -28,19 +27,16 @@ def get_user_from_event(event: Message) -> int:
 
 
 MESSAGE_IN_CHAT = Hasher(
-    view_class=MessageView,
     get_hash_from_data=from_chat_hash,
     get_data_from_event=get_chat_from_event,
 )
 
 MESSAGE_FROM_USER = Hasher(
-    view_class=MessageView,
     get_hash_from_data=from_user_hash,
     get_data_from_event=get_user_from_event,
 )
 
 MESSAGE_FROM_USER_IN_CHAT = Hasher(
-    view_class=MessageView,
     get_hash_from_data=from_user_in_chat_hash,
     get_data_from_event=get_user_in_chat_from_event,
 )

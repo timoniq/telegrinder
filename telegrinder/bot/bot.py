@@ -62,13 +62,13 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
     ) -> typing.NoReturn:  # pyright: ignore[reportReturnType]
         async def polling() -> None:
             if skip_updates:
-                logger.debug("Dropping pending updates")
+                await logger.adebug("Dropping pending updates")
                 await self.reset_webhook()
                 await self.api.delete_webhook(drop_pending_updates=True)
 
             async for updates in self.polling.listen():
                 for update in updates:
-                    await self.loop_wrapper.create_task(self.dispatch.feed(update, self.api))
+                    await self.loop_wrapper.create_task(self.dispatch.feed(self.api, update))
 
         self.polling.offset = offset
 

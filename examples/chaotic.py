@@ -19,7 +19,7 @@ from telegrinder import (
 from telegrinder.bot import WaiterMachine
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
-from telegrinder.bot.rules.is_from import IsPrivate, IsUser
+from telegrinder.bot.rules.is_from import IsUser
 from telegrinder.node import Me, UserId, as_node
 from telegrinder.rules import (
     CallbackDataEq,
@@ -40,14 +40,14 @@ setup_logger(
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine(bot.dispatch)
+wm = WaiterMachine()
 kitten_pic = InputFile.from_path(pathlib.Path("examples/assets/kitten.jpg"))
 
-bot.dispatch.message.auto_rules = IsPrivate() & IsUser()
+bot.dispatch.message.auto_rules = IsUser()
 
 
-async def on_drop(user_id: int) -> None:
-    await api.send_message(chat_id=user_id, text="Okay, never mind....")
+async def on_drop(chat_id: int) -> None:
+    await api.send_message(chat_id=chat_id, text="Okay, never mind....")
 
 
 class DummyMiddleware(ABCMiddleware):
@@ -59,7 +59,7 @@ class DummyMiddleware(ABCMiddleware):
 
 
 @bot.on.message(Text("/start"))
-async def start(message: Message, me: Me):
+async def start(message: Message, me: Me) -> None:
     await message.answer(
         "Hello, {}! It's {}. How are you today?".format(
             message.from_user.first_name,
@@ -67,11 +67,11 @@ async def start(message: Message, me: Me):
         ),
     )
     m, _ = await wm.wait(
-        hasher=MESSAGE_FROM_USER_IN_CHAT((message.from_user.id, message.chat_id)),
+        hasher=MESSAGE_FROM_USER_IN_CHAT(bot.on.message, (message.chat_id, message.from_user.id)),
         release=Text(["fine", "bad"], ignore_case=True),
         lifetime=timedelta(seconds=60),
         on_miss=MessageReplyHandler("Fine or bad", as_reply=True),
-        on_drop=partial(on_drop, user_id=message.from_user.id),
+        on_drop=partial(on_drop, chat_id=message.chat_id),
     )
 
     match m.text.unwrap().lower():
@@ -88,7 +88,7 @@ async def start(message: Message, me: Me):
 async def react(message: Message, context: Context):
     await message.reply("Send me any message...")
     msg, _ = await wm.wait(
-        hasher=MESSAGE_FROM_USER_IN_CHAT((message.from_user.id, message.chat_id)),
+        hasher=MESSAGE_FROM_USER_IN_CHAT(bot.on.message, (message.from_user.id, message.chat_id)),
         release=HasText(),
         on_miss=MessageReplyHandler("Your message has no text!"),
         lifespan=DummyMiddleware().to_lifespan(message, context),
@@ -134,7 +134,7 @@ async def freeze_handler(message: Message):
         source_filter=(as_node(UserId), message.from_user.id, IsUpdateType(UpdateType.CALLBACK_QUERY)),
     ):
         cb, _ = await wm.wait(
-            hasher=CALLBACK_QUERY_FOR_MESSAGE(msg.message_id),
+            hasher=CALLBACK_QUERY_FOR_MESSAGE(bot.on.callback_query, msg.message_id),
             release=CallbackDataEq("unfreeze"),
         )
         await cb.edit_text("Wow heated!")

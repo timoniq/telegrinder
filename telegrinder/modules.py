@@ -1,20 +1,24 @@
+from __future__ import annotations
+
+import asyncio
+import contextvars
 import dataclasses
 import logging
 import os
 import re
 import sys
 import traceback
+import types
 import typing
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
 
 import colorama
 from choicelib import choice_in_order
 
-from telegrinder.msgspec_utils import json
-
 # pyright: reportMissingImports=none, reportAttributeAccessIssue=none
 
 if typing.TYPE_CHECKING:
+    from _typeshed import OptExcInfo
     from loguru import FileHandlerConfig as _LoguruFileHandler
 else:
 
@@ -50,6 +54,7 @@ DEFAULT_LOGURU_FORMAT = (
     "<le>{line}</le> > <lw>{message}</lw>"
 )
 
+CALL_STACK_CONTEXT = contextvars.ContextVar[tuple[types.FrameType, "OptExcInfo"]]("_call_stack")
 COLORS = dict(
     reset=colorama.Style.RESET_ALL,
     red=colorama.Fore.RED,
@@ -112,7 +117,7 @@ _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 class LoggerModule(typing.Protocol):
     logger: typing.Any
 
-    def set_logger(self, __logger: typing.Any) -> None: ...
+    def set_logger(self, __logger: typing.Any, __logging_module: str) -> None: ...
 
     def debug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
@@ -127,6 +132,20 @@ class LoggerModule(typing.Protocol):
     def critical(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
     def exception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    async def adebug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    async def ainfo(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    async def awarning(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    async def asuccess(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    async def aerror(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    async def acritical(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    async def aexception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
 
 class LoggingFormatter(logging.Formatter):
@@ -178,16 +197,24 @@ def _get_level_format(format: str, colorize: bool, /) -> dict[str, str]:
 
 
 def _rich_log_record(record: logging.LogRecord, /) -> logging.LogRecord:
-    frame = sys._getframe(1)
+    call_stack, exc_info = CALL_STACK_CONTEXT.get((None, None))
+    frame = call_stack or sys._getframe(1)
 
-    while frame:
-        if frame.f_code.co_filename == record.pathname and frame.f_lineno == record.lineno:
-            if logging_module == "structlog":
-                frame = frame.f_back.f_back.f_back  # pyright: ignore[reportOptionalMemberAccess]
+    if call_stack is None:
+        while frame:
+            if frame.f_code.co_filename == record.pathname and frame.f_lineno == record.lineno:
+                if logging_module == "structlog":
+                    frame = frame.f_back.f_back.f_back  # pyright: ignore[reportOptionalMemberAccess]
 
-            break
+                break
 
-        frame = frame.f_back
+            frame = frame.f_back
+
+    if record.levelno >= logging.ERROR and record.exc_info is not None:
+        if exc_info is not None and any(exc_info):
+            record.exc_info = exc_info
+        elif logging_module == "structlog":
+            record.exc_info = None
 
     if frame is not None:
         record.funcName = frame.f_code.co_name
@@ -200,22 +227,67 @@ def _rich_log_record(record: logging.LogRecord, /) -> logging.LogRecord:
     return record
 
 
+def _loguru_filter(record: dict[str, typing.Any]) -> bool:
+    if record["extra"].get("telegrinder", False) is not True:
+        return False
+
+    frame, exc_info = CALL_STACK_CONTEXT.get((None, None))
+
+    if frame is not None:
+        if "file" in record:
+            file_name = frame.f_code.co_filename
+            record["file"].name = os.path.basename(file_name)
+            record["file"].path = file_name
+
+        record["name"] = frame.f_globals.get("__name__", "<module>")
+        record["module"] = record["name"].split(".")[-1]
+        record["line"] = frame.f_lineno
+        record["function"] = frame.f_code.co_name
+
+    if (
+        exc_info is not None
+        and any(exc_info)
+        and record["exception"] is not None
+        and not any(record["exception"])
+        and record["level"].no >= logger.logger.level("ERROR").no
+    ):
+        from loguru._recattrs import RecordException  # type: ignore
+
+        record["exception"] = RecordException(exc_info[0], exc_info[1], exc_info[2])  # type: ignore
+
+    return True
+
+
 def _remove_ansi_colors(text: str) -> str:
     return _ANSI_ESCAPE.sub("", text)
+
+
+class _json:  # noqa: N801
+    def __getattr__(self, __name: str) -> typing.Any:
+        from telegrinder.msgspec_utils import json
+
+        return getattr(json, __name)
+
+    def __repr__(self) -> str:
+        return "<module 'telegrinder.msgspec_utils.json'>"
 
 
 class _LoggerProxy:
     def __init__(self) -> None:
         self.logger = None
+        self.module_logger = None
 
     def __repr__(self) -> str:
         return "<LoggerProxy {}: {}>".format(
-            logging_module,
+            self.logging_module,
             "(NOT SETUP)" if self.logger is None else repr(self.logger),
         )
 
-    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-        return None
+    def __await__(self) -> typing.Generator[typing.Any, typing.Any, typing.Any]:
+        return iter(())  # type: ignore
+
+    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Self:
+        return self
 
     def __getattr__(self, __name: str) -> typing.Any:
         if self.logger is None:
@@ -224,13 +296,55 @@ class _LoggerProxy:
 
             return self
 
-        if __name == "success" and logging_module != "loguru":
-            return getattr(self.logger, "info")
+        if __name in LoggerModule.__dict__:
+            is_async = __name.startswith("a")
+            method_name = __name.removeprefix("a") if is_async else __name
+            method_name = "info" if method_name == "success" and self.logging_module != "loguru" else method_name
+            level_name = __name.removeprefix("a").upper()
+            level_name = (
+                "INFO"
+                if level_name == "SUCCESS" and self.logging_module != "loguru"
+                else "ERROR"
+                if level_name == "EXCEPTION"
+                else level_name
+            )
+            level = (
+                logging._nameToLevel.get(level_name, logging.NOTSET) if self.logging_module != "loguru" else level_name
+            )
+            level_is_enabled = hasattr(self.logger, "isEnabledFor") and self.logger.isEnabledFor(level)
+
+            if is_async:
+                meth = getattr(self.logger, method_name)
+                method = (
+                    self if not level_is_enabled else lambda *args, **kwargs: self._async_log(meth, *args, **kwargs)
+                )
+            else:
+                method = getattr(self.logger, method_name) if level_is_enabled else self
+
+            return method
 
         return getattr(self.logger, __name)
 
-    def set_logger(self, logger: LoggerModule, /) -> None:
+    async def _async_log(
+        self,
+        method: typing.Callable[..., typing.Any],
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> None:
+        tok = CALL_STACK_CONTEXT.set((sys._getframe(0).f_back, sys.exc_info()))  # type: ignore
+        ctx = contextvars.copy_context()
+
+        try:
+            await asyncio.get_running_loop().run_in_executor(
+                executor=None,
+                func=lambda: ctx.run(lambda: method(*args, **kwargs)),
+            )
+        finally:
+            CALL_STACK_CONTEXT.reset(tok)
+
+    def set_logger(self, logger: LoggerModule, logging_module: str) -> None:
         self.logger = logger
+        self.logging_module = logging_module
 
 
 class _LoguruFileHandlerConfig(_LoguruFileHandler):
@@ -562,7 +676,7 @@ if logging_module == "structlog":
             context_class=dict,
             cache_logger_on_first_use=True,
         )
-        logger.set_logger(struct_logger)
+        logger.set_logger(struct_logger, "structlog")
 
 
 elif logging_module == "loguru":
@@ -585,12 +699,22 @@ elif logging_module == "loguru":
             depth=0,
             record=False,
             lazy=False,
-            colors=True,
+            colors=False,
             raw=False,
             capture=True,
             patchers=[],
             extra=dict(telegrinder=True),
         )
+
+        def is_enabled_for(level: str) -> bool:
+            try:
+                lno = loguru_logger.level(level).no
+            except ValueError:
+                return False
+
+            return any(lno >= x.levelno for x in loguru_logger._core.handlers.values())
+
+        loguru_logger.isEnabledFor = is_enabled_for
         handlers = []
 
         if console_sink is not None:
@@ -601,7 +725,7 @@ elif logging_module == "loguru":
                     enqueue=True,
                     colorize=colorize,
                     format=format or DEFAULT_LOGURU_FORMAT,
-                    filter=lambda record: record["extra"].get("telegrinder", False) is True,
+                    filter=_loguru_filter,
                 ),
             )
 
@@ -618,7 +742,7 @@ elif logging_module == "loguru":
                 for handler_id in handlers_ids:
                     loguru_logger.remove(handler_id)
 
-        logger.set_logger(loguru_logger)
+        logger.set_logger(loguru_logger, "loguru")
 
 
 elif logging_module == "logging":
@@ -687,7 +811,7 @@ elif logging_module == "logging":
 
             _logger.addHandler(file.handler)
 
-        logger.set_logger(LoggingStyleAdapter(logger=_logger))
+        logger.set_logger(LoggingStyleAdapter(logger=_logger), "logging")
 
 
 if asyncio_module in ("uvloop", "winloop"):
@@ -729,6 +853,12 @@ def setup_logger(
             _configure_structlog(*args)
 
     return logger
+
+
+if typing.TYPE_CHECKING:
+    from telegrinder.msgspec_utils import json
+else:
+    json = _json()
 
 
 __all__ = ("FileHandlerConfig", "json", "logger", "setup_logger")

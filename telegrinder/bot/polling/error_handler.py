@@ -40,41 +40,41 @@ class ErrorHandler:
             await maybe_awaitable(self._handlers[error_class](error))
             return True
         except SystemExit as sys_exit_err:
-            self._handle_system_exit(sys_exit_err)
+            await self._handle_system_exit(sys_exit_err)
 
-    def _handle_system_exit(self, error: SystemExit) -> typing.NoReturn:
-        logger.error("Forced exit from the program with code {}.", error.code)
+    async def _handle_system_exit(self, error: SystemExit) -> typing.NoReturn:
+        await logger.aerror("Forced exit from the program with code {}.", error.code)
         raise error from None
 
-    def _handle_invalid_token_error(
+    async def _handle_invalid_token_error(
         self,
         error: InvalidTokenError,
     ) -> typing.NoReturn:
-        logger.error("{}", error)
+        await logger.aerror("{}", error)
         self._polling.stop()
         sys.exit(3)
 
-    def _handle_cancelled_error(self, _: asyncio.CancelledError) -> None:
-        logger.info("Caught cancel, stopping polling...")
+    async def _handle_cancelled_error(self, _: asyncio.CancelledError) -> None:
+        await logger.ainfo("Caught cancel, stopping polling...")
         self._polling.stop()
 
     async def _handle_connection_timeout_error(self, _: BaseException) -> None:
         if self._polling.reconnects_counter > self._polling.max_reconnects:
-            logger.error(
+            await logger.aerror(
                 "Failed to reconnect to Telegram API server after {} attempts, stopping polling...",
                 self._polling.max_reconnects,
             )
             self._polling.stop()
             sys.exit(6)
 
-        logger.warning(
+        await logger.awarning(
             "Server disconnected, waiting {} seconds to reconnect...",
             self._polling.reconnect_after,
         )
         await asyncio.sleep(self._polling.reconnect_after)
 
     async def _handle_client_connection_error(self, _: BaseException) -> None:
-        logger.error(
+        await logger.aerror(
             "Client connection failed, attempt to reconnect after {} seconds...",
             self._polling.reconnect_after,
         )
@@ -85,10 +85,10 @@ class ErrorHandler:
         error: APIServerError,
     ) -> None:
         if error.retry_after is None:
-            logger.error("{}", error)
+            await logger.aerror("{}", error)
             sys.exit(9)
 
-        logger.error("{}, waiting {} seconds to the next request...", error, error.retry_after)
+        await logger.aerror("{}, waiting {} seconds to the next request...", error, error.retry_after)
         await asyncio.sleep(error.retry_after)
 
 

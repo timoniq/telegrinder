@@ -55,7 +55,7 @@ class MockedHttpClient(ABCClient):
         return self.return_value or self.callback(method, url, data)
 
     @classmethod
-    def multipart_form_factory(cls) -> typing.Any:
+    def multipart_form_builder(cls) -> typing.Any:
         pass
 
     @classmethod

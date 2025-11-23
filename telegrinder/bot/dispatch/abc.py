@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib.util as importlib_util
 import os
 import pathlib
@@ -17,7 +19,7 @@ class PathExistsError(BaseException):
 
 class ABCDispatch(ABC):
     @abstractmethod
-    async def feed(self, event: Update, api: API) -> bool:
+    async def feed(self, api: API, update: Update) -> typing.Any:
         pass
 
     @abstractmethod
@@ -62,7 +64,7 @@ class ABCDispatch(ABC):
                         spec = importlib_util.spec_from_file_location(module_name, module_path)
                         if spec is None or spec.loader is None:
                             continue
-    
+
                         module = importlib_util.module_from_spec(spec)
                         sys.modules[module_name] = module
                         spec.loader.exec_module(module)

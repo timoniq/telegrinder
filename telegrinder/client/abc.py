@@ -1,10 +1,9 @@
-import io
 import typing
 from abc import ABC, abstractmethod
 
-from telegrinder.client.form_data import MultipartFormProto, encode_form_data
+from telegrinder.client.form_data import MultipartBuilderProto, encode_form_data
 
-type Data = dict[str, typing.Any] | MultipartFormProto
+type Data = typing.Any
 type Files = dict[str, tuple[str, typing.Any]]
 
 
@@ -67,35 +66,38 @@ class ABCClient(ABC):
 
     @classmethod
     @abstractmethod
-    def multipart_form_factory(cls) -> MultipartFormProto:
+    def multipart_form_builder(cls) -> MultipartBuilderProto:
         pass
 
     @classmethod
     def get_form(
         cls,
         *,
-        data: dict[str, typing.Any],
+        data: dict[str, typing.Any] | None = None,
         files: Files | None = None,
-    ) -> MultipartFormProto:
-        multipart_form = cls.multipart_form_factory()
+    ) -> typing.Any:
+        builder = cls.multipart_form_builder()
+
+        if not data and not files:
+            return builder.build()
+
+        data = data or {}
         files = files or {}
 
         for k, v in encode_form_data(data, files).items():
-            multipart_form.add_field(k, v)
+            builder.add_field(k, v)
 
-        for n, (filename, content) in {
-            k: (n, io.BytesIO(c) if isinstance(c, bytes) else c) for k, (n, c) in files.items()
-        }.items():
-            multipart_form.add_field(n, content, filename=filename)
+        for n, (filename, content) in files.items():
+            builder.add_field(n, content, filename=filename)
 
-        return multipart_form
+        return builder.build()
 
     async def __aenter__(self) -> typing.Self:
         return self
 
     async def __aexit__(
         self,
-        exc_type: type[BaseException],
+        exc_type: typing.Any,
         exc_val: typing.Any,
         exc_tb: typing.Any,
     ) -> None:

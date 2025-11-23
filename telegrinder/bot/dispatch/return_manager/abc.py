@@ -54,7 +54,7 @@ class Manager:
                 case Ok(value):
                     node_col = value
                 case Error(compose_error):
-                    logger.debug(
+                    await logger.adebug(
                         "Cannot compose nodes for return manager `{}`, error {!r}",
                         fullname(self.function),
                         compose_error.message,
@@ -94,9 +94,7 @@ class BaseReturnManager(ABCReturnManager):
     @cached_property
     def managers(self) -> list[Manager]:
         return [
-            manager
-            for manager in (vars(BaseReturnManager) | vars(type(self))).values()
-            if isinstance(manager, Manager)
+            manager for manager in (vars(BaseReturnManager) | vars(type(self))).values() if isinstance(manager, Manager)
         ]
 
     async def run(
@@ -108,7 +106,7 @@ class BaseReturnManager(ABCReturnManager):
     ) -> None:
         for manager in self.managers:
             if typing.Any in manager.types or type(response) in manager.types:
-                logger.debug(
+                await logger.adebug(
                     "Running manager `{}` for response `{!r}`",
                     fullname(manager.function),
                     response,

@@ -16,15 +16,15 @@ CANCEL_MARKUP = InlineKeyboard().add(InlineButton("Cancel", callback_data="cance
 
 api = API(Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine(bot.dispatch)
+wm = WaiterMachine()
 
 
 @bot.on.message(Text("/start"))
 async def start_handler(message: MessageCute) -> None:
     input_message = (await message.answer("Input or cancel", reply_markup=CANCEL_MARKUP)).unwrap()
     _, event, _ = await wm.wait_many(
-        MESSAGE_FROM_USER(message.from_user.id),
-        CALLBACK_QUERY_FOR_MESSAGE(input_message.message_id),
+        MESSAGE_FROM_USER(bot.on.message, message.from_user.id),
+        CALLBACK_QUERY_FOR_MESSAGE(bot.on.callback_query, input_message.message_id),
     )
 
     match event:

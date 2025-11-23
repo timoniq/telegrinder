@@ -1,5 +1,6 @@
 from telegrinder.tools.aio import (
     cancel_future,
+    get_tasks_results,
     maybe_awaitable,
     next_generator,
     run_task,
@@ -133,6 +134,7 @@ __all__ = (
     "get_func_annotations",
     "get_func_parameters",
     "get_generic_parameters",
+    "get_tasks_results",
     "italic",
     "join_dicts",
     "link",

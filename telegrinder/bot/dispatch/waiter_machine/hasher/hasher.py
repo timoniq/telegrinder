@@ -1,15 +1,15 @@
 from __future__ import annotations
 
+import secrets
 import typing
-from functools import cached_property
 
 from fntypes.library.misc import from_optional
 from fntypes.library.monad.option import Option
 
 from telegrinder.bot.cute_types import BaseCute
-from telegrinder.bot.dispatch.view.base import BaseView
+from telegrinder.bot.dispatch.view.base import View
 
-type HasherWithData[Event: BaseCute, Data] = tuple[Hasher[Event, Data], Data]
+type HasherWithData[Event: BaseCute, Data] = tuple[Hasher[Event, Data], View, Data]
 
 Event = typing.TypeVar("Event", bound=BaseCute, covariant=True)
 Data = typing.TypeVar("Data", covariant=True)
@@ -22,26 +22,26 @@ def ECHO[T](__x: T) -> T:  # noqa
 class Hasher(typing.Generic[Event, Data]):
     def __init__(
         self,
-        view_class: type[BaseView],
         get_hash_from_data: typing.Callable[[Data], typing.Hashable | None] | None = None,
         get_data_from_event: typing.Callable[[Event], Data | None] | None = None,
     ) -> None:
-        self.view_class = view_class
+        self.code = secrets.token_hex(8)
         self._get_hash_from_data = get_hash_from_data
         self._get_data_from_event = get_data_from_event
 
-    def __call__[D](self: Hasher[Event, D], data: D, /) -> HasherWithData[Event, D]:
-        return (self, data)
+    def __call__[D](
+        self: Hasher[Event, D],
+        view: View,
+        data: D,
+        /,
+    ) -> HasherWithData[Event, D]:
+        return (self, view, data)
 
     def __hash__(self) -> int:
-        return hash(self.name)
+        return hash(self.code)
 
     def __repr__(self) -> str:
-        return f"<Hasher {self.name}>"
-
-    @cached_property
-    def name(self) -> str:
-        return f"{self.view_class.__name__}_{id(self)}"
+        return f"<Hasher {self.code}>"
 
     def get_hash_from_data[D](self: Hasher[Event, D], data: D) -> Option[typing.Hashable]:
         if self._get_hash_from_data is None:

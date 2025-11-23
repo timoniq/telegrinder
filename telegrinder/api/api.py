@@ -13,8 +13,7 @@ from fntypes.library.monad.result import Error, Ok, Result
 from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
 from telegrinder.api.token import Token
-from telegrinder.client import ABCClient, MultipartFormProto, SingleAiohttpClient
-from telegrinder.client.aiohttp import DEFAULT_TIMEOUT
+from telegrinder.client import ABCClient, RnetClient
 from telegrinder.model import decoder
 from telegrinder.types.methods import APIMethods
 
@@ -26,17 +25,9 @@ type APIRequestMethod[T: API, **P, R] = typing.Callable[
     typing.Coroutine[typing.Any, typing.Any, Result[R, APIError]],
 ]
 
-DEFAULT_MAX_RETRIES: typing.Final[int] = 5
 
-
-def compose_data(
-    client: ABCClient,
-    data: Data,
-    files: Files,
-) -> MultipartFormProto:
-    if not data and not files:
-        return client.multipart_form_factory()
-    return client.get_form(data=data, files=files)
+DEFAULT_MAX_RETRIES: typing.Final = 5
+DEFAULT_TIMEOUT: typing.Final = 30
 
 
 def retryer[T: API, **P, R](func: APIRequestMethod[T, P, R], /) -> APIRequestMethod[T, P, R]:
@@ -51,7 +42,7 @@ def retryer[T: API, **P, R](func: APIRequestMethod[T, P, R], /) -> APIRequestMet
         while True:
             result = await func(self, *args, **kwargs)
 
-            if is_ok(result) or not self.retryer_enabled or retries_counter >= self.max_retries:
+            if is_ok(result) or not self.retryer_is_enabled or retries_counter >= self.max_retries:
                 return result
 
             if result.error.status_code == HTTPStatus.TOO_MANY_REQUESTS:
@@ -88,17 +79,16 @@ class API(APIMethods):
         max_retries: int = DEFAULT_MAX_RETRIES,
     ) -> None:
         self.token = token
-        self.http = http or SingleAiohttpClient()
-        self._retryer_enabled = retryer
+        self.http = http or RnetClient()
+        self._retryer_is_enabled = retryer
         self._max_retries = max_retries
         super().__init__(api=self)
 
     def __repr__(self) -> str:
-        return "<{}: id={}, http={!r}, retryer_enabled={}, max_retries={}>".format(
+        return "<{}: id={}, http={!r}, max_retries={}>".format(
             type(self).__name__,
             self.id,
             self.http,
-            self._retryer_enabled,
             self._max_retries,
         )
 
@@ -115,8 +105,8 @@ class API(APIMethods):
         return self.API_FILE_URL + f"bot{self.token}/"
 
     @property
-    def retryer_enabled(self) -> bool:
-        return self._retryer_enabled
+    def retryer_is_enabled(self) -> bool:
+        return self._retryer_is_enabled
 
     @property
     def max_retries(self) -> int:
@@ -144,11 +134,13 @@ class API(APIMethods):
         response = await self.http.request_json(
             url=self.request_url + method,
             method="POST",
-            data=compose_data(self.http, data or {}, files or {}),
+            data=self.http.get_form(data=data, files=files),
             **kwargs,
         )
+
         if response.get("ok", False) is True:
             return Ok(response["result"])
+
         return Error(
             APIError(
                 code=response.get("error_code", 400),
@@ -169,10 +161,10 @@ class API(APIMethods):
         response_bytes = await self.http.request_bytes(
             url=self.request_url + method,
             method="POST",
-            data=compose_data(self.http, data or {}, files or {}),
+            data=self.http.get_form(data=data, files=files),
             **kwargs,
         )
         return decoder.decode(response_bytes, type=APIResponse).to_result()
 
 
-__all__ = ("API", "compose_data", "retryer")
+__all__ = ("API",)

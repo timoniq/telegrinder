@@ -129,9 +129,7 @@ class Polling(ABCPolling):
                 error = APIServerError("Cannot run polling, because another bot instance is already running.")
             case HTTPStatus.UNAUTHORIZED | HTTPStatus.NOT_FOUND as status:
                 error = InvalidTokenError(
-                    "Token seems to be invalid"
-                    if status == HTTPStatus.NOT_FOUND
-                    else "Invalid token (unauthorized)",
+                    "Token seems to be invalid" if status == HTTPStatus.NOT_FOUND else "Invalid token (unauthorized)",
                 )
             case HTTPStatus.BAD_GATEWAY | HTTPStatus.GATEWAY_TIMEOUT as status:
                 error = APIServerError(
@@ -142,7 +140,7 @@ class Polling(ABCPolling):
         raise error from None
 
     async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
-        logger.debug("Listening polling")
+        await logger.adebug("Listening polling")
         self._running = True
 
         with decoder(list[Update]) as dec:
@@ -156,7 +154,7 @@ class Polling(ABCPolling):
                         self._reset_reconnects_counter()
                 except BaseException as error:
                     if not await self._error_handler.handle(error):
-                        logger.exception("Traceback message below:")
+                        await logger.aexception("Traceback message below:")
 
                     if isinstance(error, self.api.http.CONNECTION_TIMEOUT_ERRORS):
                         self._reconnects_counter += 1

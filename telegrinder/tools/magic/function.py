@@ -31,10 +31,20 @@ def _to_str(obj: typing.Any, /) -> str:
     return str(obj) if not isinstance(obj, str) else obj
 
 
+@cache
 def _unwrap_func(obj: typing.Any, /) -> typing.Any:
-    if isinstance(obj, partial):
-        obj = obj.func
-    return inspect.unwrap(obj)
+    while True:
+        if isinstance(obj, partial):
+            obj = obj.func
+            continue
+
+        if hasattr(obj, "__wrapped__"):
+            obj = obj.__wrapped__
+            continue
+
+        break
+
+    return obj
 
 
 def _resolve_arg_names(

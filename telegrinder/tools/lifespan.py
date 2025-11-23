@@ -24,7 +24,8 @@ def to_coroutine_task[**P, T](task: Task[P, T], /) -> CoroutineTask[T]:
 @dataclasses.dataclass
 class DelayedTask[Function: CoroutineFunc[..., typing.Any]]:
     _cancelled: bool = dataclasses.field(default=False, init=False, repr=False)
-    _task: asyncio.Task[typing.Any] | None = dataclasses.field(default=None, init=False, repr=False)
+    _event: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False, repr=False)
+    _timer: asyncio.TimerHandle | None = dataclasses.field(default=None, init=False, repr=False)
 
     function: Function
     seconds: float | datetime.timedelta
@@ -32,6 +33,25 @@ class DelayedTask[Function: CoroutineFunc[..., typing.Any]]:
 
     def __post_init__(self) -> None:
         self.function.cancel = self.cancel
+
+    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        while True:
+            self.start_timer()
+            await self._event.wait()
+
+            try:
+                await self.function(*args, **kwargs)
+            except Exception:
+                await logger.aexception(
+                    "Delayed task `{}` failed with exception, traceback message below:",
+                    fullname(self.function),
+                )
+            finally:
+                self._event.clear()
+                self._timer = None
+
+                if not self.repeat:
+                    break
 
     @property
     def is_cancelled(self) -> bool:
@@ -41,28 +61,29 @@ class DelayedTask[Function: CoroutineFunc[..., typing.Any]]:
     def delay(self) -> float:
         return float(self.seconds) if isinstance(self.seconds, int | float) else self.seconds.total_seconds()
 
-    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        self._task = self._task or asyncio.current_task()
-        stopped = False
-
-        while not self._cancelled and not stopped:
-            await asyncio.sleep(self.delay)
-            try:
-                await self.function(*args, **kwargs)
-            except Exception:
-                logger.exception(
-                    "Delayed task `{}` failed with exception, traceback message below:",
-                    fullname(self.function),
-                )
-            finally:
-                stopped = not self.repeat
+    def start_timer(self) -> None:
+        if self._timer is None:
+            self._timer = asyncio.get_running_loop().call_later(
+                self.delay,
+                callback=lambda: (self._event.set() if not self._event.is_set() else None),
+            )
 
     def cancel(self) -> bool:
-        if not self._cancelled:
-            self._cancelled = True if self._task is None else self._task.cancel()
-            self._task = None
+        if self._cancelled:
+            return True
 
-        return self._cancelled
+        if self._timer is None or self._timer.cancelled():
+            self._timer = None
+            return False
+
+        self._timer.cancel()
+        self._timer = None
+
+        for future in self._event._waiters:
+            if not future.cancelled():
+                future.cancel()
+
+        return True
 
 
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
@@ -125,7 +146,7 @@ class Lifespan:
 
     async def _start(self) -> None:
         if not self._started:
-            logger.debug("Running lifespan startup tasks")
+            await logger.adebug("Running lifespan startup tasks")
             self._started = True
 
             if self.lifespan_function is not None:
@@ -136,7 +157,7 @@ class Lifespan:
 
     async def _shutdown(self, *suppress_args: typing.Any) -> None:
         if self._started:
-            logger.debug("Running lifespan shutdown tasks")
+            await logger.adebug("Running lifespan shutdown tasks")
             self._started = False
 
             if self._lifespan_context is not None:

@@ -9,6 +9,7 @@ from fntypes.library.monad.option import Nothing, Option, Some
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
     from telegrinder.bot.cute_types.update import UpdateCute
+    from telegrinder.bot.dispatch.router.base import Router
     from telegrinder.types.objects import Update
 
 type Key = str | enum.Enum
@@ -18,10 +19,12 @@ type AnyValue = typing.Any
 class Context(dict[str, AnyValue]):
     """Low level per event context storage."""
 
+    exceptions_update: dict[Router, Exception]
     update_cute: Option[UpdateCute] = Nothing()
     exception_update: Option[Exception] = Nothing()
 
     def __init__(self, **kwargs: AnyValue) -> None:
+        kwargs.setdefault("exceptions_update", dict())
         dict.__init__(self, **kwargs)
 
     @recursive_repr()

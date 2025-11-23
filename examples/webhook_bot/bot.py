@@ -22,7 +22,7 @@ from telegrinder.tools.formatting import HTMLFormatter, block_quote, link
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 dp = Dispatch()
-wm = WaiterMachine(dp)
+wm = WaiterMachine()
 
 
 kb = (
@@ -50,7 +50,7 @@ async def car_choice(message: Message) -> None:
         .add_option("bentley", "Bentley Continental", "Continental 🤍")
         .add_option("mazda", "Mazda rx 7", "Mazda rx 7 🩵")
         .add_option("toyota", "Toyota Supra mk5", "Supra mk5 💜")
-        .wait(CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api)
+        .wait(CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api)
     )
     await message.edit(
         "🚘 You picked: {}.".format(", ".join(c for c in picked if picked[c])),
@@ -88,7 +88,7 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        hasher=MESSAGE_IN_CHAT(message.chat.id),
+        hasher=MESSAGE_IN_CHAT(dp.message, message.chat.id),
         release=HasText(),
         on_miss=MessageReplyHandler("Im still waiting for your message!"),
     )
@@ -105,7 +105,7 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        hasher=MESSAGE_IN_CHAT(message.chat.id),
+        hasher=MESSAGE_IN_CHAT(dp.message, message.chat.id),
         release=IntegerInRange(range(1, 11)),
         on_miss=MessageReplyHandler("Send a number between 1 and 10!"),
     )

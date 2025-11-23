@@ -1,22 +1,15 @@
 import typing
 from abc import ABC, abstractmethod
 
-from fntypes import Result
-
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.types.objects import Update
 
 
-class ABCView(ABC):
+class ABCRouter(ABC):
     @abstractmethod
-    async def process(
-        self,
-        api: API,
-        update: Update,
-        context: Context,
-    ) -> Result[typing.Any, typing.Any]:
+    async def route(self, api: API, update: Update, context: Context) -> typing.Any:
         pass
 
 
-__all__ = ("ABCView",)
+__all__ = ("ABCRouter",)

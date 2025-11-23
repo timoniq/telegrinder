@@ -14,6 +14,10 @@ def loop_is_running() -> bool:
     return False
 
 
+def get_tasks_results[T](tasks: set[asyncio.Task[T]], /) -> tuple[T, ...]:
+    return tuple(task.result() for task in tasks if not task.cancelled() and not task.exception())
+
+
 def run_task[T](
     task: typing.Awaitable[T],
     /,
@@ -103,6 +107,7 @@ class StopGenerator(Exception):
 __all__ = (
     "StopGenerator",
     "cancel_future",
+    "get_tasks_results",
     "loop_is_running",
     "maybe_awaitable",
     "next_generator",

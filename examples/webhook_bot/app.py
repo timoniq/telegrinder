@@ -47,7 +47,7 @@ async def webhook_bot(request: Request) -> Response:  # type: ignore
         update.update_id,
         update.update_type,
     )
-    await loop_wrapper.create_task(dp.feed(update, api))
+    await loop_wrapper.create_task(dp.feed(api, update))
     return Response(status_code=200)  # type: ignore
 
 

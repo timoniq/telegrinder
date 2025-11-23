@@ -15,6 +15,10 @@ from telegrinder.types.objects import InlineKeyboardMarkup
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
+    from telegrinder.bot.dispatch.view.base import View
+
+type MessageId = int
+type CallbackQueryView = View
 
 
 class ChoiceAction(enum.StrEnum):
@@ -31,7 +35,7 @@ class Choice[Key: typing.Hashable]:
     code: str
 
 
-class _Checkbox[T](ABCScenario[CallbackQueryCute]):
+class _Checkbox[T](ABCScenario):
     choices: list[Choice[typing.Hashable]]
 
     INVALID_CODE = "Invalid code"
@@ -131,9 +135,10 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
 
     async def wait(
         self,
-        hasher: Hasher[CallbackQueryCute, int],
+        hasher: Hasher[CallbackQueryCute, MessageId],
+        view: CallbackQueryView,
         api: API,
-    ) -> tuple[dict[typing.Hashable, bool], int]:
+    ) -> tuple[dict[typing.Hashable, bool], MessageId]:
         assert len(self.choices) > 0
         message = (
             await api.send_message(
@@ -147,6 +152,7 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
         while True:
             q, _ = await self.waiter_machine.wait(
                 hasher,
+                view=view,
                 data=message.message_id,
             )
             should_continue = await self.handle(q)
@@ -167,9 +173,10 @@ if typing.TYPE_CHECKING:
 
         async def wait(
             self,
-            hasher: Hasher[CallbackQueryCute, int],
+            hasher: Hasher[CallbackQueryCute, MessageId],
+            view: CallbackQueryView,
             api: API,
-        ) -> tuple[dict[Key, bool], int]: ...
+        ) -> tuple[dict[Key, bool], MessageId]: ...
 
 else:
     Checkbox = _Checkbox

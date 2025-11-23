@@ -68,7 +68,7 @@ class Polymorphic(Node):
                 case Ok(col):
                     node_collection = col
                 case Error(err):
-                    logger.debug(
+                    await logger.adebug(
                         "Impl `{}` composition failed with error: {!r}",
                         fullname(impl_),
                         err,
@@ -90,7 +90,7 @@ class Polymorphic(Node):
 
                 return result
             except ComposeError as compose_error:
-                logger.debug(
+                await logger.adebug(
                     "Failed to compose morph impl `{}`, error: {!r}",
                     fullname(impl_),
                     compose_error.message,

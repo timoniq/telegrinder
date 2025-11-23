@@ -34,7 +34,7 @@ async def run_middleware(
             case Ok(value):
                 node_col = value
             case Error(compose_error):
-                logger.debug(
+                await logger.adebug(
                     "Cannot compose nodes for `{}`, error: {!r}",
                     method.__qualname__,
                     compose_error.message,

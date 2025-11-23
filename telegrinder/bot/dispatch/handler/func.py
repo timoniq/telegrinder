@@ -21,7 +21,7 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.abc import ABCRule
 
-type Function = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]
+type Function[**P = ..., R = typing.Any] = typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, R]]
 
 
 @dataclasses.dataclass(repr=False, slots=True)
@@ -52,7 +52,7 @@ class FuncHandler[T: Function](ABCHandler):
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, str]:
-        logger.debug("Checking rules and composing nodes for handler `{!r}`...", self)
+        await logger.adebug("Checking rules and composing nodes for handler `{!r}`...", self)
 
         temp_ctx = context.copy()
         temp_ctx |= self.preset_context.copy()
@@ -73,7 +73,7 @@ class FuncHandler[T: Function](ABCHandler):
                 case Error(compose_error):
                     return Error(f"Cannot compose nodes for handler `{self}`, error: {compose_error.message}")
 
-        logger.debug("All good, running handler `{!r}`", self)
+        await logger.adebug("All good, running handler `{!r}`", self)
 
         temp_ctx = context.copy()
         try:

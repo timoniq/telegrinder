@@ -5,7 +5,6 @@ import datetime
 import typing
 
 from telegrinder.bot.cute_types.base import BaseCute
-from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.waiter_machine.actions import WaiterActions
 from telegrinder.bot.dispatch.waiter_machine.hasher import Hasher
@@ -21,11 +20,14 @@ from telegrinder.tools.lifespan import Lifespan
 from telegrinder.tools.limited_dict import LimitedDict
 from telegrinder.tools.magic.function import bundle
 
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.dispatch.view.base import View
+
 type Storage[Event: BaseCute, HasherData] = dict[
     Hasher[Event, HasherData],
     LimitedDict[typing.Hashable, ShortState[Event]],
 ]
-type HasherWithData[Event: BaseCute, Data] = tuple[Hasher[Event, Data], Data]
+type HasherWithData[Event: BaseCute, ViewType: View, Data] = tuple[Hasher[Event, Data], ViewType, Data]
 
 _NODATA: typing.Final[typing.Any] = object()
 MAX_STORAGE_SIZE: typing.Final[int] = 10000
@@ -48,18 +50,18 @@ class ContextUnpackProto[*Ts](typing.Protocol):
 
 
 class WaiterMachine:
+    storage: Storage[typing.Any, typing.Any]
+
     def __init__(
         self,
-        dispatch: ABCDispatch,
         *,
         max_storage_size: int = MAX_STORAGE_SIZE,
         base_state_lifetime: datetime.timedelta = WEEK,
         clear_storage_interval: datetime.timedelta = ONE_MINUTE,
     ) -> None:
-        self.dispatch = dispatch
         self.max_storage_size = max_storage_size
         self.base_state_lifetime = base_state_lifetime
-        self.storage: Storage[typing.Any, typing.Any] = {}
+        self.storage = {}
 
     def __repr__(self) -> str:
         return "<{}: with {} storage items and max_storage_size={}, base_state_lifetime={!r}>".format(
@@ -72,12 +74,10 @@ class WaiterMachine:
     def add_hasher[Event: BaseCute, HasherData](
         self,
         hasher: Hasher[Event, HasherData],
+        view: View,
         /,
     ) -> None:
         self.storage[hasher] = LimitedDict(maxlimit=self.max_storage_size)
-        view = self.dispatch.get_view(hasher.view_class).expect(
-            RuntimeError(f"View {hasher.view_class.__name__!r} is not defined in dispatch."),
-        )
         view.middlewares.insert(0, WaiterMiddleware(self, hasher))
 
     async def drop_all(self) -> None:
@@ -86,6 +86,7 @@ class WaiterMachine:
                 if short_state.context:
                     await self.drop(hasher, data=ident)
                 else:
+                    short_state.cancel_drop()
                     await short_state.cancel()
 
             del self.storage[hasher]
@@ -106,9 +107,7 @@ class WaiterMachine:
         )
         short_state = self.storage[hasher].pop(waiter_id, None)
         if short_state is None:
-            raise LookupError(
-                "Waiter with identificator {} is not found for hasher {!r}.".format(waiter_id, hasher)
-            )
+            raise LookupError("Waiter with identificator {} is not found for hasher {!r}.".format(waiter_id, hasher))
 
         try:
             if not expired:
@@ -136,21 +135,22 @@ class WaiterMachine:
         try:
             await self.drop(hasher, data, expired=expired, **preset_context)
         except Exception as e:
-            logger.error("Error dropping state for hasher {!r}: {}", hasher, e)
+            await logger.aerror("Error dropping state for hasher {!r}: {}", hasher, e)
 
-    async def drop_state_many[Event: BaseCute, HasherData](
+    async def drop_state_many[Event: BaseCute, ViewType: View, HasherData](
         self,
         short_state: ShortState[Event],
-        *hashers: HasherWithData[Event, HasherData],
+        *hashers: HasherWithData[Event, ViewType, HasherData],
         expired: bool = False,
         **context: typing.Any,
     ) -> None:
-        for hasher, data in hashers:
+        for hasher, _, data in hashers:
             await self.drop_state(short_state, hasher, data, expired=expired, **context)
 
-    async def wait[Event: BaseCute, HasherData](
+    async def wait[Event: BaseCute, ViewType: View, HasherData](
         self,
-        hasher: Hasher[Event, HasherData] | HasherWithData[Event, HasherData],
+        hasher: Hasher[Event, HasherData] | HasherWithData[Event, ViewType, HasherData],
+        view: ViewType | None = None,
         data: HasherData = _NODATA,
         *,
         filter: ABCRule | None = None,
@@ -174,12 +174,18 @@ class WaiterMachine:
             expiration=lifetime,
         )
 
-        hasher, data = hasher if not isinstance(hasher, Hasher) else (hasher, data)
-        assert data is not _NODATA, "Hasher requires data."
+        hasher, view, data = hasher if not isinstance(hasher, Hasher) else (hasher, view, data)
+
+        if data is _NODATA:
+            raise ValueError("Hasher requires data.")
+
+        if view is None:
+            raise ValueError("Hasher requires view.")
+
         waiter_hash = hasher.get_hash_from_data(data).expect(RuntimeError("Hasher couldn't create hash."))
 
         if hasher not in self.storage:
-            self.add_hasher(hasher)
+            self.add_hasher(hasher, view)
 
         if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
             deleted_short_state.cancel_drop()
@@ -196,16 +202,16 @@ class WaiterMachine:
             raise LookupError("No context in short_state.")
         return short_state.context
 
-    async def wait_many[Event: BaseCute[typing.Any], Data, *Ts](
+    async def wait_many[Event: BaseCute[typing.Any], ViewType: View, Data, *Ts](
         self,
-        *hashers: HasherWithData[Event, Data],
+        *hashers: HasherWithData[Event, ViewType, Data],
         filter: ABCRule | None = None,
         release: ABCRule | None = None,
         lifetime: datetime.timedelta | float | None = None,
         lifespan: Lifespan | None = None,
         unpack: ContextUnpackProto[*Ts] = unpack_to_context,
         **actions: typing.Unpack[WaiterActions[Event]],
-    ) -> tuple[HasherWithData[Event, Data], Event, *Ts]:
+    ) -> tuple[HasherWithData[Event, ViewType, Data], Event, *Ts]:
         if isinstance(lifetime, int | float):
             lifetime = datetime.timedelta(seconds=lifetime)
         elif lifetime is None:
@@ -222,11 +228,11 @@ class WaiterMachine:
         )
         waiter_hashes: dict[Hasher[Event, Data], typing.Hashable] = {}
 
-        for hasher, data in hashers:
+        for hasher, view, data in hashers:
             waiter_hash = hasher.get_hash_from_data(data).expect(RuntimeError("Hasher couldn't create hash."))
 
             if hasher not in self.storage:
-                self.add_hasher(hasher)
+                self.add_hasher(hasher, view)
 
             if (deleted_short_state := self.storage[hasher].set(waiter_hash, short_state)) is not None:
                 deleted_short_state.cancel_drop()

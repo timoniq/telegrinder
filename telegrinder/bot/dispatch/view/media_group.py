@@ -1,21 +1,27 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import dataclasses
 import typing
 
+from fntypes.library import Error, Ok, Result
 from fntypes.library.monad.option import Some
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.cute_types.update import UpdateCute
-from telegrinder.bot.cute_types.utils import MEDIA_TYPES
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import process_inner
-from telegrinder.bot.dispatch.view.message import MessageView
+from telegrinder.bot.dispatch.view.base import EventModelView
+from telegrinder.bot.rules.media import IsMediaGroup
 from telegrinder.types.objects import Message, Update
 
-WAIT_TIME: typing.Final[float] = 2.0
-MAX_GROUP_PARTS: typing.Final[int] = 10
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
+
+WAIT_TIME: typing.Final = 2.0
+MAX_GROUP_PARTS: typing.Final = 10
 
 
 @dataclasses.dataclass(slots=True)
@@ -27,25 +33,23 @@ class MediaGroupData:
     processed: bool = False
 
 
-class MediaGroupView(MessageView):
+class MediaGroupView(EventModelView[Message]):
     media_groups: dict[str, MediaGroupData]
 
-    def __init__(self, wait_time: float = WAIT_TIME) -> None:
-        super().__init__()
+    def __init__(
+        self,
+        *,
+        wait_time: float = WAIT_TIME,
+        return_manager: ABCReturnManager | None = None,
+    ) -> None:
+        super().__init__(model=Message, return_manager=return_manager)
+
+        self.filter = IsMediaGroup()
         self.wait_time = wait_time
         self.media_groups = {}
         self._lock = asyncio.Lock()
 
-    async def check(self, event: Update) -> bool:
-        if not await super().check(event):
-            return False
-
-        if not isinstance(message := event.incoming_update, Message) or not message.media_group_id:
-            return False
-
-        return message.content_type in MEDIA_TYPES
-
-    async def process(self, event: Update, api: API, context: Context) -> bool:
+    async def process(self, event: Update, api: API, context: Context) -> Result[str, str]:
         update_cute = context.update_cute.map_or_else(
             lambda _: context.add_update_cute(event, api).update_cute.unwrap(),
             lambda update_cute: update_cute,
@@ -57,13 +61,11 @@ class MediaGroupView(MessageView):
 
         async with self._lock:
             if media_group_id not in self.media_groups:
-                self.media_groups[media_group_id] = MediaGroupData(
-                    raw_update=event, update_cute=update_cute.unwrap()
-                )
+                self.media_groups[media_group_id] = MediaGroupData(raw_update=event, update_cute=update_cute.unwrap())
 
             group_data = self.media_groups[media_group_id]
             if group_data.processed:
-                return False
+                return Error("Media group already processed.")
 
             group_data.messages.append(message_cute)
 
@@ -75,12 +77,16 @@ class MediaGroupView(MessageView):
                 messages = group_data.messages.copy()
                 self.media_groups.pop(media_group_id, None)
                 return await self.process_media_group(
-                    group_data.raw_update, group_data.update_cute, messages, api, context
+                    group_data.raw_update,
+                    group_data.update_cute,
+                    messages,
+                    api,
+                    context,
                 )
 
             group_data.timer_task = asyncio.create_task(self.wait_and_process(media_group_id, api, context))
 
-        return True
+        return Ok("Media group processed.")
 
     async def wait_and_process(self, media_group_id: str, api: API, context: Context) -> None:
         with contextlib.suppress(asyncio.CancelledError):
@@ -114,9 +120,9 @@ class MediaGroupView(MessageView):
         messages: list[MessageCute],
         api: API,
         context: Context,
-    ) -> bool:
+    ) -> Result[str, str]:
         if not messages:
-            return False
+            return Error("No messages in media group.")
 
         context.update_cute = Some(initiating_event_cute)
         message = typing.cast("MessageCute", initiating_event_cute.incoming_update)

@@ -165,6 +165,7 @@ def get_nodes(
     }
 
 
+@cache
 def is_generator(
     function: typing.Callable[..., typing.Any],
     /,
@@ -288,9 +289,7 @@ class UnspecializedDecorator(typing.Protocol):
 
 class SpecializedDecorator[T](typing.Protocol):
     @typing.overload
-    def __call__(
-        self, x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]], /
-    ) -> type[T]: ...
+    def __call__(self, x: Composable[typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]], /) -> type[T]: ...
 
     @typing.overload
     def __call__(self, x: Composable[T], /) -> type[T]: ...

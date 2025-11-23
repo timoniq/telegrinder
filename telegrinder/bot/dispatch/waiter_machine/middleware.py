@@ -35,7 +35,7 @@ class WaiterMiddleware(ABCMiddleware):
         event = update.incoming_update
         key = self.hasher.get_hash_from_data_from_event(event)
         if not key:
-            logger.info("Unable to get hash from event with hasher {!r}", self.hasher)
+            await logger.ainfo("Unable to get hash from event with hasher {!r}", self.hasher)
             return True
 
         short_state: ShortState | None = self.machine.storage[self.hasher].get(key.unwrap())
@@ -56,7 +56,7 @@ class WaiterMiddleware(ABCMiddleware):
             raw_update,
             preset_context,
         ):
-            logger.debug("Filter rule {!r} failed!", short_state.filter)
+            await logger.adebug("Filter rule {!r} failed!", short_state.filter)
             return True
 
         result = await FuncHandler(

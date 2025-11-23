@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from fntypes.library.monad.result import Error, Ok
+from fntypes.library.monad.result import Error, Ok, Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
@@ -16,7 +16,7 @@ from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.handler.abc import ABCHandler
-    from telegrinder.bot.dispatch.view.base import BaseView
+    from telegrinder.bot.dispatch.view.base import View
     from telegrinder.bot.rules.abc import ABCRule
 
 
@@ -24,8 +24,8 @@ async def process_inner(
     api: API,
     event: Update,
     ctx: Context,
-    view: BaseView,
-) -> bool:
+    view: View,
+) -> Result[str, str]:
     ctx.setdefault(CONTEXT_STORE_NODES_KEY, {})  # For per-event shared nodes
 
     for m in view.middlewares:
@@ -33,14 +33,14 @@ async def process_inner(
             type(m).pre is not ABCMiddleware.pre
             and await run_middleware(m.pre, api, event, ctx, required_nodes=m.pre_required_nodes) is False
         ):
-            logger.info(
+            await logger.ainfo(
                 "Update(id={}, type={!r}) processed with view `{}`. Pre-middleware `{}` raised failure.",
                 event.update_id,
                 event.update_type,
                 type(view).__name__,
                 fullname(m),
             )
-            return False
+            return Error(f"Pre-middleware `{fullname(m)}` raised failure.")
 
     found_handlers: list[ABCHandler] = []
     responses: list[typing.Any] = []
@@ -58,7 +58,7 @@ async def process_inner(
                 if handler.final is True:
                     break
             case Error(error):
-                logger.debug("Running handler `{!r}` failed with error: {}", handler, error)
+                await logger.adebug("Running handler `{!r}` failed with error: {}", handler, error)
 
     ctx = ctx_copy
     ctx.responses = responses
@@ -73,19 +73,11 @@ async def process_inner(
                 required_nodes=m.post_required_nodes,
             )
 
-    found_handlers_message = (
+    return Ok(
         "No found corresponded handlers."
         if not found_handlers
-        else f"Handler{'s' if len(found_handlers) > 1 else ''}: " + "".join("`{!r}`" for _ in found_handlers)
+        else f"Handler{'s' if len(found_handlers) > 1 else ''}: " + "".join(repr(handler) for handler in found_handlers)
     )
-    logger.info(
-        "Update(id={}, type={!r}) processed with view `{}`. " + found_handlers_message,
-        event.update_id,
-        event.update_type,
-        type(view).__name__,
-        *found_handlers,
-    )
-    return bool(found_handlers)
 
 
 async def check_rule(
@@ -113,7 +105,7 @@ async def check_rule(
             case Ok(value):
                 node_col = value
             case Error(compose_error):
-                logger.debug(
+                await logger.adebug(
                     "Cannot compose nodes for rule `{!r}`, error: {!r}",
                     rule,
                     compose_error.message,

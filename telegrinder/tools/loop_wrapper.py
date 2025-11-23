@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import asyncio
 import contextlib
 import datetime
 import enum
+import signal
 import typing
 
 from telegrinder.modules import logger
@@ -23,11 +26,20 @@ type LoopFactory = typing.Callable[[], asyncio.AbstractEventLoop]
 type DelayedFunctionDecorator[**P, R] = typing.Callable[[typing.Callable[P, R]], DelayedFunction[P, R]]
 
 
+def sigint_handler(loop_wrapper: LoopWrapper) -> None:
+    try:
+        print(flush=True)
+        logger.info("Caught KeyboardInterrupt, stopping loop wrapper...")
+        loop_wrapper.stop()
+    finally:
+        raise KeyboardInterrupt
+
+
 class DelayedFunction[**P, R](typing.Protocol):
     __name__: str
-    __delayed_task__: DelayedTask
+    __delayed_task__: DelayedTask[typing.Callable[P, CoroutineTask[R]]]
 
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R]: ...
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> CoroutineTask[R]: ...
 
     def cancel(self) -> bool:
         """Cancel delayed task."""
@@ -51,6 +63,7 @@ class LoopWrapper(Singleton, Final):
     _all_tasks: set[asyncio.Task[typing.Any]]
     _limit: int | None
     _semaphore: asyncio.Semaphore | None
+    _event_stop: asyncio.Event
 
     __slots__ = (
         "_loop",
@@ -61,12 +74,14 @@ class LoopWrapper(Singleton, Final):
         "_limit",
         "_semaphore",
         "_handle_run_async_event_loop",
+        "_event_stop",
     )
 
     def __init__(self) -> None:
         self._loop = asyncio.get_event_loop()
+        self._event_stop = asyncio.Event()
         self._lifespan = Lifespan()
-        self._future_tasks = list()
+        self._future_tasks = [self._waiter_stop()]
         self._state = LoopWrapperState.NOT_RUNNING
         self._all_tasks = set()
         self._limit = None
@@ -90,10 +105,16 @@ class LoopWrapper(Singleton, Final):
                 await self._run()
 
     async def _run(self) -> None:
-        logger.debug("Running loop wrapper")
+        await logger.adebug("Running loop wrapper")
 
         while self._future_tasks:
             await self.create_task(self._future_tasks.pop(0))
+
+        self.loop.add_signal_handler(signal.SIGINT, sigint_handler, self)
+        self.loop.add_signal_handler(signal.SIGTERM, self.stop)
+
+        if hasattr(signal, "SIGBREAK"):
+            self.loop.add_signal_handler(signal.SIGBREAK, self.stop)
 
         while self.running and (tasks := self._get_all_tasks()):
             tasks_results, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
@@ -101,33 +122,39 @@ class LoopWrapper(Singleton, Final):
                 try:
                     task_result.result()
                 except Exception:
-                    logger.exception("Traceback message below:")
+                    await logger.aexception("Traceback message below:")
 
     async def _cancel_tasks(self) -> None:
-        future = asyncio.gather(*self._get_all_tasks(), return_exceptions=True)
-
-        with contextlib.suppress(asyncio.CancelledError, asyncio.InvalidStateError):
-            await cancel_future(future)
-
-        with contextlib.suppress(asyncio.CancelledError):
-            await future
+        try:
+            await cancel_future(asyncio.gather(*self._get_all_tasks(), return_exceptions=True))
+        except asyncio.exceptions.CancelledError:
+            return
 
     @contextlib.asynccontextmanager
     async def _async_wrap_loop(self) -> typing.AsyncGenerator[typing.Any, None]:
         try:
-            await self._lifespan._start()
-            yield
+            try:
+                await self._lifespan._start()
+            finally:
+                yield
         except asyncio.CancelledError:
-            logger.info("LoopWrapper task was cancelled, cancelling tasks...")
-            await self._cancel_tasks()
-            print(flush=True)
+            if self.running:
+                await self._cancel_tasks()
         finally:
-            await self._shutdown()
+            await self._shutdown(shutdown_lifespan=self.running)
 
-    async def _shutdown(self) -> None:
-        await self.lifespan._shutdown(None, None, None)
-        logger.debug("Shutting down loop wrapper")
+    async def _shutdown(self, shutdown_lifespan: bool = True) -> None:
+        if shutdown_lifespan:
+            await self.lifespan._shutdown(None, None, None)
+        await logger.adebug("Shutting down loop wrapper")
         self._state = LoopWrapperState.SHUTDOWN
+
+    async def _waiter_stop(self) -> None:
+        await self._event_stop.wait()
+        self._state = LoopWrapperState.SHUTDOWN
+        self._event_stop.clear()
+        await self._shutdown()
+        await self._cancel_tasks()
 
     async def _run_coro_with_semaphore(self, coro: CoroutineTask[typing.Any], /) -> None:
         assert self._semaphore is not None
@@ -167,14 +194,19 @@ class LoopWrapper(Singleton, Final):
     @contextlib.contextmanager
     def _wrap_loop(self, *, close_loop: bool = True) -> typing.Generator[typing.Any, None, None]:
         try:
-            self.lifespan.start()
-            yield
+            try:
+                self.lifespan.start()
+            finally:
+                yield
         except KeyboardInterrupt:
-            print(flush=True)
-            logger.info("Caught KeyboardInterrupt, cancelling tasks...")
-            run_task(self._cancel_tasks(), loop=self._loop)
+            if self.running:
+                run_task(self._cancel_tasks(), loop=self._loop)
         finally:
-            run_task(self._shutdown(), loop=self._loop)
+            if self.running:
+                run_task(self._shutdown(shutdown_lifespan=self.running), loop=self._loop)
+            else:
+                logger.debug("Loop wrapper stopped")
+
             if close_loop:
                 self._close_loop()
 
@@ -224,6 +256,10 @@ class LoopWrapper(Singleton, Final):
         self._state = LoopWrapperState.RUNNING_MANUALLY
         with self._wrap_loop(close_loop=close_loop):
             run_task(self._run(), loop=self._loop)
+
+    def stop(self) -> None:
+        if not self._event_stop.is_set():
+            self._event_stop.set()
 
     @typing.overload
     def bind_loop(self, *, loop_factory: LoopFactory) -> typing.Self: ...

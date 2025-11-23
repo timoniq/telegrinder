@@ -3,7 +3,7 @@ import typing
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher
-from telegrinder.bot.scenario.checkbox import Checkbox, ChoiceAction
+from telegrinder.bot.scenario.checkbox import CallbackQueryView, Checkbox, ChoiceAction, MessageId
 
 
 class Choice[Key: typing.Hashable](Checkbox[Key]):
@@ -28,11 +28,16 @@ class Choice[Key: typing.Hashable](Checkbox[Key]):
 
         return True
 
-    async def wait(self, hasher: Hasher[CallbackQueryCute, int], api: API) -> tuple[Key, int]:
+    async def wait(
+        self,
+        hasher: Hasher[CallbackQueryCute, MessageId],
+        view: CallbackQueryView,
+        api: API,
+    ) -> tuple[Key, MessageId]:
         if len(tuple(choice for choice in self.choices if choice.is_picked)) != 1:
             raise ValueError("Exactly one choice must be picked.")
 
-        choices, m_id = await super().wait(hasher, api)
+        choices, m_id = await super().wait(hasher, view, api)
         return tuple(choices.keys())[tuple(choices.values()).index(True)], m_id
 
 

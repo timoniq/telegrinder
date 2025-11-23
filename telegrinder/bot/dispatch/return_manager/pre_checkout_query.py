@@ -4,7 +4,7 @@ from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.bot.dispatch.return_manager.abc import BaseReturnManager, register_manager
 
 
-class PreCheckoutQueryManager(BaseReturnManager):
+class PreCheckoutQueryReturnManager(BaseReturnManager):
     @register_manager(bool)
     @staticmethod
     async def bool_manager(value: bool, event: PreCheckoutQueryCute) -> None:
@@ -16,4 +16,4 @@ class PreCheckoutQueryManager(BaseReturnManager):
         await event.answer(**value)
 
 
-__all__ = ("PreCheckoutQueryManager",)
+__all__ = ("PreCheckoutQueryReturnManager",)

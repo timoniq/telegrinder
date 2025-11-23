@@ -82,13 +82,13 @@ class NodeSession:
             try:
                 result = await stop_generator(self.generator, with_value)
             except ComposeError as compose_error:
-                logger.debug(
+                await logger.adebug(
                     "Caught compose error when closing session for node `{}`: {}",
                     fullname(self.node),
                     compose_error.message,
                 )
             except Exception as exception:
-                logger.debug(
+                await logger.adebug(
                     "Uncaught {!r} was occurred when closing session for node `{}`",
                     exception,
                     fullname(self.node),

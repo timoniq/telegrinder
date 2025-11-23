@@ -13,6 +13,7 @@ from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.cute_types.base import BaseCute
+    from telegrinder.bot.dispatch.view.base import View
     from telegrinder.bot.dispatch.waiter_machine.actions import WaiterActions
     from telegrinder.bot.dispatch.waiter_machine.hasher import Hasher
     from telegrinder.bot.dispatch.waiter_machine.machine import HasherWithData
@@ -75,11 +76,11 @@ class ShortState[Event: BaseCute[typing.Any] = typing.Any]:
             callback=partial(_wrap_async_fn(dropper), self, hasher, data, expired=True, **context),
         )
 
-    def schedule_drop_many[HasherData](
+    def schedule_drop_many[ViewType: View, HasherData](
         self,
         dropper: typing.Callable[..., typing.Any],
         /,
-        *hashers: HasherWithData[Event, HasherData],
+        *hashers: HasherWithData[Event, ViewType, HasherData],
         **context: typing.Any,
     ) -> None:
         self.drop_timer = asyncio.get_running_loop().call_later(
