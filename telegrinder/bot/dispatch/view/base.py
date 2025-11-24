@@ -1,7 +1,7 @@
 import typing
 from collections import deque
 
-from kungfu import Result
+from kungfu import Error, Ok, Pulse, Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
@@ -12,7 +12,6 @@ from telegrinder.bot.dispatch.process import check_rule, process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.rules.abc import ABCRule, Always
-from telegrinder.modules import logger
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import (
     BusinessConnection,
@@ -54,6 +53,8 @@ type UpdateModel = typing.Union[
     PreCheckoutQuery,
     ShippingQuery,
 ]
+
+OK_CHECK: typing.Final = Ok()
 
 
 class View(ABCView):
@@ -109,26 +110,14 @@ class View(ABCView):
         self.middlewares.append(middleware() if isinstance(middleware, type) else middleware)
         return middleware if isinstance(middleware, type) else None
 
-    async def check(self, api: API, update: Update, context: Context) -> bool:
-        await logger.adebug(
-            "Checking view `{!r}` for update (id={}, type={!r})", self, update.update_id, update.update_type
-        )
-
+    async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
         if not self:
-            await logger.adebug("View `{!r}` is empty", self)
-            return False
+            return Error("View is empty.")
 
         if not await check_rule(api, self.filter, update, context):
-            await logger.adebug("Filter for view `{!r}` is failed", self)
-            return False
+            return Error("Filter is failed.")
 
-        await logger.adebug(
-            "View `{!r}` for update (id={}, type={!r}) is okay",
-            self,
-            update.update_id,
-            update.update_type,
-        )
-        return True
+        return OK_CHECK
 
     async def process(self, api: API, update: Update, context: Context) -> Result[str, str]:
         return await process_inner(
@@ -147,9 +136,11 @@ class EventView(View):
     def __repr__(self) -> str:
         return "<{}: {!r}>".format(type(self).__name__, self.update_type)
 
-    async def check(self, api: API, update: Update, context: Context) -> bool:
+    async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
         # If update is not of the expected, instantly skip checking the view
-        return update.update_type == self.update_type and await super().check(api, update, context)
+        if update.update_type != self.update_type:
+            return Error(f"Incoming event `{update.update_type!r}` is not `{self.update_type!r}`.")
+        return await super().check(api, update, context)
 
 
 class EventModelView[T: (UpdateModel)](View):
@@ -160,9 +151,14 @@ class EventModelView[T: (UpdateModel)](View):
     def __repr__(self) -> str:
         return "<{}: {}>".format(type(self).__name__, self.model.__name__)
 
-    async def check(self, api: API, update: Update, context: Context) -> bool:
+    async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
         # If update object is not of the expected type of object, instantly skip checking the view
-        return update.incoming_update.__class__ is self.model and await super().check(api, update, context)
+        if update.incoming_update.__class__ is not self.model:
+            return Error(
+                f"Incoming event model `{update.incoming_update.__class__.__name__!r}`"
+                f" is not `{self.model.__name__!r}`.",
+            )
+        return await super().check(api, update, context)
 
 
 class ErrorView(View):
@@ -173,9 +169,4 @@ class RawEventView(View):
     pass
 
 
-__all__ = (
-    "ErrorView",
-    "EventView",
-    "RawEventView",
-    "View",
-)
+__all__ = ("ErrorView", "EventView", "RawEventView", "View")

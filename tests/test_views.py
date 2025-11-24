@@ -91,7 +91,7 @@ async def test_view_check_and_process(api_instance, message_update):
     async def handler(message: MessageCute):
         assert isinstance(message, MessageCute) is True
 
-    assert await view.check(api_instance, message_update, Context()) is True
+    assert bool(await view.check(api_instance, message_update, Context())) is True
     assert bool(await view.process(api_instance, message_update, Context())) is True
 
 
@@ -104,7 +104,7 @@ async def test_process_pre_middleware(api_instance, message_update):
     async def handler(message: MessageCute):
         return None
 
-    assert await view.check(api_instance, message_update, Context()) is True
+    assert bool(await view.check(api_instance, message_update, Context())) is True
     assert bool(await view.process(api_instance, message_update, Context())) is True
 
 
@@ -117,7 +117,7 @@ async def test_process_post_middleware(api_instance, message_update):
     async def handler(message: MessageCute):
         return b"123data"
 
-    assert await view.check(api_instance, message_update, Context()) is True
+    assert bool(await view.check(api_instance, message_update, Context())) is True
     assert bool(await view.process(api_instance, message_update, Context())) is True
 
 
@@ -129,7 +129,7 @@ async def test_process_with_rule(api_instance, message_update):
     async def handler(message: MessageCute):
         return None
 
-    assert await view.check(api_instance, message_update, Context()) is True
+    assert bool(await view.check(api_instance, message_update, Context())) is True
     assert bool(await view.process(api_instance, message_update, Context())) is True
 
 
@@ -141,5 +141,5 @@ async def test_process_with_return_manager(api_instance, message_update):
     async def handler(message: MessageCute):
         return 123
 
-    assert await view.check(api_instance, message_update, Context()) is True
+    assert bool(await view.check(api_instance, message_update, Context())) is True
     assert bool(await view.process(api_instance, message_update, Context())) is True

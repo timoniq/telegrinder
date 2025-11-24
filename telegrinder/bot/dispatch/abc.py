@@ -7,8 +7,6 @@ import sys
 import typing
 from abc import ABC, abstractmethod
 
-from kungfu.library.monad.option import Option
-
 from telegrinder.api.api import API
 from telegrinder.types.objects import Update
 
@@ -24,10 +22,6 @@ class ABCDispatch(ABC):
 
     @abstractmethod
     def load(self, external: typing.Self) -> None:
-        pass
-
-    @abstractmethod
-    def get_view[T](self, of_type: type[T]) -> Option[T]:
         pass
 
     def load_many(self, *externals: typing.Self) -> None:

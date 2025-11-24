@@ -1,6 +1,5 @@
 import pathlib
 import random
-import sys
 from datetime import timedelta
 from functools import partial
 
@@ -33,7 +32,6 @@ from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import InputFile
 
 setup_logger(
-    console_sink=sys.stderr,
     level="DEBUG",
     format="<level>{levelname: <8}</level>{module}:{funcName}:{lineno}:<light_white>{message}</light_white>",
 )

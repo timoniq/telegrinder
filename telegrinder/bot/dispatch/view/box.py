@@ -77,45 +77,45 @@ class EventViewBox[
 ]:
     message: MessageView = dataclasses.field(default_factory=event_view(UpdateType.MESSAGE, MessageReturnManager()))
     edited_message: EditedMessageView = dataclasses.field(
-        default_factory=event_view(UpdateType.EDITED_MESSAGE, MessageReturnManager())
+        default_factory=event_view(UpdateType.EDITED_MESSAGE, MessageReturnManager()),
     )
     channel_post: ChannelPostView = dataclasses.field(
-        default_factory=event_view(UpdateType.CHANNEL_POST, MessageReturnManager())
+        default_factory=event_view(UpdateType.CHANNEL_POST, MessageReturnManager()),
     )
     edited_channel_post: EditedChannelPostView = dataclasses.field(
-        default_factory=event_view(UpdateType.EDITED_CHANNEL_POST, MessageReturnManager())
+        default_factory=event_view(UpdateType.EDITED_CHANNEL_POST, MessageReturnManager()),
     )
     business_connection: BusinessConnectionView = dataclasses.field(
-        default_factory=event_view(UpdateType.BUSINESS_CONNECTION)
+        default_factory=event_view(UpdateType.BUSINESS_CONNECTION),
     )
     business_message: BusinessMessageView = dataclasses.field(
-        default_factory=event_view(UpdateType.BUSINESS_MESSAGE, MessageReturnManager())
+        default_factory=event_view(UpdateType.BUSINESS_MESSAGE, MessageReturnManager()),
     )
     edited_business_message: EditedBusinessMessageView = dataclasses.field(
-        default_factory=event_view(UpdateType.EDITED_BUSINESS_MESSAGE, MessageReturnManager())
+        default_factory=event_view(UpdateType.EDITED_BUSINESS_MESSAGE, MessageReturnManager()),
     )
     deleted_business_messages: DeletedBusinessMessagesView = dataclasses.field(
-        default_factory=event_view(UpdateType.DELETED_BUSINESS_MESSAGES)
+        default_factory=event_view(UpdateType.DELETED_BUSINESS_MESSAGES),
     )
     message_reaction: MessageReactionView = dataclasses.field(default_factory=event_view(UpdateType.MESSAGE_REACTION))
     message_reaction_count: MessageReactionCountView = dataclasses.field(
-        default_factory=event_view(UpdateType.MESSAGE_REACTION_COUNT)
+        default_factory=event_view(UpdateType.MESSAGE_REACTION_COUNT),
     )
     inline_query: InlineQueryView = dataclasses.field(
-        default_factory=event_view(UpdateType.INLINE_QUERY, InlineQueryReturnManager())
+        default_factory=event_view(UpdateType.INLINE_QUERY, InlineQueryReturnManager()),
     )
     chosen_inline_result: ChosenInlineResultView = dataclasses.field(
-        default_factory=event_view(UpdateType.CHOSEN_INLINE_RESULT)
+        default_factory=event_view(UpdateType.CHOSEN_INLINE_RESULT),
     )
     callback_query: CallbackQueryView = dataclasses.field(
-        default_factory=event_view(UpdateType.CALLBACK_QUERY, CallbackQueryReturnManager())
+        default_factory=event_view(UpdateType.CALLBACK_QUERY, CallbackQueryReturnManager()),
     )
     shipping_query: ShippingQueryView = dataclasses.field(default_factory=event_view(UpdateType.SHIPPING_QUERY))
     pre_checkout_query: PreCheckoutQueryView = dataclasses.field(
-        default_factory=event_view(UpdateType.PRE_CHECKOUT_QUERY, PreCheckoutQueryReturnManager())
+        default_factory=event_view(UpdateType.PRE_CHECKOUT_QUERY, PreCheckoutQueryReturnManager()),
     )
     purchased_paid_media: PurchasedPaidMediaView = dataclasses.field(
-        default_factory=event_view(UpdateType.PURCHASED_PAID_MEDIA)
+        default_factory=event_view(UpdateType.PURCHASED_PAID_MEDIA),
     )
     poll: PollView = dataclasses.field(default_factory=event_view(UpdateType.POLL))
     poll_answer: PollAnswerView = dataclasses.field(default_factory=event_view(UpdateType.POLL_ANSWER))
@@ -124,7 +124,7 @@ class EventViewBox[
     chat_join_request: ChatJoinRequestView = dataclasses.field(default_factory=event_view(UpdateType.CHAT_JOIN_REQUEST))
     chat_boost: ChatBoostView = dataclasses.field(default_factory=event_view(UpdateType.CHAT_BOOST))
     removed_chat_boost: RemovedChatBoostView = dataclasses.field(
-        default_factory=event_view(UpdateType.REMOVED_CHAT_BOOST)
+        default_factory=event_view(UpdateType.REMOVED_CHAT_BOOST),
     )
 
 
@@ -136,9 +136,63 @@ class EventModelViewBox[MediaGroup: View = MediaGroupView]:
 
 
 @dataclasses.dataclass(kw_only=True)
-class ViewBox(EventModelViewBox, EventViewBox):
-    error: ErrorView = dataclasses.field(default_factory=view(ErrorView), metadata=EXCLUDE_VIEW_META)
-    raw: RawEventView = dataclasses.field(default_factory=view(RawEventView), metadata=EXCLUDE_VIEW_META)
+class ViewBox[
+    MessageView: EventView = EventView,
+    EditedMessageView: EventView = EventView,
+    ChannelPostView: EventView = EventView,
+    EditedChannelPostView: EventView = EventView,
+    BusinessConnectionView: EventView = EventView,
+    BusinessMessageView: EventView = EventView,
+    EditedBusinessMessageView: EventView = EventView,
+    DeletedBusinessMessagesView: EventView = EventView,
+    MessageReactionView: EventView = EventView,
+    MessageReactionCountView: EventView = EventView,
+    InlineQueryView: EventView = EventView,
+    ChosenInlineResultView: EventView = EventView,
+    CallbackQueryView: EventView = EventView,
+    ShippingQueryView: EventView = EventView,
+    PreCheckoutQueryView: EventView = EventView,
+    PurchasedPaidMediaView: EventView = EventView,
+    PollView: EventView = EventView,
+    PollAnswerView: EventView = EventView,
+    MyChatMemberView: EventView = EventView,
+    ChatMemberView: EventView = EventView,
+    ChatJoinRequestView: EventView = EventView,
+    ChatBoostView: EventView = EventView,
+    RemovedChatBoostView: EventView = EventView,
+    MediaGroup: View = MediaGroupView,
+    Error: ErrorView = ErrorView,
+    RawEvent: RawEventView = RawEventView,
+](
+    EventModelViewBox[MediaGroup],
+    EventViewBox[
+        MessageView,
+        EditedMessageView,
+        ChannelPostView,
+        EditedChannelPostView,
+        BusinessConnectionView,
+        BusinessMessageView,
+        EditedBusinessMessageView,
+        DeletedBusinessMessagesView,
+        MessageReactionView,
+        MessageReactionCountView,
+        InlineQueryView,
+        ChosenInlineResultView,
+        CallbackQueryView,
+        ShippingQueryView,
+        PreCheckoutQueryView,
+        PurchasedPaidMediaView,
+        PollView,
+        PollAnswerView,
+        MyChatMemberView,
+        ChatMemberView,
+        ChatJoinRequestView,
+        ChatBoostView,
+        RemovedChatBoostView,
+    ],
+):
+    error: Error = dataclasses.field(default_factory=view(ErrorView), metadata=EXCLUDE_VIEW_META)
+    raw: RawEvent = dataclasses.field(default_factory=view(RawEventView), metadata=EXCLUDE_VIEW_META)
 
     @cached_property
     def views(self) -> MappingProxyType[str, View]:

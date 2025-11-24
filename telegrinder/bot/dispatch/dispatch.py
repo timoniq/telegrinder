@@ -4,7 +4,6 @@ import asyncio
 import typing
 from collections import deque
 
-from kungfu.library.monad.option import Nothing, Option, Some
 from vbml.patcher.abc import ABCPatcher
 
 from telegrinder.api.api import API
@@ -13,7 +12,6 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import run_middleware
 from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
 from telegrinder.bot.dispatch.router.base import Router
-from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.dispatch.view.base import View
 from telegrinder.bot.dispatch.view.box import ViewBox
 from telegrinder.modules import logger
@@ -25,13 +23,113 @@ from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
+    from telegrinder.bot.dispatch.view.base import ErrorView, EventView, RawEventView, View
+    from telegrinder.bot.dispatch.view.media_group import MediaGroupView
     from telegrinder.node.composer import Composer
+
 
 NANOSECONDS_PER_MILLISECOND: typing.Final = 1_000_000_000
 
 
-class Dispatch(ABCDispatch, ViewBox if typing.TYPE_CHECKING else object):
+class ViewGetter:
     main_router: Router
+
+    def __getattr__(self, name: str, /) -> typing.Any:
+        if name in ViewBox.__dataclass_fields__ or name in ViewBox.__dict__:
+            return getattr(self.main_router, name)
+        return super().__getattribute__(name)
+
+
+class Dispatch[
+    MessageView: EventView = EventView,
+    EditedMessageView: EventView = EventView,
+    ChannelPostView: EventView = EventView,
+    EditedChannelPostView: EventView = EventView,
+    BusinessConnectionView: EventView = EventView,
+    BusinessMessageView: EventView = EventView,
+    EditedBusinessMessageView: EventView = EventView,
+    DeletedBusinessMessagesView: EventView = EventView,
+    MessageReactionView: EventView = EventView,
+    MessageReactionCountView: EventView = EventView,
+    InlineQueryView: EventView = EventView,
+    ChosenInlineResultView: EventView = EventView,
+    CallbackQueryView: EventView = EventView,
+    ShippingQueryView: EventView = EventView,
+    PreCheckoutQueryView: EventView = EventView,
+    PurchasedPaidMediaView: EventView = EventView,
+    PollView: EventView = EventView,
+    PollAnswerView: EventView = EventView,
+    MyChatMemberView: EventView = EventView,
+    ChatMemberView: EventView = EventView,
+    ChatJoinRequestView: EventView = EventView,
+    ChatBoostView: EventView = EventView,
+    RemovedChatBoostView: EventView = EventView,
+    MediaGroup: View = MediaGroupView,
+    Error: ErrorView = ErrorView,
+    RawEvent: RawEventView = RawEventView,
+](
+    ABCDispatch,
+    ViewBox[
+        MessageView,
+        EditedMessageView,
+        ChannelPostView,
+        EditedChannelPostView,
+        BusinessConnectionView,
+        BusinessMessageView,
+        EditedBusinessMessageView,
+        DeletedBusinessMessagesView,
+        MessageReactionView,
+        MessageReactionCountView,
+        InlineQueryView,
+        ChosenInlineResultView,
+        CallbackQueryView,
+        ShippingQueryView,
+        PreCheckoutQueryView,
+        PurchasedPaidMediaView,
+        PollView,
+        PollAnswerView,
+        MyChatMemberView,
+        ChatMemberView,
+        ChatJoinRequestView,
+        ChatBoostView,
+        RemovedChatBoostView,
+        MediaGroup,
+        Error,
+        RawEvent,
+    ]
+    if typing.TYPE_CHECKING
+    else ViewGetter,
+):
+    type MainRouter = Router[
+        MessageView,
+        EditedMessageView,
+        ChannelPostView,
+        EditedChannelPostView,
+        BusinessConnectionView,
+        BusinessMessageView,
+        EditedBusinessMessageView,
+        DeletedBusinessMessagesView,
+        MessageReactionView,
+        MessageReactionCountView,
+        InlineQueryView,
+        ChosenInlineResultView,
+        CallbackQueryView,
+        ShippingQueryView,
+        PreCheckoutQueryView,
+        PurchasedPaidMediaView,
+        PollView,
+        PollAnswerView,
+        MyChatMemberView,
+        ChatMemberView,
+        ChatJoinRequestView,
+        ChatBoostView,
+        RemovedChatBoostView,
+        MediaGroup,
+        Error,
+        RawEvent,
+    ]
+
+    main_router: MainRouter
     global_middleware: GlobalMiddleware
     global_context: TelegrinderContext
     _routers: deque[Router] | None
@@ -39,26 +137,19 @@ class Dispatch(ABCDispatch, ViewBox if typing.TYPE_CHECKING else object):
     def __init__(
         self,
         *,
-        router: Router | None = None,
+        router: MainRouter | None = None,
         global_middleware: GlobalMiddleware | None = None,
     ) -> None:
-        self.main_router = router or Router()
+        self.main_router = router or Router()  # type: ignore
         self.global_middleware = global_middleware or GlobalMiddleware()
         self.global_context = TelegrinderContext()
         self._routers = None
 
-    if not typing.TYPE_CHECKING:
-
-        def __getattr__(self, name: str, /) -> typing.Any:
-            if name in ViewBox.__dataclass_fields__ or name in ViewBox.__dict__:
-                return getattr(self.main_router, name)
-            return super().__getattribute__(name)
-
     @property
     def routers(self) -> deque[Router]:
         if self._routers is None:
-            self._routers = deque((self.main_router,) if self.main_router else ())
-        return self._routers
+            self._routers = deque((self.main_router,) if self.main_router else ())  # type: ignore
+        return self._routers  # type: ignore
 
     @property
     def raw_views(self) -> tuple[View, ...]:
@@ -217,13 +308,6 @@ class Dispatch(ABCDispatch, ViewBox if typing.TYPE_CHECKING else object):
     def load(self, external: typing.Self) -> None:
         self.routers.extend(filter(None, external.routers))
         self.global_middleware.filters.difference_update(external.global_middleware.filters)
-
-    def get_view[T: ABCView](self, of_type: type[T]) -> Option[T]:
-        for view in self.main_router.views.values():
-            if isinstance(view, of_type):
-                return Some(view)
-
-        return Nothing()
 
 
 __all__ = ("Dispatch",)
