@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 import typing
 from datetime import datetime
 
 from fntypes.library.monad.result import Result
 
 from telegrinder.api.api import APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
+
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute  # noqa
 
 
 async def chat_member_interaction(
@@ -22,7 +27,7 @@ async def chat_member_interaction(
     return await getattr(update.ctx_api, method_name)(**params)
 
 
-class ChatMemberShortcuts:
+class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequestCute"]):
     """Shortcut methods for `ChatMemberUpdatedCute`, `ChatJoinRequestCute` objects."""
 
     @shortcut("ban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})

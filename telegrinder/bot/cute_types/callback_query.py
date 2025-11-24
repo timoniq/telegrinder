@@ -6,12 +6,11 @@ from datetime import timedelta
 import msgspec
 from fntypes.library import Nothing, Result, Some, Variative, unwrapping
 
-from telegrinder.api.api import API, APIError
+from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.message import (
-    MediaType,
     MessageCute,
-    MessageOrCallbackQuery,
+    MessageEditShortcuts,
     ReplyMarkup,
     execute_method_edit,
 )
@@ -23,7 +22,7 @@ from telegrinder.types.objects import *
 CACHED_CALLBACK_DATA_KEY: typing.Final[str] = "cached_callback_data"
 
 
-class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
+class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQuery, kw_only=True):
     message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
         default=UNSET,
         converter=From[MessageCute | InaccessibleMessage | None],
@@ -201,7 +200,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         custom_params={"message_thread_id"},
     )
     async def edit_text(
-        self: MessageOrCallbackQuery,
+        self,
         text: str,
         *,
         business_connection_id: str | None = None,
@@ -236,213 +235,6 @@ class CallbackQueryCute(BaseCute[CallbackQuery], CallbackQuery, kw_only=True):
         :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
 
         :param link_preview_options: Link preview generation options for the message.
-
-        :param reply_markup: A JSON-serialized object for an inline keyboard."""
-        ...
-
-    @shortcut(
-        "edit_message_live_location",
-        executor=execute_method_edit,
-        custom_params={"message_thread_id"},
-    )
-    async def edit_live_location(
-        self: MessageOrCallbackQuery,
-        *,
-        latitude: float,
-        longitude: float,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        heading: int | None = None,
-        horizontal_accuracy: float | None = None,
-        inline_message_id: str | None = None,
-        live_period: int | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        proximity_alert_radius: int | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
-        """Shortcut `API.edit_message_live_location()`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
-
-        Use this method to edit live location messages. A location can be edited
-        until its live_period expires or editing is explicitly disabled by a call
-        to stopMessageLiveLocation. On success, if the edited message is not an
-        inline message, the edited Message is returned, otherwise True is returned.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
-        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
-
-        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
-
-        :param latitude: Latitude of new location.
-
-        :param longitude: Longitude of new location.
-
-        :param live_period: New period in seconds during which the location can be updated, startingfrom the message send date. If 0x7FFFFFFF is specified, then the locationcan be updated forever. Otherwise, the new value must not exceed the currentlive_period by more than a day, and the live location expiration date mustremain within the next 90 days. If not specified, then live_period remainsunchanged.
-
-        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
-        :param heading: Direction in which the user is moving, in degrees. Must be between 1 and 360if specified.
-
-        :param proximity_alert_radius: The maximum distance for proximity alerts about approaching another chatmember, in meters. Must be between 1 and 100000 if specified.
-
-        :param reply_markup: A JSON-serialized object for a new inline keyboard."""
-        ...
-
-    @shortcut(
-        "edit_message_caption",
-        executor=execute_method_edit,
-        custom_params={"message_thread_id"},
-    )
-    async def edit_caption(
-        self: MessageOrCallbackQuery,
-        caption: str | None = None,
-        *,
-        business_connection_id: str | None = None,
-        caption_entities: list[MessageEntity] | None = None,
-        chat_id: int | str | None = None,
-        inline_message_id: str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        parse_mode: str | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        show_caption_above_media: bool | None = None,
-        **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
-        """Shortcut `API.edit_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
-
-        Use this method to edit captions of messages. On success, if the edited message
-        is not an inline message, the edited Message is returned, otherwise True
-        is returned. Note that business messages that were not sent by the bot and
-        do not contain an inline keyboard can only be edited within 48 hours from
-        the time they were sent.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
-        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
-
-        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
-
-        :param caption: New caption of the message, 0-1024 characters after entities parsing.
-        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
-
-        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
-
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
-
-        :param reply_markup: A JSON-serialized object for an inline keyboard."""
-        ...
-
-    @typing.overload
-    async def edit_media(
-        self,
-        media: InputMedia,
-        *,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        inline_message_id: str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]: ...
-
-    @typing.overload
-    async def edit_media(
-        self,
-        media: InputFile | str,
-        type: MediaType,
-        *,
-        caption: str | None = None,
-        caption_entities: list[MessageEntity] | None = None,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        inline_message_id: str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]: ...
-
-    @shortcut(
-        "edit_message_media",
-        custom_params={
-            "media",
-            "type",
-            "message_thread_id",
-            "caption",
-            "parse_mode",
-            "caption_entities",
-        },
-    )
-    async def edit_media(
-        self,
-        media: str | InputFile | InputMedia,
-        type: MediaType | None = None,
-        *,
-        business_connection_id: str | None = None,
-        caption: str | None = None,
-        caption_entities: list[MessageEntity] | None = None,
-        chat_id: int | str | None = None,
-        inline_message_id: str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        parse_mode: str | None = API.default_params["parse_mode"],
-        reply_markup: InlineKeyboardMarkup | None = None,
-        **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
-        """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
-
-        Use this method to edit animation, audio, document, photo, or video messages,
-        or to add media to text messages. If a message is part of a message album, then
-        it can be edited only to an audio for audio albums, only to a document for document
-        albums and to a photo or a video otherwise. When an inline message is edited,
-        a new file can't be uploaded; use a previously uploaded file via its file_id
-        or specify a URL. On success, if the edited message is not an inline message,
-        the edited Message is returned, otherwise True is returned. Note that business
-        messages that were not sent by the bot and do not contain an inline keyboard
-        can only be edited within 48 hours from the time they were sent.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
-        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
-
-        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
-
-        :param media: A JSON-serialized object for a new media content of the message.
-
-        :param reply_markup: A JSON-serialized object for a new inline keyboard."""
-        return await MessageCute.edit_media(self, **get_params(locals()))  # type: ignore
-
-    @shortcut(
-        "edit_message_reply_markup",
-        executor=execute_method_edit,
-        custom_params={"message_thread_id"},
-    )
-    async def edit_reply_markup(
-        self: MessageOrCallbackQuery,
-        *,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        inline_message_id: str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
-        """Shortcut `API.edit_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)
-
-        Use this method to edit only the reply markup of messages. On success, if
-        the edited message is not an inline message, the edited Message is returned,
-        otherwise True is returned. Note that business messages that were not sent
-        by the bot and do not contain an inline keyboard can only be edited within
-        48 hours from the time they were sent.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
-        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
-
-        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...

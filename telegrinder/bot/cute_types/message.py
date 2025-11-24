@@ -7,7 +7,7 @@ from fntypes.library import Result, Some, Variative
 from fntypes.library.monad import option
 
 from telegrinder.api.api import API, APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import MediaType, build_html, compose_reactions, input_media
 from telegrinder.model import From, field
 from telegrinder.msgspec_utils import Option
@@ -20,7 +20,6 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 
-type MessageOrCallbackQuery = MessageCute | CallbackQueryCute
 type InputMediaType = str | InputMedia | InputFile
 type ReplyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 
@@ -33,8 +32,10 @@ async def execute_method_answer(
     params = compose_method_params(
         params=params,
         update=message,
-        default_params={"chat_id", "message_thread_id"},
-        validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+        default_params={"chat_id", "message_thread_id", "business_connection_id"},
+        validators={
+            "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False),
+        },
     )
     result = await getattr(message.api, method_name)(**params)
     return result.map(
@@ -78,6 +79,7 @@ async def execute_method_edit(
             "message_id",
             "message_thread_id",
             "inline_message_id",
+            "business_connection_id",
         },
         validators={
             "inline_message_id": lambda x: not x.message_id,
@@ -121,449 +123,7 @@ def get_entity_value(
     return option.Nothing()
 
 
-class MessageCute(BaseCute[Message], Message, kw_only=True):
-    reply_to_message: Option[MessageCute] = field(
-        default=...,
-        converter=From["MessageCute | None"],
-    )
-    """Optional. For replies in the same chat and message thread, the original
-    message. Note that the Message object in this field will not contain further
-    reply_to_message fields even if it itself is a reply."""
-
-    pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
-        default=...,
-        converter=From["MessageCute | InaccessibleMessage | None"],
-    )
-    """Optional. Specified message was pinned. Note that the Message object in
-    this field will not contain further reply_to_message fields even if it
-    itself is a reply."""
-
-    @cached_property
-    def html_text(self) -> option.Option[str]:
-        return self.build_html_text(self.text, self.entities)
-
-    @cached_property
-    def html_caption(self) -> option.Option[str]:
-        return self.build_html_text(self.caption, self.caption_entities)
-
-    @additional_property
-    def media_group_messages(self) -> option.Option[list[MessageCute]]:
-        return option.Nothing()
-
-    @property
-    def mentioned_user(self) -> option.Option[User]:
-        """Mentioned user without username."""
-        return get_entity_value("user", self.entities, self.caption_entities)
-
-    @property
-    def url(self) -> option.Option[str]:
-        """Clickable text URL."""
-        return get_entity_value("url", self.entities, self.caption_entities)
-
-    @property
-    def programming_language(self) -> option.Option[str]:
-        """The programming language of the entity text."""
-        return get_entity_value("language", self.entities, self.caption_entities)
-
-    @property
-    def custom_emoji_id(self) -> option.Option[str]:
-        """Unique identifier of the custom emoji."""
-        return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)
-
-    def build_html_text(self, text: Option[str], entities: Option[list[MessageEntity]], /) -> Option[str]:
-        if not text:
-            return option.Nothing()
-
-        match entities:
-            case option.Some(ents) if ents:
-                return option.Some(build_html(text.unwrap(), ents))
-            case _:
-                return option.Nothing()
-
-    @shortcut(
-        "send_message",
-        executor=execute_method_answer,
-        custom_params={"link_preview_options", "message_thread_id", "chat_id", "text"},
-    )
-    async def answer(
-        self,
-        text: str | None = None,
-        *,
-        allow_paid_broadcast: bool | None = None,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        direct_messages_topic_id: int | None = None,
-        disable_notification: bool | None = None,
-        entities: list[MessageEntity] | None = None,
-        link_preview_options: LinkPreviewOptions | None = None,
-        message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
-        parse_mode: str | None = None,
-        protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
-        reply_parameters: ReplyParameters | None = None,
-        suggested_post_parameters: SuggestedPostParameters | None = None,
-        **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
-        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
-
-        Use this method to send text messages. On success, the sent Message is returned.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
-
-        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
-
-        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
-        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
-
-        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
-
-        :param link_preview_options: Link preview generation options for the message.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param protect_content: Protects the contents of the sent message from forwarding and saving.
-
-        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
-
-        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
-        :param reply_parameters: Description of the message to reply to.
-
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
-        ...
-
-    @shortcut(
-        "send_message",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id", "message_id"},
-    )
-    async def reply(
-        self,
-        text: str,
-        *,
-        allow_paid_broadcast: bool | None = None,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        direct_messages_topic_id: int | None = None,
-        disable_notification: bool | None = None,
-        entities: list[MessageEntity] | None = None,
-        link_preview_options: LinkPreviewOptions | None = None,
-        message_effect_id: str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        parse_mode: str | None = None,
-        protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
-        reply_parameters: ReplyParameters | None = None,
-        suggested_post_parameters: SuggestedPostParameters | None = None,
-        **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
-        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
-
-        Use this method to send text messages. On success, the sent Message is returned.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
-
-        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
-
-        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
-        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
-
-        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
-
-        :param link_preview_options: Link preview generation options for the message.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param protect_content: Protects the contents of the sent message from forwarding and saving.
-
-        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
-
-        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
-        :param reply_parameters: Description of the message to reply to.
-
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
-        ...
-
-    @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
-    async def delete(
-        self,
-        *,
-        chat_id: int | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        **other: typing.Any,
-    ) -> Result[bool, APIError]:
-        """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
-
-        Use this method to delete a message, including service messages, with the
-        following limitations: - A message can only be deleted if it was sent less
-        than 48 hours ago. - Service messages about a supergroup, channel, or forum
-        topic creation can't be deleted. - A dice message in a private chat can only
-        be deleted if it was sent more than 24 hours ago. - Bots can delete outgoing
-        messages in private chats, groups, and supergroups. - Bots can delete incoming
-        messages in private chats. - Bots granted can_post_messages permissions
-        can delete outgoing messages in channels. - If the bot is an administrator
-        of a group, it can delete any message there. - If the bot has can_delete_messages
-        administrator right in a supergroup or a channel, it can delete any message
-        there. - If the bot has can_manage_direct_messages administrator right
-        in a channel, it can delete any message in the corresponding direct messages
-        chat. Returns True on success."""
-        params = compose_method_params(
-            params=get_params(locals()),
-            update=self,
-            default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
-        )
-        return await self.ctx_api.delete_message(**params)
-
-    @shortcut(
-        "edit_message_text",
-        executor=execute_method_edit,
-        custom_params={"link_preview_options", "message_thread_id", "message_id"},
-    )
-    async def edit(
-        self: MessageOrCallbackQuery,
-        text: str,
-        *,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        entities: list[MessageEntity] | None = None,
-        inline_message_id: str | None = None,
-        link_preview_options: LinkPreviewOptions | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        parse_mode: str | None = None,
-        reply_markup: InlineKeyboardMarkup | None = None,
-        **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
-        """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
-
-        Use this method to edit text and game messages. On success, if the edited
-        message is not an inline message, the edited Message is returned, otherwise
-        True is returned. Note that business messages that were not sent by the bot
-        and do not contain an inline keyboard can only be edited within 48 hours from
-        the time they were sent.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
-
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
-        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
-
-        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
-
-        :param text: New text of the message, 1-4096 characters after entities parsing.
-
-        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
-
-        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
-
-        :param link_preview_options: Link preview generation options for the message.
-
-        :param reply_markup: A JSON-serialized object for an inline keyboard."""
-        ...
-
-    @shortcut(
-        "copy_message",
-        custom_params={"message_thread_id", "chat_id", "message_id", "from_chat_id"},
-    )
-    async def copy(
-        self,
-        chat_id: int | str | None = None,
-        *,
-        allow_paid_broadcast: bool | None = None,
-        caption: str | None = None,
-        caption_entities: list[MessageEntity] | None = None,
-        direct_messages_topic_id: int | None = None,
-        disable_notification: bool | None = None,
-        from_chat_id: int | str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        parse_mode: str | None = None,
-        protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
-        reply_parameters: ReplyParameters | None = None,
-        show_caption_above_media: bool | None = None,
-        suggested_post_parameters: SuggestedPostParameters | None = None,
-        video_start_timestamp: timedelta | int | None = None,
-        **other: typing.Any,
-    ) -> Result[MessageId, APIError]:
-        """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
-
-        Use this method to copy messages of any kind. Service messages, paid media
-        messages, giveaway messages, giveaway winners messages, and invoice
-        messages can't be copied. A quiz poll can be copied only if the value of the
-        field correct_option_id is known to the bot. The method is analogous to
-        the method forwardMessage, but the copied message doesn't have a link to
-        the original message. Returns the MessageId of the sent message on success."""
-        params = compose_method_params(
-            params=get_params(locals()),
-            update=self,
-            default_params={
-                "chat_id",
-                "message_id",
-                ("from_chat_id", "chat_id"),
-                "message_thread_id",
-            },
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
-        )
-        if isinstance(reply_parameters, dict):
-            reply_parameters.setdefault("message_id", params.get("message_id"))
-            reply_parameters.setdefault("chat_id", params.get("chat_id"))
-            params["reply_parameters"] = ReplyParameters(**reply_parameters)
-        return await self.ctx_api.copy_message(**params)
-
-    @shortcut(
-        "set_message_reaction",
-        custom_params={"message_thread_id", "reaction", "chat_id", "message_id"},
-    )
-    async def react(
-        self,
-        reaction: (str | ReactionEmoji | ReactionType | list[str | ReactionEmoji | ReactionType] | None) = None,
-        *,
-        chat_id: int | str | None = None,
-        is_big: bool | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        **other: typing.Any,
-    ) -> Result[bool, APIError]:
-        """Shortcut `API.set_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
-
-        Use this method to change the chosen reactions on a message. Service messages
-        of some types can't be reacted to. Automatically forwarded messages from
-        a channel to its discussion group have the same available reactions as messages
-        in the channel. Bots can't use paid reactions. Returns True on success."""
-        params = compose_method_params(
-            params=get_params(locals()),
-            update=self,
-            default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
-        )
-        if reaction:
-            params["reaction"] = compose_reactions(
-                reaction.unwrap() if isinstance(reaction, Some) else reaction,
-            )
-        return await self.ctx_api.set_message_reaction(**params)
-
-    @shortcut("forward_message", custom_params={"message_thread_id", "from_chat_id", "message_id"})
-    async def forward(
-        self,
-        chat_id: int | str,
-        *,
-        direct_messages_topic_id: int | None = None,
-        disable_notification: bool | None = None,
-        from_chat_id: int | str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        protect_content: bool | None = None,
-        suggested_post_parameters: SuggestedPostParameters | None = None,
-        video_start_timestamp: timedelta | int | None = None,
-        **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
-        """Shortcut `API.forward_message()`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
-
-        Use this method to forward messages of any kind. Service messages and messages
-        with protected content can't be forwarded. On success, the sent Message
-        is returned.
-        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
-
-        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be forwarded;required if the message is forwarded to a direct messages chat.
-
-        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channelusername in the format @channelusername).
-
-        :param video_start_timestamp: New start timestamp for the forwarded video in the message.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param protect_content: Protects the contents of the forwarded message from forwarding and saving.
-        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only.
-
-        :param message_id: Message identifier in the chat specified in from_chat_id."""
-        params = compose_method_params(
-            params=get_params(locals()),
-            update=self,
-            default_params={
-                ("from_chat_id", "chat_id"),
-                "message_id",
-                "message_thread_id",
-            },
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
-        )
-        return (await self.ctx_api.forward_message(**params)).map(
-            lambda message: MessageCute.from_update(message, bound_api=self.api),
-        )
-
-    @shortcut("pin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
-    async def pin(
-        self,
-        *,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        disable_notification: bool | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
-        """Shortcut `API.pin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
-
-        Use this method to add a message to the list of pinned messages in a chat. In
-        private chats and channel direct messages chats, all non-service messages
-        can be pinned. Conversely, the bot must be an administrator with the 'can_pin_messages'
-        right or the 'can_edit_messages' right to pin messages in groups and channels
-        respectively. Returns True on success.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be pinned.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
-
-        :param message_id: Identifier of a message to pin.
-
-        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats."""
-        params = compose_method_params(
-            params=get_params(locals()),
-            update=self,
-            default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
-        )
-        return await self.ctx_api.pin_chat_message(**params)
-
-    @shortcut("unpin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
-    async def unpin(
-        self,
-        *,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
-        **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
-        """Shortcut `API.unpin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
-
-        Use this method to remove a message from the list of pinned messages in a chat.
-        In private chats and channel direct messages chats, all messages can be
-        unpinned. Conversely, the bot must be an administrator with the 'can_pin_messages'
-        right or the 'can_edit_messages' right to unpin messages in groups and
-        channels respectively. Returns True on success.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be unpinned.
-
-        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
-
-        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned."""
-        params = compose_method_params(
-            params=get_params(locals()),
-            update=self,
-            default_params={"chat_id", "message_id", "message_thread_id"},
-            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
-        )
-        return await self.ctx_api.unpin_chat_message(**params)
-
+class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_audio",
         executor=execute_method_answer,
@@ -1458,7 +1018,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param reply_parameters: Description of the message to reply to."""
         media = [media] if not isinstance(media, list) else media
         params = get_params(locals())
-        return await execute_method_answer(self, "send_media_group", params)
+        return await execute_method_answer(self, "send_media_group", params)  # type: ignore
 
     @shortcut(
         "send_location",
@@ -1578,6 +1138,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
+
+class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_audio",
         executor=execute_method_reply,
@@ -2445,8 +2007,8 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_parameters: Description of the message to reply to."""
         params = get_params(locals())
-        params.setdefault("reply_parameters", ReplyParameters(self.message_id))
-        return await self.answer_media_group(**params)
+        params.setdefault("reply_parameters", ReplyParameters(self.cute.message_id))
+        return await self.cute.answer_media_group(**params)
 
     @shortcut(
         "send_location",
@@ -2566,13 +2128,15 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
+
+class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_message_live_location",
         executor=execute_method_edit,
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_live_location(
-        self: MessageOrCallbackQuery,
+        self,
         *,
         latitude: float,
         longitude: float,
@@ -2621,7 +2185,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_caption(
-        self: MessageOrCallbackQuery,
+        self,
         caption: str | None = None,
         *,
         business_connection_id: str | None = None,
@@ -2751,7 +2315,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
                 parse_mode=parse_mode,
             )
 
-        return await execute_method_edit(self, "edit_message_media", params)
+        return await execute_method_edit(self.cute, "edit_message_media", params)
 
     @shortcut(
         "edit_message_reply_markup",
@@ -2759,7 +2323,7 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_reply_markup(
-        self: MessageOrCallbackQuery,
+        self,
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
@@ -2785,6 +2349,457 @@ class MessageCute(BaseCute[Message], Message, kw_only=True):
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
+
+
+class MessageCute(
+    BaseCute[Message],
+    MessageEditShortcuts,
+    MessageReplyShortcuts,
+    MessageAnswerShortcuts,
+    Message,
+    kw_only=True,
+):
+    reply_to_message: Option[MessageCute] = field(
+        default=...,
+        converter=From["MessageCute | None"],
+    )
+    """Optional. For replies in the same chat and message thread, the original
+    message. Note that the Message object in this field will not contain further
+    reply_to_message fields even if it itself is a reply."""
+
+    pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
+        default=...,
+        converter=From["MessageCute | InaccessibleMessage | None"],
+    )
+    """Optional. Specified message was pinned. Note that the Message object in
+    this field will not contain further reply_to_message fields even if it
+    itself is a reply."""
+
+    @cached_property
+    def html_text(self) -> option.Option[str]:
+        return self.build_html_text(self.text, self.entities)
+
+    @cached_property
+    def html_caption(self) -> option.Option[str]:
+        return self.build_html_text(self.caption, self.caption_entities)
+
+    @additional_property
+    def media_group_messages(self) -> option.Option[list[MessageCute]]:
+        return option.Nothing()
+
+    @property
+    def mentioned_user(self) -> option.Option[User]:
+        """Mentioned user without username."""
+        return get_entity_value("user", self.entities, self.caption_entities)
+
+    @property
+    def url(self) -> option.Option[str]:
+        """Clickable text URL."""
+        return get_entity_value("url", self.entities, self.caption_entities)
+
+    @property
+    def programming_language(self) -> option.Option[str]:
+        """The programming language of the entity text."""
+        return get_entity_value("language", self.entities, self.caption_entities)
+
+    @property
+    def custom_emoji_id(self) -> option.Option[str]:
+        """Unique identifier of the custom emoji."""
+        return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)
+
+    def build_html_text(self, text: Option[str], entities: Option[list[MessageEntity]], /) -> Option[str]:
+        if not text:
+            return option.Nothing()
+
+        match entities:
+            case option.Some(ents) if ents:
+                return option.Some(build_html(text.unwrap(), ents))
+            case _:
+                return option.Nothing()
+
+    @shortcut(
+        "send_message",
+        executor=execute_method_answer,
+        custom_params={"link_preview_options", "message_thread_id", "chat_id", "text"},
+    )
+    async def answer(
+        self,
+        text: str | None = None,
+        *,
+        allow_paid_broadcast: bool | None = None,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = None,
+        entities: list[MessageEntity] | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: str | None = None,
+        parse_mode: str | None = None,
+        protect_content: bool | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
+
+        Use this method to send text messages. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_message",
+        executor=execute_method_reply,
+        custom_params={"message_thread_id", "chat_id", "message_id"},
+    )
+    async def reply(
+        self,
+        text: str,
+        *,
+        allow_paid_broadcast: bool | None = None,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = None,
+        entities: list[MessageEntity] | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        parse_mode: str | None = None,
+        protect_content: bool | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
+
+        Use this method to send text messages. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
+    async def delete(
+        self,
+        *,
+        chat_id: int | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
+
+        Use this method to delete a message, including service messages, with the
+        following limitations: - A message can only be deleted if it was sent less
+        than 48 hours ago. - Service messages about a supergroup, channel, or forum
+        topic creation can't be deleted. - A dice message in a private chat can only
+        be deleted if it was sent more than 24 hours ago. - Bots can delete outgoing
+        messages in private chats, groups, and supergroups. - Bots can delete incoming
+        messages in private chats. - Bots granted can_post_messages permissions
+        can delete outgoing messages in channels. - If the bot is an administrator
+        of a group, it can delete any message there. - If the bot has can_delete_messages
+        administrator right in a supergroup or a channel, it can delete any message
+        there. - If the bot has can_manage_direct_messages administrator right
+        in a channel, it can delete any message in the corresponding direct messages
+        chat. Returns True on success."""
+        params = compose_method_params(
+            params=get_params(locals()),
+            update=self,
+            default_params={"chat_id", "message_id", "message_thread_id"},
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+        )
+        return await self.ctx_api.delete_message(**params)
+
+    @shortcut(
+        "edit_message_text",
+        executor=execute_method_edit,
+        custom_params={"link_preview_options", "message_thread_id", "message_id"},
+    )
+    async def edit(
+        self,
+        text: str,
+        *,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        entities: list[MessageEntity] | None = None,
+        inline_message_id: str | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        parse_mode: str | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> Result[Variative[MessageCute, bool], APIError]:
+        """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
+
+        Use this method to edit text and game messages. On success, if the edited
+        message is not an inline message, the edited Message is returned, otherwise
+        True is returned. Note that business messages that were not sent by the bot
+        and do not contain an inline keyboard can only be edited within 48 hours from
+        the time they were sent.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
+
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
+
+        :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
+
+        :param text: New text of the message, 1-4096 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
+        ...
+
+    @shortcut(
+        "copy_message",
+        custom_params={"message_thread_id", "chat_id", "message_id", "from_chat_id"},
+    )
+    async def copy(
+        self,
+        chat_id: int | str | None = None,
+        *,
+        allow_paid_broadcast: bool | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = None,
+        from_chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        parse_mode: str | None = None,
+        protect_content: bool | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        video_start_timestamp: timedelta | int | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageId, APIError]:
+        """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
+
+        Use this method to copy messages of any kind. Service messages, paid media
+        messages, giveaway messages, giveaway winners messages, and invoice
+        messages can't be copied. A quiz poll can be copied only if the value of the
+        field correct_option_id is known to the bot. The method is analogous to
+        the method forwardMessage, but the copied message doesn't have a link to
+        the original message. Returns the MessageId of the sent message on success."""
+        params = compose_method_params(
+            params=get_params(locals()),
+            update=self,
+            default_params={
+                "chat_id",
+                "message_id",
+                ("from_chat_id", "chat_id"),
+                "message_thread_id",
+            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+        )
+        if isinstance(reply_parameters, dict):
+            reply_parameters.setdefault("message_id", params.get("message_id"))
+            reply_parameters.setdefault("chat_id", params.get("chat_id"))
+            params["reply_parameters"] = ReplyParameters(**reply_parameters)
+        return await self.ctx_api.copy_message(**params)
+
+    @shortcut(
+        "set_message_reaction",
+        custom_params={"message_thread_id", "reaction", "chat_id", "message_id"},
+    )
+    async def react(
+        self,
+        reaction: (str | ReactionEmoji | ReactionType | list[str | ReactionEmoji | ReactionType] | None) = None,
+        *,
+        chat_id: int | str | None = None,
+        is_big: bool | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.set_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
+
+        Use this method to change the chosen reactions on a message. Service messages
+        of some types can't be reacted to. Automatically forwarded messages from
+        a channel to its discussion group have the same available reactions as messages
+        in the channel. Bots can't use paid reactions. Returns True on success."""
+        params = compose_method_params(
+            params=get_params(locals()),
+            update=self,
+            default_params={"chat_id", "message_id", "message_thread_id"},
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+        )
+        if reaction:
+            params["reaction"] = compose_reactions(
+                reaction.unwrap() if isinstance(reaction, Some) else reaction,
+            )
+        return await self.ctx_api.set_message_reaction(**params)
+
+    @shortcut("forward_message", custom_params={"message_thread_id", "from_chat_id", "message_id"})
+    async def forward(
+        self,
+        chat_id: int | str,
+        *,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = None,
+        from_chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        protect_content: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        video_start_timestamp: timedelta | int | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.forward_message()`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
+
+        Use this method to forward messages of any kind. Service messages and messages
+        with protected content can't be forwarded. On success, the sent Message
+        is returned.
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be forwarded;required if the message is forwarded to a direct messages chat.
+
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channelusername in the format @channelusername).
+
+        :param video_start_timestamp: New start timestamp for the forwarded video in the message.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the forwarded message from forwarding and saving.
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only.
+
+        :param message_id: Message identifier in the chat specified in from_chat_id."""
+        params = compose_method_params(
+            params=get_params(locals()),
+            update=self,
+            default_params={
+                ("from_chat_id", "chat_id"),
+                "message_id",
+                "message_thread_id",
+            },
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+        )
+        return (await self.ctx_api.forward_message(**params)).map(
+            lambda message: MessageCute.from_update(message, bound_api=self.api),
+        )
+
+    @shortcut("pin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
+    async def pin(
+        self,
+        *,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        disable_notification: bool | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, "APIError"]:
+        """Shortcut `API.pin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
+
+        Use this method to add a message to the list of pinned messages in a chat. In
+        private chats and channel direct messages chats, all non-service messages
+        can be pinned. Conversely, the bot must be an administrator with the 'can_pin_messages'
+        right or the 'can_edit_messages' right to pin messages in groups and channels
+        respectively. Returns True on success.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be pinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of a message to pin.
+
+        :param disable_notification: Pass True if it is not necessary to send a notification to all chat membersabout the new pinned message. Notifications are always disabled in channelsand private chats."""
+        params = compose_method_params(
+            params=get_params(locals()),
+            update=self,
+            default_params={"chat_id", "message_id", "message_thread_id"},
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+        )
+        return await self.ctx_api.pin_chat_message(**params)
+
+    @shortcut("unpin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
+    async def unpin(
+        self,
+        *,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        message_thread_id: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, "APIError"]:
+        """Shortcut `API.unpin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
+
+        Use this method to remove a message from the list of pinned messages in a chat.
+        In private chats and channel direct messages chats, all messages can be
+        unpinned. Conversely, the bot must be an administrator with the 'can_pin_messages'
+        right or the 'can_edit_messages' right to unpin messages in groups and
+        channels respectively. Returns True on success.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be unpinned.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to unpin. Required if business_connection_idis specified. If not specified, the most recent pinned message (by sendingdate) will be unpinned."""
+        params = compose_method_params(
+            params=get_params(locals()),
+            update=self,
+            default_params={"chat_id", "message_id", "message_thread_id"},
+            validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
+        )
+        return await self.ctx_api.unpin_chat_message(**params)
 
 
 __all__ = ("MessageCute",)

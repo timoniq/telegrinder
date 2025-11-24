@@ -11,6 +11,10 @@ from fntypes.library.monad.result import Result
 from telegrinder.tools.magic.function import get_func_parameters
 from telegrinder.types.methods_utils import get_params
 
+if typing.TYPE_CHECKING:
+    from telegrinder.api.error import APIError
+    from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts
+
 type Executor[T] = typing.Callable[
     [T, str, dict[str, typing.Any]],
     typing.Awaitable[Result[typing.Any, APIError]],
@@ -19,16 +23,10 @@ type CuteMethod[T, **P, R] = typing.Callable[
     typing.Concatenate[T, P],
     typing.Awaitable[Result[R, APIError]],
 ]
-
-if typing.TYPE_CHECKING:
-    from telegrinder.api.error import APIError
-
-
-class ShortcutMethod[T, **P, R](typing.Protocol):
-    __name__: str
-    __shortcut__: Shortcut[T]
-
-    async def __call__(self, *args: P.args, **kwargs: P.kwargs) -> Result[R, APIError]: ...
+type ShortcutMethod[**P, R] = typing.Callable[
+    typing.Concatenate[typing.Any, P],
+    typing.Coroutine[typing.Any, typing.Any, Result[R, APIError]],
+]
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
@@ -39,37 +37,37 @@ class Shortcut[T]:
 
 
 @typing.overload
-def shortcut[T, **P, R](
+def shortcut[T: BaseCute[typing.Any], S: BaseShortcuts[BaseCute[typing.Any]], **P, R](
     method_name: str,
     /,
     *,
     custom_params: set[str] = ...,
-) -> typing.Callable[[CuteMethod[T, P, R]], ShortcutMethod[T, P, R]]: ...
+) -> typing.Callable[[CuteMethod[T, P, R] | CuteMethod[S, P, R]], ShortcutMethod[P, R]]: ...
 
 
 @typing.overload
-def shortcut[T, **P, R](
+def shortcut[T: BaseCute[typing.Any], S: BaseShortcuts[BaseCute[typing.Any]], **P, R](
     method_name: str,
     /,
     *,
     executor: Executor[T],
     custom_params: set[str] = ...,
-) -> typing.Callable[[CuteMethod[T, P, R]], ShortcutMethod[T, P, R]]: ...
+) -> typing.Callable[[CuteMethod[T, P, R] | CuteMethod[S, P, R]], ShortcutMethod[P, R]]: ...
 
 
-def shortcut[T, **P, R](
+def shortcut[**P, R](
     method_name: str,
     /,
     *,
-    executor: Executor[T] | None = None,
+    executor: Executor[typing.Any] | None = None,
     custom_params: set[str] | None = None,
-) -> typing.Callable[[CuteMethod[T, P, R]], ShortcutMethod[T, P, R]]:
+) -> typing.Callable[[CuteMethod[typing.Any, P, R]], ShortcutMethod[P, R]]:
     """Decorate a cute method as a shortcut."""
 
-    def wrapper(func: CuteMethod[T, P, R]) -> ShortcutMethod[T, P, R]:
+    def wrapper(func: CuteMethod[typing.Any, P, R]) -> ShortcutMethod[P, R]:
         @wraps(func)
         async def inner(
-            self: T,
+            self: BaseCute[typing.Any] | BaseShortcuts[BaseCute[typing.Any]],
             *args: P.args,
             **kwargs: P.kwargs,
         ) -> Result[R, typing.Any]:

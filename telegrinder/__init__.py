@@ -51,12 +51,17 @@ from .bot import (
     AudioReplyHandler,
     BaseCute,
     BaseReturnManager,
+    BusinessConnectionCute,
+    BusinessMessagesDeletedCute,
     CallbackQueryCute,
     CallbackQueryReturnManager,
+    ChatBoostRemovedCute,
+    ChatBoostUpdatedCute,
     ChatJoinRequestCute,
     ChatMemberUpdatedCute,
     Checkbox,
     Choice,
+    ChosenInlineResultCute,
     Context,
     Dispatch,
     DocumentReplyHandler,
@@ -70,14 +75,20 @@ from .bot import (
     MediaGroupReplyHandler,
     MediaGroupView,
     MessageCute,
+    MessageReactionCountUpdatedCute,
+    MessageReactionUpdatedCute,
     MessageReplyHandler,
     MessageReturnManager,
+    PaidMediaPurchasedCute,
     PhotoReplyHandler,
+    PollAnswerCute,
+    PollCute,
     Polling,
     PreCheckoutQueryCute,
     PreCheckoutQueryReturnManager,
     RawEventView,
     Router,
+    ShippingQueryCute,
     ShortState,
     StickerReplyHandler,
     Telegrinder,
@@ -115,6 +126,17 @@ ChatJoinRequest: typing.TypeAlias = ChatJoinRequestCute
 ChatMemberUpdated: typing.TypeAlias = ChatMemberUpdatedCute
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 InlineQuery: typing.TypeAlias = InlineQueryCute
+ChosenInlineResult: typing.TypeAlias = ChosenInlineResultCute
+ShippingQuery: typing.TypeAlias = ShippingQueryCute
+Poll: typing.TypeAlias = PollCute
+PollAnswer: typing.TypeAlias = PollAnswerCute
+PaidMediaPurchased: typing.TypeAlias = PaidMediaPurchasedCute
+ChatBoostRemoved: typing.TypeAlias = ChatBoostRemovedCute
+ChatBoostUpdated: typing.TypeAlias = ChatBoostUpdatedCute
+BusinessConnection: typing.TypeAlias = BusinessConnectionCute
+BusinessMessagesDeleted: typing.TypeAlias = BusinessMessagesDeletedCute
+MessageReactionCountUpdated: typing.TypeAlias = MessageReactionCountUpdatedCute
+MessageReactionUpdated: typing.TypeAlias = MessageReactionUpdatedCute
 Bot: typing.TypeAlias = Telegrinder
 
 
@@ -150,12 +172,16 @@ __all__ = (
     "CallbackQuery",
     "CallbackQueryCute",
     "CallbackQueryReturnManager",
+    "ChatBoostRemoved",
+    "ChatBoostUpdatedCute",
     "ChatJoinRequest",
     "ChatJoinRequestCute",
     "ChatMemberUpdated",
     "ChatMemberUpdatedCute",
     "Checkbox",
     "Choice",
+    "ChosenInlineResult",
+    "ChosenInlineResultCute",
     "Context",
     "DelayedTask",
     "Dispatch",
@@ -181,11 +207,21 @@ __all__ = (
     "MemoryStateStorage",
     "Message",
     "MessageCute",
+    "MessageReactionCountUpdated",
+    "MessageReactionCountUpdatedCute",
+    "MessageReactionUpdated",
+    "MessageReactionUpdatedCute",
     "MessageReplyHandler",
     "MessageReturnManager",
     "Model",
+    "PaidMediaPurchased",
+    "PaidMediaPurchasedCute",
     "ParseMode",
     "PhotoReplyHandler",
+    "Poll",
+    "PollAnswer",
+    "PollAnswerCute",
+    "PollCute",
     "Polling",
     "PreCheckoutQuery",
     "PreCheckoutQueryCute",
@@ -194,6 +230,8 @@ __all__ = (
     "RnetClient",
     "Router",
     "RowButtons",
+    "ShippingQuery",
+    "ShippingQueryCute",
     "ShortState",
     "StateData",
     "StickerReplyHandler",

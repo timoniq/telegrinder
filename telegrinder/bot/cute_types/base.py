@@ -1,4 +1,5 @@
 import typing
+from functools import cached_property
 
 from telegrinder.model import Model
 from telegrinder.tools.magic.shortcut import shortcut
@@ -223,4 +224,10 @@ else:
             return self.to_dict(exclude_fields=exclude_fields, full=True)
 
 
-__all__ = ("BaseCute", "compose_method_params", "shortcut")
+class BaseShortcuts[T: BaseCute[typing.Any]]:
+    @cached_property
+    def cute(self) -> T:
+        return self  # type: ignore
+
+
+__all__ = ("BaseCute", "BaseShortcuts", "compose_method_params", "shortcut")
