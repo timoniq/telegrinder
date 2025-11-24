@@ -1,10 +1,10 @@
 import keyword
 import types
+import typing
 from functools import cache
 from reprlib import recursive_repr
 
 import msgspec
-import typing_extensions as typing
 from fntypes.library.monad.option import Nothing
 
 from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
@@ -128,8 +128,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         return "{}({})".format(
             type(self).__name__,
             ", ".join(
-                f"{f}={val!r}"
-                for f, val in struct_asdict(self, exclude_unset=False, unset_as_nothing=True).items()
+                f"{f}={val!r}" for f, val in struct_asdict(self, exclude_unset=False, unset_as_nothing=True).items()
             ),
         )
 

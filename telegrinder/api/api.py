@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import pathlib
+import typing
 from functools import cached_property, wraps
 from http import HTTPStatus
 
 import msgspec
-import typing_extensions as typing
 from fntypes.library.misc import is_ok
 from fntypes.library.monad.result import Error, Ok, Result
 

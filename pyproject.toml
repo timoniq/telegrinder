@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "telegrinder"
 description = "Modern visionary telegram bot framework."
 authors = [{ name = "timoniq", email = "tesseradecades@mail.ru" }]
-requires-python = ">=3.13,<4.0"
+requires-python = ">=3.14,<4.0"
 readme = "readme.md"
 license = { file = "LICENSE" }
 maintainers = [{ name = "luwqz1", email = "howluwqz1@gmail.com" }]
@@ -31,7 +31,7 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Quality Assurance",
     "Typing :: Typed",
@@ -42,7 +42,6 @@ dependencies = [
     "certifi (>=2025.11.12,<2026.0.0)",
     "choicelib (>=0.1.5,<0.2.0)",
     "envparse (>=0.2.0,<0.3.0)",
-    "typing-extensions (>=4.15.0,<5.0.0)",
     "colorama (>=0.4.6,<0.5.0)",
     "vbml",
     "fntypes",

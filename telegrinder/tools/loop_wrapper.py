@@ -78,7 +78,12 @@ class LoopWrapper(Singleton, Final):
     )
 
     def __init__(self) -> None:
-        self._loop = asyncio.get_event_loop()
+        try:
+            self._loop = asyncio.get_event_loop()
+        except RuntimeError:
+            self._loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop=self._loop)
+
         self._event_stop = asyncio.Event()
         self._lifespan = Lifespan()
         self._future_tasks = [self._waiter_stop()]

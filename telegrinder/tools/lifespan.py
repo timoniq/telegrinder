@@ -10,10 +10,10 @@ from telegrinder.tools.fullname import fullname
 
 type CoroutineTask[T] = typing.Coroutine[typing.Any, typing.Any, T]
 type CoroutineFunc[**P, T] = typing.Callable[P, CoroutineTask[T]]
-type Task[**P, T] = CoroutineFunc[P, T] | CoroutineTask[T] | DelayedTask[typing.Callable[P, CoroutineTask[T]]]
+type Task[**P, T] = CoroutineFunc[P, T] | CoroutineTask[T] | DelayedTask[P]
 
 
-def to_coroutine_task[**P, T](task: Task[P, T], /) -> CoroutineTask[T]:
+def to_coroutine_task[T](task: Task[..., T], /) -> CoroutineTask[T]:
     if asyncio.iscoroutinefunction(task) or isinstance(task, DelayedTask):
         task = task()
     elif not asyncio.iscoroutine(task):
@@ -22,20 +22,22 @@ def to_coroutine_task[**P, T](task: Task[P, T], /) -> CoroutineTask[T]:
 
 
 @dataclasses.dataclass
-class DelayedTask[Function: CoroutineFunc[..., typing.Any]]:
+class DelayedTask[**P]:
     _cancelled: bool = dataclasses.field(default=False, init=False, repr=False)
     _event: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False, repr=False)
     _timer: asyncio.TimerHandle | None = dataclasses.field(default=None, init=False, repr=False)
 
-    function: Function
+    function: typing.Callable[P, CoroutineTask[typing.Any]]
     seconds: float | datetime.timedelta
     repeat: bool = dataclasses.field(default=False, kw_only=True)
 
     def __post_init__(self) -> None:
         self.function.cancel = self.cancel
 
-    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        while True:
+    async def __call__(self, *args: P.args, **kwargs: P.kwargs) -> None:
+        stopped = False
+
+        while not stopped:
             self.start_timer()
             await self._event.wait()
 
@@ -51,7 +53,7 @@ class DelayedTask[Function: CoroutineFunc[..., typing.Any]]:
                 self._timer = None
 
                 if not self.repeat:
-                    break
+                    stopped = True
 
     @property
     def is_cancelled(self) -> bool:
