@@ -14,7 +14,7 @@ jobs:
 
       - uses: ./.github/actions/install-dependencies
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - run: uv lock --locked
 
@@ -27,7 +27,7 @@ jobs:
 
       - uses: ./.github/actions/install-dependencies
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: "Run generator"
         run: uv run typegen
