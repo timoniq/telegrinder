@@ -292,9 +292,7 @@ class Update(Model):
     This update may at times be triggered by changes to message fields that are
     either unavailable or not actively used by your bot."""
 
-    business_connection: Option[BusinessConnection] = field(
-        default=..., converter=From["BusinessConnection | None"]
-    )
+    business_connection: Option[BusinessConnection] = field(default=..., converter=From["BusinessConnection | None"])
     """Optional. The bot was connected to or disconnected from a business account,
     or a user edited an existing connection with the bot."""
 
@@ -328,9 +326,7 @@ class Update(Model):
     inline_query: Option[InlineQuery] = field(default=..., converter=From["InlineQuery | None"])
     """Optional. New incoming inline query."""
 
-    chosen_inline_result: Option[ChosenInlineResult] = field(
-        default=..., converter=From["ChosenInlineResult | None"]
-    )
+    chosen_inline_result: Option[ChosenInlineResult] = field(default=..., converter=From["ChosenInlineResult | None"])
     """Optional. The result of an inline query that was chosen by a user and sent
     to their chat partner. Please see our documentation on the feedback collecting
     for details on how to enable these updates for your bot."""
@@ -346,9 +342,7 @@ class Update(Model):
     """Optional. New incoming pre-checkout query. Contains full information
     about checkout."""
 
-    purchased_paid_media: Option[PaidMediaPurchased] = field(
-        default=..., converter=From["PaidMediaPurchased | None"]
-    )
+    purchased_paid_media: Option[PaidMediaPurchased] = field(default=..., converter=From["PaidMediaPurchased | None"])
     """Optional. A user purchased paid media with a non-empty payload sent by the
     bot in a non-channel chat."""
 
@@ -623,11 +617,8 @@ class ChatFullInfo(Model):
     """Optional. Information about the corresponding channel chat; for direct
     messages chats only."""
 
-    available_reactions: Option[list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]] = (
-        field(
-            default=...,
-            converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"],
-        )
+    available_reactions: Option[list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]] = field(
+        default=..., converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"]
     )
     """Optional. List of available reactions allowed in the chat. If omitted,
     then all emoji reactions are allowed."""
@@ -798,9 +789,7 @@ class Message(MaybeInaccessibleMessage):
         Variative[MessageOriginUser, MessageOriginHiddenUser, MessageOriginChat, MessageOriginChannel]
     ] = field(
         default=...,
-        converter=From[
-            "MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel | None"
-        ],
+        converter=From["MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel | None"],
     )
     """Optional. Information about the original message for forwarded messages."""
 
@@ -867,9 +856,7 @@ class Message(MaybeInaccessibleMessage):
     """Optional. For text messages, special entities like usernames, URLs, bot
     commands, etc. that appear in the text."""
 
-    link_preview_options: Option[LinkPreviewOptions] = field(
-        default=..., converter=From["LinkPreviewOptions | None"]
-    )
+    link_preview_options: Option[LinkPreviewOptions] = field(default=..., converter=From["LinkPreviewOptions | None"])
     """Optional. Options used for link preview generation for the message, if
     it is a text message and link preview options were changed."""
 
@@ -917,9 +904,7 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Caption for the animation, audio, document, paid media, photo,
     video or voice."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. For messages with a caption, special entities like usernames,
     URLs, bot commands, etc. that appear in the caption."""
 
@@ -1039,9 +1024,7 @@ class Message(MaybeInaccessibleMessage):
     """Optional. The domain name of the website on which the user has logged in.
     More about Telegram Login: https://core.telegram.org/widgets/login."""
 
-    write_access_allowed: Option[WriteAccessAllowed] = field(
-        default=..., converter=From["WriteAccessAllowed | None"]
-    )
+    write_access_allowed: Option[WriteAccessAllowed] = field(default=..., converter=From["WriteAccessAllowed | None"])
     """Optional. Service message: the user allowed the bot to write messages after
     adding it to the attachment or side menu, launching a Web App from a link,
     or accepting an explicit request from a Web App sent by the method requestWriteAccess."""
@@ -1061,9 +1044,7 @@ class Message(MaybeInaccessibleMessage):
     chat_background_set: Option[ChatBackground] = field(default=..., converter=From["ChatBackground | None"])
     """Optional. Service message: chat background set."""
 
-    checklist_tasks_done: Option[ChecklistTasksDone] = field(
-        default=..., converter=From["ChecklistTasksDone | None"]
-    )
+    checklist_tasks_done: Option[ChecklistTasksDone] = field(default=..., converter=From["ChecklistTasksDone | None"])
     """Optional. Service message: some tasks in a checklist were marked as done
     or not done."""
 
@@ -1087,9 +1068,7 @@ class Message(MaybeInaccessibleMessage):
     forum_topic_closed: Option[ForumTopicClosed] = field(default=..., converter=From["ForumTopicClosed | None"])
     """Optional. Service message: forum topic closed."""
 
-    forum_topic_reopened: Option[ForumTopicReopened] = field(
-        default=..., converter=From["ForumTopicReopened | None"]
-    )
+    forum_topic_reopened: Option[ForumTopicReopened] = field(default=..., converter=From["ForumTopicReopened | None"])
     """Optional. Service message: forum topic reopened."""
 
     general_forum_topic_hidden: Option[GeneralForumTopicHidden] = field(
@@ -1143,9 +1122,7 @@ class Message(MaybeInaccessibleMessage):
     )
     """Optional. Service message: payment for a suggested post was refunded."""
 
-    video_chat_scheduled: Option[VideoChatScheduled] = field(
-        default=..., converter=From["VideoChatScheduled | None"]
-    )
+    video_chat_scheduled: Option[VideoChatScheduled] = field(default=..., converter=From["VideoChatScheduled | None"])
     """Optional. Service message: video chat scheduled."""
 
     video_chat_started: Option[VideoChatStarted] = field(default=..., converter=From["VideoChatStarted | None"])
@@ -1309,9 +1286,7 @@ class ExternalReplyInfo(Model):
     """Optional. Unique message identifier inside the original chat. Available
     only if the original chat is a supergroup or a channel."""
 
-    link_preview_options: Option[LinkPreviewOptions] = field(
-        default=..., converter=From["LinkPreviewOptions | None"]
-    )
+    link_preview_options: Option[LinkPreviewOptions] = field(default=..., converter=From["LinkPreviewOptions | None"])
     """Optional. Options used for link preview generation for the original message,
     if it is a text message."""
 
@@ -1921,9 +1896,7 @@ class Poll(Model):
     type: PollType = field(default=PollType.REGULAR)
     """Poll type, currently can be `regular` or `quiz`."""
 
-    question_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    question_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the question. Currently, only
     custom emoji entities are allowed in poll questions."""
 
@@ -1936,9 +1909,7 @@ class Poll(Model):
     """Optional. Text that is shown when a user chooses an incorrect answer or taps
     on the lamp icon in a quiz-style poll, 0-200 characters."""
 
-    explanation_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    explanation_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities like usernames, URLs, bot commands, etc. that
     appear in the explanation."""
 
@@ -2324,12 +2295,12 @@ class ChatBackground(Model):
     This object represents a chat background.
     """
 
-    type: Variative[
-        BackgroundTypeFill, BackgroundTypeWallpaper, BackgroundTypePattern, BackgroundTypeChatTheme
-    ] = field(
-        converter=From[
-            "BackgroundTypeFill | BackgroundTypeWallpaper | BackgroundTypePattern | BackgroundTypeChatTheme"
-        ]
+    type: Variative[BackgroundTypeFill, BackgroundTypeWallpaper, BackgroundTypePattern, BackgroundTypeChatTheme] = (
+        field(
+            converter=From[
+                "BackgroundTypeFill | BackgroundTypeWallpaper | BackgroundTypePattern | BackgroundTypeChatTheme"
+            ]
+        )
     )
     """Type of the background."""
 
@@ -2978,9 +2949,7 @@ class KeyboardButton(Model):
     """Optional. If True, the user's current location will be sent when the button
     is pressed. Available in private chats only."""
 
-    request_poll: Option[KeyboardButtonPollType] = field(
-        default=..., converter=From["KeyboardButtonPollType | None"]
-    )
+    request_poll: Option[KeyboardButtonPollType] = field(default=..., converter=From["KeyboardButtonPollType | None"])
     """Optional. If specified, the user will be asked to create a poll and send it
     to the bot when the button is pressed. Available in private chats only."""
 
@@ -4965,9 +4934,7 @@ class InputMediaPhoto(InputMedia):
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5020,9 +4987,7 @@ class InputMediaVideo(InputMedia):
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5077,9 +5042,7 @@ class InputMediaAnimation(InputMedia):
     """Optional. Mode for parsing entities in the animation caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5131,9 +5094,7 @@ class InputMediaAudio(InputMedia):
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5179,9 +5140,7 @@ class InputMediaDocument(InputMedia):
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5616,9 +5575,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5691,9 +5648,7 @@ class InlineQueryResultGif(InlineQueryResult):
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5766,9 +5721,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5829,9 +5782,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5899,9 +5850,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -5958,9 +5907,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6018,9 +5965,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6302,9 +6247,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6359,9 +6302,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6416,9 +6357,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6513,9 +6452,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6570,9 +6507,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6626,9 +6561,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6676,9 +6609,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(
-        default=..., converter=From["list[MessageEntity] | None"]
-    )
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6719,9 +6650,7 @@ class InputTextMessageContent(InputMessageContent):
     """Optional. List of special entities that appear in message text, which can
     be specified instead of parse_mode."""
 
-    link_preview_options: Option[LinkPreviewOptions] = field(
-        default=..., converter=From["LinkPreviewOptions | None"]
-    )
+    link_preview_options: Option[LinkPreviewOptions] = field(default=..., converter=From["LinkPreviewOptions | None"])
     """Optional. Link preview generation options for the message."""
 
 
