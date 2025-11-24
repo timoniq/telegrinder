@@ -4,10 +4,10 @@ import dataclasses
 import sys
 import types
 import typing
+from annotationlib import Format, ForwardRef, get_annotations
 from functools import cached_property
 from reprlib import recursive_repr
 
-from annotationlib import Format, ForwardRef, get_annotations
 from fntypes.library.misc import from_optional
 from fntypes.library.monad.option import Nothing, Option, Some
 
