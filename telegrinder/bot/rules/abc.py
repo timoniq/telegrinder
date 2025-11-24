@@ -1,9 +1,8 @@
 from __future__ import annotations
 
+import typing
 from abc import ABC, abstractmethod
 from collections import deque
-
-import typing_extensions as typing
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context

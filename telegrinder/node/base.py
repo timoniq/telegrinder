@@ -8,7 +8,6 @@ from itertools import islice
 from types import NoneType, UnionType, resolve_bases
 
 from fntypes.library.monad.option import Nothing, Option
-from typing_extensions import Sentinel
 
 from telegrinder.node.context import NODE_CONTEXT
 from telegrinder.node.exceptions import ComposeError
@@ -35,7 +34,7 @@ type AnyNode = IsNode | NodeConvertable
 type ComposeResult[T = typing.Any] = T | typing.Awaitable[T] | Generator[T, typing.Any, typing.Any]
 
 _NOSCOPE: typing.Final[object] = object()
-_NODEFAULT: typing.Final[Sentinel] = Sentinel("NoDefault", "<nodefault>")
+_NODEFAULT: typing.Final = object()
 _NONE_TYPES: typing.Final[set[typing.Any]] = {None, NoneType}
 _UNION_TYPES: typing.Final[set[typing.Any]] = {typing.Union, UnionType}
 UNWRAPPED_NODE_KEY: typing.Final[str] = "__unwrapped_node__"

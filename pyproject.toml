@@ -90,7 +90,7 @@ allow-direct-references = true
 
 [tool.ruff]
 line-length = 120
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.format]
 quote-style = "double"
@@ -164,7 +164,7 @@ exclude = [
 ]
 typeCheckingMode = "basic"
 pythonPlatform = "All"
-pythonVersion = "3.13"
+pythonVersion = "3.14"
 reportMissingImports = true
 reportMissingTypeStubs = false
 reportSelfClsParameterName = false

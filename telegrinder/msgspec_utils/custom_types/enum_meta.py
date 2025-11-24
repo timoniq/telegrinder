@@ -8,10 +8,10 @@ ENUM_FRIENDS: typing.Final = (str, int, float)
 class BaseEnumMeta(enum.EnumMeta, type):
     if typing.TYPE_CHECKING:
 
-        class BaseEnumMeta(enum.Enum):  # noqa
+        class _BaseEnumMeta(enum.Enum):  # noqa
             NOT_SUPPORTED = enum.auto()
 
-        NOT_SUPPORTED: typing.Literal[BaseEnumMeta.NOT_SUPPORTED]
+        NOT_SUPPORTED: typing.Literal[_BaseEnumMeta.NOT_SUPPORTED]
 
     else:
 

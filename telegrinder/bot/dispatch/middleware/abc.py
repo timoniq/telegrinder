@@ -1,7 +1,7 @@
+import typing
 from abc import ABC
 from functools import cached_property
 
-import typing_extensions as typing
 from fntypes.library.monad.result import Error, Ok
 
 from telegrinder.api.api import API
