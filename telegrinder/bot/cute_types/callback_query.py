@@ -4,7 +4,7 @@ from contextlib import suppress
 from datetime import timedelta
 
 import msgspec
-from fntypes.library import Nothing, Result, Some, Variative, unwrapping
+from kungfu.library import Nothing, Result, Some, Sum, unwrapping
 
 from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
@@ -23,7 +23,7 @@ CACHED_CALLBACK_DATA_KEY: typing.Final[str] = "cached_callback_data"
 
 
 class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQuery, kw_only=True):
-    message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
+    message: Option[Sum[MessageCute, InaccessibleMessage]] = field(
         default=UNSET,
         converter=From[MessageCute | InaccessibleMessage | None],
     )
@@ -213,7 +213,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         parse_mode: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
+    ) -> Result[Sum[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
         Use this method to edit text and game messages. On success, if the edited

@@ -1,14 +1,14 @@
 import typing
 from contextlib import suppress
 
-import fntypes
+import kungfu
 
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node import EventNode, IsNode, as_node, is_node
 from telegrinder.tools.member_descriptor_proxy import MemberDescriptorProxy, evaluate_operations
 
 
-class Magic[R, **P = [R]](fntypes.F[R, P], ABCRule):
+class Magic[R, **P = [R]](kungfu.F[R, P], ABCRule):
     def __init__(
         self,
         field: R,
@@ -32,7 +32,7 @@ class Magic[R, **P = [R]](fntypes.F[R, P], ABCRule):
         return {"node": as_node(self.node)}
 
     def check(self, node: typing.Any) -> bool:
-        with suppress(fntypes.UnwrapError):
+        with suppress(kungfu.UnwrapError):
             self(node)  # type: ignore
             return True
 
@@ -52,8 +52,8 @@ class Magic[R, **P = [R]](fntypes.F[R, P], ABCRule):
         ) -> "Magic[R, P]": ...
 
         def expect[T, Err](
-            self: fntypes.F[fntypes.Result[T, Err], P],
-            error: typing.Callable[[fntypes.Result[T, Err]], BaseException] | BaseException | str | None = None,
+            self: kungfu.F[kungfu.Result[T, Err], P],
+            error: typing.Callable[[kungfu.Result[T, Err]], BaseException] | BaseException | str | None = None,
         ) -> "Magic[T, P]": ...
 
 

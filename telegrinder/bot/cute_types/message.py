@@ -3,8 +3,8 @@ from __future__ import annotations
 import typing
 from functools import cached_property
 
-from fntypes.library import Result, Some, Variative
-from fntypes.library.monad import option
+from kungfu.library import Result, Some, Sum
+from kungfu.library.monad import option
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
@@ -97,7 +97,7 @@ async def execute_method_edit(
 
     result = await getattr(update.ctx_api, method_name)(**params)
     return result.map(
-        lambda v: Variative[MessageCute, bool](
+        lambda v: Sum[MessageCute, bool](
             v.only()
             .map(
                 lambda x: MessageCute.from_update(x, bound_api=update.api),
@@ -2151,7 +2151,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         proximity_alert_radius: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
+    ) -> Result[Sum[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_live_location()`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
 
         Use this method to edit live location messages. A location can be edited
@@ -2198,7 +2198,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         reply_markup: InlineKeyboardMarkup | None = None,
         show_caption_above_media: bool | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
+    ) -> Result[Sum[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
 
         Use this method to edit captions of messages. On success, if the edited message
@@ -2235,7 +2235,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         message_thread_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]: ...
+    ) -> Result[Sum[MessageCute, bool], APIError]: ...
 
     @typing.overload
     async def edit_media(
@@ -2252,7 +2252,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         message_thread_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]: ...
+    ) -> Result[Sum[MessageCute, bool], APIError]: ...
 
     @shortcut(
         "edit_message_media",
@@ -2282,7 +2282,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         parse_mode: str | None = API.default_params["parse_mode"],
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
+    ) -> Result[Sum[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
         Use this method to edit animation, audio, document, photo, or video messages,
@@ -2332,7 +2332,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         message_thread_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
+    ) -> Result[Sum[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)
 
         Use this method to edit only the reply markup of messages. On success, if
@@ -2367,7 +2367,7 @@ class MessageCute(
     message. Note that the Message object in this field will not contain further
     reply_to_message fields even if it itself is a reply."""
 
-    pinned_message: Option[Variative[MessageCute, InaccessibleMessage]] = field(
+    pinned_message: Option[Sum[MessageCute, InaccessibleMessage]] = field(
         default=...,
         converter=From["MessageCute | InaccessibleMessage | None"],
     )
@@ -2581,7 +2581,7 @@ class MessageCute(
         parse_mode: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[MessageCute, bool], APIError]:
+    ) -> Result[Sum[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
         Use this method to edit text and game messages. On success, if the edited

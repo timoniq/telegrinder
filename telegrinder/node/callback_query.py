@@ -1,6 +1,6 @@
 import typing
 
-from fntypes.library.monad.result import Error, Ok
+from kungfu.library.monad.result import Error, Ok
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.msgspec_utils import convert

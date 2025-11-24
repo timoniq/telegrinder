@@ -1,7 +1,7 @@
 import typing
 from abc import ABC, abstractmethod
 
-from fntypes.library.monad.result import Result
+from kungfu.library.monad.result import Result
 
 from telegrinder.api import API
 from telegrinder.bot.dispatch.context import Context

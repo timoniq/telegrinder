@@ -1,7 +1,7 @@
 import typing
 from functools import cached_property
 
-from fntypes.library.monad.option import Nothing, Some
+from kungfu.library.monad.option import Nothing, Some
 
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.business_connection import BusinessConnectionCute

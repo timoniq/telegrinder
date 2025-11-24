@@ -3,8 +3,8 @@ from __future__ import annotations
 import secrets
 import typing
 
-from fntypes.library.misc import from_optional
-from fntypes.library.monad.option import Option
+from kungfu.library.misc import from_optional
+from kungfu.library.monad.option import Option
 
 from telegrinder.bot.cute_types import BaseCute
 from telegrinder.bot.dispatch.view.base import View

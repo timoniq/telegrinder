@@ -7,8 +7,8 @@ from functools import cached_property, wraps
 from http import HTTPStatus
 
 import msgspec
-from fntypes.library.misc import is_ok
-from fntypes.library.monad.result import Error, Ok, Result
+from kungfu.library.misc import is_ok
+from kungfu.library.monad.result import Error, Ok, Result
 
 from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse

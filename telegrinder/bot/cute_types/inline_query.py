@@ -1,6 +1,6 @@
 import typing
 
-from fntypes.library.monad.result import Result
+from kungfu.library.monad.result import Result
 
 from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut

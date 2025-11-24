@@ -3,8 +3,8 @@ import typing
 from collections import defaultdict
 from functools import cached_property
 
-from fntypes.library.monad.option import Some
-from fntypes.library.monad.result import Error, Ok, Result
+from kungfu.library.monad.option import Some
+from kungfu.library.monad.result import Error, Ok, Result
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.node.base import (
@@ -102,9 +102,7 @@ async def compose_nodes(
                 local_nodes[node_t] = global_session
                 continue
 
-            subnodes |= {
-                k: session.value for k, session in (local_nodes | event_nodes).items() if k not in subnodes
-            }
+            subnodes |= {k: session.value for k, session in (local_nodes | event_nodes).items() if k not in subnodes}
             try:
                 session = await local_nodes.set_session(
                     node_t,

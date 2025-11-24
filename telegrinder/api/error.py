@@ -2,8 +2,8 @@ import typing
 from functools import cached_property
 from http import HTTPStatus
 
-from fntypes.library.misc import from_optional
-from fntypes.library.monad.option import Option
+from kungfu.library.misc import from_optional
+from kungfu.library.monad.option import Option
 
 
 class ReprErrorMixin:

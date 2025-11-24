@@ -8,8 +8,8 @@ from annotationlib import Format, ForwardRef, get_annotations
 from functools import cached_property
 from reprlib import recursive_repr
 
-from fntypes.library.misc import from_optional
-from fntypes.library.monad.option import Nothing, Option, Some
+from kungfu.library.misc import from_optional
+from kungfu.library.monad.option import Nothing, Option, Some
 
 from telegrinder.tools.global_context.global_context import GlobalContext, ctx_var
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from fntypes.library.monad.result import Error, Ok, Result
+from kungfu.library.monad.result import Error, Ok, Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context

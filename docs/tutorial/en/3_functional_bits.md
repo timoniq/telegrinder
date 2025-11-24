@@ -6,12 +6,12 @@ In python libraries mostly raise exceptions in case something goes wrong. We thi
 
 The solution is instead of raising an exception we say that function may RETURN two possible states of result. An error if something is not right, or a value if everything went right.
 
-We use `fntypes` to provide a functional backend for telegrinder. Lets look into some simple examples.
+We use `kungfu` to provide a functional backend for telegrinder. Lets look into some simple examples.
 
-Lets write a function using fntypes backend so we can understand the concept on the deep level.
+Lets write a function using kungfu backend so we can understand the concept on the deep level.
 
 ```python
-from fntypes import Result, Ok, Error
+from kungfu import Result, Ok, Error
 
 def divide(a: int, b: int) -> Result[float, str]:
     if b == 0:
@@ -21,7 +21,7 @@ def divide(a: int, b: int) -> Result[float, str]:
 
 Thats a function which allows us to safely divide `a` by `b`. Since we cannot divide by zero, in case we get it as a divisor we return `Error`. If everything is great, we get `Ok` with an actual result of the division.
 
-Fntypes provides many built-in utilities to work with its instances.
+kungfu provides many built-in utilities to work with its instances.
 
 One of them, which you have probably seen already is `.unwrap()`.
 
@@ -32,7 +32,7 @@ divide(6, 3).unwrap() == 2
 divide(3, 0).unwrap()  # Exception UnwrapError("Cannot divide by zero")
 ```
 
-[Advanced documentation with all methods](https://github.com/timoniq/fntypes/blob/main/docs/result.md#application)
+[Advanced documentation with all methods](https://github.com/timoniq/kungfu/blob/main/docs/result.md#application)
 
 ---
 

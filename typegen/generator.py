@@ -54,9 +54,7 @@ INPUTFILE_DOCSTRING: typing.Final[str] = "using multipart/form-data"
 def download_schema(config_toml: ConfigTOML, config_model: Config, /) -> TelegramBotAPISchema:
     logger.debug(f"Downloading schema from {config_model.telegram_bot_api.schema_url!r}...")
 
-    schema: dict[str, typing.Any] = msgspec.json.decode(
-        requests.get(config_model.telegram_bot_api.schema_url).text
-    )
+    schema: dict[str, typing.Any] = msgspec.json.decode(requests.get(config_model.telegram_bot_api.schema_url).text)
     schema_version = float(schema["version"].split()[-1])
     schema.update(
         dict(
@@ -179,7 +177,7 @@ def convert_to_python_type(
         hint.format(tp)
         if tp not in parent_types
         else (
-            "Variative[%s]" % ", ".join(hint.format(x) for x in parent_types[tp])
+            "Sum[%s]" % ", ".join(hint.format(x) for x in parent_types[tp])
             if not as_union
             else hint.format(" | ".join(x for x in parent_types[tp]))
         )
@@ -306,9 +304,7 @@ class ObjectGenerator(ABCGenerator):
                 field.types.append("InputFile")
 
             if len(field.types) > 1:
-                field_type = "Variative[%s]" % ", ".join(
-                    convert_to_python_type(tp, self.parent_types) for tp in field.types
-                )
+                field_type = "Sum[%s]" % ", ".join(convert_to_python_type(tp, self.parent_types) for tp in field.types)
                 union_types = " | ".join(
                     convert_to_python_type(tp, self.parent_types, as_union=True, as_forward_ref=True)
                     for tp in field.types
@@ -356,9 +352,7 @@ class ObjectGenerator(ABCGenerator):
         if field.description:
             description = field.description.replace('"', "`")
             sep = "\n" + TAB
-            code += (
-                f'{sep}"""{chunks_str(description, sep=sep)}{"." if not description.endswith(".") else ""}"""\n'
-            )
+            code += f'{sep}"""{chunks_str(description, sep=sep)}{"." if not description.endswith(".") else ""}"""\n'
 
         return code
 
@@ -460,7 +454,7 @@ class ObjectGenerator(ABCGenerator):
             "import pathlib\n",
             "import secrets\n",
             "import typing\n\n",
-            "from fntypes.library import Variative\n",
+            "from kungfu.library import Sum\n",
             "from telegrinder.model import From, Model, field, is_none\n",
             "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
@@ -543,7 +537,7 @@ class MethodGenerator(ABCGenerator):
             types.append("Array of " + ", ".join(array_of_types))
 
         sep = ", " if is_return_type else " | "
-        return ("Variative[%s]" if is_return_type else "%s") % sep.join(
+        return ("Sum[%s]" if is_return_type else "%s") % sep.join(
             convert_to_python_type(tp, parent_types) for tp in types
         )
 
@@ -663,9 +657,7 @@ class MethodGenerator(ABCGenerator):
             code = f"{TAB * 2}{param_name}: "
 
             if not p.required or default_param_value:
-                code += (
-                    f"{self.make_type_hint(p.types)} {'| None ' if not p.required else ''}= {default_param_value}"
-                )
+                code += f"{self.make_type_hint(p.types)} {'| None ' if not p.required else ''}= {default_param_value}"
             else:
                 code += self.make_type_hint(p.types)
 
@@ -716,7 +708,7 @@ class MethodGenerator(ABCGenerator):
         lines = [
             "import typing\n",
             "from datetime import datetime, timedelta\n\n"
-            "from fntypes.library import Result, Variative\n"
+            "from kungfu.library import Result, Sum\n"
             "from telegrinder.api.error import APIError\n",
             "from telegrinder.types.methods_utils import ProxiedDict, full_result, get_params\n",
             "from telegrinder.types.enums import *  # noqa: F403\n"

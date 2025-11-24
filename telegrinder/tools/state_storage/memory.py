@@ -1,7 +1,7 @@
 import typing
 
-from fntypes.library.misc import from_optional
-from fntypes.library.monad.option import Option
+from kungfu.library.misc import from_optional
+from kungfu.library.monad.option import Option
 
 from telegrinder.tools.state_storage.abc import ABCStateStorage, StateData
 

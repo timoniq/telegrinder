@@ -2,7 +2,7 @@ import datetime as dt
 import typing
 from contextlib import contextmanager
 
-import fntypes.library
+import kungfu.library
 import msgspec
 
 from telegrinder.msgspec_utils.abc import SupportsCast
@@ -22,9 +22,9 @@ def to_builtins(
     builtin_types: typing.Iterable[type[typing.Any]] | None = None,
     order: Order | None = None,
     context: Context | None = None,
-) -> fntypes.library.Result[typing.Any, msgspec.ValidationError]:
+) -> kungfu.library.Result[typing.Any, msgspec.ValidationError]:
     try:
-        return fntypes.library.Ok(
+        return kungfu.library.Ok(
             encoder.to_builtins(
                 obj,
                 str_keys=str_keys,
@@ -34,7 +34,7 @@ def to_builtins(
             ),
         )
     except msgspec.ValidationError as error:
-        return fntypes.library.Error(error)
+        return kungfu.library.Error(error)
 
 
 class Encoder:
@@ -64,9 +64,9 @@ class Encoder:
             dt.timedelta: timedelta,
         }
         self.enc_hooks = {
-            fntypes.library.Some: lambda some: some.value,
-            fntypes.library.Nothing: lambda _: None,
-            fntypes.library.Variative: lambda variative: variative.v,
+            kungfu.library.Some: lambda some: some.value,
+            kungfu.library.Nothing: lambda _: None,
+            kungfu.library.Sum: lambda s: s.v,
             datetime: lambda date: int(date.timestamp()),
             timedelta: lambda time: time.total_seconds(),
         }

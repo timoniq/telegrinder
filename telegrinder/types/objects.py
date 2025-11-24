@@ -3,7 +3,7 @@ from __future__ import annotations
 import secrets
 from functools import cached_property
 
-from fntypes.library import Variative
+from kungfu.library import Sum
 
 from telegrinder.model import From, Model, field, is_none
 from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime, timedelta
@@ -617,8 +617,9 @@ class ChatFullInfo(Model):
     """Optional. Information about the corresponding channel chat; for direct
     messages chats only."""
 
-    available_reactions: Option[list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]] = field(
-        default=..., converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"]
+    available_reactions: Option[list[Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]] = field(
+        default=...,
+        converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"],
     )
     """Optional. List of available reactions allowed in the chat. If omitted,
     then all emoji reactions are allowed."""
@@ -785,11 +786,13 @@ class Message(MaybeInaccessibleMessage):
     corresponding business account that is independent from any potential
     bot chat which might share the same identifier."""
 
-    forward_origin: Option[
-        Variative[MessageOriginUser, MessageOriginHiddenUser, MessageOriginChat, MessageOriginChannel]
-    ] = field(
-        default=...,
-        converter=From["MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel | None"],
+    forward_origin: Option[Sum[MessageOriginUser, MessageOriginHiddenUser, MessageOriginChat, MessageOriginChannel]] = (
+        field(
+            default=...,
+            converter=From[
+                "MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel | None"
+            ],
+        )
     )
     """Optional. Information about the original message for forwarded messages."""
 
@@ -989,7 +992,7 @@ class Message(MaybeInaccessibleMessage):
     it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision
     float type are safe for storing this identifier."""
 
-    pinned_message: Option[Variative[Message, InaccessibleMessage]] = field(
+    pinned_message: Option[Sum[Message, InaccessibleMessage]] = field(
         default=..., converter=From["Message | InaccessibleMessage | None"]
     )
     """Optional. Specified message was pinned. Note that the Message object in
@@ -1273,7 +1276,7 @@ class ExternalReplyInfo(Model):
     This object contains information about a message that is being replied to, which may come from another chat or forum topic.
     """
 
-    origin: Variative[MessageOriginUser, MessageOriginHiddenUser, MessageOriginChat, MessageOriginChannel] = field(
+    origin: Sum[MessageOriginUser, MessageOriginHiddenUser, MessageOriginChat, MessageOriginChannel] = field(
         converter=From["MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel"]
     )
     """Origin of the message replied to by the given message."""
@@ -1366,7 +1369,7 @@ class ReplyParameters(Model):
     """Identifier of the message that will be replied to in the current chat, or
     in the chat chat_id if it is specified."""
 
-    chat_id: Option[Variative[int, str]] = field(default=..., converter=From[int | str | None])
+    chat_id: Option[Sum[int, str]] = field(default=..., converter=From[int | str | None])
     """Optional. If the message to be replied to is from a different chat, unique
     identifier for the chat or username of the channel (in the format @channelusername).
     Not supported for messages sent on behalf of a business account and messages
@@ -1720,7 +1723,7 @@ class PaidMediaInfo(Model):
     star_count: int = field()
     """The number of Telegram Stars that must be paid to buy access to the media."""
 
-    paid_media: list[Variative[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]] = field(
+    paid_media: list[Sum[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]] = field(
         converter=From[list["PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo"]]
     )
     """Information about the paid media."""
@@ -2213,7 +2216,7 @@ class BackgroundTypeFill(BackgroundType):
     The background is automatically filled based on the selected colors.
     """
 
-    fill: Variative[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field(
+    fill: Sum[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field(
         converter=From["BackgroundFillSolid | BackgroundFillGradient | BackgroundFillFreeformGradient"]
     )
     """The background fill."""
@@ -2257,7 +2260,7 @@ class BackgroundTypePattern(BackgroundType):
     document: Document = field()
     """Document with the pattern."""
 
-    fill: Variative[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field(
+    fill: Sum[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field(
         converter=From["BackgroundFillSolid | BackgroundFillGradient | BackgroundFillFreeformGradient"]
     )
     """The background fill that is combined with the pattern."""
@@ -2295,12 +2298,8 @@ class ChatBackground(Model):
     This object represents a chat background.
     """
 
-    type: Variative[BackgroundTypeFill, BackgroundTypeWallpaper, BackgroundTypePattern, BackgroundTypeChatTheme] = (
-        field(
-            converter=From[
-                "BackgroundTypeFill | BackgroundTypeWallpaper | BackgroundTypePattern | BackgroundTypeChatTheme"
-            ]
-        )
+    type: Sum[BackgroundTypeFill, BackgroundTypeWallpaper, BackgroundTypePattern, BackgroundTypeChatTheme] = field(
+        converter=From["BackgroundTypeFill | BackgroundTypeWallpaper | BackgroundTypePattern | BackgroundTypeChatTheme"]
     )
     """Type of the background."""
 
@@ -3238,7 +3237,7 @@ class CallbackQuery(Model):
     """Global identifier, uniquely corresponding to the chat to which the message
     with the callback button was sent. Useful for high scores in games."""
 
-    message: Option[Variative[Message, InaccessibleMessage]] = field(
+    message: Option[Sum[Message, InaccessibleMessage]] = field(
         default=..., converter=From["Message | InaccessibleMessage | None"]
     )
     """Optional. Message sent by the bot with the callback button that originated
@@ -3431,7 +3430,7 @@ class ChatMemberUpdated(Model):
     date: datetime = field(converter=From[datetime | int])
     """Date the change was done in Unix time."""
 
-    old_chat_member: Variative[
+    old_chat_member: Sum[
         ChatMemberOwner,
         ChatMemberAdministrator,
         ChatMemberMember,
@@ -3445,7 +3444,7 @@ class ChatMemberUpdated(Model):
     )
     """Previous information about the chat member."""
 
-    new_chat_member: Variative[
+    new_chat_member: Sum[
         ChatMemberOwner,
         ChatMemberAdministrator,
         ChatMemberMember,
@@ -3929,7 +3928,7 @@ class StoryAreaTypeSuggestedReaction(StoryAreaType):
     Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas.
     """
 
-    reaction_type: Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field(
+    reaction_type: Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field(
         converter=From["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]
     )
     """Type of the reaction."""
@@ -3998,7 +3997,7 @@ class StoryArea(Model):
     position: StoryAreaPosition = field()
     """Position of the area."""
 
-    type: Variative[
+    type: Sum[
         StoryAreaTypeLocation,
         StoryAreaTypeSuggestedReaction,
         StoryAreaTypeLink,
@@ -4072,7 +4071,7 @@ class ReactionCount(Model):
     Represents a reaction added to a message along with the number of times it was added.
     """
 
-    type: Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field(
+    type: Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field(
         converter=From["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]
     )
     """Type of the reaction."""
@@ -4096,12 +4095,12 @@ class MessageReactionUpdated(Model):
     date: datetime = field(converter=From[datetime | int])
     """Date of the change in Unix time."""
 
-    old_reaction: list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field(
+    old_reaction: list[Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field(
         converter=From[list["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]]
     )
     """Previous list of reaction types that were set by the user."""
 
-    new_reaction: list[Variative[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field(
+    new_reaction: list[Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field(
         converter=From[list["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]]
     )
     """New list of reaction types that have been set by the user."""
@@ -4457,7 +4456,7 @@ class OwnedGifts(Model):
     total_count: int = field()
     """The total number of gifts owned by the user or the chat."""
 
-    gifts: list[Variative[OwnedGiftRegular, OwnedGiftUnique]] = field(
+    gifts: list[Sum[OwnedGiftRegular, OwnedGiftUnique]] = field(
         converter=From[list["OwnedGiftRegular | OwnedGiftUnique"]]
     )
     """The list of gifts."""
@@ -4560,7 +4559,7 @@ class BotCommandScopeChat(BotCommandScope):
     Represents the scope of bot commands, covering a specific chat.
     """
 
-    chat_id: Variative[int, str] = field(converter=From[int | str])
+    chat_id: Sum[int, str] = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
     (in the format @supergroupusername). Channel direct messages chats and
     channel chats aren't supported."""
@@ -4575,7 +4574,7 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
     Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
     """
 
-    chat_id: Variative[int, str] = field(converter=From[int | str])
+    chat_id: Sum[int, str] = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
     (in the format @supergroupusername). Channel direct messages chats and
     channel chats aren't supported."""
@@ -4590,7 +4589,7 @@ class BotCommandScopeChatMember(BotCommandScope):
     Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
     """
 
-    chat_id: Variative[int, str] = field(converter=From[int | str])
+    chat_id: Sum[int, str] = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
     (in the format @supergroupusername). Channel direct messages chats and
     channel chats aren't supported."""
@@ -4740,7 +4739,7 @@ class ChatBoost(Model):
     """Point in time (Unix timestamp) when the boost will automatically expire,
     unless the booster's Telegram Premium subscription is prolonged."""
 
-    source: Variative[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field(
+    source: Sum[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field(
         converter=From["ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway"]
     )
     """Source of the added boost."""
@@ -4774,7 +4773,7 @@ class ChatBoostRemoved(Model):
     remove_date: datetime = field(converter=From[datetime | int])
     """Point in time (Unix timestamp) when the boost was removed."""
 
-    source: Variative[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field(
+    source: Sum[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field(
         converter=From["ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway"]
     )
     """Source of the removed boost."""
@@ -4917,7 +4916,7 @@ class InputMediaPhoto(InputMedia):
     Represents a photo to be sent.
     """
 
-    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -4951,7 +4950,7 @@ class InputMediaVideo(InputMedia):
     Represents a video to be sent.
     """
 
-    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -4960,7 +4959,7 @@ class InputMediaVideo(InputMedia):
     type: Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
-    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -4969,7 +4968,7 @@ class InputMediaVideo(InputMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    cover: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    cover: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
@@ -5016,7 +5015,7 @@ class InputMediaAnimation(InputMedia):
     Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
     """
 
-    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -5025,7 +5024,7 @@ class InputMediaAnimation(InputMedia):
     type: Literal["animation"] = field(default="animation")
     """Type of the result, must be animation."""
 
-    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -5068,7 +5067,7 @@ class InputMediaAudio(InputMedia):
     Represents an audio file to be treated as music to be sent.
     """
 
-    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -5077,7 +5076,7 @@ class InputMediaAudio(InputMedia):
     type: Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
-    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -5114,7 +5113,7 @@ class InputMediaDocument(InputMedia):
     Represents a general file to be sent.
     """
 
-    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -5123,7 +5122,7 @@ class InputMediaDocument(InputMedia):
     type: Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -5144,7 +5143,7 @@ class InputMediaDocument(InputMedia):
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
-    disable_content_type_detection: Option[Variative[bool, InputFile]] = field(
+    disable_content_type_detection: Option[Sum[bool, InputFile]] = field(
         default=..., converter=From["bool | InputFile | None"]
     )
     """Optional. Disables automatic server-side content type detection for
@@ -5158,7 +5157,7 @@ class InputPaidMediaPhoto(InputPaidMedia):
     The paid media to send is a photo.
     """
 
-    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -5174,7 +5173,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     The paid media to send is a video.
     """
 
-    media: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -5183,7 +5182,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     type: Literal["video"] = field(default="video")
     """Type of the media, must be video."""
 
-    thumbnail: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -5192,7 +5191,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    cover: Option[Variative[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    cover: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
@@ -5221,7 +5220,7 @@ class InputProfilePhotoStatic(InputProfilePhoto):
     A static profile photo in the .JPG format.
     """
 
-    photo: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    photo: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """The static profile photo. Profile photos can't be reused and can only be
     uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
@@ -5237,7 +5236,7 @@ class InputProfilePhotoAnimated(InputProfilePhoto):
     An animated profile photo in the MPEG4 format.
     """
 
-    animation: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    animation: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """The animated profile photo. Profile photos can't be reused and can only
     be uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
@@ -5257,7 +5256,7 @@ class InputStoryContentPhoto(InputStoryContent):
     Describes a photo to post as a story.
     """
 
-    photo: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    photo: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """The photo to post as a story. The photo must be of the size 1080x1920 and must
     not exceed 10 MB. The photo can't be reused and can only be uploaded as a new
     file, so you can pass `attach://<file_attach_name>` if the photo was uploaded
@@ -5274,7 +5273,7 @@ class InputStoryContentVideo(InputStoryContent):
     Describes a video to post as a story.
     """
 
-    video: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    video: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """The video to post as a story. The video must be of the size 720x1280, streamable,
     encoded with H.265 codec, with key frames added each second in the MPEG4
     format, and must not exceed 30 MB. The video can't be reused and can only be
@@ -5405,7 +5404,7 @@ class InputSticker(Model):
     This object describes a sticker to be added to a sticker set.
     """
 
-    sticker: Variative[str, InputFile] = field(converter=From["str | InputFile"])
+    sticker: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """The added sticker. Pass a file_id as a String to send a file that already exists
     on the Telegram servers, pass an HTTP URL as a String for Telegram to get a
     file from the Internet, or pass `attach://<file_attach_name>` to upload
@@ -5494,7 +5493,7 @@ class InlineQueryResultArticle(InlineQueryResult):
     title: str = field()
     """Title of the result."""
 
-    input_message_content: Variative[
+    input_message_content: Sum[
         InputTextMessageContent,
         InputLocationMessageContent,
         InputVenueMessageContent,
@@ -5586,7 +5585,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -5659,7 +5658,7 @@ class InlineQueryResultGif(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -5732,7 +5731,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -5805,7 +5804,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -5864,7 +5863,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -5918,7 +5917,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -5976,7 +5975,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6046,7 +6045,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6114,7 +6113,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6170,7 +6169,7 @@ class InlineQueryResultContact(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6258,7 +6257,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6313,7 +6312,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6368,7 +6367,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6405,7 +6404,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6460,7 +6459,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6518,7 +6517,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6569,7 +6568,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -6617,7 +6616,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     """Optional. Inline keyboard attached to the message."""
 
     input_message_content: Option[
-        Variative[
+        Sum[
             InputTextMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
@@ -7206,7 +7205,7 @@ class TransactionPartnerUser(TransactionPartner):
     """Optional. The duration of the paid subscription. Can be available only
     for `invoice_payment` transactions."""
 
-    paid_media: Option[list[Variative[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]]] = field(
+    paid_media: Option[list[Sum[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]]] = field(
         default=..., converter=From["list[PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo] | None"]
     )
     """Optional. Information about the paid media bought by the user; for `paid_media_payment`
@@ -7268,7 +7267,7 @@ class TransactionPartnerFragment(TransactionPartner):
     """Type of the transaction partner, always `fragment`."""
 
     withdrawal_state: Option[
-        Variative[RevenueWithdrawalStatePending, RevenueWithdrawalStateSucceeded, RevenueWithdrawalStateFailed]
+        Sum[RevenueWithdrawalStatePending, RevenueWithdrawalStateSucceeded, RevenueWithdrawalStateFailed]
     ] = field(
         default=...,
         converter=From[
@@ -7334,7 +7333,7 @@ class StarTransaction(Model):
     by the transaction; from 0 to 999999999."""
 
     source: Option[
-        Variative[
+        Sum[
             TransactionPartnerUser,
             TransactionPartnerChat,
             TransactionPartnerAffiliateProgram,
@@ -7354,7 +7353,7 @@ class StarTransaction(Model):
     transactions."""
 
     receiver: Option[
-        Variative[
+        Sum[
             TransactionPartnerUser,
             TransactionPartnerChat,
             TransactionPartnerAffiliateProgram,

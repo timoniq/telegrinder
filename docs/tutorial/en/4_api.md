@@ -35,7 +35,7 @@ Ok, but what if we want to get the result of our call. According to TBA (Telegra
 Lets review both cases the one we care and one we don't
 
 ```python
-from fntypes import Error, Ok
+from kungfu import Error, Ok
 
 match await message.api.send_message(
     chat_id=message.chat_id,

@@ -2,7 +2,7 @@ import dataclasses
 import typing
 
 import msgspec
-from fntypes.library.monad.option import Some
+from kungfu.library.monad.option import Some
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
@@ -44,9 +44,7 @@ class _EventNode(FactoryNode):
 
         if issubclass(cls.orig_dataclass, BaseCute | Model):
             incoming_update = (
-                update_cute.incoming_update
-                if issubclass(cls.orig_dataclass, BaseCute)
-                else raw_update.incoming_update
+                update_cute.incoming_update if issubclass(cls.orig_dataclass, BaseCute) else raw_update.incoming_update
             )
 
             if type(incoming_update) is not cls.orig_dataclass:

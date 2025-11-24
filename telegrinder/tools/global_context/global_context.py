@@ -6,8 +6,8 @@ import typing
 from copy import deepcopy
 from functools import cached_property, wraps
 
-from fntypes.library.misc import from_optional
-from fntypes.library.monad import Error, Nothing, Ok, Option, Result, Some
+from kungfu.library.misc import from_optional
+from kungfu.library.monad import Error, Nothing, Ok, Option, Result, Some
 
 from telegrinder.modules import logger
 from telegrinder.msgspec_utils import convert
@@ -211,9 +211,7 @@ class Storage:
 
     def delete(self, ctx_name: str) -> None:
         with self._lock:
-            assert self._storage.pop(ctx_name, None) is not None, (
-                f"Context {ctx_name!r} is not defined in storage."
-            )
+            assert self._storage.pop(ctx_name, None) is not None, f"Context {ctx_name!r} is not defined in storage."
 
 
 @typing.dataclass_transform(
@@ -525,11 +523,7 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
         assert type_check(var.value, var_value_type), (
             "Context variable value type of {!r} does not correspond to the expected type {!r}.".format(
                 type(var.value).__name__,
-                (
-                    getattr(var_value_type, "__name__")
-                    if isinstance(var_value_type, type)
-                    else repr(var_value_type)
-                ),
+                (getattr(var_value_type, "__name__") if isinstance(var_value_type, type) else repr(var_value_type)),
             )
         )
         return Some(var)

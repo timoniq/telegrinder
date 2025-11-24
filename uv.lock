@@ -156,14 +156,6 @@ wheels = [
 ]
 
 [[package]]
-name = "fntypes"
-version = "0.2.1"
-source = { git = "https://github.com/timoniq/fntypes?rev=main#c5b67ea549fde18e2ba9f294d69e5fe7b926ae6d" }
-dependencies = [
-    { name = "typing-extensions" },
-]
-
-[[package]]
 name = "identify"
 version = "2.6.15"
 source = { registry = "https://pypi.org/simple" }
@@ -188,6 +180,14 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730", size = 20503, upload-time = "2025-10-18T21:55:43.219Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
+]
+
+[[package]]
+name = "kungfu"
+version = "0.2.1"
+source = { git = "https://github.com/timoniq/kungfu?rev=main#2d3d9b2655581fc18d3a85055f9f710e51da7d84" }
+dependencies = [
+    { name = "typing-extensions" },
 ]
 
 [[package]]
@@ -505,10 +505,10 @@ dependencies = [
     { name = "choicelib" },
     { name = "colorama" },
     { name = "envparse" },
-    { name = "fntypes" },
+    { name = "kungfu" },
     { name = "msgspec" },
     { name = "rnet" },
-    { name = "vbml" },
+    { name = "vbml2" },
 ]
 
 [package.optional-dependencies]
@@ -547,13 +547,13 @@ requires-dist = [
     { name = "choicelib", specifier = ">=0.1.5,<0.2.0" },
     { name = "colorama", specifier = ">=0.4.6,<0.5.0" },
     { name = "envparse", specifier = ">=0.2.0,<0.3.0" },
-    { name = "fntypes", git = "https://github.com/timoniq/fntypes?rev=main" },
+    { name = "kungfu", git = "https://github.com/timoniq/kungfu?rev=main" },
     { name = "loguru", marker = "extra == 'loguru'" },
     { name = "msgspec", specifier = ">=0.20.0,<0.21.0" },
     { name = "rnet", specifier = "==3.0.0rc13" },
     { name = "structlog", marker = "extra == 'structlog'" },
     { name = "uvloop", marker = "(sys_platform == 'darwin' and extra == 'uvloop') or (sys_platform == 'linux' and extra == 'uvloop')", specifier = "==0.21.0" },
-    { name = "vbml", git = "https://github.com/tesseradecade/vbml?rev=master" },
+    { name = "vbml2", git = "https://github.com/tesseradecade/vbml?rev=master" },
     { name = "winloop", marker = "(sys_platform == 'cli' and extra == 'uvloop') or (sys_platform == 'cygwin' and extra == 'uvloop') or (sys_platform == 'win32' and extra == 'uvloop')" },
 ]
 provides-extras = ["brotli", "loguru", "structlog", "uvloop"]
@@ -606,11 +606,11 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/af/c0/854216d09d33c543f12a44b393c402e89a920b1a0a7dc634c42de91b9cf6/uvloop-0.21.0.tar.gz", hash = "sha256:3bf12b0fda68447806a7ad847bfa591613177275d35b6724b1ee573faa3704e3", size = 2492741, upload-time = "2024-10-14T23:38:35.489Z" }
 
 [[package]]
-name = "vbml"
+name = "vbml2"
 version = "2.0.0"
-source = { git = "https://github.com/tesseradecade/vbml?rev=master#ee8c7edd45a7c388f478ec84a0e6a745bd14dd34" }
+source = { git = "https://github.com/tesseradecade/vbml?rev=master#d763fedf6dcbcd611664a8ff3430ba4bb787a96c" }
 dependencies = [
-    { name = "fntypes" },
+    { name = "kungfu" },
 ]
 
 [[package]]

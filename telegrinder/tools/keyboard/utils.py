@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from functools import cache
+from functools import lru_cache
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.button import ButtonRule
@@ -10,7 +10,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.tools.keyboard.button import BaseButton
 
 
-@cache
+@lru_cache(maxsize=1024)
 def get_keyboard_button_rules(
     keyboard_class: type[ABCKeyboard],
     /,

@@ -3,11 +3,11 @@ from __future__ import annotations
 import abc
 import inspect
 import typing
-from functools import cache, reduce
+from functools import lru_cache, reduce
 from itertools import islice
 from types import NoneType, UnionType, resolve_bases
 
-from fntypes.library.monad.option import Nothing, Option
+from kungfu.library.monad.option import Nothing, Option
 
 from telegrinder.node.context import NODE_CONTEXT
 from telegrinder.node.exceptions import ComposeError
@@ -150,7 +150,7 @@ def is_node_type(obj: typing.Any, /) -> typing.TypeIs[IsNode]:
     return isinstance(obj, Node | NodeProto) or (isinstance(obj, type) and issubclass(obj, Node | NodeProto))  # pyright: ignore[reportGeneralTypeIssues]
 
 
-@cache
+@lru_cache(maxsize=1024)
 def get_nodes(
     function: typing.Callable[..., typing.Any],
     /,
@@ -164,7 +164,7 @@ def get_nodes(
     }
 
 
-@cache
+@lru_cache(maxsize=1024)
 def is_generator(
     function: typing.Callable[..., typing.Any],
     /,
@@ -217,7 +217,7 @@ def resolve_node_dependencies_topological_order(
     return ordered_dependencies
 
 
-@cache
+@lru_cache(maxsize=1024)
 def unwrap_node(node: IsNode, /) -> tuple[IsNode, ...]:
     """Unwrap node as flattened tuple of node types in ordering required to calculate given node.
 

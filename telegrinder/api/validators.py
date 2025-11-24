@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from fntypes import Error, Ok, Result
+from kungfu import Error, Ok, Result
 
 from telegrinder.api.api import API
 from telegrinder.api.error import InvalidTokenError

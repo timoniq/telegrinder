@@ -1,4 +1,4 @@
-from fntypes.library.monad.result import Error, Ok
+from kungfu.library.monad.result import Error, Ok
 
 from telegrinder import API, ChatJoinRequest, Telegrinder, Token
 from telegrinder.modules import logger

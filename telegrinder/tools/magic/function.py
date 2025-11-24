@@ -5,7 +5,7 @@ import enum
 import inspect
 import types
 import typing
-from functools import cache, cached_property, partial
+from functools import cached_property, lru_cache, partial
 
 from telegrinder.tools.magic.annotations import Annotations, MappingAnnotations
 
@@ -31,7 +31,7 @@ def _to_str(obj: typing.Any, /) -> str:
     return str(obj) if not isinstance(obj, str) else obj
 
 
-@cache
+@lru_cache(maxsize=1024)
 def _unwrap_func(obj: typing.Any, /) -> typing.Any:
     while True:
         if isinstance(obj, partial):
@@ -174,7 +174,7 @@ def resolve_posonly_arg_names(
     )
 
 
-@cache
+@lru_cache(maxsize=1024)
 def get_default_args(func: AnyFunction, /) -> dict[str, typing.Any]:
     parameters = get_func_parameters(func)
     return {
@@ -185,7 +185,7 @@ def get_default_args(func: AnyFunction, /) -> dict[str, typing.Any]:
     }
 
 
-@cache
+@lru_cache(maxsize=1024)
 def get_func_parameters(func: AnyFunction, /) -> FunctionParameters:
     func_params = FunctionParameters(args=[], kwargs=[])
 
@@ -206,7 +206,7 @@ def get_func_parameters(func: AnyFunction, /) -> FunctionParameters:
     return func_params
 
 
-@cache
+@lru_cache(maxsize=1024)
 def get_func_annotations(func: AnyFunction, /) -> MappingAnnotations:
     return Annotations(obj=func).get(
         ignore_failed_evals=True,

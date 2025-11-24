@@ -919,7 +919,7 @@ fields = [
 
 [[generator.methods.params.annotations.annotations]]
 method_name = "getChatAdministrators"
-return_type = "list[Variative[ChatMemberOwner, ChatMemberAdministrator]]"
+return_type = "list[Sum[ChatMemberOwner, ChatMemberAdministrator]]"
 
 # Generator :: Methods :: Params :: Annotations :: Literals (typing.Literal, enum.Enum)
 

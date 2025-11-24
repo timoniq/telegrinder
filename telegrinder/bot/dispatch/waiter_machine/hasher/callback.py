@@ -1,4 +1,4 @@
-from fntypes.library.monad.option import Some
+from kungfu.library.monad.option import Some
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute as CallbackQuery
 from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher

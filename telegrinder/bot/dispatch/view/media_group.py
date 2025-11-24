@@ -5,8 +5,8 @@ import contextlib
 import dataclasses
 import typing
 
-from fntypes.library import Error, Ok, Result
-from fntypes.library.monad.option import Some
+from kungfu.library import Error, Ok, Result
+from kungfu.library.monad.option import Some
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.message import MessageCute

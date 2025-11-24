@@ -1,7 +1,7 @@
 import typing
 from collections import deque
 
-from fntypes import Result
+from kungfu import Result
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context

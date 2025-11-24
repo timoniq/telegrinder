@@ -1,7 +1,7 @@
 import typing
 
 import pytest
-from fntypes.library.monad.option import Nothing
+from kungfu.library.monad.option import Nothing
 
 from telegrinder.tools.global_context import (
     CtxVar,

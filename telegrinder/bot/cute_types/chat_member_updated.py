@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from datetime import datetime
 
-from fntypes.library.monad.result import Result
+from kungfu.library.monad.result import Result
 
 from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut

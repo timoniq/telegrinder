@@ -1,7 +1,7 @@
 import types
 import typing
 
-import fntypes.library
+import kungfu.library
 import msgspec
 
 if typing.TYPE_CHECKING:
@@ -26,8 +26,8 @@ else:
         return fullname(*args, **kwargs)
 
 
-_NOTHING = fntypes.library.Nothing()
-_COMMON_TYPES = frozenset((str, int, float, bool, None, fntypes.library.Variative))
+_NOTHING = kungfu.library.Nothing()
+_COMMON_TYPES = frozenset((str, int, float, bool, None, kungfu.library.Sum))
 
 
 def get_origin[T](t: T, /) -> type[T]:
@@ -52,7 +52,7 @@ def struct_asdict(
     return {
         k: v if not unset_as_nothing else _NOTHING if v is msgspec.UNSET else v
         for k, v in msgspec.structs.asdict(struct).items()
-        if not (exclude_unset and isinstance(v, msgspec.UnsetType | types.NoneType | fntypes.library.Nothing))
+        if not (exclude_unset and isinstance(v, msgspec.UnsetType | types.NoneType | kungfu.library.Nothing))
     }
 
 

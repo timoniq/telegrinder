@@ -43,8 +43,8 @@ dependencies = [
     "choicelib (>=0.1.5,<0.2.0)",
     "envparse (>=0.2.0,<0.3.0)",
     "colorama (>=0.4.6,<0.5.0)",
-    "vbml",
-    "fntypes",
+    "vbml2",
+    "kungfu",
 ]
 
 [project.optional-dependencies]
@@ -79,8 +79,8 @@ dev = [
 package = true
 
 [tool.uv.sources]
-vbml = { git = "https://github.com/tesseradecade/vbml", rev = "master" }
-fntypes = { git = "https://github.com/timoniq/fntypes", rev = "main" }
+kungfu = { git = "https://github.com/timoniq/kungfu", rev = "main" }
+vbml2 = { git = "https://github.com/tesseradecade/vbml", rev = "master" }
 
 [tool.hatch.version]
 path = "telegrinder/__meta__.py"

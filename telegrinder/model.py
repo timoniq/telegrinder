@@ -5,7 +5,7 @@ from functools import cache
 from reprlib import recursive_repr
 
 import msgspec
-from fntypes.library.monad.option import Nothing
+from kungfu.library.monad.option import Nothing
 
 from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
 

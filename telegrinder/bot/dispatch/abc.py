@@ -7,7 +7,7 @@ import sys
 import typing
 from abc import ABC, abstractmethod
 
-from fntypes.library.monad.option import Option
+from kungfu.library.monad.option import Option
 
 from telegrinder.api.api import API
 from telegrinder.types.objects import Update

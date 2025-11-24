@@ -4,7 +4,7 @@ import asyncio
 import typing
 from collections import deque
 
-from fntypes.library.monad.option import Nothing, Option, Some
+from kungfu.library.monad.option import Nothing, Option, Some
 from vbml.patcher.abc import ABCPatcher
 
 from telegrinder.api.api import API

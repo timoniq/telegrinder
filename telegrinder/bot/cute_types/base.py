@@ -26,7 +26,7 @@ def compose_method_params[Cute: BaseCute](
 
 
 if typing.TYPE_CHECKING:
-    from fntypes.library.monad.option import Option
+    from kungfu.library.monad.option import Option
 
     from telegrinder.api.api import API
     from telegrinder.node.base import Node
@@ -64,8 +64,8 @@ if typing.TYPE_CHECKING:
         ) -> dict[str, typing.Any]: ...
 
 else:
-    from fntypes.library import Some, Variative
-    from fntypes.library.misc import from_optional
+    from kungfu.library import Some, Sum
+    from kungfu.library.misc import from_optional
 
     from telegrinder.msgspec_utils import Option, encoder, struct_asdict
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
@@ -80,7 +80,7 @@ else:
 
             if not isinstance(orig_arg, type):
                 continue
-            if orig_arg in (Variative, Some, Option):
+            if orig_arg in (Sum, Some, Option):
                 return _get_cute_from_generic(typing.get_args(arg))
             if issubclass(orig_arg, BaseCute):
                 return arg
@@ -103,10 +103,10 @@ else:
     def _maybe_wrapped(value, /):
         wrapped_value = None
 
-        while isinstance(value, Variative | Some):
+        while isinstance(value, Sum | Some):
             wrapped_value = value
 
-            if isinstance(value, Variative):
+            if isinstance(value, Sum):
                 value = value.v
 
             if isinstance(value, Some):
@@ -121,7 +121,7 @@ else:
         while args:
             arg = args.pop(0)
             origin_arg = typing.get_origin(arg) or arg
-            if issubclass(origin_arg, Variative | Option):
+            if issubclass(origin_arg, Sum | Option):
                 args.extend(typing.get_args(arg))
                 types.append(Some if issubclass(origin_arg, Option) else arg)
 
@@ -132,7 +132,7 @@ else:
 
     def _to_cute(cls, field, value, bound_api):
         maybe_wrapped_value = _maybe_wrapped(value)
-        is_wrapped_value = isinstance(maybe_wrapped_value, Variative | Some)
+        is_wrapped_value = isinstance(maybe_wrapped_value, Sum | Some)
         cute = cls.__cute_annotations__[field].from_update(
             maybe_wrapped_value._value if is_wrapped_value else maybe_wrapped_value,
             bound_api=bound_api,

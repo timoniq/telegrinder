@@ -5,8 +5,8 @@ import typing
 from types import NoneType
 
 import msgspec
-from fntypes.library.monad.option import Nothing
-from fntypes.library.monad.result import Result
+from kungfu.library.monad.option import Nothing
+from kungfu.library.monad.result import Result
 
 from telegrinder.msgspec_utils.decoder import decoder
 from telegrinder.msgspec_utils.encoder import encoder

@@ -1,7 +1,7 @@
 import base64
 import typing
 
-import fntypes
+import kungfu
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
@@ -43,7 +43,7 @@ class StartCommand(
     def check(
         self,
         bot_username: BotUsername,
-        message_entities: fntypes.Option[MessageEntities],
+        message_entities: kungfu.Option[MessageEntities],
         ctx: Context,
     ) -> bool:
         if self.deep_link is not None and all(

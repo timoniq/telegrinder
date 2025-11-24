@@ -1,6 +1,6 @@
 import time
 
-from fntypes.library.monad.result import Error, Ok
+from kungfu.library.monad.result import Error, Ok
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.rules import ABCRule, IsChat, Markup, Text

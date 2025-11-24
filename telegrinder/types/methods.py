@@ -1,7 +1,7 @@
 import typing
 from datetime import datetime, timedelta
 
-from fntypes.library import Result, Variative
+from kungfu.library import Result, Sum
 
 from telegrinder.api.error import APIError
 from telegrinder.types.enums import *  # noqa: F403
@@ -2736,7 +2736,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[list[Variative[ChatMemberOwner, ChatMemberAdministrator]], APIError]:
+    ) -> Result[list[Sum[ChatMemberOwner, ChatMemberAdministrator]], APIError]:
         """Method `getChatAdministrators`, see the [documentation](https://core.telegram.org/bots/api#getchatadministrators)
 
         Use this method to get a list of administrators in a chat, which aren't bots.
@@ -2750,7 +2750,7 @@ class APIMethods:
             "getChatAdministrators",
             get_params(locals()),
         )
-        return full_result(method_response, list[Variative[ChatMemberOwner, ChatMemberAdministrator]])
+        return full_result(method_response, list[Sum[ChatMemberOwner, ChatMemberAdministrator]])
 
     async def get_chat_member_count(
         self,
@@ -2779,7 +2779,7 @@ class APIMethods:
         user_id: int,
         **other: typing.Any,
     ) -> Result[
-        Variative[
+        Sum[
             ChatMemberOwner,
             ChatMemberAdministrator,
             ChatMemberMember,
@@ -2807,7 +2807,7 @@ class APIMethods:
         )
         return full_result(
             method_response,
-            Variative[
+            Sum[
                 ChatMemberOwner,
                 ChatMemberAdministrator,
                 ChatMemberMember,
@@ -3524,7 +3524,7 @@ class APIMethods:
         *,
         chat_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], APIError]:
+    ) -> Result[Sum[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], APIError]:
         """Method `getChatMenuButton`, see the [documentation](https://core.telegram.org/bots/api#getchatmenubutton)
 
         Use this method to get the current value of the bot's menu button in a private
@@ -3538,7 +3538,7 @@ class APIMethods:
             "getChatMenuButton",
             get_params(locals()),
         )
-        return full_result(method_response, Variative[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault])
+        return full_result(method_response, Sum[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault])
 
     async def set_my_default_administrator_rights(
         self,
@@ -4303,7 +4303,7 @@ class APIMethods:
         link_preview_options: LinkPreviewOptions | None = default_params["link_preview_options"],
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], APIError]:
+    ) -> Result[Sum[Message, bool], APIError]:
         """Method `editMessageText`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
         Use this method to edit text and game messages. On success, if the edited
@@ -4341,7 +4341,7 @@ class APIMethods:
             "editMessageText",
             get_params(locals()),
         )
-        return full_result(method_response, Variative[Message, bool])
+        return full_result(method_response, Sum[Message, bool])
 
     async def edit_message_caption(
         self,
@@ -4356,7 +4356,7 @@ class APIMethods:
         show_caption_above_media: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], APIError]:
+    ) -> Result[Sum[Message, bool], APIError]:
         """Method `editMessageCaption`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
 
         Use this method to edit captions of messages. On success, if the edited message
@@ -4395,7 +4395,7 @@ class APIMethods:
             "editMessageCaption",
             get_params(locals()),
         )
-        return full_result(method_response, Variative[Message, bool])
+        return full_result(method_response, Sum[Message, bool])
 
     async def edit_message_media(
         self,
@@ -4407,7 +4407,7 @@ class APIMethods:
         inline_message_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], APIError]:
+    ) -> Result[Sum[Message, bool], APIError]:
         """Method `editMessageMedia`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
         Use this method to edit animation, audio, document, photo, or video messages,
@@ -4441,7 +4441,7 @@ class APIMethods:
             "editMessageMedia",
             get_params(locals()),
         )
-        return full_result(method_response, Variative[Message, bool])
+        return full_result(method_response, Sum[Message, bool])
 
     async def edit_message_live_location(
         self,
@@ -4458,7 +4458,7 @@ class APIMethods:
         proximity_alert_radius: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], APIError]:
+    ) -> Result[Sum[Message, bool], APIError]:
         """Method `editMessageLiveLocation`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
 
         Use this method to edit live location messages. A location can be edited
@@ -4504,7 +4504,7 @@ class APIMethods:
             "editMessageLiveLocation",
             get_params(locals()),
         )
-        return full_result(method_response, Variative[Message, bool])
+        return full_result(method_response, Sum[Message, bool])
 
     async def stop_message_live_location(
         self,
@@ -4515,7 +4515,7 @@ class APIMethods:
         inline_message_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], APIError]:
+    ) -> Result[Sum[Message, bool], APIError]:
         """Method `stopMessageLiveLocation`, see the [documentation](https://core.telegram.org/bots/api#stopmessagelivelocation)
 
         Use this method to stop updating a live location message before live_period
@@ -4541,7 +4541,7 @@ class APIMethods:
             "stopMessageLiveLocation",
             get_params(locals()),
         )
-        return full_result(method_response, Variative[Message, bool])
+        return full_result(method_response, Sum[Message, bool])
 
     async def edit_message_checklist(
         self,
@@ -4585,7 +4585,7 @@ class APIMethods:
         inline_message_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], APIError]:
+    ) -> Result[Sum[Message, bool], APIError]:
         """Method `editMessageReplyMarkup`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)
 
         Use this method to edit only the reply markup of messages. On success, if
@@ -4613,7 +4613,7 @@ class APIMethods:
             "editMessageReplyMarkup",
             get_params(locals()),
         )
-        return full_result(method_response, Variative[Message, bool])
+        return full_result(method_response, Sum[Message, bool])
 
     async def stop_poll(
         self,
@@ -5843,7 +5843,7 @@ class APIMethods:
         message_id: int | None = None,
         inline_message_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[Variative[Message, bool], APIError]:
+    ) -> Result[Sum[Message, bool], APIError]:
         """Method `setGameScore`, see the [documentation](https://core.telegram.org/bots/api#setgamescore)
 
         Use this method to set the score of the specified user in a game message. On
@@ -5875,7 +5875,7 @@ class APIMethods:
             "setGameScore",
             get_params(locals()),
         )
-        return full_result(method_response, Variative[Message, bool])
+        return full_result(method_response, Sum[Message, bool])
 
     async def get_game_high_scores(
         self,

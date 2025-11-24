@@ -36,7 +36,7 @@ async def message_handler(message: Message):
 Рассмотрим оба случая: когда нам важна ошибка и когда — нет.
 
 ```python
-from fntypes import Error, Ok
+from kungfu import Error, Ok
 
 match await message.api.send_message(
     chat_id=message.chat_id,

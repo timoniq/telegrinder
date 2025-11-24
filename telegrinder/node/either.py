@@ -1,7 +1,7 @@
 import typing
 
-from fntypes.library.monad.option import Nothing, Some
-from fntypes.library.monad.result import Ok
+from kungfu.library.monad.option import Nothing, Some
+from kungfu.library.monad.result import Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
