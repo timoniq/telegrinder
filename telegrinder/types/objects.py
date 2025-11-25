@@ -618,8 +618,7 @@ class ChatFullInfo(Model):
     messages chats only."""
 
     available_reactions: Option[list[Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]] = field(
-        default=...,
-        converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"],
+        default=..., converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"]
     )
     """Optional. List of available reactions allowed in the chat. If omitted,
     then all emoji reactions are allowed."""
