@@ -280,6 +280,14 @@ wheels = [
 ]
 
 [[package]]
+name = "nodnod"
+version = "0.1.0"
+source = { git = "https://github.com/luwqz1/nodnod?rev=dev#0cf2ae4944bc499a7d261c488226dc067708e0c7" }
+dependencies = [
+    { name = "kungfu" },
+]
+
+[[package]]
 name = "packaging"
 version = "25.0"
 source = { registry = "https://pypi.org/simple" }
@@ -507,6 +515,7 @@ dependencies = [
     { name = "envparse" },
     { name = "kungfu" },
     { name = "msgspec" },
+    { name = "nodnod" },
     { name = "rnet" },
     { name = "vbml2" },
 ]
@@ -550,6 +559,7 @@ requires-dist = [
     { name = "kungfu", git = "https://github.com/timoniq/kungfu?rev=main" },
     { name = "loguru", marker = "extra == 'loguru'" },
     { name = "msgspec", specifier = ">=0.20.0,<0.21.0" },
+    { name = "nodnod", git = "https://github.com/luwqz1/nodnod?rev=dev" },
     { name = "rnet", specifier = "==3.0.0rc13" },
     { name = "structlog", marker = "extra == 'structlog'" },
     { name = "uvloop", marker = "(sys_platform == 'darwin' and extra == 'uvloop') or (sys_platform == 'linux' and extra == 'uvloop')", specifier = "==0.21.0" },

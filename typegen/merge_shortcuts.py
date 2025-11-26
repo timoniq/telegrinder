@@ -35,6 +35,10 @@ def is_cute_class(node: cst.ClassDef) -> bool:
     return False
 
 
+def is_shortcuts_class(node: cst.ClassDef) -> bool:
+    return node.name.value.endswith("Shortcuts")
+
+
 def is_decorator_name(decorator_call_node: cst.Call, decorator_name: str) -> bool:
     return isinstance(decorator_call_node.func, cst.Name) and decorator_call_node.func.value == decorator_name
 
@@ -161,8 +165,8 @@ class ShortcutsCollector(cst.CSTVisitor):
         self.shortcuts: list[Shortcut] = []
 
     def visit_ClassDef_body(self, node: cst.ClassDef) -> bool | None:
-        """Visit the definition of a class that inherits the `BaseCute` class and the name ends with `Cute`."""
-        return is_cute_class(node)
+        """Visit the definition of a `Shortcuts` class or a class that inherits the `BaseCute` class and the name ends with `Cute`."""
+        return is_cute_class(node) or is_shortcuts_class(node)
 
     def visit_FunctionDef_asynchronous(self, node: cst.FunctionDef) -> bool | None:
         """Visit the definition of an async function that are decorated with the `shortcut` decorator."""
@@ -283,10 +287,7 @@ class ShortcutsTransformer(cst.CSTTransformer):
         updated_node: cst.SimpleString,
     ) -> cst.SimpleString:
         for shortcut in self.shortcuts:
-            if (
-                shortcut.docstring
-                and shortcut.function.get_docstring(clean=False) == original_node.evaluated_value
-            ):
+            if shortcut.docstring and shortcut.function.get_docstring(clean=False) == original_node.evaluated_value:
                 return updated_node.with_changes(value=shortcut.docstring)
 
         return updated_node
