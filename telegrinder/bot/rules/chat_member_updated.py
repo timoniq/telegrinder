@@ -103,9 +103,7 @@ class ChatMemberUpdatedRule(ABCRule):
             return (
                 True
                 if MemberStatus.RESTRICTED in checking_status
-                else (
-                    getattr(member, "is_member", None) is (MemberStatusFlag.RESTRICTED_MEMBER in checking_status)
-                )
+                else (getattr(member, "is_member", None) is (MemberStatusFlag.RESTRICTED_MEMBER in checking_status))
             )
 
         return status == checking_status or status in checking_status

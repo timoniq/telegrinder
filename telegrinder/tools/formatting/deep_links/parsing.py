@@ -21,9 +21,7 @@ def get_query_params(
 ) -> dict[str, typing.Any]:
     annotations = get_func_annotations(func)
     params = OrderedDict()
-    param_names = (
-        [*order_params, *(p for p in annotations if p not in order_params)] if order_params else annotations
-    )
+    param_names = [*order_params, *(p for p in annotations if p not in order_params)] if order_params else annotations
 
     for param_name in param_names:
         annotation = annotations[param_name]
