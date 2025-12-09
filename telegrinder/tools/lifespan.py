@@ -37,7 +37,7 @@ class DelayedTask[**P]:
     async def __call__(self, *args: P.args, **kwargs: P.kwargs) -> None:
         stopped = False
 
-        while not stopped:
+        while not stopped and not self.is_cancelled:
             self.start_timer()
             await self._event.wait()
 
@@ -73,6 +73,8 @@ class DelayedTask[**P]:
     def cancel(self) -> bool:
         if self._cancelled:
             return True
+
+        self._cancelled = True
 
         if self._timer is None or self._timer.cancelled():
             self._timer = None

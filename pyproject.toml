@@ -50,12 +50,10 @@ dependencies = [
 
 [project.optional-dependencies]
 brotli = ["brotli"]
-uvloop = [
-    "uvloop (==0.21.0); (sys_platform == 'darwin' or sys_platform == 'linux')",
-    "winloop; (sys_platform == 'cli' or sys_platform == 'cygwin' or sys_platform == 'win32')",
-]
 loguru = ["loguru"]
 structlog = ["structlog"]
+winloop = ["winloop; (sys_platform == 'cli' or sys_platform == 'cygwin' or sys_platform == 'win32')"]
+uvloop = ["uvloop; (sys_platform == 'darwin' or sys_platform == 'linux')"]
 
 [project.urls]
 Source = "https://github.com/timoniq/telegrinder"
@@ -65,7 +63,7 @@ Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
 [dependency-groups]
 dev = [
     "ruff>=0.14.8,<1",
-    "basedpyright>=1.35.0,<2",
+    "basedpyright>=1.36.0,<2",
     "requests>=2.32.5,<3",
     "tomlkit>=0.13.3,<1",
     "libcst>=1.8.6,<2",
