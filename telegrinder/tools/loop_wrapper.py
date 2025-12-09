@@ -180,22 +180,13 @@ class LoopWrapper(Singleton, Final):
     def _run_lw_later(self) -> asyncio.Handle:
         return self._loop.call_soon_threadsafe(lambda l: l.create_task(self._run_async_event_loop()), self._loop)
 
-    def _create_task[T](
+    def _create_task(
         self,
         coro: CoroutineTask[typing.Any],
         /,
         name: str | None = None,
         context: Context | None = None,
     ) -> asyncio.Task[typing.Any]:
-        if not self.running:
-            if not loop_is_running():
-                raise RuntimeError(
-                    "LoopWrapper is not running and the event loop is not running. "
-                    "Use `.add_task` to add tasks to the loop wrapper.",
-                )
-
-            self.attach_to_running_loop()
-
         task = self._loop.create_task(coro, name=name, context=context)
         self._all_tasks.add(task)
         task.add_done_callback(self._all_tasks.discard)
