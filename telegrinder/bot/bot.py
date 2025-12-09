@@ -8,7 +8,6 @@ from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.polling import polling as pg
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
-from telegrinder.tools.aio import loop_is_running
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
@@ -42,34 +41,27 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
     def on(self) -> Dispatch:
         return self.dispatch
 
-    async def reset_webhook(self) -> None:
-        if not (await self.api.get_webhook_info()).unwrap().url:
-            return
-        await self.api.delete_webhook()
+    async def drop_pending_updates(self) -> None:
+        await logger.adebug("Dropping pending updates")
+        await self.api.delete_webhook(drop_pending_updates=True)
 
     async def run_polling(
         self,
         *,
         offset: int = 0,
         skip_updates: bool = False,
-    ) -> typing.NoReturn:  # type: ignore
-        async def polling() -> None:
+    ) -> None:
+        self.polling.offset = offset
+
+        async def listen_polling() -> None:
             if skip_updates:
-                await logger.adebug("Dropping pending updates")
-                await self.reset_webhook()
-                await self.api.delete_webhook(drop_pending_updates=True)
+                await self.drop_pending_updates()
 
             async for updates in self.polling.listen():
                 for update in updates:
                     self.loop_wrapper.add_task(self.dispatch.feed(self.api, update))
 
-        self.polling.offset = offset
-
-        if self.loop_wrapper.running or loop_is_running():
-            await polling()
-        else:
-            self.loop_wrapper.add_task(polling())
-            self.loop_wrapper.run()
+        self.loop_wrapper.add_task(listen_polling())
 
     def run_forever(self, *, offset: int = 0, skip_updates: bool = False) -> typing.NoReturn:
         logger.info("Running blocking polling (id={})", self.api.id)
