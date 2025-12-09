@@ -94,7 +94,7 @@ class Router[
         # Check if the view is applicable to the update
 
         await logger.adebug(
-            "Checking view `{!r}` from router `{!r}` for update (id={}, type={!r})",
+            "Checking view `{!r}` from router `{!r}` for update (id={}, type={!r})...",
             view,
             self,
             update.update_id,

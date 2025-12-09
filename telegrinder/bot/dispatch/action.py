@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import inspect
 import typing
 
 from kungfu.library import Error, Ok, Result, unwrapping
+from nodnod.error import NodeError
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
@@ -11,13 +11,13 @@ from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.rules.abc import ABCRule, Always, AndRule
 from telegrinder.modules import logger
-from telegrinder.node.base import get_nodes
-from telegrinder.node.composer import compose_nodes
-from telegrinder.tools.aio import maybe_awaitable, next_generator, stop_generator
-from telegrinder.tools.magic.function import bundle
+from telegrinder.node.compose import compose
+from telegrinder.tools import fullname
 from telegrinder.types.objects import Update
 
-type When = ABCRule
+if typing.TYPE_CHECKING:
+    from nodnod.agent.base import Agent
+
 type Handler = typing.Callable[..., typing.Any]
 type ActionFunction = typing.Callable[..., ActionFunctionResult]
 type ActionFunctionResult = typing.Union[
@@ -35,53 +35,34 @@ async def run_action_function[T: Handler](
     api: API,
     update: Update,
     context: Context,
+    agent: type[Agent] | None = None,
 ) -> Result[typing.Any, str]:
-    data = {API: api, Update: update}
-    node_col = (
-        (
-            await compose_nodes(
-                nodes=get_nodes(function),
-                ctx=context,
-                data=data,
-            )
-        )
-        .map_err(lambda error: error.message)
-        .unwrap()
-    )
-
-    temp_ctx = context.copy()
-    bundle_function = bundle(function, {Context: temp_ctx, **data}, start_idx=0, typebundle=True)
-    bundle_function &= bundle(
+    async with compose(
         function,
-        context | ({} if node_col is None else node_col.values),
-        start_idx=0,
-    )
-    result = bundle_function()
+        context,
+        agent_cls=agent,
+    ) as result:
+        match result:
+            case Ok():
+                res = await func_handler.run(api, update, context)
+            case Error(error):
+                return Error(
+                    str(NodeError(f"failed to compose action function `{fullname(function)}`", from_error=error)),
+                )
 
-    try:
-        if inspect.isasyncgen(result) or inspect.isgenerator(result):
-            value = await next_generator(result)
-            handler_result = await func_handler.run(api, update, context)
-            await stop_generator(result, value)
-            return handler_result
-
-        await maybe_awaitable(result)
-        return await func_handler.run(api, update, context)
-    finally:
-        context |= temp_ctx
-        # Closing per call node sessions
-        await node_col.close_all()
+        return res
 
 
-def action(function: ActionFunction, /) -> Action:
-    return Action(function)
+def action(function: ActionFunction, agent: type[Agent] | None = None) -> Action:
+    return Action(function, agent=agent)
 
 
 class Action:
     _on: ABCRule
 
-    def __init__(self, function: ActionFunction) -> None:
+    def __init__(self, function: ActionFunction, agent: type[Agent] | None = None) -> None:
         self.function = function
+        self.agent = agent
         self._on = Always()
 
     def on(self, *rules: ABCRule) -> typing.Self:
@@ -89,14 +70,21 @@ class Action:
         return self
 
     def __call__[T: Handler](self, handler: T) -> T:
-        func_handler = FuncHandler(function=handler)
+        func_handler = FuncHandler(function=handler, agent=self.agent)
 
         async def action_wrapper(api: API, update: Update, context: Context) -> typing.Any:
-            if not await check_rule(api, self._on, update, context):
-                await logger.adebug("When action rule `{!r}` failed.", self._on)
+            if not await check_rule(self._on, context):
+                await logger.adebug("Action rule `{!r}` failed.", self._on)
                 result = await func_handler.run(api, update, context)
             else:
-                result = await run_action_function(func_handler, self.function, api, update, context)
+                result = await run_action_function(
+                    func_handler,
+                    self.function,
+                    api,
+                    update,
+                    context,
+                    agent=self.agent,
+                )
 
             match result:
                 case Ok(value):

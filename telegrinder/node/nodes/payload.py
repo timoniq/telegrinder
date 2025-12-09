@@ -2,68 +2,69 @@ import dataclasses
 import typing
 
 from kungfu.library.monad.result import Error, Ok
+from nodnod.error import NodeError
+from nodnod.interface.data import DataNode
+from nodnod.interface.generic import generic_node
+from nodnod.interface.polymorphic import case, polymorphic
+from nodnod.interface.scalar import scalar_node
 
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
-from telegrinder.node.base import ComposeError, DataNode, FactoryNode, GlobalNode, scalar_node
-from telegrinder.node.polymorphic import Polymorphic, impl
+from telegrinder.node.nodes.global_node import GlobalNode
 from telegrinder.tools.serialization.abc import ABCDataSerializer
 from telegrinder.tools.serialization.json_ser import JSONSerializer
-from telegrinder.tools.serialization.utils import get_model_serializer
 
 
-@scalar_node[str]
-class Payload(Polymorphic):
-    @impl
+@scalar_node
+@polymorphic[str]
+class Payload:
+    @case
     def compose_pre_checkout_query(cls, event: PreCheckoutQueryCute) -> str:
         return event.invoice_payload
 
-    @impl
+    @case
     def compose_callback_query(cls, event: CallbackQueryCute) -> str:
-        return event.data.expect(ComposeError("CallbackQuery has no data."))
+        return event.data.expect(NodeError("CallbackQuery has no data."))
 
-    @impl
+    @case
     def compose_message(cls, event: MessageCute) -> str:
         return event.successful_payment.map(
             lambda payment: payment.invoice_payload,
-        ).expect(ComposeError("Message has no successful payment."))
+        ).expect(NodeError("Message has no successful payment."))
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
-class PayloadSerializer[T: type[ABCDataSerializer]](DataNode, GlobalNode[T]):
+class PayloadSerializer[T: type[ABCDataSerializer] = typing.Any](DataNode, GlobalNode[T]):
     serializer: type[ABCDataSerializer[typing.Any]]
 
     @classmethod
-    def compose(cls) -> typing.Self:
+    def __compose__(cls) -> typing.Self:
         return cls(serializer=cls.get(default=JSONSerializer))
 
 
-class _PayloadData(FactoryNode):
-    data_type: type[typing.Any]
-    serializer: type[ABCDataSerializer] | None = None
-
-    def __class_getitem__(
-        cls,
-        data_type: type[typing.Any] | tuple[type[typing.Any], type[ABCDataSerializer]],
-        /,
-    ):
-        data_type, serializer = (data_type, None) if not isinstance(data_type, tuple) else data_type
-        return cls(data_type=data_type, serializer=get_model_serializer(data_type) or serializer)
-
+@generic_node
+class _PayloadData[Data, Serializer: ABCDataSerializer = JSONSerializer]:
     @classmethod
-    def compose(cls, payload: Payload, payload_serializer: PayloadSerializer) -> typing.Any:
-        serializer = cls.serializer or payload_serializer.serializer
-        match serializer(cls.data_type).deserialize(payload):
+    def __compose__(
+        cls,
+        payload: Payload,
+        data: type[Data],
+        global_serializer: PayloadSerializer,
+        payload_serializer: type[Serializer],
+    ) -> typing.Any:
+        serializer = global_serializer.serializer or payload_serializer
+
+        match serializer(data).deserialize(payload):
             case Ok(value):
                 return value
             case Error(err):
-                raise ComposeError(err)
+                raise NodeError(err)
 
 
 if typing.TYPE_CHECKING:
     type PayloadData[
-        DataType,
+        DataType = typing.Any,
         Serializer: ABCDataSerializer = AnySerializer,
     ] = typing.Annotated[DataType, Serializer]
 

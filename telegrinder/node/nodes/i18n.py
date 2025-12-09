@@ -6,8 +6,10 @@ import pathlib
 import typing
 from functools import cached_property
 
-from telegrinder.node.base import DataNode, GlobalNode
-from telegrinder.node.source import Locale
+from nodnod.interface.data import DataNode
+
+from telegrinder.node.nodes.global_node import GlobalNode
+from telegrinder.node.nodes.source import Locale
 
 type Separator = KeySeparator
 
@@ -23,7 +25,7 @@ class KeySeparator(GlobalNode[Separator], DataNode):
         super().set(cls(value))
 
     @classmethod
-    def compose(cls) -> Separator:
+    def __compose__(cls) -> Separator:
         return cls.get(default=cls(DEFAULT_SEPARATOR))
 
 
@@ -58,7 +60,7 @@ class ABCTranslator(DataNode, abc.ABC):
         pass
 
     @classmethod
-    def compose(cls, locale: Locale, separator: KeySeparator) -> typing.Self:
+    def __compose__(cls, locale: Locale, separator: KeySeparator) -> typing.Self:
         return cls(locale=locale, separator=separator.value)
 
 

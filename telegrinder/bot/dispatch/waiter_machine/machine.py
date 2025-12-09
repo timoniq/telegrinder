@@ -130,7 +130,7 @@ class WaiterMachine:
         **context: typing.Any,
     ) -> None:
         preset_context = short_state.context.context.copy() if short_state.context is not None else Context()
-        preset_context.update(context)
+        preset_context |= context
 
         try:
             await self.drop(hasher, data, expired=expired, **preset_context)

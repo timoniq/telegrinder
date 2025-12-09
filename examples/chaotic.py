@@ -18,8 +18,7 @@ from telegrinder import (
 from telegrinder.bot import WaiterMachine
 from telegrinder.bot.dispatch.handler import MessageReplyHandler
 from telegrinder.bot.dispatch.middleware import ABCMiddleware
-from telegrinder.bot.rules.is_from import IsUser
-from telegrinder.node import Me, UserId, as_node
+from telegrinder.node import Me, UserId
 from telegrinder.rules import (
     CallbackDataEq,
     FuzzyText,
@@ -41,7 +40,7 @@ bot = Telegrinder(api)
 wm = WaiterMachine()
 kitten_pic = InputFile.from_path(pathlib.Path("examples/assets/kitten.jpg"))
 
-bot.dispatch.message.auto_rules = IsUser()
+# bot.dispatch.message.auto_rules = IsUser()
 
 
 async def on_drop(chat_id: int) -> None:
@@ -89,7 +88,7 @@ async def react(message: Message, context: Context):
         hasher=MESSAGE_FROM_USER_IN_CHAT(bot.on.message, (message.from_user.id, message.chat_id)),
         release=HasText(),
         on_miss=MessageReplyHandler("Your message has no text!"),
-        lifespan=DummyMiddleware().to_lifespan(message, context),
+        lifespan=DummyMiddleware().to_lifespan(context),
     )
     await msg.react("🔥")
 
@@ -129,7 +128,7 @@ async def freeze_handler(message: Message):
     ).unwrap()
 
     with bot.on.global_middleware.apply_filters(
-        source_filter=(as_node(UserId), message.from_user.id, IsUpdateType(UpdateType.CALLBACK_QUERY)),
+        source_filter=(UserId, message.from_user.id, IsUpdateType(UpdateType.CALLBACK_QUERY)),
     ):
         cb, _ = await wm.wait(
             hasher=CALLBACK_QUERY_FOR_MESSAGE(bot.on.callback_query, msg.message_id),

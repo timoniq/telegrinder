@@ -1,8 +1,9 @@
 import typing
 
-from telegrinder.node.base import Node
-from telegrinder.node.error import ComposeError
-from telegrinder.node.source import Source
+from nodnod.error import NodeError
+from nodnod.node import Node
+
+from telegrinder.node.nodes.source import Source
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.serialization import (
     ABCDataSerializer,
@@ -49,7 +50,7 @@ class StateMutator(Node):
         await self.storage.set(self.user_id, key, payload)
 
     @classmethod
-    def compose(cls, src: Source) -> typing.Self:
+    def __compose__(cls, src: Source) -> typing.Self:
         return cls(cls.STORAGE, src.from_user.id)
 
 
@@ -72,7 +73,7 @@ class State(Node):
     async def compose(cls, mutator: StateMutator) -> typing.Self:
         current_state = await mutator.get()
         if current_state is None or not isinstance(current_state, cls):
-            raise ComposeError("State mismatch")
+            raise NodeError("State mismatch")
         return current_state
 
 

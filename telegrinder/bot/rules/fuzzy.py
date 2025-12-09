@@ -2,7 +2,7 @@ import difflib
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node.text import Text
+from telegrinder.node.nodes.text import Text
 
 
 class FuzzyText(ABCRule):

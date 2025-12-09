@@ -2,11 +2,12 @@ import dataclasses
 import typing
 
 from kungfu.library.monad.option import Nothing, Option, Some
+from nodnod.error import NodeError
+from nodnod.interface.data import DataNode
+from nodnod.interface.scalar import scalar_node
 
 import telegrinder.types
 from telegrinder.bot.cute_types.message import MessageCute
-from telegrinder.node.base import DataNode, scalar_node
-from telegrinder.node.exceptions import ComposeError
 
 type AttachmentType = typing.Literal[
     "audio",
@@ -64,13 +65,13 @@ class Attachment(DataNode):
         return typing.get_args(AttachmentType.__value__)
 
     @classmethod
-    def compose(cls, message: MessageCute) -> typing.Self:
+    def __compose__(cls, message: MessageCute) -> typing.Self:
         for attachment_type in cls.get_attachment_types():
             match getattr(message, attachment_type, Nothing()):
                 case Some(attachment):
                     return cls(attachment_type, **{attachment_type: Some(attachment)})
 
-        raise ComposeError("No attachment found in message.")
+        raise NodeError("No attachment found in message.")
 
 
 @dataclasses.dataclass(slots=True)
@@ -78,81 +79,81 @@ class Photo(DataNode):
     sizes: list[telegrinder.types.PhotoSize]
 
     @classmethod
-    def compose(cls, attachment: Attachment) -> typing.Self:
+    def __compose__(cls, attachment: Attachment) -> typing.Self:
         if not attachment.photo:
-            raise ComposeError("Attachment is not a photo.")
+            raise NodeError("Attachment is not a photo.")
         return cls(attachment.photo.unwrap())
 
 
 @scalar_node
 class Video:
     @classmethod
-    def compose(cls, attachment: Attachment) -> telegrinder.types.Video:
+    def __compose__(cls, attachment: Attachment) -> telegrinder.types.Video:
         if not attachment.video:
-            raise ComposeError("Attachment is not a video.")
+            raise NodeError("Attachment is not a video.")
         return attachment.video.unwrap()
 
 
 @scalar_node
 class VideoNote:
     @classmethod
-    def compose(cls, attachment: Attachment) -> telegrinder.types.VideoNote:
+    def __compose__(cls, attachment: Attachment) -> telegrinder.types.VideoNote:
         if not attachment.video_note:
-            raise ComposeError("Attachment is not a video note.")
+            raise NodeError("Attachment is not a video note.")
         return attachment.video_note.unwrap()
 
 
 @scalar_node
 class Audio:
     @classmethod
-    def compose(cls, attachment: Attachment) -> telegrinder.types.Audio:
+    def __compose__(cls, attachment: Attachment) -> telegrinder.types.Audio:
         if not attachment.audio:
-            raise ComposeError("Attachment is not an audio.")
+            raise NodeError("Attachment is not an audio.")
         return attachment.audio.unwrap()
 
 
 @scalar_node
 class Animation:
     @classmethod
-    def compose(cls, attachment: Attachment) -> telegrinder.types.Animation:
+    def __compose__(cls, attachment: Attachment) -> telegrinder.types.Animation:
         if not attachment.animation:
-            raise ComposeError("Attachment is not an animation.")
+            raise NodeError("Attachment is not an animation.")
         return attachment.animation.unwrap()
 
 
 @scalar_node
 class Voice:
     @classmethod
-    def compose(cls, attachment: Attachment) -> telegrinder.types.Voice:
+    def __compose__(cls, attachment: Attachment) -> telegrinder.types.Voice:
         if not attachment.voice:
-            raise ComposeError("Attachment is not a voice.")
+            raise NodeError("Attachment is not a voice.")
         return attachment.voice.unwrap()
 
 
 @scalar_node
 class Document:
     @classmethod
-    def compose(cls, attachment: Attachment) -> telegrinder.types.Document:
+    def __compose__(cls, attachment: Attachment) -> telegrinder.types.Document:
         if not attachment.document:
-            raise ComposeError("Attachment is not a document.")
+            raise NodeError("Attachment is not a document.")
         return attachment.document.unwrap()
 
 
 @scalar_node
 class Poll:
     @classmethod
-    def compose(cls, attachment: Attachment) -> telegrinder.types.Poll:
+    def __compose__(cls, attachment: Attachment) -> telegrinder.types.Poll:
         if not attachment.poll:
-            raise ComposeError("Attachment is not a poll.")
+            raise NodeError("Attachment is not a poll.")
         return attachment.poll.unwrap()
 
 
 @scalar_node
 class SuccessfulPayment:
     @classmethod
-    def compose(cls, attachment: Attachment) -> telegrinder.types.SuccessfulPayment:
+    def __compose__(cls, attachment: Attachment) -> telegrinder.types.SuccessfulPayment:
         if not attachment.successful_payment:
-            raise ComposeError("Attachment is not a successful payment.")
+            raise NodeError("Attachment is not a successful payment.")
         return attachment.successful_payment.unwrap()
 
 
@@ -162,10 +163,10 @@ class MediaGroup(DataNode):
     items: list[MessageCute]
 
     @classmethod
-    def compose(cls, message: MessageCute) -> typing.Self:
+    def __compose__(cls, message: MessageCute) -> typing.Self:
         return cls(
-            id=message.media_group_id.expect(ComposeError("No media group id.")),
-            items=message.media_group_messages.expect(ComposeError("No messages collected for media group.")),
+            id=message.media_group_id.expect(NodeError("No media group id.")),
+            items=message.media_group_messages.expect(NodeError("No messages collected for media group.")),
         )
 
 

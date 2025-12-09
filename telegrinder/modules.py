@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import contextvars
 import dataclasses
+import importlib
 import logging
 import os
 import re
@@ -817,7 +818,11 @@ elif logging_module == "logging":
 if asyncio_module in ("uvloop", "winloop"):
     import asyncio
 
-    asyncio.set_event_loop_policy(policy=__import__(name=asyncio_module).EventLoopPolicy())
+    if sys.version_info >= (3, 14):
+        mod = importlib.import_module(name=asyncio_module)
+        asyncio.set_event_loop(loop=mod.new_event_loop())
+    else:
+        asyncio.set_event_loop_policy(policy=__import__(name=asyncio_module).EventLoopPolicy())
 
 
 def setup_logger(

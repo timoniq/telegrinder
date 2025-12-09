@@ -15,7 +15,7 @@ class ABCHandler(ABC):
     async def run(
         self,
         api: API,
-        event: Update,
+        update: Update,
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, typing.Any]:

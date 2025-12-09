@@ -1,4 +1,5 @@
 from telegrinder.tools.aio import (
+    TaskGroup,
     cancel_future,
     get_tasks_results,
     maybe_awaitable,
@@ -120,6 +121,7 @@ __all__ = (
     "Singleton",
     "SingletonMeta",
     "StateData",
+    "TaskGroup",
     "TelegrinderContext",
     "additional_property",
     "block_quote",

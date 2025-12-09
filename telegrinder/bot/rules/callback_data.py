@@ -92,7 +92,7 @@ class CallbackDataMap(CallbackQueryDataRule):
             return False
 
         if await self.match(callback_data, self.mapping):
-            ctx.update({k: callback_data[k] for k in self.mapping})
+            ctx |= {k: callback_data[k] for k in self.mapping}
             return True
 
         return False

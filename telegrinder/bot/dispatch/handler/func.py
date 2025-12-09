@@ -3,22 +3,23 @@ from __future__ import annotations
 import dataclasses
 import typing
 from collections import deque
-from functools import cached_property
 
-from kungfu.library.monad.result import Error, Ok, Result
+from kungfu.library.monad.result import Error, Result
+from nodnod.agent.event_loop.agent import EventLoopAgent
+from nodnod.error import NodeError
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import logger
-from telegrinder.node.base import IsNode, get_nodes
-from telegrinder.node.composer import compose_nodes
+from telegrinder.node.compose import compose
 from telegrinder.tools.fullname import fullname
-from telegrinder.tools.magic.function import bundle
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
+    from nodnod.agent.base import Agent
+
     from telegrinder.bot.rules.abc import ABCRule
 
 type Function[**P = ..., R = typing.Any] = typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, R]]
@@ -27,73 +28,48 @@ type Function[**P = ..., R = typing.Any] = typing.Callable[P, typing.Coroutine[t
 @dataclasses.dataclass(repr=False, slots=True)
 class FuncHandler[T: Function](ABCHandler):
     function: T
-    rules: dataclasses.InitVar[typing.Iterable[ABCRule] | None] = None
+    rules: dataclasses.InitVar[typing.Iterable[ABCRule] | None] = dataclasses.field(default=None)
+    agent: type[Agent] | None = dataclasses.field(default=None, kw_only=True)
     final: bool = dataclasses.field(default=True, kw_only=True)
     preset_context: Context = dataclasses.field(default_factory=lambda: Context(), kw_only=True)
 
     def __post_init__(self, rules: typing.Iterable[ABCRule] | None) -> None:
         self.check_rules = deque(rules or ())
 
+    def __repr__(self) -> str:
+        return fullname(self.function)
+
     @property
     def __call__(self) -> Function:
         return self.function
 
-    def __repr__(self) -> str:
-        return fullname(self.function)
-
-    @cached_property
-    def required_nodes(self) -> dict[str, IsNode]:
-        return get_nodes(self.function)
-
     async def run(
         self,
         api: API,
-        event: Update,
+        update: Update,
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, str]:
-        await logger.adebug("Checking rules and composing nodes for handler `{!r}`...", self)
+        temp_ctx = context | self.preset_context.copy()
 
-        temp_ctx = context.copy()
-        temp_ctx |= self.preset_context.copy()
+        if check and self.check_rules:
+            await logger.adebug("Checking rules for handler `{!r}`...", self)
 
-        if check:
             for rule in self.check_rules:
-                if not await check_rule(api, rule, event, temp_ctx):
+                if not await check_rule(rule, temp_ctx):
                     return Error(f"Rule {rule!r} failed.")
 
+            await logger.adebug("Rules passed, composing nodes and running handler `{!r}`...", self)
+        else:
+            await logger.adebug("Composing nodes and running handler `{!r}`...", self)
+
         context |= temp_ctx
-        data = {Update: event, API: api}
-        node_col = None
-
-        if self.required_nodes:
-            match await compose_nodes(self.required_nodes, context, data=data):
-                case Ok(value):
-                    node_col = value
-                case Error(compose_error):
-                    return Error(f"Cannot compose nodes for handler `{self}`, error: {compose_error.message}")
-
-        await logger.adebug("All good, running handler `{!r}`", self)
-
-        temp_ctx = context.copy()
-        try:
-            bundle_function = bundle(
-                self.function,
-                {**data, Context: temp_ctx},
-                typebundle=True,
-                start_idx=0,
+        async with compose(self.function, context, agent_cls=self.agent or EventLoopAgent) as result:
+            return result.map_err(
+                lambda error: "Run handler failed with error: {}".format(
+                    NodeError(f"failed to compose handler `{self!r}`", from_error=error),
+                ),
             )
-            bundle_function &= bundle(
-                self.function,
-                context | ({} if node_col is None else node_col.values),
-                start_idx=0,
-            )
-            return Ok(await bundle_function())
-        finally:
-            context |= temp_ctx
-            # Closing per call node sessions if there are any
-            if node_col is not None:
-                await node_col.close_all()
 
 
 __all__ = ("FuncHandler",)

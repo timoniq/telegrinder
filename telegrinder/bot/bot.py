@@ -12,9 +12,6 @@ from telegrinder.tools.aio import loop_is_running
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
-if typing.TYPE_CHECKING:
-    from telegrinder.node.composer import Composer
-
 TELEGRINDER_CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
 
 
@@ -45,10 +42,6 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
     def on(self) -> Dispatch:
         return self.dispatch
 
-    @property
-    def composer(self) -> Composer:
-        return TELEGRINDER_CONTEXT.composer.unwrap()
-
     async def reset_webhook(self) -> None:
         if not (await self.api.get_webhook_info()).unwrap().url:
             return
@@ -59,7 +52,7 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
         *,
         offset: int = 0,
         skip_updates: bool = False,
-    ) -> typing.NoReturn:  # pyright: ignore[reportReturnType]
+    ) -> typing.NoReturn:  # type: ignore
         async def polling() -> None:
             if skip_updates:
                 await logger.adebug("Dropping pending updates")
@@ -68,7 +61,7 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
 
             async for updates in self.polling.listen():
                 for update in updates:
-                    await self.loop_wrapper.create_task(self.dispatch.feed(self.api, update))
+                    self.loop_wrapper.add_task(self.dispatch.feed(self.api, update))
 
         self.polling.offset = offset
 

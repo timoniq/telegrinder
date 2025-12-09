@@ -3,9 +3,9 @@ import typing
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node.command import CommandInfo, single_split
-from telegrinder.node.me import Me
-from telegrinder.node.source import ChatSource
+from telegrinder.node.nodes.command import CommandInfo, single_split
+from telegrinder.node.nodes.me import Me
+from telegrinder.node.nodes.source import ChatSource
 from telegrinder.types.enums import ChatType
 
 type Validator = typing.Callable[[str], typing.Any | None] | typing.Callable[[typing.Any], typing.Any | None]
@@ -130,7 +130,7 @@ class Command(ABCRule):
         if result is None:
             return False
 
-        ctx.update(result)
+        ctx |= result
         return True
 
 

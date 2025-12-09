@@ -1,12 +1,11 @@
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.node import NodeRule
-from telegrinder.node.base import as_node
-from telegrinder.node.text import TextInteger
+from telegrinder.node.nodes.text import TextInteger
 
 
 class IsInteger(NodeRule):
     def __init__(self) -> None:
-        super().__init__(as_node(TextInteger))
+        super().__init__(TextInteger)
 
 
 class IntegerInRange(ABCRule):

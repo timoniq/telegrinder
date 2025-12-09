@@ -26,9 +26,11 @@
 * Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
 * Customizable and extensible
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
+* Bot [API](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/4_api.md) client on an ergonomic and fast [HTTP client](https://github.com/0x676e67/rnet)
 * Both low-level and high-level API
-* Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
+* Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via [nodnod](https://github.com/timoniq/nodnod) family
 * <details> <summary>A variety of state management tools</summary><p>○ <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/blueprint_bot/handlers/with_enum.py#L18">waiter machine</a> for runtime inline short state funneling<br>○  <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/state_mutator_player.py">state mutator</a> to declare complex state sets</p></details>
+* <details> <summary>Out-of-the-box funneling scenarios</summary><p>○  <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/checkbox.py">checkbox</a> to create inline checkbox with particular options<br>○  <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/choice.py">choice</a> to create inline single choice with particular options</p></details>
 
 Basic example:
 
@@ -93,9 +95,11 @@ Copyright © 2024 [luwqz1](https://github.com/luwqz1)
     <img src="https://arseny.neocities.org/assets/te_agradezco.png" height="50px" style="vertical-align: middle;">
 </p>
 
+
+\
 <a href="https://github.com/timoniq/telegrinder/graphs/contributors">
- <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder" />
+ <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder"/>
 </a>
 
-
-We welcome your pull requests ([contrubution notes](https://github.com/timoniq/telegrinder/blob/main/contributing.md)). Telegrinder is built by the community
+\
+We welcome your pull requests ([contrubution notes](https://github.com/timoniq/telegrinder/blob/main/contributing.md)). Telegrinder is built by the community ❤️

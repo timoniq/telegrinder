@@ -48,12 +48,10 @@ class WaiterMiddleware(ABCMiddleware):
 
         preset_context = Context(short_state=short_state)
         if short_state.context is not None:
-            preset_context.update(short_state.context.context)
+            preset_context |= short_state.context.context
 
         if short_state.filter and not await check_rule(
-            api,
             short_state.filter,
-            raw_update,
             preset_context,
         ):
             await logger.adebug("Filter rule {!r} failed!", short_state.filter)

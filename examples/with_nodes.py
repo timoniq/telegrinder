@@ -1,10 +1,12 @@
 import typing
 
+from nodnod.interface.scalar import scalar_node
+
 from examples.nodes import DB, create_tables
 from telegrinder import API, Message, Telegrinder, Token, node
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
-from telegrinder.node import ChatSource, TextLiteral, scalar_node
+from telegrinder.node import ChatSource, TextLiteral
 
 MessageId = type("MessageId", (int,), {})
 
@@ -27,7 +29,7 @@ class IsAdmin(ABCRule):
 @scalar_node
 class IncomingMessageId:
     @classmethod
-    def compose(cls, message: Message) -> MessageId:
+    def __compose__(cls, message: Message) -> MessageId:
         return MessageId(message.message_id)
 
 

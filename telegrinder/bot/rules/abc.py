@@ -3,30 +3,32 @@ from __future__ import annotations
 import typing
 from abc import ABC, abstractmethod
 from collections import deque
+from functools import cached_property
 
-from telegrinder.api.api import API
+from nodnod.utils.misc import reverse_dict
+
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.node.base import IsNode, get_nodes
+from telegrinder.node.compose import create_composable_from_node, create_node_from_func
 from telegrinder.tools.fullname import fullname
-from telegrinder.types.objects import Update
+
+if typing.TYPE_CHECKING:
+    from nodnod.agent.base import Agent
+
+    from telegrinder.node.compose import Composable
 
 type CheckResult = bool | typing.Awaitable[bool]
+type Node = typing.Any
 
 
 class ABCRule(ABC):
+    required_nodes: typing.Mapping[str, Node] | None = None
+    agent_cls: type[Agent] | None = None
     requires: deque[ABCRule] = deque()
 
-    if typing.TYPE_CHECKING:
-
-        @abstractmethod
-        def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult:
-            pass
-    else:
-
-        @abstractmethod
-        def check(self, *args, **kwargs):
-            pass
+    @abstractmethod
+    def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult:
+        pass
 
     def __init_subclass__(
         cls,
@@ -64,29 +66,35 @@ class ABCRule(ABC):
     def __repr__(self) -> str:
         return "<{}, requires={!r}>".format(fullname(self), self.requires)
 
-    @property
-    def required_nodes(self) -> dict[str, IsNode]:
-        return get_nodes(self.check)
-
     def as_optional(self) -> ABCRule:
         return self | Always()
 
     def should_fail(self) -> ABCRule:
         return self & Never()
 
+    @cached_property
+    def composable(self) -> Composable:
+        return create_composable_from_node(
+            create_node_from_func(
+                self.check,
+                dependencies_names=None if not self.required_nodes else reverse_dict(self.required_nodes),  # type: ignore
+            ),
+            agent_cls=self.agent_cls,
+        )
+
 
 class AndRule(ABCRule):
     def __init__(self, *rules: ABCRule) -> None:
         self.rules = rules
 
-    async def check(self, event: Update, api: API, ctx: Context) -> bool:
-        ctx_copy = ctx.copy()
+    async def check(self, context: Context) -> bool:
+        ctx_copy = context.copy()
 
         for rule in self.rules:
-            if not await check_rule(api, rule, event, ctx_copy):
+            if not await check_rule(rule, ctx_copy):
                 return False
 
-        ctx |= ctx_copy
+        context |= ctx_copy
         return True
 
 
@@ -94,12 +102,12 @@ class OrRule(ABCRule):
     def __init__(self, *rules: ABCRule) -> None:
         self.rules = rules
 
-    async def check(self, event: Update, api: API, ctx: Context) -> bool:
+    async def check(self, context: Context) -> bool:
         for rule in self.rules:
-            ctx_copy = ctx.copy()
+            ctx_copy = context.copy()
 
-            if await check_rule(api, rule, event, ctx_copy):
-                ctx |= ctx_copy
+            if await check_rule(rule, ctx_copy):
+                context |= ctx_copy
                 return True
 
         return False
@@ -109,9 +117,8 @@ class NotRule(ABCRule):
     def __init__(self, rule: ABCRule) -> None:
         self.rule = rule
 
-    async def check(self, event: Update, api: API, ctx: Context) -> bool:
-        ctx_copy = ctx.copy()
-        return not await check_rule(api, self.rule, event, ctx_copy)
+    async def check(self, context: Context) -> bool:
+        return not await check_rule(self.rule, context.copy())
 
 
 class Never(ABCRule):
