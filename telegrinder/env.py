@@ -4,6 +4,7 @@ import re
 import shlex
 import sys
 import typing
+from annotationlib import type_repr
 
 import betterconf
 from kungfu import Nothing, Option, Some
@@ -25,7 +26,7 @@ def find_env_file() -> Option[pathlib.Path]:
 
         caller_frame = caller_frame.f_back
 
-    for root, _, files in os.walk(os.path.dirname(caller_frame.f_code.co_filename)):
+    for root, _, files in os.walk(os.path.relpath(os.path.dirname(caller_frame.f_code.co_filename), sys.path[0])):
         if ENV_FILE_NAME in files:
             return Some(pathlib.Path(root) / ENV_FILE_NAME)
 
@@ -41,10 +42,13 @@ def take[T](
 ) -> T:
     value = DOTENV.get(name) if from_dotenv else ENV.get(name)
 
-    if var_type is not str:
-        value = CASTERS[var_type].cast(value)
+    if var_type is str:
+        return value  # type: ignore
 
-    return typing.cast("T", value)
+    if var_type not in CASTERS:
+        raise NotImplementedError(f"Caster for type `{type_repr(var_type)}` is not implemented.")
+
+    return CASTERS[var_type].cast(value)
 
 
 class LoggerLevelCaster(betterconf.AbstractCaster):

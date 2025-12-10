@@ -34,7 +34,7 @@ async def hello_world(greeter: Greeter) -> str:
 
 # pyright: reportUnusedImport=false, reportUnsupportedDunderAll=false
 
-from telegrinder.node.compose import compose, run_agent
+from telegrinder.node.compose import Composable, FromContext, compose, run_agent
 from telegrinder.node.nodes import *
 from telegrinder.node.nodes import __all__ as nodes_all
 from telegrinder.node.scope import GLOBAL, PER_CALL, PER_EVENT, global_node, per_call, per_event
@@ -46,6 +46,8 @@ __all__ = nodes_all + (
     "PER_EVENT",
     "as_node",
     "compose",
+    "FromContext",
+    "Composable",
     "run_agent",
     "global_node",
     "per_call",

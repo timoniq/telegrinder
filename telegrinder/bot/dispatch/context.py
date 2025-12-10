@@ -116,7 +116,14 @@ class Context(ContextDict):
     def __or__(self, other: object, /) -> typing.Self:
         if not isinstance(other, Context):
             return NotImplemented
-        return type(self)(**ContextDict.__or__(self, other.as_dict()))
+
+        roots: dict[str, AnyValue] = {}
+
+        for key, val in self.items():
+            if key in self.__roots__ and not isinstance(val, Nothing | types.NoneType):
+                roots[key] = val
+
+        return type(self)(**{**roots, **self.as_dict(), **other.as_dict()})
 
     def __ior__(self, other: object, /) -> typing.Self:
         return self.__or__(other)
@@ -140,7 +147,7 @@ class Context(ContextDict):
         return iter(self.keys())
 
     def as_dict(self) -> dict[str, AnyValue]:
-        return dict(ContextDict.items(self))
+        return {key: value for key, value in ContextDict.items(self) if key not in self.__roots__}
 
     def add_roots(
         self,
@@ -176,6 +183,12 @@ class Context(ContextDict):
 
     def copy(self) -> typing.Self:
         return type(self)(**ContextDict.copy(self.as_dict()))
+
+    def update(self, other: Context, /) -> None:
+        if not isinstance(other, Context):
+            raise TypeError(f"Cannot update Context with {type(other).__name__}")
+
+        self |= other
 
     def set(self, key: Key, value: AnyValue) -> None:
         self[key] = value

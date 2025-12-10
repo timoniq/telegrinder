@@ -72,7 +72,7 @@ from nodnod.agent.base import Agent
 from nodnod.agent.event_loop.agent import EventLoopAgent
 from nodnod.error import NodeError
 from nodnod.interface.node_from_function import create_agent_from_node, create_node_from_function, inject_externals
-from nodnod.node import Node
+from nodnod.node import Injection, Node
 from nodnod.scope import Scope
 from nodnod.utils.is_type import is_type
 
@@ -84,6 +84,8 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.context import Context
 
 type _Composable[T: Agent] = Function[..., typing.Any] | type[Node[typing.Any, typing.Any]] | Composable[T]
+
+FromContext = Injection
 
 
 @typing.overload
@@ -238,4 +240,4 @@ class Composable[T: Agent = Agent]:
     agent: T
 
 
-__all__ = ("Composable", "compose", "create_composable_from_function", "run_agent")
+__all__ = ("Composable", "FromContext", "compose", "create_composable_from_function", "run_agent")
