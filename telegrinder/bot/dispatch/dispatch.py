@@ -4,7 +4,6 @@ import typing
 from collections import deque
 
 from nodnod.scope import Scope
-from vbml.patcher.abc import ABCPatcher
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.abc import ABCDispatch
@@ -15,11 +14,14 @@ from telegrinder.bot.dispatch.router.base import Router
 from telegrinder.bot.dispatch.view.base import View
 from telegrinder.bot.dispatch.view.box import ViewBox
 from telegrinder.modules import logger
+from telegrinder.node.compose import inject_internals
 from telegrinder.node.scope import PER_EVENT
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
+    from vbml.patcher.abc import ABCPatcher
+
     from telegrinder.bot.dispatch.view.base import ErrorView, EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
     from telegrinder.tools.loop_wrapper import LoopWrapper
@@ -250,6 +252,12 @@ class Dispatch[
 
         per_event_scope = self.global_scope.create_child(detail=PER_EVENT)
         context = Context().add_roots(api, update, per_event_scope)
+
+        inject_internals(
+            per_event_scope,
+            {API: api, Update: update, Context: context},
+        )
+
         failed = False
         start_time = self.global_context.loop_wrapper.loop.time()
 

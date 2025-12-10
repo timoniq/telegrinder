@@ -114,7 +114,7 @@ class Context(ContextDict):
         self.__delitem__(__name)
 
     def __or__(self, other: object, /) -> typing.Self:
-        if not isinstance(other, Context):
+        if other.__class__ is not Context:
             return NotImplemented
 
         roots: dict[str, AnyValue] = {}
@@ -123,7 +123,7 @@ class Context(ContextDict):
             if key in self.__roots__ and not isinstance(val, Nothing | types.NoneType):
                 roots[key] = val
 
-        return type(self)(**{**roots, **self.as_dict(), **other.as_dict()})
+        return type(self)(**{**roots, **self.as_dict(), **other.as_dict()})  # type: ignore
 
     def __ior__(self, other: object, /) -> typing.Self:
         return self.__or__(other)

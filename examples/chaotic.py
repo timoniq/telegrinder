@@ -24,6 +24,7 @@ from telegrinder.rules import (
     FuzzyText,
     HasText,
     IsUpdateType,
+    IsUser,
     Markup,
     Text,
 )
@@ -40,7 +41,7 @@ bot = Telegrinder(api)
 wm = WaiterMachine()
 kitten_pic = InputFile.from_path(pathlib.Path("examples/assets/kitten.jpg"))
 
-# bot.dispatch.message.auto_rules = IsUser()
+bot.dispatch.message.auto_rules = IsUser()
 
 
 async def on_drop(chat_id: int) -> None:

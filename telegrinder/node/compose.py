@@ -62,7 +62,6 @@ The `compose` function returns an async context manager that:
 from __future__ import annotations
 
 import dataclasses
-import types
 import typing
 from contextlib import asynccontextmanager
 from functools import lru_cache
@@ -219,7 +218,7 @@ async def compose[T = typing.Any](
 
     if isinstance(node, Composable):
         composable = node
-    elif isinstance(node, types.FunctionType):
+    elif callable(node):
         composable = create_composable_from_function(node, agent_cls=agent_cls)
 
     if composable is not None:
