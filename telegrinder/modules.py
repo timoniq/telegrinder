@@ -118,30 +118,21 @@ LEVEL_FORMAT_SETTINGS = dict(
 _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
-@betterconf.betterconf(provider=DOTENV)
+@betterconf.betterconf(prefix="TELEGRINDER_LOGGER", provider=DOTENV)
 class LoggerConfig:
     LEVEL: LoggerLevel | None = betterconf.field(
         default=None,
         caster=to_logger_level,
-        name="TELEGRINDER_LOGGER_LEVEL",
     )
-    FORMAT: str | None = betterconf.field(
-        default=None,
-        name="TELEGRINDER_LOGGER_FORMAT",
-    )
+    FORMAT: str | None = betterconf.constant_field(None)
     COLORIZE: bool = betterconf.field(
         default=False,
         caster=betterconf.caster.to_bool,
-        name="TELEGRINDER_LOGGER_COLORIZE",
     )
-    FILE_HANDLER_FORMAT: str | None = betterconf.field(
-        default=None,
-        name="TELEGRINDER_LOGGER_FILE_HANDLER_FORMAT",
-    )
+    FILE_HANDLER_FORMAT: str | None = betterconf.constant_field(None)
     FILE_HANDLER_COLORIZE: bool = betterconf.field(
         default=False,
         caster=betterconf.caster.to_bool,
-        name="TELEGRINDER_LOGGER_FILE_HANDLER_COLORIZE",
     )
 
 

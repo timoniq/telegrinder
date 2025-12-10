@@ -6,6 +6,7 @@ import sys
 import typing
 
 import betterconf
+from kungfu import Nothing, Option, Some
 
 VARIABLE_NAME_PATTERN: typing.Final = re.compile(r"[A-Za-z_][A-Za-z_0-9]*")
 ASSIGNMENT_OPERATOR: typing.Final = "="
@@ -15,7 +16,7 @@ LOGGER_LEVELS: typing.Final = ("DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "
 LoggerLevel = typing.NewType("LoggerLevel", str)
 
 
-def find_env_file() -> pathlib.Path:
+def find_env_file() -> Option[pathlib.Path]:
     caller_frame = sys._getframe()
 
     while caller_frame:
@@ -26,9 +27,9 @@ def find_env_file() -> pathlib.Path:
 
     for root, _, files in os.walk(os.path.dirname(caller_frame.f_code.co_filename)):
         if ENV_FILE_NAME in files:
-            return pathlib.Path(root) / ENV_FILE_NAME
+            return Some(pathlib.Path(root) / ENV_FILE_NAME)
 
-    raise FileNotFoundError("Environment file not found.")
+    return Nothing()
 
 
 def take[T](
@@ -62,11 +63,18 @@ class DotenvProvider(betterconf.AbstractProvider):
     def __init__(self) -> None:
         self.env_file = None
         self.loaded = False
-        self.env_provider = betterconf.EnvironmentProvider()
+
+    @property
+    def env_file_is_found(self) -> bool:
+        return self.loaded is True and self.env_file is not None
 
     def load(self) -> None:
+        if not self.loaded:
+            self.loaded = True
+            self.env_file = find_env_file().unwrap_or_none()
+
         if self.env_file is None:
-            self.env_file = find_env_file()
+            return
 
         variables: dict[str, str] = {}
 
@@ -78,12 +86,11 @@ class DotenvProvider(betterconf.AbstractProvider):
                     continue
 
         os.environ.update(variables)
-        self.loaded = True
 
     def get(self, name: str) -> str:
         if not self.loaded:
             self.load()
-        return self.env_provider.get(name)
+        return ENV.get(name)
 
 
 DOTENV: typing.Final = DotenvProvider()

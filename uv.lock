@@ -17,7 +17,7 @@ wheels = [
 [[package]]
 name = "betterconf"
 version = "4.5.0"
-source = { git = "https://github.com/luwqz1/betterconf?rev=master#9ff3921d06d615c91bfa0ecc516580034d301ce8" }
+source = { git = "https://github.com/luwqz1/betterconf?rev=master#51f9ad8d50530dc768a6ecf8894034ba64f2c6ce" }
 
 [[package]]
 name = "brotli"
