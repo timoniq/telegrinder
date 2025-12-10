@@ -13,8 +13,11 @@ import types
 import typing
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
 
+import betterconf
 import colorama
 from choicelib import choice_in_order
+
+from telegrinder.env import DOTENV, LoggerLevel, to_logger_level
 
 # pyright: reportMissingImports=none, reportAttributeAccessIssue=none
 
@@ -113,6 +116,36 @@ LEVEL_FORMAT_SETTINGS = dict(
     ),
 )
 _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
+
+@betterconf.betterconf(provider=DOTENV)
+class LoggerConfig:
+    LEVEL: LoggerLevel | None = betterconf.field(
+        default=None,
+        caster=to_logger_level,
+        name="TELEGRINDER_LOGGER_LEVEL",
+    )
+    FORMAT: str | None = betterconf.field(
+        default=None,
+        name="TELEGRINDER_LOGGER_FORMAT",
+    )
+    COLORIZE: bool = betterconf.field(
+        default=False,
+        caster=betterconf.caster.to_bool,
+        name="TELEGRINDER_LOGGER_COLORIZE",
+    )
+    FILE_HANDLER_FORMAT: str | None = betterconf.field(
+        default=None,
+        name="TELEGRINDER_LOGGER_FILE_HANDLER_FORMAT",
+    )
+    FILE_HANDLER_COLORIZE: bool = betterconf.field(
+        default=False,
+        caster=betterconf.caster.to_bool,
+        name="TELEGRINDER_LOGGER_FILE_HANDLER_COLORIZE",
+    )
+
+
+LOGGER_CONFIG = LoggerConfig()
 
 
 class LoggerModule(typing.Protocol):
@@ -360,7 +393,7 @@ class FileHandlerConfig:
 
     def __post_init__(self) -> None:
         self.format = (
-            os.environ.get("TELEGRINDER_LOGGER_FILE_HANDLER_FORMAT", None)
+            LOGGER_CONFIG.FILE_HANDLER_FORMAT
             or self.format
             or (
                 DEFAULT_LOGGING_FORMAT
@@ -370,10 +403,7 @@ class FileHandlerConfig:
                 else DEFAULT_LOGURU_FORMAT
             )
         )
-        self.colorize = (
-            os.environ.get("TELEGRINDER_LOGGER_FILE_HANDLER_COLORIZE", "0").lower() in ("1", "true", "on")
-            or self.colorize
-        )
+        self.colorize = LOGGER_CONFIG.FILE_HANDLER_COLORIZE or self.colorize
 
     @classmethod
     def from_logging(
@@ -838,9 +868,9 @@ def setup_logger(
     colorama.init(wrap=False)
 
     args: tuple[typing.Any, ...] = (
-        (os.environ.get("TELEGRINDER_LOGGER_LEVEL", None) or level or "debug").upper(),
-        os.environ.get("TELEGRINDER_LOGGER_FORMAT", None) or format,
-        os.environ.get("TELEGRINDER_LOGGER_COLORIZE", "0").lower() in ("1", "true", "on") or colorize,
+        (LOGGER_CONFIG.LEVEL or level or "debug").upper(),
+        LOGGER_CONFIG.FORMAT or format,
+        LOGGER_CONFIG.COLORIZE or colorize,
         console_sink,
         file,
     )

@@ -2,8 +2,8 @@
 
 * Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
 * Customizable and extensible
-* Ready to use scenarios and rules
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
+* API client powered by fast [rnet](https://github.com/0x676e67/rnet) library
 * Both low-level and high-level API
 * Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
 

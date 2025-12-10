@@ -1,10 +1,8 @@
-import pathlib
 import typing
 from functools import cached_property
 
-from envparse import env
-
 from telegrinder.api.error import InvalidTokenError
+from telegrinder.env import take
 
 
 class Token(str):
@@ -22,11 +20,8 @@ class Token(str):
         var_name: str = "BOT_TOKEN",
         *,
         is_read: bool = False,
-        path_to_envfile: str | pathlib.Path | None = None,
     ) -> typing.Self:
-        if not is_read:
-            env.read_envfile(path_to_envfile)
-        return cls(env.str(var_name))
+        return cls(take(var_name, from_dotenv=not is_read))
 
     @cached_property
     def token(self) -> str:
