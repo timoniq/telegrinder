@@ -3,7 +3,6 @@ import typing
 
 from kungfu.library.monad.option import Nothing, Option, Some
 from nodnod.error import NodeError
-from nodnod.interface.data import DataNode
 from nodnod.interface.polymorphic import case, polymorphic
 from nodnod.interface.scalar import scalar_node
 
@@ -22,7 +21,7 @@ from telegrinder.types.objects import Chat, Message, User
 @scalar_node
 @polymorphic["Source"]
 @dataclasses.dataclass(kw_only=True, slots=True)
-class Source(DataNode):
+class Source:
     api: API
     from_user: User
     chat: Option[Chat] = dataclasses.field(default_factory=Nothing)

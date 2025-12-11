@@ -130,7 +130,6 @@ class Router[
                     error,
                 )
 
-        # View is not applicable to the update
         return False
 
     async def route(self, api: API, update: Update, context: Context) -> bool:
@@ -140,7 +139,7 @@ class Router[
                 # Route the non-empty view
                 if await self.route_view(view, api, update, context):
                     return True
-            # No views are applicable to the update
+
             return False
         except Exception as exception:
             context.exceptions_update[self] = exception  # type: ignore
