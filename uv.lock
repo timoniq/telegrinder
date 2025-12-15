@@ -524,7 +524,7 @@ brotli = [
     { name = "brotli" },
 ]
 colorama = [
-    { name = "colorama" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 loguru = [
     { name = "loguru" },
@@ -558,7 +558,7 @@ requires-dist = [
     { name = "brotli", marker = "extra == 'brotli'" },
     { name = "certifi", specifier = ">=2025.11.12,<2026.0.0" },
     { name = "choicelib", specifier = ">=0.1.5,<0.2.0" },
-    { name = "colorama", marker = "extra == 'colorama'" },
+    { name = "colorama", marker = "sys_platform == 'win32' and extra == 'colorama'" },
     { name = "envparse", specifier = ">=0.2.0,<0.3.0" },
     { name = "kungfu", git = "https://github.com/timoniq/kungfu?rev=main" },
     { name = "loguru", marker = "extra == 'loguru'" },

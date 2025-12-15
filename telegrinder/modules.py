@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=none, reportAttributeAccessIssue=none, reportMissingModuleSource=none
+
 from __future__ import annotations
 
 import asyncio
@@ -12,10 +14,20 @@ import types
 import typing
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
 
-import colorama
 from choicelib import choice_in_order
 
-# pyright: reportMissingImports=none, reportAttributeAccessIssue=none
+IS_WIN: typing.Final = sys.platform == "win32"
+
+try:
+    if IS_WIN:
+        import colorama
+
+        colorama.just_fix_windows_console()
+        colorama.init(wrap=False)
+    else:
+        colorama = None
+except ImportError:
+    colorama = None
 
 if typing.TYPE_CHECKING:
     from _typeshed import OptExcInfo
@@ -35,12 +47,39 @@ type _Sink = typing.TextIO | typing.Any
 
 _LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFileHandler | logging.FileHandler
 
+_DEFAULT_COLORIZE: typing.Final = not IS_WIN or colorama is not None
+
+
+class Colors:
+    RESET = "\033[0m"
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    WHITE = "\033[37m"
+    BLACK = "\033[30m"
+    LIGHT_RED = "\033[91m"
+    LIGHT_GREEN = "\033[92m"
+    LIGHT_YELLOW = "\033[93m"
+    LIGHT_BLUE = "\033[94m"
+    LIGHT_MAGENTA = "\033[95m"
+    LIGHT_CYAN = "\033[96m"
+    LIGHT_WHITE = "\033[97m"
+    LIGHT_BLACK = "\033[90m"
+
+
 DEFAULT_LOGGING_FORMAT = (
-    "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
-    " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
-    "|</light_white> <level_module>{module}</level_module><light_white>:</light_white>"
-    "<func_name>{funcName}</func_name><light_white>:</light_white><lineno>{lineno}</lineno>"
-    " <light_white>></light_white> <message>{message}</message>"
+    ("{name: <4} | {levelname: <8} | {asctime} | {module}:{funcName}:{lineno} > {message}")
+    if IS_WIN and colorama is None
+    else (
+        "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
+        " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
+        "|</light_white> <level_module>{module}</level_module><light_white>:</light_white>"
+        "<func_name>{funcName}</func_name><light_white>:</light_white><lineno>{lineno}</lineno>"
+        " <light_white>></light_white> <message>{message}</message>"
+    )
 )
 DEFAULT_STRUCTLOG_FORMAT = (
     "[<light_blue>{name}</light_blue>] {location} "
@@ -55,25 +94,52 @@ DEFAULT_LOGURU_FORMAT = (
 )
 
 CALL_STACK_CONTEXT = contextvars.ContextVar[tuple[types.FrameType, "OptExcInfo"]]("_call_stack")
-COLORS = dict(
-    reset=colorama.Style.RESET_ALL,
-    red=colorama.Fore.RED,
-    green=colorama.Fore.GREEN,
-    blue=colorama.Fore.BLUE,
-    white=colorama.Fore.WHITE,
-    yellow=colorama.Fore.YELLOW,
-    magenta=colorama.Fore.MAGENTA,
-    cyan=colorama.Fore.CYAN,
-    black=colorama.Fore.BLACK,
-    light_red=colorama.Fore.LIGHTRED_EX,
-    light_green=colorama.Fore.LIGHTGREEN_EX,
-    light_blue=colorama.Fore.LIGHTBLUE_EX,
-    light_white=colorama.Fore.LIGHTWHITE_EX,
-    light_yellow=colorama.Fore.LIGHTYELLOW_EX,
-    light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
-    light_cyan=colorama.Fore.LIGHTCYAN_EX,
-    light_black=colorama.Fore.LIGHTBLACK_EX,
-)
+
+if not IS_WIN:
+    COLORS = dict(
+        reset=Colors.RESET,
+        red=Colors.RED,
+        green=Colors.GREEN,
+        blue=Colors.BLUE,
+        white=Colors.WHITE,
+        yellow=Colors.YELLOW,
+        magenta=Colors.MAGENTA,
+        cyan=Colors.CYAN,
+        black=Colors.BLACK,
+        light_red=Colors.LIGHT_RED,
+        light_green=Colors.LIGHT_GREEN,
+        light_blue=Colors.LIGHT_BLUE,
+        light_white=Colors.LIGHT_WHITE,
+        light_yellow=Colors.LIGHT_YELLOW,
+        light_magenta=Colors.LIGHT_MAGENTA,
+        light_cyan=Colors.LIGHT_CYAN,
+        light_black=Colors.LIGHT_BLACK,
+    )
+else:
+    COLORS = (
+        dict(
+            reset=colorama.Style.RESET_ALL,
+            red=colorama.Fore.RED,
+            green=colorama.Fore.GREEN,
+            blue=colorama.Fore.BLUE,
+            white=colorama.Fore.WHITE,
+            yellow=colorama.Fore.YELLOW,
+            magenta=colorama.Fore.MAGENTA,
+            cyan=colorama.Fore.CYAN,
+            black=colorama.Fore.BLACK,
+            light_red=colorama.Fore.LIGHTRED_EX,
+            light_green=colorama.Fore.LIGHTGREEN_EX,
+            light_blue=colorama.Fore.LIGHTBLUE_EX,
+            light_white=colorama.Fore.LIGHTWHITE_EX,
+            light_yellow=colorama.Fore.LIGHTYELLOW_EX,
+            light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
+            light_cyan=colorama.Fore.LIGHTCYAN_EX,
+            light_black=colorama.Fore.LIGHTBLACK_EX,
+        )
+        if colorama is not None
+        else None
+    )
+
 LEVEL_FORMAT_SETTINGS = dict(
     DEBUG=dict(
         level="light_blue",
@@ -176,6 +242,9 @@ def _remove_handlers(logger: typing.Any, /) -> None:
 
 
 def _get_level_format(format: str, colorize: bool, /) -> dict[str, str]:
+    if COLORS is None:
+        return {}
+
     level_formats = {}
 
     for level, settings in LEVEL_FORMAT_SETTINGS.items():
@@ -402,15 +471,18 @@ if logging_module == "structlog":
     import typing
     from contextlib import suppress
 
-    import colorama
     import structlog
 
-    _LEVELS_COLORS = dict(
-        debug=colorama.Fore.LIGHTBLUE_EX,
-        info=colorama.Fore.LIGHTGREEN_EX,
-        warning=colorama.Fore.LIGHTYELLOW_EX,
-        error=colorama.Fore.LIGHTRED_EX,
-        critical=colorama.Fore.LIGHTRED_EX,
+    _LEVELS_COLORS = (
+        dict(
+            debug=COLORS["light_blue"],
+            info=COLORS["light_green"],
+            warning=COLORS["light_yellow"],
+            error=COLORS["light_red"],
+            critical=COLORS["light_red"],
+        )
+        if COLORS is not None
+        else None
     )
 
     class SLF4JStyleFormatter:
@@ -457,7 +529,10 @@ if logging_module == "structlog":
             return event_dict
 
         def _colorize(self, value: typing.Any, log_level: str) -> str:
-            return f"{_LEVELS_COLORS[log_level]}{value}{colorama.Fore.RESET}" if self.colors else value
+            if _LEVELS_COLORS is None:
+                return value
+
+            return f"{_LEVELS_COLORS[log_level]}{value}{Colors.RESET}" if self.colors else value
 
         def _format_braces(
             self,
@@ -602,9 +677,9 @@ if logging_module == "structlog":
             self.colorize = colorize
 
         def __call__(self, key: str, value: typing.Any) -> str:
-            if self.colorize:
+            if self.colorize and _LEVELS_COLORS is not None:
                 color = _LEVELS_COLORS[value]
-                return f"[{color}{value:^12}{colorama.Fore.RESET}]"
+                return f"[{color}{value:^12}{Colors.RESET}]"
 
             return f"[{value:^12}]"
 
@@ -616,12 +691,12 @@ if logging_module == "structlog":
         def filter(self, record: logging.LogRecord) -> bool:
             record = _rich_log_record(record)
 
-            if self.colorize:
+            if self.colorize and _LEVELS_COLORS is not None:
                 level_color = _LEVELS_COLORS[record.levelname.lower()]
                 location = (
-                    f"{colorama.Fore.LIGHTCYAN_EX}{record.module}{colorama.Fore.RESET}:"
-                    f"{level_color}{record.funcName}{colorama.Fore.RESET}:"
-                    f"{colorama.Fore.LIGHTMAGENTA_EX}{record.lineno}{colorama.Fore.RESET} "
+                    f"{Colors.LIGHT_CYAN}{record.module}{Colors.RESET}:"
+                    f"{level_color}{record.funcName}{Colors.RESET}:"
+                    f"{Colors.LIGHT_MAGENTA}{record.lineno}{Colors.RESET} "
                 )
             else:
                 location = f"{record.module}:{record.funcName}:{record.lineno} "
@@ -637,6 +712,9 @@ if logging_module == "structlog":
         file: FileHandlerConfig | None = None,
         /,
     ) -> None:
+        if all((colorize is True, COLORS is None, IS_WIN)):
+            raise RuntimeError("colorama is required to colorize logging output on Windows.")
+
         console_renderer = structlog.dev.ConsoleRenderer(colors=True)
 
         for column in console_renderer._columns:
@@ -796,6 +874,9 @@ elif logging_module == "logging":
         file: FileHandlerConfig | None = None,
         /,
     ) -> None:
+        if all((colorize is True, COLORS is None, IS_WIN)):
+            raise RuntimeError("colorama is required to colorize logging output on Windows.")
+
         _logger = logging.getLogger("telegrinder")
         _logger.setLevel(level)
         _remove_handlers(_logger)
@@ -825,16 +906,11 @@ def setup_logger(
     console_sink: _Sink | None = sys.stderr,
     level: _LoggerLevel | None = None,
     format: str | None = None,
-    colorize: bool = True,
+    colorize: bool = _DEFAULT_COLORIZE,
     file: FileHandlerConfig | None = None,
 ) -> LoggerModule:
     if logger.logger is not None:
         return logger
-
-    import colorama
-
-    colorama.just_fix_windows_console()
-    colorama.init(wrap=False)
 
     args: tuple[typing.Any, ...] = (
         (os.environ.get("TELEGRINDER_LOGGER_LEVEL", None) or level or "debug").upper(),

@@ -48,10 +48,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-colorama = ["colorama"]
+brotli = ["brotli"]
 loguru = ["loguru"]
 structlog = ["structlog"]
-brotli = ["brotli"]
+colorama = ["colorama; (sys_platform == 'win32')"]
 uvloop = ["uvloop; (sys_platform != 'cli' and sys_platform != 'cygwin' and sys_platform != 'win32')"]
 winloop = ["winloop; (sys_platform == 'cli' or sys_platform == 'cygwin' or sys_platform == 'win32')"]
 
