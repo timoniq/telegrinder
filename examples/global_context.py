@@ -3,7 +3,7 @@ from functools import reduce
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.rules import Markup, MessageEntities, Text
-from telegrinder.tools.formatting.html_formatter import HTMLFormatter, bold, code_inline
+from telegrinder.tools.formatting.html import HTML, bold, code_inline
 from telegrinder.tools.global_context import GlobalContext, ctx_var
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity, User
@@ -27,8 +27,8 @@ def formatting_text(*fmt_texts: str) -> dict[str, typing.Any]:
     if not global_ctx.formatting:
         params["text"] = "".join(map(str, fmt_texts))
         return params
-    params["parse_mode"] = HTMLFormatter.PARSE_MODE
-    params["text"] = HTMLFormatter("".join(reduce(lambda x, y: x + y, fmt_texts)))
+    params["parse_mode"] = HTML.PARSE_MODE
+    params["text"] = "".join(reduce(lambda x, y: x + y, fmt_texts))
     return params
 
 

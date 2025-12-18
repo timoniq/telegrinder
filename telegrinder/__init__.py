@@ -103,7 +103,6 @@ from .bot import (
 from .client import ABCClient, RnetClient
 from .model import Model, field
 from .modules import logger, setup_logger
-from .tools.formatting import HTMLFormatter
 from .tools.global_context import ABCGlobalContext, GlobalContext, TelegrinderContext
 from .tools.input_file_directory import InputFileDirectory
 from .tools.keyboard import (
@@ -191,7 +190,6 @@ __all__ = (
     "EventView",
     "FuncHandler",
     "GlobalContext",
-    "HTMLFormatter",
     "Hasher",
     "InlineButton",
     "InlineKeyboard",

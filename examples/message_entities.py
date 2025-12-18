@@ -1,6 +1,6 @@
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.rules import HasEntities, IsChat, IsPrivate, MessageEntities
-from telegrinder.tools.formatting import HTMLFormatter, mention
+from telegrinder.tools.formatting import HTML, bold, mention
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity
 
@@ -16,15 +16,13 @@ async def handler_mention_me(message: Message, message_entities: list[MessageEnt
         or my_username != message.text.unwrap()[message_entities[0].offset + 1 : message_entities[0].length]
     ):
         return
+
     await message.delete()
     await message.answer(
-        HTMLFormatter("{:bold} don't mention me please!").format(
-            mention(
-                message.from_user.first_name,
-                user_id=message.from_user.id,
-            )
-        ),
-        parse_mode=HTMLFormatter.PARSE_MODE,
+        HTML
+        << bold(mention(message.from_user.first_name, user_id=message.from_user.id))
+        << " don't mention me please!",
+        parse_mode=HTML.PARSE_MODE,
     )
 
 
