@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import typing
 from http import HTTPStatus
 
@@ -38,7 +39,7 @@ class Polling(ABCPolling):
         self,
         api: API,
         *,
-        timeout: int | None = None,
+        timeout: int | float | datetime.timedelta | None = None,
         limit: int | None = None,
         offset: int = DEFAULT_OFFSET,
         reconnect_after: float = DEFAULT_RECONNECT_AFTER,
@@ -47,7 +48,8 @@ class Polling(ABCPolling):
         exclude_updates: set[UpdateType] | None = None,
     ) -> None:
         self.api = api
-        self.timeout = timeout
+        self.timeout = timeout if isinstance(timeout, datetime.timedelta) else datetime.timedelta(seconds=timeout or 0)
+        self.timeout_seconds = int(self.timeout.total_seconds())
         self.limit = limit
         self.offset = max(DEFAULT_OFFSET, offset)
         self.allowed_updates = self.get_allowed_updates(
@@ -113,10 +115,10 @@ class Polling(ABCPolling):
                 data=dict(
                     offset=self.offset,
                     limit=self.limit,
-                    timeout=self.timeout,
+                    timeout=self.timeout_seconds,
                     allowed_updates=self.allowed_updates,
                 ),
-                timeout=self.timeout or 0 + self.api.http.timeout,
+                timeout=self.timeout + self.api.http.timeout,
             )
         except TimeoutError:
             return msgspec.Raw(b"")
@@ -143,10 +145,10 @@ class Polling(ABCPolling):
         await logger.adebug("Listening polling")
         self._running = True
 
-        with decoder(list[Update]) as dec:
+        with decoder(list[Update]) as updates_decoder:
             while self._running:
                 try:
-                    if self._running and (raw := await self.get_updates()) and (updates := dec.decode(raw)):
+                    if (raw := await self.get_updates()) and (updates := updates_decoder.decode(raw)):
                         yield updates
                         self.offset = updates[-1].update_id + 1
 

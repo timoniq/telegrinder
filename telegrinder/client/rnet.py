@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import datetime
 import pathlib
 import sys
 import typing
@@ -15,7 +16,7 @@ from telegrinder.client.abc import ABCClient
 from telegrinder.modules import json
 
 if typing.TYPE_CHECKING:
-    from rnet import ClientParams, Request
+    from rnet import ClientConfig, Request
 
 type Data = dict[str, typing.Any] | rnet.Multipart
 type Method = typing.Literal["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "TRACE", "PATCH"]
@@ -35,22 +36,22 @@ USER_AGENT: typing.Final = "CPython/{}.{} RNET/3 Telegrinder/{}".format(
     sys.version_info.minor,
     __version__,
 )
-DEFAULT_CONNECTION_TIMEOUT: typing.Final = 30
-DEFAULT_READ_TIMEOUT: typing.Final = 30
-DEFAULT_TIMEOUT: typing.Final = 30
+DEFAULT_CONNECTION_TIMEOUT: typing.Final = datetime.timedelta(seconds=30)
+DEFAULT_READ_TIMEOUT: typing.Final = datetime.timedelta(seconds=30)
+DEFAULT_TIMEOUT: typing.Final = datetime.timedelta(seconds=30)
 DEFAULT_HTTP2_MAX_RETRIES: typing.Final = 10
 DEFAULT_ZSTD: typing.Final = True
 DEFAULT_VERIFY: typing.Final = pathlib.Path(certifi.where())
 DEFAULT_ALLOW_REDIRECTS: typing.Final = True
 DEFAULT_HTTP2_ONLY: typing.Final = True
-DEFAULT_TCP_KEEPALIVE_TIME: typing.Final = 60
-DEFAULT_TCP_KEEPALIVE_INTERVAL: typing.Final = 15
+DEFAULT_TCP_KEEPALIVE_TIME: typing.Final = datetime.timedelta(seconds=60)
+DEFAULT_TCP_KEEPALIVE_INTERVAL: typing.Final = datetime.timedelta(seconds=15)
 DEFAULT_TCP_KEEPALIVE_RETRIES: typing.Final = 4
 DEFAULT_TCP_USER_TIMEOUT: typing.Final = (
-    DEFAULT_TCP_KEEPALIVE_TIME + DEFAULT_TCP_KEEPALIVE_INTERVAL * DEFAULT_TCP_KEEPALIVE_RETRIES
-)
+    DEFAULT_TCP_KEEPALIVE_TIME + DEFAULT_TCP_KEEPALIVE_INTERVAL
+) * DEFAULT_TCP_KEEPALIVE_RETRIES
 DEFAULT_TCP_REUSEADDR: typing.Final = True
-DEFAULT_CONNECTION_POOL_IDLE_TIMEOUT: typing.Final = 60
+DEFAULT_CONNECTION_POOL_IDLE_TIMEOUT: typing.Final = datetime.timedelta(seconds=60)
 DEFAULT_CONNECTION_POOL_CONNECTIONS: typing.Final = 32
 CONNECTION_POOL_MAX_SIZE: typing.Final = DEFAULT_CONNECTION_POOL_CONNECTIONS * 2
 
@@ -77,6 +78,7 @@ class RnetClient(ABCClient):
     __slots__ = ("_timeout", "_client")
 
     CONNECTION_TIMEOUT_ERRORS: typing.ClassVar = (
+        TimeoutError,
         rnet.exceptions.TimeoutError,
         rnet.exceptions.RustPanic,
     )
@@ -84,16 +86,15 @@ class RnetClient(ABCClient):
         rnet.exceptions.ConnectionError,
         rnet.exceptions.ConnectionResetError,
         rnet.exceptions.TlsError,
-        rnet.exceptions.DNSResolverError,
         rnet.exceptions.RustPanic,
     )
 
-    def __init__(self, **params: typing.Unpack[ClientParams]) -> None:
+    def __init__(self, **params: typing.Unpack[ClientConfig]) -> None:
+        params.setdefault("user_agent", USER_AGENT)
         params.setdefault("connect_timeout", DEFAULT_CONNECTION_TIMEOUT)
         params.setdefault("read_timeout", DEFAULT_READ_TIMEOUT)
         params.setdefault("verify", DEFAULT_VERIFY)
         params.setdefault("http2_only", DEFAULT_HTTP2_ONLY)
-        params.setdefault("allow_redirects", DEFAULT_ALLOW_REDIRECTS)
         params.setdefault("zstd", DEFAULT_ZSTD)
         params.setdefault("tcp_keepalive", DEFAULT_TCP_KEEPALIVE_TIME)
         params.setdefault("tcp_keepalive_interval", DEFAULT_TCP_KEEPALIVE_INTERVAL)
@@ -108,14 +109,14 @@ class RnetClient(ABCClient):
         self._client = rnet.Client(**params)
 
     def __repr__(self) -> str:
-        return "<{}: client={!r}, timeout={}>".format(
+        return "<{} {!r}, timeout={!r}>".format(
             type(self).__name__,
             self._client,
             self._timeout,
         )
 
     @property
-    def timeout(self) -> float:
+    def timeout(self) -> datetime.timedelta:
         return self._timeout
 
     @classmethod

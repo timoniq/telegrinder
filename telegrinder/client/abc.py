@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 import typing
 from abc import ABC, abstractmethod
 
 from telegrinder.client.form_data import MultipartBuilderProto, encode_form_data
+
+if typing.TYPE_CHECKING:
+    import datetime
 
 type Data = typing.Any
 type Files = dict[str, tuple[str, typing.Any]]
@@ -17,7 +22,7 @@ class ABCClient(ABC):
 
     @property
     @abstractmethod
-    def timeout(self) -> float:
+    def timeout(self) -> datetime.timedelta:
         pass
 
     @abstractmethod
