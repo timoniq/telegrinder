@@ -461,7 +461,11 @@ class FileHandlerConfig:
 
 
 logger: LoggerModule = typing.cast("LoggerModule", _LoggerProxy())
-logging_module = choice_in_order(["structlog", "loguru"], default="logging", do_import=False)
+logging_module = (
+    choice_in_order(["structlog", "loguru"], default="logging", do_import=False)
+    if (_module := os.environ.get("TELEGRINDER_LOGGER_MODULE", None)) is None
+    else _module
+)
 asyncio_module = choice_in_order(["uvloop", "winloop"], default="asyncio", do_import=False)
 
 
