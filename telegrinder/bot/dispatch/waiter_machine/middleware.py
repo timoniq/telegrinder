@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import typing
 
@@ -20,12 +22,11 @@ if typing.TYPE_CHECKING:
 class WaiterMiddleware(ABCMiddleware):
     def __init__(
         self,
-        machine: "WaiterMachine",
-        hasher: "Hasher[typing.Any, typing.Any]",
+        machine: WaiterMachine,
+        hasher: Hasher[typing.Any, typing.Any],
     ) -> None:
         self.machine = machine
         self.hasher = hasher
-        self.handler = FuncHandler(self.pass_runtime)
 
     async def pre(self, update_cute: UpdateCute, raw_update: Update, api: API, ctx: Context) -> bool:
         if self.hasher not in self.machine.storage:
@@ -49,24 +50,21 @@ class WaiterMiddleware(ABCMiddleware):
         if short_state.context is not None:
             preset_context |= short_state.context.context
 
-        context = ctx | preset_context
-
-        if short_state.filter and not await check_rule(
-            short_state.filter,
-            context,
-        ):
+        if short_state.filter is not None and not await check_rule(short_state.filter, preset_context):
             await logger.adebug("Filter rule {!r} failed!", short_state.filter)
             return True
 
-        if short_state.release is not None and not await check_rule(short_state.release, context):
-            await logger.adebug("Release rule {!r} failed!", short_state.release)
-            return True
+        handler = FuncHandler(
+            function=self.pass_runtime,
+            rules=(short_state.release,) if short_state.release is not None else None,
+            preset_context=preset_context,
+        )
 
         if (
-            not await self.handler.run(api, raw_update, context)
-            and (on_miss := short_state.actions.get("on_miss"))
+            not await handler.run(api, raw_update, ctx)
+            and (on_miss := short_state.actions.get("on_miss")) is not None
         ):
-            await on_miss.run(api, raw_update, context)
+            await on_miss.run(api, raw_update, ctx)
 
         return False
 
@@ -74,7 +72,7 @@ class WaiterMiddleware(ABCMiddleware):
         self,
         event: UpdateCute,
         ctx: Context,
-        short_state: "ShortState",
+        short_state: ShortState,
     ) -> None:
         ctx.initiator = self.hasher
         short_state.context = ShortStateContext(event.incoming_update, ctx)

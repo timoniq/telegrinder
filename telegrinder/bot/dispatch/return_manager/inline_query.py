@@ -7,8 +7,8 @@ from telegrinder.bot.dispatch.return_manager.abc import BaseReturnManager, regis
 class InlineQueryReturnManager(BaseReturnManager):
     @register_manager(dict)
     @staticmethod
-    async def dict_manager(value: dict[str, typing.Any], event: InlineQueryCute) -> None:
-        await event.answer(**value)
+    async def dict_manager(response: dict[str, typing.Any], event: InlineQueryCute) -> None:
+        await event.answer(**response)
 
 
 __all__ = ("InlineQueryReturnManager",)

@@ -47,6 +47,8 @@ class ContextKeyError(KeyError):
 class Context(ContextDict):
     """Low level per event context storage."""
 
+    SELF_CONTEXT_KEY: typing.Final = "context"
+
     __roots__: typing.ClassVar = (
         RootKey("api"),
         RootKey("raw_update"),
@@ -71,12 +73,13 @@ class Context(ContextDict):
         kwargs.setdefault("exceptions_update", dict())
         self.set_roots(kwargs)
         dict.__init__(self, **kwargs)
-        self.context = self
+        setattr(self, self.SELF_CONTEXT_KEY, self)
 
     @recursive_repr()
     def __repr__(self) -> str:
         return "{}({})".format(
-            type(self).__name__, ", ".join(f"{k}={repr(v) if v is not self else '<self>'}" for k, v in self.items())
+            type(self).__name__,
+            ", ".join(f"{k}={repr(v) if v is not self else '<self>'}" for k, v in self.items()),
         )
 
     def __setitem__(self, __key: Key, __value: AnyValue) -> None:
@@ -114,12 +117,22 @@ class Context(ContextDict):
         self.__delitem__(__name)
 
     def __or__(self, other: object, /) -> typing.Self:
-        if other.__class__ is not Context:
+        if type(other) is not Context and not isinstance(other, dict):
             return NotImplemented
-        return type(self)(**{**self.roots(), **self.as_dict(), **other.as_dict()})  # type: ignore
+        dct = other.as_dict() if isinstance(other, Context) else other
+        return type(self)(**{**self.roots(), **self.as_dict() | dct})  # type: ignore
 
     def __ior__(self, other: object, /) -> typing.Self:
-        return self.__or__(other)
+        if type(other) is not Context and not isinstance(other, dict):
+            raise TypeError(f"Cannot update `Context` with `{type(other).__name__}`.")
+
+        context_cls = type(self)
+
+        for key, value in (other.as_dict() if isinstance(other, Context) else other).items():
+            if key != context_cls.SELF_CONTEXT_KEY:
+                self[key] = value
+
+        return self
 
     def keys(self) -> dict_keys[str, AnyValue]:
         context_cls = type(self)

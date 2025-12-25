@@ -26,7 +26,7 @@ class Error[*Exceptions = *tuple[type[Exception], ...]](DataNode):
 
     @property
     def exception[T: Exception = Exception](self: Error[*tuple[T, ...]]) -> T:
-        return self.exception_update  # pyright: ignore[reportReturnType]
+        return self.exception_update  # type: ignore[reportReturnType]
 
     @classmethod
     def __compose__(

@@ -38,10 +38,12 @@ class Manager:
     agent_cls: type[Agent] | None = None
 
     async def __call__(self, response: typing.Any, context: Context) -> None:
+        context = context.copy()
+        context.response = response
+
         async with compose(
             self.function,
             context,
-            roots={type(response): response},
             agent_cls=self.agent_cls,
         ) as result:
             match result:
@@ -84,9 +86,9 @@ class BaseReturnManager(ABCReturnManager):
         for manager in self.managers:
             if typing.Any in manager.types or type(response) in manager.types:
                 await logger.adebug(
-                    "Running manager `{}` for response `{!r}`",
+                    "Running manager `{}` for response of type `{}`",
                     fullname(manager.function),
-                    response,
+                    fullname(response),
                 )
                 await manager(response, context)
 

@@ -50,7 +50,7 @@ class FuncHandler[T: Function](ABCHandler):
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, str]:
-        temp_ctx = context | self.preset_context.copy()
+        temp_ctx = context | self.preset_context
 
         if check and self.check_rules:
             await logger.adebug("Checking rules for handler `{!r}`...", self)

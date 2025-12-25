@@ -37,7 +37,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "rnet (>=3.0.0rc14)",
+    "rnet (==3.0.0rc14)",
     "msgspec (>=0.20.0,<0.21.0)",
     "certifi (>=2025.11.12)",
     "choicelib (>=0.1.5,<0.2.0)",
@@ -79,7 +79,7 @@ package = true
 
 [tool.uv.sources]
 betterconf = { git = "https://github.com/luwqz1/betterconf", rev = "master" }
-nodnod = { git = "https://github.com/timoniq/nodnod", rev = "dev" }
+nodnod = { git = "https://github.com/luwqz1/nodnod", rev = "fix" }
 kungfu = { git = "https://github.com/timoniq/kungfu", rev = "main" }
 vbml2 = { git = "https://github.com/tesseradecade/vbml", rev = "master" }
 

@@ -281,12 +281,12 @@ class Dispatch[
             if not isinstance(e, Exception) and not isinstance(e, BaseExceptionGroup):
                 raise  # Throwing control flow exceptions
 
-            if not await self._process_update_exceptions(api, update, context):
-                await logger.aexception(
-                    "Update (id={}, type={!r}) processed with exception, traceback message below:",
-                    update.update_id,
-                    update.update_type,
-                )
+            #if not await self._process_update_exceptions(api, update, context):
+            await logger.aexception(
+                "Update (id={}, type={!r}) processed with exception, traceback message below:",
+                update.update_id,
+                update.update_type,
+            )
         finally:
             if not failed:
                 elapsed_time = self.global_context.loop_wrapper.loop.time() - start_time
