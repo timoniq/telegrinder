@@ -39,12 +39,6 @@ class ObjectsFieldsLiteralTypesField(msgspec.Struct):
             return f"{self.enum_literals.name}.{self.default}"
         return None
 
-    @property
-    def literals_default(self) -> str | None:
-        if self.enum is None and self.default is not None:
-            return self.default
-        return None
-
 
 class ObjectsFieldsLiteralTypes(msgspec.Struct):
     object_name: str

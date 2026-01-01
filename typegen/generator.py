@@ -423,6 +423,8 @@ class ObjectGenerator(ABCGenerator):
                     )
                 elif literal_types is not None and literal_types.enum_default is not None and f.required:
                     f.default = literal_types.enum_default
+                elif literal_types is not None and literal_types.enum_literals_default is not None and f.required:
+                    f.default = literal_types.enum_literals_default
 
                 generation_id_by_default = self.get_generation_id_by_default_field(object_name, f.name)
                 if generation_id_by_default is not None:
