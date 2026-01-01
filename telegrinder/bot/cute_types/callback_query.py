@@ -147,6 +147,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = None,
         from_chat_id: int | str | None = None,
+        message_effect_id: str | None = None,
         message_id: int | None = None,
         message_thread_id: str | None = None,
         parse_mode: str | None = None,

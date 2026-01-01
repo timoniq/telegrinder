@@ -481,6 +481,10 @@ class User(Model):
     has_main_web_app: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the bot has a main Web App. Returned only in getMe."""
 
+    has_topics_enabled: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the bot has forum topic mode enabled in private chats.
+    Returned only in getMe."""
+
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -726,6 +730,17 @@ class ChatFullInfo(Model):
     location: Option[ChatLocation] = field(default=..., converter=From["ChatLocation | None"])
     """Optional. For supergroups, the location to which the supergroup is connected."""
 
+    rating: Option[UserRating] = field(default=..., converter=From["UserRating | None"])
+    """Optional. For private chats, the rating of the user if any."""
+
+    unique_gift_colors: Option[UniqueGiftColors] = field(default=..., converter=From["UniqueGiftColors | None"])
+    """Optional. The color scheme based on a unique gift that must be used for the
+    chat's name, message replies and link previews."""
+
+    paid_message_star_count: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. The number of Telegram Stars a general user have to pay to send
+    a message to the chat."""
+
 
 class Message(MaybeInaccessibleMessage):
     """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message).
@@ -748,8 +763,8 @@ class Message(MaybeInaccessibleMessage):
     """Chat the message belongs to."""
 
     message_thread_id: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Unique identifier of a message thread to which the message belongs;
-    for supergroups only."""
+    """Optional. Unique identifier of a message thread or forum topic to which
+    the message belongs; for supergroups and private chats only."""
 
     direct_messages_topic: Option[DirectMessagesTopic] = field(
         default=..., converter=From["DirectMessagesTopic | None"]
@@ -796,7 +811,8 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Information about the original message for forwarded messages."""
 
     is_topic_message: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the message is sent to a forum topic."""
+    """Optional. True, if the message is sent to a topic in a forum supergroup or
+    a private chat with the bot."""
 
     is_automatic_forward: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the message is a channel post that was automatically
@@ -1021,6 +1037,10 @@ class Message(MaybeInaccessibleMessage):
 
     unique_gift: Option[UniqueGiftInfo] = field(default=..., converter=From["UniqueGiftInfo | None"])
     """Optional. Service message: a unique gift was sent or received."""
+
+    gift_upgrade_sent: Option[GiftInfo] = field(default=..., converter=From["GiftInfo | None"])
+    """Optional. Service message: upgrade of a gift was purchased after the gift
+    was sent."""
 
     connected_website: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The domain name of the website on which the user has logged in.
@@ -1939,7 +1959,12 @@ class ChecklistTask(Model):
     """Optional. Special entities that appear in the task text."""
 
     completed_by_user: Option[User] = field(default=..., converter=From["User | None"])
-    """Optional. User that completed the task; omitted if the task wasn't completed."""
+    """Optional. User that completed the task; omitted if the task wasn't completed
+    by a user."""
+
+    completed_by_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
+    """Optional. Chat that completed the task; omitted if the task wasn't completed
+    by a chat."""
 
     completion_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Point in time (Unix timestamp) when the task was completed; 0
@@ -2317,6 +2342,10 @@ class ForumTopicCreated(Model):
 
     icon_custom_emoji_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the custom emoji shown as the topic icon."""
+
+    is_name_implicit: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the name of the topic wasn't specified explicitly by
+    its creator and likely needs to be changed by the bot."""
 
 
 class ForumTopicClosed(Model):
@@ -3856,6 +3885,28 @@ class BusinessOpeningHours(Model):
     """List of time intervals describing business opening hours."""
 
 
+class UserRating(Model):
+    """Object `UserRating`, see the [documentation](https://core.telegram.org/bots/api#userrating).
+
+    This object describes the rating of a user based on their Telegram Star spendings.
+    """
+
+    level: int = field()
+    """Current level of the user, indicating their reliability when purchasing
+    digital goods and services. A higher level suggests a more trustworthy
+    customer; a negative level is likely reason for concern."""
+
+    rating: int = field()
+    """Numerical value of the user's rating; the higher the rating, the better."""
+
+    current_level_rating: int = field()
+    """The rating value required to get the current level."""
+
+    next_level_rating: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. The rating value required to get to the next level; omitted if
+    the maximum level was reached."""
+
+
 class StoryAreaPosition(Model):
     """Object `StoryAreaPosition`, see the [documentation](https://core.telegram.org/bots/api#storyareaposition).
 
@@ -4149,6 +4200,26 @@ class ForumTopic(Model):
     icon_custom_emoji_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the custom emoji shown as the topic icon."""
 
+    is_name_implicit: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the name of the topic wasn't specified explicitly by
+    its creator and likely needs to be changed by the bot."""
+
+
+class GiftBackground(Model):
+    """Object `GiftBackground`, see the [documentation](https://core.telegram.org/bots/api#giftbackground).
+
+    This object describes the background of a gift.
+    """
+
+    center_color: int = field()
+    """Center color of the background in RGB format."""
+
+    edge_color: int = field()
+    """Edge color of the background in RGB format."""
+
+    text_color: int = field()
+    """Text color of the background in RGB format."""
+
 
 class Gift(Model):
     """Object `Gift`, see the [documentation](https://core.telegram.org/bots/api#gift).
@@ -4169,13 +4240,35 @@ class Gift(Model):
     """Optional. The number of Telegram Stars that must be paid to upgrade the gift
     to a unique one."""
 
+    is_premium: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the gift can only be purchased by Telegram Premium subscribers."""
+
+    has_colors: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the gift can be used (after being upgraded) to customize
+    a user's appearance."""
+
     total_count: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. The total number of the gifts of this type that can be sent; for
-    limited gifts only."""
+    """Optional. The total number of gifts of this type that can be sent by all users;
+    for limited gifts only."""
 
     remaining_count: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. The number of remaining gifts of this type that can be sent; for
-    limited gifts only."""
+    """Optional. The number of remaining gifts of this type that can be sent by all
+    users; for limited gifts only."""
+
+    personal_total_count: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. The total number of gifts of this type that can be sent by the bot;
+    for limited gifts only."""
+
+    personal_remaining_count: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. The number of remaining gifts of this type that can be sent by the
+    bot; for limited gifts only."""
+
+    background: Option[GiftBackground] = field(default=..., converter=From["GiftBackground | None"])
+    """Optional. Background of the gift."""
+
+    unique_gift_variant_count: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. The total number of different unique gifts that can be obtained
+    by upgrading the gift."""
 
     publisher_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
     """Optional. Information about the chat that published the gift."""
@@ -4259,11 +4352,39 @@ class UniqueGiftBackdrop(Model):
     upgraded."""
 
 
+class UniqueGiftColors(Model):
+    """Object `UniqueGiftColors`, see the [documentation](https://core.telegram.org/bots/api#uniquegiftcolors).
+
+    This object contains information about the color scheme for a user's name, message replies and link previews based on a unique gift.
+    """
+
+    model_custom_emoji_id: str = field()
+    """Custom emoji identifier of the unique gift's model."""
+
+    symbol_custom_emoji_id: str = field()
+    """Custom emoji identifier of the unique gift's symbol."""
+
+    light_theme_main_color: int = field()
+    """Main color used in light themes; RGB format."""
+
+    light_theme_other_colors: list[int] = field()
+    """List of 1-3 additional colors used in light themes; RGB format."""
+
+    dark_theme_main_color: int = field()
+    """Main color used in dark themes; RGB format."""
+
+    dark_theme_other_colors: list[int] = field()
+    """List of 1-3 additional colors used in dark themes; RGB format."""
+
+
 class UniqueGift(Model):
     """Object `UniqueGift`, see the [documentation](https://core.telegram.org/bots/api#uniquegift).
 
     This object describes a unique gift that was upgraded from a regular gift.
     """
+
+    gift_id: str = field()
+    """Identifier of the regular gift from which the gift was upgraded."""
 
     base_name: str = field()
     """Human-readable name of the regular gift from which this unique gift was
@@ -4285,6 +4406,19 @@ class UniqueGift(Model):
 
     backdrop: UniqueGiftBackdrop = field()
     """Backdrop of the gift."""
+
+    is_premium: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the original regular gift was exclusively purchaseable
+    by Telegram Premium subscribers."""
+
+    is_from_blockchain: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the gift is assigned from the TON blockchain and can't
+    be resold or transferred in Telegram."""
+
+    colors: Option[UniqueGiftColors] = field(default=..., converter=From["UniqueGiftColors | None"])
+    """Optional. The color scheme that can be used by the gift's owner for the chat's
+    name, replies to messages and link previews; for business account gifts
+    and gifts that are currently on sale only."""
 
     publisher_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
     """Optional. Information about the chat that published the gift."""
@@ -4308,8 +4442,11 @@ class GiftInfo(Model):
     converting the gift; omitted if conversion to Telegram Stars is impossible."""
 
     prepaid_upgrade_star_count: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Number of Telegram Stars that were prepaid by the sender for the
-    ability to upgrade the gift."""
+    """Optional. Number of Telegram Stars that were prepaid for the ability to
+    upgrade the gift."""
+
+    is_upgrade_separate: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the gift's upgrade was purchased after the gift was sent."""
 
     can_be_upgraded: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the gift can be upgraded to a unique gift."""
@@ -4324,6 +4461,10 @@ class GiftInfo(Model):
     """Optional. True, if the sender and gift text are shown only to the gift receiver;
     otherwise, everyone will be able to see them."""
 
+    unique_gift_number: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Unique number reserved for this gift when upgraded. See the number
+    field in UniqueGift."""
+
 
 class UniqueGiftInfo(Model):
     """Object `UniqueGiftInfo`, see the [documentation](https://core.telegram.org/bots/api#uniquegiftinfo).
@@ -4337,10 +4478,18 @@ class UniqueGiftInfo(Model):
     origin: UniqueGiftInfoOriginType = field(default=UniqueGiftInfoOriginType.UPGRADE)
     """Origin of the gift. Currently, either `upgrade` for gifts upgraded from
     regular gifts, `transfer` for gifts transferred from other users or channels,
-    or `resale` for gifts bought from other users."""
+    `resale` for gifts bought from other users, `gifted_upgrade` for upgrades
+    purchased after the gift was sent, or `offer` for gifts bought or sold through
+    gift purchase offers."""
 
-    last_resale_star_count: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. For gifts bought from other users, the price paid for the gift."""
+    last_resale_currency: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. For gifts bought from other users, the currency in which the payment
+    for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON`
+    for toncoins."""
+
+    last_resale_amount: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. For gifts bought from other users, the price paid for the gift
+    in either Telegram Stars or nanotoncoins."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the received gift for the bot; only present
@@ -4400,11 +4549,20 @@ class OwnedGiftRegular(OwnedGift):
 
     convert_star_count: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Number of Telegram Stars that can be claimed by the receiver instead
-    of the gift; omitted if the gift cannot be converted to Telegram Stars."""
+    of the gift; omitted if the gift cannot be converted to Telegram Stars; for
+    gifts received on behalf of business accounts only."""
 
     prepaid_upgrade_star_count: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Number of Telegram Stars that were paid by the sender for the ability
-    to upgrade the gift."""
+    """Optional. Number of Telegram Stars that were paid for the ability to upgrade
+    the gift."""
+
+    is_upgrade_separate: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the gift's upgrade was purchased after the gift was sent;
+    for gifts received on behalf of business accounts only."""
+
+    unique_gift_number: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Unique number reserved for this gift when upgraded. See the number
+    field in UniqueGift."""
 
 
 class OwnedGiftUnique(OwnedGift):
@@ -4482,6 +4640,9 @@ class AcceptedGiftTypes(Model):
 
     premium_subscription: bool = field()
     """True, if a Telegram Premium subscription is accepted."""
+
+    gifts_from_channels: bool = field()
+    """True, if transfers of unique gifts from channels are accepted."""
 
 
 class StarAmount(Model):
@@ -7823,6 +7984,7 @@ __all__ = (
     "GeneralForumTopicHidden",
     "GeneralForumTopicUnhidden",
     "Gift",
+    "GiftBackground",
     "GiftInfo",
     "Gifts",
     "Giveaway",
@@ -7995,6 +8157,7 @@ __all__ = (
     "UniqueGift",
     "UniqueGiftBackdrop",
     "UniqueGiftBackdropColors",
+    "UniqueGiftColors",
     "UniqueGiftInfo",
     "UniqueGiftModel",
     "UniqueGiftSymbol",
@@ -8002,6 +8165,7 @@ __all__ = (
     "User",
     "UserChatBoosts",
     "UserProfilePhotos",
+    "UserRating",
     "UsersShared",
     "Venue",
     "Video",
