@@ -766,6 +766,7 @@ fields = [
 object_name = "UniqueGiftInfo"
 fields = [
     { name = "origin", enum = "UniqueGiftInfoOriginType", default = "UPGRADE" },
+    { name = "last_resale_currency", enum_literals = { name = "Currency", enumerations = ["XTR", "TON",] }, default = "XTR" },
 ]
 
 [[generator.objects.fields.annotations.literals]]

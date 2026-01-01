@@ -268,11 +268,23 @@ class ObjectGenerator(ABCGenerator):
         if annotation is not None:
             field_type = annotation.annotation
             field_value = make_field_function(field, converter=annotation.convert_from)
-        elif literal_types is not None and any((literal_types.enum, literal_types.literals)):
-            literal_type_hint = literal_types.enum or "Literal[%s]" % ", ".join(
-                f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
-            )
-            if len(literal_types.literals) > 3:
+        elif literal_types is not None and any(
+            (literal_types.enum, literal_types.literals, literal_types.enum_literals)
+        ):
+            literals_count = 0
+
+            if literal_types.enum_literals is not None:
+                literal_type_hint = "Literal[%s]" % ", ".join(
+                    f"{literal_types.enum_literals.name}.{x}" for x in literal_types.enum_literals.enumerations
+                )
+                literals_count = len(literal_types.enum_literals.enumerations)
+            else:
+                literal_type_hint = literal_types.enum or "Literal[%s]" % ", ".join(
+                    f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
+                )
+                literals_count = len(literal_types.literals)
+
+            if literals_count > 3:
                 literal_type_hint = literal_type_hint.replace("]", ",]")
 
             field_type = (

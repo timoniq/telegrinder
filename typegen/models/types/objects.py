@@ -15,16 +15,28 @@ class ObjectsFieldsDefaults(msgspec.Struct):
     random_id: list[ObjectsFieldsIdByDefault] = msgspec.field(default_factory=list)
 
 
+class ObjectsFieldsLiteralTypesEnumLiterals(msgspec.Struct):
+    name: str
+    enumerations: list[str] = msgspec.field(default_factory=list)
+
+
 class ObjectsFieldsLiteralTypesField(msgspec.Struct):
     name: str
     literals: list[str | int] = msgspec.field(default_factory=list)
     enum: str | None = None
+    enum_literals: ObjectsFieldsLiteralTypesEnumLiterals | None = None
     default: str | None = None
 
     @property
     def enum_default(self) -> str | None:
         if self.enum is not None and self.default is not None:
             return f"{self.enum}.{self.default}"
+        return None
+
+    @property
+    def enum_literals_default(self) -> str | None:
+        if self.enum_literals is not None and self.default is not None:
+            return f"{self.enum_literals.name}.{self.default}"
         return None
 
     @property

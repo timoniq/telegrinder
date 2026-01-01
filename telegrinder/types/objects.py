@@ -4482,7 +4482,9 @@ class UniqueGiftInfo(Model):
     purchased after the gift was sent, or `offer` for gifts bought or sold through
     gift purchase offers."""
 
-    last_resale_currency: Option[str] = field(default=..., converter=From[str | None])
+    last_resale_currency: Option[Literal[Currency.XTR, Currency.TON]] = field(
+        default=..., converter=From[Literal[Currency.XTR, Currency.TON] | None]
+    )
     """Optional. For gifts bought from other users, the currency in which the payment
     for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON`
     for toncoins."""
