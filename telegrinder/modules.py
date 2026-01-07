@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import contextvars
 import dataclasses
+import inspect
 import logging
 import os
 import re
@@ -276,6 +277,47 @@ class LoggingFormatter(logging.Formatter):
             message = _remove_ansi_colors(message)
 
         return message
+
+
+class LogMessage:
+    def __init__(self, fmt: str, args: typing.Any, kwargs: typing.Any) -> None:
+        self.fmt = fmt
+        self.args = args
+        self.kwargs = kwargs
+
+    def __str__(self) -> str:
+        return self.fmt.format(*self.args, **self.kwargs)
+
+
+class LoggingStyleAdapter(logging.LoggerAdapter):
+    logger: logging.Logger
+
+    def __init__(
+        self,
+        logger: logging.Logger,
+        **extra: typing.Any,
+    ) -> None:
+        super().__init__(logger, extra=extra or None)
+        self.log_arg_names = frozenset(inspect.getfullargspec(self.logger._log).args[1:])
+
+    def log(self, level: int, msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None:
+        if self.isEnabledFor(level):
+            msg, args, kwargs = self.proc(msg, args, kwargs)
+            self.logger._log(level, msg, args, **kwargs)
+
+    def proc(
+        self,
+        msg: typing.Any,
+        args: tuple[typing.Any, ...],
+        kwargs: dict[str, typing.Any],
+    ) -> tuple[typing.Any, tuple[typing.Any, ...], dict[str, typing.Any]]:
+        kwargs.setdefault("stacklevel", 2)
+
+        if isinstance(msg, str):
+            msg = LogMessage(msg, args, kwargs)
+            args = tuple()
+
+        return msg, args, {name: kwargs[name] for name in self.log_arg_names if name in kwargs}
 
 
 def _remove_handlers(logger: typing.Any, /) -> None:
@@ -849,47 +891,6 @@ elif logging_module == "loguru":
 
 
 elif logging_module == "logging":
-    import inspect
-    import sys
-
-    class LogMessage:
-        def __init__(self, fmt: str, args: typing.Any, kwargs: typing.Any) -> None:
-            self.fmt = fmt
-            self.args = args
-            self.kwargs = kwargs
-
-        def __str__(self) -> str:
-            return self.fmt.format(*self.args, **self.kwargs)
-
-    class LoggingStyleAdapter(logging.LoggerAdapter):
-        logger: logging.Logger
-
-        def __init__(
-            self,
-            logger: logging.Logger,
-            **extra: typing.Any,
-        ) -> None:
-            super().__init__(logger, extra=extra or None)
-            self.log_arg_names = frozenset(inspect.getfullargspec(self.logger._log).args[1:])
-
-        def log(self, level: int, msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None:
-            if self.isEnabledFor(level):
-                msg, args, kwargs = self.proc(msg, args, kwargs)
-                self.logger._log(level, msg, args, **kwargs)
-
-        def proc(
-            self,
-            msg: typing.Any,
-            args: tuple[typing.Any, ...],
-            kwargs: dict[str, typing.Any],
-        ) -> tuple[typing.Any, tuple[typing.Any, ...], dict[str, typing.Any]]:
-            kwargs.setdefault("stacklevel", 2)
-
-            if isinstance(msg, str):
-                msg = LogMessage(msg, args, kwargs)
-                args = tuple()
-
-            return msg, args, {name: kwargs[name] for name in self.log_arg_names if name in kwargs}
 
     def _configure_logging(
         level: str,
@@ -962,4 +963,4 @@ else:
     json = _json()
 
 
-__all__ = ("FileHandlerConfig", "json", "logger", "setup_logger")
+__all__ = ("FileHandlerConfig", "LoggingStyleAdapter", "json", "logger", "setup_logger")
