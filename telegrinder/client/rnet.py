@@ -142,6 +142,9 @@ class RnetClient(ABCClient):
         if (json_body := kwargs.pop("json", None)) is not None:
             kwargs["body"] = json.dumps(json_body)
 
+        if (timeout := kwargs.get("timeout")) is not None and isinstance(timeout, int | float):
+            kwargs["timeout"] = datetime.timedelta(seconds=timeout)
+
         return await self._client.request(_METHODS_MAP[method], url, **kwargs)
 
     async def request_text(

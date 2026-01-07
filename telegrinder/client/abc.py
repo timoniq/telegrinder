@@ -10,6 +10,7 @@ if typing.TYPE_CHECKING:
 
 type Data = typing.Any
 type Files = dict[str, tuple[str, typing.Any]]
+type Timeout = int | float | datetime.timedelta
 
 
 class ABCClient(ABC):
@@ -31,6 +32,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> str:
         pass
@@ -41,6 +43,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> dict[str, typing.Any]:
         pass
@@ -51,6 +54,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         pass
@@ -61,6 +65,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         pass
