@@ -3271,7 +3271,7 @@ class APIMethods:
         text: str | None = None,
         show_alert: bool | None = None,
         url: str | None = None,
-        cache_time: int | None = None,
+        cache_time: timedelta | int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Method `answerCallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)

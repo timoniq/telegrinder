@@ -113,7 +113,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         self,
         text: str | None = None,
         *,
-        cache_time: int | None = None,
+        cache_time: timedelta | int | None = None,
         callback_query_id: str | None = None,
         show_alert: bool | None = None,
         url: str | None = None,

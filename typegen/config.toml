@@ -916,88 +916,96 @@ fields = [
     { name = "allowed_updates", enum = "UpdateType" },
 ]
 
-# Generator :: Methods :: Params :: Annotations :: Annotations
+# Generator :: Methods :: Annotations :: Return Type
 
-[[generator.methods.params.annotations.annotations]]
-method_name = "getChatAdministrators"
+[[generator.methods.annotations.return_type]]
+name = "getChatAdministrators"
 return_type = "list[Sum[ChatMemberOwner, ChatMemberAdministrator]]"
 
-# Generator :: Methods :: Params :: Annotations :: Literals (typing.Literal, enum.Enum)
+# Generator :: Methods :: Annotations :: Parameters
 
-[[generator.methods.params.annotations.literals]]
-method_name = "createNewStickerSet"
+[[generator.methods.annotations.parameters]]
+name = "answerCallbackQuery"
+params = [
+    { name = "cache_time", type = "timedelta | int"}
+]
+
+# Generator :: Methods :: Annotations :: Literals (typing.Literal, enum.Enum)
+
+[[generator.methods.annotations.literals]]
+name = "createNewStickerSet"
 params = [
     { name = "sticker_type", literals = ["regular", "mask", "custom_emoji",] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "createInvoiceLink"
+[[generator.methods.annotations.literals]]
+name = "createInvoiceLink"
 params = [
     { name = "currency", enum = "Currency" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "createForumTopic"
+[[generator.methods.annotations.literals]]
+name = "createForumTopic"
 params = [
     { name = "icon_color", enum = "TopicIconColor" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "sendDice"
+[[generator.methods.annotations.literals]]
+name = "sendDice"
 params = [
     { name = "emoji", enum = "DiceEmoji" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "sendPoll"
+[[generator.methods.annotations.literals]]
+name = "sendPoll"
 params = [
     { name = "type", literals = ["quiz", "regular",] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "setStickerSetThumbnail"
+[[generator.methods.annotations.literals]]
+name = "setStickerSetThumbnail"
 params = [
     { name = "format", literals = ["static", "animated", "video",] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "setWebhook"
+[[generator.methods.annotations.literals]]
+name = "setWebhook"
 params = [
     { name = "allowed_updates", enum = "UpdateType" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "sendChatAction"
+[[generator.methods.annotations.literals]]
+name = "sendChatAction"
 params = [
     { name = "action", enum = "ChatAction" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "sendInvoice"
+[[generator.methods.annotations.literals]]
+name = "sendInvoice"
 params = [
     { name = "currency", enum = "Currency" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "uploadStickerFile"
+[[generator.methods.annotations.literals]]
+name = "uploadStickerFile"
 params = [
     { name = "sticker_format", literals = ["static", "animated", "video",] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "postStory"
+[[generator.methods.annotations.literals]]
+name = "postStory"
 params = [
     { name = "active_period", literals = [21600, 43200, 86400, 1036800,] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "getUpdates"
+[[generator.methods.annotations.literals]]
+name = "getUpdates"
 params = [
     { name = "allowed_updates", enum = "UpdateType" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "giftPremiumSubscription"
+[[generator.methods.annotations.literals]]
+name = "giftPremiumSubscription"
 params = [
     { name = "month_count", literals = [3, 6, 12,] },
     { name = "star_count", literals = [1000, 1500, 2500,] },

@@ -15,9 +15,9 @@ from .merge_shortcuts import merge_shortcuts
 from .models import (
     Config,
     MethodParameter,
+    MethodsAnnotationsLiteralsParam,
+    MethodsAnnotationsParametersParam,
     MethodSchema,
-    MethodsParamsAnnotationsAnnotationsParam,
-    MethodsParamsLiteralTypesParam,
     ObjectField,
     ObjectSchema,
     ObjectsFieldsAnnotationsAnnotationsField,
@@ -560,9 +560,9 @@ class MethodGenerator(ABCGenerator):
         method_name: str,
         param_name: str,
         /,
-    ) -> MethodsParamsLiteralTypesParam | None:
-        for p_literal_types in self.config.generator.methods.params.annotations.literals:
-            if method_name == p_literal_types.method_name:
+    ) -> MethodsAnnotationsLiteralsParam | None:
+        for p_literal_types in self.config.generator.methods.annotations.literals:
+            if method_name == p_literal_types.name:
                 for param in p_literal_types.params:
                     if param.name == param_name:
                         return param
@@ -583,9 +583,9 @@ class MethodGenerator(ABCGenerator):
         method_name: str,
         param_name: str,
         /,
-    ) -> MethodsParamsAnnotationsAnnotationsParam | None:
-        for p_annotation in self.config.generator.methods.params.annotations.annotations:
-            if method_name == p_annotation.method_name:
+    ) -> MethodsAnnotationsParametersParam | None:
+        for p_annotation in self.config.generator.methods.annotations.parameters:
+            if method_name == p_annotation.name:
                 for param in p_annotation.params:
                     if param.name == param_name:
                         return param
@@ -593,8 +593,8 @@ class MethodGenerator(ABCGenerator):
         return None
 
     def get_method_return_type(self, method_name: str, /) -> str | None:
-        for annotations in self.config.generator.methods.params.annotations.annotations:
-            if method_name == annotations.method_name:
+        for annotations in self.config.generator.methods.annotations.return_type:
+            if method_name == annotations.name:
                 return annotations.return_type
 
         return None
@@ -650,7 +650,7 @@ class MethodGenerator(ABCGenerator):
             param_name = makesafe_name(p.name)
 
             if annotation is not None:
-                p.types = [annotation.annotation]
+                p.types = [annotation.type]
 
             elif literal_types is not None:
                 tp = literal_types.enum or "typing.Literal[%s]" % ", ".join(
