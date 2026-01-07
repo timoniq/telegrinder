@@ -37,55 +37,55 @@ type = "Boolean"
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultArticle"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultPhoto"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultGif"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultMpeg4Gif"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultVideo"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultAudio"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultPhoto"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultVoice"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultDocument"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
@@ -97,7 +97,7 @@ fields = [
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultVenue"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
@@ -109,55 +109,55 @@ fields = [
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultGame"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedPhoto"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedGif"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedMpeg4Gif"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedSticker"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedDocument"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedVideo"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedVoice"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedAudio"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 # Generator :: Objects :: Fields :: Annotations :: Annotations

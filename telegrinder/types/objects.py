@@ -5672,7 +5672,7 @@ class InlineQueryResultArticle(InlineQueryResult):
     """Type of the result, must be article."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 Bytes."""
 
@@ -5712,7 +5712,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Type of the result, must be photo."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -5779,7 +5779,7 @@ class InlineQueryResultGif(InlineQueryResult):
     """Type of the result, must be gif."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -5852,7 +5852,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """Type of the result, must be mpeg4_gif."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -5931,7 +5931,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6000,7 +6000,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     """Type of the result, must be audio."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6057,7 +6057,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     """Type of the result, must be voice."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6114,7 +6114,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6254,7 +6254,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     """Type of the result, must be venue."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 Bytes."""
 
@@ -6369,7 +6369,7 @@ class InlineQueryResultGame(InlineQueryResult):
     """Type of the result, must be game."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6390,7 +6390,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     """Type of the result, must be photo."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6448,7 +6448,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     """Type of the result, must be gif."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6503,7 +6503,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     """Type of the result, must be mpeg4_gif."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6558,7 +6558,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     """Type of the result, must be sticker."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6598,7 +6598,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     """Type of the result, must be document."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6653,7 +6653,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     """Type of the result, must be video."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6711,7 +6711,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     """Type of the result, must be voice."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6759,7 +6759,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     """Type of the result, must be audio."""
 
     id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
+        default_factory=lambda: secrets.token_urlsafe(32),
     )
     """Unique identifier for this result, 1-64 bytes."""
 
