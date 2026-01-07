@@ -180,10 +180,22 @@ LEVEL_FORMAT_SETTINGS = dict(
 _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
-class LoggerModule(typing.Protocol):
-    logger: typing.Any
+class AnyLogger(typing.Protocol):
+    def debug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-    def set_logger(self, __logger: typing.Any, __logging_module: str) -> None: ...
+    def info(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    def warning(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    def error(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    def critical(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    def exception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+
+class LoggerModule(typing.Protocol):
+    def set_logger(self, __logger: AnyLogger) -> None: ...
 
     def debug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
@@ -212,6 +224,36 @@ class LoggerModule(typing.Protocol):
     async def acritical(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
     async def aexception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+
+class WrapperAsyncLogger:
+    def __init__(self, logger: LoggerModule, /) -> None:
+        self._logger = logger
+
+    def __getattr__(self, __name: str) -> typing.Any:
+        if __name.startswith("a") and __name in LoggerModule.__dict__:
+            return lambda *args, **kwargs: self._async_log(
+                getattr(self._logger, __name.removeprefix("a")), *args, **kwargs
+            )
+
+        return super().__getattribute__(__name)
+
+    async def _async_log(
+        self,
+        method: typing.Callable[..., typing.Any],
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> None:
+        tok = CALL_STACK_CONTEXT.set((sys._getframe(0).f_back, sys.exc_info()))  # type: ignore
+        ctx = contextvars.copy_context()
+
+        try:
+            await asyncio.get_running_loop().run_in_executor(
+                executor=None,
+                func=lambda: ctx.run(lambda: method(*args, **kwargs)),
+            )
+        finally:
+            CALL_STACK_CONTEXT.reset(tok)
 
 
 class LoggingFormatter(logging.Formatter):
@@ -367,52 +409,31 @@ class _LoggerProxy:
 
         if __name in LoggerModule.__dict__:
             is_async = __name.startswith("a")
-            method_name = __name.removeprefix("a") if is_async else __name
-            method_name = "info" if method_name == "success" and self.logging_module != "loguru" else method_name
-            level_name = __name.removeprefix("a").upper()
-            level_name = (
-                "INFO"
-                if level_name == "SUCCESS" and self.logging_module != "loguru"
-                else "ERROR"
-                if level_name == "EXCEPTION"
-                else level_name
-            )
-            level = (
-                logging._nameToLevel.get(level_name, logging.NOTSET) if self.logging_module != "loguru" else level_name
-            )
-            level_is_enabled = hasattr(self.logger, "isEnabledFor") and self.logger.isEnabledFor(level)
 
-            if is_async:
-                meth = getattr(self.logger, method_name)
-                method = (
-                    self if not level_is_enabled else lambda *args, **kwargs: self._async_log(meth, *args, **kwargs)
+            if self.logging_module is not None:
+                level_name = __name.removeprefix("a").upper()
+                level_name = (
+                    "INFO"
+                    if level_name == "SUCCESS" and self.logging_module != "loguru"
+                    else "ERROR"
+                    if level_name == "EXCEPTION"
+                    else level_name
                 )
-            else:
-                method = getattr(self.logger, method_name) if level_is_enabled else self
+                level = (
+                    logging._nameToLevel.get(level_name, logging.NOTSET)
+                    if self.logging_module != "loguru"
+                    else level_name
+                )
+                if not hasattr(self.logger, "isEnabledFor") and self.logger.isEnabledFor(level):
+                    return self
 
-            return method
+            return getattr(self.logger if not is_async else self.async_logger, __name)
 
-        return getattr(self.logger, __name)
+        return self
 
-    async def _async_log(
-        self,
-        method: typing.Callable[..., typing.Any],
-        *args: typing.Any,
-        **kwargs: typing.Any,
-    ) -> None:
-        tok = CALL_STACK_CONTEXT.set((sys._getframe(0).f_back, sys.exc_info()))  # type: ignore
-        ctx = contextvars.copy_context()
-
-        try:
-            await asyncio.get_running_loop().run_in_executor(
-                executor=None,
-                func=lambda: ctx.run(lambda: method(*args, **kwargs)),
-            )
-        finally:
-            CALL_STACK_CONTEXT.reset(tok)
-
-    def set_logger(self, logger: LoggerModule, logging_module: str) -> None:
+    def set_logger(self, logger: LoggerModule, logging_module: str | None = None) -> None:
         self.logger = logger
+        self.async_logger = WrapperAsyncLogger(logger)
         self.logging_module = logging_module
 
 
@@ -758,7 +779,7 @@ if logging_module == "structlog":
             context_class=dict,
             cache_logger_on_first_use=True,
         )
-        logger.set_logger(struct_logger, "structlog")
+        logger.set_logger(struct_logger, "structlog")  # type: ignore
 
 
 elif logging_module == "loguru":
@@ -824,7 +845,7 @@ elif logging_module == "loguru":
                 for handler_id in handlers_ids:
                     loguru_logger.remove(handler_id)
 
-        logger.set_logger(loguru_logger, "loguru")
+        logger.set_logger(loguru_logger, "loguru")  # type: ignore
 
 
 elif logging_module == "logging":
@@ -896,7 +917,7 @@ elif logging_module == "logging":
 
             _logger.addHandler(file.handler)
 
-        logger.set_logger(LoggingStyleAdapter(logger=_logger), "logging")
+        logger.set_logger(LoggingStyleAdapter(logger=_logger), "logging")  # type: ignore
 
 
 if asyncio_module in ("uvloop", "winloop"):
