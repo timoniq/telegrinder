@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import typing
 
 from kungfu.library import Error, Ok, Result, unwrapping
@@ -44,13 +42,11 @@ async def run_action_function[T: Handler](
     ) as result:
         match result:
             case Ok():
-                res = await func_handler.run(api, update, context)
+                return await func_handler.run(api, update, context)
             case Error(error):
                 return Error(
                     str(NodeError(f"failed to compose action function `{fullname(function)}`", from_error=error)),
                 )
-
-        return res
 
 
 def action(function: ActionFunction, agent: type[Agent] | None = None) -> Action:

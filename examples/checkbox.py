@@ -1,6 +1,9 @@
 from telegrinder import API, Checkbox, Message, Telegrinder, Token, WaiterMachine
 from telegrinder.bot.dispatch.waiter_machine.hasher.callback import CALLBACK_QUERY_FOR_MESSAGE
+from telegrinder.modules import setup_logger
 from telegrinder.rules import Text
+
+setup_logger()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

@@ -1,11 +1,9 @@
-from __future__ import annotations
-
 import dataclasses
 import typing
 
 from nodnod.error import NodeError
-from nodnod.interface.data import DataNode
 from nodnod.interface.generic import generic_node
+from nodnod.node import Node
 
 from telegrinder.bot.dispatch.context import Context
 
@@ -21,7 +19,7 @@ def can_catch[ExceptionT: Exception](
 
 @generic_node
 @dataclasses.dataclass(kw_only=True, frozen=True)
-class Error[*Exceptions = *tuple[type[Exception], ...]](DataNode):
+class Error[*Exceptions = *tuple[type[Exception], ...]](Node):
     exception_update: Exception
 
     @property

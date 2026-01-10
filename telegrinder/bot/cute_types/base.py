@@ -20,7 +20,7 @@ def compose_method_params[Cute: BaseCute](
         if param_name not in params:
             if param_name in validators and not validators[param_name](update):
                 continue
-            params[param_name] = getattr(update, param if isinstance(param, str) else param[1])
+            params[param_name] = getattr(update, param if isinstance(param, str) else param[1], None)
 
     return params
 

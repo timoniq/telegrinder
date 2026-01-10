@@ -161,7 +161,7 @@ async def run_agent(
 
     async with event_scope.create_child(detail=NodeScope.PER_CALL) as local_scope:
         try:
-            inject_internals(local_scope, roots or {})
+            inject_internals(local_scope, {type(context): context} | (roots or {}))
             inject_externals(local_scope, context)
             await maybe_awaitable(agent.run(local_scope, mapped_scopes))
             yield Ok(local_scope.merge())
