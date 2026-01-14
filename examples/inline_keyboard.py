@@ -9,10 +9,13 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
+from telegrinder.modules import setup_logger
 from telegrinder.node import ChatId
 from telegrinder.rules import PayloadModelRule, Text
 from telegrinder.tools import MsgPackSerializer
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
+
+setup_logger()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -88,6 +91,9 @@ async def start(message: Message) -> None:
 
 @bot.on.callback_query(StoreKeyboard.back_to_menu)
 async def back_menu(cb: CallbackQuery, chat_id: ChatId) -> None:
+    if cb.message_cute:
+        await cb.message_cute.unwrap().delete()
+
     await cb.api.send_message(
         chat_id=chat_id,
         text="hi there. pick an option below:",

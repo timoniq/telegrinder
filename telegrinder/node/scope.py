@@ -5,7 +5,6 @@ Scopes:
 - `PER_EVENT`: compose once per event, so if during the composition the node was already composed, it will be reused and won't be composed twice ~ `@per_event`
 - `PER_CALL`: compose each time any node will require it to build itself or if we require it to be delivered into the handler ~ `@per_call`
 """
-
 from __future__ import annotations
 
 import enum

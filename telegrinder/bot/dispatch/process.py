@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import typing
 
 from kungfu.library.monad.result import Error, Ok, Result
@@ -69,21 +67,25 @@ async def process_inner(
 
 async def check_rule(rule: ABCRule, context: Context) -> bool:
     ctx_copy = context.copy()
+
     for requirement in rule.requires:
         if not await check_rule(requirement, ctx_copy):
             return False
 
     context |= ctx_copy
 
+    await logger.adebug("  → Checking rule `{!r}`...", rule)
+
     async with compose(rule.composable, context) as result:
         match result:
             case Ok(result):
+                await logger.adebug("    * Rule `{!r}` is {}", rule, "ok" if result else "failed")
                 return result
             case Error(error):
                 await logger.adebug(
-                    "Rule `{}` failed with error:{}",
+                    "    * Rule `{}` failed with error:{}\n",
                     fullname(rule),
-                    NodeError(f"failed to compose check of `{fullname(rule)}` rule", from_error=error),
+                    NodeError(f"* failed to compose check of `{fullname(rule)}` rule", from_error=error, indent=6),
                 )
 
     return False

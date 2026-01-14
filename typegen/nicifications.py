@@ -6,8 +6,6 @@ The difference between nicifications and cure types is: cute types can borrow vi
 Nicifications can only implement fields/methods/properties working only with model fields.
 """
 
-from __future__ import annotations
-
 from datetime import datetime
 from functools import cached_property
 

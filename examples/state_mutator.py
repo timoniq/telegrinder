@@ -51,7 +51,7 @@ from telegrinder import API, Bot, Token, setup_logger
 from telegrinder.rules import Text
 
 bot = Bot(API(Token.from_env()))
-setup_logger(level="DEBUG")
+setup_logger()
 
 
 @bot.on.message(Text("/die"))

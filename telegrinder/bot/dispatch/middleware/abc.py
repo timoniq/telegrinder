@@ -3,12 +3,14 @@ from abc import ABC
 from functools import cached_property
 
 from kungfu.library.monad.result import Error, Ok
+from nodnod.agent.event_loop.agent import EventLoopAgent
 from nodnod.error import NodeError
-from nodnod.utils.misc import reverse_dict
+from nodnod.interface.node_from_function import create_node_from_function
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
-from telegrinder.node.compose import compose, create_composable_from_node, create_node_from_func
+from telegrinder.node.compose import compose, create_composable_from_node
+from telegrinder.node.utils import get_globals_from_function, get_locals_from_function
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.lifespan import Lifespan
 
@@ -42,7 +44,7 @@ async def run_middleware(
     middleware: ABCMiddleware,
     context: Context,
     *,
-    composable: Composable,
+    composable: Composable[typing.Any],
 ) -> bool | None:
     async with compose(composable, context) as result:
         match result:
@@ -50,14 +52,14 @@ async def run_middleware(
                 return response
             case Error(error):
                 await logger.adebug(
-                    "Middleware `{!r}` failed with error:{}",
+                    "Middleware `{!r}` failed with error:{}\n",
                     middleware_name := fullname(middleware),
-                    NodeError(f"failed to compose middleware `{middleware_name}`", from_error=error),
+                    NodeError(f"* failed to compose middleware `{middleware_name}`", from_error=error),
                 )
 
 
 class ABCMiddleware(ABC):
-    agent_cls: type[Agent] | None = None
+    agent_cls: type[Agent] = EventLoopAgent
     pre_required_nodes: typing.Mapping[str, Node] | None = None
     post_required_nodes: typing.Mapping[str, Node] | None = None
 
@@ -82,27 +84,29 @@ class ABCMiddleware(ABC):
 
     @cached_property
     def pre_composable(self) -> Composable:
-        return create_composable_from_node(
-            create_node_from_func(
-                self.pre,
-                dependencies_names=None if self.pre_required_nodes is None else reverse_dict(self.pre_required_nodes),  # type: ignore
-            ),
-            agent_cls=self.agent_cls,
-        )
+        return self.get_composable(self.pre, self.agent_cls, required_nodes=self.pre_required_nodes)
 
     @cached_property
     def post_composable(self) -> Composable:
-        return create_composable_from_node(
-            create_node_from_func(
-                self.post,
-                dependencies_names=None if self.post_required_nodes is None else reverse_dict(self.post_required_nodes),  # type: ignore
-            ),
-            agent_cls=self.agent_cls,
+        return self.get_composable(self.post, self.agent_cls, required_nodes=self.post_required_nodes)
+
+    @staticmethod
+    def get_composable(
+        method: typing.Callable[..., typing.Any],
+        agent_cls: type[Agent] | None,
+        required_nodes: typing.Mapping[str, Node] | None,
+    ) -> Composable:
+        node = create_node_from_function(
+            method,
+            dependencies=required_nodes,
+            forward_refs=get_globals_from_function(method),
+            namespace=get_locals_from_function(method),
         )
+        return create_composable_from_node(node, agent_cls=agent_cls)
 
-    def pre(self) -> MiddlewareResult: ...
+    def pre(self, *args: typing.Any, **kwargs: typing.Any) -> MiddlewareResult: ...
 
-    def post(self) -> MiddlewareResult: ...
+    def post(self, *args: typing.Any, **kwargs: typing.Any) -> MiddlewareResult: ...
 
     def to_lifespan(self, context: Context) -> Lifespan:
         return Lifespan(
@@ -111,8 +115,4 @@ class ABCMiddleware(ABC):
         )
 
 
-__all__ = (
-    "ABCMiddleware",
-    "run_post_middleware",
-    "run_pre_middleware",
-)
+__all__ = ("ABCMiddleware", "run_post_middleware", "run_pre_middleware")

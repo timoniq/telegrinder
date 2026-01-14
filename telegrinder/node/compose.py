@@ -22,7 +22,7 @@ async def handler(context: Context):
                 print(f"Error: {error}")
 
 # Executing a node with additional dependencies
-from telegrinder.nod import per_call, scalar_node
+from telegrinder.node import per_call, scalar_node
 
 @per_call
 @scalar_node
@@ -59,7 +59,6 @@ The `compose` function returns an async context manager that:
 - Returns `Result[T, NodeError]` with the composed result
 """
 
-from __future__ import annotations
 
 import dataclasses
 import typing
@@ -70,7 +69,7 @@ from kungfu.library.monad.result import Error, Ok, Result
 from nodnod.agent.base import Agent
 from nodnod.agent.event_loop.agent import EventLoopAgent
 from nodnod.error import NodeError
-from nodnod.interface.node_from_function import create_agent_from_node, create_node_from_function, inject_externals
+from nodnod.interface import create_agent_from_node, create_node_from_function, inject_externals, inject_internals
 from nodnod.node import Injection, Node
 from nodnod.scope import Scope
 from nodnod.utils.is_type import is_type
@@ -87,58 +86,16 @@ type _Composable[T: Agent] = Function[..., typing.Any] | type[Node[typing.Any, t
 FromContext = Injection
 
 
-@typing.overload
-def create_composable_from_function(
-    function: Function[..., typing.Any],
-    /,
-    *,
-    agent_cls: None = None,
-) -> Composable[EventLoopAgent]: ...
-
-
-@typing.overload
-def create_composable_from_function[T: Agent](
-    function: Function[..., typing.Any],
-    /,
-    *,
-    agent_cls: type[T],
-) -> Composable[T]: ...
-
-
 @lru_cache(maxsize=1024 * 4)
-def create_composable_from_function(
-    function: Function[..., typing.Any],
+def create_composable_from_node[T: Agent](
+    node: type[Node[typing.Any, typing.Any]] | Function[..., typing.Any],
     /,
     *,
-    agent_cls: type[Agent] | None = None,
-) -> Composable[typing.Any]:
-    return create_composable_from_node(create_node_from_function(func=function), agent_cls=agent_cls)
-
-
-def create_composable_from_node(
-    node: type[Node[typing.Any, typing.Any]],
-    /,
-    *,
-    agent_cls: type[Agent] | None = None,
-) -> Composable[typing.Any]:
-    agent = create_agent_from_node(node, agent_cls=agent_cls or EventLoopAgent)
-    return Composable(node, agent)
-
-
-def create_node_from_func(
-    func: Function[..., typing.Any],
-    /,
-    *,
-    dependencies_names: typing.Mapping[typing.Any, str] | None = None,
-) -> type[Node]:
-    node = create_node_from_function(func)
-    getattr(node, "__names__").update(dependencies_names or {})
-    return node
-
-
-def inject_internals(scope: Scope, internals: dict[type[typing.Any], typing.Any]) -> None:
-    for key, value in internals.items():
-        scope.inject(key, value)
+    agent_cls: type[T] = EventLoopAgent,
+) -> Composable[T]:
+    if not isinstance(node, type):
+        node = create_node_from_function(node)
+    return Composable(node, create_agent_from_node(node, agent_cls=agent_cls))
 
 
 @asynccontextmanager
@@ -219,7 +176,7 @@ async def compose[T = typing.Any](
     if isinstance(node, Composable):
         composable = node
     elif callable(node):
-        composable = create_composable_from_function(node, agent_cls=agent_cls)
+        composable = create_composable_from_node(node, agent_cls=agent_cls or EventLoopAgent)
 
     if composable is not None:
         node, agent = composable.node, typing.cast("Agent", composable.agent)
@@ -239,4 +196,10 @@ class Composable[T: Agent = Agent]:
     agent: T
 
 
-__all__ = ("Composable", "FromContext", "compose", "create_composable_from_function", "run_agent")
+__all__ = (
+    "Composable",
+    "FromContext",
+    "compose",
+    "create_composable_from_node",
+    "run_agent",
+)

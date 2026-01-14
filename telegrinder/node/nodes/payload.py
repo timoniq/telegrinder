@@ -15,6 +15,8 @@ from telegrinder.node.nodes.global_node import GlobalNode
 from telegrinder.tools.serialization.abc import ABCDataSerializer
 from telegrinder.tools.serialization.json_ser import JSONSerializer
 
+type _UndefinedSerializer = typing.Any
+
 
 @scalar_node
 @polymorphic[str]
@@ -34,26 +36,29 @@ class Payload:
         ).expect(NodeError("Message has no successful payment."))
 
 
-@dataclasses.dataclass(frozen=True, slots=True)
-class PayloadSerializer[T: type[ABCDataSerializer] = typing.Any](DataNode, GlobalNode[T]):
+@dataclasses.dataclass(frozen=True)
+class PayloadSerializer[T: type[ABCDataSerializer] = typing.Any](GlobalNode[T]):
     serializer: type[ABCDataSerializer[typing.Any]]
 
     @classmethod
     def __compose__(cls) -> typing.Self:
-        return cls(serializer=cls.get(default=JSONSerializer))
+        return cls(serializer=JSONSerializer)
 
 
 @generic_node
-class _PayloadData[Data, Serializer: ABCDataSerializer = JSONSerializer]:
+class _PayloadData[Data, Serializer: ABCDataSerializer = _UndefinedSerializer]:
     @classmethod
     def __compose__(
         cls,
         payload: Payload,
         data: type[Data],
-        global_serializer: PayloadSerializer,
         payload_serializer: type[Serializer],
+        global_serializer: PayloadSerializer,
     ) -> typing.Any:
-        serializer = global_serializer.serializer or payload_serializer
+        if payload_serializer is _UndefinedSerializer:
+            serializer = getattr(data, "__serializer__", global_serializer.serializer)
+        else:
+            serializer = payload_serializer
 
         match serializer(data).deserialize(payload):
             case Ok(value):
@@ -65,10 +70,9 @@ class _PayloadData[Data, Serializer: ABCDataSerializer = JSONSerializer]:
 if typing.TYPE_CHECKING:
     type PayloadData[
         DataType = typing.Any,
-        Serializer: ABCDataSerializer = AnySerializer,
+        Serializer: ABCDataSerializer = _UndefinedSerializer,
     ] = typing.Annotated[DataType, Serializer]
 
-    AnySerializer = typing.NewType("AnySerializer", ABCDataSerializer)
 else:
     PayloadData = _PayloadData
 

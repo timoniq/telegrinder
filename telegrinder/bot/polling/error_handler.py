@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import asyncio
 import sys
@@ -55,13 +54,13 @@ class ErrorHandler:
         sys.exit(3)
 
     async def _handle_cancelled_error(self, _: asyncio.CancelledError) -> None:
-        await logger.ainfo("Caught cancel, stopping polling...")
+        await logger.ainfo("Caught cancel, stopping polling")
         self._polling.stop()
 
     async def _handle_connection_timeout_error(self, _: BaseException) -> None:
         if self._polling.reconnects_counter > self._polling.max_reconnects:
             await logger.aerror(
-                "Failed to reconnect to Telegram API server after {} attempts, stopping polling...",
+                "Failed to reconnect to Telegram API server after {} attempts, stopping polling",
                 self._polling.max_reconnects,
             )
             self._polling.stop()

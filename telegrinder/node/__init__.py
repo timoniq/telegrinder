@@ -34,6 +34,8 @@ async def hello_world(greeter: Greeter) -> str:
 
 # pyright: reportUnusedImport=false, reportUnsupportedDunderAll=false
 
+from nodnod.interface import DataNode, ResultNode, case, generic, polymorphic, scalar_node
+
 from telegrinder.node.compose import Composable, FromContext, compose, run_agent
 from telegrinder.node.nodes import *
 from telegrinder.node.nodes import __all__ as nodes_all
@@ -50,6 +52,12 @@ __all__ = nodes_all + (
     "Composable",
     "run_agent",
     "global_node",
+    "DataNode",
+    "ResultNode",
+    "case",
+    "generic",
+    "polymorphic",
+    "scalar_node",
     "per_call",
     "per_event",
 )

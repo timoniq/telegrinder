@@ -1,8 +1,7 @@
-from __future__ import annotations
-
 import typing
 from collections import deque
 
+from nodnod.interface.inject import inject_internals
 from nodnod.scope import Scope
 
 from telegrinder.api.api import API
@@ -14,7 +13,6 @@ from telegrinder.bot.dispatch.router.base import Router
 from telegrinder.bot.dispatch.view.base import View
 from telegrinder.bot.dispatch.view.box import ViewBox
 from telegrinder.modules import logger
-from telegrinder.node.compose import inject_internals
 from telegrinder.node.scope import PER_EVENT
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
@@ -209,7 +207,8 @@ class Dispatch[
                         raise exception from None
                     except Exception:
                         await logger.aexception(
-                            "Exception update (id={}, type={!r}) from router `{!r}` is not processed, traceback message below:",
+                            "{} is empty for exception update (id={}, type={!r}) from router `{!r}`, traceback message below:",
+                            router.error,
                             update.update_id,
                             update.update_type,
                             router,
@@ -241,7 +240,10 @@ class Dispatch[
         async with self.global_context.loop_wrapper.create_task_group() as task_group:
             for router in self.routers:
                 await logger.adebug(
-                    "Routing update (id={}, type={!r}) to router `{!r}`", update.update_id, update.update_type, router
+                    "Routing update (id={}, type={!r}) to router `{!r}`",
+                    update.update_id,
+                    update.update_type,
+                    router,
                 )
                 task_group.create_task(router.route(api, update, context))
 
@@ -253,10 +255,7 @@ class Dispatch[
         per_event_scope = self.global_scope.create_child(detail=PER_EVENT)
         context = Context().add_roots(api, update, per_event_scope)
 
-        inject_internals(
-            per_event_scope,
-            {API: api, Update: update},
-        )
+        inject_internals(per_event_scope, {API: api, Update: update})
 
         failed = False
         start_time = self.global_context.loop_wrapper.loop.time()

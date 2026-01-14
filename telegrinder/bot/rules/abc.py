@@ -1,15 +1,15 @@
-from __future__ import annotations
-
 import typing
 from abc import ABC, abstractmethod
 from collections import deque
 from functools import cached_property
 
-from nodnod.utils.misc import reverse_dict
+from nodnod.agent.event_loop.agent import EventLoopAgent
+from nodnod.interface.node_from_function import create_node_from_function
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.node.compose import create_composable_from_node, create_node_from_func
+from telegrinder.node.compose import create_composable_from_node
+from telegrinder.node.utils import get_globals_from_function, get_locals_from_function
 from telegrinder.tools.fullname import fullname
 
 if typing.TYPE_CHECKING:
@@ -23,7 +23,7 @@ type Node = typing.Any
 
 class ABCRule(ABC):
     required_nodes: typing.Mapping[str, Node] | None = None
-    agent_cls: type[Agent] | None = None
+    agent_cls: type[Agent] = EventLoopAgent
     requires: deque[ABCRule] = deque()
 
     @abstractmethod
@@ -64,7 +64,10 @@ class ABCRule(ABC):
         return NotRule(self)
 
     def __repr__(self) -> str:
-        return "<{}, requires={!r}>".format(fullname(self), self.requires)
+        return "<{}{}>".format(
+            fullname(self),
+            "" if not self.requires else ", requires={!r}".format(self.requires),
+        )
 
     def as_optional(self) -> ABCRule:
         return self | Always()
@@ -74,13 +77,13 @@ class ABCRule(ABC):
 
     @cached_property
     def composable(self) -> Composable:
-        return create_composable_from_node(
-            create_node_from_func(
-                self.check,
-                dependencies_names=None if not self.required_nodes else reverse_dict(self.required_nodes),  # type: ignore
-            ),
-            agent_cls=self.agent_cls,
+        node = create_node_from_function(
+            self.check,
+            dependencies=self.required_nodes,
+            forward_refs=get_globals_from_function(self.check),
+            namespace=get_locals_from_function(self.check),
         )
+        return create_composable_from_node(node, agent_cls=self.agent_cls)
 
 
 class AndRule(ABCRule):

@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import dataclasses
 import typing
@@ -104,7 +103,7 @@ class Router[
         match await view.check(api, update, context):
             case Ok():
                 await logger.adebug(
-                    "View `{!r}` from router `{!r}` for update (id={}, type={!r}) is okay, processing...",
+                    "View `{!r}` from router `{!r}` for update (id={}, type={!r}) is happy, processing...",
                     view,
                     self,
                     update.update_id,

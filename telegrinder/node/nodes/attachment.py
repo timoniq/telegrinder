@@ -1,9 +1,9 @@
 import dataclasses
 import typing
 
-from kungfu.library.monad.option import Nothing, Option, Some
+from kungfu.library.monad.option import Nothing, Option
 from nodnod.error import NodeError
-from nodnod.interface.data import DataNode
+from nodnod.interface.data import Node
 from nodnod.interface.scalar import scalar_node
 
 import telegrinder.types
@@ -21,144 +21,127 @@ type AttachmentType = typing.Literal[
     "successful_payment",
 ]
 
+NOTHING: typing.Final = Nothing()
+NOTHING_FACTORY: typing.Final = lambda: NOTHING
+ATTACHMENT_TYPES: typing.Final[tuple[AttachmentType, ...]] = typing.get_args(AttachmentType.__value__)
 
-@dataclasses.dataclass(slots=True)
-class Attachment(DataNode):
+
+@dataclasses.dataclass
+class Attachment(Node):
     attachment_type: AttachmentType
 
     animation: Option[telegrinder.types.Animation] = dataclasses.field(
-        default_factory=Nothing,
+        default_factory=NOTHING_FACTORY,
         kw_only=True,
     )
     audio: Option[telegrinder.types.Audio] = dataclasses.field(
-        default_factory=Nothing,
+        default_factory=NOTHING_FACTORY,
         kw_only=True,
     )
     document: Option[telegrinder.types.Document] = dataclasses.field(
-        default_factory=Nothing,
+        default_factory=NOTHING_FACTORY,
         kw_only=True,
     )
     photo: Option[list[telegrinder.types.PhotoSize]] = dataclasses.field(
-        default_factory=Nothing,
+        default_factory=NOTHING_FACTORY,
         kw_only=True,
     )
     poll: Option[telegrinder.types.Poll] = dataclasses.field(default_factory=lambda: Nothing(), kw_only=True)
     voice: Option[telegrinder.types.Voice] = dataclasses.field(
-        default_factory=Nothing,
+        default_factory=NOTHING_FACTORY,
         kw_only=True,
     )
     video: Option[telegrinder.types.Video] = dataclasses.field(
-        default_factory=Nothing,
+        default_factory=NOTHING_FACTORY,
         kw_only=True,
     )
     video_note: Option[telegrinder.types.VideoNote] = dataclasses.field(
-        default_factory=Nothing,
+        default_factory=NOTHING_FACTORY,
         kw_only=True,
     )
     successful_payment: Option[telegrinder.types.SuccessfulPayment] = dataclasses.field(
-        default_factory=Nothing,
+        default_factory=NOTHING_FACTORY,
         kw_only=True,
     )
 
     @classmethod
-    def get_attachment_types(cls) -> tuple[AttachmentType, ...]:
-        return typing.get_args(AttachmentType.__value__)
-
-    @classmethod
     def __compose__(cls, message: MessageCute) -> typing.Self:
-        for attachment_type in cls.get_attachment_types():
-            match getattr(message, attachment_type, Nothing()):
-                case Some(attachment):
-                    return cls(attachment_type, **{attachment_type: Some(attachment)})
+        for attachment_type in ATTACHMENT_TYPES:
+            attachment = getattr(message, attachment_type, NOTHING)
+
+            if attachment:
+                return cls(attachment_type, **{attachment_type: attachment})
 
         raise NodeError("No attachment found in message.")
 
 
-@dataclasses.dataclass(slots=True)
-class Photo(DataNode):
+@dataclasses.dataclass
+class Photo(Node):
     sizes: list[telegrinder.types.PhotoSize]
 
     @classmethod
     def __compose__(cls, attachment: Attachment) -> typing.Self:
-        if not attachment.photo:
-            raise NodeError("Attachment is not a photo.")
-        return cls(attachment.photo.unwrap())
+        return cls(attachment.photo.expect(NodeError("Attachment is not a photo.")))
 
 
 @scalar_node
 class Video:
     @classmethod
     def __compose__(cls, attachment: Attachment) -> telegrinder.types.Video:
-        if not attachment.video:
-            raise NodeError("Attachment is not a video.")
-        return attachment.video.unwrap()
+        return attachment.video.expect(NodeError("Attachment is not a video."))
 
 
 @scalar_node
 class VideoNote:
     @classmethod
     def __compose__(cls, attachment: Attachment) -> telegrinder.types.VideoNote:
-        if not attachment.video_note:
-            raise NodeError("Attachment is not a video note.")
-        return attachment.video_note.unwrap()
+        return attachment.video_note.expect(NodeError("Attachment is not a video note."))
 
 
 @scalar_node
 class Audio:
     @classmethod
     def __compose__(cls, attachment: Attachment) -> telegrinder.types.Audio:
-        if not attachment.audio:
-            raise NodeError("Attachment is not an audio.")
-        return attachment.audio.unwrap()
+        return attachment.audio.expect(NodeError("Attachment is not an audio."))
 
 
 @scalar_node
 class Animation:
     @classmethod
     def __compose__(cls, attachment: Attachment) -> telegrinder.types.Animation:
-        if not attachment.animation:
-            raise NodeError("Attachment is not an animation.")
-        return attachment.animation.unwrap()
+        return attachment.animation.expect(NodeError("Attachment is not an animation."))
 
 
 @scalar_node
 class Voice:
     @classmethod
     def __compose__(cls, attachment: Attachment) -> telegrinder.types.Voice:
-        if not attachment.voice:
-            raise NodeError("Attachment is not a voice.")
-        return attachment.voice.unwrap()
+        return attachment.voice.expect(NodeError("Attachment is not a voice."))
 
 
 @scalar_node
 class Document:
     @classmethod
     def __compose__(cls, attachment: Attachment) -> telegrinder.types.Document:
-        if not attachment.document:
-            raise NodeError("Attachment is not a document.")
-        return attachment.document.unwrap()
+        return attachment.document.expect(NodeError("Attachment is not a document."))
 
 
 @scalar_node
 class Poll:
     @classmethod
     def __compose__(cls, attachment: Attachment) -> telegrinder.types.Poll:
-        if not attachment.poll:
-            raise NodeError("Attachment is not a poll.")
-        return attachment.poll.unwrap()
+        return attachment.poll.expect(NodeError("Attachment is not a poll."))
 
 
 @scalar_node
 class SuccessfulPayment:
     @classmethod
     def __compose__(cls, attachment: Attachment) -> telegrinder.types.SuccessfulPayment:
-        if not attachment.successful_payment:
-            raise NodeError("Attachment is not a successful payment.")
-        return attachment.successful_payment.unwrap()
+        return attachment.successful_payment.expect(NodeError("Attachment is not a successful payment."))
 
 
-@dataclasses.dataclass(slots=True)
-class MediaGroup(DataNode):
+@dataclasses.dataclass
+class MediaGroup(Node):
     id: str
     items: list[MessageCute]
 

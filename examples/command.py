@@ -1,5 +1,8 @@
 from telegrinder import API, Message, Telegrinder, Token
+from telegrinder.modules import setup_logger
 from telegrinder.rules import Argument, Command
+
+setup_logger()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -54,7 +57,7 @@ async def split_handler(
         Argument("r", [int_validator], optional=True),
     )
 )
-async def sum_handler(message: Message, x: int, y: int, r: int | None = None) -> str:
+async def sum_handler(x: int, y: int, r: int | None = None) -> str:
     if r is not None:
         return "Yes" if x + y == r else "No"
     return str(x + y)

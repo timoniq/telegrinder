@@ -15,9 +15,4 @@ async def start_handler(message: Message, param: int | None) -> None:
     )
 
 
-@bot.on.message(StartCommand(param_required=True, alias="name"))
-async def start_with_name(message: Message, name: str):
-    await message.reply(f"Hello, {name!r}!")
-
-
 bot.run_forever()

@@ -8,7 +8,10 @@ of photos, videos or other media sent together.
 from kungfu.library.monad.option import Option
 
 from telegrinder import API, Telegrinder, Token
+from telegrinder.modules import setup_logger
 from telegrinder.node import Caption, MediaGroup
+
+setup_logger()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

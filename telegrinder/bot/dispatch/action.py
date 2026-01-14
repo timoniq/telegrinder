@@ -45,7 +45,9 @@ async def run_action_function[T: Handler](
                 return await func_handler.run(api, update, context)
             case Error(error):
                 return Error(
-                    str(NodeError(f"failed to compose action function `{fullname(function)}`", from_error=error)),
+                    "{}\n".format(
+                        NodeError(f"* failed to compose action function `{fullname(function)}`", from_error=error),
+                    ),
                 )
 
 

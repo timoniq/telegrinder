@@ -10,8 +10,8 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
-from telegrinder.modules import logger
-from telegrinder.node.payload import PayloadData
+from telegrinder.modules import logger, setup_logger
+from telegrinder.node import PayloadData
 from telegrinder.rules import (
     PayloadEqRule,
     PayloadMarkupRule,
@@ -19,6 +19,8 @@ from telegrinder.rules import (
     Text,
 )
 from telegrinder.tools.serialization import MsgPackSerializer
+
+setup_logger()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
@@ -74,4 +76,4 @@ async def select_item(cb: CallbackQuery, item: Item) -> None:
     await cb.answer(f"You ate an {item.name!r} for {item.amount} cents 😋")
 
 
-bot.run_forever()
+bot.run_forever(skip_updates=True)

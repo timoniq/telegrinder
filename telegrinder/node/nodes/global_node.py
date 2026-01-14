@@ -13,7 +13,7 @@ _Unspecialized = typing.NewType("_Unspecialized", type)
 
 
 @global_node
-class GlobalNode[T = _Unspecialized](Node):
+class GlobalNode[T = _Unspecialized](Node, abstract=True):
     @typing.overload
     @classmethod
     def set(cls: type[GlobalNode[_Unspecialized]], value: typing.Self, /) -> None: ...  # type: ignore

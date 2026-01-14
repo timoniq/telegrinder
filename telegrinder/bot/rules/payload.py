@@ -24,7 +24,7 @@ class PayloadRule[Data](ABCRule):
         alias: str | None = None,
     ) -> None:
         self.data_type = data_type
-        self.serializer = serializer or get_model_serializer(data_type) or JSONSerializer
+        self.serializer = serializer or get_model_serializer(data_type) or JSONSerializer[typing.Any]
         self.alias = alias or "data"
         self.required_nodes = dict(payload=PayloadData[self.data_type, self.serializer])
 

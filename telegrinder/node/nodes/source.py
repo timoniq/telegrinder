@@ -20,7 +20,7 @@ from telegrinder.types.objects import Chat, Message, User
 
 @scalar_node
 @polymorphic["Source"]
-@dataclasses.dataclass(kw_only=True, slots=True)
+@dataclasses.dataclass(kw_only=True)
 class Source:
     api: API
     from_user: User
@@ -28,7 +28,6 @@ class Source:
     thread_id: Option[int] = dataclasses.field(default_factory=Nothing)
 
     @case
-    @classmethod
     def compose_message(cls, message: MessageCute) -> typing.Self:
         return cls(
             api=message.api,
@@ -38,7 +37,6 @@ class Source:
         )
 
     @case
-    @classmethod
     def compose_callback_query(cls, callback_query: CallbackQueryCute) -> typing.Self:
         return cls(
             api=callback_query.api,
@@ -48,7 +46,6 @@ class Source:
         )
 
     @case
-    @classmethod
     def compose_inline_query(cls, inline_query: InlineQueryCute) -> typing.Self:
         return cls(
             api=inline_query.api,
@@ -56,7 +53,6 @@ class Source:
         )
 
     @case
-    @classmethod
     def compose_chat_member_updated(cls, chat_member_updated: ChatMemberUpdatedCute) -> typing.Self:
         return cls(
             api=chat_member_updated.api,
@@ -65,7 +61,6 @@ class Source:
         )
 
     @case
-    @classmethod
     def compose_chat_join_request(cls, chat_join_request: ChatJoinRequestCute) -> typing.Self:
         return cls(
             api=chat_join_request.api,
@@ -74,7 +69,6 @@ class Source:
         )
 
     @case
-    @classmethod
     def compose_pre_checkout_query(cls, pre_checkout_query: PreCheckoutQueryCute) -> typing.Self:
         return cls(
             api=pre_checkout_query.api,

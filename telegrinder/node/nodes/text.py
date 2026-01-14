@@ -42,7 +42,7 @@ else:
     @generic_node
     class TextLiteral[*Ts]:
         @classmethod
-        def compose(cls, text: Text, texts: tuple[typing.Unpack[Ts]]) -> str:
+        def __compose__(cls, text: Text, texts: tuple[typing.Unpack[Ts]]) -> str:
             if text in cls.texts:
                 return text
             raise NodeError("Text mismatched literal.")

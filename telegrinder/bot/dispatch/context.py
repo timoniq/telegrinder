@@ -171,11 +171,6 @@ class Context(ContextDict):
     ) -> typing.Self:
         from telegrinder.bot.cute_types.update import UpdateCute
 
-        context_cls = type(self)
-
-        if context_cls not in per_event_scope:
-            per_event_scope.inject(context_cls, self)
-
         self.set_roots(
             roots={
                 "api": api,

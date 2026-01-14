@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import asyncio
 import contextvars
 import dataclasses
@@ -316,8 +314,8 @@ class _LoggerProxy:
 
     def __getattr__(self, __name: str) -> typing.Any:
         if self.logger is None:
-            if __name == "exception" and (exception := sys.exception()) is not None:
-                traceback.print_exception(exception, chain=True, colorize=True)  # type: ignore
+            if __name in ("exception", "aexception") and (exc := sys.exception()) is not None:
+                traceback.print_exception(exc, chain=True, file=sys.stderr)
 
             return self
 

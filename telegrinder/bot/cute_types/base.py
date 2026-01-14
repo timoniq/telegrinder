@@ -143,6 +143,7 @@ else:
         def __init_subclass__(cls, *args, **kwargs):
             cls.__is_resolved_annotations__ = False
             cls.__cute_annotations__ = None
+            super().__init_subclass__(*args, **kwargs)
 
         @classmethod
         def __compose__(cls, update: Update, api: API, context: Context):

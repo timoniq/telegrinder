@@ -19,13 +19,13 @@ type DataclassType = DataclassInstance | msgspec.Struct | dict[str, typing.Any]
 
 
 @generic_node
-class EventNode[Dataclass: DataclassType]:  # pyright: ignore[reportRedeclaration]
+class EventNode[Dataclass: DataclassType]:  # type: ignore[reportRedeclaration]
     @classmethod
     def __compose__(
         cls,
         api: API,
         raw_update: Update,
-        dataclass: type[DataclassType],
+        dataclass: type[Dataclass],
         update_cute: UpdateCute,
     ) -> DataclassType:
         orig_dataclass = typing.get_origin(dataclass) or dataclass

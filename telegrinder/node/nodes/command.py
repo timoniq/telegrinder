@@ -2,7 +2,7 @@ import typing
 from dataclasses import dataclass, field
 
 from kungfu.library.monad.option import Nothing, Option, Some
-from nodnod.interface.data import DataNode
+from nodnod.interface.data import Node
 
 from telegrinder.node.nodes.text import Caption, Text
 
@@ -17,8 +17,8 @@ def cut_mention(text: str) -> tuple[str, Option[str]]:
     return left, Some(right) if right else Nothing()
 
 
-@dataclass(slots=True)
-class CommandInfo(DataNode):
+@dataclass
+class CommandInfo(Node):
     name: str
     arguments: str
     mention: Option[str] = field(default_factory=Nothing)

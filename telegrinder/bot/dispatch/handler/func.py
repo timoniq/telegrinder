@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import dataclasses
 import typing
 from collections import deque
@@ -66,8 +64,8 @@ class FuncHandler[T: Function](ABCHandler):
         context |= temp_ctx
         async with compose(self.function, context, agent_cls=self.agent or EventLoopAgent) as result:
             return result.map_err(
-                lambda error: "Run handler failed with error: {}".format(
-                    NodeError(f"failed to compose handler `{self!r}`", from_error=error),
+                lambda error: "{}\n".format(
+                    NodeError(f"* failed to compose handler `{self!r}`", from_error=error),
                 ),
             )
 

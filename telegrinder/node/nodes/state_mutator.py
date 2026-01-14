@@ -1,64 +1,56 @@
 import typing
 
+from kungfu.library.monad.option import Some
 from nodnod.error import NodeError
 from nodnod.node import Node
 
+from telegrinder.node.nodes.payload import PayloadSerializer
 from telegrinder.node.nodes.source import Source
 from telegrinder.tools.fullname import fullname
-from telegrinder.tools.serialization import (
-    ABCDataSerializer,
-    JSONSerializer,
-)
+from telegrinder.tools.serialization import ABCDataSerializer
 from telegrinder.tools.state_storage.memory import ABCStateStorage, MemoryStateStorage
 
 
 class StateMutator(Node):
     STORAGE = MemoryStateStorage[str]()  # TODO: use nodnod injection to get storage inside StateMutator.compose
-    # TODO: use nodnod injection to set custom StateMutator
-    KEY_MAP: dict[str, type["State"]] = {}
+    KEY_MAP: dict[str, type[State]] = {}
 
-    def __init__(self, storage: ABCStateStorage[str], user_id: int) -> None:
+    def __init__(
+        self,
+        storage: ABCStateStorage[str],
+        user_id: int,
+        serializer: type[ABCDataSerializer[State]],
+    ) -> None:
         self.storage = storage
         self.user_id = user_id
+        self.serializer = serializer
 
-    async def get(self) -> "State | None":
-        result = await self.storage.get(self.user_id)
-        if not result:
-            return None
+    async def get(self) -> State | None:
+        match await self.storage.get(self.user_id):
+            case Some(state_data) if state_data.key in self.KEY_MAP:
+                return (
+                    self
+                    .serializer(self.KEY_MAP[state_data.key])
+                    .deserialize(state_data.payload)
+                    .map(lambda state: state.bind(self))
+                    .unwrap_or_none()
+                )
 
-        state_data = result.unwrap()
+        return None
 
-        if state_data.key not in self.KEY_MAP:
-            return None
-
-        state_cls = self.KEY_MAP[state_data.key]
-        result = state_cls.__serializer__(state_cls).deserialize(state_data.payload)
-
-        if not result:
-            return None
-
-        state = result.unwrap()
-        return state.bind(self)
-
-    async def set(self, state: "State"):
+    async def set(self, state: State) -> None:
         state_cls = state.__class__
         key = fullname(state_cls)
-
+        payload = self.serializer(state_cls).serialize(state)
+        await self.storage.set(self.user_id, key, payload)
         self.KEY_MAP[key] = state_cls
 
-        payload = state.__serializer__(state.__class__).serialize(state)
-        await self.storage.set(self.user_id, key, payload)
-
     @classmethod
-    def __compose__(cls, src: Source) -> typing.Self:
-        return cls(cls.STORAGE, src.from_user.id)
+    def __compose__(cls, src: Source, serializer: PayloadSerializer) -> typing.Self:
+        return cls(cls.STORAGE, src.from_user.id, serializer.serializer)
 
 
-class State(Node):
-    __serializer__: type[ABCDataSerializer] = (
-        JSONSerializer  # TODO: [OPTIMIZATION] can be initialized with cls after cls is created
-    )
-
+class State:
     def bind(self, mutator: StateMutator) -> typing.Self:
         self.__mutator__ = mutator
         return self
@@ -70,10 +62,10 @@ class State(Node):
         pass
 
     @classmethod
-    async def compose(cls, mutator: StateMutator) -> typing.Self:
+    async def __compose__(cls, mutator: StateMutator) -> typing.Self:
         current_state = await mutator.get()
         if current_state is None or not isinstance(current_state, cls):
-            raise NodeError("State mismatch")
+            raise NodeError("State mismatch.")
         return current_state
 
 
