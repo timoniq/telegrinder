@@ -21,7 +21,7 @@ jobs:
     name: "Lock uv"
     runs-on: ${{ inputs.os }}
     steps:
-      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.10.0
 
       - uses: ./.github/actions/install-dependencies
         with:
@@ -34,7 +34,7 @@ jobs:
     runs-on: ${{ inputs.os }}
     needs: lock-file
     steps:
-      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.10.0
 
       - uses: ./.github/actions/install-dependencies
         with:
@@ -55,7 +55,7 @@ jobs:
     runs-on: ${{ inputs.os }}
     needs: lock-file
     steps:
-      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.10.0
 
       - uses: ./.github/actions/install-dependencies
         with:
@@ -68,7 +68,7 @@ jobs:
     runs-on: ${{ inputs.os }}
     needs: lock-file
     steps:
-      - uses: asottile/workflows/.github/actions/fast-checkout@v1.8.1
+      - uses: asottile/workflows/.github/actions/fast-checkout@v1.10.0
 
       - uses: ./.github/actions/install-dependencies
         with:
