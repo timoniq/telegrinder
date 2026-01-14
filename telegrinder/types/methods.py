@@ -23,6 +23,7 @@ class APIMethods:
                 "text_parse_mode": str,
                 "allow_paid_broadcast": bool,
                 "link_preview_options": LinkPreviewOptions,
+                "link_preview_is_disabled": bool,
                 "disable_notification": bool,
                 "protect_content": bool,
             },
@@ -31,6 +32,8 @@ class APIMethods:
 
     def __init__(self, api: "API") -> None:
         self.api = api
+        if self.default_params["link_preview_is_disabled"] is True:
+            self.default_params["link_preview_options"] = LinkPreviewOptions(is_disabled=True)
 
     async def get_updates(
         self,
