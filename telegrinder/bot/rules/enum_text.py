@@ -10,8 +10,7 @@ class EnumTextRule[T: enum.Enum](ABCRule):
         self.lower_case = lower_case
         self.enum_t = enum_t
         self.enumerations_map = {
-            (enumeration.value.lower() if lower_case else enumeration.value): enumeration
-            for enumeration in self.enum_t
+            (enumeration.value.lower() if lower_case else enumeration.value): enumeration for enumeration in self.enum_t
         }
 
     def find(self, s: str) -> T | None:

@@ -86,9 +86,7 @@ async def test_scalar_morph(api_instance, message_update):
 
 @pytest.mark.asyncio()
 async def test_data_morph(api_instance, message_update):
-    result = await compose_nodes(
-        {"data_morph": DataMorphNode}, Context(), {API: api_instance, Update: message_update}
-    )
+    result = await compose_nodes({"data_morph": DataMorphNode}, Context(), {API: api_instance, Update: message_update})
     assert result
     assert isinstance(result.value, NodeCollection)
     assert result.value.values == {"data_morph": DataMorphNode(12345)}

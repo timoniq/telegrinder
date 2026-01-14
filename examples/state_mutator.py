@@ -75,7 +75,9 @@ async def trick_handler(mutator: StateMutator):
 
 @bot.on.message(Text("/song"))
 async def sing_a_song_handler(state: AliveState):
-    return f"You sing a song: la-lala so great to be living for {(datetime.datetime.now() - state.since).seconds} seconds"
+    return (
+        f"You sing a song: la-lala so great to be living for {(datetime.datetime.now() - state.since).seconds} seconds"
+    )
 
 
 @bot.on.message(Text("Gh0$T_рa$$w0rd"))
