@@ -15,10 +15,9 @@ import typing
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
 
 import betterconf
-import colorama
 from choicelib import choice_in_order
 
-from telegrinder.env import DOTENV, LoggerLevel, to_logger_level
+from telegrinder.env import DOTENV, LoggerLevel, to_logger_level, to_logger_module
 
 if typing.TYPE_CHECKING:
     from _typeshed import OptExcInfo
@@ -33,7 +32,6 @@ else:
             return super().__new__(cls)
 
 
-type _LoggerLevel = typing.Literal["DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL", "EXCEPTION"]
 type _Sink = typing.TextIO | typing.Any
 
 _LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFileHandler | logging.FileHandler
@@ -41,10 +39,15 @@ _LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFi
 IS_WIN: typing.Final = sys.platform == "win32"
 
 if IS_WIN:
-    colorama.just_fix_windows_console()
-    colorama.init(wrap=False)
+    try:
+        import colorama
 
-_DEFAULT_COLORIZE: typing.Final = True
+        colorama.just_fix_windows_console()
+        colorama.init(wrap=False)
+    except ImportError:
+        colorama = None
+
+_DEFAULT_COLORIZE: typing.Final = True if not IS_WIN else colorama is not None
 
 
 class Colors:
@@ -131,7 +134,7 @@ else:
         light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
         light_cyan=colorama.Fore.LIGHTCYAN_EX,
         light_black=colorama.Fore.LIGHTBLACK_EX,
-    )
+    ) if colorama is not None else None
 
 LEVEL_FORMAT_SETTINGS = dict(
     DEBUG=dict(
@@ -175,14 +178,18 @@ _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 @betterconf.betterconf(prefix="TELEGRINDER_LOGGER", provider=DOTENV)
 class LoggerConfig:
-    LEVEL: LoggerLevel | None = betterconf.field(
-        default=None,
+    LEVEL: LoggerLevel = betterconf.field(
+        default="DEBUG",
         caster=to_logger_level,
     )
     FORMAT: str | None = betterconf.constant_field(None)
     COLORIZE: bool = betterconf.field(
-        default=False,
+        default=_DEFAULT_COLORIZE,
         caster=betterconf.caster.to_bool,
+    )
+    MODULE: typing.Literal["logging", "loguru", "structlog"] | None = betterconf.field(
+        default=None,
+        caster=to_logger_module,
     )
     FILE_HANDLER_FORMAT: str | None = betterconf.constant_field(None)
     FILE_HANDLER_COLORIZE: bool = betterconf.field(
@@ -208,22 +215,8 @@ class AnyLogger(typing.Protocol):
     def exception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
 
-class LoggerModule(typing.Protocol):
+class LoggerModule(AnyLogger, typing.Protocol):
     def set_logger(self, __logger: AnyLogger) -> None: ...
-
-    def debug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
-
-    def info(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
-
-    def warning(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
-
-    def success(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
-
-    def error(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
-
-    def critical(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
-
-    def exception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
     async def adebug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
@@ -499,22 +492,20 @@ class _LoguruFileHandlerConfig(_LoguruFileHandler):
 @dataclasses.dataclass
 class FileHandlerConfig:
     handler: _LoggingFileHandler | _LoguruFileHandlerConfig
-    format: str | None = None
-    colorize: bool = False
+    format: str | None = LOGGER_CONFIG.FILE_HANDLER_FORMAT
+    colorize: bool = LOGGER_CONFIG.FILE_HANDLER_COLORIZE
 
     def __post_init__(self) -> None:
         self.format = (
-            LOGGER_CONFIG.FILE_HANDLER_FORMAT
-            or self.format
+            self.format
             or (
-                DEFAULT_LOGGING_FORMAT
-                if logging_module == "logging"
+                DEFAULT_LOGURU_FORMAT
+                if logging_module == "loguru"
                 else DEFAULT_STRUCTLOG_FORMAT
                 if logging_module == "structlog"
-                else DEFAULT_LOGURU_FORMAT
+                else DEFAULT_LOGGING_FORMAT
             )
         )
-        self.colorize = LOGGER_CONFIG.FILE_HANDLER_COLORIZE or self.colorize
 
     @classmethod
     def from_logging(
@@ -536,7 +527,7 @@ class FileHandlerConfig:
 logger: LoggerModule = typing.cast("LoggerModule", _LoggerProxy())
 logging_module = (
     choice_in_order(["structlog", "loguru"], default="logging", do_import=False)
-    if (_module := os.environ.get("TELEGRINDER_LOGGER_MODULE", None)) is None
+    if (_module := LOGGER_CONFIG.MODULE) is None
     else _module
 )
 asyncio_module = choice_in_order(["uvloop", "winloop"], default="asyncio", do_import=False)
@@ -782,9 +773,9 @@ if logging_module == "structlog":
             return True
 
     def _configure_structlog(
-        level: str,
-        format: str | None = None,
-        colorize: bool = True,
+        level: LoggerLevel,
+        format: str | None,
+        colorize: bool,
         console_sink: _Sink | None = None,
         file: FileHandlerConfig | None = None,
         /,
@@ -834,9 +825,9 @@ if logging_module == "structlog":
 elif logging_module == "loguru":
 
     def _configure_loguru(
-        level: str,
-        format: str | None = None,
-        colorize: bool = True,
+        level: LoggerLevel,
+        format: str | None,
+        colorize: bool,
         console_sink: _Sink | None = None,
         file: FileHandlerConfig | None = None,
         /,
@@ -882,7 +873,7 @@ elif logging_module == "loguru":
             )
 
         if file is not None and isinstance(file.handler, dict):  # type: ignore
-            file.handler.setdefault("format", file.format or DEFAULT_LOGURU_FORMAT)
+            file.handler.setdefault("format", file.format)
             file.handler.setdefault("colorize", file.colorize)
             handlers.append(file.handler)
 
@@ -900,9 +891,9 @@ elif logging_module == "loguru":
 elif logging_module == "logging":
 
     def _configure_logging(
-        level: str,
-        format: str | None = None,
-        colorize: bool = True,
+        level: LoggerLevel,
+        format: str | None,
+        colorize: bool,
         console_sink: _Sink | None = None,
         file: FileHandlerConfig | None = None,
         /,
@@ -934,18 +925,18 @@ if asyncio_module in ("uvloop", "winloop"):
 def setup_logger(
     *,
     console_sink: _Sink | None = sys.stderr,
-    level: _LoggerLevel | None = None,
-    format: str | None = None,
-    colorize: bool = _DEFAULT_COLORIZE,
+    level: LoggerLevel = LOGGER_CONFIG.LEVEL,
+    format: str | None = LOGGER_CONFIG.FORMAT,
+    colorize: bool = LOGGER_CONFIG.COLORIZE,
     file: FileHandlerConfig | None = None,
 ) -> LoggerModule:
     if logger.logger is not None:
         return logger
 
     args: tuple[typing.Any, ...] = (
-        (LOGGER_CONFIG.LEVEL or level or "debug").upper(),
-        LOGGER_CONFIG.FORMAT or format,
-        LOGGER_CONFIG.COLORIZE or colorize,
+        level.upper(),
+        format,
+        colorize,
         console_sink,
         file,
     )

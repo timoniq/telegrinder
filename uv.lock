@@ -512,7 +512,6 @@ dependencies = [
     { name = "betterconf" },
     { name = "certifi" },
     { name = "choicelib" },
-    { name = "colorama" },
     { name = "kungfu" },
     { name = "msgspec" },
     { name = "nodnod" },
@@ -523,6 +522,9 @@ dependencies = [
 [package.optional-dependencies]
 brotli = [
     { name = "brotli" },
+]
+colorama = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 loguru = [
     { name = "loguru" },
@@ -557,7 +559,7 @@ requires-dist = [
     { name = "brotli", marker = "extra == 'brotli'" },
     { name = "certifi", specifier = ">=2026.1.4" },
     { name = "choicelib", specifier = ">=0.1.5,<0.2.0" },
-    { name = "colorama", specifier = ">=0.4.6,<0.5.0" },
+    { name = "colorama", marker = "sys_platform == 'win32' and extra == 'colorama'" },
     { name = "kungfu", git = "https://github.com/timoniq/kungfu?rev=main" },
     { name = "loguru", marker = "extra == 'loguru'" },
     { name = "msgspec", specifier = ">=0.20.0,<0.21.0" },
@@ -568,7 +570,7 @@ requires-dist = [
     { name = "vbml2", git = "https://github.com/tesseradecade/vbml?rev=master" },
     { name = "winloop", marker = "(sys_platform == 'cli' and extra == 'winloop') or (sys_platform == 'cygwin' and extra == 'winloop') or (sys_platform == 'win32' and extra == 'winloop')" },
 ]
-provides-extras = ["brotli", "loguru", "structlog", "uvloop", "winloop"]
+provides-extras = ["brotli", "colorama", "loguru", "structlog", "uvloop", "winloop"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -580,7 +582,7 @@ dev = [
     { name = "pytest-cov", specifier = ">=7.0.0,<8" },
     { name = "pytest-mock", specifier = ">=3.15.1,<4" },
     { name = "requests", specifier = ">=2.32.5,<3" },
-    { name = "ruff", specifier = ">=0.14.12,<1" },
+    { name = "ruff", specifier = ">=0.14.13,<1" },
     { name = "tomlkit", specifier = ">=0.13.3,<1" },
 ]
 
