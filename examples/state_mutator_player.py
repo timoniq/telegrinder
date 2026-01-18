@@ -1,13 +1,11 @@
 import datetime
-import enum
-import typing
 from dataclasses import dataclass
 
 from telegrinder import API, Bot, Token, logger, setup_logger
 from telegrinder.rules import Argument, Command
 from telegrinder.tools.state_mutator import State, StateMutator, mutation
 
-setup_logger(level="DEBUG")
+setup_logger()
 bot = Bot(API(Token.from_env()))
 
 
@@ -20,16 +18,8 @@ async def plug_in() -> Plugged:
     return Stopped()
 
 
-class StateType(enum.Enum):
-    STOPPED = enum.auto()
-    PLAYING = enum.auto()
-    PAUSED = enum.auto()
-
-
 @dataclass
 class Stopped(State):
-    __type__: typing.ClassVar[typing.Literal[StateType.STOPPED]] = StateType.STOPPED
-
     @mutation
     def play(self, song: str, offset: datetime.timedelta = datetime.timedelta(0)) -> "Playing":
         return Playing(song, offset, datetime.datetime.now())
@@ -37,8 +27,6 @@ class Stopped(State):
 
 @dataclass
 class Playing(State):
-    __type__: typing.ClassVar[typing.Literal[StateType.PLAYING]] = StateType.PLAYING
-
     song: str
     offset: datetime.timedelta
     started_at: datetime.datetime
@@ -59,8 +47,6 @@ class Playing(State):
 
 @dataclass
 class Paused(State):
-    __type__: typing.ClassVar[typing.Literal[StateType.PAUSED]] = StateType.PAUSED
-
     song: str
     offset: datetime.timedelta
     stopped_at: datetime.datetime
@@ -103,7 +89,7 @@ async def play_song_handler(
                 await state.play(song_name)
                 return f"Stopped paused {previous_song}, started playing {song_name}"
 
-            if state.__type__ is StateType.PLAYING:
+            if isinstance(state, Playing):
                 return "💽🎵🎼🎶"
 
             await state.play()

@@ -2,6 +2,9 @@ import dataclasses
 import typing
 
 from kungfu.library.monad.option import Nothing, Option, Some
+from nodnod.error import NodeError
+from nodnod.interface.polymorphic import case, polymorphic
+from nodnod.interface.scalar import scalar_node
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types import (
@@ -12,28 +15,28 @@ from telegrinder.bot.cute_types import (
     MessageCute,
     PreCheckoutQueryCute,
 )
-from telegrinder.node.base import ComposeError, DataNode, scalar_node
-from telegrinder.node.polymorphic import Polymorphic, impl
 from telegrinder.types.objects import Chat, Message, User
 
 
-@dataclasses.dataclass(kw_only=True, slots=True)
-class Source(Polymorphic, DataNode):
+@scalar_node
+@polymorphic["Source"]
+@dataclasses.dataclass(kw_only=True)
+class Source:
     api: API
     from_user: User
     chat: Option[Chat] = dataclasses.field(default_factory=Nothing)
     thread_id: Option[int] = dataclasses.field(default_factory=Nothing)
 
-    @impl
+    @case
     def compose_message(cls, message: MessageCute) -> typing.Self:
         return cls(
             api=message.api,
-            from_user=message.from_.expect(ComposeError("Message is from a channel.")),
+            from_user=message.from_.expect(NodeError("Message is from a channel.")),
             chat=Some(message.chat),
             thread_id=message.message_thread_id,
         )
 
-    @impl
+    @case
     def compose_callback_query(cls, callback_query: CallbackQueryCute) -> typing.Self:
         return cls(
             api=callback_query.api,
@@ -42,14 +45,14 @@ class Source(Polymorphic, DataNode):
             thread_id=callback_query.message_thread_id,
         )
 
-    @impl
+    @case
     def compose_inline_query(cls, inline_query: InlineQueryCute) -> typing.Self:
         return cls(
             api=inline_query.api,
             from_user=inline_query.from_user,
         )
 
-    @impl
+    @case
     def compose_chat_member_updated(cls, chat_member_updated: ChatMemberUpdatedCute) -> typing.Self:
         return cls(
             api=chat_member_updated.api,
@@ -57,7 +60,7 @@ class Source(Polymorphic, DataNode):
             chat=Some(chat_member_updated.chat),
         )
 
-    @impl
+    @case
     def compose_chat_join_request(cls, chat_join_request: ChatJoinRequestCute) -> typing.Self:
         return cls(
             api=chat_join_request.api,
@@ -65,7 +68,7 @@ class Source(Polymorphic, DataNode):
             chat=Some(chat_join_request.chat),
         )
 
-    @impl
+    @case
     def compose_pre_checkout_query(cls, pre_checkout_query: PreCheckoutQueryCute) -> typing.Self:
         return cls(
             api=pre_checkout_query.api,
@@ -85,36 +88,36 @@ class Source(Polymorphic, DataNode):
 @scalar_node
 class ChatSource:
     @classmethod
-    def compose(cls, source: Source) -> Chat:
-        return source.chat.expect(ComposeError("Source has no chat."))
+    def __compose__(cls, source: Source) -> Chat:
+        return source.chat.expect(NodeError("Source has no chat."))
 
 
 @scalar_node
 class UserSource:
     @classmethod
-    def compose(cls, source: Source) -> User:
+    def __compose__(cls, source: Source) -> User:
         return source.from_user
 
 
 @scalar_node
 class ChatId:
     @classmethod
-    def compose(cls, chat: ChatSource) -> int:
+    def __compose__(cls, chat: ChatSource) -> int:
         return chat.id
 
 
 @scalar_node
 class UserId:
     @classmethod
-    def compose(cls, user: UserSource) -> int:
+    def __compose__(cls, user: UserSource) -> int:
         return user.id
 
 
 @scalar_node
 class Locale:
     @classmethod
-    def compose(cls, user: UserSource) -> str:
-        return user.language_code.expect(ComposeError("User has no language code."))
+    def __compose__(cls, user: UserSource) -> str:
+        return user.language_code.expect(NodeError("User has no language code."))
 
 
 __all__ = (

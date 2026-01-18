@@ -3,7 +3,7 @@ import typing
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node.text import Caption, Text
+from telegrinder.node.nodes.text import Caption, Text
 
 type PatternLike = str | typing.Pattern[str]
 

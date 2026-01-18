@@ -19,7 +19,8 @@ from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
 
-CACHED_CALLBACK_DATA_KEY: typing.Final[str] = "cached_callback_data"
+NOTHING: typing.Final = Nothing()
+CACHED_CALLBACK_DATA_KEY: typing.Final = "cached_callback_data"
 
 
 class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQuery, kw_only=True):
@@ -87,13 +88,16 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
     def decode_data[T](self, *, to: type[T] = dict[str, typing.Any]) -> Option[T]:
         if not self.data:
-            return Nothing()
+            return NOTHING
 
-        keys = self.__dict__.setdefault(CACHED_CALLBACK_DATA_KEY, {})
+        keys = typing.cast(
+            "dict[type[typing.Any], typing.Any]",
+            self.__dict__.setdefault(CACHED_CALLBACK_DATA_KEY, {}),  # type: ignore
+        )
         if to in keys:
             return keys[to]
 
-        data = Nothing()
+        data = NOTHING
         orig_to = typing.get_origin(to) or to
 
         with suppress(msgspec.ValidationError, msgspec.DecodeError):

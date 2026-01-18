@@ -34,6 +34,9 @@ from telegrinder.types.objects import (
     Update,
 )
 
+if typing.TYPE_CHECKING:
+    from nodnod.agent.base import Agent
+
 type UpdateModel = typing.Union[
     BusinessConnection,
     BusinessMessagesDeleted,
@@ -63,10 +66,16 @@ class View(ABCView):
     middlewares: deque[ABCMiddleware]
     return_manager: ABCReturnManager | None
 
-    def __init__(self, *, return_manager: ABCReturnManager | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        agent_cls: type[Agent] | None = None,
+        return_manager: ABCReturnManager | None = None,
+    ) -> None:
         self.filter = Always()
         self.handlers = deque()
         self.middlewares = deque()
+        self.agent_cls = agent_cls
         self.return_manager = return_manager
 
     def __bool__(self) -> bool:
@@ -84,12 +93,18 @@ class View(ABCView):
         for rule in (value,) if isinstance(value, ABCRule) else value:
             self.filter &= rule
 
-    def __call__[T: Function](self, *rules: ABCRule, final: bool = True) -> typing.Callable[[T], T]:
+    def __call__[T: Function](
+        self,
+        *rules: ABCRule,
+        final: bool = True,
+        agent: type[Agent] | None = None,
+    ) -> typing.Callable[[T], T]:
         def decorator(function: T, /) -> T:
             self.handlers.append(
                 FuncHandler(
                     function=function,
                     rules=rules,
+                    agent=agent or self.agent_cls,
                     final=final,
                 ),
             )
@@ -111,10 +126,10 @@ class View(ABCView):
         return middleware if isinstance(middleware, type) else None
 
     async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
-        if not self:
+        if not bool(self):
             return Error("View is empty.")
 
-        if not await check_rule(api, self.filter, update, context):
+        if not await check_rule(self.filter, context):
             return Error("Filter is failed.")
 
         return OK_CHECK
@@ -129,8 +144,16 @@ class View(ABCView):
 
 
 class EventView(View):
-    def __init__(self, update_type: UpdateType, return_manager: ABCReturnManager | None = None) -> None:
-        super().__init__(return_manager=return_manager)
+    def __init__(
+        self,
+        update_type: UpdateType,
+        return_manager: ABCReturnManager | None = None,
+        agent_cls: type[Agent] | None = None,
+    ) -> None:
+        super().__init__(
+            agent_cls=agent_cls,
+            return_manager=return_manager,
+        )
         self.update_type = update_type
 
     def __repr__(self) -> str:
@@ -144,8 +167,16 @@ class EventView(View):
 
 
 class EventModelView[T: (UpdateModel)](View):
-    def __init__(self, model: type[T], return_manager: ABCReturnManager | None = None) -> None:
-        super().__init__(return_manager=return_manager)
+    def __init__(
+        self,
+        model: type[T],
+        return_manager: ABCReturnManager | None = None,
+        agent_cls: type[Agent] | None = None,
+    ) -> None:
+        super().__init__(
+            agent_cls=agent_cls,
+            return_manager=return_manager,
+        )
         self.model = model
 
     def __repr__(self) -> str:

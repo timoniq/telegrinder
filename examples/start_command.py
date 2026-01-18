@@ -10,14 +10,7 @@ async def start_handler(message: Message, param: int | None) -> None:
     if param is None:
         await message.answer("You have no integer start query((")
         return
-    await message.answer(
-        "Ahah you integer start query is so funny, its {0} and {0}-42={1}".format(param, param - 42)
-    )
-
-
-@bot.on.message(StartCommand(param_required=True, alias="name"))
-async def start_with_name(message: Message, name: str):
-    await message.reply(f"Hello, {name!r}!")
+    await message.answer("Ahah you integer start query is so funny, its {0} and {0}-42={1}".format(param, param - 42))
 
 
 bot.run_forever()

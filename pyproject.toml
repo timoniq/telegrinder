@@ -37,11 +37,12 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "rnet (>=3.0.0rc15)",
+    "rnet (>=3.0.0rc20)",
     "msgspec (>=0.20.0,<0.21.0)",
-    "certifi (>=2025.11.12,<2026.0.0)",
+    "certifi (>=2026.1.4)",
     "choicelib (>=0.1.5,<0.2.0)",
-    "envparse (>=0.2.0,<0.3.0)",
+    "colorama (>=0.4.6,<0.5.0)",
+    "betterconf",
     "nodnod",
     "vbml2",
     "kungfu",
@@ -51,9 +52,8 @@ dependencies = [
 brotli = ["brotli"]
 loguru = ["loguru"]
 structlog = ["structlog"]
-colorama = ["colorama; (sys_platform == 'win32')"]
-uvloop = ["uvloop; (sys_platform != 'cli' and sys_platform != 'cygwin' and sys_platform != 'win32')"]
 winloop = ["winloop; (sys_platform == 'cli' or sys_platform == 'cygwin' or sys_platform == 'win32')"]
+uvloop = ["uvloop; (sys_platform == 'darwin' or sys_platform == 'linux')"]
 
 [project.urls]
 Source = "https://github.com/timoniq/telegrinder"
@@ -62,8 +62,8 @@ Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.14.10,<1",
-    "basedpyright>=1.36.1,<2",
+    "ruff>=0.14.12,<1",
+    "basedpyright>=1.37.1,<2",
     "requests>=2.32.5,<3",
     "tomlkit>=0.13.3,<1",
     "libcst>=1.8.6,<2",
@@ -78,7 +78,8 @@ dev = [
 package = true
 
 [tool.uv.sources]
-nodnod = { git = "https://github.com/timoniq/nodnod", rev = "dev" }
+betterconf = { git = "https://github.com/prostomarkeloff/betterconf", rev = "master" }
+nodnod = { git = "https://github.com/luwqz1/nodnod", rev = "fix" }
 kungfu = { git = "https://github.com/timoniq/kungfu", rev = "main" }
 vbml2 = { git = "https://github.com/tesseradecade/vbml", rev = "master" }
 

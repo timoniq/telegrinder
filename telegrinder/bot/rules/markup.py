@@ -5,7 +5,7 @@ import vbml
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node.text import Caption, Text
+from telegrinder.node.nodes.text import Caption, Text
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 
 type PatternLike = str | vbml.Pattern

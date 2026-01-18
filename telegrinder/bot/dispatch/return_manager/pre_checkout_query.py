@@ -7,13 +7,13 @@ from telegrinder.bot.dispatch.return_manager.abc import BaseReturnManager, regis
 class PreCheckoutQueryReturnManager(BaseReturnManager):
     @register_manager(bool)
     @staticmethod
-    async def bool_manager(value: bool, event: PreCheckoutQueryCute) -> None:
-        await event.answer(value)
+    async def bool_manager(response: bool, event: PreCheckoutQueryCute) -> None:
+        await event.answer(response)
 
     @register_manager(dict)
     @staticmethod
-    async def dict_manager(value: dict[str, typing.Any], event: PreCheckoutQueryCute) -> None:
-        await event.answer(**value)
+    async def dict_manager(response: dict[str, typing.Any], event: PreCheckoutQueryCute) -> None:
+        await event.answer(**response)
 
 
 __all__ = ("PreCheckoutQueryReturnManager",)

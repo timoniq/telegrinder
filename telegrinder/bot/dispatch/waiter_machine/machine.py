@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import asyncio
 import datetime
 import typing
@@ -64,7 +62,7 @@ class WaiterMachine:
         self.storage = {}
 
     def __repr__(self) -> str:
-        return "<{}: with {} storage items and max_storage_size={}, base_state_lifetime={!r}>".format(
+        return "<{}: with {} storage items and max_storage_size={}, base_state_lifetime={}>".format(
             self.__class__.__name__,
             len(self.storage),
             self.max_storage_size,
@@ -129,8 +127,9 @@ class WaiterMachine:
         expired: bool = False,
         **context: typing.Any,
     ) -> None:
-        preset_context = short_state.context.context.copy() if short_state.context is not None else Context()
-        preset_context.update(context)
+        preset_context = (
+            short_state.context.context.copy().as_dict() | context if short_state.context is not None else context
+        )
 
         try:
             await self.drop(hasher, data, expired=expired, **preset_context)

@@ -20,7 +20,7 @@ async def downloader(message: Message) -> str:
 
     path = photos_path / pathlib.Path(photo_path.split("/")[-1])
     path.write_bytes(
-        await message.ctx_api.download_file(photo_path),
+        (await message.ctx_api.download_file(photo_path)).unwrap(),
     )
     return "Photo downloaded!"
 

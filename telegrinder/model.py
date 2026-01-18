@@ -151,7 +151,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         full: bool,
     ) -> dict[str, typing.Any]:
         if dct_name not in self.__dict__:
-            self.__dict__[dct_name] = (
+            self.__dict__[dct_name] = (  # type: ignore
                 struct_asdict(self)
                 if not full
                 else encoder.to_builtins(self.to_dict(exclude_fields=exclude_fields), order="deterministic")

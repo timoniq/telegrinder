@@ -29,7 +29,7 @@ from telegrinder.types.objects import *
 class UpdateCute(BaseCute[Update], Update, kw_only=True):
     """Cute version of the object [Update](https://core.telegram.org/bots/api#update).
 
-    This object represents an incoming "cute" update.
+    This object represents a `cute` incoming update.
     At most one of the optional parameters can be present in any given cute update.
     """
 

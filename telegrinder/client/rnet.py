@@ -1,10 +1,9 @@
-from __future__ import annotations
-
 import dataclasses
 import datetime
 import pathlib
 import sys
 import typing
+from http import HTTPStatus
 
 import certifi
 import rnet
@@ -12,7 +11,7 @@ import rnet.exceptions
 from rnet import Method as HTTPMethod
 
 from telegrinder.__meta__ import __version__
-from telegrinder.client.abc import ABCClient
+from telegrinder.client.abc import ABCClient, Response
 from telegrinder.modules import json
 
 if typing.TYPE_CHECKING:
@@ -126,10 +125,10 @@ class RnetClient(ABCClient):
     async def request(
         self,
         url: str,
-        method: Method,
+        method: Method = "GET",
         data: Data | None = None,
         **kwargs: typing.Unpack[Request],
-    ) -> rnet.Response:
+    ) -> Response[rnet.Response]:
         kwargs.setdefault("version", rnet.Version.HTTP_2)
         kwargs.setdefault("zstd", DEFAULT_ZSTD)
 
@@ -145,7 +144,12 @@ class RnetClient(ABCClient):
         if (timeout := kwargs.get("timeout")) is not None and isinstance(timeout, int | float):
             kwargs["timeout"] = datetime.timedelta(seconds=timeout)
 
-        return await self._client.request(_METHODS_MAP[method], url, **kwargs)
+        response = await self._client.request(_METHODS_MAP[method], url, **kwargs)
+        return Response(
+            response=response,
+            content=await response.bytes(),
+            status=HTTPStatus(response.status.as_int()),
+        )
 
     async def request_text(
         self,
@@ -155,7 +159,7 @@ class RnetClient(ABCClient):
         data: Data | None = None,
         **kwargs: typing.Unpack[Request],
     ) -> str:
-        return await (await self.request(url, method, data=data, **kwargs)).text_with_charset(encoding="utf-8")
+        return await (await self.request(url, method, data=data, **kwargs)).response.text_with_charset(encoding="utf-8")
 
     async def request_bytes(
         self,
@@ -165,7 +169,7 @@ class RnetClient(ABCClient):
         data: Data | None = None,
         **kwargs: typing.Unpack[Request],
     ) -> bytes:
-        return await (await self.request(url, method, data=data, **kwargs)).bytes()
+        return (await self.request(url, method, data=data, **kwargs)).content
 
     async def request_content(
         self,

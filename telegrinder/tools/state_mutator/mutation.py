@@ -1,23 +1,17 @@
-from __future__ import annotations
-
 import typing
 
 from telegrinder.tools.aio import maybe_awaitable
 
 if typing.TYPE_CHECKING:
-    from telegrinder.node.state_mutator import State, StateMutator
+    from telegrinder.node import State, StateMutator
 
     class BoundMethod[**P, T, R](typing.Protocol):
         @staticmethod
-        def __call__(
-            self: T, *args: P.args, **kwargs: P.kwargs
-        ) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
+        def __call__(self: T, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
 
     @typing.runtime_checkable
     class NotBoundFunction[**P, R](typing.Protocol):
-        def __call__(
-            self, *args: P.args, **kwargs: P.kwargs
-        ) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
+        def __call__(self, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
 
 
 class mutation[**P, IntoState: State, BoundState: State | None]:  # noqa: N801

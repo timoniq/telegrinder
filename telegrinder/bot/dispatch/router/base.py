@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import dataclasses
 import typing
 
@@ -94,7 +92,7 @@ class Router[
         # Check if the view is applicable to the update
 
         await logger.adebug(
-            "Checking view `{!r}` from router `{!r}` for update (id={}, type={!r})",
+            "Checking view `{!r}` from router `{!r}` for update (id={}, type={!r})...",
             view,
             self,
             update.update_id,
@@ -104,7 +102,7 @@ class Router[
         match await view.check(api, update, context):
             case Ok():
                 await logger.adebug(
-                    "View `{!r}` from router `{!r}` for update (id={}, type={!r}) is okay, processing...",
+                    "View `{!r}` from router `{!r}` for update (id={}, type={!r}) is happy, processing...",
                     view,
                     self,
                     update.update_id,
@@ -130,7 +128,6 @@ class Router[
                     error,
                 )
 
-        # View is not applicable to the update
         return False
 
     async def route(self, api: API, update: Update, context: Context) -> bool:
@@ -140,7 +137,7 @@ class Router[
                 # Route the non-empty view
                 if await self.route_view(view, api, update, context):
                     return True
-            # No views are applicable to the update
+
             return False
         except Exception as exception:
             context.exceptions_update[self] = exception  # type: ignore

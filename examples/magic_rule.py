@@ -1,5 +1,5 @@
 from telegrinder import API, Bot, Message, Token, setup_logger
-from telegrinder.node.source import UserSource
+from telegrinder.node import UserSource
 from telegrinder.rules import Magic
 
 setup_logger(level="DEBUG")

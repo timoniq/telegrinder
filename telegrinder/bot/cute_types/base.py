@@ -20,7 +20,7 @@ def compose_method_params[Cute: BaseCute](
         if param_name not in params:
             if param_name in validators and not validators[param_name](update):
                 continue
-            params[param_name] = getattr(update, param if isinstance(param, str) else param[1])
+            params[param_name] = getattr(update, param if isinstance(param, str) else param[1], None)
 
     return params
 
@@ -29,14 +29,10 @@ if typing.TYPE_CHECKING:
     from kungfu.library.monad.option import Option
 
     from telegrinder.api.api import API
-    from telegrinder.node.base import Node
     from telegrinder.types.objects import Update
 
     class BaseCute[T: Model](Model):
         api: API
-
-        @classmethod
-        def as_node(cls) -> type[Node]: ...
 
         @classmethod
         def from_update(cls, update: T, bound_api: API) -> typing.Self: ...
@@ -66,9 +62,13 @@ if typing.TYPE_CHECKING:
 else:
     from kungfu.library import Some, Sum
     from kungfu.library.misc import from_optional
+    from nodnod.error import NodeError
 
+    from telegrinder.api.api import API
+    from telegrinder.bot.dispatch.context import Context
     from telegrinder.msgspec_utils import Option, encoder, struct_asdict
     from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
+    from telegrinder.tools.fullname import fullname
     from telegrinder.types.objects import Update
 
     BOUND_API_KEY = "bound_api"
@@ -143,16 +143,21 @@ else:
         def __init_subclass__(cls, *args, **kwargs):
             cls.__is_resolved_annotations__ = False
             cls.__cute_annotations__ = None
-            cls.__event_node__ = None
+            super().__init_subclass__(*args, **kwargs)
 
         @classmethod
-        def as_node(cls):
-            if cls.__event_node__ is None:
-                from telegrinder.node.event import EventNode
+        def __compose__(cls, update: Update, api: API, context: Context):
+            match context.update_cute:
+                case Some(update_cute):
+                    update_cute = update_cute
+                case _:
+                    context.update_cute = Some(update_cute := cls.from_update(update, api))
+                    update_cute = update_cute
 
-                cls.__event_node__ = EventNode[cls]
+            if isinstance(update_cute, cls):
+                return update_cute
 
-            return cls.__event_node__
+            return update_cute.get_event(cls).expect(NodeError(f"Incoming update is not `{fullname(cls)}`."))
 
         @classmethod
         def from_update(cls, update, bound_api):

@@ -1,32 +1,28 @@
-from __future__ import annotations
-
-import asyncio
 import typing
 from collections import deque
 
-from vbml.patcher.abc import ABCPatcher
+from nodnod.interface.inject import inject_internals
+from nodnod.scope import Scope
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.middleware.abc import run_middleware
+from telegrinder.bot.dispatch.middleware.abc import run_post_middleware, run_pre_middleware
 from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
 from telegrinder.bot.dispatch.router.base import Router
 from telegrinder.bot.dispatch.view.base import View
 from telegrinder.bot.dispatch.view.box import ViewBox
 from telegrinder.modules import logger
-from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY
-from telegrinder.node.scope import NodeScope
-from telegrinder.node.session import close_sessions
-from telegrinder.tools.aio import get_tasks_results
+from telegrinder.node.scope import PER_EVENT
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
+    from vbml.patcher.abc import ABCPatcher
+
     from telegrinder.bot.dispatch.view.base import ErrorView, EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
-    from telegrinder.node.composer import Composer
-
+    from telegrinder.tools.loop_wrapper import LoopWrapper
 
 NANOSECONDS_PER_MILLISECOND: typing.Final = 1_000_000_000
 
@@ -156,18 +152,19 @@ class Dispatch[
         return tuple(filter(None, (router.raw for router in self.routers)))
 
     @property
-    def error_views(self) -> tuple[View, ...]:
-        return tuple(filter(None, (router.error for router in self.routers)))
-
-    @property
     def patcher(self) -> ABCPatcher:
-        """Alias `patcher` to get `vbml.Patcher` from the global context."""
+        """Alias `patcher` to get a vbml patcher from the global context."""
         return self.global_context.vbml_patcher
 
     @property
-    def composer(self) -> Composer:
-        """Alias `composer` to get `telegrinder.node.composer.Composer` from the global context."""
-        return self.global_context.composer.unwrap()
+    def loop_wrapper(self) -> LoopWrapper:
+        """Alias `loop_wrapper` to get `telegrinder.tools.loop_wrapper.LoopWrapper` from the global context."""
+        return self.global_context.loop_wrapper
+
+    @property
+    def global_scope(self) -> Scope:
+        """Alias `global_scope` to get `nodnod.scope.Scope` from the global context."""
+        return self.global_context.node_global_scope
 
     async def _process_views(
         self,
@@ -179,13 +176,11 @@ class Dispatch[
         if not views:
             return False
 
-        tasks: set[asyncio.Task[bool]] = set()
-
-        async with asyncio.TaskGroup() as task_group:
+        async with self.global_context.loop_wrapper.create_task_group() as task_group:
             for view in views:
-                tasks.add(task_group.create_task(self.main_router.route_view(view, api, update, context)))
+                task_group.create_task(self.main_router.route_view(view, api, update, context))
 
-        return any(get_tasks_results(tasks))
+        return any(task_group.results())
 
     async def _process_update_exceptions(
         self,
@@ -196,58 +191,77 @@ class Dispatch[
         if not context.exceptions_update:
             return False
 
-        tasks: set[asyncio.Task[bool]] = set()
+        await logger.adebug(
+            "Processing error views with exceptions [{}] for update (id={}, type={!r})",
+            ", ".join(f"{type(e).__name__}" for e in context.exceptions_update.values()),
+            update.update_id,
+            update.update_type,
+        )
 
-        async with asyncio.TaskGroup() as task_group:
+        found = False
+
+        async with self.global_context.loop_wrapper.create_task_group() as task_group:
             for router, exception in context.exceptions_update.items():
+                if not router.error:
+                    try:
+                        raise exception from None
+                    except Exception:
+                        await logger.aexception(
+                            "{} is empty for exception update (id={}, type={!r}) from router `{!r}`, traceback message below:",
+                            router.error,
+                            update.update_id,
+                            update.update_type,
+                            router,
+                        )
+                    continue
+
+                found = True
                 await logger.adebug(
                     "Routing exception update (id={}, type={!r}) to router `{!r}`",
-                    # type(exception).__name__,
                     update.update_id,
                     update.update_type,
                     router,
                 )
-                tasks.add(
-                    task_group.create_task(
-                        router.route_view(router.error, api, update, context.add_exception_update(exception))
-                    )
+                task_group.create_task(
+                    router.route_view(
+                        router.error,
+                        api,
+                        update,
+                        context.copy().add_exception_update(exception),
+                    ),
                 )
 
-        return any(get_tasks_results(tasks))
+        return True if not found else any(task_group.results())
 
     async def _route_update(self, api: API, update: Update, context: Context) -> bool:
         if not self.routers:
             return False
 
-        tasks: set[asyncio.Task[bool]] = set()
-
-        async with asyncio.TaskGroup() as task_group:
+        async with self.global_context.loop_wrapper.create_task_group() as task_group:
             for router in self.routers:
                 await logger.adebug(
-                    "Routing update (id={}, type={!r}) to router `{!r}`", update.update_id, update.update_type, router
+                    "Routing update (id={}, type={!r}) to router `{!r}`",
+                    update.update_id,
+                    update.update_type,
+                    router,
                 )
-                tasks.add(task_group.create_task(router.route(api, update, context)))
+                task_group.create_task(router.route(api, update, context))
 
-        return any(get_tasks_results(tasks))
+        return any(task_group.results())
 
     async def feed(self, api: API, update: Update) -> None:
         await logger.ainfo("New Update(id={}, type={!r})", update.update_id, update.update_type)
 
+        per_event_scope = self.global_scope.create_child(detail=PER_EVENT)
+        context = Context().add_roots(api, update, per_event_scope)
+
+        inject_internals(per_event_scope, {API: api, Update: update})
+
         failed = False
-        context = Context().add_update_cute(update, api)
         start_time = self.global_context.loop_wrapper.loop.time()
 
         try:
-            if (
-                await run_middleware(
-                    self.global_middleware.pre,
-                    api,
-                    update,
-                    context,
-                    required_nodes=self.global_middleware.pre_required_nodes,
-                )
-                is False
-            ):
+            if await run_pre_middleware(self.global_middleware, context) is False:
                 return
 
             if not self.routers:
@@ -259,34 +273,19 @@ class Dispatch[
             elif not await self._route_update(api, update, context):
                 await self._process_views(self.raw_views, api, update, context)
 
-            await run_middleware(
-                self.global_middleware.post,
-                api,
-                update,
-                context,
-                required_nodes=self.global_middleware.post_required_nodes,
-            )
+            await run_post_middleware(self.global_middleware, context)
         except BaseException as e:
-            if not context.exceptions_update or not isinstance(e, Exception):
-                failed = True
+            failed = True
+
+            if not isinstance(e, Exception) and not isinstance(e, BaseExceptionGroup):
                 raise  # Throwing control flow exceptions
 
-            await logger.adebug(
-                "Processing error views with exceptions [{}] for update (id={}, type={!r})",
-                ", ".join(f"{type(e).__name__}" for e in context.exceptions_update.values()),
-                update.update_id,
-                update.update_type,
-            )
-
-            if await self._process_update_exceptions(api, update, context):
-                return
-
-            failed = True
-            await logger.aexception(
-                "Update (id={}, type={!r}) processed with exception, traceback message below:",
-                update.update_id,
-                update.update_type,
-            )
+            if not await self._process_update_exceptions(api, update, context):
+                await logger.aexception(
+                    "Update (id={}, type={!r}) processed with exception, traceback message below:",
+                    update.update_id,
+                    update.update_type,
+                )
         finally:
             if not failed:
                 elapsed_time = self.global_context.loop_wrapper.loop.time() - start_time
@@ -300,10 +299,7 @@ class Dispatch[
                     api.id,
                 )
 
-            await close_sessions(
-                context.get(CONTEXT_STORE_NODES_KEY, {}),
-                scopes=(NodeScope.PER_CALL, NodeScope.PER_EVENT),
-            )
+            await per_event_scope.close()
 
     def load(self, external: typing.Self) -> None:
         self.routers.extend(filter(None, external.routers))

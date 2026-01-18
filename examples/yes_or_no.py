@@ -13,6 +13,8 @@ from telegrinder import (
 )
 from telegrinder.rules import EnumTextRule, StartCommand
 
+# setup_logger()
+
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 wm = WaiterMachine()

@@ -7,8 +7,8 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.is_from import IsPrivate
 from telegrinder.bot.rules.markup import Markup
-from telegrinder.node.me import BotUsername
-from telegrinder.node.message_entities import MessageEntities
+from telegrinder.node.nodes.me import BotUsername
+from telegrinder.node.nodes.message_entities import MessageEntities
 from telegrinder.types.enums import MessageEntityType
 
 

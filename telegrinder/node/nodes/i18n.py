@@ -6,8 +6,10 @@ import pathlib
 import typing
 from functools import cached_property
 
-from telegrinder.node.base import DataNode, GlobalNode
-from telegrinder.node.source import Locale
+from nodnod import Node
+
+from telegrinder.node.nodes.global_node import GlobalNode
+from telegrinder.node.nodes.source import Locale
 
 type Separator = KeySeparator
 
@@ -15,7 +17,7 @@ DEFAULT_SEPARATOR: typing.Final[str] = "-"
 
 
 @dataclasses.dataclass(frozen=True)
-class KeySeparator(GlobalNode[Separator], DataNode):
+class KeySeparator(GlobalNode[Separator]):
     value: str
 
     @classmethod
@@ -28,7 +30,7 @@ class KeySeparator(GlobalNode[Separator], DataNode):
 
 
 @dataclasses.dataclass(kw_only=True)
-class ABCTranslator(DataNode, abc.ABC):
+class ABCTranslator(Node, abc.ABC):
     locale: str
     separator: str
     _keys: list[str] = dataclasses.field(default_factory=list[str], init=False)
@@ -95,7 +97,7 @@ class BaseTranslator(ABCTranslator):
     config: typing.ClassVar[I18NConfig]
 
     def __class_getitem__(cls, config: I18NConfig, /) -> typing.Any:
-        return type(cls.__name__, (cls,), dict(config=config))
+        return type(cls.__name__, (cls,), dict(config=config, __module__=cls.__module__))
 
     @classmethod
     def configure(cls, config: I18NConfig, /) -> None:

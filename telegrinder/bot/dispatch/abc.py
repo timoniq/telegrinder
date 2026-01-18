@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import importlib.util as importlib_util
 import os
 import pathlib

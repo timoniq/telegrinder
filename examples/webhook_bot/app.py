@@ -1,6 +1,5 @@
 """Webhook Bot example. This example uses fastapi + uvicorn."""
 
-import asyncio
 import os
 import secrets
 import typing
@@ -47,7 +46,7 @@ async def webhook_bot(request: Request) -> Response:  # type: ignore
         update.update_id,
         update.update_type,
     )
-    await loop_wrapper.create_task(dp.feed(api, update))
+    loop_wrapper.add_task(dp.feed(api, update))
     return Response(status_code=200)  # type: ignore
 
 
@@ -59,7 +58,7 @@ async def run_application(server_config: uvicorn.Config, /) -> None:  # type: ig
 if __name__ == "__main__":
     setup_logger(level="DEBUG")
 
-    loop_wrapper = LoopWrapper().bind_loop(loop_factory=asyncio.new_event_loop)
+    loop_wrapper = LoopWrapper()
     config = uvicorn.Config(app, host="0.0.0.0", port=PORT, loop="none")  # type: ignore
     loop_wrapper.add_task(run_application(config))  # type: ignore
     loop_wrapper.run()

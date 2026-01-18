@@ -51,7 +51,7 @@ from telegrinder import API, Bot, Token, setup_logger
 from telegrinder.rules import Text
 
 bot = Bot(API(Token.from_env()))
-setup_logger(level="DEBUG")
+setup_logger()
 
 
 @bot.on.message(Text("/die"))
@@ -75,7 +75,9 @@ async def trick_handler(mutator: StateMutator):
 
 @bot.on.message(Text("/song"))
 async def sing_a_song_handler(state: AliveState):
-    return f"You sing a song: la-lala so great to be living for {(datetime.datetime.now() - state.since).seconds} seconds"
+    return (
+        f"You sing a song: la-lala so great to be living for {(datetime.datetime.now() - state.since).seconds} seconds"
+    )
 
 
 @bot.on.message(Text("Gh0$T_рa$$w0rd"))

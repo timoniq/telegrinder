@@ -1,9 +1,5 @@
-import typing
-
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.rules import Argument, Command
-
-T = typing.TypeVar("T")
 
 api = API(Token.from_env())
 bot = Telegrinder(api)

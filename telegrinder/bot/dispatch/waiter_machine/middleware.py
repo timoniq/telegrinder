@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import datetime
 import typing
 
@@ -28,11 +26,11 @@ class WaiterMiddleware(ABCMiddleware):
         self.machine = machine
         self.hasher = hasher
 
-    async def pre(self, update: UpdateCute, raw_update: Update, api: API, ctx: Context) -> bool:
+    async def pre(self, update_cute: UpdateCute, raw_update: Update, api: API, ctx: Context) -> bool:
         if self.hasher not in self.machine.storage:
             return True
 
-        event = update.incoming_update
+        event = update_cute.incoming_update
         key = self.hasher.get_hash_from_data_from_event(event)
         if not key:
             await logger.ainfo("Unable to get hash from event with hasher {!r}", self.hasher)
@@ -48,24 +46,19 @@ class WaiterMiddleware(ABCMiddleware):
 
         preset_context = Context(short_state=short_state)
         if short_state.context is not None:
-            preset_context.update(short_state.context.context)
+            preset_context |= short_state.context.context
 
-        if short_state.filter and not await check_rule(
-            api,
-            short_state.filter,
-            raw_update,
-            preset_context,
-        ):
+        if short_state.filter is not None and not await check_rule(short_state.filter, preset_context):
             await logger.adebug("Filter rule {!r} failed!", short_state.filter)
             return True
 
-        result = await FuncHandler(
+        handler = FuncHandler(
             function=self.pass_runtime,
-            rules=[short_state.release] if short_state.release is not None else [],
+            rules=(short_state.release,) if short_state.release is not None else None,
             preset_context=preset_context,
-        ).run(api, raw_update, ctx)
+        )
 
-        if not result and (on_miss := short_state.actions.get("on_miss")):
+        if not await handler.run(api, raw_update, ctx) and (on_miss := short_state.actions.get("on_miss")) is not None:
             await on_miss.run(api, raw_update, ctx)
 
         return False

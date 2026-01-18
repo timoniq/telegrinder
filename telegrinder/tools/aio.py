@@ -3,6 +3,9 @@ import typing
 from contextlib import suppress
 from inspect import isasyncgen, isawaitable
 
+if typing.TYPE_CHECKING:
+    from contextvars import Context
+
 type Generator[Yield, Send, Return] = typing.AsyncGenerator[Yield, Send] | typing.Generator[Yield, Send, Return]
 
 
@@ -62,7 +65,7 @@ async def maybe_awaitable[T](obj: T | typing.Awaitable[T], /) -> T:
     return obj
 
 
-# Source code: https://github.com/facebookincubator/later/blob/main/later/task.py#L75
+# Source code: https://github.com/facebookincubator/later/blob/main/later/task.py#L68
 async def cancel_future(fut: asyncio.Future[typing.Any], /) -> None:
     if fut.done():
         return
@@ -104,8 +107,35 @@ class StopGenerator(Exception):
         self.value = value
 
 
+class TaskGroup[T](asyncio.TaskGroup):
+    _all_tasks: set[asyncio.Task[typing.Any]]
+
+    def __init__(self, loop: asyncio.AbstractEventLoop | None = None) -> None:
+        super().__init__()
+        self._all_tasks = set()
+        self._loop = loop
+
+    def results(self) -> typing.Iterable[T]:
+        while self._all_tasks:
+            task = self._all_tasks.pop()
+            if not task.cancelled() and task.exception() is None:
+                yield task.result()
+
+    def create_task(
+        self,
+        coro: typing.Coroutine[typing.Any, typing.Any, T],
+        /,
+        name: str | None = None,
+        context: Context | None = None,
+    ) -> asyncio.Task[T]:
+        task = super().create_task(coro)
+        self._all_tasks.add(task)
+        return task
+
+
 __all__ = (
     "StopGenerator",
+    "TaskGroup",
     "cancel_future",
     "get_tasks_results",
     "loop_is_running",

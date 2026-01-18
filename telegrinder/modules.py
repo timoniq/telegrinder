@@ -1,10 +1,9 @@
 # pyright: reportMissingImports=none, reportAttributeAccessIssue=none, reportMissingModuleSource=none
 
-from __future__ import annotations
-
 import asyncio
 import contextvars
 import dataclasses
+import importlib
 import inspect
 import logging
 import os
@@ -15,20 +14,11 @@ import types
 import typing
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
 
+import betterconf
+import colorama
 from choicelib import choice_in_order
 
-IS_WIN: typing.Final = sys.platform == "win32"
-
-try:
-    if IS_WIN:
-        import colorama
-
-        colorama.just_fix_windows_console()
-        colorama.init(wrap=False)
-    else:
-        colorama = None
-except ImportError:
-    colorama = None
+from telegrinder.env import DOTENV, LoggerLevel, to_logger_level
 
 if typing.TYPE_CHECKING:
     from _typeshed import OptExcInfo
@@ -48,7 +38,13 @@ type _Sink = typing.TextIO | typing.Any
 
 _LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFileHandler | logging.FileHandler
 
-_DEFAULT_COLORIZE: typing.Final = not IS_WIN or colorama is not None
+IS_WIN: typing.Final = sys.platform == "win32"
+
+if IS_WIN:
+    colorama.just_fix_windows_console()
+    colorama.init(wrap=False)
+
+_DEFAULT_COLORIZE: typing.Final = True
 
 
 class Colors:
@@ -73,7 +69,7 @@ class Colors:
 
 DEFAULT_LOGGING_FORMAT = (
     ("{name: <4} | {levelname: <8} | {asctime} | {module}:{funcName}:{lineno} > {message}")
-    if IS_WIN and colorama is None
+    if IS_WIN
     else (
         "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
         " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
@@ -117,28 +113,24 @@ if not IS_WIN:
         light_black=Colors.LIGHT_BLACK,
     )
 else:
-    COLORS = (
-        dict(
-            reset=colorama.Style.RESET_ALL,
-            red=colorama.Fore.RED,
-            green=colorama.Fore.GREEN,
-            blue=colorama.Fore.BLUE,
-            white=colorama.Fore.WHITE,
-            yellow=colorama.Fore.YELLOW,
-            magenta=colorama.Fore.MAGENTA,
-            cyan=colorama.Fore.CYAN,
-            black=colorama.Fore.BLACK,
-            light_red=colorama.Fore.LIGHTRED_EX,
-            light_green=colorama.Fore.LIGHTGREEN_EX,
-            light_blue=colorama.Fore.LIGHTBLUE_EX,
-            light_white=colorama.Fore.LIGHTWHITE_EX,
-            light_yellow=colorama.Fore.LIGHTYELLOW_EX,
-            light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
-            light_cyan=colorama.Fore.LIGHTCYAN_EX,
-            light_black=colorama.Fore.LIGHTBLACK_EX,
-        )
-        if colorama is not None
-        else None
+    COLORS = dict(
+        reset=colorama.Style.RESET_ALL,
+        red=colorama.Fore.RED,
+        green=colorama.Fore.GREEN,
+        blue=colorama.Fore.BLUE,
+        white=colorama.Fore.WHITE,
+        yellow=colorama.Fore.YELLOW,
+        magenta=colorama.Fore.MAGENTA,
+        cyan=colorama.Fore.CYAN,
+        black=colorama.Fore.BLACK,
+        light_red=colorama.Fore.LIGHTRED_EX,
+        light_green=colorama.Fore.LIGHTGREEN_EX,
+        light_blue=colorama.Fore.LIGHTBLUE_EX,
+        light_white=colorama.Fore.LIGHTWHITE_EX,
+        light_yellow=colorama.Fore.LIGHTYELLOW_EX,
+        light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
+        light_cyan=colorama.Fore.LIGHTCYAN_EX,
+        light_black=colorama.Fore.LIGHTBLACK_EX,
     )
 
 LEVEL_FORMAT_SETTINGS = dict(
@@ -179,6 +171,27 @@ LEVEL_FORMAT_SETTINGS = dict(
     ),
 )
 _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
+
+@betterconf.betterconf(prefix="TELEGRINDER_LOGGER", provider=DOTENV)
+class LoggerConfig:
+    LEVEL: LoggerLevel | None = betterconf.field(
+        default=None,
+        caster=to_logger_level,
+    )
+    FORMAT: str | None = betterconf.constant_field(None)
+    COLORIZE: bool = betterconf.field(
+        default=False,
+        caster=betterconf.caster.to_bool,
+    )
+    FILE_HANDLER_FORMAT: str | None = betterconf.constant_field(None)
+    FILE_HANDLER_COLORIZE: bool = betterconf.field(
+        default=False,
+        caster=betterconf.caster.to_bool,
+    )
+
+
+LOGGER_CONFIG = LoggerConfig()
 
 
 class AnyLogger(typing.Protocol):
@@ -444,8 +457,8 @@ class _LoggerProxy:
 
     def __getattr__(self, __name: str) -> typing.Any:
         if self.logger is None:
-            if __name == "exception" and (exception := sys.exception()) is not None:
-                traceback.print_exception(exception, chain=True, colorize=True)  # type: ignore
+            if __name in ("exception", "aexception") and (exc := sys.exception()) is not None:
+                traceback.print_exception(exc, chain=True, file=sys.stderr)
 
             return self
 
@@ -491,7 +504,7 @@ class FileHandlerConfig:
 
     def __post_init__(self) -> None:
         self.format = (
-            os.environ.get("TELEGRINDER_LOGGER_FILE_HANDLER_FORMAT", None)
+            LOGGER_CONFIG.FILE_HANDLER_FORMAT
             or self.format
             or (
                 DEFAULT_LOGGING_FORMAT
@@ -501,10 +514,7 @@ class FileHandlerConfig:
                 else DEFAULT_LOGURU_FORMAT
             )
         )
-        self.colorize = (
-            os.environ.get("TELEGRINDER_LOGGER_FILE_HANDLER_COLORIZE", "0").lower() in ("1", "true", "on")
-            or self.colorize
-        )
+        self.colorize = LOGGER_CONFIG.FILE_HANDLER_COLORIZE or self.colorize
 
     @classmethod
     def from_logging(
@@ -779,9 +789,6 @@ if logging_module == "structlog":
         file: FileHandlerConfig | None = None,
         /,
     ) -> None:
-        if all((colorize is True, COLORS is None, IS_WIN)):
-            raise RuntimeError("colorama is required to colorize logging output on Windows.")
-
         console_renderer = structlog.dev.ConsoleRenderer(colors=True)
 
         for column in console_renderer._columns:
@@ -900,9 +907,6 @@ elif logging_module == "logging":
         file: FileHandlerConfig | None = None,
         /,
     ) -> None:
-        if all((colorize is True, COLORS is None, IS_WIN)):
-            raise RuntimeError("colorama is required to colorize logging output on Windows.")
-
         _logger = logging.getLogger("telegrinder")
         _logger.setLevel(level)
         _remove_handlers(_logger)
@@ -924,7 +928,7 @@ elif logging_module == "logging":
 if asyncio_module in ("uvloop", "winloop"):
     import asyncio
 
-    asyncio.set_event_loop_policy(policy=__import__(name=asyncio_module).EventLoopPolicy())
+    asyncio.set_event_loop(loop=importlib.import_module(name=asyncio_module).new_event_loop())
 
 
 def setup_logger(
@@ -939,9 +943,9 @@ def setup_logger(
         return logger
 
     args: tuple[typing.Any, ...] = (
-        (os.environ.get("TELEGRINDER_LOGGER_LEVEL", None) or level or "debug").upper(),
-        os.environ.get("TELEGRINDER_LOGGER_FORMAT", None) or format,
-        os.environ.get("TELEGRINDER_LOGGER_COLORIZE", "0").lower() in ("1", "true", "on") or colorize,
+        (LOGGER_CONFIG.LEVEL or level or "debug").upper(),
+        LOGGER_CONFIG.FORMAT or format,
+        LOGGER_CONFIG.COLORIZE or colorize,
         console_sink,
         file,
     )

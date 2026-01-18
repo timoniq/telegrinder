@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import dataclasses
 import typing
 from functools import cached_property

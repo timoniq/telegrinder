@@ -1,7 +1,8 @@
-from __future__ import annotations
-
+import dataclasses
 import typing
 from abc import ABC, abstractmethod
+from datetime import timedelta
+from http import HTTPStatus
 
 from telegrinder.client.form_data import MultipartBuilderProto, encode_form_data
 
@@ -11,6 +12,13 @@ if typing.TYPE_CHECKING:
 type Data = typing.Any
 type Files = dict[str, tuple[str, typing.Any]]
 type Timeout = int | float | datetime.timedelta
+
+
+@dataclasses.dataclass(frozen=True, slots=True)
+class Response[T = typing.Any]:
+    response: T
+    content: bytes
+    status: HTTPStatus
 
 
 class ABCClient(ABC):
@@ -24,6 +32,17 @@ class ABCClient(ABC):
     @property
     @abstractmethod
     def timeout(self) -> datetime.timedelta:
+        pass
+
+    @abstractmethod
+    async def request(
+        self,
+        url: str,
+        method: str = "GET",
+        data: Data | None = None,
+        timeout: int | float | timedelta | None = None,
+        **kwargs: typing.Any,
+    ) -> Response:
         pass
 
     @abstractmethod
@@ -114,4 +133,4 @@ class ABCClient(ABC):
         await self.close()
 
 
-__all__ = ("ABCClient",)
+__all__ = ("ABCClient", "Response")

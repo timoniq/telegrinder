@@ -8,27 +8,27 @@ from telegrinder.tools.formatting import HTML
 class MessageReturnManager(BaseReturnManager):
     @register_manager(str)
     @staticmethod
-    async def str_manager(value: str, event: MessageCute) -> None:
-        await event.answer(value)
+    async def str_manager(response: str, event: MessageCute) -> None:
+        await event.answer(response)
 
     @register_manager(list | tuple)
     @staticmethod
     async def seq_manager(
-        value: list[typing.Any] | tuple[typing.Any, ...],
+        response: list[typing.Any] | tuple[typing.Any, ...],
         event: MessageCute,
     ) -> None:
-        for message in value:
+        for message in response:
             await event.answer(str(message))
 
     @register_manager(dict)
     @staticmethod
-    async def dict_manager(value: dict[str, typing.Any], event: MessageCute) -> None:
-        await event.answer(**value)
+    async def dict_manager(response: dict[str, typing.Any], event: MessageCute) -> None:
+        await event.answer(**response)
 
     @register_manager(HTML)
     @staticmethod
-    async def html_text_manager(value: HTML, event: MessageCute) -> None:
-        await event.answer(value, parse_mode=HTML.PARSE_MODE)
+    async def html_manager(response: HTML, event: MessageCute) -> None:
+        await event.answer(response, parse_mode=HTML.PARSE_MODE)
 
 
 __all__ = ("MessageReturnManager",)

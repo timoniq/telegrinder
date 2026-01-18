@@ -2,7 +2,7 @@ import typing
 
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node.source import ChatSource, UserSource
+from telegrinder.node.nodes.source import ChatSource, UserSource
 from telegrinder.types.enums import ChatType, DiceEmoji
 
 type Message = MessageCute

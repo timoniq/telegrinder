@@ -2,9 +2,9 @@ import typing
 from dataclasses import dataclass, field
 
 from kungfu.library.monad.option import Nothing, Option, Some
+from nodnod.interface.data import Node
 
-from telegrinder.node.base import DataNode
-from telegrinder.node.text import Caption, Text
+from telegrinder.node.nodes.text import Caption, Text
 
 
 def single_split(s: str, separator: str) -> tuple[str, str]:
@@ -17,14 +17,14 @@ def cut_mention(text: str) -> tuple[str, Option[str]]:
     return left, Some(right) if right else Nothing()
 
 
-@dataclass(slots=True)
-class CommandInfo(DataNode):
+@dataclass
+class CommandInfo(Node):
     name: str
     arguments: str
     mention: Option[str] = field(default_factory=Nothing)
 
     @classmethod
-    def compose(cls, text: Text | Caption) -> typing.Self:
+    def __compose__(cls, text: Text | Caption) -> typing.Self:
         name, arguments = single_split(text, separator=" ")
         name, mention = cut_mention(name)
         return cls(name, arguments, mention)

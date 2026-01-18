@@ -1,7 +1,6 @@
 import pytest
 
 from telegrinder.bot.cute_types import CallbackQueryCute, MessageCute
-from telegrinder.bot.dispatch.context import Context
 from telegrinder.rules import ABCRule, IsPrivate, PayloadEqRule, check_rule
 from telegrinder.types.objects import CallbackQuery, Message
 
@@ -69,10 +68,10 @@ def test_rule_text(api_instance):
 
 
 @pytest.mark.asyncio()
-async def test_rule_is_private_message_source(api_instance, message_update):
-    assert await check_rule(api_instance, IsPrivate(), message_update, Context())
+async def test_rule_is_private_message_source(message_context):
+    assert await check_rule(IsPrivate(), message_context)
 
 
 @pytest.mark.asyncio()
-async def test_rule_is_private_callback_query_source(api_instance, callback_query_update):
-    assert await check_rule(api_instance, IsPrivate(), callback_query_update, Context())
+async def test_rule_is_private_callback_query_source(callback_query_context):
+    assert await check_rule(IsPrivate(), callback_query_context)

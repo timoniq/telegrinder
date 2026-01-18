@@ -1,17 +1,14 @@
-from __future__ import annotations
-
 import typing
 
 from kungfu.library.monad.result import Error, Ok, Result
+from nodnod.error import NodeError
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware, run_middleware
+from telegrinder.bot.dispatch.middleware.abc import run_post_middleware, run_pre_middleware
 from telegrinder.modules import logger
-from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, compose_nodes
-from telegrinder.tools.aio import maybe_awaitable
+from telegrinder.node.compose import compose
 from telegrinder.tools.fullname import fullname
-from telegrinder.tools.magic.function import bundle
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
@@ -22,38 +19,33 @@ if typing.TYPE_CHECKING:
 
 async def process_inner(
     api: API,
-    event: Update,
-    ctx: Context,
+    update: Update,
+    context: Context,
     view: View,
 ) -> Result[str, str]:
-    ctx.setdefault(CONTEXT_STORE_NODES_KEY, {})  # For per-event shared nodes
-
-    for m in view.middlewares:
-        if (
-            type(m).pre is not ABCMiddleware.pre
-            and await run_middleware(m.pre, api, event, ctx, required_nodes=m.pre_required_nodes) is False
-        ):
+    for middleware in view.middlewares:
+        if await run_pre_middleware(middleware, context) is False:
             await logger.ainfo(
                 "Update(id={}, type={!r}) processed with view `{}`. Pre-middleware `{}` raised failure.",
-                event.update_id,
-                event.update_type,
-                type(view).__name__,
-                fullname(m),
+                update.update_id,
+                update.update_type,
+                view,
+                fullname(middleware),
             )
-            return Error(f"Pre-middleware `{fullname(m)}` raised failure.")
+            return Error(f"Pre-middleware `{fullname(middleware)}` raised failure.")
 
     found_handlers: list[ABCHandler] = []
     responses: list[typing.Any] = []
-    ctx_copy = ctx.copy()
+    ctx_copy = context.copy()
 
     for handler in view.handlers:
-        match await handler.run(api, event, ctx):
+        match await handler.run(api, update, context):
             case Ok(response):
                 found_handlers.append(handler)
                 responses.append(response)
 
                 if view.return_manager is not None:
-                    await view.return_manager.run(response, api, event, ctx)
+                    await view.return_manager.run(response, api, update, context)
 
                 if handler.final is True:
                     break
@@ -63,15 +55,8 @@ async def process_inner(
     ctx = ctx_copy
     ctx.responses = responses
 
-    for m in view.middlewares:
-        if type(m).post is not ABCMiddleware.post:
-            await run_middleware(
-                m.post,
-                api,
-                event,
-                ctx,
-                required_nodes=m.post_required_nodes,
-            )
+    for middleware in view.middlewares:
+        await run_post_middleware(middleware, context)
 
     return Ok(
         "No found corresponded handlers."
@@ -80,47 +65,30 @@ async def process_inner(
     )
 
 
-async def check_rule(
-    api: API,
-    rule: ABCRule,
-    update: Update,
-    ctx: Context,
-) -> bool:
-    """Checks requirements, adapts update.
-    Returns check result.
-    """
-    # Running subrules to fetch requirements
-    ctx_copy = ctx.copy()
+async def check_rule(rule: ABCRule, context: Context) -> bool:
+    ctx_copy = context.copy()
+
     for requirement in rule.requires:
-        if not await check_rule(api, requirement, update, ctx_copy):
+        if not await check_rule(requirement, ctx_copy):
             return False
 
-    ctx |= ctx_copy
-    node_col = None
-    data = {Update: update, API: api, Context: ctx}
+    context |= ctx_copy
 
-    # Composing required nodes
-    if rule.required_nodes:
-        match await compose_nodes(rule.required_nodes, ctx, data=data):
-            case Ok(value):
-                node_col = value
-            case Error(compose_error):
+    await logger.adebug("  → Checking rule `{!r}`...", rule)
+
+    async with compose(rule.composable, context) as result:
+        match result:
+            case Ok(result):
+                await logger.adebug("    * Rule `{!r}` is {}", rule, "ok" if result else "failed")
+                return result
+            case Error(error):
                 await logger.adebug(
-                    "Cannot compose nodes for rule `{!r}`, error: {!r}",
-                    rule,
-                    compose_error.message,
+                    "    * Rule `{}` failed with error:{}\n",
+                    fullname(rule),
+                    NodeError(f"* failed to compose check of `{fullname(rule)}` rule", from_error=error),
                 )
-                return False
 
-    # Running check
-    try:
-        bundle_check = bundle(rule.check, data, typebundle=True)
-        bundle_check &= bundle(rule.check, ctx | ({} if node_col is None else node_col.values))
-        return await maybe_awaitable(bundle_check())
-    finally:
-        # Closing per call node sessions if there are any
-        if node_col is not None:
-            await node_col.close_all()
+    return False
 
 
 __all__ = ("check_rule", "process_inner")

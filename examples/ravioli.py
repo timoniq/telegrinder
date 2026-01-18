@@ -29,7 +29,7 @@ class DummyDB:
         self.storage[user_id].append(tinfo)
 
     async def new(self, name: str, time: int, message: Message) -> TimerInfo:
-        await bot.loop_wrapper.create_task(self.timer(name, time, message))
+        bot.loop_wrapper.add_task(self.timer(name, time, message))
         return TimerInfo(name, datetime.datetime.now() + datetime.timedelta(seconds=time))
 
     async def timer(self, name: str, time: int, message: Message) -> None:
