@@ -84,19 +84,19 @@ async def test_register_return_manager():
 
 
 @pytest.mark.asyncio()
-async def test_view_check_and_process(api_instance, message_update):
+async def test_view_check_and_process(api_instance, message_update, message_context):
     view = CustomMessageView()
 
     @view()
     async def handler(message: MessageCute):
         assert isinstance(message, MessageCute) is True
 
-    assert bool(await view.check(api_instance, message_update, Context())) is True
-    assert bool(await view.process(api_instance, message_update, Context())) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True
 
 
 @pytest.mark.asyncio()
-async def test_process_pre_middleware(api_instance, message_update):
+async def test_process_pre_middleware(api_instance, message_update, message_context):
     view = CustomMessageView()
     view.middlewares.append(PreMiddleware())
 
@@ -104,12 +104,12 @@ async def test_process_pre_middleware(api_instance, message_update):
     async def handler(message: MessageCute):
         return None
 
-    assert bool(await view.check(api_instance, message_update, Context())) is True
-    assert bool(await view.process(api_instance, message_update, Context())) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True
 
 
 @pytest.mark.asyncio()
-async def test_process_post_middleware(api_instance, message_update):
+async def test_process_post_middleware(api_instance, message_update, message_context):
     view = CustomMessageView()
     view.middlewares.append(PostMiddleware())
 
@@ -117,29 +117,29 @@ async def test_process_post_middleware(api_instance, message_update):
     async def handler(message: MessageCute):
         return b"123data"
 
-    assert bool(await view.check(api_instance, message_update, Context())) is True
-    assert bool(await view.process(api_instance, message_update, Context())) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True
 
 
 @pytest.mark.asyncio()
-async def test_process_with_rule(api_instance, message_update):
+async def test_process_with_rule(api_instance, message_update, message_context):
     view = CustomMessageView()
 
     @view(Text("Hello, Telegrinder! btw, laurelang - nice pure logical programming launguage ^_^"))
     async def handler(message: MessageCute):
         return None
 
-    assert bool(await view.check(api_instance, message_update, Context())) is True
-    assert bool(await view.process(api_instance, message_update, Context())) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True
 
 
 @pytest.mark.asyncio()
-async def test_process_with_return_manager(api_instance, message_update):
+async def test_process_with_return_manager(api_instance, message_update, message_context):
     view = CustomMessageView()
 
     @view()
     async def handler(message: MessageCute):
         return 123
 
-    assert bool(await view.check(api_instance, message_update, Context())) is True
-    assert bool(await view.process(api_instance, message_update, Context())) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True

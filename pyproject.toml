@@ -37,9 +37,9 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "rnet (>=3.0.0rc15)",
+    "rnet (>=3.0.0rc20)",
     "msgspec (>=0.20.0,<0.21.0)",
-    "certifi (>=2025.11.12)",
+    "certifi (>=2026.1.4)",
     "choicelib (>=0.1.5,<0.2.0)",
     "colorama (>=0.4.6,<0.5.0)",
     "betterconf",

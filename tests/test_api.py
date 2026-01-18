@@ -92,4 +92,6 @@ async def test_api_token(api: API):
 @pytest.mark.asyncio()
 @with_mocked_api(b"somefile")
 async def test_download_file(api: API):
-    assert await api.download_file("cool_file") == b"somefile"
+    result = await api.download_file("cool_file")
+    assert result
+    assert result.unwrap() == b"somefile"

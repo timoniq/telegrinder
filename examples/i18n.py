@@ -1,7 +1,5 @@
-from telegrinder.node.i18n import BaseTranslator, I18NConfig, KeySeparator
-from telegrinder.node.source import UserSource
-
 from telegrinder import API, Telegrinder, Token
+from telegrinder.node import BaseTranslator, I18NConfig, KeySeparator, UserSource
 from telegrinder.rules import Text
 
 bot = Telegrinder(API(Token.from_env()))
