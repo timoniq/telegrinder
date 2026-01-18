@@ -70,6 +70,7 @@ jobs:
     name: "Testing"
     runs-on: ${{ inputs.os }}
     needs: lock-file
+    if: ${{ !cancelled() }}
     steps:
       - uses: asottile/workflows/.github/actions/fast-checkout@v1.10.0
 
