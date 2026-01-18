@@ -187,9 +187,9 @@ class Dispatch[
         api: API,
         update: Update,
         context: Context,
-    ) -> bool:
+    ) -> None:
         if not context.exceptions_update:
-            return False
+            return
 
         await logger.adebug(
             "Processing error views with exceptions [{}] for update (id={}, type={!r})",
@@ -197,8 +197,7 @@ class Dispatch[
             update.update_id,
             update.update_type,
         )
-
-        found = False
+        found_view = False
 
         async with self.global_context.loop_wrapper.create_task_group() as task_group:
             for router, exception in context.exceptions_update.items():
@@ -215,7 +214,7 @@ class Dispatch[
                         )
                     continue
 
-                found = True
+                found_view = True
                 await logger.adebug(
                     "Routing exception update (id={}, type={!r}) to router `{!r}`",
                     update.update_id,
@@ -231,7 +230,12 @@ class Dispatch[
                     ),
                 )
 
-        return True if not found else any(task_group.results())
+        if not found_view:
+            await logger.ainfo(
+                "No found corresponded error views for exception update (id={}, type={!r})",
+                update.update_id,
+                update.update_type,
+            )
 
     async def _route_update(self, api: API, update: Update, context: Context) -> bool:
         if not self.routers:
@@ -280,12 +284,7 @@ class Dispatch[
             if not isinstance(e, Exception) and not isinstance(e, BaseExceptionGroup):
                 raise  # Throwing control flow exceptions
 
-            if not await self._process_update_exceptions(api, update, context):
-                await logger.aexception(
-                    "Update (id={}, type={!r}) processed with exception, traceback message below:",
-                    update.update_id,
-                    update.update_type,
-                )
+            await self._process_update_exceptions(api, update, context)
         finally:
             if not failed:
                 elapsed_time = self.global_context.loop_wrapper.loop.time() - start_time

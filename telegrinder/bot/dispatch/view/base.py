@@ -12,6 +12,7 @@ from telegrinder.bot.dispatch.process import check_rule, process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.rules.abc import ABCRule, Always
+from telegrinder.modules import logger
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import (
     BusinessConnection,
@@ -193,7 +194,22 @@ class EventModelView[T: (UpdateModel)](View):
 
 
 class ErrorView(View):
-    pass
+    async def process(self, api: API, update: Update, context: Context) -> Result[str, str]:
+        result = await super().process(api, update, context)
+
+        if not result and context.exception_update:
+            try:
+                raise context.exception_update.unwrap() from None
+            except Exception:
+                await logger.aexception(
+                    "Unhandled exception update (id={}, type={!r}), traceback message below:",
+                    update.update_id,
+                    update.update_type,
+                )
+
+            return Ok(f"Unhandled exception update: {result.error}")
+
+        return result
 
 
 class RawEventView(View):

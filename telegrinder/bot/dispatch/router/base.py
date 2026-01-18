@@ -100,7 +100,7 @@ class Router[
         )
 
         match await view.check(api, update, context):
-            case Ok():
+            case Ok(_):
                 await logger.adebug(
                     "View `{!r}` from router `{!r}` for update (id={}, type={!r}) is happy, processing...",
                     view,

@@ -176,9 +176,7 @@ class AnyLogger(typing.Protocol):
     def exception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
 
-class LoggerModule(AnyLogger, typing.Protocol):
-    def set_logger(self, __logger: AnyLogger) -> None: ...
-
+class AnyAsyncLogger(typing.Protocol):
     async def adebug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
     async def ainfo(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
@@ -194,14 +192,20 @@ class LoggerModule(AnyLogger, typing.Protocol):
     async def aexception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
 
+class LoggerModule(AnyLogger, AnyAsyncLogger, typing.Protocol):
+    def set_logger(self, __logger: AnyLogger) -> None: ...
+
+
 class WrapperAsyncLogger:
     def __init__(self, logger: LoggerModule, /) -> None:
         self._logger = logger
 
     def __getattr__(self, __name: str) -> typing.Any:
-        if __name.startswith("a") and __name in LoggerModule.__dict__:
+        if __name in AnyAsyncLogger.__dict__:
             return lambda *args, **kwargs: self._async_log(
-                getattr(self._logger, __name.removeprefix("a")), *args, **kwargs
+                getattr(self._logger, __name.removeprefix("a")),
+                *args,
+                **kwargs,
             )
 
         return super().__getattribute__(__name)
@@ -209,6 +213,7 @@ class WrapperAsyncLogger:
     async def _async_log(
         self,
         method: typing.Callable[..., typing.Any],
+        /,
         *args: typing.Any,
         **kwargs: typing.Any,
     ) -> None:
@@ -413,7 +418,7 @@ class _LoggerProxy:
 
             return self
 
-        if __name in LoggerModule.__dict__:
+        if __name in AnyLogger.__dict__ or __name in AnyAsyncLogger.__dict__:
             is_async = __name.startswith("a")
 
             if self.logging_module is not None:

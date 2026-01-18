@@ -16,8 +16,7 @@ async def oops_handler(m: Message):
 
 
 @bot.on.message(Text("woops"))
-async def woops_handler(m: Message):
-    await m.answer("Huh it seems like smth oops is gonna happen now...")
+def woops_handler():
     raise ValueError("Wow oopsii!")
 
 

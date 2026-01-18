@@ -58,10 +58,11 @@ async def process_inner(
     for middleware in view.middlewares:
         await run_post_middleware(middleware, context)
 
+    if not found_handlers:
+        return Error("No found corresponded handlers.")
+
     return Ok(
-        "No found corresponded handlers."
-        if not found_handlers
-        else f"Handler{'s' if len(found_handlers) > 1 else ''}: " + "".join(repr(handler) for handler in found_handlers)
+        f"Handler{'s' if len(found_handlers) > 1 else ''}: " + "".join(repr(handler) for handler in found_handlers)
     )
 
 
