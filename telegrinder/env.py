@@ -84,7 +84,9 @@ class DotenvProvider(betterconf.AbstractProvider):
 
         for line in self.env_file.read_text().splitlines():
             match tuple(shlex.shlex(instream=line, posix=True)):
-                case (var_name, operator, *tokens) if tokens and operator == ASSIGNMENT_OPERATOR and VARIABLE_NAME_PATTERN.match(var_name):
+                case (var_name, operator, *tokens) if (
+                    tokens and operator == ASSIGNMENT_OPERATOR and VARIABLE_NAME_PATTERN.match(var_name)
+                ):
                     variables[var_name] = "".join(tokens).replace(r"\n", "\n").replace(r"\t", "\t")
                 case _:
                     continue

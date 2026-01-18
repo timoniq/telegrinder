@@ -58,10 +58,7 @@ class WaiterMiddleware(ABCMiddleware):
             preset_context=preset_context,
         )
 
-        if (
-            not await handler.run(api, raw_update, ctx)
-            and (on_miss := short_state.actions.get("on_miss")) is not None
-        ):
+        if not await handler.run(api, raw_update, ctx) and (on_miss := short_state.actions.get("on_miss")) is not None:
             await on_miss.run(api, raw_update, ctx)
 
         return False

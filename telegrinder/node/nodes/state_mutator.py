@@ -29,8 +29,7 @@ class StateMutator(Node):
         match await self.storage.get(self.user_id):
             case Some(state_data) if state_data.key in self.KEY_MAP:
                 return (
-                    self
-                    .serializer(self.KEY_MAP[state_data.key])
+                    self.serializer(self.KEY_MAP[state_data.key])
                     .deserialize(state_data.payload)
                     .map(lambda state: state.bind(self))
                     .unwrap_or_none()

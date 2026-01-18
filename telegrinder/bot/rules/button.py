@@ -1,4 +1,3 @@
-
 import typing
 
 from telegrinder.bot.rules.abc import ABCRule, CheckResult

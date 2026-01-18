@@ -1,4 +1,3 @@
-
 import typing
 from collections import deque
 

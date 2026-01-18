@@ -1,4 +1,3 @@
-
 import dataclasses
 import operator
 import types
@@ -75,9 +74,7 @@ class MemberDescriptorProxy:
         if not self._operations or not isinstance(operation := self._operations.pop(-1), GetAttribute):
             raise SyntaxError("No operations to call.")
 
-        self._operations.append(
-            MethodCall(caller=operator.methodcaller(operation.attribute_name, *args, **kwargs))
-        )
+        self._operations.append(MethodCall(caller=operator.methodcaller(operation.attribute_name, *args, **kwargs)))
         return self
 
     def __get__(self, instance: typing.Any, owner: typing.Type[typing.Any]) -> typing.Any:

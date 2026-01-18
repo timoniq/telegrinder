@@ -3,7 +3,6 @@ import typing
 
 from kungfu.library.monad.result import Error, Ok
 from nodnod.error import NodeError
-from nodnod.interface.data import DataNode
 from nodnod.interface.generic import generic_node
 from nodnod.interface.polymorphic import case, polymorphic
 from nodnod.interface.scalar import scalar_node

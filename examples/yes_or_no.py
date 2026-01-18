@@ -11,7 +11,6 @@ from telegrinder import (
     Token,
     WaiterMachine,
 )
-from telegrinder.modules import setup_logger
 from telegrinder.rules import EnumTextRule, StartCommand
 
 # setup_logger()

@@ -14,12 +14,11 @@ import types
 import typing
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
 
+import betterconf
 import colorama
 from choicelib import choice_in_order
 
 from telegrinder.env import DOTENV, LoggerLevel, to_logger_level
-
-import betterconf
 
 if typing.TYPE_CHECKING:
     from _typeshed import OptExcInfo

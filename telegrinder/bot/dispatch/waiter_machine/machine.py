@@ -1,4 +1,3 @@
-
 import asyncio
 import datetime
 import typing
@@ -128,7 +127,9 @@ class WaiterMachine:
         expired: bool = False,
         **context: typing.Any,
     ) -> None:
-        preset_context = short_state.context.context.copy().as_dict() | context if short_state.context is not None else context
+        preset_context = (
+            short_state.context.context.copy().as_dict() | context if short_state.context is not None else context
+        )
 
         try:
             await self.drop(hasher, data, expired=expired, **preset_context)

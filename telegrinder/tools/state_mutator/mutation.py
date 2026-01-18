@@ -7,15 +7,11 @@ if typing.TYPE_CHECKING:
 
     class BoundMethod[**P, T, R](typing.Protocol):
         @staticmethod
-        def __call__(
-            self: T, *args: P.args, **kwargs: P.kwargs
-        ) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
+        def __call__(self: T, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
 
     @typing.runtime_checkable
     class NotBoundFunction[**P, R](typing.Protocol):
-        def __call__(
-            self, *args: P.args, **kwargs: P.kwargs
-        ) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
+        def __call__(self, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
 
 
 class mutation[**P, IntoState: State, BoundState: State | None]:  # noqa: N801

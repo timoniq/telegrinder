@@ -59,7 +59,6 @@ The `compose` function returns an async context manager that:
 - Returns `Result[T, NodeError]` with the composed result
 """
 
-
 import dataclasses
 import typing
 from contextlib import asynccontextmanager
@@ -70,7 +69,7 @@ from nodnod.agent.base import Agent
 from nodnod.agent.event_loop.agent import EventLoopAgent
 from nodnod.error import NodeError
 from nodnod.interface import create_agent_from_node, create_node_from_function, inject_externals, inject_internals
-from nodnod.node import Injection, Node
+from nodnod.node import Node
 from nodnod.scope import Scope
 from nodnod.utils.is_type import is_type
 
