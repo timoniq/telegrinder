@@ -3,45 +3,46 @@ import msgspec
 from .objects import ObjectsFieldsLiteralTypesField
 
 
-class MethodsParamsLiteralTypesParam(ObjectsFieldsLiteralTypesField):
+class MethodsAnnotationsReturnType(msgspec.Struct):
+    name: str
+    return_type: str
+
+
+class MethodsAnnotationsParametersParam(msgspec.Struct):
+    name: str
+    type: str
+
+
+class MethodsAnnotationsParameters(msgspec.Struct):
+    name: str
+    params: list[MethodsAnnotationsParametersParam] = msgspec.field(default_factory=list)
+
+
+class MethodsAnnotationsLiteralsParam(ObjectsFieldsLiteralTypesField):
     pass
 
 
-class MethodsParamsLiteralTypes(msgspec.Struct):
-    method_name: str
-    params: list[MethodsParamsLiteralTypesParam]
-
-
-class MethodsParamsAnnotationsAnnotationsParam(msgspec.Struct):
+class MethodsAnnotationsLiterals(msgspec.Struct):
     name: str
-    annotation: str
+    params: list[MethodsAnnotationsLiteralsParam] = msgspec.field(default_factory=list)
 
 
-class MethodsParamsAnnotationsAnnotations(msgspec.Struct):
-    method_name: str
-    params: list[MethodsParamsAnnotationsAnnotationsParam] = msgspec.field(default_factory=list)
-    return_type: str | None = msgspec.field(default=None)
-
-
-class MethodsParamsAnnotations(msgspec.Struct):
-    annotations: list[MethodsParamsAnnotationsAnnotations] = msgspec.field(default_factory=list)
-    literals: list[MethodsParamsLiteralTypes] = msgspec.field(default_factory=list)
-
-
-class MethodsParams(msgspec.Struct):
-    annotations: MethodsParamsAnnotations = msgspec.field(default_factory=lambda: MethodsParamsAnnotations())
+class MethodsAnnotations(msgspec.Struct):
+    return_type: list[MethodsAnnotationsReturnType] = msgspec.field(default_factory=list)
+    parameters: list[MethodsAnnotationsParameters] = msgspec.field(default_factory=list)
+    literals: list[MethodsAnnotationsLiterals] = msgspec.field(default_factory=list)
 
 
 class GeneratorMethods(msgspec.Struct):
-    params: MethodsParams = msgspec.field(default_factory=lambda: MethodsParams())
+    annotations: MethodsAnnotations = msgspec.field(default_factory=lambda: MethodsAnnotations())
 
 
 __all__ = (
     "GeneratorMethods",
-    "MethodsParams",
-    "MethodsParamsAnnotations",
-    "MethodsParamsAnnotationsAnnotations",
-    "MethodsParamsAnnotationsAnnotationsParam",
-    "MethodsParamsLiteralTypes",
-    "MethodsParamsLiteralTypesParam",
+    "MethodsAnnotations",
+    "MethodsAnnotationsLiterals",
+    "MethodsAnnotationsLiteralsParam",
+    "MethodsAnnotationsParameters",
+    "MethodsAnnotationsParametersParam",
+    "MethodsAnnotationsReturnType",
 )

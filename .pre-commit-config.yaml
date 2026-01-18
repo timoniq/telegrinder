@@ -26,7 +26,6 @@ repos:
         name: basedpyright
         description: "Run 'basedpyright' for Python type checking"
         entry: uv run basedpyright telegrinder tests examples --level error
-        pass_filenames: false
         language: system
         types: [ python ]
         stages: [ pre-commit ]

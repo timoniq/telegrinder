@@ -2,7 +2,7 @@
 name: "\U0001F680 Feature request \U0001F680"
 about: "Creating a feature request."
 title: "feature: "
-labels: ["feature request"]
+labels: []
 assignees: []
 ---
 

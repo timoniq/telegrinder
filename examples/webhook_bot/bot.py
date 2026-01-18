@@ -18,7 +18,7 @@ from telegrinder.rules import (
     PayloadMarkupRule,
     Text,
 )
-from telegrinder.tools.formatting import HTMLFormatter, block_quote, link
+from telegrinder.tools.formatting import HTML, blockquote, link
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 dp = Dispatch()
@@ -67,14 +67,12 @@ async def handle_menu_command(message: Message) -> None:
 async def handle_query_webhook(cb: CallbackQuery) -> None:
     await cb.answer()
     await cb.ctx_api.send_message(
-        text=HTMLFormatter(
-            link(
-                "https://core.telegram.org/bots/webhooks",
-                text="🛰 Marvin's Marvellous Guide to All Things Webhook.",
-            )
+        text=link(
+            "https://core.telegram.org/bots/webhooks",
+            text="🛰 Marvin's Marvellous Guide to All Things Webhook.",
         ),
         chat_id=cb.chat_id.unwrap(),
-        parse_mode=HTMLFormatter.PARSE_MODE,
+        parse_mode=HTML.PARSE_MODE,
     )
 
 
@@ -92,7 +90,7 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         release=HasText(),
         on_miss=MessageReplyHandler("Im still waiting for your message!"),
     )
-    await msg.reply(HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE)
+    await msg.reply(blockquote(msg.text.unwrap()), parse_mode=HTML.PARSE_MODE)
 
 
 @dp.callback_query(PayloadEqRule("action/guess"))

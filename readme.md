@@ -1,6 +1,10 @@
 <p>
   <a href="https://github.com/timoniq/telegrinder">
-    <img width="200px" height="175px" alt="Telegrinder" src="https://raw.githubusercontent.com/timoniq/telegrinder/main/docs/logo.svg">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/timoniq/telegrinder/dev/docs/logo-white.png">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/timoniq/telegrinder/dev/docs/logo-black.png">
+      <img alt="Logo" src="https://raw.githubusercontent.com/timoniq/telegrinder/dev/docs/logo-black.png" width="200">
+    </picture>
   </a>
 </p>
 

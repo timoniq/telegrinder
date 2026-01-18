@@ -9,9 +9,8 @@ from telegrinder.tools.aio import (
     stop_generator,
 )
 from telegrinder.tools.formatting import (
-    FormatString,
-    HTMLFormatter,
-    block_quote,
+    HTML,
+    blockquote,
     bold,
     code_inline,
     escape,
@@ -91,6 +90,7 @@ from telegrinder.tools.state_storage import ABCStateStorage, MemoryStateStorage,
 from telegrinder.tools.strings import to_utf16_map, utf16_to_py_index
 
 __all__ = (
+    "HTML",
     "ABCDataSerializer",
     "ABCGlobalContext",
     "ABCKeyboard",
@@ -102,10 +102,8 @@ __all__ = (
     "Button",
     "CtxVar",
     "DelayedTask",
-    "FormatString",
     "GlobalContext",
     "GlobalCtxVar",
-    "HTMLFormatter",
     "InlineButton",
     "InlineKeyboard",
     "InputFileDirectory",
@@ -124,7 +122,7 @@ __all__ = (
     "TaskGroup",
     "TelegrinderContext",
     "additional_property",
-    "block_quote",
+    "blockquote",
     "bold",
     "bundle",
     "cancel_future",

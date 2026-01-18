@@ -1,5 +1,5 @@
 [telegram-bot-api]
-version = "v9.2"
+version = "v9.3"
 schema_url = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/refs/heads/main/api.min.json"
 
 [generator]
@@ -37,55 +37,55 @@ type = "Boolean"
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultArticle"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultPhoto"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultGif"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultMpeg4Gif"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultVideo"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultAudio"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultPhoto"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultVoice"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultDocument"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
@@ -97,7 +97,7 @@ fields = [
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultVenue"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
@@ -109,55 +109,55 @@ fields = [
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultGame"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedPhoto"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedGif"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedMpeg4Gif"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedSticker"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedDocument"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedVideo"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedVoice"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 [[generator.objects.fields.defaults.random_id]]
 object_name = "InlineQueryResultCachedAudio"
 fields = [
-    { name = "id", nbytes = 64 },
+    { name = "id", nbytes = 32 },
 ]
 
 # Generator :: Objects :: Fields :: Annotations :: Annotations
@@ -766,6 +766,7 @@ fields = [
 object_name = "UniqueGiftInfo"
 fields = [
     { name = "origin", enum = "UniqueGiftInfoOriginType", default = "UPGRADE" },
+    { name = "last_resale_currency", enum_literals = { name = "Currency", enumerations = ["XTR", "TON",] } },
 ]
 
 [[generator.objects.fields.annotations.literals]]
@@ -915,88 +916,96 @@ fields = [
     { name = "allowed_updates", enum = "UpdateType" },
 ]
 
-# Generator :: Methods :: Params :: Annotations :: Annotations
+# Generator :: Methods :: Annotations :: Return Type
 
-[[generator.methods.params.annotations.annotations]]
-method_name = "getChatAdministrators"
+[[generator.methods.annotations.return_type]]
+name = "getChatAdministrators"
 return_type = "list[Sum[ChatMemberOwner, ChatMemberAdministrator]]"
 
-# Generator :: Methods :: Params :: Annotations :: Literals (typing.Literal, enum.Enum)
+# Generator :: Methods :: Annotations :: Parameters
 
-[[generator.methods.params.annotations.literals]]
-method_name = "createNewStickerSet"
+[[generator.methods.annotations.parameters]]
+name = "answerCallbackQuery"
+params = [
+    { name = "cache_time", type = "timedelta | int"}
+]
+
+# Generator :: Methods :: Annotations :: Literals (typing.Literal, enum.Enum)
+
+[[generator.methods.annotations.literals]]
+name = "createNewStickerSet"
 params = [
     { name = "sticker_type", literals = ["regular", "mask", "custom_emoji",] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "createInvoiceLink"
+[[generator.methods.annotations.literals]]
+name = "createInvoiceLink"
 params = [
     { name = "currency", enum = "Currency" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "createForumTopic"
+[[generator.methods.annotations.literals]]
+name = "createForumTopic"
 params = [
     { name = "icon_color", enum = "TopicIconColor" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "sendDice"
+[[generator.methods.annotations.literals]]
+name = "sendDice"
 params = [
     { name = "emoji", enum = "DiceEmoji" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "sendPoll"
+[[generator.methods.annotations.literals]]
+name = "sendPoll"
 params = [
     { name = "type", literals = ["quiz", "regular",] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "setStickerSetThumbnail"
+[[generator.methods.annotations.literals]]
+name = "setStickerSetThumbnail"
 params = [
     { name = "format", literals = ["static", "animated", "video",] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "setWebhook"
+[[generator.methods.annotations.literals]]
+name = "setWebhook"
 params = [
     { name = "allowed_updates", enum = "UpdateType" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "sendChatAction"
+[[generator.methods.annotations.literals]]
+name = "sendChatAction"
 params = [
     { name = "action", enum = "ChatAction" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "sendInvoice"
+[[generator.methods.annotations.literals]]
+name = "sendInvoice"
 params = [
     { name = "currency", enum = "Currency" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "uploadStickerFile"
+[[generator.methods.annotations.literals]]
+name = "uploadStickerFile"
 params = [
     { name = "sticker_format", literals = ["static", "animated", "video",] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "postStory"
+[[generator.methods.annotations.literals]]
+name = "postStory"
 params = [
     { name = "active_period", literals = [21600, 43200, 86400, 1036800,] },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "getUpdates"
+[[generator.methods.annotations.literals]]
+name = "getUpdates"
 params = [
     { name = "allowed_updates", enum = "UpdateType" },
 ]
 
-[[generator.methods.params.annotations.literals]]
-method_name = "giftPremiumSubscription"
+[[generator.methods.annotations.literals]]
+name = "giftPremiumSubscription"
 params = [
     { name = "month_count", literals = [3, 6, 12,] },
     { name = "star_count", literals = [1000, 1500, 2500,] },

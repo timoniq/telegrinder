@@ -2,7 +2,7 @@ import pathlib
 
 from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.rules import IsInteger, IsPrivate
-from telegrinder.tools.formatting import HTMLFormatter, link
+from telegrinder.tools.formatting import HTML, link
 
 api = API(Token.from_env())
 bot = Telegrinder(api)
@@ -24,10 +24,12 @@ async def integer_handler(message: Message) -> None:
 
 
 @bot.on.message(IsPrivate())
-async def hello_handler() -> HTMLFormatter:
-    return HTMLFormatter(
-        "Write a positive number and I'll translate it to {} numeral",
-    ).format(link("https://en.wikipedia.org/wiki/Kaktovik_numerals", text="kaktovik"))
+async def hello_handler() -> HTML:
+    return HTML(
+        "Write a positive number and I'll translate it to {} numeral".format(
+            link("https://en.wikipedia.org/wiki/Kaktovik_numerals", text="kaktovik")
+        ),
+    )
 
 
 bot.run_forever()

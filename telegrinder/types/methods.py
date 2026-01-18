@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API version `9.2`, released `August 15, 2025`."""
+    """Telegram Bot API version `9.3`, released `December 31, 2025`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -248,8 +248,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -303,6 +304,7 @@ class APIMethods:
         video_start_timestamp: timedelta | int | None = None,
         disable_notification: bool | None = default_params["disable_notification"],
         protect_content: bool | None = default_params["protect_content"],
+        message_effect_id: str | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
     ) -> Result[Message, APIError]:
@@ -315,8 +317,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be forwarded; \
         required if the message is forwarded to a direct messages chat.
@@ -329,6 +332,9 @@ class APIMethods:
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
         :param protect_content: Protects the contents of the forwarded message from forwarding and saving. \
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; only \
+        available when forwarding to private chats.
 
         :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested post \
         to send; for direct messages chats only.
@@ -365,8 +371,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the messages will be forwarded; \
         required if the messages are forwarded to a direct messages chat.
@@ -406,6 +413,7 @@ class APIMethods:
         disable_notification: bool | None = default_params["disable_notification"],
         protect_content: bool | None = default_params["protect_content"],
         allow_paid_broadcast: bool | None = default_params["allow_paid_broadcast"],
+        message_effect_id: str | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
@@ -423,8 +431,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -455,6 +464,9 @@ class APIMethods:
         :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
         limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
         be withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; only \
+        available when copying to private chats.
 
         :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested post \
         to send; for direct messages chats only. If the message is sent as a reply \
@@ -500,8 +512,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the messages will be sent; \
         required if the messages are sent to a direct messages chat.
@@ -558,8 +571,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -650,8 +664,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -745,8 +760,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -846,8 +862,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -960,8 +977,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -1062,8 +1080,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -1143,8 +1162,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -1228,14 +1248,15 @@ class APIMethods:
         Star proceeds from this media will be credited to the chat's balance. Otherwise, \
         they will be credited to the bot's balance.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
         :param star_count: The number of Telegram Stars that must be paid to buy access to the media; \
-        1-10000.
+        1-25000.
 
         :param media: A JSON-serialized array describing the media to be sent; up to 10 items. \
 
@@ -1305,8 +1326,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the messages will be sent; \
         required if the messages are sent to a direct messages chat.
@@ -1366,8 +1388,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -1451,8 +1474,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -1532,8 +1556,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -1613,8 +1638,9 @@ class APIMethods:
         (in the format @channelusername). Polls can't be sent to channel direct \
         messages chats.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param question: Poll question, 1-300 characters.
 
@@ -1750,8 +1776,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -1788,6 +1815,45 @@ class APIMethods:
         )
         return full_result(method_response, Message)
 
+    async def send_message_draft(
+        self,
+        *,
+        chat_id: int,
+        draft_id: int,
+        text: str,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = default_params["parse_mode"],
+        entities: list[MessageEntity] | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `sendMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendmessagedraft)
+
+        Use this method to stream a partial message to a user while the message is
+        being generated; supported only for bots with forum topic mode enabled.
+        Returns True on success.
+
+        :param chat_id: Unique identifier for the target private chat.
+
+        :param message_thread_id: Unique identifier for the target message thread.
+
+        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes of drafts \
+        with the same identifier are animated.
+
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing. \
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
+        more details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text, \
+        which can be specified instead of parse_mode.
+        """
+
+        method_response = await self.api.request_raw(
+            "sendMessageDraft",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
     async def send_chat_action(
         self,
         *,
@@ -1812,7 +1878,8 @@ class APIMethods:
         (in the format @supergroupusername). Channel chats and channel direct \
         messages chats aren't supported.
 
-        :param message_thread_id: Unique identifier for the target message thread; for supergroups only. \
+        :param message_thread_id: Unique identifier for the target message thread or topic of a forum; for \
+        supergroups and private chats of bots with forum topic mode enabled only. \
 
         :param action: Type of action to broadcast. Choose one, depending on what the user is about \
         to receive: typing for text messages, upload_photo for photos, record_video \
@@ -2104,7 +2171,8 @@ class APIMethods:
         :param can_manage_video_chats: Pass True if the administrator can manage video chats.
 
         :param can_restrict_members: Pass True if the administrator can restrict, ban or unban chat members, \
-        or access supergroup statistics.
+        or access supergroup statistics. For backward compatibility, defaults \
+        to True for promotions of channel administrators.
 
         :param can_promote_members: Pass True if the administrator can add new administrators with a subset \
         of their own privileges or demote administrators that they have promoted, \
@@ -2928,10 +2996,11 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `editForumTopic`, see the [documentation](https://core.telegram.org/bots/api#editforumtopic)
 
-        Use this method to edit name and icon of a topic in a forum supergroup chat.
-        The bot must be an administrator in the chat for this to work and must have
-        the can_manage_topics administrator rights, unless it is the creator
-        of the topic. Returns True on success.
+        Use this method to edit name and icon of a topic in a forum supergroup chat
+        or a private chat with a user. In the case of a supergroup chat the bot must
+        be an administrator in the chat for this to work and must have the can_manage_topics
+        administrator rights, unless it is the creator of the topic. Returns True
+        on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
@@ -3014,9 +3083,9 @@ class APIMethods:
         """Method `deleteForumTopic`, see the [documentation](https://core.telegram.org/bots/api#deleteforumtopic)
 
         Use this method to delete a forum topic along with all its messages in a forum
-        supergroup chat. The bot must be an administrator in the chat for this to
-        work and must have the can_delete_messages administrator rights. Returns
-        True on success.
+        supergroup chat or a private chat with a user. In the case of a supergroup
+        chat the bot must be an administrator in the chat for this to work and must
+        have the can_delete_messages administrator rights. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
@@ -3039,10 +3108,11 @@ class APIMethods:
     ) -> Result[bool, APIError]:
         """Method `unpinAllForumTopicMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallforumtopicmessages)
 
-        Use this method to clear the list of pinned messages in a forum topic. The
-        bot must be an administrator in the chat for this to work and must have the
-        can_pin_messages administrator right in the supergroup. Returns True
-        on success.
+        Use this method to clear the list of pinned messages in a forum topic in a forum
+        supergroup chat or a private chat with a user. In the case of a supergroup
+        chat the bot must be an administrator in the chat for this to work and must
+        have the can_pin_messages administrator right in the supergroup. Returns
+        True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
@@ -3201,7 +3271,7 @@ class APIMethods:
         text: str | None = None,
         show_alert: bool | None = None,
         url: str | None = None,
-        cache_time: int | None = None,
+        cache_time: timedelta | int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Method `answerCallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)
@@ -3627,7 +3697,7 @@ class APIMethods:
         username of the channel (in the format @channelusername) that will receive \
         the gift.
 
-        :param gift_id: Identifier of the gift.
+        :param gift_id: Identifier of the gift; limited gifts can't be sent to channel chats.
 
         :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby making \
         the upgrade free for the receiver.
@@ -4045,8 +4115,10 @@ class APIMethods:
         exclude_unsaved: bool | None = None,
         exclude_saved: bool | None = None,
         exclude_unlimited: bool | None = None,
-        exclude_limited: bool | None = None,
+        exclude_limited_upgradable: bool | None = None,
+        exclude_limited_non_upgradable: bool | None = None,
         exclude_unique: bool | None = None,
+        exclude_from_blockchain: bool | None = None,
         sort_by_price: bool | None = None,
         offset: str | None = None,
         limit: int | None = None,
@@ -4066,9 +4138,16 @@ class APIMethods:
 
         :param exclude_unlimited: Pass True to exclude gifts that can be purchased an unlimited number of times. \
 
-        :param exclude_limited: Pass True to exclude gifts that can be purchased a limited number of times. \
+        :param exclude_limited_upgradable: Pass True to exclude gifts that can be purchased a limited number of times \
+        and can be upgraded to unique.
+
+        :param exclude_limited_non_upgradable: Pass True to exclude gifts that can be purchased a limited number of times \
+        and can't be upgraded to unique.
 
         :param exclude_unique: Pass True to exclude unique gifts.
+
+        :param exclude_from_blockchain: Pass True to exclude gifts that were assigned from the TON blockchain and \
+        can't be resold or transferred in Telegram.
 
         :param sort_by_price: Pass True to sort results by gift price instead of send date. Sorting is applied \
         before pagination.
@@ -4081,6 +4160,113 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "getBusinessAccountGifts",
+            get_params(locals()),
+        )
+        return full_result(method_response, OwnedGifts)
+
+    async def get_user_gifts(
+        self,
+        *,
+        user_id: int,
+        exclude_unlimited: bool | None = None,
+        exclude_limited_upgradable: bool | None = None,
+        exclude_limited_non_upgradable: bool | None = None,
+        exclude_from_blockchain: bool | None = None,
+        exclude_unique: bool | None = None,
+        sort_by_price: bool | None = None,
+        offset: str | None = None,
+        limit: int | None = None,
+        **other: typing.Any,
+    ) -> Result[OwnedGifts, APIError]:
+        """Method `getUserGifts`, see the [documentation](https://core.telegram.org/bots/api#getusergifts)
+
+        Returns the gifts owned and hosted by a user. Returns OwnedGifts on success.
+
+        :param user_id: Unique identifier of the user.
+
+        :param exclude_unlimited: Pass True to exclude gifts that can be purchased an unlimited number of times. \
+
+        :param exclude_limited_upgradable: Pass True to exclude gifts that can be purchased a limited number of times \
+        and can be upgraded to unique.
+
+        :param exclude_limited_non_upgradable: Pass True to exclude gifts that can be purchased a limited number of times \
+        and can't be upgraded to unique.
+
+        :param exclude_from_blockchain: Pass True to exclude gifts that were assigned from the TON blockchain and \
+        can't be resold or transferred in Telegram.
+
+        :param exclude_unique: Pass True to exclude unique gifts.
+
+        :param sort_by_price: Pass True to sort results by gift price instead of send date. Sorting is applied \
+        before pagination.
+
+        :param offset: Offset of the first entry to return as received from the previous request; \
+        use an empty string to get the first chunk of results.
+
+        :param limit: The maximum number of gifts to be returned; 1-100. Defaults to 100.
+        """
+
+        method_response = await self.api.request_raw(
+            "getUserGifts",
+            get_params(locals()),
+        )
+        return full_result(method_response, OwnedGifts)
+
+    async def get_chat_gifts(
+        self,
+        *,
+        chat_id: int | str,
+        exclude_unsaved: bool | None = None,
+        exclude_saved: bool | None = None,
+        exclude_unlimited: bool | None = None,
+        exclude_limited_upgradable: bool | None = None,
+        exclude_limited_non_upgradable: bool | None = None,
+        exclude_from_blockchain: bool | None = None,
+        exclude_unique: bool | None = None,
+        sort_by_price: bool | None = None,
+        offset: str | None = None,
+        limit: int | None = None,
+        **other: typing.Any,
+    ) -> Result[OwnedGifts, APIError]:
+        """Method `getChatGifts`, see the [documentation](https://core.telegram.org/bots/api#getchatgifts)
+
+        Returns the gifts owned by a chat. Returns OwnedGifts on success.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel \
+        (in the format @channelusername).
+
+        :param exclude_unsaved: Pass True to exclude gifts that aren't saved to the chat's profile page. \
+        Always True, unless the bot has the can_post_messages administrator right \
+        in the channel.
+
+        :param exclude_saved: Pass True to exclude gifts that are saved to the chat's profile page. Always \
+        False, unless the bot has the can_post_messages administrator right in \
+        the channel.
+
+        :param exclude_unlimited: Pass True to exclude gifts that can be purchased an unlimited number of times. \
+
+        :param exclude_limited_upgradable: Pass True to exclude gifts that can be purchased a limited number of times \
+        and can be upgraded to unique.
+
+        :param exclude_limited_non_upgradable: Pass True to exclude gifts that can be purchased a limited number of times \
+        and can't be upgraded to unique.
+
+        :param exclude_from_blockchain: Pass True to exclude gifts that were assigned from the TON blockchain and \
+        can't be resold or transferred in Telegram.
+
+        :param exclude_unique: Pass True to exclude unique gifts.
+
+        :param sort_by_price: Pass True to sort results by gift price instead of send date. Sorting is applied \
+        before pagination.
+
+        :param offset: Offset of the first entry to return as received from the previous request; \
+        use an empty string to get the first chunk of results.
+
+        :param limit: The maximum number of gifts to be returned; 1-100. Defaults to 100.
+        """
+
+        method_response = await self.api.request_raw(
+            "getChatGifts",
             get_params(locals()),
         )
         return full_result(method_response, OwnedGifts)
@@ -4221,6 +4407,46 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "postStory",
+            get_params(locals()),
+        )
+        return full_result(method_response, Story)
+
+    async def repost_story(
+        self,
+        *,
+        business_connection_id: str,
+        from_chat_id: int,
+        from_story_id: int,
+        active_period: int,
+        post_to_chat_page: bool | None = None,
+        protect_content: bool | None = default_params["protect_content"],
+        **other: typing.Any,
+    ) -> Result[Story, APIError]:
+        """Method `repostStory`, see the [documentation](https://core.telegram.org/bots/api#repoststory)
+
+        Reposts a story on behalf of a business account from another business account.
+        Both business accounts must be managed by the same bot, and the story on the
+        source account must have been posted (or reposted) by the bot. Requires
+        the can_manage_stories business bot right for both business accounts.
+        Returns Story on success.
+
+        :param business_connection_id: Unique identifier of the business connection.
+
+        :param from_chat_id: Unique identifier of the chat which posted the story that should be reposted. \
+
+        :param from_story_id: Unique identifier of the story that should be reposted.
+
+        :param active_period: Period after which the story is moved to the archive, in seconds; must be \
+        one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400.
+
+        :param post_to_chat_page: Pass True to keep the story accessible after it expires.
+
+        :param protect_content: Pass True if the content of the story must be protected from forwarding and \
+        screenshotting.
+        """
+
+        method_response = await self.api.request_raw(
+            "repostStory",
             get_params(locals()),
         )
         return full_result(method_response, Story)
@@ -4793,8 +5019,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -5376,8 +5603,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat or username of the target channel \
         (in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
@@ -5803,8 +6031,9 @@ class APIMethods:
         :param chat_id: Unique identifier for the target chat. Games can't be sent to channel direct \
         messages chats and channel chats.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; for \
-        forum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
 
         :param game_short_name: Short name of the game, serves as the unique identifier for the game. Set \
         up your games via @BotFather.

@@ -2,6 +2,7 @@
 import asyncio
 import pathlib
 import typing
+from datetime import timedelta
 from functools import cached_property, wraps
 from http import HTTPStatus
 
@@ -26,7 +27,7 @@ type APIRequestMethod[T: API, **P, R] = typing.Callable[
 
 
 DEFAULT_MAX_RETRIES: typing.Final = 5
-DEFAULT_TIMEOUT: typing.Final = 30
+DEFAULT_TIMEOUT: typing.Final = timedelta(seconds=30)
 
 
 def retryer[T: API, **P, R](func: APIRequestMethod[T, P, R], /) -> APIRequestMethod[T, P, R]:
@@ -114,7 +115,7 @@ class API(APIMethods):
     async def download_file(
         self,
         file_path: str | pathlib.Path,
-        timeout: int | float = DEFAULT_TIMEOUT,
+        timeout: int | float | timedelta = DEFAULT_TIMEOUT,
     ) -> Result[bytes, APIError]:
         response = await self.http.request(
             url=f"{self.request_file_url}/{file_path}",

@@ -15,9 +15,9 @@ from .merge_shortcuts import merge_shortcuts
 from .models import (
     Config,
     MethodParameter,
+    MethodsAnnotationsLiteralsParam,
+    MethodsAnnotationsParametersParam,
     MethodSchema,
-    MethodsParamsAnnotationsAnnotationsParam,
-    MethodsParamsLiteralTypesParam,
     ObjectField,
     ObjectSchema,
     ObjectsFieldsAnnotationsAnnotationsField,
@@ -268,11 +268,23 @@ class ObjectGenerator(ABCGenerator):
         if annotation is not None:
             field_type = annotation.annotation
             field_value = make_field_function(field, converter=annotation.convert_from)
-        elif literal_types is not None and any((literal_types.enum, literal_types.literals)):
-            literal_type_hint = literal_types.enum or "Literal[%s]" % ", ".join(
-                f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
-            )
-            if len(literal_types.literals) > 3:
+        elif literal_types is not None and any(
+            (literal_types.enum, literal_types.literals, literal_types.enum_literals)
+        ):
+            literals_count = 0
+
+            if literal_types.enum_literals is not None:
+                literal_type_hint = "Literal[%s]" % ", ".join(
+                    f"{literal_types.enum_literals.name}.{x}" for x in literal_types.enum_literals.enumerations
+                )
+                literals_count = len(literal_types.enum_literals.enumerations)
+            else:
+                literal_type_hint = literal_types.enum or "Literal[%s]" % ", ".join(
+                    f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
+                )
+                literals_count = len(literal_types.literals)
+
+            if literals_count > 3:
                 literal_type_hint = literal_type_hint.replace("]", ",]")
 
             field_type = (
@@ -411,6 +423,8 @@ class ObjectGenerator(ABCGenerator):
                     )
                 elif literal_types is not None and literal_types.enum_default is not None and f.required:
                     f.default = literal_types.enum_default
+                elif literal_types is not None and literal_types.enum_literals_default is not None and f.required:
+                    f.default = literal_types.enum_literals_default
 
                 generation_id_by_default = self.get_generation_id_by_default_field(object_name, f.name)
                 if generation_id_by_default is not None:
@@ -546,9 +560,9 @@ class MethodGenerator(ABCGenerator):
         method_name: str,
         param_name: str,
         /,
-    ) -> MethodsParamsLiteralTypesParam | None:
-        for p_literal_types in self.config.generator.methods.params.annotations.literals:
-            if method_name == p_literal_types.method_name:
+    ) -> MethodsAnnotationsLiteralsParam | None:
+        for p_literal_types in self.config.generator.methods.annotations.literals:
+            if method_name == p_literal_types.name:
                 for param in p_literal_types.params:
                     if param.name == param_name:
                         return param
@@ -569,9 +583,9 @@ class MethodGenerator(ABCGenerator):
         method_name: str,
         param_name: str,
         /,
-    ) -> MethodsParamsAnnotationsAnnotationsParam | None:
-        for p_annotation in self.config.generator.methods.params.annotations.annotations:
-            if method_name == p_annotation.method_name:
+    ) -> MethodsAnnotationsParametersParam | None:
+        for p_annotation in self.config.generator.methods.annotations.parameters:
+            if method_name == p_annotation.name:
                 for param in p_annotation.params:
                     if param.name == param_name:
                         return param
@@ -579,8 +593,8 @@ class MethodGenerator(ABCGenerator):
         return None
 
     def get_method_return_type(self, method_name: str, /) -> str | None:
-        for annotations in self.config.generator.methods.params.annotations.annotations:
-            if method_name == annotations.method_name:
+        for annotations in self.config.generator.methods.annotations.return_type:
+            if method_name == annotations.name:
                 return annotations.return_type
 
         return None
@@ -636,7 +650,7 @@ class MethodGenerator(ABCGenerator):
             param_name = makesafe_name(p.name)
 
             if annotation is not None:
-                p.types = [annotation.annotation]
+                p.types = [annotation.type]
 
             elif literal_types is not None:
                 tp = literal_types.enum or "typing.Literal[%s]" % ", ".join(

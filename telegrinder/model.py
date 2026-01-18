@@ -9,6 +9,7 @@ from kungfu.library.monad.option import Nothing
 
 from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
 
+NOTHING: typing.Final = Nothing()
 UNSET: typing.Final[typing.Any] = typing.cast("typing.Any", msgspec.UNSET)
 """See [DOCS](https://jcristharif.com/msgspec/api.html#unset) about `msgspec.UNSET`."""
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
@@ -24,7 +25,7 @@ def is_none(obj: typing.Any, /) -> typing.TypeIs[Nothing | None]:
 if typing.TYPE_CHECKING:
 
     @typing.overload
-    def field() -> typing.Any: ...
+    def field() -> typing.Any: ...  # type: ignore
 
     @typing.overload
     def field(*, name: str | None = ...) -> typing.Any: ...
@@ -62,14 +63,6 @@ if typing.TYPE_CHECKING:
         name: str | None = None,
     ) -> typing.Any: ...
 
-    def field(
-        *,
-        default=...,
-        default_factory=...,
-        name=...,
-        converter=...,
-    ) -> typing.Any: ...
-
     class From[T]:
         def __new__(cls, _: T, /) -> typing.Any: ...
 else:
@@ -78,7 +71,7 @@ else:
     type From[T] = T
 
     def field(**kwargs):
-        if (default := kwargs.get("default")) is Ellipsis:
+        if kwargs.get("default") is Ellipsis:
             kwargs["default"] = UNSET
 
         kwargs.pop("converter", None)
@@ -111,7 +104,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
                 and isinstance(field_info.type, msgspec.inspect.CustomType)
                 and issubclass(field_info.type.cls, Option)
             ):
-                return Nothing() if val is UNSET else val
+                return NOTHING if val is UNSET else val
 
             if val is UNSET:
                 raise AttributeError(f"{class_.__name__!r} object has no attribute {name!r}")

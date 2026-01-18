@@ -1,7 +1,7 @@
 import collections
 import typing
 
-from telegrinder.tools.formatting.html_formatter import HTMLFormatter, StringFormatter, link, pre_code, tg_emoji
+from telegrinder.tools.formatting.html import FORMATTERS, link, pre_code, tg_emoji
 from telegrinder.tools.strings import to_utf16_map, utf16_to_py_index
 from telegrinder.types.enums import ContentType, MessageEntityType
 from telegrinder.types.methods_utils import get_params
@@ -50,7 +50,7 @@ HTML_FORMAT_ENTITIES: typing.Final[tuple[MessageEntityType, ...]] = (
     MessageEntityType.CODE,
     MessageEntityType.TEXT_LINK,
     MessageEntityType.CUSTOM_EMOJI,
-    *tuple(x for x in MessageEntityType if x.name.lower() in StringFormatter.__formatters__),
+    *tuple(x for x in MessageEntityType if x.name.lower() in FORMATTERS),
 )
 
 
@@ -95,7 +95,7 @@ def build_html(text: str, entities: list[MessageEntity], /) -> str:
         formatted = chunk
 
         for e in reversed(stack):
-            if (formatter := StringFormatter.__formatters__.get(e.type.name.lower())) is not None:
+            if (formatter := FORMATTERS.get(e.type.name.lower())) is not None:
                 formatted = formatter(formatted)
             elif e.type in (MessageEntityType.PRE, MessageEntityType.CODE):
                 formatted = pre_code(formatted, lang=e.language.unwrap_or_none())
@@ -107,7 +107,7 @@ def build_html(text: str, entities: list[MessageEntity], /) -> str:
         result.append(formatted)
         utf16_pos = next_utf16
 
-    return HTMLFormatter().join(result)
+    return "".join(result)
 
 
 def compose_reactions(

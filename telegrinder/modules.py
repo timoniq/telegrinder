@@ -1,7 +1,10 @@
+# pyright: reportMissingImports=none, reportAttributeAccessIssue=none, reportMissingModuleSource=none
+
 import asyncio
 import contextvars
 import dataclasses
 import importlib
+import inspect
 import logging
 import os
 import re
@@ -11,13 +14,12 @@ import types
 import typing
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
 
-import betterconf
 import colorama
 from choicelib import choice_in_order
 
 from telegrinder.env import DOTENV, LoggerLevel, to_logger_level
 
-# pyright: reportMissingImports=none, reportAttributeAccessIssue=none
+import betterconf
 
 if typing.TYPE_CHECKING:
     from _typeshed import OptExcInfo
@@ -37,12 +39,45 @@ type _Sink = typing.TextIO | typing.Any
 
 _LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFileHandler | logging.FileHandler
 
+IS_WIN: typing.Final = sys.platform == "win32"
+
+if IS_WIN:
+    colorama.just_fix_windows_console()
+    colorama.init(wrap=False)
+
+_DEFAULT_COLORIZE: typing.Final = True
+
+
+class Colors:
+    RESET = "\033[0m"
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    WHITE = "\033[37m"
+    BLACK = "\033[30m"
+    LIGHT_RED = "\033[91m"
+    LIGHT_GREEN = "\033[92m"
+    LIGHT_YELLOW = "\033[93m"
+    LIGHT_BLUE = "\033[94m"
+    LIGHT_MAGENTA = "\033[95m"
+    LIGHT_CYAN = "\033[96m"
+    LIGHT_WHITE = "\033[97m"
+    LIGHT_BLACK = "\033[90m"
+
+
 DEFAULT_LOGGING_FORMAT = (
-    "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
-    " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
-    "|</light_white> <level_module>{module}</level_module><light_white>:</light_white>"
-    "<func_name>{funcName}</func_name><light_white>:</light_white><lineno>{lineno}</lineno>"
-    " <light_white>></light_white> <message>{message}</message>"
+    ("{name: <4} | {levelname: <8} | {asctime} | {module}:{funcName}:{lineno} > {message}")
+    if IS_WIN
+    else (
+        "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
+        " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
+        "|</light_white> <level_module>{module}</level_module><light_white>:</light_white>"
+        "<func_name>{funcName}</func_name><light_white>:</light_white><lineno>{lineno}</lineno>"
+        " <light_white>></light_white> <message>{message}</message>"
+    )
 )
 DEFAULT_STRUCTLOG_FORMAT = (
     "[<light_blue>{name}</light_blue>] {location} "
@@ -57,25 +92,48 @@ DEFAULT_LOGURU_FORMAT = (
 )
 
 CALL_STACK_CONTEXT = contextvars.ContextVar[tuple[types.FrameType, "OptExcInfo"]]("_call_stack")
-COLORS = dict(
-    reset=colorama.Style.RESET_ALL,
-    red=colorama.Fore.RED,
-    green=colorama.Fore.GREEN,
-    blue=colorama.Fore.BLUE,
-    white=colorama.Fore.WHITE,
-    yellow=colorama.Fore.YELLOW,
-    magenta=colorama.Fore.MAGENTA,
-    cyan=colorama.Fore.CYAN,
-    black=colorama.Fore.BLACK,
-    light_red=colorama.Fore.LIGHTRED_EX,
-    light_green=colorama.Fore.LIGHTGREEN_EX,
-    light_blue=colorama.Fore.LIGHTBLUE_EX,
-    light_white=colorama.Fore.LIGHTWHITE_EX,
-    light_yellow=colorama.Fore.LIGHTYELLOW_EX,
-    light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
-    light_cyan=colorama.Fore.LIGHTCYAN_EX,
-    light_black=colorama.Fore.LIGHTBLACK_EX,
-)
+
+if not IS_WIN:
+    COLORS = dict(
+        reset=Colors.RESET,
+        red=Colors.RED,
+        green=Colors.GREEN,
+        blue=Colors.BLUE,
+        white=Colors.WHITE,
+        yellow=Colors.YELLOW,
+        magenta=Colors.MAGENTA,
+        cyan=Colors.CYAN,
+        black=Colors.BLACK,
+        light_red=Colors.LIGHT_RED,
+        light_green=Colors.LIGHT_GREEN,
+        light_blue=Colors.LIGHT_BLUE,
+        light_white=Colors.LIGHT_WHITE,
+        light_yellow=Colors.LIGHT_YELLOW,
+        light_magenta=Colors.LIGHT_MAGENTA,
+        light_cyan=Colors.LIGHT_CYAN,
+        light_black=Colors.LIGHT_BLACK,
+    )
+else:
+    COLORS = dict(
+        reset=colorama.Style.RESET_ALL,
+        red=colorama.Fore.RED,
+        green=colorama.Fore.GREEN,
+        blue=colorama.Fore.BLUE,
+        white=colorama.Fore.WHITE,
+        yellow=colorama.Fore.YELLOW,
+        magenta=colorama.Fore.MAGENTA,
+        cyan=colorama.Fore.CYAN,
+        black=colorama.Fore.BLACK,
+        light_red=colorama.Fore.LIGHTRED_EX,
+        light_green=colorama.Fore.LIGHTGREEN_EX,
+        light_blue=colorama.Fore.LIGHTBLUE_EX,
+        light_white=colorama.Fore.LIGHTWHITE_EX,
+        light_yellow=colorama.Fore.LIGHTYELLOW_EX,
+        light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
+        light_cyan=colorama.Fore.LIGHTCYAN_EX,
+        light_black=colorama.Fore.LIGHTBLACK_EX,
+    )
+
 LEVEL_FORMAT_SETTINGS = dict(
     DEBUG=dict(
         level="light_blue",
@@ -137,10 +195,22 @@ class LoggerConfig:
 LOGGER_CONFIG = LoggerConfig()
 
 
-class LoggerModule(typing.Protocol):
-    logger: typing.Any
+class AnyLogger(typing.Protocol):
+    def debug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-    def set_logger(self, __logger: typing.Any, __logging_module: str) -> None: ...
+    def info(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    def warning(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    def error(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    def critical(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+    def exception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+
+class LoggerModule(typing.Protocol):
+    def set_logger(self, __logger: AnyLogger) -> None: ...
 
     def debug(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
@@ -171,6 +241,36 @@ class LoggerModule(typing.Protocol):
     async def aexception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
 
+class WrapperAsyncLogger:
+    def __init__(self, logger: LoggerModule, /) -> None:
+        self._logger = logger
+
+    def __getattr__(self, __name: str) -> typing.Any:
+        if __name.startswith("a") and __name in LoggerModule.__dict__:
+            return lambda *args, **kwargs: self._async_log(
+                getattr(self._logger, __name.removeprefix("a")), *args, **kwargs
+            )
+
+        return super().__getattribute__(__name)
+
+    async def _async_log(
+        self,
+        method: typing.Callable[..., typing.Any],
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> None:
+        tok = CALL_STACK_CONTEXT.set((sys._getframe(0).f_back, sys.exc_info()))  # type: ignore
+        ctx = contextvars.copy_context()
+
+        try:
+            await asyncio.get_running_loop().run_in_executor(
+                executor=None,
+                func=lambda: ctx.run(lambda: method(*args, **kwargs)),
+            )
+        finally:
+            CALL_STACK_CONTEXT.reset(tok)
+
+
 class LoggingFormatter(logging.Formatter):
     def __init__(self, format: str, colorize: bool, /) -> None:
         self.level_formats = _get_level_format(format, colorize)
@@ -193,12 +293,56 @@ class LoggingFormatter(logging.Formatter):
         return message
 
 
+class LogMessage:
+    def __init__(self, fmt: str, args: typing.Any, kwargs: typing.Any) -> None:
+        self.fmt = fmt
+        self.args = args
+        self.kwargs = kwargs
+
+    def __str__(self) -> str:
+        return self.fmt.format(*self.args, **self.kwargs)
+
+
+class LoggingStyleAdapter(logging.LoggerAdapter):
+    logger: logging.Logger
+
+    def __init__(
+        self,
+        logger: logging.Logger,
+        **extra: typing.Any,
+    ) -> None:
+        super().__init__(logger, extra=extra or None)
+        self.log_arg_names = frozenset(inspect.getfullargspec(self.logger._log).args[1:])
+
+    def log(self, level: int, msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None:
+        if self.isEnabledFor(level):
+            msg, args, kwargs = self.proc(msg, args, kwargs)
+            self.logger._log(level, msg, args, **kwargs)
+
+    def proc(
+        self,
+        msg: typing.Any,
+        args: tuple[typing.Any, ...],
+        kwargs: dict[str, typing.Any],
+    ) -> tuple[typing.Any, tuple[typing.Any, ...], dict[str, typing.Any]]:
+        kwargs.setdefault("stacklevel", 2)
+
+        if isinstance(msg, str):
+            msg = LogMessage(msg, args, kwargs)
+            args = tuple()
+
+        return msg, args, {name: kwargs[name] for name in self.log_arg_names if name in kwargs}
+
+
 def _remove_handlers(logger: typing.Any, /) -> None:
     for hdlr in logger.handlers[:]:
         logger.removeHandler(hdlr)
 
 
 def _get_level_format(format: str, colorize: bool, /) -> dict[str, str]:
+    if COLORS is None:
+        return {}
+
     level_formats = {}
 
     for level, settings in LEVEL_FORMAT_SETTINGS.items():
@@ -321,52 +465,31 @@ class _LoggerProxy:
 
         if __name in LoggerModule.__dict__:
             is_async = __name.startswith("a")
-            method_name = __name.removeprefix("a") if is_async else __name
-            method_name = "info" if method_name == "success" and self.logging_module != "loguru" else method_name
-            level_name = __name.removeprefix("a").upper()
-            level_name = (
-                "INFO"
-                if level_name == "SUCCESS" and self.logging_module != "loguru"
-                else "ERROR"
-                if level_name == "EXCEPTION"
-                else level_name
-            )
-            level = (
-                logging._nameToLevel.get(level_name, logging.NOTSET) if self.logging_module != "loguru" else level_name
-            )
-            level_is_enabled = hasattr(self.logger, "isEnabledFor") and self.logger.isEnabledFor(level)
 
-            if is_async:
-                meth = getattr(self.logger, method_name)
-                method = (
-                    self if not level_is_enabled else lambda *args, **kwargs: self._async_log(meth, *args, **kwargs)
+            if self.logging_module is not None:
+                level_name = __name.removeprefix("a").upper()
+                level_name = (
+                    "INFO"
+                    if level_name == "SUCCESS" and self.logging_module != "loguru"
+                    else "ERROR"
+                    if level_name == "EXCEPTION"
+                    else level_name
                 )
-            else:
-                method = getattr(self.logger, method_name) if level_is_enabled else self
+                level = (
+                    logging._nameToLevel.get(level_name, logging.NOTSET)
+                    if self.logging_module != "loguru"
+                    else level_name
+                )
+                if not hasattr(self.logger, "isEnabledFor") and self.logger.isEnabledFor(level):
+                    return self
 
-            return method
+            return getattr(self.logger if not is_async else self.async_logger, __name)
 
-        return getattr(self.logger, __name)
+        return self
 
-    async def _async_log(
-        self,
-        method: typing.Callable[..., typing.Any],
-        *args: typing.Any,
-        **kwargs: typing.Any,
-    ) -> None:
-        tok = CALL_STACK_CONTEXT.set((sys._getframe(0).f_back, sys.exc_info()))  # type: ignore
-        ctx = contextvars.copy_context()
-
-        try:
-            await asyncio.get_running_loop().run_in_executor(
-                executor=None,
-                func=lambda: ctx.run(lambda: method(*args, **kwargs)),
-            )
-        finally:
-            CALL_STACK_CONTEXT.reset(tok)
-
-    def set_logger(self, logger: LoggerModule, logging_module: str) -> None:
+    def set_logger(self, logger: LoggerModule, logging_module: str | None = None) -> None:
         self.logger = logger
+        self.async_logger = WrapperAsyncLogger(logger)
         self.logging_module = logging_module
 
 
@@ -412,7 +535,11 @@ class FileHandlerConfig:
 
 
 logger: LoggerModule = typing.cast("LoggerModule", _LoggerProxy())
-logging_module = choice_in_order(["structlog", "loguru"], default="logging", do_import=False)
+logging_module = (
+    choice_in_order(["structlog", "loguru"], default="logging", do_import=False)
+    if (_module := os.environ.get("TELEGRINDER_LOGGER_MODULE", None)) is None
+    else _module
+)
 asyncio_module = choice_in_order(["uvloop", "winloop"], default="asyncio", do_import=False)
 
 
@@ -422,15 +549,18 @@ if logging_module == "structlog":
     import typing
     from contextlib import suppress
 
-    import colorama
     import structlog
 
-    _LEVELS_COLORS = dict(
-        debug=colorama.Fore.LIGHTBLUE_EX,
-        info=colorama.Fore.LIGHTGREEN_EX,
-        warning=colorama.Fore.LIGHTYELLOW_EX,
-        error=colorama.Fore.LIGHTRED_EX,
-        critical=colorama.Fore.LIGHTRED_EX,
+    _LEVELS_COLORS = (
+        dict(
+            debug=COLORS["light_blue"],
+            info=COLORS["light_green"],
+            warning=COLORS["light_yellow"],
+            error=COLORS["light_red"],
+            critical=COLORS["light_red"],
+        )
+        if COLORS is not None
+        else None
     )
 
     class SLF4JStyleFormatter:
@@ -477,7 +607,10 @@ if logging_module == "structlog":
             return event_dict
 
         def _colorize(self, value: typing.Any, log_level: str) -> str:
-            return f"{_LEVELS_COLORS[log_level]}{value}{colorama.Fore.RESET}" if self.colors else value
+            if _LEVELS_COLORS is None:
+                return value
+
+            return f"{_LEVELS_COLORS[log_level]}{value}{Colors.RESET}" if self.colors else value
 
         def _format_braces(
             self,
@@ -622,9 +755,9 @@ if logging_module == "structlog":
             self.colorize = colorize
 
         def __call__(self, key: str, value: typing.Any) -> str:
-            if self.colorize:
+            if self.colorize and _LEVELS_COLORS is not None:
                 color = _LEVELS_COLORS[value]
-                return f"[{color}{value:^12}{colorama.Fore.RESET}]"
+                return f"[{color}{value:^12}{Colors.RESET}]"
 
             return f"[{value:^12}]"
 
@@ -636,12 +769,12 @@ if logging_module == "structlog":
         def filter(self, record: logging.LogRecord) -> bool:
             record = _rich_log_record(record)
 
-            if self.colorize:
+            if self.colorize and _LEVELS_COLORS is not None:
                 level_color = _LEVELS_COLORS[record.levelname.lower()]
                 location = (
-                    f"{colorama.Fore.LIGHTCYAN_EX}{record.module}{colorama.Fore.RESET}:"
-                    f"{level_color}{record.funcName}{colorama.Fore.RESET}:"
-                    f"{colorama.Fore.LIGHTMAGENTA_EX}{record.lineno}{colorama.Fore.RESET} "
+                    f"{Colors.LIGHT_CYAN}{record.module}{Colors.RESET}:"
+                    f"{level_color}{record.funcName}{Colors.RESET}:"
+                    f"{Colors.LIGHT_MAGENTA}{record.lineno}{Colors.RESET} "
                 )
             else:
                 location = f"{record.module}:{record.funcName}:{record.lineno} "
@@ -696,7 +829,7 @@ if logging_module == "structlog":
             context_class=dict,
             cache_logger_on_first_use=True,
         )
-        logger.set_logger(struct_logger, "structlog")
+        logger.set_logger(struct_logger, "structlog")  # type: ignore
 
 
 elif logging_module == "loguru":
@@ -762,51 +895,10 @@ elif logging_module == "loguru":
                 for handler_id in handlers_ids:
                     loguru_logger.remove(handler_id)
 
-        logger.set_logger(loguru_logger, "loguru")
+        logger.set_logger(loguru_logger, "loguru")  # type: ignore
 
 
 elif logging_module == "logging":
-    import inspect
-    import sys
-
-    class LogMessage:
-        def __init__(self, fmt: str, args: typing.Any, kwargs: typing.Any) -> None:
-            self.fmt = fmt
-            self.args = args
-            self.kwargs = kwargs
-
-        def __str__(self) -> str:
-            return self.fmt.format(*self.args, **self.kwargs)
-
-    class LoggingStyleAdapter(logging.LoggerAdapter):
-        logger: logging.Logger
-
-        def __init__(
-            self,
-            logger: logging.Logger,
-            **extra: typing.Any,
-        ) -> None:
-            super().__init__(logger, extra=extra or None)
-            self.log_arg_names = frozenset(inspect.getfullargspec(self.logger._log).args[1:])
-
-        def log(self, level: int, msg: typing.Any, *args: typing.Any, **kwargs: typing.Any) -> None:
-            if self.isEnabledFor(level):
-                msg, args, kwargs = self.proc(msg, args, kwargs)
-                self.logger._log(level, msg, args, **kwargs)
-
-        def proc(
-            self,
-            msg: typing.Any,
-            args: tuple[typing.Any, ...],
-            kwargs: dict[str, typing.Any],
-        ) -> tuple[typing.Any, tuple[typing.Any, ...], dict[str, typing.Any]]:
-            kwargs.setdefault("stacklevel", 2)
-
-            if isinstance(msg, str):
-                msg = LogMessage(msg, args, kwargs)
-                args = tuple()
-
-            return msg, args, {name: kwargs[name] for name in self.log_arg_names if name in kwargs}
 
     def _configure_logging(
         level: str,
@@ -831,7 +923,7 @@ elif logging_module == "logging":
 
             _logger.addHandler(file.handler)
 
-        logger.set_logger(LoggingStyleAdapter(logger=_logger), "logging")
+        logger.set_logger(LoggingStyleAdapter(logger=_logger), "logging")  # type: ignore
 
 
 if asyncio_module in ("uvloop", "winloop"):
@@ -845,16 +937,11 @@ def setup_logger(
     console_sink: _Sink | None = sys.stderr,
     level: _LoggerLevel | None = None,
     format: str | None = None,
-    colorize: bool = True,
+    colorize: bool = _DEFAULT_COLORIZE,
     file: FileHandlerConfig | None = None,
 ) -> LoggerModule:
     if logger.logger is not None:
         return logger
-
-    import colorama
-
-    colorama.just_fix_windows_console()
-    colorama.init(wrap=False)
 
     args: tuple[typing.Any, ...] = (
         (LOGGER_CONFIG.LEVEL or level or "debug").upper(),
@@ -881,4 +968,4 @@ else:
     json = _json()
 
 
-__all__ = ("FileHandlerConfig", "json", "logger", "setup_logger")
+__all__ = ("FileHandlerConfig", "LoggingStyleAdapter", "json", "logger", "setup_logger")

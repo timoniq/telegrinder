@@ -6,8 +6,12 @@ from http import HTTPStatus
 
 from telegrinder.client.form_data import MultipartBuilderProto, encode_form_data
 
+if typing.TYPE_CHECKING:
+    import datetime
+
 type Data = typing.Any
 type Files = dict[str, tuple[str, typing.Any]]
+type Timeout = int | float | datetime.timedelta
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -27,7 +31,7 @@ class ABCClient(ABC):
 
     @property
     @abstractmethod
-    def timeout(self) -> float:
+    def timeout(self) -> datetime.timedelta:
         pass
 
     @abstractmethod
@@ -47,6 +51,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> str:
         pass
@@ -57,6 +62,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> dict[str, typing.Any]:
         pass
@@ -67,6 +73,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         pass
@@ -77,6 +84,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         pass

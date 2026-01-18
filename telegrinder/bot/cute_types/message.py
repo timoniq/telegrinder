@@ -164,7 +164,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -235,7 +235,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -306,7 +306,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -367,7 +367,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -426,7 +426,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -491,7 +491,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -565,7 +565,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -627,7 +627,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -694,7 +694,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername). Polls can't be sent to channel directmessages chats.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param question: Poll question, 1-300 characters.
 
@@ -773,7 +773,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -836,7 +836,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -881,7 +881,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat. Games can't be sent to channel directmessages chats and channel chats.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param game_short_name: Short name of the game, serves as the unique identifier for the game. Setup your games via @BotFather.
 
@@ -969,7 +969,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername). Channel chats and channel directmessages chats aren't supported.
 
-        :param message_thread_id: Unique identifier for the target message thread; for supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread or topic of a forum; forsupergroups and private chats of bots with forum topic mode enabled only.
         :param action: Type of action to broadcast. Choose one, depending on what the user is aboutto receive: typing for text messages, upload_photo for photos, record_videoor upload_video for videos, record_voice or upload_voice for voice notes,upload_document for general files, choose_sticker for stickers, find_locationfor location data, record_video_note or upload_video_note for videonotes."""
         ...
 
@@ -1003,7 +1003,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the messages will be sent;required if the messages are sent to a direct messages chat.
 
@@ -1054,7 +1054,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1113,7 +1113,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1180,7 +1180,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1251,7 +1251,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1322,7 +1322,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1383,7 +1383,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1442,7 +1442,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1507,7 +1507,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1581,7 +1581,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1643,7 +1643,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1710,7 +1710,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername). Polls can't be sent to channel directmessages chats.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param question: Poll question, 1-300 characters.
 
@@ -1789,7 +1789,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1852,7 +1852,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -1897,7 +1897,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat. Games can't be sent to channel directmessages chats and channel chats.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param game_short_name: Short name of the game, serves as the unique identifier for the game. Setup your games via @BotFather.
 
@@ -1993,7 +1993,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the messages will be sent;required if the messages are sent to a direct messages chat.
 
@@ -2044,7 +2044,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -2103,7 +2103,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -2449,7 +2449,7 @@ class MessageCute(
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -2506,7 +2506,7 @@ class MessageCute(
 
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
@@ -2621,6 +2621,7 @@ class MessageCute(
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = None,
         from_chat_id: int | str | None = None,
+        message_effect_id: str | None = None,
         message_id: int | None = None,
         message_thread_id: str | None = None,
         parse_mode: str | None = None,
@@ -2697,6 +2698,7 @@ class MessageCute(
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = None,
         from_chat_id: int | str | None = None,
+        message_effect_id: str | None = None,
         message_id: int | None = None,
         message_thread_id: str | None = None,
         protect_content: bool | None = None,
@@ -2711,7 +2713,7 @@ class MessageCute(
         is returned.
         :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of the forum; forforum supergroups only.
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be forwarded;required if the message is forwarded to a direct messages chat.
 
@@ -2721,6 +2723,8 @@ class MessageCute(
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the forwarded message from forwarding and saving.
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; onlyavailable when forwarding to private chats.
+
         :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only.
 
         :param message_id: Message identifier in the chat specified in from_chat_id."""
