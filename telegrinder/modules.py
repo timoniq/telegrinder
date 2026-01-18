@@ -17,7 +17,7 @@ from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, Watc
 import betterconf
 from choicelib import choice_in_order
 
-from telegrinder.env import DOTENV, LoggerLevel, to_logger_level, to_logger_module
+from telegrinder.env import DOTENV, LoggerLevel, take, to_logger_level, to_logger_module
 
 if typing.TYPE_CHECKING:
     from _typeshed import OptExcInfo
@@ -35,19 +35,6 @@ else:
 type _Sink = typing.TextIO | typing.Any
 
 _LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFileHandler | logging.FileHandler
-
-IS_WIN: typing.Final = sys.platform == "win32"
-
-if IS_WIN:
-    try:
-        import colorama
-
-        colorama.just_fix_windows_console()
-        colorama.init(wrap=False)
-    except ImportError:
-        colorama = None
-
-_DEFAULT_COLORIZE: typing.Final = True if not IS_WIN else colorama is not None
 
 
 class Colors:
@@ -71,15 +58,11 @@ class Colors:
 
 
 DEFAULT_LOGGING_FORMAT = (
-    ("{name: <4} | {levelname: <8} | {asctime} | {module}:{funcName}:{lineno} > {message}")
-    if IS_WIN
-    else (
-        "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
-        " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
-        "|</light_white> <level_module>{module}</level_module><light_white>:</light_white>"
-        "<func_name>{funcName}</func_name><light_white>:</light_white><lineno>{lineno}</lineno>"
-        " <light_white>></light_white> <message>{message}</message>"
-    )
+    "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
+    " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
+    "|</light_white> <level_module>{module}</level_module><light_white>:</light_white>"
+    "<func_name>{funcName}</func_name><light_white>:</light_white><lineno>{lineno}</lineno>"
+    " <light_white>></light_white> <message>{message}</message>"
 )
 DEFAULT_STRUCTLOG_FORMAT = (
     "[<light_blue>{name}</light_blue>] {location} "
@@ -95,47 +78,25 @@ DEFAULT_LOGURU_FORMAT = (
 
 CALL_STACK_CONTEXT = contextvars.ContextVar[tuple[types.FrameType, "OptExcInfo"]]("_call_stack")
 
-if not IS_WIN:
-    COLORS = dict(
-        reset=Colors.RESET,
-        red=Colors.RED,
-        green=Colors.GREEN,
-        blue=Colors.BLUE,
-        white=Colors.WHITE,
-        yellow=Colors.YELLOW,
-        magenta=Colors.MAGENTA,
-        cyan=Colors.CYAN,
-        black=Colors.BLACK,
-        light_red=Colors.LIGHT_RED,
-        light_green=Colors.LIGHT_GREEN,
-        light_blue=Colors.LIGHT_BLUE,
-        light_white=Colors.LIGHT_WHITE,
-        light_yellow=Colors.LIGHT_YELLOW,
-        light_magenta=Colors.LIGHT_MAGENTA,
-        light_cyan=Colors.LIGHT_CYAN,
-        light_black=Colors.LIGHT_BLACK,
-    )
-else:
-    COLORS = dict(
-        reset=colorama.Style.RESET_ALL,
-        red=colorama.Fore.RED,
-        green=colorama.Fore.GREEN,
-        blue=colorama.Fore.BLUE,
-        white=colorama.Fore.WHITE,
-        yellow=colorama.Fore.YELLOW,
-        magenta=colorama.Fore.MAGENTA,
-        cyan=colorama.Fore.CYAN,
-        black=colorama.Fore.BLACK,
-        light_red=colorama.Fore.LIGHTRED_EX,
-        light_green=colorama.Fore.LIGHTGREEN_EX,
-        light_blue=colorama.Fore.LIGHTBLUE_EX,
-        light_white=colorama.Fore.LIGHTWHITE_EX,
-        light_yellow=colorama.Fore.LIGHTYELLOW_EX,
-        light_magenta=colorama.Fore.LIGHTMAGENTA_EX,
-        light_cyan=colorama.Fore.LIGHTCYAN_EX,
-        light_black=colorama.Fore.LIGHTBLACK_EX,
-    ) if colorama is not None else None
-
+COLORS = dict(
+    reset=Colors.RESET,
+    red=Colors.RED,
+    green=Colors.GREEN,
+    blue=Colors.BLUE,
+    white=Colors.WHITE,
+    yellow=Colors.YELLOW,
+    magenta=Colors.MAGENTA,
+    cyan=Colors.CYAN,
+    black=Colors.BLACK,
+    light_red=Colors.LIGHT_RED,
+    light_green=Colors.LIGHT_GREEN,
+    light_blue=Colors.LIGHT_BLUE,
+    light_white=Colors.LIGHT_WHITE,
+    light_yellow=Colors.LIGHT_YELLOW,
+    light_magenta=Colors.LIGHT_MAGENTA,
+    light_cyan=Colors.LIGHT_CYAN,
+    light_black=Colors.LIGHT_BLACK,
+)
 LEVEL_FORMAT_SETTINGS = dict(
     DEBUG=dict(
         level="light_blue",
@@ -184,7 +145,7 @@ class LoggerConfig:
     )
     FORMAT: str | None = betterconf.constant_field(None)
     COLORIZE: bool = betterconf.field(
-        default=_DEFAULT_COLORIZE,
+        default=True,
         caster=betterconf.caster.to_bool,
     )
     MODULE: typing.Literal["logging", "loguru", "structlog"] | None = betterconf.field(
@@ -332,9 +293,6 @@ def _remove_handlers(logger: typing.Any, /) -> None:
 
 
 def _get_level_format(format: str, colorize: bool, /) -> dict[str, str]:
-    if COLORS is None:
-        return {}
-
     level_formats = {}
 
     for level, settings in LEVEL_FORMAT_SETTINGS.items():
@@ -496,15 +454,12 @@ class FileHandlerConfig:
     colorize: bool = LOGGER_CONFIG.FILE_HANDLER_COLORIZE
 
     def __post_init__(self) -> None:
-        self.format = (
-            self.format
-            or (
-                DEFAULT_LOGURU_FORMAT
-                if logging_module == "loguru"
-                else DEFAULT_STRUCTLOG_FORMAT
-                if logging_module == "structlog"
-                else DEFAULT_LOGGING_FORMAT
-            )
+        self.format = self.format or (
+            DEFAULT_LOGURU_FORMAT
+            if logging_module == "loguru"
+            else DEFAULT_STRUCTLOG_FORMAT
+            if logging_module == "structlog"
+            else DEFAULT_LOGGING_FORMAT
         )
 
     @classmethod
@@ -541,16 +496,12 @@ if logging_module == "structlog":
 
     import structlog
 
-    _LEVELS_COLORS = (
-        dict(
-            debug=COLORS["light_blue"],
-            info=COLORS["light_green"],
-            warning=COLORS["light_yellow"],
-            error=COLORS["light_red"],
-            critical=COLORS["light_red"],
-        )
-        if COLORS is not None
-        else None
+    _LEVELS_COLORS = dict(
+        debug=COLORS["light_blue"],
+        info=COLORS["light_green"],
+        warning=COLORS["light_yellow"],
+        error=COLORS["light_red"],
+        critical=COLORS["light_red"],
     )
 
     class SLF4JStyleFormatter:
@@ -597,9 +548,6 @@ if logging_module == "structlog":
             return event_dict
 
         def _colorize(self, value: typing.Any, log_level: str) -> str:
-            if _LEVELS_COLORS is None:
-                return value
-
             return f"{_LEVELS_COLORS[log_level]}{value}{Colors.RESET}" if self.colors else value
 
         def _format_braces(
@@ -745,7 +693,7 @@ if logging_module == "structlog":
             self.colorize = colorize
 
         def __call__(self, key: str, value: typing.Any) -> str:
-            if self.colorize and _LEVELS_COLORS is not None:
+            if self.colorize:
                 color = _LEVELS_COLORS[value]
                 return f"[{color}{value:^12}{Colors.RESET}]"
 
@@ -759,7 +707,7 @@ if logging_module == "structlog":
         def filter(self, record: logging.LogRecord) -> bool:
             record = _rich_log_record(record)
 
-            if self.colorize and _LEVELS_COLORS is not None:
+            if self.colorize:
                 level_color = _LEVELS_COLORS[record.levelname.lower()]
                 location = (
                     f"{Colors.LIGHT_CYAN}{record.module}{Colors.RESET}:"
@@ -916,7 +864,7 @@ elif logging_module == "logging":
         logger.set_logger(LoggingStyleAdapter(logger=_logger), "logging")  # type: ignore
 
 
-if asyncio_module in ("uvloop", "winloop"):
+if asyncio_module in ("uvloop", "winloop") and take("TELEGRINDER_SETUP_UVLOOP", bool, default=False) is True:
     import asyncio
 
     asyncio.set_event_loop(loop=importlib.import_module(name=asyncio_module).new_event_loop())

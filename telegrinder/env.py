@@ -9,6 +9,7 @@ from annotationlib import type_repr
 import betterconf
 from kungfu import Nothing, Option, Some
 
+NODEFAULT: typing.Final = object()
 VARIABLE_NAME_PATTERN: typing.Final = re.compile(r"[A-Za-z_][A-Za-z_0-9]*")
 ASSIGNMENT_OPERATOR: typing.Final = "="
 ENV_FILE_NAME: typing.Final = os.environ.get("TELEGRINDER_CONFIG_ENV_FILE_NAME", ".env")
@@ -48,14 +49,31 @@ def find_env_file() -> Option[pathlib.Path]:
     return Nothing()
 
 
+@typing.overload
+def take(name: str, /) -> str: ...
+
+
+@typing.overload
+def take[T](name: str, var_type: type[T], /) -> T: ...
+
+
+@typing.overload
+def take[T](name: str, var_type: type[T], /, *, default: T) -> T: ...
+
+
 def take[T](
     name: str,
     var_type: type[T] = str,
     /,
     *,
-    from_dotenv: bool = True,
+    default: T = NODEFAULT,
 ) -> T:
-    value = DOTENV.get(name) if from_dotenv else ENV.get(name)
+    try:
+        value = DOTENV.get(name)
+    except betterconf.VariableNotFoundError:
+        if default is NODEFAULT:
+            raise
+        return default
 
     if var_type is str:
         return value  # type: ignore

@@ -15,13 +15,8 @@ class Token(str):
         return f"<Token: {self.bot_id}:{self.token[:9]}...>"
 
     @classmethod
-    def from_env(
-        cls,
-        var_name: str = "BOT_TOKEN",
-        *,
-        is_read: bool = False,
-    ) -> typing.Self:
-        return cls(take(var_name, from_dotenv=not is_read))
+    def from_env(cls, var_name: str = "BOT_TOKEN") -> typing.Self:
+        return cls(take(var_name))
 
     @cached_property
     def token(self) -> str:
