@@ -72,7 +72,7 @@ class MappedScopes(dict[type[Node], Scope]):
 class NodeScope(enum.StrEnum):
     GLOBAL = "global"
     PER_CALL = "local"
-    PER_EVENT = "per_event"
+    PER_EVENT = "event"
 
     def __call__[T](self, node: type[T], /) -> type[T]:
         NODE_SCOPE_INFO.set_node_scope(as_node(node), self)

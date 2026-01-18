@@ -17,6 +17,7 @@ from telegrinder.node.nodes.callback_query import CallbackQueryData, CallbackQue
 from telegrinder.node.nodes.command import CommandInfo
 from telegrinder.node.nodes.error import Error
 from telegrinder.node.nodes.event import EventNode
+from telegrinder.node.nodes.file import File, FileId
 from telegrinder.node.nodes.global_node import GlobalNode
 from telegrinder.node.nodes.i18n import ABCTranslator, BaseTranslator, I18NConfig, KeySeparator
 from telegrinder.node.nodes.me import BotUsername, Me
@@ -43,6 +44,8 @@ __all__ = (
     "Document",
     "Error",
     "EventNode",
+    "File",
+    "FileId",
     "GlobalNode",
     "I18NConfig",
     "KeySeparator",

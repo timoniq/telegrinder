@@ -1,7 +1,7 @@
 import typing
 
 from nodnod.error import NodeError
-from nodnod.interface.generic import generic_node
+from nodnod.interface.node_constructor import NodeConstructor
 from nodnod.interface.scalar import scalar_node
 
 from telegrinder.bot.cute_types.message import MessageCute
@@ -11,18 +11,14 @@ from telegrinder.bot.cute_types.message import MessageCute
 class Caption:
     @classmethod
     def __compose__(cls, message: MessageCute) -> str:
-        if not message.caption:
-            raise NodeError("Message has no caption.")
-        return message.caption.unwrap()
+        return message.caption.expect(NodeError("Message has no caption."))
 
 
 @scalar_node
 class Text:
     @classmethod
     def __compose__(cls, message: MessageCute) -> str:
-        if not message.text:
-            raise NodeError("Message has no text.")
-        return message.text.unwrap()
+        return message.text.expect(NodeError("Message has no text."))
 
 
 @scalar_node
@@ -39,11 +35,12 @@ if typing.TYPE_CHECKING:
 
 else:
 
-    @generic_node
-    class TextLiteral[*Ts]:
-        @classmethod
-        def __compose__(cls, text: Text, texts: tuple[typing.Unpack[Ts]]) -> str:
-            if text in cls.texts:
+    class TextLiteral(NodeConstructor):
+        def __init__(self, *texts: str) -> None:
+            self.texts = texts
+
+        def __compose__(self, text: Text | Caption) -> str:
+            if text in self.texts:
                 return text
             raise NodeError("Text mismatched literal.")
 

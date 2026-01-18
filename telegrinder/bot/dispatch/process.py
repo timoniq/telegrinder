@@ -85,7 +85,7 @@ async def check_rule(rule: ABCRule, context: Context) -> bool:
                 await logger.adebug(
                     "    * Rule `{}` failed with error:{}\n",
                     fullname(rule),
-                    NodeError(f"* failed to compose check of `{fullname(rule)}` rule", from_error=error, indent=6),
+                    NodeError(f"* failed to compose check of `{fullname(rule)}` rule", from_error=error),
                 )
 
     return False

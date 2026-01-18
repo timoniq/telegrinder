@@ -8,7 +8,7 @@ from nodnod.interface.node_from_function import create_node_from_function
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.node.compose import create_composable_from_node
+from telegrinder.node.compose import create_composable
 from telegrinder.node.utils import get_globals_from_function, get_locals_from_function
 from telegrinder.tools.fullname import fullname
 
@@ -83,7 +83,7 @@ class ABCRule(ABC):
             forward_refs=get_globals_from_function(self.check),
             namespace=get_locals_from_function(self.check),
         )
-        return create_composable_from_node(node, agent_cls=self.agent_cls)
+        return create_composable(node, agent_cls=self.agent_cls)
 
 
 class AndRule(ABCRule):

@@ -10,14 +10,14 @@ import telegrinder.types
 from telegrinder.bot.cute_types.message import MessageCute
 
 type AttachmentType = typing.Literal[
-    "audio",
     "animation",
+    "audio",
     "document",
     "photo",
     "poll",
-    "voice",
     "video",
     "video_note",
+    "voice",
     "successful_payment",
 ]
 

@@ -115,11 +115,17 @@ class API(APIMethods):
         self,
         file_path: str | pathlib.Path,
         timeout: int | float = DEFAULT_TIMEOUT,
-    ) -> bytes:
-        return await self.http.request_content(
+    ) -> Result[bytes, APIError]:
+        response = await self.http.request(
             url=f"{self.request_file_url}/{file_path}",
             timeout=timeout,
         )
+
+        if response.status.is_success:
+            return Ok(response.content)
+
+        error = decoder.decode(response.content, type=APIResponse)
+        return Error(APIError(code=error.error_code, error=error.description, data=error.parameters))
 
     @retryer
     async def request(
@@ -129,7 +135,7 @@ class API(APIMethods):
         files: Files | None = None,
         **kwargs: typing.Any,
     ) -> Result[Json, APIError]:
-        """Request a `JSON` response using http method `POST` and passing data, files as `multipart/form-data`."""
+        """Request a `JSON` response using http method `POST` and passing data & files as `multipart`."""
         response = await self.http.request_json(
             url=self.request_url + method,
             method="POST",
@@ -156,7 +162,7 @@ class API(APIMethods):
         files: Files | None = None,
         **kwargs: typing.Any,
     ) -> Result[msgspec.Raw, APIError]:
-        """Request a `raw` response using http method `POST` and passing data, files as `multipart/form-data`."""
+        """Request a `raw` response using http method `POST` and passing data & files as `multipart`."""
         response_bytes = await self.http.request_bytes(
             url=self.request_url + method,
             method="POST",

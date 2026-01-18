@@ -1,13 +1,10 @@
 import sys
 import typing
 
+from nodnod.interface.is_node import is_node
 from nodnod.node import Node
 
 from telegrinder.tools.fullname import fullname
-
-
-def is_node(maybe_node: typing.Any, /) -> bool:
-    return isinstance(maybe_node, type) and issubclass(maybe_node, Node)
 
 
 def as_node(obj: typing.Any, /) -> type[Node[typing.Any, typing.Any]]:

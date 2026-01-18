@@ -9,7 +9,7 @@ from nodnod.interface.node_from_function import create_node_from_function
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
-from telegrinder.node.compose import compose, create_composable_from_node
+from telegrinder.node.compose import compose, create_composable
 from telegrinder.node.utils import get_globals_from_function, get_locals_from_function
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.lifespan import Lifespan
@@ -102,7 +102,7 @@ class ABCMiddleware(ABC):
             forward_refs=get_globals_from_function(method),
             namespace=get_locals_from_function(method),
         )
-        return create_composable_from_node(node, agent_cls=agent_cls)
+        return create_composable(node, agent_cls=agent_cls)
 
     def pre(self, *args: typing.Any, **kwargs: typing.Any) -> MiddlewareResult: ...
 

@@ -83,19 +83,17 @@ if typing.TYPE_CHECKING:
 
 type _Composable[T: Agent] = Function[..., typing.Any] | type[Node[typing.Any, typing.Any]] | Composable[T]
 
-FromContext = Injection
-
 
 @lru_cache(maxsize=1024 * 4)
-def create_composable_from_node[T: Agent](
-    node: type[Node[typing.Any, typing.Any]] | Function[..., typing.Any],
+def create_composable[T: Agent](
+    node_or_function: type[Node[typing.Any, typing.Any]] | Function[..., typing.Any],
     /,
     *,
     agent_cls: type[T] = EventLoopAgent,
 ) -> Composable[T]:
-    if not isinstance(node, type):
-        node = create_node_from_function(node)
-    return Composable(node, create_agent_from_node(node, agent_cls=agent_cls))
+    if not isinstance(node_or_function, type):
+        node_or_function = create_node_from_function(node_or_function)
+    return Composable(node_or_function, create_agent_from_node(node_or_function, agent_cls=agent_cls))
 
 
 @asynccontextmanager
@@ -176,7 +174,7 @@ async def compose[T = typing.Any](
     if isinstance(node, Composable):
         composable = node
     elif callable(node):
-        composable = create_composable_from_node(node, agent_cls=agent_cls or EventLoopAgent)
+        composable = create_composable(node, agent_cls=agent_cls or EventLoopAgent)
 
     if composable is not None:
         node, agent = composable.node, typing.cast("Agent", composable.agent)
@@ -198,8 +196,7 @@ class Composable[T: Agent = Agent]:
 
 __all__ = (
     "Composable",
-    "FromContext",
     "compose",
-    "create_composable_from_node",
+    "create_composable",
     "run_agent",
 )

@@ -34,28 +34,45 @@ async def hello_world(greeter: Greeter) -> str:
 
 # pyright: reportUnusedImport=false, reportUnsupportedDunderAll=false
 
-from nodnod.interface import DataNode, ResultNode, case, generic, polymorphic, scalar_node
+from nodnod import (
+    DataNode,
+    Injection,
+    Node,
+    NodeConstructor,
+    ResultNode,
+    Scalar,
+    case,
+    generic_node,
+    polymorphic,
+    scalar_node,
+)
 
-from telegrinder.node.compose import Composable, FromContext, compose, run_agent
+from telegrinder.node.compose import Composable, compose, create_composable, run_agent
 from telegrinder.node.nodes import *
 from telegrinder.node.nodes import __all__ as nodes_all
-from telegrinder.node.scope import GLOBAL, PER_CALL, PER_EVENT, global_node, per_call, per_event
-from telegrinder.node.utils import as_node
+from telegrinder.node.scope import GLOBAL, PER_CALL, PER_EVENT, NodeScope, global_node, per_call, per_event
+from telegrinder.node.utils import as_node, is_node
 
 __all__ = nodes_all + (
     "GLOBAL",
     "PER_CALL",
     "PER_EVENT",
+    "Composable",
+    "DataNode",
+    "NodeConstructor",
+    "NodeScope",
+    "Node",
+    "ResultNode",
+    "Injection",
+    "Scalar",
     "as_node",
     "compose",
-    "FromContext",
-    "Composable",
+    "create_composable",
     "run_agent",
     "global_node",
-    "DataNode",
-    "ResultNode",
+    "is_node",
     "case",
-    "generic",
+    "generic_node",
     "polymorphic",
     "scalar_node",
     "per_call",
