@@ -14,6 +14,13 @@ from telegrinder.node.nodes.attachment import (
     Voice,
 )
 from telegrinder.node.nodes.callback_query import CallbackQueryData, CallbackQueryDataJson
+from telegrinder.node.nodes.channel import (
+    ChannelPostDiscussion,
+    ChannelPostDiscussionChat,
+    ChannelPostDiscussionChatId,
+    ChannelPostDiscussionId,
+    ChannelPostDiscussionPostAuthor,
+)
 from telegrinder.node.nodes.command import CommandInfo
 from telegrinder.node.nodes.error import Error
 from telegrinder.node.nodes.event import EventNode
@@ -38,6 +45,11 @@ __all__ = (
     "CallbackQueryData",
     "CallbackQueryDataJson",
     "Caption",
+    "ChannelPostDiscussion",
+    "ChannelPostDiscussionChat",
+    "ChannelPostDiscussionChatId",
+    "ChannelPostDiscussionId",
+    "ChannelPostDiscussionPostAuthor",
     "ChatId",
     "ChatSource",
     "CommandInfo",

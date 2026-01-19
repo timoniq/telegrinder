@@ -3,8 +3,8 @@ import typing
 
 from kungfu.library.monad.option import Nothing, Option
 from nodnod.error import NodeError
-from nodnod.interface.data import Node
 from nodnod.interface.scalar import scalar_node
+from nodnod.node import Node
 
 import telegrinder.types
 from telegrinder.bot.cute_types.message import MessageCute
