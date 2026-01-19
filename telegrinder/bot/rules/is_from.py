@@ -8,6 +8,8 @@ from telegrinder.types.enums import ChatType, DiceEmoji
 type Message = MessageCute
 type ForwardType = typing.Literal["user", "hidden_user", "chat", "channel"]
 
+TELEGRAM_ID: typing.Final = 777000
+
 
 class IsBot(ABCRule):
     def check(self, user: UserSource) -> bool:
@@ -38,6 +40,10 @@ class IsUserId(ABCRule):
 
     def check(self, user: UserSource) -> bool:
         return user.id in self.user_ids
+
+
+class IsTelegram(ABCRule, requires=[IsUserId(TELEGRAM_ID)]):
+    pass
 
 
 class IsForum(ABCRule):
@@ -199,6 +205,7 @@ __all__ = (
     "IsReply",
     "IsSticker",
     "IsSuperGroup",
+    "IsTelegram",
     "IsUser",
     "IsUserId",
     "IsVenue",
