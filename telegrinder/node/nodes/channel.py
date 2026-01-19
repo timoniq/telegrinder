@@ -2,9 +2,27 @@ from nodnod.error import NodeError
 from nodnod.interface.scalar import scalar_node
 
 from telegrinder.bot.cute_types.message import MessageCute
+from telegrinder.types.enums import ChatType
 from telegrinder.types.objects import Chat, MessageOriginChannel
 
 type MessageChannelPostDiscussion = MessageOriginChannel
+type MessageChannelPost = MessageCute
+
+
+@scalar_node
+class ChannelPost:
+    @classmethod
+    def __compose__(cls, message: MessageCute) -> MessageChannelPost:
+        if message.chat.type != ChatType.CHANNEL:
+            raise NodeError("Message is not a channel post.")
+        return message
+
+
+@scalar_node
+class Channel:
+    @classmethod
+    def __compose__(cls, channel_post: ChannelPost) -> Chat:
+        return channel_post.chat
 
 
 @scalar_node
@@ -44,6 +62,8 @@ class ChannelPostDiscussionPostAuthor:
 
 
 __all__ = (
+    "Channel",
+    "ChannelPost",
     "ChannelPostDiscussion",
     "ChannelPostDiscussionChat",
     "ChannelPostDiscussionChatId",

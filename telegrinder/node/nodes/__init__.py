@@ -15,6 +15,8 @@ from telegrinder.node.nodes.attachment import (
 )
 from telegrinder.node.nodes.callback_query import CallbackQueryData, CallbackQueryDataJson
 from telegrinder.node.nodes.channel import (
+    Channel,
+    ChannelPost,
     ChannelPostDiscussion,
     ChannelPostDiscussionChat,
     ChannelPostDiscussionChatId,
@@ -45,6 +47,8 @@ __all__ = (
     "CallbackQueryData",
     "CallbackQueryDataJson",
     "Caption",
+    "Channel",
+    "ChannelPost",
     "ChannelPostDiscussion",
     "ChannelPostDiscussionChat",
     "ChannelPostDiscussionChatId",

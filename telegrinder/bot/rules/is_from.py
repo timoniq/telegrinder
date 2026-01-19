@@ -1,7 +1,7 @@
 import typing
 
 from telegrinder.bot.cute_types.message import MessageCute
-from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.abc import ABCRule, Always
 from telegrinder.node.nodes.source import ChatSource, UserSource
 from telegrinder.types.enums import ChatType, DiceEmoji
 
@@ -42,7 +42,7 @@ class IsUserId(ABCRule):
         return user.id in self.user_ids
 
 
-class IsTelegram(ABCRule, requires=[IsUserId(TELEGRAM_ID)]):
+class IsTelegram(Always, requires=[IsUserId(TELEGRAM_ID)]):
     pass
 
 
