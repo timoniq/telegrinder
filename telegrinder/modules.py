@@ -2,22 +2,22 @@
 
 import asyncio
 import contextvars
-import dataclasses
-import importlib
 import inspect
 import logging
 import os
+import pathlib
 import re
+import shlex
 import sys
 import traceback
 import types
 import typing
+from annotationlib import type_repr
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, WatchedFileHandler
 
 import betterconf
 from choicelib import choice_in_order
-
-from telegrinder.env import DOTENV, LoggerLevel, take, to_logger_level, to_logger_module
+from kungfu import Nothing, Option, Some
 
 if typing.TYPE_CHECKING:
     from _typeshed import OptExcInfo
@@ -33,6 +33,9 @@ else:
 
 
 type _Sink = typing.TextIO | typing.Any
+type _LoggerModule = typing.Literal["logging", "loguru", "structlog"]
+
+type LoggerLevel = typing.Literal["DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL", "EXCEPTION"]
 
 _LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFileHandler | logging.FileHandler
 
@@ -134,11 +137,148 @@ LEVEL_FORMAT_SETTINGS = dict(
         message="light_magenta",
     ),
 )
+VARIABLE_NAME_PATTERN: typing.Final = re.compile(r"[A-Za-z_][A-Za-z_0-9]*")
+ASSIGNMENT_OPERATOR: typing.Final = "="
+LOGGER_LEVELS: typing.Final = ("DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL", "EXCEPTION")
+LOGGER_MODULES: typing.Final = ("logging", "loguru", "structlog")
+_NODEFAULT: typing.Final = typing.cast("typing.Any", object())
+_LOAD_ENV_FILE = True
+_ENV_FILE_NAME = ".env"
+_ENV_FILE_PATH: pathlib.Path | None = None
 _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
+
+def _find_env_file() -> Option[pathlib.Path]:
+    caller_frame = sys._getframe()
+
+    while caller_frame:
+        if caller_frame.f_back is None:
+            break
+
+        caller_frame = caller_frame.f_back
+
+    caller_dir = os.path.dirname(caller_frame.f_code.co_filename)
+    start_dir = sys.path[0]
+
+    # Handle empty paths (can happen on Windows in certain launch conditions)
+    if not caller_dir or not start_dir:
+        search_path = caller_dir or start_dir or "."
+    else:
+        try:
+            search_path = os.path.relpath(caller_dir, start_dir)
+        except ValueError:
+            search_path = caller_dir
+
+    for root, _, files in os.walk(search_path):
+        if _ENV_FILE_NAME in files:
+            return Some(pathlib.Path(root) / _ENV_FILE_NAME)
+
+    return Nothing()
+
+
+@typing.overload
+def take(name: str, /) -> str: ...
+
+
+@typing.overload
+def take[T](name: str, var_type: type[T], /) -> T: ...
+
+
+@typing.overload
+def take[T](name: str, var_type: type[T], /, *, default: T) -> T: ...
+
+
+def take[T](
+    name: str,
+    var_type: type[T] = str,
+    /,
+    *,
+    default: T = _NODEFAULT,
+) -> T:
+    try:
+        value = DOTENV.get(name)
+    except betterconf.VariableNotFoundError:
+        if default is _NODEFAULT:
+            raise
+        return default
+
+    if var_type is str:
+        return value  # type: ignore
+
+    if var_type not in CASTERS:
+        raise NotImplementedError(f"Caster for type `{type_repr(var_type)}` is not implemented.")
+
+    return CASTERS[var_type].cast(value)
+
+
+class _LoggerLevelCaster(betterconf.AbstractCaster):
+    def cast(self, value: str) -> LoggerLevel:
+        if value not in LOGGER_LEVELS:
+            raise betterconf.ImpossibleToCastError(value, self)
+        return value
+
+
+class _LoggerModuleCaster(betterconf.AbstractCaster):
+    def cast(self, value: str) -> _LoggerModule:
+        if value not in LOGGER_MODULES:
+            raise betterconf.ImpossibleToCastError(value, self)
+        return value
+
+
+class _DotenvProvider(betterconf.AbstractProvider):
+    __slots__ = ("env_file", "loaded")
+
+    env_file: pathlib.Path | None
+    loaded: bool
+
+    def __init__(self) -> None:
+        self.env_file = None
+        self.loaded = False
+
+    def load(self) -> None:
+        if self.loaded:
+            return
+
+        self.loaded = True
+        self.env_file = (
+            _ENV_FILE_PATH
+            if _ENV_FILE_PATH is not None
+            else _find_env_file().expect(f"Env file {_ENV_FILE_NAME!r} not found")
+        )
+
+        variables: dict[str, str] = {}
+
+        for line in self.env_file.read_text().splitlines():
+            match tuple(shlex.shlex(instream=line, posix=True)):
+                case (var_name, operator, *tokens) if (
+                    tokens and operator == ASSIGNMENT_OPERATOR and VARIABLE_NAME_PATTERN.match(var_name)
+                ):
+                    variables[var_name] = "".join(tokens).replace(r"\n", "\n").replace(r"\t", "\t")
+                case _:
+                    continue
+
+        os.environ.update(variables)
+
+    def get(self, name: str) -> str:
+        if not self.loaded and _LOAD_ENV_FILE is True:
+            self.load()
+        return ENV.get(name)
+
+
+DOTENV: typing.Final = _DotenvProvider()
+ENV: typing.Final = betterconf.EnvironmentProvider()
+CASTERS: typing.Final[dict[type[typing.Any], betterconf.AbstractCaster]] = {
+    LoggerLevel: (to_logger_level := _LoggerLevelCaster()),  # type: ignore
+    **betterconf.caster.BUILTIN_CASTERS,
+}
 
 
 @betterconf.betterconf(prefix="TELEGRINDER_LOGGER", provider=DOTENV)
 class LoggerConfig:
+    MODULE: typing.Literal["logging", "loguru", "structlog"] | None = betterconf.field(
+        default=None,
+        caster=_LoggerModuleCaster(),
+    )
     LEVEL: LoggerLevel = betterconf.field(
         default="DEBUG",
         caster=to_logger_level,
@@ -148,18 +288,11 @@ class LoggerConfig:
         default=True,
         caster=betterconf.caster.to_bool,
     )
-    MODULE: typing.Literal["logging", "loguru", "structlog"] | None = betterconf.field(
-        default=None,
-        caster=to_logger_module,
-    )
     FILE_HANDLER_FORMAT: str | None = betterconf.constant_field(None)
     FILE_HANDLER_COLORIZE: bool = betterconf.field(
         default=False,
         caster=betterconf.caster.to_bool,
     )
-
-
-LOGGER_CONFIG = LoggerConfig()
 
 
 class AnyLogger(typing.Protocol):
@@ -435,7 +568,7 @@ class _LoggerProxy:
                     if self.logging_module != "loguru"
                     else level_name
                 )
-                if not hasattr(self.logger, "isEnabledFor") and self.logger.isEnabledFor(level):
+                if not hasattr(self.logger, "isEnabledFor") and self.logger.isEnabledFor(level):  # type: ignore
                     return self
 
             return getattr(self.logger if not is_async else self.async_logger, __name)
@@ -443,36 +576,62 @@ class _LoggerProxy:
         return self
 
     def set_logger(self, logger: LoggerModule, logging_module: str | None = None) -> None:
-        self.logger = logger
+        self.logger = logger if not isinstance(logger, logging.Logger) else LoggingStyleAdapter(logger)
         self.async_logger = WrapperAsyncLogger(logger)
         self.logging_module = logging_module
+
+
+class _SetupLoggerKwargs(typing.TypedDict):
+    level: typing.NotRequired[LoggerLevel]
+    format: typing.NotRequired[str]
+    colorize: typing.NotRequired[bool]
+    console_sink: typing.NotRequired[_Sink | None]
+    file: typing.NotRequired[FileHandlerConfig]
 
 
 class _LoguruFileHandlerConfig(_LoguruFileHandler):
     pass
 
 
-@dataclasses.dataclass
 class FileHandlerConfig:
     handler: _LoggingFileHandler | _LoguruFileHandlerConfig
-    format: str | None = LOGGER_CONFIG.FILE_HANDLER_FORMAT
-    colorize: bool = LOGGER_CONFIG.FILE_HANDLER_COLORIZE
+    format: str
+    colorize: bool
 
-    def __post_init__(self) -> None:
-        self.format = self.format or (
+    def __init__(
+        self,
+        handler: _LoggingFileHandler | _LoguruFileHandlerConfig,
+        format: str = _NODEFAULT,
+        colorize: bool = _NODEFAULT,
+    ) -> None:
+        config = LoggerConfig()
+        format = (config.FILE_HANDLER_FORMAT if format is _NODEFAULT else format) or (
             DEFAULT_LOGURU_FORMAT
             if logging_module == "loguru"
             else DEFAULT_STRUCTLOG_FORMAT
             if logging_module == "structlog"
             else DEFAULT_LOGGING_FORMAT
         )
+        colorize = config.FILE_HANDLER_COLORIZE if colorize is _NODEFAULT else colorize
+
+        self.handler = handler
+
+        if isinstance(self.handler, dict):
+            self.format = self.handler.setdefault("format", format)
+            self.colorize = self.handler.setdefault("colorize", colorize)
+        else:
+            self.format = format
+            self.colorize = colorize
+
+            if handler.formatter is None:
+                handler.setFormatter(LoggingFormatter(format, colorize))
 
     @classmethod
     def from_logging(
         cls,
         handler: _LoggingFileHandler,
-        format: str | None = None,
-        colorize: bool = False,
+        format: str = _NODEFAULT,
+        colorize: bool = _NODEFAULT,
     ) -> typing.Self:
         return cls(handler, format, colorize)
 
@@ -485,23 +644,23 @@ class FileHandlerConfig:
 
 
 logger: LoggerModule = typing.cast("LoggerModule", _LoggerProxy())
-logging_module = (
-    choice_in_order(["structlog", "loguru"], default="logging", do_import=False)
-    if (_module := LOGGER_CONFIG.MODULE) is None
-    else _module
-)
-asyncio_module = choice_in_order(["uvloop", "winloop"], default="asyncio", do_import=False)
+logging_module = choice_in_order(["structlog", "loguru"], default="logging", do_import=False)
 
 
-if logging_module == "structlog":
+def _configure_structlog(
+    level: LoggerLevel,
+    format: str | None,
+    colorize: bool,
+    console_sink: _Sink | None = None,
+    file: FileHandlerConfig | None = None,
+    /,
+) -> None:
     import re
-    import sys
-    import typing
     from contextlib import suppress
 
     import structlog
 
-    _LEVELS_COLORS = dict(
+    levels_colors = dict(
         debug=COLORS["light_blue"],
         info=COLORS["light_green"],
         warning=COLORS["light_yellow"],
@@ -553,7 +712,7 @@ if logging_module == "structlog":
             return event_dict
 
         def _colorize(self, value: typing.Any, log_level: str) -> str:
-            return f"{_LEVELS_COLORS[log_level]}{value}{Colors.RESET}" if self.colors else value
+            return f"{levels_colors[log_level]}{value}{Colors.RESET}" if self.colors else value
 
         def _format_braces(
             self,
@@ -699,7 +858,7 @@ if logging_module == "structlog":
 
         def __call__(self, key: str, value: typing.Any) -> str:
             if self.colorize:
-                color = _LEVELS_COLORS[value]
+                color = levels_colors[value]
                 return f"[{color}{value:^12}{Colors.RESET}]"
 
             return f"[{value:^12}]"
@@ -713,7 +872,7 @@ if logging_module == "structlog":
             record = _rich_log_record(record)
 
             if self.colorize:
-                level_color = _LEVELS_COLORS[record.levelname.lower()]
+                level_color = levels_colors[record.levelname.lower()]
                 location = (
                     f"{Colors.LIGHT_CYAN}{record.module}{Colors.RESET}:"
                     f"{level_color}{record.funcName}{Colors.RESET}:"
@@ -725,176 +884,144 @@ if logging_module == "structlog":
             record.location = location
             return True
 
-    def _configure_structlog(
-        level: LoggerLevel,
-        format: str | None,
-        colorize: bool,
-        console_sink: _Sink | None = None,
-        file: FileHandlerConfig | None = None,
-        /,
-    ) -> None:
-        console_renderer = structlog.dev.ConsoleRenderer(colors=True)
+    console_renderer = structlog.dev.ConsoleRenderer(colors=True)
 
-        for column in console_renderer._columns:
-            if column.key == "level":
-                column.formatter = LogLevelColumnFormatter(colorize)
-                break
+    for column in console_renderer._columns:
+        if column.key == "level":
+            column.formatter = LogLevelColumnFormatter(colorize)
+            break
 
-        telegrinder_logger = logging.getLogger("telegrinder")
-        telegrinder_logger.setLevel(level)
-        _remove_handlers(telegrinder_logger)
+    telegrinder_logger = logging.getLogger("telegrinder")
+    telegrinder_logger.setLevel(level)
+    _remove_handlers(telegrinder_logger)
 
-        if console_sink is not None:
-            console_handler = logging.StreamHandler(console_sink)
-            console_handler.setFormatter(LoggingFormatter(format or DEFAULT_STRUCTLOG_FORMAT, colorize))
-            console_handler.addFilter(Filter(colorize))
-            telegrinder_logger.addHandler(console_handler)
+    if console_sink is not None:
+        console_handler = logging.StreamHandler(console_sink)
+        console_handler.setFormatter(LoggingFormatter(format or DEFAULT_STRUCTLOG_FORMAT, colorize))
+        console_handler.addFilter(Filter(colorize))
+        telegrinder_logger.addHandler(console_handler)
 
-        if file is not None and isinstance(file.handler, _LoggingFileHandler):
-            if file.handler.formatter is None:
-                file.handler.setFormatter(LoggingFormatter(file.format, file.colorize))  # type: ignore
+    if file is not None and isinstance(file.handler, _LoggingFileHandler):
+        file.handler.addFilter(Filter(file.colorize))
+        telegrinder_logger.addHandler(file.handler)
 
-            file.handler.addFilter(Filter(file.colorize))
-            telegrinder_logger.addHandler(file.handler)
-
-        struct_logger = structlog.wrap_logger(
-            logger=telegrinder_logger,
-            processors=[
-                structlog.stdlib.filter_by_level,
-                structlog.stdlib.add_log_level,
-                SLF4JStyleFormatter(),
-                structlog.processors.StackInfoRenderer(),
-                structlog.processors.format_exc_info,
-                structlog.processors.UnicodeDecoder(),
-                console_renderer,
-            ],
-            wrapper_class=structlog.stdlib.BoundLogger,
-            context_class=dict,
-            cache_logger_on_first_use=True,
-        )
-        logger.set_logger(struct_logger, "structlog")  # type: ignore
+    struct_logger = structlog.wrap_logger(
+        logger=telegrinder_logger,
+        processors=[
+            structlog.stdlib.filter_by_level,
+            structlog.stdlib.add_log_level,
+            SLF4JStyleFormatter(),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            structlog.processors.UnicodeDecoder(),
+            console_renderer,
+        ],
+        wrapper_class=structlog.stdlib.BoundLogger,
+        context_class=dict,
+        cache_logger_on_first_use=True,
+    )
+    logger.set_logger(struct_logger, "structlog")  # type: ignore
 
 
-elif logging_module == "loguru":
-
-    def _configure_loguru(
-        level: LoggerLevel,
-        format: str | None,
-        colorize: bool,
-        console_sink: _Sink | None = None,
-        file: FileHandlerConfig | None = None,
-        /,
-    ) -> None:
-        import atexit
-
-        from loguru._logger import Core, Logger
-
-        loguru_logger = Logger(
-            core=Core(),
-            exception=None,
-            depth=0,
-            record=False,
-            lazy=False,
-            colors=False,
-            raw=False,
-            capture=True,
-            patchers=[],
-            extra=dict(telegrinder=True),
-        )
-
-        def is_enabled_for(level: str) -> bool:
-            try:
-                lno = loguru_logger.level(level).no
-            except ValueError:
-                return False
-
-            return any(lno >= x.levelno for x in loguru_logger._core.handlers.values())
-
-        loguru_logger.isEnabledFor = is_enabled_for
-        handlers = []
-
-        if console_sink is not None:
-            handlers.append(
-                dict(
-                    sink=console_sink,
-                    level=level,
-                    enqueue=True,
-                    colorize=colorize,
-                    format=format or DEFAULT_LOGURU_FORMAT,
-                    filter=_loguru_filter,
-                ),
-            )
-
-        if file is not None and isinstance(file.handler, dict):  # type: ignore
-            file.handler.setdefault("format", file.format)
-            file.handler.setdefault("colorize", file.colorize)
-            handlers.append(file.handler)
-
-        if handlers:
-            handlers_ids = loguru_logger.configure(handlers=handlers)
-
-            @atexit.register
-            def _() -> None:
-                for handler_id in handlers_ids:
-                    loguru_logger.remove(handler_id)
-
-        logger.set_logger(loguru_logger, "loguru")  # type: ignore
-
-
-elif logging_module == "logging":
-
-    def _configure_logging(
-        level: LoggerLevel,
-        format: str | None,
-        colorize: bool,
-        console_sink: _Sink | None = None,
-        file: FileHandlerConfig | None = None,
-        /,
-    ) -> None:
-        _logger = logging.getLogger("telegrinder")
-        _logger.setLevel(level)
-        _remove_handlers(_logger)
-
-        if console_sink is not None:
-            console_handler = logging.StreamHandler(console_sink)
-            console_handler.setFormatter(LoggingFormatter(format or DEFAULT_LOGGING_FORMAT, colorize))
-            _logger.addHandler(console_handler)
-
-        if file is not None and isinstance(file.handler, _LoggingFileHandler):
-            if file.handler.formatter is None:
-                file.handler.setFormatter(LoggingFormatter(file.format, file.colorize))  # type: ignore
-
-            _logger.addHandler(file.handler)
-
-        logger.set_logger(LoggingStyleAdapter(logger=_logger), "logging")  # type: ignore
-
-
-if asyncio_module in ("uvloop", "winloop") and take("TELEGRINDER_SETUP_UVLOOP", bool, default=False) is True:
-    import asyncio
-
-    asyncio.set_event_loop(loop=importlib.import_module(name=asyncio_module).new_event_loop())
-
-
-def setup_logger(
-    *,
-    console_sink: _Sink | None = sys.stderr,
-    level: LoggerLevel = LOGGER_CONFIG.LEVEL,
-    format: str | None = LOGGER_CONFIG.FORMAT,
-    colorize: bool = LOGGER_CONFIG.COLORIZE,
+def _configure_loguru(
+    level: LoggerLevel,
+    format: str | None,
+    colorize: bool,
+    console_sink: _Sink | None = None,
     file: FileHandlerConfig | None = None,
-) -> LoggerModule:
+    /,
+) -> None:
+    import atexit
+
+    from loguru._logger import Core, Logger
+
+    loguru_logger = Logger(
+        core=Core(),
+        exception=None,
+        depth=0,
+        record=False,
+        lazy=False,
+        colors=False,
+        raw=False,
+        capture=True,
+        patchers=[],
+        extra=dict(telegrinder=True),
+    )
+
+    def is_enabled_for(lvl: str) -> bool:
+        try:
+            lno = loguru_logger.level(lvl).no
+        except ValueError:
+            return False
+
+        return any(lno >= x.levelno for x in loguru_logger._core.handlers.values())
+
+    loguru_logger.isEnabledFor = is_enabled_for
+    handlers = []
+
+    if console_sink is not None:
+        handlers.append(
+            dict(
+                sink=console_sink,
+                level=level,
+                enqueue=True,
+                colorize=colorize,
+                format=format or DEFAULT_LOGURU_FORMAT,
+                filter=_loguru_filter,
+            ),
+        )
+
+    if file is not None and isinstance(file.handler, dict):  # type: ignore
+        handlers.append(file.handler)
+
+    if handlers:
+        handlers_ids = loguru_logger.configure(handlers=handlers)
+
+        @atexit.register
+        def _() -> None:
+            for handler_id in handlers_ids:
+                loguru_logger.remove(handler_id)
+
+    logger.set_logger(loguru_logger, "loguru")  # type: ignore
+
+
+def _configure_logging(
+    level: LoggerLevel,
+    format: str | None,
+    colorize: bool,
+    console_sink: _Sink | None = None,
+    file: FileHandlerConfig | None = None,
+    /,
+) -> None:
+    _logger = logging.getLogger("telegrinder")
+    _logger.setLevel(level)
+    _remove_handlers(_logger)
+
+    if console_sink is not None:
+        console_handler = logging.StreamHandler(console_sink)
+        console_handler.setFormatter(LoggingFormatter(format or DEFAULT_LOGGING_FORMAT, colorize))
+        _logger.addHandler(console_handler)
+
+    if file is not None and isinstance(file.handler, _LoggingFileHandler):
+        _logger.addHandler(file.handler)
+
+    logger.set_logger(LoggingStyleAdapter(logger=_logger), "logging")  # type: ignore
+
+
+def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> LoggerModule:
     if logger.logger is not None:
         return logger
 
-    args: tuple[typing.Any, ...] = (
-        level.upper(),
-        format,
-        colorize,
-        console_sink,
-        file,
+    config = LoggerConfig()
+    args = (
+        setup_kwargs.get("level", config.LEVEL),
+        setup_kwargs.get("format", config.FORMAT),
+        setup_kwargs.get("colorize", config.COLORIZE),
+        setup_kwargs.get("console_sink", sys.stderr),
+        setup_kwargs.get("file"),
     )
 
-    match logging_module:
+    match config.MODULE or logging_module:
         case "logging":
             _configure_logging(*args)
         case "loguru":
@@ -905,10 +1032,42 @@ def setup_logger(
     return logger
 
 
+def configure_dotenv(
+    *,
+    load_file: bool = True,
+    file_name: str | None = None,
+    file_path: str | pathlib.Path | None = None,
+) -> None:
+    global _LOAD_ENV_FILE, _ENV_FILE_NAME, _ENV_FILE_PATH
+
+    _LOAD_ENV_FILE = load_file
+
+    if file_name and file_path:
+        _ENV_FILE_PATH = pathlib.Path(file_path) / file_name
+        _ENV_FILE_NAME = file_name
+
+    elif file_name is not None:
+        _ENV_FILE_NAME = file_name
+
+    elif file_path is not None:
+        _ENV_FILE_PATH = pathlib.Path(file_path)
+
+    if _ENV_FILE_PATH is not None and not _ENV_FILE_PATH.exists():
+        raise FileNotFoundError(f"Env file '{_ENV_FILE_PATH!s}' not found")
+
+
 if typing.TYPE_CHECKING:
     from telegrinder.msgspec_utils import json
 else:
     json = _json()
 
 
-__all__ = ("FileHandlerConfig", "LoggingStyleAdapter", "json", "logger", "setup_logger")
+__all__ = (
+    "FileHandlerConfig",
+    "LoggingStyleAdapter",
+    "configure_dotenv",
+    "json",
+    "logger",
+    "setup_logger",
+    "take",
+)

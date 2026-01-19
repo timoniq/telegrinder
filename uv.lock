@@ -183,8 +183,8 @@ wheels = [
 
 [[package]]
 name = "kungfu"
-version = "0.2.1"
-source = { git = "https://github.com/timoniq/kungfu?rev=main#a8fd4b57d9dca3e6542d6db9925963659f255d40" }
+version = "0.3.0"
+source = { git = "https://github.com/timoniq/kungfu?rev=main#5ee2bc6e3607d4f6e1f9358244d96f266965aeb8" }
 dependencies = [
     { name = "typing-extensions" },
 ]

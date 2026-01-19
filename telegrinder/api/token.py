@@ -2,7 +2,7 @@ import typing
 from functools import cached_property
 
 from telegrinder.api.error import InvalidTokenError
-from telegrinder.env import take
+from telegrinder.modules import take
 
 
 class Token(str):
