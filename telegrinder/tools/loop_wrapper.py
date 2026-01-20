@@ -158,7 +158,7 @@ class LoopWrapper(Singleton, Final):
             finally:
                 yield
         except asyncio.CancelledError:
-            logger.debug("Cancelling tasks...")
+            await logger.adebug("Cancelling tasks...")
             await self._cancel_tasks()
         finally:
             await self._shutdown()

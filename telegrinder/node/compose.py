@@ -69,6 +69,7 @@ from nodnod.agent.base import Agent
 from nodnod.agent.event_loop.agent import EventLoopAgent
 from nodnod.error import NodeError
 from nodnod.interface import create_agent_from_node, create_node_from_function, inject_externals, inject_internals
+from nodnod.interface.is_node import is_node
 from nodnod.node import Node
 from nodnod.scope import Scope
 from nodnod.utils.is_type import is_type
@@ -151,8 +152,8 @@ def compose[T](
     node: type[Node[T, typing.Any]],
     /,
     context: Context,
-    agent: Agent,
     *,
+    agent: Agent,
     per_event_scope: Scope | None = None,
     roots: dict[type[typing.Any], typing.Any] | None = None,
 ) -> typing.AsyncContextManager[Result[T, NodeError], None]: ...
@@ -172,7 +173,7 @@ async def compose[T = typing.Any](
 
     if isinstance(node, Composable):
         composable = node
-    elif callable(node):
+    elif not is_node(node):
         composable = create_composable(node, agent_cls=agent_cls or EventLoopAgent)
 
     if composable is not None:

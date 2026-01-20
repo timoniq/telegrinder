@@ -128,8 +128,10 @@ async def freeze_handler(message: Message):
         )
     ).unwrap()
 
-    with bot.on.global_middleware.apply_filters(
-        source_filter=(UserId, message.from_user.id, IsUpdateType(UpdateType.CALLBACK_QUERY)),
+    with bot.dispatch.middleware_box.filter.hold(
+        UserId,
+        message.from_user.id,
+        IsUpdateType(UpdateType.CALLBACK_QUERY),
     ):
         cb, _ = await wm.wait(
             hasher=CALLBACK_QUERY_FOR_MESSAGE(bot.on.callback_query, msg.message_id),

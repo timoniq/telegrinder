@@ -12,7 +12,6 @@ from telegrinder.bot.dispatch.process import check_rule, process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.rules.abc import ABCRule, Always
-from telegrinder.modules import logger
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import (
     BusinessConnection,
@@ -57,6 +56,7 @@ type UpdateModel = typing.Union[
     PreCheckoutQuery,
     ShippingQuery,
 ]
+type ViewResult = Result[str, str] | Result[str, Exception]
 
 OK_CHECK: typing.Final = Ok()
 
@@ -135,7 +135,7 @@ class View(ABCView):
 
         return OK_CHECK
 
-    async def process(self, api: API, update: Update, context: Context) -> Result[str, str]:
+    async def process(self, api: API, update: Update, context: Context) -> ViewResult:
         return await process_inner(
             api,
             update,
@@ -194,20 +194,11 @@ class EventModelView[T: (UpdateModel)](View):
 
 
 class ErrorView(View):
-    async def process(self, api: API, update: Update, context: Context) -> Result[str, str]:
+    async def process(self, api: API, update: Update, context: Context) -> ViewResult:
         result = await super().process(api, update, context)
 
         if not result and context.exception_update:
-            try:
-                raise context.exception_update.unwrap() from None
-            except Exception:
-                await logger.aexception(
-                    "Unhandled exception update (id={}, type={!r}), traceback message below:",
-                    update.update_id,
-                    update.update_type,
-                )
-
-            return Ok(f"Unhandled exception update: {result.error}")
+            return Error(context.exception_update.unwrap())
 
         return result
 

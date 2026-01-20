@@ -13,7 +13,7 @@ from telegrinder.bot.dispatch.handler import (
     StickerReplyHandler,
     VideoReplyHandler,
 )
-from telegrinder.bot.dispatch.middleware import ABCMiddleware
+from telegrinder.bot.dispatch.middleware import ABCMiddleware, FilterMiddleware, MediaGroupMiddleware, MiddlewareBox
 from telegrinder.bot.dispatch.process import check_rule, process_inner
 from telegrinder.bot.dispatch.return_manager import (
     ABCReturnManager,
@@ -70,14 +70,17 @@ __all__ = (
     "ErrorView",
     "EventModelView",
     "EventView",
+    "FilterMiddleware",
     "FuncHandler",
     "Hasher",
     "InlineQueryReturnManager",
     "Manager",
+    "MediaGroupMiddleware",
     "MediaGroupReplyHandler",
     "MediaGroupView",
     "MessageReplyHandler",
     "MessageReturnManager",
+    "MiddlewareBox",
     "PhotoReplyHandler",
     "PreCheckoutQueryReturnManager",
     "RawEventView",

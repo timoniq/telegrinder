@@ -109,6 +109,11 @@ class Router[
                     update.update_type,
                 )
                 result = await view.process(api, update, context)
+
+                match result:
+                    case Err(error) if isinstance(error, Exception):
+                        raise error from None
+
                 await logger.ainfo(
                     "Update(id={}, type={!r}) processed with view `{!r}` from router `{!r}`. {}",
                     update.update_id,
@@ -140,7 +145,9 @@ class Router[
 
             return False
         except Exception as exception:
-            context.exceptions_update[self] = exception  # type: ignore
+            if self.error:
+                context.exceptions_update[self] = exception  # type: ignore
+
             raise
 
 
