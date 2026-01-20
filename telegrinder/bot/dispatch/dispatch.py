@@ -141,6 +141,9 @@ class Dispatch[
         self.global_context = TelegrinderContext()
         self._routers = None
 
+    def __setitem__(self, injection_type: typing.Any, injection_value: typing.Any, /) -> None:
+        self.global_scope.inject(injection_type, injection_value)
+
     @property
     def routers(self) -> deque[Router]:
         if self._routers is None:
