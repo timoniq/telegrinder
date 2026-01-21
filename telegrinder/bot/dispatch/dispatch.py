@@ -186,14 +186,14 @@ class Dispatch[
         return self.global_context.node_global_scope
 
     @property
-    def middleware_box(self) -> T:
-        """Alias `middleware_box` to get middleware box from the global context."""
+    def middlewares(self) -> T:
+        """Alias `middlewares` to get middleware box from the global context."""
         return typing.cast("T", self.global_context.middleware_box.unwrap())
 
     @property
-    def global_middleware[Middleware: ABCMiddleware](self) -> typing.Callable[[type[Middleware]], type[Middleware]]:
-        """Decorator to register a custom global middleware in the middleware box."""
-        return self.middleware_box.__call__
+    def register_middleware[Middleware: ABCMiddleware](self) -> typing.Callable[[type[Middleware]], type[Middleware]]:
+        """Decorator to register a custom middleware in the middleware box."""
+        return self.middlewares.__call__
 
     async def _process_views(
         self,
@@ -266,11 +266,11 @@ class Dispatch[
         inject_internals(per_event_scope, {API: api, Update: update})
 
         failed = False
-        middleware_box = self.middleware_box
+        middlewares = self.middlewares
         start_time = self.global_context.loop_wrapper.loop.time()
 
         try:
-            for middleware in middleware_box:
+            for middleware in middlewares:
                 if await run_pre_middleware(middleware, context) is not True:
                     await logger.ainfo(
                         "Update(id={}, type={!r}) processed with global pre-middleware `{}` and raised failure.",
@@ -289,7 +289,7 @@ class Dispatch[
             elif not await self._route_update(api, update, context):
                 await self._process_views(self.raw_views, api, update, context)
 
-            for middleware in middleware_box:
+            for middleware in middlewares:
                 await run_post_middleware(middleware, context)
         except BaseException as e:
             failed = True
@@ -297,7 +297,7 @@ class Dispatch[
             if (
                 not isinstance(e, Exception) and not isinstance(e, BaseExceptionGroup)
             ) or not context.exceptions_update:
-                raise  # Throwing control flow exceptions
+                raise
 
             await self._process_update_exceptions(api, update, context)
         finally:

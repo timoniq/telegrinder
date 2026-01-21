@@ -128,7 +128,7 @@ async def freeze_handler(message: Message):
         )
     ).unwrap()
 
-    with bot.dispatch.middleware_box.filter.hold(
+    with bot.dispatch.middlewares.filter.hold(
         UserId,
         message.from_user.id,
         IsUpdateType(UpdateType.CALLBACK_QUERY),
