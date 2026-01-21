@@ -8,8 +8,7 @@ from kungfu.library.monad.option import Nothing
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.model import decoder
-from telegrinder.msgspec_utils import Option
+from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.rules import IsReply, Markup, MessageEntities, Text
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import User

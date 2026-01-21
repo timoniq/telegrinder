@@ -5,7 +5,7 @@ import types
 import typing
 from reprlib import recursive_repr
 
-from kungfu.library.monad.option import Nothing, Option, Some
+from kungfu.library.monad.option import NOTHING, Nothing, Option, Some
 
 if typing.TYPE_CHECKING:
     from _collections_abc import dict_keys
@@ -22,8 +22,6 @@ type AnyValue = typing.Any
 
 Opt = Some | Nothing
 ContextDict = dict[str, AnyValue]
-
-NOTHING: typing.Final = Nothing()
 
 
 class RootKey(str):

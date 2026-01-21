@@ -1,7 +1,7 @@
 import dataclasses
 import typing
 
-from kungfu.library.monad.option import Nothing, Option
+from kungfu.library.monad.option import NOTHING, Nothing, Option
 from nodnod.error import NodeError
 from nodnod.interface.scalar import scalar_node
 from nodnod.node import Node
@@ -21,8 +21,6 @@ type AttachmentType = typing.Literal[
     "successful_payment",
 ]
 
-NOTHING: typing.Final = Nothing()
-NOTHING_FACTORY: typing.Final = lambda: NOTHING
 ATTACHMENT_TYPES: typing.Final[tuple[AttachmentType, ...]] = typing.get_args(AttachmentType.__value__)
 
 
@@ -31,36 +29,39 @@ class Attachment(Node):
     attachment_type: AttachmentType
 
     animation: Option[telegrinder.types.Animation] = dataclasses.field(
-        default_factory=NOTHING_FACTORY,
+        default_factory=Nothing,
         kw_only=True,
     )
     audio: Option[telegrinder.types.Audio] = dataclasses.field(
-        default_factory=NOTHING_FACTORY,
+        default_factory=Nothing,
         kw_only=True,
     )
     document: Option[telegrinder.types.Document] = dataclasses.field(
-        default_factory=NOTHING_FACTORY,
+        default_factory=Nothing,
         kw_only=True,
     )
     photo: Option[list[telegrinder.types.PhotoSize]] = dataclasses.field(
-        default_factory=NOTHING_FACTORY,
+        default_factory=Nothing,
         kw_only=True,
     )
-    poll: Option[telegrinder.types.Poll] = dataclasses.field(default_factory=lambda: Nothing(), kw_only=True)
+    poll: Option[telegrinder.types.Poll] = dataclasses.field(
+        default_factory=Nothing,
+        kw_only=True,
+    )
     voice: Option[telegrinder.types.Voice] = dataclasses.field(
-        default_factory=NOTHING_FACTORY,
+        default_factory=Nothing,
         kw_only=True,
     )
     video: Option[telegrinder.types.Video] = dataclasses.field(
-        default_factory=NOTHING_FACTORY,
+        default_factory=Nothing,
         kw_only=True,
     )
     video_note: Option[telegrinder.types.VideoNote] = dataclasses.field(
-        default_factory=NOTHING_FACTORY,
+        default_factory=Nothing,
         kw_only=True,
     )
     successful_payment: Option[telegrinder.types.SuccessfulPayment] = dataclasses.field(
-        default_factory=NOTHING_FACTORY,
+        default_factory=Nothing,
         kw_only=True,
     )
 

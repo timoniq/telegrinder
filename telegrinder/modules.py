@@ -177,18 +177,18 @@ def _find_env_file() -> Option[pathlib.Path]:
 
 
 @typing.overload
-def take(name: str, /) -> str: ...
+def take_env(var_name: str, /) -> str: ...
 
 
 @typing.overload
-def take[T](name: str, var_type: type[T], /) -> T: ...
+def take_env[T](var_name: str, var_type: type[T], /) -> T: ...
 
 
 @typing.overload
-def take[T](name: str, var_type: type[T], /, *, default: T) -> T: ...
+def take_env[T](var_name: str, var_type: type[T], /, *, default: T) -> T: ...
 
 
-def take[T](
+def take_env[T](
     name: str,
     var_type: type[T] = str,
     /,
@@ -240,11 +240,10 @@ class _DotenvProvider(betterconf.AbstractProvider):
             return
 
         self.loaded = True
-        self.env_file = (
-            _ENV_FILE_PATH
-            if _ENV_FILE_PATH is not None
-            else _find_env_file().expect(f"Env file {_ENV_FILE_NAME!r} not found")
-        )
+        self.env_file = _ENV_FILE_PATH if _ENV_FILE_PATH is not None else _find_env_file().unwrap_or_none()
+
+        if self.env_file is None:
+            return
 
         variables: dict[str, str] = {}
 
@@ -1069,5 +1068,5 @@ __all__ = (
     "json",
     "logger",
     "setup_logger",
-    "take",
+    "take_env",
 )

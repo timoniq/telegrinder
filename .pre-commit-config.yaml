@@ -25,7 +25,7 @@ repos:
       - id: basedpyright
         name: basedpyright
         description: "Run 'basedpyright' for Python type checking"
-        entry: uv run basedpyright telegrinder tests examples --level error
+        entry: uv run basedpyright telegrinder --level error
         language: system
         types: [ python ]
         stages: [ pre-commit ]

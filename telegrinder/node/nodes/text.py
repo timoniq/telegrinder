@@ -15,10 +15,24 @@ class Caption:
 
 
 @scalar_node
+class HTMLCaption:
+    @classmethod
+    def __compose__(cls, message: MessageCute) -> str:
+        return message.html_caption.expect(NodeError("Message has no HTML caption."))
+
+
+@scalar_node
 class Text:
     @classmethod
     def __compose__(cls, message: MessageCute) -> str:
         return message.text.expect(NodeError("Message has no text."))
+
+
+@scalar_node
+class HTMLText:
+    @classmethod
+    def __compose__(cls, message: MessageCute) -> str:
+        return message.html_text.expect(NodeError("Message has no HTML text."))
 
 
 @scalar_node
@@ -45,4 +59,4 @@ else:
             raise NodeError("Text mismatched literal.")
 
 
-__all__ = ("Caption", "Text", "TextInteger", "TextLiteral")
+__all__ = ("Caption", "HTMLCaption", "HTMLText", "Text", "TextInteger", "TextLiteral")

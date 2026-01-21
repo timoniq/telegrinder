@@ -35,7 +35,7 @@ class Shortcut[T]:
 
 
 @typing.overload
-def shortcut[T: BaseCute[typing.Any], S: BaseShortcuts[BaseCute[typing.Any]], **P, R](
+def shortcut[T: BaseCute, S: BaseShortcuts, **P, R](
     method_name: str,
     /,
     *,
@@ -44,7 +44,7 @@ def shortcut[T: BaseCute[typing.Any], S: BaseShortcuts[BaseCute[typing.Any]], **
 
 
 @typing.overload
-def shortcut[T: BaseCute[typing.Any], S: BaseShortcuts[BaseCute[typing.Any]], **P, R](
+def shortcut[T: BaseCute, S: BaseShortcuts, **P, R](
     method_name: str,
     /,
     *,
@@ -65,7 +65,7 @@ def shortcut[**P, R](
     def wrapper(func: CuteMethod[typing.Any, P, R]) -> ShortcutMethod[P, R]:
         @wraps(func)
         async def inner(
-            self: BaseCute[typing.Any] | BaseShortcuts[BaseCute[typing.Any]],
+            self: typing.Any,
             *args: P.args,
             **kwargs: P.kwargs,
         ) -> Result[R, typing.Any]:

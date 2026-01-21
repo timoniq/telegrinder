@@ -13,7 +13,7 @@ from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
 from telegrinder.api.token import Token
 from telegrinder.client import ABCClient, RnetClient
-from telegrinder.model import decoder
+from telegrinder.msgspec_utils import decoder
 from telegrinder.types.methods import APIMethods
 
 type Json = str | int | float | bool | list[Json] | dict[str, Json] | None

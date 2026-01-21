@@ -1,8 +1,25 @@
+from __future__ import annotations
+
 import typing
 from functools import cached_property
 
+from kungfu.library import Some, Sum
+from kungfu.library.misc import from_optional
+from nodnod.error import NodeError
+
+from telegrinder.api.api import API
+from telegrinder.bot.dispatch.context import Context
 from telegrinder.model import Model
+from telegrinder.msgspec_utils import Option, encoder, get_class_annotations, struct_asdict
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.shortcut import shortcut
+from telegrinder.types.objects import Update
+
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.cute_types.update import UpdateCute
+
+BOUND_API_KEY: typing.Final = "bound_api"
+RAW_UPDATE_BIND_KEY: typing.Final = "raw_update_bind"
 
 
 def compose_method_params[Cute: BaseCute](
@@ -25,214 +42,196 @@ def compose_method_params[Cute: BaseCute](
     return params
 
 
-if typing.TYPE_CHECKING:
-    from kungfu.library.monad.option import Option
+def get_cute_from_generic(generic_args: tuple[typing.Any, ...], /) -> typing.Any:
+    for arg in generic_args:
+        orig_arg = typing.get_origin(arg) or arg
 
-    from telegrinder.api.api import API
-    from telegrinder.types.objects import Update
+        if not isinstance(orig_arg, type):
+            continue
 
-    class BaseCute[T: Model](Model):
-        api: API
+        if orig_arg in (Sum, Some, Option):
+            return get_cute_from_generic(typing.get_args(arg))
 
-        @classmethod
-        def from_update(cls, update: T, bound_api: API) -> typing.Self: ...
+        if issubclass(orig_arg, BaseCute):
+            return arg
 
-        @property
-        def ctx_api(self) -> API: ...
+    return None
 
-        @property
-        def raw_update(self) -> Update: ...
 
-        def bind_raw_update(self, raw_update: Update, /) -> typing.Self: ...
+def get_cute_annotations(annotations: dict[str, typing.Any], /) -> dict[str, type[BaseCute]]:
+    cute_annotations = {}
 
-        def get_raw_update(self) -> Option[Update]: ...
+    for key, hint in annotations.items():
+        if not isinstance(hint, type) and (cute := get_cute_from_generic(typing.get_args(hint))) is not None:
+            cute_annotations[key] = cute
 
-        def to_dict(
-            self,
-            *,
-            exclude_fields: set[str] | None = None,
-        ) -> dict[str, typing.Any]: ...
+        elif isinstance(hint, type) and issubclass(hint, BaseCute):
+            cute_annotations[key] = hint
 
-        def to_full_dict(
-            self,
-            *,
-            exclude_fields: set[str] | None = None,
-        ) -> dict[str, typing.Any]: ...
+    return cute_annotations
 
-else:
-    from kungfu.library import Some, Sum
-    from kungfu.library.misc import from_optional
-    from nodnod.error import NodeError
 
-    from telegrinder.api.api import API
-    from telegrinder.bot.dispatch.context import Context
-    from telegrinder.msgspec_utils import Option, encoder, struct_asdict
-    from telegrinder.msgspec_utils import get_class_annotations as _get_class_annotations
-    from telegrinder.tools.fullname import fullname
-    from telegrinder.types.objects import Update
+def maybe_wrapped(value: typing.Any, /) -> typing.Any:
+    wrapped_value = None
 
-    BOUND_API_KEY = "bound_api"
-    RAW_UPDATE_BIND_KEY = "raw_update_bind"
+    while isinstance(value, Sum | Some):
+        wrapped_value = value
 
-    def _get_cute_from_generic(generic_args, /):
-        for arg in generic_args:
-            orig_arg = typing.get_origin(arg) or arg
+        if isinstance(value, Sum):
+            value = value.v
 
-            if not isinstance(orig_arg, type):
-                continue
-            if orig_arg in (Sum, Some, Option):
-                return _get_cute_from_generic(typing.get_args(arg))
-            if issubclass(orig_arg, BaseCute):
-                return arg
+        if isinstance(value, Some):
+            value = value.value
 
-        return None
+    return wrapped_value if wrapped_value is not None else value
 
-    def _get_cute_annotations(annotations, /):
-        cute_annotations = {}
 
-        for key, hint in annotations.items():
-            if not isinstance(hint, type):
-                if (cute := _get_cute_from_generic(typing.get_args(hint))) is not None:
-                    cute_annotations[key] = cute
+def wrap_value(value: typing.Any, type_: typing.Any, /) -> typing.Any:
+    args = [type_]
+    types = []
 
-            elif issubclass(hint, BaseCute):
-                cute_annotations[key] = hint
+    while args:
+        arg = args.pop(0)
+        origin_arg = typing.get_origin(arg) or arg
 
-        return cute_annotations
+        if issubclass(origin_arg, Sum | Option):
+            args.extend(typing.get_args(arg))
+            types.append(Some if issubclass(origin_arg, Option) else arg)  # type: ignore
 
-    def _maybe_wrapped(value, /):
-        wrapped_value = None
+    result = value
 
-        while isinstance(value, Sum | Some):
-            wrapped_value = value
+    for t in types[::-1]:
+        result = t(result)
 
-            if isinstance(value, Sum):
-                value = value.v
+    return result
 
-            if isinstance(value, Some):
-                value = value.value
 
-        return wrapped_value if wrapped_value is not None else value
+def to_cute(
+    cute_cls: type[BaseCute],
+    field: str,
+    value: typing.Any,
+    bound_api: API,
+) -> typing.Any:
+    maybe_wrapped_value = maybe_wrapped(value)
+    is_wrapped_value = isinstance(maybe_wrapped_value, Sum | Some)
+    cute_annotations = cute_cls.__cute_annotations__
 
-    def _wrap_value(value, type_):
-        args = [type_]
-        types = []
+    if cute_annotations is None:
+        cute_annotations = get_cute_annotations(get_class_annotations(cute_cls))
 
-        while args:
-            arg = args.pop(0)
-            origin_arg = typing.get_origin(arg) or arg
-            if issubclass(origin_arg, Sum | Option):
-                args.extend(typing.get_args(arg))
-                types.append(Some if issubclass(origin_arg, Option) else arg)
+    cute = cute_annotations[field].from_update(
+        maybe_wrapped_value._value if is_wrapped_value else maybe_wrapped_value,
+        bound_api=bound_api,
+    )
+    return wrap_value(cute, cute_cls.__annotations__[field]) if is_wrapped_value else cute
 
-        result = value
-        for t in types[::-1]:
-            result = t(result)
-        return result
 
-    def _to_cute(cls, field, value, bound_api):
-        maybe_wrapped_value = _maybe_wrapped(value)
-        is_wrapped_value = isinstance(maybe_wrapped_value, Sum | Some)
-        cute = cls.__cute_annotations__[field].from_update(
-            maybe_wrapped_value._value if is_wrapped_value else maybe_wrapped_value,
-            bound_api=bound_api,
+class BaseCute[T: Model = typing.Any](Model):
+    def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
+        cls.__is_resolved_annotations__ = False
+        cls.__cute_annotations__ = None
+        super().__init_subclass__(*args, **kwargs)
+
+    @classmethod
+    def __compose__(cls, update: Update, api: API, context: Context) -> typing.Any:
+        match context.update_cute:
+            case Some(update_cute):
+                update_cute = update_cute
+            case _:
+                update_cute = typing.cast("UpdateCute", cls.from_update(update, api))
+                context.update_cute = Some(update_cute)
+
+        if isinstance(update_cute, cls):
+            return update_cute
+
+        return (
+            update_cute.get_event(cls)  # type: ignore
+            .expect(NodeError(f"Incoming update is not `{fullname(cls)}`."))
+            .bind_raw_update(update)
         )
-        return _wrap_value(cute, cls.__annotations__[field]) if is_wrapped_value else cute
 
-    class BaseCute[T]:
-        def __init_subclass__(cls, *args, **kwargs):
-            cls.__is_resolved_annotations__ = False
-            cls.__cute_annotations__ = None
-            super().__init_subclass__(*args, **kwargs)
+    @classmethod
+    def from_update(cls, update: Update, bound_api: API) -> typing.Self:
+        if not cls.__is_resolved_annotations__:
+            cls.__is_resolved_annotations__ = True
+            cls.__annotations__ = get_class_annotations(cls)
 
-        @classmethod
-        def __compose__(cls, update: Update, api: API, context: Context):
-            match context.update_cute:
-                case Some(update_cute):
-                    update_cute = update_cute
-                case _:
-                    context.update_cute = Some(update_cute := cls.from_update(update, api))
-                    update_cute = update_cute
+        if cls.__cute_annotations__ is None:
+            cls.__cute_annotations__ = get_cute_annotations(cls.__annotations__)
 
-            if isinstance(update_cute, cls):
-                return update_cute
+        cute = cls(
+            **{
+                field: to_cute(cls, field, value, bound_api) if field in cls.__cute_annotations__ else value
+                for field, value in update.to_dict().items()
+            },
+        )._set_bound_api(api=bound_api)
+        return cute.bind_raw_update(update) if isinstance(update, Update) else cute
 
-            return update_cute.get_event(cls).expect(NodeError(f"Incoming update is not `{fullname(cls)}`."))
-
-        @classmethod
-        def from_update(cls, update, bound_api):
-            if not cls.__is_resolved_annotations__:
-                cls.__is_resolved_annotations__ = True
-                cls.__annotations__ = _get_class_annotations(cls)
-
-            if cls.__cute_annotations__ is None:
-                cls.__cute_annotations__ = _get_cute_annotations(cls.__annotations__)
-
-            cute = cls(
-                **{
-                    field: _to_cute(cls, field, value, bound_api) if field in cls.__cute_annotations__ else value
-                    for field, value in update.to_dict().items()
-                },
-            )._set_bound_api(api=bound_api)
-            return cute.bind_raw_update(update) if isinstance(update, Update) else cute
-
-        @property
-        def api(self):
-            return self.__dict__[BOUND_API_KEY]
-
-        @property
-        def raw_update(self):
-            return self.get_raw_update().expect(
-                ValueError(f"Cute model `{type(self).__name__}` has no bind `Update` object."),
-            )
-
-        @property
-        def ctx_api(self):
-            return self.api
-
-        def get_raw_update(self):
-            return from_optional(self.__dict__.get(RAW_UPDATE_BIND_KEY))
-
-        def bind_raw_update(self, raw_update, /):
-            cuties = [self]
-
-            if isinstance(self, Update) and isinstance(cute := self.incoming_update, BaseCute):
-                cuties.append(cute)
-
-            for cute in cuties:
-                cute.__dict__[RAW_UPDATE_BIND_KEY] = raw_update
-
-            return self
-
-        def _set_bound_api(self, api):
-            self.__dict__[BOUND_API_KEY] = api
-            return self
-
-        def _to_dict(self, dct_name, exclude_fields, full):
-            if dct_name not in self.__dict__:
-                dct = struct_asdict(self)
-                self.__dict__[dct_name] = dct if not full else encoder.to_builtins(dct, order="deterministic")
-
-            if not exclude_fields:
-                return self.__dict__[dct_name]
-
-            return {key: value for key, value in self.__dict__[dct_name].items() if key not in exclude_fields}
-
-        def to_dict(self, *, exclude_fields=None, full=False):
-            return self._to_dict(
-                "model_as_dict" if not full else "model_as_full_dict",
-                exclude_fields=exclude_fields or set(),
-                full=full,
-            )
-
-        def to_full_dict(self, *, exclude_fields=None):
-            return self.to_dict(exclude_fields=exclude_fields, full=True)
-
-
-class BaseShortcuts[T: BaseCute[typing.Any]]:
     @cached_property
-    def cute(self) -> T:
-        return self  # type: ignore
+    def bound_api(self) -> API: ...
+
+    @property
+    def api(self) -> API:
+        return self.bound_api
+
+    @property
+    def ctx_api(self) -> API:
+        return self.bound_api
+
+    @property
+    def raw_update(self) -> Update:
+        return self.get_raw_update().expect(
+            AttributeError(f"Cute model `{type(self).__name__}` has no bound `Update` object."),
+        )
+
+    def get_raw_update(self) -> Option[Update]:
+        return from_optional(self.__dict__.get(RAW_UPDATE_BIND_KEY))
+
+    def bind_raw_update(self, raw_update: Update, /) -> typing.Self:
+        cuties = [self]
+
+        if isinstance(self, Update) and isinstance(cute := self.incoming_update, BaseCute):
+            cuties.append(cute)
+
+        for cute in cuties:
+            cute.__dict__[RAW_UPDATE_BIND_KEY] = raw_update  # type: ignore
+
+        return self
+
+    def to_dict(
+        self,
+        *,
+        exclude_fields: set[str] | None = None,
+        full: bool = False,
+    ) -> dict[str, typing.Any]:
+        return self._to_dict(
+            "model_as_dict" if not full else "model_as_full_dict",
+            exclude_fields=exclude_fields or set(),
+            full=full,
+        )
+
+    def to_full_dict(self, *, exclude_fields: set[str] | None = None) -> dict[str, typing.Any]:
+        return self.to_dict(exclude_fields=exclude_fields, full=True)
+
+    def _set_bound_api(self, api: API) -> typing.Self:
+        self.__dict__[BOUND_API_KEY] = api  # type: ignore
+        return self
+
+    def _to_dict(self, dct_name: str, exclude_fields: set[str], full: bool) -> dict[str, typing.Any]:
+        if dct_name not in self.__dict__:
+            dct = struct_asdict(self)
+            self.__dict__[dct_name] = dct if not full else encoder.to_builtins(dct, order="deterministic")  # type: ignore
+
+        if not exclude_fields:
+            return self.__dict__[dct_name]
+
+        return {key: value for key, value in self.__dict__[dct_name].items() if key not in exclude_fields}
+
+
+class BaseShortcuts[T: BaseCute = typing.Any]:
+    @cached_property
+    def cute(self) -> typing.Self:
+        return self
 
 
 __all__ = ("BaseCute", "BaseShortcuts", "compose_method_params", "shortcut")

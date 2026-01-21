@@ -1,4 +1,3 @@
-import typing
 from functools import cached_property
 
 from kungfu.library.monad.option import Nothing, Some
@@ -198,10 +197,10 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
     in the chat to receive these updates."""
 
     @cached_property
-    def incoming_update(self) -> BaseCute[typing.Any]:
+    def incoming_update(self) -> BaseCute:
         return getattr(self, self.update_type.value).unwrap()
 
-    def get_event[T: BaseCute[typing.Any]](self, event_model: type[T], /) -> Option[T]:
+    def get_event[T: BaseCute](self, event_model: type[T], /) -> Option[T]:
         if isinstance(self.incoming_update, event_model):
             return Some(self.incoming_update)
         return Nothing()

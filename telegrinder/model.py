@@ -5,13 +5,13 @@ from functools import cache
 from reprlib import recursive_repr
 
 import msgspec
-from kungfu.library.monad.option import Nothing
+from kungfu.library.monad.option import NOTHING, Nothing
 
 from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
 
-NOTHING: typing.Final = Nothing()
-UNSET: typing.Final[typing.Any] = typing.cast("typing.Any", msgspec.UNSET)
-"""See [DOCS](https://jcristharif.com/msgspec/api.html#unset) about `msgspec.UNSET`."""
+type From[T] = T
+
+UNSET: typing.Final = typing.cast("typing.Any", msgspec.UNSET)
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "dict": True,
     "rename": {kw + "_": kw for kw in keyword.kwlist},
@@ -22,94 +22,43 @@ def is_none(obj: typing.Any, /) -> typing.TypeIs[Nothing | None]:
     return isinstance(obj, Nothing | types.NoneType)
 
 
-if typing.TYPE_CHECKING:
+def field(**kwargs: typing.Any) -> typing.Any:
+    if kwargs.get("default") is Ellipsis:
+        kwargs["default"] = UNSET
 
-    @typing.overload
-    def field() -> typing.Any: ...  # type: ignore
-
-    @typing.overload
-    def field(*, name: str | None = ...) -> typing.Any: ...
-
-    @typing.overload
-    def field(*, default: typing.Any, name: str | None = ...) -> typing.Any: ...
-
-    @typing.overload
-    def field(
-        *,
-        default_factory: typing.Callable[[], typing.Any],
-        name: str | None = None,
-    ) -> typing.Any: ...
-
-    @typing.overload
-    def field(
-        *,
-        converter: typing.Callable[[typing.Any], typing.Any],
-        name: str | None = ...,
-    ) -> typing.Any: ...
-
-    @typing.overload
-    def field(
-        *,
-        default: typing.Any,
-        converter: typing.Callable[[typing.Any], typing.Any],
-        name: str | None = ...,
-    ) -> typing.Any: ...
-
-    @typing.overload
-    def field(
-        *,
-        default_factory: typing.Callable[[], typing.Any],
-        converter: typing.Callable[[typing.Any], typing.Any],
-        name: str | None = None,
-    ) -> typing.Any: ...
-
-    class From[T]:
-        def __new__(cls, _: T, /) -> typing.Any: ...
-else:
-    from msgspec import field as _field
-
-    type From[T] = T
-
-    def field(**kwargs):
-        if kwargs.get("default") is Ellipsis:
-            kwargs["default"] = UNSET
-
-        kwargs.pop("converter", None)
-        return _field(**kwargs)
+    kwargs.pop("converter", None)
+    return msgspec.field(**kwargs)
 
 
-@typing.dataclass_transform(field_specifiers=(field,))
 class Model(msgspec.Struct, **MODEL_CONFIG):
-    if not typing.TYPE_CHECKING:
+    def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
+        from telegrinder.tools.member_descriptor_proxy import MemberDescriptorProxy
 
-        def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
-            from telegrinder.tools.member_descriptor_proxy import MemberDescriptorProxy
+        result = super().__init_subclass__(*args, **kwargs)
 
-            result = super().__init_subclass__(*args, **kwargs)
+        for field_name in getattr(cls, "__slots__", ()):
+            setattr(cls, field_name, MemberDescriptorProxy(getattr(cls, field_name)))
 
-            for field_name in getattr(cls, "__slots__", ()):
-                setattr(cls, field_name, MemberDescriptorProxy(getattr(cls, field_name)))
+        return result
 
-            return result
+    def __getattribute__(self, name: str, /) -> typing.Any:
+        class_ = type(self)
+        val = object.__getattribute__(self, name)
 
-        def __getattribute__(self, name: str, /) -> typing.Any:
-            class_ = type(self)
-            val = object.__getattribute__(self, name)
-
-            if name not in class_.__struct_fields__:
-                return val
-
-            if (
-                (field_info := class_.get_fields().get(name)) is not None
-                and isinstance(field_info.type, msgspec.inspect.CustomType)
-                and issubclass(field_info.type.cls, Option)
-            ):
-                return NOTHING if val is UNSET else val
-
-            if val is UNSET:
-                raise AttributeError(f"{class_.__name__!r} object has no attribute {name!r}")
-
+        if name not in class_.__struct_fields__:
             return val
+
+        if (
+            (field_info := class_.get_fields().get(name)) is not None
+            and isinstance(field_info.type, msgspec.inspect.CustomType)
+            and issubclass(field_info.type.cls, Option)  # type: ignore
+        ):
+            return NOTHING if val is UNSET else val
+
+        if val is UNSET:
+            raise AttributeError(f"{class_.__name__!r} object has no attribute {name!r}")
+
+        return val
 
     def __post_init__(self) -> None:
         for field, value in struct_asdict(self, exclude_unset=False).items():
@@ -180,4 +129,4 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         return self._to_dict("model_as_full_dict", exclude_fields or set(), full=True)
 
 
-__all__ = ("MODEL_CONFIG", "UNSET", "Model", "field", "is_none")
+__all__ = ("UNSET", "From", "Model", "field", "is_none")

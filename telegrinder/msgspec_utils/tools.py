@@ -3,6 +3,7 @@ import typing
 
 import kungfu.library
 import msgspec
+from kungfu.library.monad.option import NOTHING
 
 if typing.TYPE_CHECKING:
     from telegrinder.tools.fullname import fullname
@@ -26,7 +27,6 @@ else:
         return fullname(*args, **kwargs)
 
 
-_NOTHING = kungfu.library.Nothing()
 _COMMON_TYPES = frozenset((str, int, float, bool, None, kungfu.library.Sum))
 
 
@@ -50,7 +50,7 @@ def struct_asdict(
     unset_as_nothing: bool = False,
 ) -> dict[str, typing.Any]:
     return {
-        k: v if not unset_as_nothing else _NOTHING if v is msgspec.UNSET else v
+        k: v if not unset_as_nothing else NOTHING if v is msgspec.UNSET else v
         for k, v in msgspec.structs.asdict(struct).items()
         if not (exclude_unset and isinstance(v, msgspec.UnsetType | types.NoneType | kungfu.library.Nothing))
     }

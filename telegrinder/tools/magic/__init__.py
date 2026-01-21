@@ -1,6 +1,5 @@
 from telegrinder.tools.magic.annotations import Annotations, get_generic_parameters
 from telegrinder.tools.magic.descriptors import additional_property
-from telegrinder.tools.magic.dictionary import extract, join_dicts
 from telegrinder.tools.magic.function import (
     Bundle,
     bundle,
@@ -19,12 +18,10 @@ __all__ = (
     "Shortcut",
     "additional_property",
     "bundle",
-    "extract",
     "get_default_args",
     "get_func_annotations",
     "get_func_parameters",
     "get_generic_parameters",
-    "join_dicts",
     "resolve_arg_names",
     "resolve_kwonly_arg_names",
     "resolve_posonly_arg_names",

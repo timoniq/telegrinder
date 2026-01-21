@@ -11,9 +11,14 @@ from telegrinder.bot.cute_types import (
     CallbackQueryCute,
     ChatJoinRequestCute,
     ChatMemberUpdatedCute,
+    ChosenInlineResultCute,
     InlineQueryCute,
     MessageCute,
+    MessageReactionUpdatedCute,
+    PaidMediaPurchasedCute,
+    PollAnswerCute,
     PreCheckoutQueryCute,
+    ShippingQueryCute,
 )
 from telegrinder.types.objects import Chat, Message, User
 
@@ -53,6 +58,13 @@ class Source:
         )
 
     @case
+    def compose_chosen_inline_result(cls, chosen_inline_result: ChosenInlineResultCute) -> typing.Self:
+        return cls(
+            api=chosen_inline_result.api,
+            from_user=chosen_inline_result.from_user,
+        )
+
+    @case
     def compose_chat_member_updated(cls, chat_member_updated: ChatMemberUpdatedCute) -> typing.Self:
         return cls(
             api=chat_member_updated.api,
@@ -73,6 +85,36 @@ class Source:
         return cls(
             api=pre_checkout_query.api,
             from_user=pre_checkout_query.from_user,
+        )
+
+    @case
+    def compose_message_reaction_updated(cls, message_reaction_updated: MessageReactionUpdatedCute) -> typing.Self:
+        return cls(
+            api=message_reaction_updated.api,
+            from_user=message_reaction_updated.user.expect(NodeError("Message reaction is from an anonymous user.")),
+            chat=Some(message_reaction_updated.chat),
+        )
+
+    @case
+    def compose_paid_media_purchased(cls, paid_media_purchased: PaidMediaPurchasedCute) -> typing.Self:
+        return cls(
+            api=paid_media_purchased.api,
+            from_user=paid_media_purchased.from_user,
+        )
+
+    @case
+    def compose_poll_answer(cls, poll_answer: PollAnswerCute) -> typing.Self:
+        return cls(
+            api=poll_answer.api,
+            from_user=poll_answer.user.expect(NodeError("Poll answer is from an anonymous user.")),
+            chat=poll_answer.voter_chat,
+        )
+
+    @case
+    def compose_shipping_query(cls, shipping_query: ShippingQueryCute) -> typing.Self:
+        return cls(
+            api=shipping_query.api,
+            from_user=shipping_query.from_user,
         )
 
     async def send(self, text: str, **kwargs: typing.Any) -> Message:
