@@ -14,12 +14,11 @@ WAIT_TIME: typing.Final = 2.0
 MAX_GROUP_PARTS: typing.Final = 10
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True, slots=True)
 class MediaGroupData:
     event: asyncio.Event
     timer: asyncio.TimerHandle
     messages: list[MessageCute] = dataclasses.field(default_factory=list)
-    processed: bool = dataclasses.field(default=False)
 
 
 class MediaGroupMiddleware(ABCMiddleware):
@@ -39,29 +38,20 @@ class MediaGroupMiddleware(ABCMiddleware):
             return True
 
         if media_group_id not in self.media_groups:
-            loop = asyncio.get_running_loop()
-            event = asyncio.Event()
             media_group_data = MediaGroupData(
-                event=event,
-                timer=loop.call_later(self.wait_time, event.set),
+                event=(event := asyncio.Event()),
+                timer=asyncio.get_running_loop().call_later(self.wait_time, event.set),
                 messages=[message],
             )
             self.media_groups[media_group_id] = media_group_data
 
             await event.wait()
 
-            context.is_media_group = True
-            media_group_data.processed = True
             message.media_group_messages = Some(media_group_data.messages)
             self.media_groups.pop(media_group_id, None)
             return True
 
         media_group_data = self.media_groups[media_group_id]
-
-        if media_group_data.processed:
-            self.media_groups.pop(media_group_id, None)
-            return False
-
         media_group_data.messages.append(message)
 
         if len(media_group_data.messages) >= MAX_GROUP_PARTS:
@@ -71,7 +61,8 @@ class MediaGroupMiddleware(ABCMiddleware):
             if not media_group_data.event.is_set():
                 media_group_data.event.set()
 
-        self.media_groups.pop(media_group_id, None)
+            self.media_groups.pop(media_group_id, None)
+
         return False
 
 

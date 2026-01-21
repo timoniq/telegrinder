@@ -20,22 +20,16 @@ if typing.TYPE_CHECKING:
     from telegrinder.node.compose import Composable
 
 type Node = typing.Any
-type MiddlewareResult = bool | None | typing.Coroutine[typing.Any, typing.Any, bool | None]
+type MiddlewareResult = bool | typing.Awaitable[bool | None] | None
 
 
-async def run_pre_middleware(
-    middleware: ABCMiddleware,
-    context: Context,
-) -> bool | None:
+async def run_pre_middleware(middleware: ABCMiddleware, context: Context) -> bool:
     if middleware.is_pre:
         return bool(await run_middleware(middleware, context, composable=middleware.pre_composable))
-    return None
+    return True
 
 
-async def run_post_middleware(
-    middleware: ABCMiddleware,
-    context: Context,
-) -> None:
+async def run_post_middleware(middleware: ABCMiddleware, context: Context) -> None:
     if middleware.is_post:
         await run_middleware(middleware, context, composable=middleware.post_composable)
 

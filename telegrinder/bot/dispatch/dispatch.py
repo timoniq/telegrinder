@@ -273,7 +273,7 @@ class Dispatch[
             for middleware in middlewares:
                 if await run_pre_middleware(middleware, context) is not True:
                     await logger.ainfo(
-                        "Update(id={}, type={!r}) processed with global pre-middleware `{}` and raised failure.",
+                        "Update(id={}, type={!r}) processed with dispatch's pre-middleware `{}` and raised failure.",
                         update.update_id,
                         update.update_type,
                         fullname(middleware),
