@@ -30,14 +30,14 @@ type MediaType = typing.Literal["animation", "audio", "document", "photo", "vide
 
 EntitiesDict = collections.defaultdict[int, list[MessageEntity]]
 
-MEDIA_TYPES: typing.Final[tuple[ContentType, ...]] = (
+MEDIA_TYPES: typing.Final = (
     ContentType.ANIMATION,
     ContentType.AUDIO,
     ContentType.DOCUMENT,
     ContentType.PHOTO,
     ContentType.VIDEO,
 )
-INPUT_TYPES: typing.Final[tuple[type[InputMedia], ...]] = (
+INPUT_TYPES: typing.Final = (
     InputMediaAnimation,
     InputMediaAudio,
     InputMediaDocument,

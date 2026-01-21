@@ -383,7 +383,7 @@ fields = [
 [[generator.objects.fields.annotations.literals]]
 object_name = "RefundedPayment"
 fields = [
-    { name = "currency", literals = ["XTR",] },
+    { name = "currency", enum_literals = { name = "Currency", enumerations = ["XTR",] } },
 ]
 
 [[generator.objects.fields.annotations.literals]]
@@ -449,7 +449,7 @@ fields = [
 [[generator.objects.fields.annotations.literals]]
 object_name = "SuggestedPostPaid"
 fields = [
-    { name = "currency", enum = "Currency" },
+    { name = "currency", enum_literals = { name = "Currency", enumerations = ["XTR", "TON",] } },
 ]
 
 [[generator.objects.fields.annotations.literals]]
@@ -461,7 +461,7 @@ fields = [
 [[generator.objects.fields.annotations.literals]]
 object_name = "SuggestedPostPrice"
 fields = [
-    { name = "currency", enum = "Currency" },
+    { name = "currency", enum_literals = { name = "Currency", enumerations = ["XTR", "TON",] } },
 ]
 
 [[generator.objects.fields.annotations.literals]]

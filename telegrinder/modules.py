@@ -32,9 +32,8 @@ else:
             return super().__new__(cls)
 
 
-type _Sink = typing.TextIO | typing.Any
-type _LoggerModule = typing.Literal["logging", "loguru", "structlog"]
-
+type LoggerModule = typing.Literal["logging", "loguru", "structlog"]
+type Sink = typing.TextIO | typing.Any
 type LoggerLevel = typing.Literal["DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL", "EXCEPTION"]
 
 _LoggingFileHandler = RotatingFileHandler | TimedRotatingFileHandler | WatchedFileHandler | logging.FileHandler
@@ -60,28 +59,32 @@ class Colors:
     LIGHT_BLACK = "\033[90m"
 
 
-DEFAULT_LOGGING_FORMAT = (
+LOGGER_MODULE: typing.Final = typing.cast(
+    "LoggerModule",
+    choice_in_order(["structlog", "loguru"], default="logging", do_import=False),
+)
+DEFAULT_LOGGING_FORMAT: typing.Final = (
     "<light_white>{name: <4} |</light_white> <level>{levelname: <8}</level>"
     " <light_white>|</light_white> <light_green>{asctime}</light_green> <light_white>"
     "|</light_white> <level_module>{module}</level_module><light_white>:</light_white>"
     "<func_name>{funcName}</func_name><light_white>:</light_white><lineno>{lineno}</lineno>"
     " <light_white>></light_white> <message>{message}</message>"
 )
-DEFAULT_STRUCTLOG_FORMAT = (
+DEFAULT_STRUCTLOG_FORMAT: typing.Final = (
     "[<light_blue>{name}</light_blue>] {location} "
     "[<light_black>{asctime}</light_black>] "
     "<light_white>~</light_white> {message}"
 )
-DEFAULT_LOGURU_FORMAT = (
+DEFAULT_LOGURU_FORMAT: typing.Final = (
     "telegrinder | <level>{level: <8}</level> | "
     "<lg>{time:YYYY-MM-DD HH:mm:ss}</lg> | "
     "<le>{name}</le>:<le>{function}</le>:"
     "<le>{line}</le> > <lw>{message}</lw>"
 )
 
-CALL_STACK_CONTEXT = contextvars.ContextVar[tuple[types.FrameType, "OptExcInfo"]]("_call_stack")
+CALL_STACK_CONTEXT: typing.Final = contextvars.ContextVar[tuple[types.FrameType, "OptExcInfo"]]("_call_stack")
 
-COLORS = dict(
+COLORS: typing.Final = dict(
     reset=Colors.RESET,
     red=Colors.RED,
     green=Colors.GREEN,
@@ -100,7 +103,7 @@ COLORS = dict(
     light_cyan=Colors.LIGHT_CYAN,
     light_black=Colors.LIGHT_BLACK,
 )
-LEVEL_FORMAT_SETTINGS = dict(
+LEVEL_FORMAT_SETTINGS: typing.Final = dict(
     DEBUG=dict(
         level="light_blue",
         level_module="blue",
@@ -219,7 +222,7 @@ class _LoggerLevelCaster(betterconf.AbstractCaster):
 
 
 class _LoggerModuleCaster(betterconf.AbstractCaster):
-    def cast(self, value: str) -> _LoggerModule:
+    def cast(self, value: str) -> LoggerModule:
         if value not in LOGGER_MODULES:
             raise betterconf.ImpossibleToCastError(value, self)
         return value
@@ -274,8 +277,8 @@ CASTERS: typing.Final[dict[type[typing.Any], betterconf.AbstractCaster]] = {
 
 @betterconf.betterconf(prefix="TELEGRINDER_LOGGER", provider=DOTENV)
 class LoggerConfig:
-    MODULE: typing.Literal["logging", "loguru", "structlog"] | None = betterconf.field(
-        default=None,
+    MODULE: typing.Literal["logging", "loguru", "structlog"] = betterconf.field(
+        default=LOGGER_MODULE,
         caster=_LoggerModuleCaster(),
     )
     LEVEL: LoggerLevel = betterconf.field(
@@ -292,6 +295,10 @@ class LoggerConfig:
         default=False,
         caster=betterconf.caster.to_bool,
     )
+
+
+def _is_async_logger(logger: typing.Any, /) -> bool:
+    return all(hasattr(logger, attr) for attr in AnyAsyncLogger.__protocol_attrs__)
 
 
 class AnyLogger(typing.Protocol):
@@ -315,8 +322,6 @@ class AnyAsyncLogger(typing.Protocol):
 
     async def awarning(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
-    async def asuccess(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
-
     async def aerror(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
     async def acritical(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
@@ -324,12 +329,12 @@ class AnyAsyncLogger(typing.Protocol):
     async def aexception(self, __msg: str, *args: typing.Any, **kwargs: typing.Any) -> None: ...
 
 
-class LoggerModule(AnyLogger, AnyAsyncLogger, typing.Protocol):
+class Logger(AnyLogger, AnyAsyncLogger, typing.Protocol):
     def set_logger(self, __logger: AnyLogger) -> None: ...
 
 
 class WrapperAsyncLogger:
-    def __init__(self, logger: LoggerModule, /) -> None:
+    def __init__(self, logger: Logger, /) -> None:
         self._logger = logger
 
     def __getattr__(self, __name: str) -> typing.Any:
@@ -362,14 +367,15 @@ class WrapperAsyncLogger:
 
 
 class LoggingFormatter(logging.Formatter):
-    def __init__(self, format: str, colorize: bool, /) -> None:
+    def __init__(self, format: str, colorize: bool, logger_module: str, /) -> None:
         self.level_formats = _get_level_format(format, colorize)
         self.colorize = colorize
+        self.logger_module = logger_module
         super().__init__()
 
     def format(self, record: logging.LogRecord) -> str:
-        if logging_module == "logging":
-            record = _rich_log_record(record)
+        if self.logger_module == "logging":
+            record = _rich_log_record(record, self.logger_module)
 
         message = logging.Formatter(
             fmt=self.level_formats.get(record.levelname),
@@ -450,14 +456,14 @@ def _get_level_format(format: str, colorize: bool, /) -> dict[str, str]:
     return level_formats
 
 
-def _rich_log_record(record: logging.LogRecord, /) -> logging.LogRecord:
+def _rich_log_record(record: logging.LogRecord, logger_module: str, /) -> logging.LogRecord:
     call_stack, exc_info = CALL_STACK_CONTEXT.get((None, None))
     frame = call_stack or sys._getframe(1)
 
     if call_stack is None:
         while frame:
             if frame.f_code.co_filename == record.pathname and frame.f_lineno == record.lineno:
-                if logging_module == "structlog":
+                if logger_module == "structlog":
                     frame = frame.f_back.f_back.f_back  # pyright: ignore[reportOptionalMemberAccess]
 
                 break
@@ -467,7 +473,7 @@ def _rich_log_record(record: logging.LogRecord, /) -> logging.LogRecord:
     if record.levelno >= logging.ERROR and record.exc_info is not None:
         if exc_info is not None and any(exc_info):
             record.exc_info = exc_info
-        elif logging_module == "structlog":
+        elif logger_module == "structlog":
             record.exc_info = None
 
     if frame is not None:
@@ -529,11 +535,11 @@ class _json:  # noqa: N801
 class _LoggerProxy:
     def __init__(self) -> None:
         self.logger = None
-        self.module_logger = None
+        self.logger_module = None
 
     def __repr__(self) -> str:
         return "<LoggerProxy {}: {}>".format(
-            self.logging_module,
+            self.logger_module or "unknown",
             "(NOT SETUP)" if self.logger is None else repr(self.logger),
         )
 
@@ -557,14 +563,14 @@ class _LoggerProxy:
                 level_name = __name.removeprefix("a").upper()
                 level_name = (
                     "INFO"
-                    if level_name == "SUCCESS" and self.logging_module != "loguru"
+                    if level_name == "SUCCESS" and self.logger_module != "loguru"
                     else "ERROR"
                     if level_name == "EXCEPTION"
                     else level_name
                 )
                 level = (
                     logging._nameToLevel.get(level_name, logging.NOTSET)
-                    if self.logging_module != "loguru"
+                    if self.logger_module != "loguru"
                     else level_name
                 )
                 if not hasattr(self.logger, "isEnabledFor") and self.logger.isEnabledFor(level):  # type: ignore
@@ -574,17 +580,18 @@ class _LoggerProxy:
 
         return self
 
-    def set_logger(self, logger: LoggerModule, logging_module: str | None = None) -> None:
+    def set_logger(self, logger: Logger, logger_module: LoggerModule | None = None) -> None:
         self.logger = logger if not isinstance(logger, logging.Logger) else LoggingStyleAdapter(logger)
-        self.async_logger = WrapperAsyncLogger(logger)
-        self.logging_module = logging_module
+        self.async_logger = WrapperAsyncLogger(logger) if not _is_async_logger(logger) else logger
+        self.logger_module = logger_module
 
 
 class _SetupLoggerKwargs(typing.TypedDict):
+    module: typing.NotRequired[LoggerModule]
     level: typing.NotRequired[LoggerLevel]
     format: typing.NotRequired[str]
     colorize: typing.NotRequired[bool]
-    console_sink: typing.NotRequired[_Sink | None]
+    console_sink: typing.NotRequired[Sink | None]
     file: typing.NotRequired[FileHandlerConfig]
 
 
@@ -602,13 +609,14 @@ class FileHandlerConfig:
         handler: _LoggingFileHandler | _LoguruFileHandlerConfig,
         format: str = _NODEFAULT,
         colorize: bool = _NODEFAULT,
+        logger_module: str = LOGGER_MODULE,
     ) -> None:
         config = LoggerConfig()
         format = (config.FILE_HANDLER_FORMAT if format is _NODEFAULT else format) or (
             DEFAULT_LOGURU_FORMAT
-            if logging_module == "loguru"
+            if logger_module == "loguru"
             else DEFAULT_STRUCTLOG_FORMAT
-            if logging_module == "structlog"
+            if logger_module == "structlog"
             else DEFAULT_LOGGING_FORMAT
         )
         colorize = config.FILE_HANDLER_COLORIZE if colorize is _NODEFAULT else colorize
@@ -623,7 +631,7 @@ class FileHandlerConfig:
             self.colorize = colorize
 
             if handler.formatter is None:
-                handler.setFormatter(LoggingFormatter(format, colorize))
+                handler.setFormatter(LoggingFormatter(format, colorize, logger_module))
 
     @classmethod
     def from_logging(
@@ -642,15 +650,14 @@ class FileHandlerConfig:
         return cls(kwargs)  # type: ignore
 
 
-logger: LoggerModule = typing.cast("LoggerModule", _LoggerProxy())
-logging_module = choice_in_order(["structlog", "loguru"], default="logging", do_import=False)
+logger: Logger = typing.cast("Logger", _LoggerProxy())
 
 
 def _configure_structlog(
     level: LoggerLevel,
     format: str | None,
     colorize: bool,
-    console_sink: _Sink | None = None,
+    console_sink: Sink | None = None,
     file: FileHandlerConfig | None = None,
     /,
 ) -> None:
@@ -868,7 +875,7 @@ def _configure_structlog(
             super().__init__()
 
         def filter(self, record: logging.LogRecord) -> bool:
-            record = _rich_log_record(record)
+            record = _rich_log_record(record, "structlog")
 
             if self.colorize:
                 level_color = levels_colors[record.levelname.lower()]
@@ -896,7 +903,7 @@ def _configure_structlog(
 
     if console_sink is not None:
         console_handler = logging.StreamHandler(console_sink)
-        console_handler.setFormatter(LoggingFormatter(format or DEFAULT_STRUCTLOG_FORMAT, colorize))
+        console_handler.setFormatter(LoggingFormatter(format or DEFAULT_STRUCTLOG_FORMAT, colorize, "structlog"))
         console_handler.addFilter(Filter(colorize))
         telegrinder_logger.addHandler(console_handler)
 
@@ -926,7 +933,7 @@ def _configure_loguru(
     level: LoggerLevel,
     format: str | None,
     colorize: bool,
-    console_sink: _Sink | None = None,
+    console_sink: Sink | None = None,
     file: FileHandlerConfig | None = None,
     /,
 ) -> None:
@@ -988,7 +995,7 @@ def _configure_logging(
     level: LoggerLevel,
     format: str | None,
     colorize: bool,
-    console_sink: _Sink | None = None,
+    console_sink: Sink | None = None,
     file: FileHandlerConfig | None = None,
     /,
 ) -> None:
@@ -998,7 +1005,7 @@ def _configure_logging(
 
     if console_sink is not None:
         console_handler = logging.StreamHandler(console_sink)
-        console_handler.setFormatter(LoggingFormatter(format or DEFAULT_LOGGING_FORMAT, colorize))
+        console_handler.setFormatter(LoggingFormatter(format or DEFAULT_LOGGING_FORMAT, colorize, "logging"))
         _logger.addHandler(console_handler)
 
     if file is not None and isinstance(file.handler, _LoggingFileHandler):
@@ -1007,7 +1014,7 @@ def _configure_logging(
     logger.set_logger(LoggingStyleAdapter(logger=_logger), "logging")  # type: ignore
 
 
-def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> LoggerModule:
+def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> Logger:
     if logger.logger is not None:
         return logger
 
@@ -1020,13 +1027,15 @@ def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> LoggerMod
         setup_kwargs.get("file"),
     )
 
-    match config.MODULE or logging_module:
+    match setup_kwargs.get("module", config.MODULE):
         case "logging":
             _configure_logging(*args)
         case "loguru":
             _configure_loguru(*args)
         case "structlog":
             _configure_structlog(*args)
+        case _ as value:
+            typing.assert_never(value)
 
     return logger
 

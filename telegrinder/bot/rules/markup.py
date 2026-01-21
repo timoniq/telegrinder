@@ -10,7 +10,7 @@ from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 
 type PatternLike = str | vbml.Pattern
 
-TELEGRINDER_CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
+TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
 
 
 def check_string(patterns: list[vbml.Pattern], s: str, ctx: Context) -> bool:

@@ -9,7 +9,7 @@ from telegrinder.modules import logger
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
-TELEGRINDER_CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
+TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
 
 
 class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.Polling]:

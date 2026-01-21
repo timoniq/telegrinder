@@ -8,7 +8,7 @@ if typing.TYPE_CHECKING:
 from telegrinder.tools.keyboard.abc import ABCKeyboard
 from telegrinder.tools.keyboard.utils import RowButtons, copy_keyboard, get_keyboard_button_rules, is_dunder
 
-BUTTON_CLASS_KEY: typing.Final[str] = "__button_class__"
+BUTTON_CLASS_KEY: typing.Final = "__button_class__"
 
 
 class KeyboardMeta(type):

@@ -2,7 +2,7 @@ import hashlib
 import hmac
 import typing
 
-SECRET_TOKEN_KEY: typing.Final[str] = "X-Telegram-Bot-Api-Secret-Token"
+SECRET_TOKEN_KEY: typing.Final = "X-Telegram-Bot-Api-Secret-Token"
 
 
 def verify_secret_token(

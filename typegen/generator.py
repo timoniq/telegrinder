@@ -37,10 +37,10 @@ except ImportError:
 
     logger = logging.getLogger("typegen")
 
-TYPEGEN_DIR: typing.Final[pathlib.Path] = pathlib.Path(__file__).parent
-TAB: typing.Final[str] = "    "
-MAX_LENGTH_LINE_CHUNK: typing.Final[int] = 60
-TYPES: typing.Final[dict[str, str]] = {
+TYPEGEN_DIR: typing.Final = pathlib.Path(__file__).parent
+TAB: typing.Final = "    "
+MAX_LENGTH_LINE_CHUNK: typing.Final = 60
+TYPES: typing.Final = {
     "String": "str",
     "Integer": "int",
     "Float": "float",
@@ -48,7 +48,7 @@ TYPES: typing.Final[dict[str, str]] = {
     "Unixtime": "datetime",
     "Timestamp": "timedelta",
 }
-INPUTFILE_DOCSTRING: typing.Final[str] = "using multipart/form-data"
+INPUTFILE_DOCSTRING: typing.Final = "using multipart/form-data"
 
 
 def download_schema(config_toml: ConfigTOML, config_model: Config, /) -> TelegramBotAPISchema:

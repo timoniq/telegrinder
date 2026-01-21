@@ -14,9 +14,9 @@ from telegrinder.modules import logger
 from telegrinder.msgspec_utils import decoder
 from telegrinder.types.objects import Update, UpdateType
 
-DEFAULT_OFFSET: typing.Final[int] = 0
-DEFAULT_RECONNECT_AFTER: typing.Final[float] = 5.0
-DEFAULT_MAX_RECONNECTS: typing.Final[int] = 15
+DEFAULT_OFFSET: typing.Final = 0
+DEFAULT_RECONNECT_AFTER: typing.Final = 5.0
+DEFAULT_MAX_RECONNECTS: typing.Final = 15
 
 
 class Polling(ABCPolling):

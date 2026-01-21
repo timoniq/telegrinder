@@ -13,7 +13,7 @@ from telegrinder.node.nodes.source import Locale
 
 type Separator = KeySeparator
 
-DEFAULT_SEPARATOR: typing.Final[str] = "-"
+DEFAULT_SEPARATOR: typing.Final = "-"
 
 
 @dataclasses.dataclass(frozen=True)

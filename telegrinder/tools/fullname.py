@@ -13,7 +13,7 @@ type RoutineDescriptorType = types.MethodDescriptorType | types.GetSetDescriptor
 _BUILTINS: typing.Final[frozenset[typing.Any]] = frozenset(
     x for name in dir(builtins) if getattr((x := getattr(builtins, name)), "__module__", None) == "builtins"
 )
-_CACHE_KEY: typing.Final[str] = "__fullname_cache__"
+_CACHE_KEY: typing.Final = "__fullname_cache__"
 
 
 def _is_builtin(obj: typing.Any, /) -> bool:

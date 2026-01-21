@@ -12,8 +12,8 @@ from telegrinder.modules import logger
 type APIMethodsMapping = dict[str, cst.FunctionDef]
 
 ANNOTATION_TYPING_ANY: typing.Final[cst.Annotation] = cst.parse_statement("x: typing.Any").body[0].annotation  # type: ignore
-DEFAULT_API_METHODS_CLASS_NAME: typing.Final[str] = "APIMethods"
-DEFAULT_PATH_CUTE_TYPES: typing.Final[pathlib.Path] = pathlib.Path("telegrinder") / "bot" / "cute_types"
+DEFAULT_API_METHODS_CLASS_NAME: typing.Final = "APIMethods"
+DEFAULT_PATH_CUTE_TYPES: typing.Final = pathlib.Path("telegrinder") / "bot" / "cute_types"
 
 
 def is_cute_class(node: cst.ClassDef) -> bool:

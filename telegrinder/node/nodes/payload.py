@@ -10,6 +10,7 @@ from nodnod.interface.scalar import scalar_node
 from telegrinder.bot.cute_types.callback_query import CallbackQueryCute
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
+from telegrinder.bot.cute_types.shipping_query import ShippingQueryCute
 from telegrinder.node.nodes.global_node import GlobalNode
 from telegrinder.tools.serialization.abc import ABCDataSerializer
 from telegrinder.tools.serialization.json_ser import JSONSerializer
@@ -21,12 +22,16 @@ type _UndefinedSerializer = typing.Any
 @polymorphic[str]
 class Payload:
     @case
+    def compose_callback_query(cls, event: CallbackQueryCute) -> str:
+        return event.data.expect(NodeError("CallbackQuery has no data."))
+
+    @case
     def compose_pre_checkout_query(cls, event: PreCheckoutQueryCute) -> str:
         return event.invoice_payload
 
     @case
-    def compose_callback_query(cls, event: CallbackQueryCute) -> str:
-        return event.data.expect(NodeError("CallbackQuery has no data."))
+    def compose_shipping_query(cls, event: ShippingQueryCute) -> str:
+        return event.invoice_payload
 
     @case
     def compose_message(cls, event: MessageCute) -> str:

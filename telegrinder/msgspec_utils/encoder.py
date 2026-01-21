@@ -198,7 +198,7 @@ class Encoder:
         return obj
 
 
-encoder: typing.Final[Encoder] = Encoder()
+encoder: typing.Final = Encoder()
 
 
 __all__ = ("Encoder", "encoder", "to_builtins")

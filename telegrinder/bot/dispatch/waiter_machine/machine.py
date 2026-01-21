@@ -27,10 +27,10 @@ type Storage[Event: BaseCute, HasherData] = dict[
 ]
 type HasherWithData[Event: BaseCute, ViewType: View, Data] = tuple[Hasher[Event, Data], ViewType, Data]
 
-_NODATA: typing.Final[typing.Any] = object()
-MAX_STORAGE_SIZE: typing.Final[int] = 10000
-ONE_MINUTE: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=1)
-WEEK: typing.Final[datetime.timedelta] = datetime.timedelta(days=7)
+_NODATA: typing.Final = object()
+MAX_STORAGE_SIZE: typing.Final = 10000
+ONE_MINUTE: typing.Final = datetime.timedelta(minutes=1)
+WEEK: typing.Final = datetime.timedelta(days=7)
 
 
 def unpack_to_context(context: Context, /) -> tuple[Context]:

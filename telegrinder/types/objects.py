@@ -2597,7 +2597,7 @@ class SuggestedPostPaid(Model):
     Describes a service message about a successful payment for a suggested post.
     """
 
-    currency: Currency = field()
+    currency: Literal[Currency.XTR, Currency.TON] = field()
     """Currency in which the payment was made. Currently, one of `XTR` for Telegram
     Stars or `TON` for toncoins."""
 
@@ -2786,7 +2786,7 @@ class SuggestedPostPrice(Model):
     Describes the price of a suggested post.
     """
 
-    currency: Currency = field()
+    currency: Literal[Currency.XTR, Currency.TON] = field()
     """Currency in which the post will be paid. Currently, must be one of `XTR` for
     Telegram Stars or `TON` for toncoins."""
 
@@ -7188,6 +7188,10 @@ class RefundedPayment(Model):
     This object contains basic information about a refunded payment.
     """
 
+    currency: Literal[Currency.XTR] = field()
+    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
+    Stars. Currently, always `XTR`."""
+
     total_amount: int = field()
     """Total refunded price in the smallest units of the currency (integer, not
     float/double). For example, for a price of US$ 1.45, total_amount = 145.
@@ -7199,10 +7203,6 @@ class RefundedPayment(Model):
 
     telegram_payment_charge_id: str = field()
     """Telegram payment identifier."""
-
-    currency: Literal["XTR"] = field(default="XTR")
-    """Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram
-    Stars. Currently, always `XTR`."""
 
     provider_payment_charge_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Provider payment identifier."""
