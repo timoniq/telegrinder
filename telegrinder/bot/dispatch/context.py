@@ -69,15 +69,13 @@ class Context(Externals):
         self.__setitem__(__name, __value)
 
     def __getattribute__(self, __name: str) -> AnyValue:
-        context_cls = type(self)
-
-        if __name in context_cls.SELF_CONTEXT_KEYS:
+        if __name in type(self).SELF_CONTEXT_KEYS:
             return self
 
-        if __name in type(self).__annotations__ or __name in _CONTEXT_CLASS_ATTRS:
-            return self[__name] if __name in self else super().__getattribute__(__name)
+        if __name in _CONTEXT_CLASS_ATTRS and not Externals.__contains__(self, __name):
+            return super().__getattribute__(__name)
 
-        return self.__getitem__(__name)
+        return self[__name]
 
     def __delattr__(self, __name: str) -> None:
         self.__delitem__(__name)
@@ -91,14 +89,15 @@ class Context(Externals):
         if type(other) is not Context and not isinstance(other, dict):
             return NotImplemented
 
-        dct = other.as_dict() if isinstance(other, Context) else other
-        return type(self)(self.as_dict() | dct)
+        new_context = type(self)(self)
+        new_context |= other
+        return new_context
 
     def __ior__(self, other: object, /) -> typing.Self:
         if type(other) is not Context and not isinstance(other, dict):
             raise TypeError(f"Cannot update `Context` with `{type(other).__name__}`.")
 
-        for key, value in (other.as_dict() if isinstance(other, Context) else other).items():
+        for key, value in other.items():
             self[key] = value
 
         return self
@@ -131,7 +130,7 @@ class Context(Externals):
         return self
 
     def copy(self) -> typing.Self:
-        return type(self)(self.as_dict())
+        return type(self)(self)
 
     def set(self, key: Key, value: AnyValue) -> None:
         self[key] = value

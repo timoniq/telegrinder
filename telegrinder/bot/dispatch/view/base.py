@@ -127,6 +127,9 @@ class View(ABCView):
         return middleware if isinstance(middleware, type) else None
 
     def load(self, external: typing.Self, /) -> None:
+        if not external:
+            return
+
         self.handlers.extend(external.handlers)
         self.middlewares.extend(external.middlewares)
 
