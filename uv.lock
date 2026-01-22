@@ -190,6 +190,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "kungfu-fp"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d7/4d/eabe910c80edb9972393f9b623b30c0cc433f454905b4ac60f5223f7b628/kungfu_fp-1.0.0.tar.gz", hash = "sha256:b3e4bbaf096f3ee532e800b6c548c80ea53c321f1205725880fc41750a9c0c49", size = 36132, upload-time = "2026-01-22T14:18:06.379Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3d/60/48d1f811515a4ce3f5430b48a4382f13a6f3f7ff648dd090235b69c77f65/kungfu_fp-1.0.0-py3-none-any.whl", hash = "sha256:fd61cc0a7bbac979bf914322e384148cb43db9c3645635631c0aad5adc6b925d", size = 18455, upload-time = "2026-01-22T14:18:04.571Z" },
+]
+
+[[package]]
 name = "libcst"
 version = "1.8.6"
 source = { registry = "https://pypi.org/simple" }
@@ -280,11 +292,15 @@ wheels = [
 
 [[package]]
 name = "nodnod"
-version = "0.1.0"
-source = { git = "https://github.com/timoniq/nodnod?rev=dev#12df5e329e0626fb5bebd06f9edd428dee6a0544" }
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "kungfu" },
+    { name = "kungfu-fp" },
     { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ba/a4/48f1bfdcf90501280c3fe8844cf888f2e99f2dead49c051e0cd71287824c/nodnod-1.0.0.tar.gz", hash = "sha256:0e6db51faf73f358c59654dab416efe816ed40bf7b6307d1cafbd01e787e255b", size = 51997, upload-time = "2026-01-22T14:24:00.567Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/ef/55f85f8b011a127e8a3e6255a003327a2e55ca1d1bb44116bf8c91c3b062/nodnod-1.0.0-py3-none-any.whl", hash = "sha256:bda31bb79391911a2d413cf9c640957b371dfe6892e1235adfa87d2a7ba97df7", size = 34136, upload-time = "2026-01-22T14:23:59.195Z" },
 ]
 
 [[package]]
@@ -512,7 +528,7 @@ dependencies = [
     { name = "betterconf" },
     { name = "certifi" },
     { name = "choicelib" },
-    { name = "kungfu" },
+    { name = "kungfu-fp" },
     { name = "msgspec" },
     { name = "nodnod" },
     { name = "rnet" },
@@ -555,11 +571,11 @@ requires-dist = [
     { name = "betterconf", git = "https://github.com/prostomarkeloff/betterconf?rev=master" },
     { name = "brotli", marker = "extra == 'brotli'" },
     { name = "certifi", specifier = ">=2026.1.4" },
-    { name = "choicelib", specifier = ">=0.1.5,<0.2.0" },
-    { name = "kungfu", git = "https://github.com/timoniq/kungfu?rev=main" },
+    { name = "choicelib", specifier = ">=0.1.5" },
+    { name = "kungfu-fp", specifier = ">=1.0.0" },
     { name = "loguru", marker = "extra == 'loguru'" },
-    { name = "msgspec", specifier = ">=0.20.0,<0.21.0" },
-    { name = "nodnod", git = "https://github.com/timoniq/nodnod?rev=dev" },
+    { name = "msgspec", specifier = ">=0.20.0" },
+    { name = "nodnod", specifier = ">=1.0.0" },
     { name = "rnet", specifier = ">=3.0.0rc20" },
     { name = "structlog", marker = "extra == 'structlog'" },
     { name = "uvloop", marker = "(sys_platform == 'darwin' and extra == 'uvloop') or (sys_platform == 'linux' and extra == 'uvloop')" },

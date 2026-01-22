@@ -190,21 +190,27 @@ class Dispatch[
     ) -> None:
         unhandled_exceptions: list[BaseException] = []
 
-        async with self.loop_wrapper.create_task_group() as task_group:
-            for exception in exceptions:
-                if isinstance(exception, BaseExceptionGroup):
-                    task_group.create_task(self._handle_exceptions(api, update, context, exception.exceptions))
-                elif isinstance(exception, Exception):
-                    task_group.create_task(
-                        self.main_router.route_view(
-                            self.error_handler,
-                            api,
-                            update,
-                            context.copy().add_exception_update(exception),
-                        ),
-                    )
-                else:
-                    unhandled_exceptions.append(exception)
+        try:
+            async with self.loop_wrapper.create_task_group() as task_group:
+                for exception in exceptions:
+                    if isinstance(exception, BaseExceptionGroup):
+                        task_group.create_task(self._handle_exceptions(api, update, context, exception.exceptions))
+                    elif isinstance(exception, Exception):
+                        task_group.create_task(
+                            self.main_router.route_view(
+                                self.error_handler,
+                                api,
+                                update,
+                                context.copy().add_exception_update(exception),
+                            ),
+                        )
+                    else:
+                        unhandled_exceptions.append(exception)
+        except BaseExceptionGroup as group:
+            raise BaseExceptionGroup(
+                "Unhandled exception groups:",
+                [group, BaseExceptionGroup("Unhandled exceptions:", unhandled_exceptions)],
+            )
 
         if unhandled_exceptions:
             raise BaseExceptionGroup("Unhandled exceptions:", unhandled_exceptions)
