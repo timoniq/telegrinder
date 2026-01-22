@@ -1,6 +1,6 @@
 from functools import cached_property
 
-from kungfu.library.monad.option import Nothing, Some
+from kungfu.library.monad.option import NOTHING, Some
 
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.business_connection import BusinessConnectionCute
@@ -203,7 +203,7 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
     def get_event[T: BaseCute](self, event_model: type[T], /) -> Option[T]:
         if isinstance(self.incoming_update, event_model):
             return Some(self.incoming_update)
-        return Nothing()
+        return NOTHING
 
 
 __all__ = ("UpdateCute",)

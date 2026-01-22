@@ -13,7 +13,7 @@ type PatternLike = str | vbml.Pattern
 TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
 
 
-def check_string(patterns: list[vbml.Pattern], s: str, ctx: Context) -> bool:
+def check_string(patterns: typing.Iterable[vbml.Pattern], s: str, ctx: Context) -> bool:
     for pattern in patterns:
         match TELEGRINDER_CONTEXT.vbml_patcher.check(pattern, s):
             case {**response}:

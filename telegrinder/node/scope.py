@@ -17,7 +17,6 @@ from nodnod.scope import Scope
 from telegrinder.modules import logger
 from telegrinder.node.utils import as_node
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
-from telegrinder.tools.global_context.global_context import GlobalContext, ctx_var
 
 if typing.TYPE_CHECKING:
     from telegrinder.node.scope import NodeScope
@@ -38,20 +37,12 @@ async def close_node_global_scope() -> None:
         logger.error("While closing node global scope, an error occurred: {!r}", error)
 
 
-class NodeScopeInfo(GlobalContext, thread_safe=True):
-    __ctx_name__ = "node_scope_info_context"
-
-    scope_info: typing.Final[dict[type[Node], NodeScope]] = ctx_var(
-        default_factory=dict,
-        const=True,
-        init=False,
-    )
-
+class NodeScopeInfo(dict[type[Node], "NodeScope"]):
     def set_node_scope[T: Node[typing.Any, typing.Any]](self, node: type[T], scope: NodeScope, /) -> None:
-        self.scope_info[node] = scope
+        self[node] = scope
 
     def get_node_scope[T: Node[typing.Any, typing.Any]](self, node: type[T], /) -> NodeScope | None:
-        return self.scope_info.get(node, None)
+        return self.get(node, None)
 
 
 NODE_SCOPE_INFO: typing.Final = NodeScopeInfo()

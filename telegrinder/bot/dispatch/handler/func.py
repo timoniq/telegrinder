@@ -20,7 +20,7 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.bot.rules.abc import ABCRule
 
-type Function[**P = ..., R = typing.Any] = typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, R]]
+type Function[**P = ..., R = typing.Any] = typing.Callable[P, R]
 
 
 @dataclasses.dataclass(repr=False, slots=True)

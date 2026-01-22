@@ -4,6 +4,7 @@ from contextlib import contextmanager
 
 import kungfu.library
 import msgspec
+from kungfu.library.monad.option import NOTHING
 
 from telegrinder.msgspec_utils.abc import SupportsCast
 from telegrinder.msgspec_utils.custom_types.datetime import datetime, timedelta
@@ -30,8 +31,8 @@ def option_dec_hook(
     if obj is msgspec.UNSET:
         return obj
 
-    if obj is None or isinstance(obj, kungfu.library.Nothing):
-        return kungfu.library.Nothing()
+    if obj is None or obj is NOTHING:
+        return NOTHING
 
     (value_type,) = typing.get_args(tp) or (typing.Any,)
     orig_value_type = typing.get_origin(value_type) or value_type

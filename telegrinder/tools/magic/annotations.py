@@ -7,7 +7,7 @@ from functools import cached_property
 from reprlib import recursive_repr
 
 from kungfu.library.misc import from_optional
-from kungfu.library.monad.option import Nothing, Option, Some
+from kungfu.library.monad.option import NOTHING, Option, Some
 
 from telegrinder.tools.global_context.global_context import GlobalContext, ctx_var
 
@@ -150,7 +150,7 @@ def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, Ann
     parameters: TypeParameters = getattr(origin_obj or obj, "__parameters__")
 
     if not parameters:
-        return Nothing()
+        return NOTHING
 
     index = 0
     generic_alias_args = dict[TypeParameter, typing.Any]()

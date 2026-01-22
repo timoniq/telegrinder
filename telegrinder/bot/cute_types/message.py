@@ -114,13 +114,13 @@ def get_entity_value(
 ) -> option.Option[typing.Any]:
     ents = entities.unwrap_or(caption_entities.unwrap_or_none())
     if not ents:
-        return option.Nothing()
+        return option.NOTHING
 
     for entity in ents:
-        if (obj := getattr(entity, entity_value, option.Nothing())) is not option.Nothing():
+        if (obj := getattr(entity, entity_value, option.NOTHING)) is not option.NOTHING:
             return obj if isinstance(obj, option.Some) else option.Some(obj)
 
-    return option.Nothing()
+    return option.NOTHING
 
 
 class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
@@ -2385,7 +2385,7 @@ class MessageCute(
 
     @additional_property
     def media_group_messages(self) -> option.Option[list[MessageCute]]:
-        return option.Nothing()
+        return option.NOTHING
 
     @property
     def mentioned_user(self) -> option.Option[User]:
@@ -2409,13 +2409,13 @@ class MessageCute(
 
     def build_html_text(self, text: Option[str], entities: Option[list[MessageEntity]], /) -> Option[str]:
         if not text:
-            return option.Nothing()
+            return option.NOTHING
 
         match entities:
             case option.Some(ents) if ents:
                 return option.Some(build_html(text.unwrap(), ents))
             case _:
-                return option.Nothing()
+                return option.NOTHING
 
     @shortcut(
         "send_message",

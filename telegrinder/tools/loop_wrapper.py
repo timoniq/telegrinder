@@ -88,7 +88,6 @@ class LoopWrapper(Singleton, Final):
             self._loop = asyncio.get_event_loop()
         except RuntimeError:
             self._loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop=self._loop)
 
         self._run_lw_task = self._run_lw_later()
         self._lifespan = Lifespan()

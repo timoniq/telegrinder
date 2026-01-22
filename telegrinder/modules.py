@@ -17,7 +17,7 @@ from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler, Watc
 
 import betterconf
 from choicelib import choice_in_order
-from kungfu import Nothing, Option, Some
+from kungfu.library.monad.option import NOTHING, Option, Some
 
 if typing.TYPE_CHECKING:
     from _typeshed import OptExcInfo
@@ -176,7 +176,7 @@ def _find_env_file() -> Option[pathlib.Path]:
         if _ENV_FILE_NAME in files:
             return Some(pathlib.Path(root) / _ENV_FILE_NAME)
 
-    return Nothing()
+    return NOTHING
 
 
 @typing.overload

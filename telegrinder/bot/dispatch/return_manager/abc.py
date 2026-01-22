@@ -36,12 +36,12 @@ class Manager:
     agent_cls: type[Agent] | None = None
 
     async def __call__(self, response: typing.Any, context: Context) -> None:
-        context = context.copy()
-        context.response = response
+        ctx = context.copy()
+        ctx.handler_response = response
 
         async with compose(
             self.function,
-            context,
+            ctx,
             agent_cls=self.agent_cls,
         ) as result:
             match result:

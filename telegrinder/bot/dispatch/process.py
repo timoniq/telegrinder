@@ -36,7 +36,6 @@ async def process_inner(
 
     found_handlers: list[ABCHandler] = []
     responses: list[typing.Any] = []
-    ctx_copy = context.copy()
 
     for handler in view.handlers:
         match await handler.run(api, update, context):
@@ -52,8 +51,7 @@ async def process_inner(
             case Error(error):
                 await logger.adebug("Running handler `{!r}` failed with error: {}", handler, error)
 
-    ctx = ctx_copy
-    ctx.responses = responses
+    context.responses = responses
 
     for middleware in view.middlewares:
         await run_post_middleware(middleware, context)

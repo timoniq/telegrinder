@@ -5,9 +5,9 @@ from functools import cache
 from reprlib import recursive_repr
 
 import msgspec
-from kungfu.library.monad.option import NOTHING, Nothing
+from kungfu.library.monad.option import NOTHING
 
-from telegrinder.msgspec_utils import Option, decoder, encoder, struct_asdict
+from telegrinder.msgspec_utils import Option, decoder, encoder, is_none, struct_asdict
 
 type From[T] = T
 
@@ -16,10 +16,6 @@ MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "dict": True,
     "rename": {kw + "_": kw for kw in keyword.kwlist},
 }
-
-
-def is_none(obj: typing.Any, /) -> typing.TypeIs[Nothing | None]:
-    return isinstance(obj, Nothing | types.NoneType)
 
 
 def field(**kwargs: typing.Any) -> typing.Any:
@@ -31,7 +27,7 @@ def field(**kwargs: typing.Any) -> typing.Any:
 
 
 class Model(msgspec.Struct, **MODEL_CONFIG):
-    def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
+    def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
         from telegrinder.tools.member_descriptor_proxy import MemberDescriptorProxy
 
         result = super().__init_subclass__(*args, **kwargs)
@@ -48,11 +44,7 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
         if name not in class_.__struct_fields__:
             return val
 
-        if (
-            (field_info := class_.get_fields().get(name)) is not None
-            and isinstance(field_info.type, msgspec.inspect.CustomType)
-            and issubclass(field_info.type.cls, Option)  # type: ignore
-        ):
+        if name in class_.get_optional_fields():
             return NOTHING if val is UNSET else val
 
         if val is UNSET:
@@ -79,6 +71,15 @@ class Model(msgspec.Struct, **MODEL_CONFIG):
     def get_fields(cls) -> types.MappingProxyType[str, msgspec.inspect.Field]:
         return types.MappingProxyType(
             mapping={f.name: f for f in msgspec.inspect.type_info(cls).fields},  # type: ignore
+        )
+
+    @classmethod
+    @cache
+    def get_optional_fields(cls) -> frozenset[str]:
+        return frozenset(
+            f.name
+            for f in cls.get_fields().values()
+            if isinstance(f.type, msgspec.inspect.CustomType) and issubclass(f.type.cls, Option)  # type: ignore
         )
 
     @classmethod

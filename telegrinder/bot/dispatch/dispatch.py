@@ -1,9 +1,7 @@
 import typing
 from collections import deque
 
-from kungfu.library.monad.option import Some
 from nodnod.interface.inject import inject_internals
-from nodnod.scope import Scope
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.abc import ABCDispatch
@@ -24,7 +22,6 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.bot.dispatch.view.base import ErrorView, EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
-    from telegrinder.tools.loop_wrapper import LoopWrapper
 
 NANOSECONDS_PER_MILLISECOND: typing.Final = 1_000_000_000
 
@@ -129,7 +126,7 @@ class Dispatch[
     ]
 
     main_router: MainRouter
-    global_context: TelegrinderContext
+    middlewares: T
     _routers: deque[Router] | None
 
     @typing.overload
@@ -151,11 +148,11 @@ class Dispatch[
         middleware_box: MiddlewareBox | None = None,
     ) -> None:
         self.main_router = router or Router()  # type: ignore
+        self.middlewares = middleware_box or MiddlewareBox()  # type: ignore
         self.global_context = TelegrinderContext()
+        self.global_scope = self.global_context.node_global_scope
+        self.loop_wrapper = self.global_context.loop_wrapper
         self._routers = None
-
-        if not self.global_context.middleware_box or middleware_box is not None:
-            self.global_context.middleware_box = Some(middleware_box or MiddlewareBox())
 
     def __setitem__(self, injection_type: typing.Any, injection_value: typing.Any, /) -> None:
         self.global_scope.inject(injection_type, injection_value)
@@ -176,21 +173,6 @@ class Dispatch[
         return self.global_context.vbml_patcher
 
     @property
-    def loop_wrapper(self) -> LoopWrapper:
-        """Alias `loop_wrapper` to get `telegrinder.tools.loop_wrapper.LoopWrapper` from the global context."""
-        return self.global_context.loop_wrapper
-
-    @property
-    def global_scope(self) -> Scope:
-        """Alias `global_scope` to get `nodnod.scope.Scope` from the global context."""
-        return self.global_context.node_global_scope
-
-    @property
-    def middlewares(self) -> T:
-        """Alias `middlewares` to get middleware box from the global context."""
-        return typing.cast("T", self.global_context.middleware_box.unwrap())
-
-    @property
     def register_middleware[Middleware: ABCMiddleware](self) -> typing.Callable[[type[Middleware]], type[Middleware]]:
         """Decorator to register a custom middleware in the middleware box."""
         return self.middlewares.__call__
@@ -205,7 +187,7 @@ class Dispatch[
         if not views:
             return False
 
-        async with self.global_context.loop_wrapper.create_task_group() as task_group:
+        async with self.loop_wrapper.create_task_group() as task_group:
             for view in views:
                 task_group.create_task(self.main_router.route_view(view, api, update, context))
 
@@ -224,7 +206,7 @@ class Dispatch[
             update.update_type,
         )
 
-        async with self.global_context.loop_wrapper.create_task_group() as task_group:
+        async with self.loop_wrapper.create_task_group() as task_group:
             for router, exception in context.exceptions_update.items():
                 await logger.adebug(
                     "Routing exception update (id={}, type={!r}) to router `{!r}`",
@@ -245,7 +227,7 @@ class Dispatch[
         if not self.routers:
             return False
 
-        async with self.global_context.loop_wrapper.create_task_group() as task_group:
+        async with self.loop_wrapper.create_task_group() as task_group:
             for router in self.routers:
                 await logger.adebug(
                     "Routing update (id={}, type={!r}) to router `{!r}`",
@@ -267,7 +249,7 @@ class Dispatch[
 
         failed = False
         middlewares = self.middlewares
-        start_time = self.global_context.loop_wrapper.loop.time()
+        start_time = self.loop_wrapper.loop.time()
 
         try:
             for middleware in middlewares:
@@ -302,7 +284,7 @@ class Dispatch[
             await self._process_update_exceptions(api, update, context)
         finally:
             if not failed:
-                elapsed_time = self.global_context.loop_wrapper.loop.time() - start_time
+                elapsed_time = self.loop_wrapper.loop.time() - start_time
                 elapsed_ms = elapsed_time * 1000
                 await logger.adebug(
                     "Update (id={}, type={!r}) processed in {} {} by bot (id={})",

@@ -1,7 +1,7 @@
 import typing
 from dataclasses import dataclass, field
 
-from kungfu.library.monad.option import Nothing, Option, Some
+from kungfu.library.monad.option import NOTHING, Nothing, Option, Some
 from nodnod.interface.data import Node
 
 from telegrinder.node.nodes.text import Caption, Text
@@ -14,7 +14,7 @@ def single_split(s: str, separator: str) -> tuple[str, str]:
 
 def cut_mention(text: str) -> tuple[str, Option[str]]:
     left, right = single_split(text, "@")
-    return left, Some(right) if right else Nothing()
+    return left, Some(right) if right else NOTHING
 
 
 @dataclass

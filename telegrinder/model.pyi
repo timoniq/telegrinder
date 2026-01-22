@@ -1,4 +1,3 @@
-import types
 import typing
 
 import msgspec
@@ -34,7 +33,9 @@ class From[T]:
 @typing.dataclass_transform(field_specifiers=(field,))
 class Model(msgspec.Struct, dict=True):
     @classmethod
-    def get_fields(cls) -> types.MappingProxyType[str, msgspec.inspect.Field]: ...
+    def get_fields(cls) -> typing.Mapping[str, msgspec.inspect.Field]: ...
+    @classmethod
+    def get_optional_fields(cls) -> typing.Iterable[str]: ...
     @classmethod
     def from_data[**P, T](cls: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T: ...
     @classmethod

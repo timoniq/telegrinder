@@ -5,10 +5,11 @@ from collections import deque
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.middleware.filter import FilterMiddleware
 from telegrinder.bot.dispatch.middleware.media_group import MediaGroupMiddleware
+from telegrinder.tools.singleton import Singleton
 
 
 @dataclasses.dataclass(frozen=True)
-class MiddlewareBox:
+class MiddlewareBox(Singleton):
     filter: FilterMiddleware = dataclasses.field(default_factory=FilterMiddleware)
     media_group: MediaGroupMiddleware = dataclasses.field(default_factory=MediaGroupMiddleware)
     _custom_middlewares: deque[ABCMiddleware] = dataclasses.field(

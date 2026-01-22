@@ -15,9 +15,6 @@ from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.objects import Update
 
-if typing.TYPE_CHECKING:
-    from telegrinder.bot.cute_types.update import UpdateCute
-
 BOUND_API_KEY: typing.Final = "bound_api"
 RAW_UPDATE_BIND_KEY: typing.Final = "raw_update_bind"
 
@@ -133,22 +130,16 @@ class BaseCute[T: Model = typing.Any](Model):
         super().__init_subclass__(*args, **kwargs)
 
     @classmethod
-    def __compose__(cls, update: Update, api: API, context: Context) -> typing.Any:
-        match context.update_cute:
-            case Some(update_cute):
-                update_cute = update_cute
-            case _:
-                update_cute = typing.cast("UpdateCute", cls.from_update(update, api))
-                context.update_cute = Some(update_cute)
+    def __compose__(cls, update: Update, context: Context) -> typing.Any:
+        update_cute = context.update_cute
 
-        if isinstance(update_cute, cls):
+        if type(update_cute) is cls:
             return update_cute
 
-        return (
-            update_cute.get_event(cls)  # type: ignore
-            .expect(NodeError(f"Incoming update is not `{fullname(cls)}`."))
-            .bind_raw_update(update)
-        )
+        if type(update_cute.incoming_update) is cls:
+            return update_cute.incoming_update
+
+        raise NodeError(f"Incoming update is not `{fullname(cls)}`.")
 
     @classmethod
     def from_update(cls, update: Update, bound_api: API) -> typing.Self:

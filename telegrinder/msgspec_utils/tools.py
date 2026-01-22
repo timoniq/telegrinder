@@ -1,9 +1,8 @@
-import types
 import typing
 
 import kungfu.library
 import msgspec
-from kungfu.library.monad.option import NOTHING
+from kungfu.library.monad.option import NOTHING, Nothing
 
 if typing.TYPE_CHECKING:
     from telegrinder.tools.fullname import fullname
@@ -36,6 +35,10 @@ def get_origin[T](t: T, /) -> type[T]:
     return typing.cast("type[T]", t_)
 
 
+def is_none(obj: typing.Any, /) -> typing.TypeIs[Nothing | None]:
+    return obj is None or obj is NOTHING
+
+
 def is_common_type[T](t: T, /) -> typing.TypeGuard[type[T]]:
     if not isinstance(t, type):
         return False
@@ -52,7 +55,7 @@ def struct_asdict(
     return {
         k: v if not unset_as_nothing else NOTHING if v is msgspec.UNSET else v
         for k, v in msgspec.structs.asdict(struct).items()
-        if not (exclude_unset and isinstance(v, msgspec.UnsetType | types.NoneType | kungfu.library.Nothing))
+        if not (exclude_unset and (is_none(v) or v is msgspec.UNSET))
     }
 
 
@@ -71,6 +74,7 @@ __all__ = (
     "get_origin",
     "get_type_hints",
     "is_common_type",
+    "is_none",
     "struct_asdict",
     "type_check",
 )
