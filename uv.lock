@@ -15,11 +15,6 @@ wheels = [
 ]
 
 [[package]]
-name = "betterconf"
-version = "4.6.0"
-source = { git = "https://github.com/prostomarkeloff/betterconf?rev=master#068faac643c54a03641eafa1c12738e3a88f72c9" }
-
-[[package]]
 name = "brotli"
 version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -146,6 +141,15 @@ wheels = [
 ]
 
 [[package]]
+name = "env-better"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8f/75/3f4124f0011b10e45a8d5071f9a74625f0ff21cbc50615c8c81dd16c060d/env_better-1.0.0.tar.gz", hash = "sha256:e48f57aa66cabaeff4474c3174f8d72852985e6b698dbd13493d994d56b27de2", size = 9231, upload-time = "2026-01-22T15:25:31.023Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5d/bc/a4512879a55891d2af1b01b4aa81e233e7642ac4b86ab74ca347182cc911/env_better-1.0.0-py3-none-any.whl", hash = "sha256:05e9a25f1c1a9645607e68e15047e8e183999ea71533cd1aa0bdb7614cfd2d1c", size = 10834, upload-time = "2026-01-22T15:25:29.577Z" },
+]
+
+[[package]]
 name = "filelock"
 version = "3.20.3"
 source = { registry = "https://pypi.org/simple" }
@@ -179,14 +183,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730", size = 20503, upload-time = "2025-10-18T21:55:43.219Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
-]
-
-[[package]]
-name = "kungfu"
-version = "0.3.0"
-source = { git = "https://github.com/timoniq/kungfu?rev=main#5ee2bc6e3607d4f6e1f9358244d96f266965aeb8" }
-dependencies = [
-    { name = "typing-extensions" },
 ]
 
 [[package]]
@@ -525,9 +521,9 @@ wheels = [
 name = "telegrinder"
 source = { editable = "." }
 dependencies = [
-    { name = "betterconf" },
     { name = "certifi" },
     { name = "choicelib" },
+    { name = "env-better" },
     { name = "kungfu-fp" },
     { name = "msgspec" },
     { name = "nodnod" },
@@ -568,10 +564,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "betterconf", git = "https://github.com/prostomarkeloff/betterconf?rev=master" },
     { name = "brotli", marker = "extra == 'brotli'" },
     { name = "certifi", specifier = ">=2026.1.4" },
     { name = "choicelib", specifier = ">=0.1.5" },
+    { name = "env-better", specifier = ">=1.0.0" },
     { name = "kungfu-fp", specifier = ">=1.0.0" },
     { name = "loguru", marker = "extra == 'loguru'" },
     { name = "msgspec", specifier = ">=0.20.0" },
@@ -579,7 +575,7 @@ requires-dist = [
     { name = "rnet", specifier = ">=3.0.0rc20" },
     { name = "structlog", marker = "extra == 'structlog'" },
     { name = "uvloop", marker = "(sys_platform == 'darwin' and extra == 'uvloop') or (sys_platform == 'linux' and extra == 'uvloop')" },
-    { name = "vbml2", git = "https://github.com/tesseradecade/vbml?rev=master" },
+    { name = "vbml2", specifier = ">=2.0.0" },
     { name = "winloop", marker = "(sys_platform == 'cli' and extra == 'winloop') or (sys_platform == 'cygwin' and extra == 'winloop') or (sys_platform == 'win32' and extra == 'winloop')" },
 ]
 provides-extras = ["brotli", "loguru", "structlog", "uvloop", "winloop"]
@@ -648,9 +644,13 @@ wheels = [
 [[package]]
 name = "vbml2"
 version = "2.0.0"
-source = { git = "https://github.com/tesseradecade/vbml?rev=master#d763fedf6dcbcd611664a8ff3430ba4bb787a96c" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "kungfu" },
+    { name = "kungfu-fp" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ae/2f/0fc78450380fc55171dce968f22100c4063a825065ac5f8c18de82b97acc/vbml2-2.0.0.tar.gz", hash = "sha256:3ca757e7e611af4d134171a1b641a72c38468147ca1155e395ac5bd25ee2fbd8", size = 2279989, upload-time = "2026-01-22T15:05:48.195Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/75/e3/bd164873b4232c14f72dbb43a6ed5c59b457b3aad7d02cb93e16f818e6a9/vbml2-2.0.0-py3-none-any.whl", hash = "sha256:ff06ae5873e758e7cf20fa5dabc9d5a1468b8fb5924b888044ae27a9b90d9ef4", size = 17942, upload-time = "2026-01-22T15:05:45.329Z" },
 ]
 
 [[package]]

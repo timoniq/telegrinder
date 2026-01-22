@@ -41,10 +41,10 @@ dependencies = [
     "msgspec (>=0.20.0)",
     "certifi (>=2026.1.4)",
     "choicelib (>=0.1.5)",
+    "env-better (>=1.0.0)",
     "kungfu-fp (>=1.0.0)",
     "nodnod (>=1.0.0)",
-    "betterconf",
-    "vbml2",
+    "vbml2 (>=2.0.0)",
 ]
 
 [project.optional-dependencies]
@@ -75,10 +75,6 @@ dev = [
 
 [tool.uv]
 package = true
-
-[tool.uv.sources]
-betterconf = { git = "https://github.com/prostomarkeloff/betterconf", rev = "master" }
-vbml2 = { git = "https://github.com/tesseradecade/vbml", rev = "master" }
 
 [tool.hatch.version]
 path = "telegrinder/__meta__.py"
