@@ -13,6 +13,10 @@ from telegrinder.types.objects import InlineKeyboardMarkup
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
+    from telegrinder.bot.dispatch.view.base import View
+
+type MessageId = int
+type CallbackQueryView = View
 
 
 class ChoiceAction(enum.StrEnum):
@@ -29,7 +33,9 @@ class Choice[Key: typing.Hashable]:
     code: str
 
 
-class _Checkbox[T](ABCScenario[CallbackQueryCute]):
+class _Checkbox[T](ABCScenario):
+    choices: list[Choice[typing.Hashable]]
+
     INVALID_CODE = "Invalid code"
     CALLBACK_ANSWER = "Done"
     PARSE_MODE = ParseMode.HTML
@@ -46,7 +52,7 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
     ) -> None:
         self.chat_id = chat_id
         self.message = message
-        self.choices: list[Choice[typing.Hashable]] = []
+        self.choices = []
         self.ready = ready_text
         self.max_in_row = max_in_row
         self.random_code = secrets.token_hex(8)
@@ -58,7 +64,7 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
             "<{}@{!r}: (choices={!r}, max_in_row={}) with waiter_machine={!r}, ready_text={!r} "
             "for chat_id={} with message={!r}>"
         ).format(
-            self.__class__.__name__,
+            type(self).__name__,
             self.random_code,
             self.choices,
             self.max_in_row,
@@ -96,7 +102,7 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
         picked_text: str,
         *,
         is_picked: bool = False,
-    ) -> "Checkbox[Key]":
+    ) -> Checkbox[Key]:
         self.choices.append(
             Choice(key, is_picked, default_text, picked_text, secrets.token_hex(8)),
         )
@@ -127,9 +133,10 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
 
     async def wait(
         self,
-        hasher: Hasher[CallbackQueryCute, int],
-        api: "API",
-    ) -> tuple[dict[typing.Hashable, bool], int]:
+        hasher: Hasher[CallbackQueryCute, MessageId],
+        view: CallbackQueryView,
+        api: API,
+    ) -> tuple[dict[typing.Hashable, bool], MessageId]:
         assert len(self.choices) > 0
         message = (
             await api.send_message(
@@ -143,6 +150,7 @@ class _Checkbox[T](ABCScenario[CallbackQueryCute]):
         while True:
             q, _ = await self.waiter_machine.wait(
                 hasher,
+                view=view,
                 data=message.message_id,
             )
             should_continue = await self.handle(q)
@@ -163,9 +171,10 @@ if typing.TYPE_CHECKING:
 
         async def wait(
             self,
-            hasher: Hasher[CallbackQueryCute, int],
-            api: "API",
-        ) -> tuple[dict[Key, bool], int]: ...
+            hasher: Hasher[CallbackQueryCute, MessageId],
+            view: CallbackQueryView,
+            api: API,
+        ) -> tuple[dict[Key, bool], MessageId]: ...
 
 else:
     Checkbox = _Checkbox

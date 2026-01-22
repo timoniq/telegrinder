@@ -1,24 +1,38 @@
 import enum
+import math
+import sys
 import typing
+
+from telegrinder.modules import logger
+
+NOT_SUPPORTED: typing.Final = "NOT_SUPPORTED"
+ENUM_FRIENDS: typing.Final = (str, int, float)
+NOT_SUPPORTED_VALUES: typing.Final = {
+    str: NOT_SUPPORTED,
+    int: math.inf,
+    float: sys.maxsize,
+}
+
+
+def _is_friend(bases: tuple[type[typing.Any], ...], /) -> bool:
+    return any(friend in bases for friend in ENUM_FRIENDS)
 
 
 class BaseEnumMeta(enum.EnumMeta, type):
     if typing.TYPE_CHECKING:
 
-        class BaseEnumMeta(enum.Enum):  # noqa
+        class _BaseEnumMeta(enum.Enum):  # noqa
             NOT_SUPPORTED = enum.auto()
 
-        NOT_SUPPORTED: typing.Literal[BaseEnumMeta.NOT_SUPPORTED]
+        NOT_SUPPORTED: typing.Literal[_BaseEnumMeta.NOT_SUPPORTED]
 
     else:
 
         @staticmethod
         def _member_missing(cls, value):
-            from telegrinder.modules import logger
-
             logger.warning(
-                "Unsupported value {!r} for enum of type {!r}. Probably teleginder needs to be "
-                "updated to support the latest version of Telegram Bot API.",
+                "Unsupported value {!r} for enum of type {}. Probably telegrinder needs "
+                "to be updated to support the latest version of Telegram Bot API.",
                 value,
                 cls,
             )
@@ -34,10 +48,14 @@ class BaseEnumMeta(enum.EnumMeta, type):
             _simple=False,
             **kwds,
         ):
-            classdict["NOT_SUPPORTED"] = "NOT_SUPPORTED" if any(x in bases for x in (str, enum.StrEnum)) else -1
+            if _is_friend(bases):
+                classdict["NOT_SUPPORTED"] = next(
+                    (value for base, value in NOT_SUPPORTED_VALUES.items() if base in bases),
+                    NOT_SUPPORTED,
+                )
+
             classdict["_missing_"] = classmethod(BaseEnumMeta._member_missing)
-            new_type = super().__new__(metacls, cls, bases, classdict, boundary=boundary, _simple=_simple, **kwds)
-            return new_type
+            return super().__new__(metacls, cls, bases, classdict, boundary=boundary, _simple=_simple, **kwds)
 
 
 __all__ = ("BaseEnumMeta",)

@@ -1,76 +1,136 @@
 from __future__ import annotations
 
-import enum
 import typing
 from reprlib import recursive_repr
 
-from fntypes import Some
-from fntypes.option import Nothing, Option
+from kungfu.library.monad.option import NOTHING, Option, Some
+from nodnod.interface.node_from_function import Externals
 
 if typing.TYPE_CHECKING:
+    from nodnod.scope import Scope
+
     from telegrinder.api.api import API
     from telegrinder.bot.cute_types.update import UpdateCute
+    from telegrinder.bot.dispatch.router.base import Router
     from telegrinder.types.objects import Update
 
-type Key = str | enum.Enum
+type Key = str
 type AnyValue = typing.Any
 
 
-class Context(dict[str, AnyValue]):
+class Context(Externals):
     """Low level per event context storage."""
 
-    update_cute: Option[UpdateCute] = Nothing()
-    exception_update: Option[BaseException] = Nothing()
+    SELF_CONTEXT_KEYS: typing.Final = frozenset(("context", "ctx"))
 
-    def __init__(self, **kwargs: AnyValue) -> None:
-        dict.__init__(self, **kwargs)
+    api: API
+    update: Update
+    raw_update: Update
+    update_cute: UpdateCute
+    per_event_scope: Scope
+    exceptions_update: dict[Router, Exception] = {}
+    exception_update: Option[Exception] = NOTHING
+
+    @typing.overload
+    def __init__(self) -> None: ...
+
+    @typing.overload
+    def __init__(self, map: typing.Mapping[Key, AnyValue], /) -> None: ...
+
+    @typing.overload
+    def __init__(self, **kwargs: AnyValue) -> None: ...
+
+    def __init__(
+        self,
+        map: typing.Mapping[Key, AnyValue] | None = None,
+        **kwargs: AnyValue,
+    ) -> None:
+        Externals.__init__(self, map or kwargs)
 
     @recursive_repr()
     def __repr__(self) -> str:
-        return "{}({})".format(type(self).__name__, ", ".join(f"{k}={v!r}" for k, v in self.items()))
+        return "{}({})".format(
+            type(self).__name__,
+            ", ".join(f"{k}={repr(v) if v is not self else '<self>'}" for k, v in self.items()),
+        )
 
     def __setitem__(self, __key: Key, __value: AnyValue) -> None:
-        dict.__setitem__(self, self.key_to_str(__key), __value)
+        Externals.__setitem__(self, __key, __value)
 
     def __getitem__(self, __key: Key) -> AnyValue:
-        return dict.__getitem__(self, self.key_to_str(__key))
+        if __key in type(self).SELF_CONTEXT_KEYS:
+            return self
+        return Externals.__getitem__(self, __key)
 
     def __delitem__(self, __key: Key) -> None:
-        dict.__delitem__(self, self.key_to_str(__key))
+        Externals.__delitem__(self, __key)
 
     def __setattr__(self, __name: str, __value: AnyValue) -> None:
         self.__setitem__(__name, __value)
 
     def __getattribute__(self, __name: str) -> AnyValue:
-        cls = type(self)
+        if __name in type(self).SELF_CONTEXT_KEYS:
+            return self
 
-        if __name in cls.__annotations__:
-            return self[__name] if __name in self else super().__getattribute__(__name)
-
-        if __name in _CONTEXT_CLASS_ATTRS:
+        if __name in _CONTEXT_CLASS_ATTRS and not Externals.__contains__(self, __name):
             return super().__getattribute__(__name)
 
-        return self.__getitem__(__name)
+        return self[__name]
 
     def __delattr__(self, __name: str) -> None:
         self.__delitem__(__name)
 
-    def add_update_cute(self, update: Update, bound_api: API, /) -> typing.Self:
-        from telegrinder.bot.cute_types.update import UpdateCute
+    def __contains__(self, __key: object) -> bool:
+        if __key in type(self).SELF_CONTEXT_KEYS:
+            return True
+        return Externals.__contains__(self, __key)
 
-        self.update_cute = Some(UpdateCute.from_update(update, bound_api))
+    def __or__(self, other: object, /) -> typing.Self:
+        if type(other) is not Context and not isinstance(other, dict):
+            return NotImplemented
+
+        new_context = type(self)(self)
+        new_context |= other
+        return new_context
+
+    def __ior__(self, other: object, /) -> typing.Self:
+        if type(other) is not Context and not isinstance(other, dict):
+            raise TypeError(f"Cannot update `Context` with `{type(other).__name__}`.")
+
+        for key, value in other.items():
+            self[key] = value
+
         return self
 
-    def add_exception_update(self, exception_update: BaseException, /) -> typing.Self:
+    def as_dict(self) -> dict[Key, AnyValue]:
+        return {key: value for key, value in Externals.items(self)}
+
+    def add_roots(
+        self,
+        api: API,
+        update: Update,
+        per_event_scope: Scope,
+        /,
+    ) -> typing.Self:
+        from telegrinder.bot.cute_types.update import UpdateCute
+
+        for key, value in {
+            "api": api,
+            "raw_update": update,
+            "update": update,
+            "update_cute": UpdateCute.from_update(update, bound_api=api),
+            "per_event_scope": per_event_scope,
+        }.items():
+            self[key] = value
+
+        return self
+
+    def add_exception_update(self, exception_update: Exception, /) -> typing.Self:
         self.exception_update = Some(exception_update)
         return self
 
-    @staticmethod
-    def key_to_str(key: Key) -> str:
-        return key if isinstance(key, str) else str(key.value)
-
     def copy(self) -> typing.Self:
-        return self.__class__(**dict.copy(self))
+        return type(self)(self)
 
     def set(self, key: Key, value: AnyValue) -> None:
         self[key] = value

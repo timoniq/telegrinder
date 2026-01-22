@@ -2,28 +2,29 @@ import msgspec
 
 from telegrinder import (
     API,
+    Button,
     CallbackQuery,
     InlineButton,
     InlineKeyboard,
+    Keyboard,
     Message,
-    StaticButton,
-    StaticKeyboard,
     Telegrinder,
     Token,
 )
-from telegrinder.modules import logger
+from telegrinder.modules import setup_logger
 from telegrinder.rules import PayloadModelRule, Text
 
-logger.set_level("DEBUG")
+setup_logger()
+
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 
 
-class FruitsKeyboard(StaticKeyboard, max_in_row=2, one_time_keyboard=True):
-    APPLE = StaticButton("🍏 Apple")
-    BANANA = StaticButton("Banana 🍌")
-    GRAPES = StaticButton("🍇 Grapes")
-    KIWI = StaticButton("Kiwi 🥝")
+class FruitsKeyboard(Keyboard, max_in_row=2, one_time_keyboard=True):
+    APPLE = Button("🍏 Apple")
+    BANANA = Button("Banana 🍌")
+    GRAPES = Button("🍇 Grapes")
+    KIWI = Button("Kiwi 🥝")
 
 
 # Alternative to msgspec.Struct: use @dataclasses.dataclass decorator

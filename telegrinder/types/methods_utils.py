@@ -1,10 +1,10 @@
-from __future__ import annotations
-
 import dataclasses
 import typing
+from types import NoneType
 
 import msgspec
-from fntypes.result import Result
+from kungfu.library.monad.option import Nothing
+from kungfu.library.monad.result import Result
 
 from telegrinder.msgspec_utils.decoder import decoder
 from telegrinder.msgspec_utils.encoder import encoder
@@ -27,7 +27,11 @@ def get_params(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
             *params.pop("other", {}).items(),
             *params.items(),
         )
-        if key != "self" and (value := val.get() if isinstance(val, Proxy) else val) is not None
+        if key != "self"
+        and not isinstance(
+            value := val.get() if isinstance(val, Proxy) else val,
+            NoneType | msgspec.UnsetType | Nothing,
+        )
     }
 
 

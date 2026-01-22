@@ -17,15 +17,18 @@ def encode_form_data(
     }
 
 
-class MultipartFormProto(typing.Protocol):
+@typing.runtime_checkable
+class MultipartBuilderProto(typing.Protocol):
     def add_field(
         self,
         name: str,
         value: typing.Any,
         /,
-        *,
         filename: str | None = None,
+        **kwargs: typing.Any,
     ) -> None: ...
 
+    def build(self) -> typing.Any: ...
 
-__all__ = ("MultipartFormProto", "encode_form_data")
+
+__all__ = ("MultipartBuilderProto", "encode_form_data")

@@ -11,67 +11,54 @@ from telegrinder.bot.dispatch.waiter_machine.short_state import ShortStateContex
 from telegrinder.modules import logger
 from telegrinder.types.objects import Update
 
-from .hasher import Hasher
-
 if typing.TYPE_CHECKING:
-    from .machine import WaiterMachine
-    from .short_state import ShortState
-
-type State = ShortState[typing.Any]
+    from telegrinder.bot.dispatch.waiter_machine.hasher import Hasher
+    from telegrinder.bot.dispatch.waiter_machine.machine import WaiterMachine
+    from telegrinder.bot.dispatch.waiter_machine.short_state import ShortState
 
 
 class WaiterMiddleware(ABCMiddleware):
     def __init__(
         self,
-        machine: "WaiterMachine",
+        machine: WaiterMachine,
         hasher: Hasher[typing.Any, typing.Any],
     ) -> None:
         self.machine = machine
         self.hasher = hasher
 
-    async def pre(self, update: UpdateCute, raw_update: Update, api: API, ctx: Context) -> bool:
+    async def pre(self, update_cute: UpdateCute, raw_update: Update, api: API, ctx: Context) -> bool:
         if self.hasher not in self.machine.storage:
             return True
 
-        event = update.incoming_update
+        event = update_cute.incoming_update
         key = self.hasher.get_hash_from_data_from_event(event)
         if not key:
-            logger.info(f"Unable to get hash from event with hasher {self.hasher!r}")
+            await logger.ainfo("Unable to get hash from event with hasher {!r}", self.hasher)
             return True
 
-        short_state: "ShortState | None" = self.machine.storage[self.hasher].get(key.unwrap())
+        short_state: ShortState | None = self.machine.storage[self.hasher].get(key.unwrap())
         if not short_state:
+            return True
+
+        # Just ignore update if state expired, so it will be dropped automatically by WaiterMachine
+        if short_state.expiration_date is not None and datetime.datetime.now() >= short_state.expiration_date:
             return True
 
         preset_context = Context(short_state=short_state)
         if short_state.context is not None:
-            preset_context.update(short_state.context.context)
+            preset_context |= short_state.context.context
 
-        # Run filter rule
-        if short_state.filter and not await check_rule(
-            api,
-            short_state.filter,
-            raw_update,
-            preset_context,
-        ):
-            logger.debug("Filter rule {!r} failed!", short_state.filter)
+        if short_state.filter is not None and not await check_rule(short_state.filter, preset_context):
+            await logger.adebug("Filter rule {!r} failed!", short_state.filter)
             return True
 
-        if short_state.expiration_date is not None and datetime.datetime.now() >= short_state.expiration_date:
-            await self.machine.drop(
-                self.hasher,
-                self.hasher.get_data_from_event(event).unwrap(),
-                **preset_context.copy(),
-            )
-            return True
-
-        result = await FuncHandler(
-            self.pass_runtime,
-            [short_state.release] if short_state.release else [],
+        handler = FuncHandler(
+            function=self.pass_runtime,
+            rules=(short_state.release,) if short_state.release is not None else None,
             preset_context=preset_context,
-        ).run(api, raw_update, ctx)
+        )
 
-        if not result and (on_miss := short_state.actions.get("on_miss")):
+        if not await handler.run(api, raw_update, ctx) and (on_miss := short_state.actions.get("on_miss")) is not None:
             await on_miss.run(api, raw_update, ctx)
 
         return False
@@ -80,10 +67,10 @@ class WaiterMiddleware(ABCMiddleware):
         self,
         event: UpdateCute,
         ctx: Context,
-        short_state: State,
+        short_state: ShortState,
     ) -> None:
         ctx.initiator = self.hasher
-        short_state.context = ShortStateContext(event.incoming_update, ctx)  # type: ignore
+        short_state.context = ShortStateContext(event.incoming_update, ctx)
         short_state.event.set()
 
 

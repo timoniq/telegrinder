@@ -1,22 +1,48 @@
-from __future__ import annotations
-
 import dataclasses
 import enum
 import inspect
 import types
 import typing
-from functools import cached_property, wraps
+from functools import cached_property, lru_cache, partial
 
-from telegrinder.tools.magic.annotations import Annotations
+from telegrinder.tools.magic.annotations import Annotations, MappingAnnotations
 
-type Function[**P, R] = typing.Callable[P, R]
-type AnyFunction = Function[..., typing.Any]
+type AnyFunction = Func[..., typing.Any]
+type Func[**P, R] = typing.Callable[P, R]
+type Function[**P, R] = typing.Callable[
+    P,
+    typing.Union[
+        typing.Coroutine[typing.Any, typing.Any, R],
+        typing.Awaitable[R],
+        typing.AsyncGenerator[R, typing.Any],
+        typing.Generator[typing.Any, typing.Any, R],
+        typing.AsyncContextManager[R, typing.Any],
+        typing.ContextManager[R, typing.Any],
+        R,
+    ],
+]
 
 
 def _to_str(obj: typing.Any, /) -> str:
     if isinstance(obj, enum.Enum):
         return str(obj.value)
     return str(obj) if not isinstance(obj, str) else obj
+
+
+@lru_cache(maxsize=1024)
+def _unwrap_func(obj: typing.Any, /) -> typing.Any:
+    while True:
+        if isinstance(obj, partial):
+            obj = obj.func
+            continue
+
+        if hasattr(obj, "__wrapped__"):
+            obj = obj.__wrapped__
+            continue
+
+        break
+
+    return obj
 
 
 def _resolve_arg_names(
@@ -41,7 +67,7 @@ class FunctionParameters(typing.TypedDict):
 
 @dataclasses.dataclass(frozen=True, repr=False)
 class Bundle[R]:
-    function: Function[..., R]
+    function: Func[..., R]
     start_idx: int
     context: types.MappingProxyType[str, typing.Any]
 
@@ -61,7 +87,7 @@ class Bundle[R]:
     @classmethod
     def from_context(
         cls,
-        function: Function[..., R],
+        function: Func[..., R],
         context: typing.Mapping[str, typing.Any],
         /,
         *,
@@ -98,25 +124,6 @@ class Bundle[R]:
         return self.__and__(other)
 
 
-def function_context[**P, R](key: str, /) -> Function[[Function[P, R]], Function[P, R]]:
-    @lambda wrapper: typing.cast("Function[[Function[P, R]], Function[P, R]]", wrapper)
-    def wrapper(func: Function[typing.Concatenate[AnyFunction, P], R], /) -> AnyFunction:
-        @wraps(func)
-        def inner(passed_function: AnyFunction, /, *args: P.args, **kwargs: P.kwargs) -> R:
-            sentinel = object()
-            context: dict[str, typing.Any] = passed_function.__dict__.setdefault("__function_context__", {})
-
-            if (value := context.get(key, sentinel)) is not sentinel:
-                return value
-
-            context[key] = result = func(passed_function, *args, **kwargs)
-            return result
-
-        return inner
-
-    return wrapper
-
-
 def resolve_arg_names(
     func: AnyFunction,
     /,
@@ -124,6 +131,7 @@ def resolve_arg_names(
     start_idx: int = 1,
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
+    func = _unwrap_func(func)
     return _resolve_arg_names(
         func,
         start_idx=start_idx,
@@ -139,6 +147,7 @@ def resolve_kwonly_arg_names(
     start_idx: int = 1,
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
+    func = _unwrap_func(func)
     return _resolve_arg_names(
         func,
         start_idx=func.__code__.co_argcount + start_idx,
@@ -154,6 +163,7 @@ def resolve_posonly_arg_names(
     start_idx: int = 1,
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
+    func = _unwrap_func(func)
     return _resolve_arg_names(
         func,
         start_idx=start_idx,
@@ -162,7 +172,7 @@ def resolve_posonly_arg_names(
     )
 
 
-@function_context("default_arguments")
+@lru_cache(maxsize=1024)
 def get_default_args(func: AnyFunction, /) -> dict[str, typing.Any]:
     parameters = get_func_parameters(func)
     return {
@@ -173,7 +183,7 @@ def get_default_args(func: AnyFunction, /) -> dict[str, typing.Any]:
     }
 
 
-@function_context("signature_parameters")
+@lru_cache(maxsize=1024)
 def get_func_parameters(func: AnyFunction, /) -> FunctionParameters:
     func_params = FunctionParameters(args=[], kwargs=[])
 
@@ -194,12 +204,11 @@ def get_func_parameters(func: AnyFunction, /) -> FunctionParameters:
     return func_params
 
 
-@function_context("resolved_annotations")
-def get_func_annotations(func: AnyFunction, /) -> typing.Mapping[str, typing.Any]:
+@lru_cache(maxsize=1024)
+def get_func_annotations(func: AnyFunction, /) -> MappingAnnotations:
     return Annotations(obj=func).get(
         ignore_failed_evals=True,
         exclude_forward_refs=True,
-        allow_return_type=False,
         cache=False,
     )
 
@@ -236,7 +245,6 @@ def bundle[R](
 __all__ = (
     "Bundle",
     "bundle",
-    "function_context",
     "get_default_args",
     "get_func_annotations",
     "get_func_parameters",

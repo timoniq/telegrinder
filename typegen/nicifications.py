@@ -6,14 +6,12 @@ The difference between nicifications and cure types is: cute types can borrow vi
 Nicifications can only implement fields/methods/properties working only with model fields.
 """
 
-from __future__ import annotations
-
 from datetime import datetime
 from functools import cached_property
 
-from fntypes.option import Nothing, Option
+from kungfu.library.monad.option import Option
 
-from telegrinder.model import Model
+from telegrinder.model import Model, is_none
 from telegrinder.types import (
     Birthdate,
     Chat,
@@ -82,7 +80,7 @@ class _Message(Message):
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
         for content in ContentType:
-            if not isinstance(getattr(self, content.value, Nothing()), Nothing):
+            if not is_none(getattr(self, content.value, None)):
                 return content
 
         return ContentType.UNKNOWN

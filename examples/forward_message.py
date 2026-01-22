@@ -1,7 +1,5 @@
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.modules import logger
 
-logger.set_level("INFO")
 bot = Telegrinder(API(Token.from_env()))
 
 

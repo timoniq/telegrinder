@@ -1,12 +1,9 @@
-from ..models.config import (
+from .config import (
     Config,
-    MethodsParamsLiteralTypesParam,
-    ObjectsFieldsLiteralTypesField,
-    ObjectsIdByDefaultField,
     TypedDefaultParameter,
     dec_hook,
 )
-from ..models.schema import (
+from .schema import (
     MethodParameter,
     MethodSchema,
     Model,
@@ -14,17 +11,34 @@ from ..models.schema import (
     ObjectSchema,
     TelegramBotAPISchema,
 )
+from .types.methods import *
+from .types.objects import *
 
 __all__ = (
     "Config",
+    "GeneratorMethods",
+    "GeneratorObjects",
     "MethodParameter",
     "MethodSchema",
+    "MethodsParams",
+    "MethodsParamsAnnotations",
+    "MethodsParamsAnnotationsAnnotations",
+    "MethodsParamsAnnotationsAnnotationsParam",
+    "MethodsParamsLiteralTypes",
+    "MethodsParamsLiteralTypesParam",
     "MethodsParamsLiteralTypesParam",
     "Model",
     "ObjectField",
     "ObjectSchema",
+    "ObjectsFields",
+    "ObjectsFieldsAnnotations",
+    "ObjectsFieldsAnnotationsAnnotations",
+    "ObjectsFieldsAnnotationsAnnotationsField",
+    "ObjectsFieldsDefaults",
+    "ObjectsFieldsIdByDefault",
+    "ObjectsFieldsIdByDefaultField",
+    "ObjectsFieldsLiteralTypes",
     "ObjectsFieldsLiteralTypesField",
-    "ObjectsIdByDefaultField",
     "TelegramBotAPISchema",
     "TypedDefaultParameter",
     "dec_hook",

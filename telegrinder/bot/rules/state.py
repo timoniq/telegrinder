@@ -4,7 +4,7 @@ import typing
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node.source import Source
+from telegrinder.node.nodes.source import Source
 
 if typing.TYPE_CHECKING:
     from telegrinder.tools.state_storage.abc import ABCStateStorage

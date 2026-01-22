@@ -1,9 +1,7 @@
-import typing
-
-from telegrinder.bot.cute_types import ChatJoinRequestCute
+from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute
 from telegrinder.bot.rules.abc import ABCRule
 
-ChatJoinRequest: typing.TypeAlias = ChatJoinRequestCute
+type ChatJoinRequest = ChatJoinRequestCute
 
 
 class HasInviteLink(ABCRule):

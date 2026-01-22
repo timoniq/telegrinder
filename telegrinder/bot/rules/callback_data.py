@@ -63,7 +63,7 @@ class CallbackDataMap(CallbackQueryDataRule):
     @staticmethod
     async def run_validator(value: typing.Any, validator: Validator) -> bool:
         """Runs sync/async validator."""
-        with suppress(BaseException):
+        with suppress(Exception):
             return await maybe_awaitable(validator(value))
         return False
 
@@ -92,7 +92,7 @@ class CallbackDataMap(CallbackQueryDataRule):
             return False
 
         if await self.match(callback_data, self.mapping):
-            ctx.update({k: callback_data[k] for k in self.mapping})
+            ctx |= {k: callback_data[k] for k in self.mapping}
             return True
 
         return False

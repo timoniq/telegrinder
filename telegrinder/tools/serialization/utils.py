@@ -1,0 +1,18 @@
+import typing
+
+if typing.TYPE_CHECKING:
+    from telegrinder.tools.serialization.abc import ABCDataSerializer
+
+IDENT_KEY: typing.Final = "__key__"
+SERIALIZER_KEY: typing.Final = "__serializer__"
+
+
+def get_model_ident_key(model: typing.Any, /) -> str | None:
+    return getattr(model, IDENT_KEY, None)
+
+
+def get_model_serializer(model: typing.Any, /) -> type[ABCDataSerializer[typing.Any]] | None:
+    return getattr(model, SERIALIZER_KEY, None)
+
+
+__all__ = ("get_model_ident_key", "get_model_serializer")

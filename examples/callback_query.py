@@ -1,4 +1,5 @@
 import dataclasses
+import typing
 
 from telegrinder import (
     API,
@@ -9,17 +10,18 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
-from telegrinder.modules import logger
-from telegrinder.node.payload import PayloadData
+from telegrinder.modules import logger, setup_logger
+from telegrinder.node import PayloadData
 from telegrinder.rules import (
     PayloadEqRule,
     PayloadMarkupRule,
     PayloadModelRule,
     Text,
 )
-from telegrinder.tools.callback_data_serialization import MsgPackSerializer
+from telegrinder.tools.serialization import MsgPackSerializer
 
-logger.set_level("DEBUG")
+setup_logger()
+
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 
@@ -27,12 +29,12 @@ bot = Telegrinder(api)
 @dataclasses.dataclass(slots=True, frozen=True)
 class Item:
     __key__ = "item"
+    __serializer__ = MsgPackSerializer[typing.Self]
 
     name: str
     amount: int = dataclasses.field(kw_only=True)
 
 
-item_serializer = MsgPackSerializer(Item)
 kb = (
     InlineKeyboard()
     .add(InlineButton("Confirm", callback_data="confirm/action"))
@@ -40,10 +42,8 @@ kb = (
     .add(InlineButton("One", callback_data="number/1"))
     .add(InlineButton("Two", callback_data="number/2"))
     .row()
-    .add(InlineButton("🍎", callback_data=Item("apple", amount=10), callback_data_serializer=item_serializer))
-    .add(
-        InlineButton("🍌", callback_data=Item("banana", amount=20), callback_data_serializer=item_serializer),
-    )
+    .add(InlineButton("🍎", callback_data=Item("apple", amount=10)))
+    .add(InlineButton("🍌", callback_data=Item("banana", amount=20)))
     .row()
     .add(InlineButton("Won't respond", callback_data="number/foobar"))
 ).get_markup()
@@ -55,7 +55,7 @@ async def action(m: Message) -> None:
 
 
 @bot.on.callback_query(final=False)
-async def handle_fruit_item(item: PayloadData[Item, MsgPackSerializer[Item]]) -> None:
+async def handle_fruit_item(item: PayloadData[Item]) -> None:
     logger.info("Got fruit item={!r}", item)
 
 
@@ -71,9 +71,9 @@ async def callback_number_handler(cb: CallbackQuery, n: int) -> None:
     await cb.answer("{0} + (7 * 6) - {0} = 42🤯🤯🤯".format(n))
 
 
-@bot.on.callback_query(PayloadModelRule(Item, serializer=MsgPackSerializer, alias="item"))
+@bot.on.callback_query(PayloadModelRule(Item, alias="item"))
 async def select_item(cb: CallbackQuery, item: Item) -> None:
     await cb.answer(f"You ate an {item.name!r} for {item.amount} cents 😋")
 
 
-bot.run_forever()
+bot.run_forever(skip_updates=True)

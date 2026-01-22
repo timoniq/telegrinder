@@ -1,7 +1,8 @@
 import typing
+from http import HTTPStatus
 
 from telegrinder.api.api import API, Token
-from telegrinder.client.abc import ABCClient
+from telegrinder.client.abc import ABCClient, Response
 
 
 class MockedHttpClient(ABCClient):
@@ -18,6 +19,17 @@ class MockedHttpClient(ABCClient):
     def timeout(self) -> float:
         return 0.0
 
+    async def request(
+        self,
+        url: str,
+        method: str = "GET",
+        data: dict[str, typing.Any] | None = None,
+        **kwargs: typing.Any,
+    ) -> Response:
+        response = self.return_value or self.callback(method, url, data)
+        content = response if isinstance(response, bytes) else b""
+        return Response(response=response, content=content, status=HTTPStatus.OK)
+
     async def request_text(
         self,
         url: str,
@@ -25,7 +37,7 @@ class MockedHttpClient(ABCClient):
         data: dict[str, typing.Any] | None = None,
         **kwargs,
     ) -> str | typing.Any:
-        return self.return_value or self.callback(method, url, data)
+        return (await self.request(url, method, data, **kwargs)).response
 
     async def request_json(
         self,
@@ -34,7 +46,7 @@ class MockedHttpClient(ABCClient):
         data: dict[str, typing.Any] | None = None,
         **kwargs: typing.Any,
     ) -> dict[str, typing.Any] | typing.Any:
-        return self.return_value or self.callback(method, url, data)
+        return (await self.request(url, method, data, **kwargs)).response
 
     async def request_bytes(
         self,
@@ -43,7 +55,7 @@ class MockedHttpClient(ABCClient):
         data: dict[str, typing.Any] | None = None,
         **kwargs: typing.Any,
     ) -> bytes | typing.Any:
-        return self.return_value or self.callback(method, url, data)
+        return (await self.request(url, method, data, **kwargs)).response
 
     async def request_content(
         self,
@@ -52,10 +64,10 @@ class MockedHttpClient(ABCClient):
         data: dict[str, typing.Any] | None = None,
         **kwargs: typing.Any,
     ) -> bytes | typing.Any:
-        return self.return_value or self.callback(method, url, data)
+        return (await self.request(url, method, data, **kwargs)).response
 
     @classmethod
-    def multipart_form_factory(cls) -> typing.Any:
+    def multipart_form_builder(cls) -> typing.Any:
         pass
 
     @classmethod

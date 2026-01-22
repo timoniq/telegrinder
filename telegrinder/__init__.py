@@ -1,19 +1,20 @@
 """Modern visionary telegram bot framework.
 
-* Type hinted
+* Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
 * Customizable and extensible
-* Ready to use scenarios and rules
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
+* API client powered by fast [rnet](https://github.com/0x676e67/rnet) library
 * Both low-level and high-level API
+* Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
 
 Basic example:
 
 ```python
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.modules import logger
+from telegrinder.modules import setup_logger
 from telegrinder.rules import Text
 
-logger.set_level("INFO")
+setup_logger(level="INFO")
 api = API(token=Token("123:token"))
 bot = Telegrinder(api)
 
@@ -43,72 +44,77 @@ from .bot import (
     ABCMiddleware,
     ABCPolling,
     ABCReturnManager,
+    ABCRouter,
     ABCRule,
     ABCScenario,
     ABCView,
     AudioReplyHandler,
     BaseCute,
     BaseReturnManager,
-    BaseView,
+    BusinessConnectionCute,
+    BusinessMessagesDeletedCute,
     CallbackQueryCute,
     CallbackQueryReturnManager,
-    CallbackQueryView,
+    ChatBoostRemovedCute,
+    ChatBoostUpdatedCute,
     ChatJoinRequestCute,
-    ChatJoinRequestView,
     ChatMemberUpdatedCute,
-    ChatMemberView,
     Checkbox,
     Choice,
+    ChosenInlineResultCute,
     Context,
     Dispatch,
     DocumentReplyHandler,
+    ErrorView,
+    EventModelView,
+    EventView,
+    FilterMiddleware,
     FuncHandler,
     Hasher,
     InlineQueryCute,
     InlineQueryReturnManager,
+    MediaGroupMiddleware,
     MediaGroupReplyHandler,
+    MediaGroupView,
     MessageCute,
+    MessageReactionCountUpdatedCute,
+    MessageReactionUpdatedCute,
     MessageReplyHandler,
     MessageReturnManager,
-    MessageView,
+    MiddlewareBox,
+    PaidMediaPurchasedCute,
     PhotoReplyHandler,
+    PollAnswerCute,
+    PollCute,
     Polling,
     PreCheckoutQueryCute,
-    PreCheckoutQueryManager,
-    PreCheckoutQueryView,
+    PreCheckoutQueryReturnManager,
     RawEventView,
+    Router,
+    ShippingQueryCute,
     ShortState,
     StickerReplyHandler,
     Telegrinder,
     UpdateCute,
     VideoReplyHandler,
+    View,
     ViewBox,
     WaiterMachine,
     action,
     register_manager,
 )
-from .client import ABCClient, AiohttpClient
+from .client import ABCClient, RnetClient
 from .model import Model, field
-from .modules import logger
-from .tools.formatting import HTMLFormatter
+from .modules import configure_dotenv, logger, setup_logger
 from .tools.global_context import ABCGlobalContext, GlobalContext, TelegrinderContext
 from .tools.input_file_directory import InputFileDirectory
 from .tools.keyboard import (
     ABCKeyboard,
-    ABCStaticKeyboard,
-    BaseButton,
-    BaseKeyboard,
-    BaseStaticButton,
-    BaseStaticKeyboard,
     Button,
     InlineButton,
     InlineKeyboard,
     Keyboard,
     RowButtons,
-    StaticButton,
-    StaticInlineButton,
-    StaticInlineKeyboard,
-    StaticKeyboard,
 )
 from .tools.lifespan import Lifespan
 from .tools.loop_wrapper import DelayedTask, LoopWrapper
@@ -122,6 +128,17 @@ ChatJoinRequest: typing.TypeAlias = ChatJoinRequestCute
 ChatMemberUpdated: typing.TypeAlias = ChatMemberUpdatedCute
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 InlineQuery: typing.TypeAlias = InlineQueryCute
+ChosenInlineResult: typing.TypeAlias = ChosenInlineResultCute
+ShippingQuery: typing.TypeAlias = ShippingQueryCute
+Poll: typing.TypeAlias = PollCute
+PollAnswer: typing.TypeAlias = PollAnswerCute
+PaidMediaPurchased: typing.TypeAlias = PaidMediaPurchasedCute
+ChatBoostRemoved: typing.TypeAlias = ChatBoostRemovedCute
+ChatBoostUpdated: typing.TypeAlias = ChatBoostUpdatedCute
+BusinessConnection: typing.TypeAlias = BusinessConnectionCute
+BusinessMessagesDeleted: typing.TypeAlias = BusinessMessagesDeletedCute
+MessageReactionCountUpdated: typing.TypeAlias = MessageReactionCountUpdatedCute
+MessageReactionUpdated: typing.TypeAlias = MessageReactionUpdatedCute
 Bot: typing.TypeAlias = Telegrinder
 
 
@@ -141,45 +158,42 @@ __all__ = (
     "ABCMiddleware",
     "ABCPolling",
     "ABCReturnManager",
+    "ABCRouter",
     "ABCRule",
     "ABCScenario",
     "ABCStateStorage",
-    "ABCStateStorage",
-    "ABCStaticKeyboard",
     "ABCView",
     "APIError",
     "APIResponse",
     "APIServerError",
-    "AiohttpClient",
     "AudioReplyHandler",
-    "BaseButton",
     "BaseCute",
-    "BaseKeyboard",
     "BaseReturnManager",
-    "BaseStaticButton",
-    "BaseStaticKeyboard",
-    "BaseView",
     "Bot",
     "Button",
     "CallbackQuery",
     "CallbackQueryCute",
     "CallbackQueryReturnManager",
-    "CallbackQueryView",
+    "ChatBoostRemoved",
+    "ChatBoostUpdatedCute",
     "ChatJoinRequest",
     "ChatJoinRequestCute",
-    "ChatJoinRequestView",
     "ChatMemberUpdated",
     "ChatMemberUpdatedCute",
-    "ChatMemberView",
     "Checkbox",
     "Choice",
+    "ChosenInlineResult",
+    "ChosenInlineResultCute",
     "Context",
     "DelayedTask",
     "Dispatch",
     "DocumentReplyHandler",
+    "ErrorView",
+    "EventModelView",
+    "EventView",
+    "FilterMiddleware",
     "FuncHandler",
     "GlobalContext",
-    "HTMLFormatter",
     "Hasher",
     "InlineButton",
     "InlineKeyboard",
@@ -190,32 +204,40 @@ __all__ = (
     "Keyboard",
     "Lifespan",
     "LoopWrapper",
+    "MediaGroupMiddleware",
     "MediaGroupReplyHandler",
-    "MemoryStateStorage",
+    "MediaGroupView",
     "MemoryStateStorage",
     "Message",
     "MessageCute",
-    "MessageReplyHandler",
+    "MessageReactionCountUpdated",
+    "MessageReactionCountUpdatedCute",
+    "MessageReactionUpdated",
+    "MessageReactionUpdatedCute",
     "MessageReplyHandler",
     "MessageReturnManager",
-    "MessageView",
+    "MiddlewareBox",
     "Model",
+    "PaidMediaPurchased",
+    "PaidMediaPurchasedCute",
     "ParseMode",
     "PhotoReplyHandler",
+    "Poll",
+    "PollAnswer",
+    "PollAnswerCute",
+    "PollCute",
     "Polling",
     "PreCheckoutQuery",
     "PreCheckoutQueryCute",
-    "PreCheckoutQueryManager",
-    "PreCheckoutQueryView",
+    "PreCheckoutQueryReturnManager",
     "RawEventView",
+    "RnetClient",
+    "Router",
     "RowButtons",
+    "ShippingQuery",
+    "ShippingQueryCute",
     "ShortState",
     "StateData",
-    "StateData",
-    "StaticButton",
-    "StaticInlineButton",
-    "StaticInlineKeyboard",
-    "StaticKeyboard",
     "StickerReplyHandler",
     "Telegrinder",
     "TelegrinderContext",
@@ -223,10 +245,14 @@ __all__ = (
     "Update",
     "UpdateCute",
     "VideoReplyHandler",
+    "View",
+    "ViewBox",
     "ViewBox",
     "WaiterMachine",
     "action",
+    "configure_dotenv",
     "field",
     "logger",
     "register_manager",
+    "setup_logger",
 )

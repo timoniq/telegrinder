@@ -3,8 +3,7 @@ import inspect
 import os.path
 import sys
 import types
-
-import typing_extensions as typing
+import typing
 
 type RoutineMethodType = (
     types.MethodType | types.MethodDescriptorType | types.MethodWrapperType | types.BuiltinMethodType
@@ -14,7 +13,7 @@ type RoutineDescriptorType = types.MethodDescriptorType | types.GetSetDescriptor
 _BUILTINS: typing.Final[frozenset[typing.Any]] = frozenset(
     x for name in dir(builtins) if getattr((x := getattr(builtins, name)), "__module__", None) == "builtins"
 )
-_CACHE_KEY: typing.Final[str] = "__fullname_cache__"
+_CACHE_KEY: typing.Final = "__fullname_cache__"
 
 
 def _is_builtin(obj: typing.Any, /) -> bool:
@@ -70,7 +69,7 @@ def fullname(obj: object, /) -> str:
         obj_cls = obj.__objclass__ if _is_routine_descriptor(obj) else obj.__self__
         obj = type(obj_cls) if not isinstance(obj_cls, type) else obj_cls
 
-    module: str = getattr(orig_obj, "__module__", obj.__module__)
+    module: str = getattr(orig_obj, "__module__", None) or obj.__module__
     if _is_builtin(obj) and module != builtins.__name__:
         module = builtins.__name__
     else:

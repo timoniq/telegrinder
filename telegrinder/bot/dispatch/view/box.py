@@ -1,141 +1,207 @@
 import dataclasses
+import typing
+from functools import cached_property
+from types import MappingProxyType
 
-import typing_extensions as typing
-
-from telegrinder.bot.dispatch.view import (
-    callback_query,
-    chat_join_request,
-    chat_member,
-    error,
-    inline_query,
-    message,
-    pre_checkout_query,
-    raw,
+from telegrinder.bot.dispatch.return_manager.callback_query import CallbackQueryReturnManager
+from telegrinder.bot.dispatch.return_manager.inline_query import InlineQueryReturnManager
+from telegrinder.bot.dispatch.return_manager.message import MessageReturnManager
+from telegrinder.bot.dispatch.return_manager.pre_checkout_query import PreCheckoutQueryReturnManager
+from telegrinder.bot.dispatch.view.base import (
+    ErrorView,
+    EventView,
+    RawEventView,
+    View,
 )
-from telegrinder.bot.dispatch.view.abc import ABCEventRawView, ABCView
+from telegrinder.bot.dispatch.view.media_group import MediaGroupView
 from telegrinder.types.enums import UpdateType
 
-CallbackQueryView = typing.TypeVar(
-    "CallbackQueryView",
-    bound=ABCView,
-    default=callback_query.CallbackQueryView,
-)
-PreCheckoutQueryView = typing.TypeVar(
-    "PreCheckoutQueryView",
-    bound=ABCView,
-    default=pre_checkout_query.PreCheckoutQueryView,
-)
-ChatJoinRequestView = typing.TypeVar(
-    "ChatJoinRequestView",
-    bound=ABCView,
-    default=chat_join_request.ChatJoinRequestView,
-)
-ChatMemberView = typing.TypeVar("ChatMemberView", bound=ABCView, default=chat_member.ChatMemberView)
-InlineQueryView = typing.TypeVar("InlineQueryView", bound=ABCView, default=inline_query.InlineQueryView)
-MessageView = typing.TypeVar("MessageView", bound=ABCView, default=message.MessageView)
-RawEventView = typing.TypeVar("RawEventView", bound=ABCEventRawView, default=raw.RawEventView)
-ErrorView = typing.TypeVar("ErrorView", bound=ABCView, default=error.ErrorView)
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
+
+EXCLUDE_VIEW_META: typing.Final = dict(exclude_view=True)
+
+
+def event_view[T: EventView](
+    update_type: UpdateType,
+    return_manager: ABCReturnManager | None = None,
+    /,
+) -> typing.Callable[[], T]:
+    def factory() -> T:
+        return typing.cast("T", EventView(update_type, return_manager))
+
+    return factory
+
+
+def view[T: View](
+    view_class: type[View],
+    return_manager: ABCReturnManager | None = None,
+    /,
+) -> typing.Callable[[], T]:
+    def factory() -> T:
+        return typing.cast("T", view_class(return_manager=return_manager))
+
+    return factory
+
+
+event_model_view = view
 
 
 @dataclasses.dataclass(kw_only=True)
-class ViewBox(
-    typing.Generic[
-        CallbackQueryView,
-        ChatJoinRequestView,
-        ChatMemberView,
-        InlineQueryView,
+class EventViewBox[
+    MessageView: EventView = EventView,
+    EditedMessageView: EventView = EventView,
+    ChannelPostView: EventView = EventView,
+    EditedChannelPostView: EventView = EventView,
+    BusinessConnectionView: EventView = EventView,
+    BusinessMessageView: EventView = EventView,
+    EditedBusinessMessageView: EventView = EventView,
+    DeletedBusinessMessagesView: EventView = EventView,
+    MessageReactionView: EventView = EventView,
+    MessageReactionCountView: EventView = EventView,
+    InlineQueryView: EventView = EventView,
+    ChosenInlineResultView: EventView = EventView,
+    CallbackQueryView: EventView = EventView,
+    ShippingQueryView: EventView = EventView,
+    PreCheckoutQueryView: EventView = EventView,
+    PurchasedPaidMediaView: EventView = EventView,
+    PollView: EventView = EventView,
+    PollAnswerView: EventView = EventView,
+    MyChatMemberView: EventView = EventView,
+    ChatMemberView: EventView = EventView,
+    ChatJoinRequestView: EventView = EventView,
+    ChatBoostView: EventView = EventView,
+    RemovedChatBoostView: EventView = EventView,
+]:
+    message: MessageView = dataclasses.field(default_factory=event_view(UpdateType.MESSAGE, MessageReturnManager()))
+    edited_message: EditedMessageView = dataclasses.field(
+        default_factory=event_view(UpdateType.EDITED_MESSAGE, MessageReturnManager()),
+    )
+    channel_post: ChannelPostView = dataclasses.field(
+        default_factory=event_view(UpdateType.CHANNEL_POST, MessageReturnManager()),
+    )
+    edited_channel_post: EditedChannelPostView = dataclasses.field(
+        default_factory=event_view(UpdateType.EDITED_CHANNEL_POST, MessageReturnManager()),
+    )
+    business_connection: BusinessConnectionView = dataclasses.field(
+        default_factory=event_view(UpdateType.BUSINESS_CONNECTION),
+    )
+    business_message: BusinessMessageView = dataclasses.field(
+        default_factory=event_view(UpdateType.BUSINESS_MESSAGE, MessageReturnManager()),
+    )
+    edited_business_message: EditedBusinessMessageView = dataclasses.field(
+        default_factory=event_view(UpdateType.EDITED_BUSINESS_MESSAGE, MessageReturnManager()),
+    )
+    deleted_business_messages: DeletedBusinessMessagesView = dataclasses.field(
+        default_factory=event_view(UpdateType.DELETED_BUSINESS_MESSAGES),
+    )
+    message_reaction: MessageReactionView = dataclasses.field(default_factory=event_view(UpdateType.MESSAGE_REACTION))
+    message_reaction_count: MessageReactionCountView = dataclasses.field(
+        default_factory=event_view(UpdateType.MESSAGE_REACTION_COUNT),
+    )
+    inline_query: InlineQueryView = dataclasses.field(
+        default_factory=event_view(UpdateType.INLINE_QUERY, InlineQueryReturnManager()),
+    )
+    chosen_inline_result: ChosenInlineResultView = dataclasses.field(
+        default_factory=event_view(UpdateType.CHOSEN_INLINE_RESULT),
+    )
+    callback_query: CallbackQueryView = dataclasses.field(
+        default_factory=event_view(UpdateType.CALLBACK_QUERY, CallbackQueryReturnManager()),
+    )
+    shipping_query: ShippingQueryView = dataclasses.field(default_factory=event_view(UpdateType.SHIPPING_QUERY))
+    pre_checkout_query: PreCheckoutQueryView = dataclasses.field(
+        default_factory=event_view(UpdateType.PRE_CHECKOUT_QUERY, PreCheckoutQueryReturnManager()),
+    )
+    purchased_paid_media: PurchasedPaidMediaView = dataclasses.field(
+        default_factory=event_view(UpdateType.PURCHASED_PAID_MEDIA),
+    )
+    poll: PollView = dataclasses.field(default_factory=event_view(UpdateType.POLL))
+    poll_answer: PollAnswerView = dataclasses.field(default_factory=event_view(UpdateType.POLL_ANSWER))
+    my_chat_member: MyChatMemberView = dataclasses.field(default_factory=event_view(UpdateType.MY_CHAT_MEMBER))
+    chat_member: ChatMemberView = dataclasses.field(default_factory=event_view(UpdateType.CHAT_MEMBER))
+    chat_join_request: ChatJoinRequestView = dataclasses.field(default_factory=event_view(UpdateType.CHAT_JOIN_REQUEST))
+    chat_boost: ChatBoostView = dataclasses.field(default_factory=event_view(UpdateType.CHAT_BOOST))
+    removed_chat_boost: RemovedChatBoostView = dataclasses.field(
+        default_factory=event_view(UpdateType.REMOVED_CHAT_BOOST),
+    )
+
+
+@dataclasses.dataclass(kw_only=True)
+class EventModelViewBox[MediaGroup: View = MediaGroupView]:
+    media_group: MediaGroup = dataclasses.field(
+        default_factory=event_model_view(MediaGroupView, MessageReturnManager())
+    )
+
+
+@dataclasses.dataclass(kw_only=True)
+class ViewBox[
+    MessageView: EventView = EventView,
+    EditedMessageView: EventView = EventView,
+    ChannelPostView: EventView = EventView,
+    EditedChannelPostView: EventView = EventView,
+    BusinessConnectionView: EventView = EventView,
+    BusinessMessageView: EventView = EventView,
+    EditedBusinessMessageView: EventView = EventView,
+    DeletedBusinessMessagesView: EventView = EventView,
+    MessageReactionView: EventView = EventView,
+    MessageReactionCountView: EventView = EventView,
+    InlineQueryView: EventView = EventView,
+    ChosenInlineResultView: EventView = EventView,
+    CallbackQueryView: EventView = EventView,
+    ShippingQueryView: EventView = EventView,
+    PreCheckoutQueryView: EventView = EventView,
+    PurchasedPaidMediaView: EventView = EventView,
+    PollView: EventView = EventView,
+    PollAnswerView: EventView = EventView,
+    MyChatMemberView: EventView = EventView,
+    ChatMemberView: EventView = EventView,
+    ChatJoinRequestView: EventView = EventView,
+    ChatBoostView: EventView = EventView,
+    RemovedChatBoostView: EventView = EventView,
+    MediaGroup: View = MediaGroupView,
+    Error: ErrorView = ErrorView,
+    RawEvent: RawEventView = RawEventView,
+](
+    EventModelViewBox[MediaGroup],
+    EventViewBox[
         MessageView,
+        EditedMessageView,
+        ChannelPostView,
+        EditedChannelPostView,
+        BusinessConnectionView,
+        BusinessMessageView,
+        EditedBusinessMessageView,
+        DeletedBusinessMessagesView,
+        MessageReactionView,
+        MessageReactionCountView,
+        InlineQueryView,
+        ChosenInlineResultView,
+        CallbackQueryView,
+        ShippingQueryView,
         PreCheckoutQueryView,
-        RawEventView,
-        ErrorView,
+        PurchasedPaidMediaView,
+        PollView,
+        PollAnswerView,
+        MyChatMemberView,
+        ChatMemberView,
+        ChatJoinRequestView,
+        ChatBoostView,
+        RemovedChatBoostView,
     ],
 ):
-    callback_query_view: dataclasses.InitVar[CallbackQueryView | None] = None
-    chat_join_request_view: dataclasses.InitVar[ChatJoinRequestView | None] = None
-    chat_member_view: dataclasses.InitVar[ChatMemberView | None] = None
-    my_chat_member_view: dataclasses.InitVar[ChatMemberView | None] = None
-    inline_query_view: dataclasses.InitVar[InlineQueryView | None] = None
-    message_view: dataclasses.InitVar[MessageView | None] = None
-    business_message_view: dataclasses.InitVar[MessageView | None] = None
-    channel_post_view: dataclasses.InitVar[MessageView | None] = None
-    pre_checkout_query_view: dataclasses.InitVar[PreCheckoutQueryView | None] = None
-    edited_message_view: dataclasses.InitVar[MessageView | None] = None
-    edited_business_message_view: dataclasses.InitVar[MessageView | None] = None
-    edited_channel_post_view: dataclasses.InitVar[MessageView | None] = None
-    any_message_view: dataclasses.InitVar[MessageView | None] = None
-    chat_member_updated_view: dataclasses.InitVar[ChatMemberView | None] = None
-    raw_event_view: dataclasses.InitVar[RawEventView | None] = None
-    error_view: dataclasses.InitVar[ErrorView | None] = None
+    event_error: Error = dataclasses.field(default_factory=view(ErrorView), metadata=EXCLUDE_VIEW_META)
+    raw: RawEvent = dataclasses.field(default_factory=view(RawEventView), metadata=EXCLUDE_VIEW_META)
 
-    def __post_init__(
-        self,
-        callback_query_view: CallbackQueryView | None = None,
-        chat_join_request_view: ChatJoinRequestView | None = None,
-        chat_member_view: ChatMemberView | None = None,
-        my_chat_member_view: ChatMemberView | None = None,
-        inline_query_view: InlineQueryView | None = None,
-        message_view: MessageView | None = None,
-        business_message_view: MessageView | None = None,
-        channel_post_view: MessageView | None = None,
-        edited_message_view: MessageView | None = None,
-        edited_business_message_view: MessageView | None = None,
-        edited_channel_post_view: MessageView | None = None,
-        any_message_view: MessageView | None = None,
-        chat_member_updated_view: ChatMemberView | None = None,
-        pre_checkout_query_view: PreCheckoutQueryView | None = None,
-        raw_event_view: RawEventView | None = None,
-        error_view: ErrorView | None = None,
-    ) -> None:
-        self.callback_query = typing.cast(
-            "CallbackQueryView",
-            callback_query_view or callback_query.CallbackQueryView(),
+    @cached_property
+    def views(self) -> MappingProxyType[str, View]:
+        return MappingProxyType(
+            mapping={
+                field.name: obj
+                for field in dataclasses.fields(self)
+                if isinstance(obj := getattr(self, field.name), View)
+                and field.metadata.get("exclude_view", False) is False
+            },
         )
-        self.chat_join_request = typing.cast(
-            "ChatJoinRequestView",
-            chat_join_request_view or chat_join_request.ChatJoinRequestView(),
-        )
-        self.chat_member = typing.cast(
-            "ChatMemberView",
-            chat_member_view or chat_member.ChatMemberView(update_type=UpdateType.CHAT_MEMBER),
-        )
-        self.my_chat_member = typing.cast(
-            "ChatMemberView",
-            my_chat_member_view or chat_member.ChatMemberView(update_type=UpdateType.MY_CHAT_MEMBER),
-        )
-        self.inline_query = typing.cast(
-            "InlineQueryView",
-            inline_query_view or inline_query.InlineQueryView(),
-        )
-        self.message = typing.cast(
-            "MessageView",
-            message_view or message.MessageView(update_type=UpdateType.MESSAGE),
-        )
-        self.business_message = typing.cast(
-            "MessageView",
-            business_message_view or message.MessageView(update_type=UpdateType.BUSINESS_MESSAGE),
-        )
-        self.channel_post = typing.cast(
-            "MessageView",
-            channel_post_view or message.MessageView(update_type=UpdateType.CHANNEL_POST),
-        )
-        self.edited_message = typing.cast(
-            "MessageView",
-            edited_message_view or message.MessageView(update_type=UpdateType.EDITED_MESSAGE),
-        )
-        self.edited_business_message = typing.cast(
-            "MessageView",
-            edited_business_message_view or message.MessageView(update_type=UpdateType.EDITED_BUSINESS_MESSAGE),
-        )
-        self.edited_channel_post = typing.cast(
-            "MessageView",
-            edited_channel_post_view or message.MessageView(update_type=UpdateType.EDITED_CHANNEL_POST),
-        )
-        self.pre_checkout_query = typing.cast(
-            "PreCheckoutQueryView",
-            pre_checkout_query_view or pre_checkout_query.PreCheckoutQueryView(),
-        )
-        self.raw_event = typing.cast("RawEventView", raw_event_view or raw.RawEventView())
-        self.error = typing.cast("ErrorView", error_view or error.ErrorView())
 
 
-__all__ = ("ViewBox",)
+__all__ = ("EventModelViewBox", "EventViewBox", "ViewBox")

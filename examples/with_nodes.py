@@ -1,17 +1,20 @@
 import typing
 
+from nodnod.interface.scalar import scalar_node
+
 from examples.nodes import DB, create_tables
 from telegrinder import API, Message, Telegrinder, Token, node
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
-from telegrinder.modules import logger
-from telegrinder.node import ChatSource, TextLiteral, scalar_node
+from telegrinder.modules import setup_logger
+from telegrinder.node import ChatSource, File, Photo, TextLiteral
+
+setup_logger()
 
 MessageId = type("MessageId", (int,), {})
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-logger.set_level("DEBUG")
 
 
 class IsChat(ABCRule):
@@ -20,7 +23,7 @@ class IsChat(ABCRule):
 
 
 class IsAdmin(ABCRule):
-    async def check(self, source: node.Source, db: DB, context: Context) -> bool:
+    async def check(self, source: node.Source, db: DB, context: Context) -> bool:  # type: ignore
         result = await db.execute("select * from admins where telegram_id = ?", (source.from_user.id,))  # type: ignore
         context["is_admin"] = True
         return bool(await result.fetchone())
@@ -29,11 +32,11 @@ class IsAdmin(ABCRule):
 @scalar_node
 class IncomingMessageId:
     @classmethod
-    def compose(cls, message: Message) -> MessageId:
+    def __compose__(cls, message: Message) -> MessageId:
         return MessageId(message.message_id)
 
 
-async def promote(user_id: int, *, db: DB) -> None:
+async def promote(user_id: int, *, db: DB) -> None:  # type: ignore
     await db.execute("insert into admins(telegram_id) values (?) on conflict do nothing", (user_id,))  # type: ignore
     await db.commit()  # type: ignore
 
@@ -68,23 +71,22 @@ async def handle_texts(texts: TextLiteral["hello", "hi", "hilo"]) -> typing.Lite
 @bot.on.message()
 async def photo_handler(
     message: Message,
-    db: DB,
-    photo: node.Photo,
+    file: File[Photo],
 ) -> None:
-    await message.answer("Got a photo in private message")
+    await message.answer("Got a photo in private message, file path: {}".format(file.file_path.unwrap_or("None")))
 
 
 @bot.on.message()
 async def integer_handler(
     message: Message,
-    db: DB,
+    db: DB,  # type: ignore
     i: node.TextInteger,
 ) -> None:
     await message.answer(f"{i} + 3 = {i + 3}")
 
 
 @bot.on.message(IsAdmin(), Text("/op"))
-async def add_admin_handler(message: Message, db: DB) -> str | None:
+async def add_admin_handler(message: Message, db: DB) -> str | None:  # type: ignore
     if not message.reply_to_message:
         return "Need reply"
     await promote(message.reply_to_message.unwrap().from_user.id, db=db)
@@ -92,7 +94,7 @@ async def add_admin_handler(message: Message, db: DB) -> str | None:
 
 
 @bot.on.message(Markup("/getadmin <token>"))
-async def getadmin_handler(message: Message, token: str, db: DB) -> str:
+async def getadmin_handler(message: Message, token: str, db: DB) -> str:  # type: ignore
     if token != api.token:
         return "Wrong token"
     await promote(message.from_user.id, db=db)

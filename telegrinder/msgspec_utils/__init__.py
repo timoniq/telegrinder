@@ -11,6 +11,7 @@ from telegrinder.msgspec_utils.tools import (
     get_origin,
     get_type_hints,
     is_common_type,
+    is_none,
     struct_asdict,
     type_check,
 )
@@ -31,6 +32,7 @@ __all__ = (
     "get_origin",
     "get_type_hints",
     "is_common_type",
+    "is_none",
     "is_supports_cast",
     "loads",
     "struct_asdict",

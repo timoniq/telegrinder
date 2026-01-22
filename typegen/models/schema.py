@@ -73,10 +73,10 @@ class ObjectField(Model):
     """Field description."""
 
     default: str | None = None
-    """Default value."""
+    """Default value of field."""
 
     default_factory: str | None = None
-    """Default factory for dataclass."""
+    """Default factory of field."""
 
 
 class MethodParameter(Model):

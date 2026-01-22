@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-import typing_extensions as typing
+import typing
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch import dispatch as dp
@@ -11,16 +9,10 @@ from telegrinder.modules import logger
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
-if typing.TYPE_CHECKING:
-    from telegrinder.node.composer import Composer
-
-Dispatch = typing.TypeVar("Dispatch", bound=ABCDispatch, default=dp.Dispatch)
-Polling = typing.TypeVar("Polling", bound=ABCPolling, default=pg.Polling)
-
-CONTEXT: typing.Final[TelegrinderContext] = TelegrinderContext()
+TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
 
 
-class Telegrinder(typing.Generic[Dispatch, Polling]):
+class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.Polling]:
     def __init__(
         self,
         api: API,
@@ -32,7 +24,7 @@ class Telegrinder(typing.Generic[Dispatch, Polling]):
         self.api = api
         self.dispatch = typing.cast("Dispatch", dispatch or dp.Dispatch())
         self.polling = typing.cast("Polling", polling or pg.Polling(api))
-        self.loop_wrapper = loop_wrapper or CONTEXT.loop_wrapper
+        self.loop_wrapper = loop_wrapper or TELEGRINDER_CONTEXT.loop_wrapper
 
     def __repr__(self) -> str:
         return "<{}: api={!r}, dispatch={!r}, polling={!r}, loop_wrapper={!r}>".format(
@@ -47,38 +39,27 @@ class Telegrinder(typing.Generic[Dispatch, Polling]):
     def on(self) -> Dispatch:
         return self.dispatch
 
-    @property
-    def composer(self) -> Composer:
-        return CONTEXT.composer.unwrap()
-
-    async def reset_webhook(self) -> None:
-        if not (await self.api.get_webhook_info()).unwrap().url:
-            return
-        await self.api.delete_webhook()
+    async def drop_pending_updates(self) -> None:
+        await logger.adebug("Dropping pending updates")
+        await self.api.delete_webhook(drop_pending_updates=True)
 
     async def run_polling(
         self,
         *,
         offset: int = 0,
         skip_updates: bool = False,
-    ) -> typing.NoReturn:
-        async def polling() -> typing.NoReturn:  # type: ignore
+    ) -> None:
+        self.polling.offset = offset
+
+        async def listen_polling() -> None:
             if skip_updates:
-                logger.debug("Dropping pending updates")
-                await self.reset_webhook()
-                await self.api.delete_webhook(drop_pending_updates=True)
+                await self.drop_pending_updates()
 
             async for updates in self.polling.listen():
                 for update in updates:
-                    await self.loop_wrapper.create_task(self.dispatch.feed(update, self.api))
+                    self.loop_wrapper.add_task(self.dispatch.feed(self.api, update))
 
-        self.polling.offset = offset
-
-        if self.loop_wrapper.running:
-            await polling()
-        else:
-            self.loop_wrapper.add_task(polling())
-            self.loop_wrapper.run()
+        self.loop_wrapper.add_task(listen_polling())
 
     def run_forever(self, *, offset: int = 0, skip_updates: bool = False) -> typing.NoReturn:
         logger.info("Running blocking polling (id={})", self.api.id)

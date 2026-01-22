@@ -2,14 +2,15 @@ import typing
 from functools import reduce
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
-from telegrinder.modules import logger
+from telegrinder.modules import setup_logger
 from telegrinder.rules import Markup, MessageEntities, Text
-from telegrinder.tools.formatting.html_formatter import HTMLFormatter, bold, code_inline
+from telegrinder.tools.formatting.html import HTML, bold, code_inline
 from telegrinder.tools.global_context import GlobalContext, ctx_var
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity, User
 
-logger.set_level("INFO")
+setup_logger()
+
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 
@@ -29,8 +30,8 @@ def formatting_text(*fmt_texts: str) -> dict[str, typing.Any]:
     if not global_ctx.formatting:
         params["text"] = "".join(map(str, fmt_texts))
         return params
-    params["parse_mode"] = HTMLFormatter.PARSE_MODE
-    params["text"] = HTMLFormatter("".join(reduce(lambda x, y: x + y, fmt_texts)))
+    params["parse_mode"] = HTML.PARSE_MODE
+    params["text"] = "".join(reduce(lambda x, y: x + y, fmt_texts))
     return params
 
 
@@ -53,7 +54,9 @@ async def formatting() -> dict[str, typing.Any]:
     & Markup(["/get_user @<username>", "/get_user t.me/<username>", "/get_user <username>"])
 )
 async def get_user_by_username(
-    _: Message, username: str, message_entities: list[MessageEntity]
+    _: Message,
+    username: str,
+    message_entities: list[MessageEntity],
 ) -> dict[str, typing.Any]:
     if message_entities[0].type == MessageEntityType.TEXT_MENTION:
         user = message_entities[0].user.unwrap()

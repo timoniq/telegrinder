@@ -11,14 +11,14 @@ from telegrinder import (
     Token,
     WaiterMachine,
 )
-from telegrinder.modules import logger
+from telegrinder.modules import setup_logger
 from telegrinder.rules import EnumTextRule, StartCommand
+
+setup_logger()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine(bot.dispatch)
-
-logger.set_level("INFO")
+wm = WaiterMachine()
 
 
 class YesOrNo(enum.Enum):
@@ -30,8 +30,7 @@ class YesOrNo(enum.Enum):
 async def start(message: Message) -> str:
     await message.answer("Do you want some tee?")
     _, ctx = await wm.wait(
-        MESSAGE_FROM_USER,
-        message.from_user.id,
+        MESSAGE_FROM_USER(bot.on.message, message.from_user.id),
         release=EnumTextRule(YesOrNo),
         on_miss=MessageReplyHandler("You want, dont you?", as_reply=True),
     )

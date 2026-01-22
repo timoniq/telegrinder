@@ -1,13 +1,10 @@
-import typing
-
-from telegrinder.bot.cute_types import InlineQueryCute
+from telegrinder.bot.cute_types.inline_query import InlineQueryCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.markup import Markup, PatternLike, check_string
 from telegrinder.types.enums import ChatType
 
-from .markup import Markup, PatternLike, check_string
-
-InlineQuery: typing.TypeAlias = InlineQueryCute
+type InlineQuery = InlineQueryCute
 
 
 class HasLocation(ABCRule):
@@ -25,9 +22,7 @@ class InlineQueryChatType(ABCRule):
 
 class InlineQueryText(ABCRule):
     def __init__(self, texts: str | list[str], *, lower_case: bool = False) -> None:
-        self.texts = {
-            text.lower() if lower_case else text for text in ([texts] if isinstance(texts, str) else texts)
-        }
+        self.texts = {text.lower() if lower_case else text for text in ([texts] if isinstance(texts, str) else texts)}
         self.lower_case = lower_case
 
     def check(self, query: InlineQuery) -> bool:

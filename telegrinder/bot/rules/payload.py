@@ -1,6 +1,5 @@
 import typing
 from contextlib import suppress
-from functools import cached_property
 
 import msgspec
 
@@ -8,29 +7,28 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.markup import Markup, PatternLike, check_string
 from telegrinder.msgspec_utils.json import loads
-from telegrinder.node.base import Node
-from telegrinder.node.payload import Payload, PayloadData
-from telegrinder.tools.callback_data_serialization.abc import ABCDataSerializer, ModelType
-from telegrinder.tools.callback_data_serialization.json_ser import JSONSerializer
+from telegrinder.node.nodes.payload import Payload, PayloadData
+from telegrinder.tools.serialization.abc import ABCDataSerializer, ModelType
+from telegrinder.tools.serialization.json_ser import JSONSerializer
+from telegrinder.tools.serialization.utils import get_model_serializer
+
+_ANY: typing.Final = object()
 
 
 class PayloadRule[Data](ABCRule):
     def __init__(
         self,
         data_type: type[Data],
-        serializer: type[ABCDataSerializer[Data]],
+        serializer: type[ABCDataSerializer[Data]] | None = None,
         *,
         alias: str | None = None,
     ) -> None:
         self.data_type = data_type
-        self.serializer = serializer
+        self.serializer = serializer or get_model_serializer(data_type) or JSONSerializer[typing.Any]
         self.alias = alias or "data"
+        self.required_nodes = dict(payload=PayloadData[self.data_type, self.serializer])
 
-    @cached_property
-    def required_nodes(self) -> dict[str, type[Node]]:
-        return {"payload": PayloadData[self.data_type, self.serializer]}  # type: ignore
-
-    def check(self, payload: PayloadData[Data], context: Context) -> typing.Literal[True]:
+    def check(self, payload: PayloadData, context: Context) -> typing.Literal[True]:
         context.set(self.alias, payload)
         return True
 
@@ -41,10 +39,19 @@ class PayloadModelRule[Model: ModelType](PayloadRule):
         model_t: type[Model],
         /,
         *,
+        payload: typing.Any = _ANY,
         serializer: type[ABCDataSerializer[Model]] | None = None,
         alias: str | None = None,
     ) -> None:
-        super().__init__(model_t, serializer or JSONSerializer, alias=alias or "model")
+        super().__init__(model_t, serializer, alias=alias or "model")
+        self.payload = payload
+
+    def check(self, payload: PayloadData, context: Context) -> bool:
+        if self.payload is not _ANY and payload != self.payload:
+            return False
+
+        context.set(self.alias, payload)
+        return True
 
 
 class PayloadEqRule(ABCRule):

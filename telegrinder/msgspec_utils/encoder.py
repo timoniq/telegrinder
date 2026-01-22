@@ -2,10 +2,8 @@ import datetime as dt
 import typing
 from contextlib import contextmanager
 
+import kungfu.library
 import msgspec
-from fntypes.option import Nothing, Some
-from fntypes.result import Error, Ok, Result
-from fntypes.variative import Variative
 
 from telegrinder.msgspec_utils.abc import SupportsCast
 from telegrinder.msgspec_utils.custom_types.datetime import datetime, timedelta
@@ -24,9 +22,9 @@ def to_builtins(
     builtin_types: typing.Iterable[type[typing.Any]] | None = None,
     order: Order | None = None,
     context: Context | None = None,
-) -> Result[typing.Any, msgspec.ValidationError]:
+) -> kungfu.library.Result[typing.Any, msgspec.ValidationError]:
     try:
-        return Ok(
+        return kungfu.library.Ok(
             encoder.to_builtins(
                 obj,
                 str_keys=str_keys,
@@ -36,7 +34,7 @@ def to_builtins(
             ),
         )
     except msgspec.ValidationError as error:
-        return Error(error)
+        return kungfu.library.Error(error)
 
 
 class Encoder:
@@ -66,9 +64,9 @@ class Encoder:
             dt.timedelta: timedelta,
         }
         self.enc_hooks = {
-            Some: lambda some: some.value,
-            Nothing: lambda _: None,
-            Variative: lambda variative: variative.v,
+            kungfu.library.Some: lambda some: some.value,
+            kungfu.library.Nothing: lambda _: None,
+            kungfu.library.Sum: lambda s: s.v,
             datetime: lambda date: int(date.timestamp()),
             timedelta: lambda time: time.total_seconds(),
         }
@@ -200,7 +198,7 @@ class Encoder:
         return obj
 
 
-encoder: typing.Final[Encoder] = Encoder()
+encoder: typing.Final = Encoder()
 
 
 __all__ = ("Encoder", "encoder", "to_builtins")

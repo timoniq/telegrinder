@@ -1,50 +1,87 @@
+"""Specific `scopes` for node scope system.
+
+Scopes:
+- `GLOBAL`: compose only once during runtime, and later be stored and reused when needed ~ `@global_node`
+- `PER_EVENT`: compose once per event, so if during the composition the node was already composed, it will be reused and won't be composed twice ~ `@per_event`
+- `PER_CALL`: compose each time any node will require it to build itself or if we require it to be delivered into the handler ~ `@per_call`
+"""
+
 from __future__ import annotations
 
 import enum
 import typing
 
+from nodnod.node import Node
+from nodnod.scope import Scope
+
+from telegrinder.modules import logger
+from telegrinder.node.utils import as_node
+from telegrinder.tools.global_context.builtin_context import TelegrinderContext
+
 if typing.TYPE_CHECKING:
-    from telegrinder.node.base import Composable
+    from telegrinder.node.scope import NodeScope
 
-NODE_SCOPE_KEY: typing.Final[str] = "scope"
+    # Import members from NodeScope
+    GLOBAL, PER_CALL, PER_EVENT = NodeScope.GLOBAL, NodeScope.PER_CALL, NodeScope.PER_EVENT
 
-
-class NodeScope(enum.Enum):
-    GLOBAL = enum.auto()
-    PER_EVENT = enum.auto()
-    PER_CALL = enum.auto()
+TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
 
 
-PER_EVENT = NodeScope.PER_EVENT
-PER_CALL = NodeScope.PER_CALL
-GLOBAL = NodeScope.GLOBAL
+@TELEGRINDER_CONTEXT.loop_wrapper.lifespan.on_shutdown
+async def close_node_global_scope() -> None:
+    logger.debug("Closing node global scope")
+
+    try:
+        await TELEGRINDER_CONTEXT.close_global_scope()
+    except Exception as error:
+        logger.error("While closing node global scope, an error occurred: {!r}", error)
 
 
-def per_call[T: Composable[typing.Any]](node: type[T]) -> type[T]:
-    setattr(node, "scope", PER_CALL)
-    return node
+class NodeScopeInfo(dict[type[Node], "NodeScope"]):
+    def set_node_scope[T: Node[typing.Any, typing.Any]](self, node: type[T], scope: NodeScope, /) -> None:
+        self[node] = scope
+
+    def get_node_scope[T: Node[typing.Any, typing.Any]](self, node: type[T], /) -> NodeScope | None:
+        return self.get(node, None)
 
 
-def per_event[T: Composable[typing.Any]](node: type[T]) -> type[T]:
-    setattr(node, "scope", PER_EVENT)
-    return node
+NODE_SCOPE_INFO: typing.Final = NodeScopeInfo()
 
 
-def global_node[T: Composable[typing.Any]](node: type[T]) -> type[T]:
-    setattr(node, "scope", GLOBAL)
-    return node
+class MappedScopes(dict[type[Node], Scope]):
+    scopes: dict[NodeScope, Scope]
+
+    def __init__(self, global_scope: Scope, per_event_scope: Scope) -> None:
+        self.scopes = {NodeScope.GLOBAL: global_scope, NodeScope.PER_EVENT: per_event_scope}
+
+    def get(self, key: type[Node], default: Scope | None = None) -> Scope | None:
+        scope = NODE_SCOPE_INFO.get_node_scope(key) or NodeScope.PER_EVENT
+        return self.scopes.get(scope, default)
 
 
-def get_scope(node: Composable[typing.Any], /) -> NodeScope:
-    return getattr(node, NODE_SCOPE_KEY, PER_EVENT)
+# Declare NodeScope members in a global scope
+@enum.global_enum
+class NodeScope(enum.StrEnum):
+    GLOBAL = "global"
+    PER_CALL = "local"
+    PER_EVENT = "event"
+
+    def __call__[T](self, node: type[T], /) -> type[T]:
+        NODE_SCOPE_INFO.set_node_scope(as_node(node), self)
+        return node
+
+
+# Decorators
+global_node, per_call, per_event = GLOBAL, PER_CALL, PER_EVENT
 
 
 __all__ = (
     "GLOBAL",
+    "NODE_SCOPE_INFO",
     "PER_CALL",
     "PER_EVENT",
+    "MappedScopes",
     "NodeScope",
-    "get_scope",
     "global_node",
     "per_call",
     "per_event",

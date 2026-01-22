@@ -1,77 +1,117 @@
 import typing
 from collections import deque
 
+from kungfu import Error, Ok, Pulse, Result
+
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import FuncHandler, Function
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
-from telegrinder.bot.dispatch.process import process_inner
+from telegrinder.bot.dispatch.process import check_rule, process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.rules.abc import ABCRule, Always
 from telegrinder.types.enums import UpdateType
-from telegrinder.types.objects import Update
+from telegrinder.types.objects import (
+    BusinessConnection,
+    BusinessMessagesDeleted,
+    CallbackQuery,
+    ChatBoostRemoved,
+    ChatBoostUpdated,
+    ChatJoinRequest,
+    ChatMemberUpdated,
+    ChosenInlineResult,
+    InlineQuery,
+    Message,
+    MessageReactionCountUpdated,
+    MessageReactionUpdated,
+    PaidMediaPurchased,
+    Poll,
+    PollAnswer,
+    PreCheckoutQuery,
+    ShippingQuery,
+    Update,
+)
 
-type Func[**P, T] = typing.Callable[P, typing.Coroutine[typing.Any, typing.Any, T]]
+if typing.TYPE_CHECKING:
+    from nodnod.agent.base import Agent
+
+type UpdateModel = typing.Union[
+    BusinessConnection,
+    BusinessMessagesDeleted,
+    CallbackQuery,
+    ChatBoostRemoved,
+    ChatBoostUpdated,
+    ChatJoinRequest,
+    ChatMemberUpdated,
+    ChosenInlineResult,
+    InlineQuery,
+    Message,
+    MessageReactionCountUpdated,
+    MessageReactionUpdated,
+    PaidMediaPurchased,
+    Poll,
+    PollAnswer,
+    PreCheckoutQuery,
+    ShippingQuery,
+]
+type ViewResult = Result[str, str] | Result[str, Exception]
+
+OK_CHECK: typing.Final = Ok()
 
 
-class BaseView(ABCView):
-    def __init__(self, update_type: UpdateType | None = None) -> None:
-        self.handlers: deque[ABCHandler] = deque()
-        self.middlewares: deque[ABCMiddleware] = deque()
-        self.return_manager: ABCReturnManager | None = None
-        self.update_type = update_type
-        self._auto_rules: ABCRule = Always()
+class View(ABCView):
+    filter: ABCRule
+    handlers: deque[ABCHandler]
+    middlewares: deque[ABCMiddleware]
+    return_manager: ABCReturnManager | None
+
+    def __init__(
+        self,
+        *,
+        agent_cls: type[Agent] | None = None,
+        return_manager: ABCReturnManager | None = None,
+    ) -> None:
+        self.filter = Always()
+        self.handlers = deque()
+        self.middlewares = deque()
+        self.agent_cls = agent_cls
+        self.return_manager = return_manager
+
+    def __bool__(self) -> bool:
+        return bool(self.handlers) or bool(self.middlewares)
 
     def __repr__(self) -> str:
         return "<{}>".format(type(self).__name__)
 
     @property
     def auto_rules(self) -> ABCRule:
-        return self._auto_rules
+        return self.filter
 
     @auto_rules.setter
-    def auto_rules(self, value: ABCRule | list[ABCRule], /) -> None:
-        """Example usage:
+    def auto_rules(self, value: ABCRule | typing.Iterable[ABCRule], /) -> None:
+        for rule in (value,) if isinstance(value, ABCRule) else value:
+            self.filter &= rule
 
-        ```python
-        view.auto_rules = Rule1() & Rule2() | Rule3() & Rule4()
-        view.auto_rules # <OrRule>
-
-        view.auto_rules = [Rule1(), Rule2()]
-        view.auto_rules # <AndRule>
-        ```
-        """
-        if isinstance(value, list):
-            for rule in value:
-                self._auto_rules = self._auto_rules & rule
-        else:
-            self._auto_rules = value
-
-    @classmethod
-    def to_handler[T: Function](cls, *rules: ABCRule, final: bool = True) -> typing.Callable[[T], FuncHandler[T]]:
-        def wrapper(func: T, /) -> FuncHandler[T]:
-            return FuncHandler(
-                function=func,
-                rules=list(rules),
-                final=final,
-            )
-
-        return wrapper
-
-    def __call__[T: Function](self, *rules: ABCRule, final: bool = True) -> typing.Callable[[T], T]:
-        def wrapper(func: T, /) -> T:
+    def __call__[T: Function](
+        self,
+        *rules: ABCRule,
+        final: bool = True,
+        agent: type[Agent] | None = None,
+    ) -> typing.Callable[[T], T]:
+        def decorator(function: T, /) -> T:
             self.handlers.append(
                 FuncHandler(
-                    function=func,
-                    rules=[self.auto_rules, *rules],
+                    function=function,
+                    rules=rules,
+                    agent=agent or self.agent_cls,
                     final=final,
                 ),
             )
-            return func
+            return function
 
-        return wrapper
+        return decorator
 
     @typing.overload
     def register_middleware[T: ABCMiddleware](self, middleware_cls: type[T], /) -> type[T]: ...
@@ -86,22 +126,101 @@ class BaseView(ABCView):
         self.middlewares.append(middleware() if isinstance(middleware, type) else middleware)
         return middleware if isinstance(middleware, type) else None
 
-    async def check(self, event: Update) -> bool:
-        if self.update_type is not None and event.update_type != self.update_type:
-            return False
-        return bool(self.handlers or self.middlewares)
+    def load(self, external: typing.Self, /) -> None:
+        if not external:
+            return
 
-    async def process(self, event: Update, api: API, context: Context) -> bool:
+        self.handlers.extend(external.handlers)
+        self.middlewares.extend(external.middlewares)
+
+        if not isinstance(external.filter, Always):
+            self.filter &= external.filter
+
+        if external.return_manager is not None and self.return_manager is None:
+            self.return_manager = external.return_manager
+
+        elif self.return_manager is not None and external.return_manager is not None:
+            self.return_manager.managers.extend(external.return_manager.managers)
+
+    async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
+        if not bool(self):
+            return Error("View is empty.")
+
+        if not await check_rule(self.filter, context):
+            return Error("Filter is failed.")
+
+        return OK_CHECK
+
+    async def process(self, api: API, update: Update, context: Context) -> ViewResult:
         return await process_inner(
             api,
-            event,
+            update,
             context,
             self,
         )
 
-    def load(self, external: typing.Self, /) -> None:
-        self.handlers.extend(external.handlers)
-        self.middlewares.extend(external.middlewares)
+
+class EventView(View):
+    def __init__(
+        self,
+        update_type: UpdateType,
+        return_manager: ABCReturnManager | None = None,
+        agent_cls: type[Agent] | None = None,
+    ) -> None:
+        super().__init__(
+            agent_cls=agent_cls,
+            return_manager=return_manager,
+        )
+        self.update_type = update_type
+
+    def __repr__(self) -> str:
+        return "<{}: {!r}>".format(type(self).__name__, self.update_type)
+
+    async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
+        # If update is not of the expected, instantly skip checking the view
+        if update.update_type != self.update_type:
+            return Error(f"Incoming event `{update.update_type!r}` is not `{self.update_type!r}`.")
+        return await super().check(api, update, context)
 
 
-__all__ = ("BaseView",)
+class EventModelView[T: (UpdateModel)](View):
+    def __init__(
+        self,
+        model: type[T],
+        return_manager: ABCReturnManager | None = None,
+        agent_cls: type[Agent] | None = None,
+    ) -> None:
+        super().__init__(
+            agent_cls=agent_cls,
+            return_manager=return_manager,
+        )
+        self.model = model
+
+    def __repr__(self) -> str:
+        return "<{}: {}>".format(type(self).__name__, self.model.__name__)
+
+    async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
+        # If update object is not of the expected type of object, instantly skip checking the view
+        if update.incoming_update.__class__ is not self.model:
+            return Error(
+                f"Incoming event model `{update.incoming_update.__class__.__name__!r}`"
+                f" is not `{self.model.__name__!r}`.",
+            )
+        return await super().check(api, update, context)
+
+
+class ErrorView(View):
+    async def process(self, api: API, update: Update, context: Context) -> ViewResult:
+        result = await super().process(api, update, context)
+
+        if not result and context.exception_update:
+            return Error(context.exception_update.unwrap())
+
+        return result
+
+
+class RawEventView(View):
+    pass
+
+
+__all__ = ("ErrorView", "EventView", "RawEventView", "View")

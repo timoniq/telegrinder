@@ -6,7 +6,7 @@ from telegrinder.bot.dispatch.handler.func import FuncHandler
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.return_manager.abc import register_manager
 from telegrinder.bot.dispatch.return_manager.message import MessageReturnManager
-from telegrinder.bot.dispatch.view.base import BaseView
+from telegrinder.bot.dispatch.view.base import View
 from telegrinder.bot.rules.abc import ABCRule, AndRule
 from telegrinder.bot.rules.text import Text
 
@@ -18,10 +18,9 @@ class CustomMessageReturnManager(MessageReturnManager):
         assert isinstance(value, int)
 
 
-class CustomMessageView(BaseView):
+class CustomMessageView(View):
     def __init__(self) -> None:
-        super().__init__()
-        self.return_manager: CustomMessageReturnManager = CustomMessageReturnManager()
+        super().__init__(return_manager=CustomMessageReturnManager())
 
 
 class PreMiddleware(ABCMiddleware):
@@ -75,6 +74,8 @@ async def test_register_auto_rules():
 async def test_register_return_manager():
     view = CustomMessageView()
 
+    assert isinstance(view.return_manager, CustomMessageReturnManager)
+
     @view.return_manager.register_manager(bytes)
     async def manager(value: bytes, event: MessageCute, ctx: Context) -> None: ...
 
@@ -83,19 +84,19 @@ async def test_register_return_manager():
 
 
 @pytest.mark.asyncio()
-async def test_view_check_and_process(api_instance, message_update):
+async def test_view_check_and_process(api_instance, message_update, message_context):
     view = CustomMessageView()
 
     @view()
     async def handler(message: MessageCute):
         assert isinstance(message, MessageCute) is True
 
-    assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance, Context()) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True
 
 
 @pytest.mark.asyncio()
-async def test_process_pre_middleware(api_instance, message_update):
+async def test_process_pre_middleware(api_instance, message_update, message_context):
     view = CustomMessageView()
     view.middlewares.append(PreMiddleware())
 
@@ -103,12 +104,12 @@ async def test_process_pre_middleware(api_instance, message_update):
     async def handler(message: MessageCute):
         return None
 
-    assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance, Context()) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True
 
 
 @pytest.mark.asyncio()
-async def test_process_post_middleware(api_instance, message_update):
+async def test_process_post_middleware(api_instance, message_update, message_context):
     view = CustomMessageView()
     view.middlewares.append(PostMiddleware())
 
@@ -116,29 +117,29 @@ async def test_process_post_middleware(api_instance, message_update):
     async def handler(message: MessageCute):
         return b"123data"
 
-    assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance, Context()) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True
 
 
 @pytest.mark.asyncio()
-async def test_process_with_rule(api_instance, message_update):
+async def test_process_with_rule(api_instance, message_update, message_context):
     view = CustomMessageView()
 
     @view(Text("Hello, Telegrinder! btw, laurelang - nice pure logical programming launguage ^_^"))
     async def handler(message: MessageCute):
         return None
 
-    assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance, Context()) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True
 
 
 @pytest.mark.asyncio()
-async def test_process_with_return_manager(api_instance, message_update):
+async def test_process_with_return_manager(api_instance, message_update, message_context):
     view = CustomMessageView()
 
     @view()
     async def handler(message: MessageCute):
         return 123
 
-    assert await view.check(message_update) is True
-    assert await view.process(message_update, api_instance, Context()) is True
+    assert bool(await view.check(api_instance, message_update, message_context)) is True
+    assert bool(await view.process(api_instance, message_update, message_context.copy())) is True

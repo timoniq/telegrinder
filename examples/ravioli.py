@@ -3,14 +3,11 @@ import dataclasses
 import datetime
 
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.modules import logger
 from telegrinder.rules import Markup, Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
 RAVIOLI_TIME_TO_COOK = 9 * 60
-
-logger.set_level("DEBUG")
 
 
 @dataclasses.dataclass
@@ -32,7 +29,7 @@ class DummyDB:
         self.storage[user_id].append(tinfo)
 
     async def new(self, name: str, time: int, message: Message) -> TimerInfo:
-        await bot.loop_wrapper.create_task(self.timer(name, time, message))
+        bot.loop_wrapper.add_task(self.timer(name, time, message))
         return TimerInfo(name, datetime.datetime.now() + datetime.timedelta(seconds=time))
 
     async def timer(self, name: str, time: int, message: Message) -> None:

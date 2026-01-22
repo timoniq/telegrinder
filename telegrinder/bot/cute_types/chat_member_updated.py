@@ -1,12 +1,15 @@
 import typing
 from datetime import datetime
 
-from fntypes.result import Result
+from kungfu.library.monad.result import Result
 
 from telegrinder.api.api import APIError
-from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
+
+if typing.TYPE_CHECKING:
+    from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute  # noqa
 
 
 async def chat_member_interaction(
@@ -22,7 +25,7 @@ async def chat_member_interaction(
     return await getattr(update.ctx_api, method_name)(**params)
 
 
-class ChatMemberShortcuts:
+class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequestCute"]):
     """Shortcut methods for `ChatMemberUpdatedCute`, `ChatJoinRequestCute` objects."""
 
     @shortcut("ban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
@@ -98,6 +101,7 @@ class ChatMemberShortcuts:
         can_edit_stories: bool | None = None,
         can_invite_users: bool | None = None,
         can_manage_chat: bool | None = None,
+        can_manage_direct_messages: bool | None = None,
         can_manage_topics: bool | None = None,
         can_manage_video_chats: bool | None = None,
         can_pin_messages: bool | None = None,

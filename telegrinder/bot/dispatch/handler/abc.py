@@ -1,7 +1,7 @@
 import typing
 from abc import ABC, abstractmethod
 
-from fntypes.result import Result
+from kungfu.library.monad.result import Result
 
 from telegrinder.api import API
 from telegrinder.bot.dispatch.context import Context
@@ -15,7 +15,7 @@ class ABCHandler(ABC):
     async def run(
         self,
         api: API,
-        event: Update,
+        update: Update,
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, typing.Any]:

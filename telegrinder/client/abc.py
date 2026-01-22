@@ -1,11 +1,24 @@
-import io
+import dataclasses
 import typing
 from abc import ABC, abstractmethod
+from datetime import timedelta
+from http import HTTPStatus
 
-from telegrinder.client.form_data import MultipartFormProto, encode_form_data
+from telegrinder.client.form_data import MultipartBuilderProto, encode_form_data
 
-type Data = dict[str, typing.Any] | MultipartFormProto
+if typing.TYPE_CHECKING:
+    import datetime
+
+type Data = typing.Any
 type Files = dict[str, tuple[str, typing.Any]]
+type Timeout = int | float | datetime.timedelta
+
+
+@dataclasses.dataclass(frozen=True, slots=True)
+class Response[T = typing.Any]:
+    response: T
+    content: bytes
+    status: HTTPStatus
 
 
 class ABCClient(ABC):
@@ -18,7 +31,18 @@ class ABCClient(ABC):
 
     @property
     @abstractmethod
-    def timeout(self) -> float:
+    def timeout(self) -> datetime.timedelta:
+        pass
+
+    @abstractmethod
+    async def request(
+        self,
+        url: str,
+        method: str = "GET",
+        data: Data | None = None,
+        timeout: int | float | timedelta | None = None,
+        **kwargs: typing.Any,
+    ) -> Response:
         pass
 
     @abstractmethod
@@ -27,6 +51,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> str:
         pass
@@ -37,6 +62,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> dict[str, typing.Any]:
         pass
@@ -47,6 +73,7 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         pass
@@ -57,49 +84,53 @@ class ABCClient(ABC):
         url: str,
         method: str = "GET",
         data: Data | None = None,
+        timeout: Timeout | None = None,
         **kwargs: typing.Any,
     ) -> bytes:
         pass
 
     @abstractmethod
-    async def close(self) -> None:
+    async def close(self, **kwargs: typing.Any) -> None:
         pass
 
     @classmethod
     @abstractmethod
-    def multipart_form_factory(cls) -> MultipartFormProto:
+    def multipart_form_builder(cls) -> MultipartBuilderProto:
         pass
 
     @classmethod
     def get_form(
         cls,
         *,
-        data: dict[str, typing.Any],
+        data: dict[str, typing.Any] | None = None,
         files: Files | None = None,
-    ) -> MultipartFormProto:
-        multipart_form = cls.multipart_form_factory()
+    ) -> typing.Any:
+        builder = cls.multipart_form_builder()
+
+        if not data and not files:
+            return builder.build()
+
+        data = data or {}
         files = files or {}
 
         for k, v in encode_form_data(data, files).items():
-            multipart_form.add_field(k, v)
+            builder.add_field(k, v)
 
-        for n, (filename, content) in {
-            k: (n, io.BytesIO(c) if isinstance(c, bytes) else c) for k, (n, c) in files.items()
-        }.items():
-            multipart_form.add_field(n, content, filename=filename)
+        for n, (filename, content) in files.items():
+            builder.add_field(n, content, filename=filename)
 
-        return multipart_form
+        return builder.build()
 
     async def __aenter__(self) -> typing.Self:
         return self
 
     async def __aexit__(
         self,
-        exc_type: type[BaseException],
+        exc_type: typing.Any,
         exc_val: typing.Any,
         exc_tb: typing.Any,
     ) -> None:
         await self.close()
 
 
-__all__ = ("ABCClient",)
+__all__ = ("ABCClient", "Response")

@@ -6,14 +6,11 @@ from telegrinder import (
     Token,
 )
 from telegrinder.bot import MESSAGE_FROM_USER, WaiterMachine
-from telegrinder.modules import logger
 from telegrinder.rules import Text
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine(bot.dispatch)
-
-logger.set_level("INFO")
+wm = WaiterMachine()
 
 
 class HasPhoto(ABCRule):
@@ -30,7 +27,7 @@ class HasNicePhoto(ABCRule, requires=[HasPhoto()]):
 async def start_handler(m: Message):
     await m.answer("Send me a photo please")
     m, _ = await wm.wait(
-        hasher=MESSAGE_FROM_USER(m.from_user.id),
+        hasher=MESSAGE_FROM_USER(bot.on.message, m.from_user.id),
         release=HasPhoto(),
     )
     await m.reply("Great photo! Chain completed.")

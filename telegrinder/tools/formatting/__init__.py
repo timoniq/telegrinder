@@ -25,16 +25,16 @@ from telegrinder.tools.formatting.deep_links import (
     tg_share_link,
     tg_story_link,
 )
-from telegrinder.tools.formatting.html_formatter import (
-    FormatString,
-    HTMLFormatter,
-    block_quote,
+from telegrinder.tools.formatting.html import (
+    HTML,
+    blockquote,
     bold,
     code_inline,
     escape,
     italic,
     link,
     mention,
+    monospace,
     pre_code,
     spoiler,
     strike,
@@ -43,15 +43,15 @@ from telegrinder.tools.formatting.html_formatter import (
 )
 
 __all__ = (
-    "FormatString",
-    "HTMLFormatter",
-    "block_quote",
+    "HTML",
+    "blockquote",
     "bold",
     "code_inline",
     "escape",
     "italic",
     "link",
     "mention",
+    "monospace",
     "pre_code",
     "spoiler",
     "strike",

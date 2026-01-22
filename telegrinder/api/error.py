@@ -2,8 +2,8 @@ import typing
 from functools import cached_property
 from http import HTTPStatus
 
-from fntypes.misc import from_optional
-from fntypes.option import Option
+from kungfu.library.misc import from_optional
+from kungfu.library.monad.option import Option
 
 
 class ReprErrorMixin:
@@ -19,7 +19,6 @@ class APIError(ReprErrorMixin, Exception):
         data: dict[str, typing.Any],
     ) -> None:
         self.code, self.error, self.parameters = code, error, data
-        super().__init__(code, error, data)
 
     @cached_property
     def status_code(self) -> HTTPStatus:
@@ -38,13 +37,10 @@ class APIError(ReprErrorMixin, Exception):
 
 
 class APIServerError(ReprErrorMixin, Exception):
-    def __init__(self, message: str, retry_after: int) -> None:
+    def __init__(self, message: str, retry_after: int | None = None) -> None:
         self.message = message
         self.retry_after = retry_after
-        super().__init__(message, retry_after)
-
-    def __str__(self) -> str:
-        return self.message
+        super().__init__(message)
 
 
 class InvalidTokenError(BaseException):

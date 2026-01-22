@@ -3,21 +3,18 @@ to work with databases.
 """
 
 import aiosqlite  # type: ignore
-from fntypes.option import Nothing
+from kungfu.library.monad.option import Nothing
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.model import decoder
-from telegrinder.modules import logger
-from telegrinder.msgspec_utils import Option
+from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.rules import IsReply, Markup, MessageEntities, Text
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import User
 
 db_path = "examples/assets/users.db"
 bot = Telegrinder(API(Token.from_env()))
-logger.set_level("INFO")
 
 
 @bot.loop_wrapper.lifespan.on_startup
@@ -126,9 +123,7 @@ class MentionRule(
         user = None
 
         match ctx:
-            case {"message_entities": message_entities} if (
-                message_entities[0].type == MessageEntityType.TEXT_MENTION
-            ):
+            case {"message_entities": message_entities} if message_entities[0].type == MessageEntityType.TEXT_MENTION:
                 user = await db.get_or_set_user(message_entities[0].user.unwrap())
             case {"username": username}:
                 user = (await db.get_user_by_username(username)).unwrap_or_none()

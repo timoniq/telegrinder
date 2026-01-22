@@ -18,11 +18,11 @@ from telegrinder.rules import (
     PayloadMarkupRule,
     Text,
 )
-from telegrinder.tools.formatting import HTMLFormatter, block_quote, link
+from telegrinder.tools.formatting import HTML, blockquote, link
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 dp = Dispatch()
-wm = WaiterMachine(dp)
+wm = WaiterMachine()
 
 
 kb = (
@@ -50,7 +50,7 @@ async def car_choice(message: Message) -> None:
         .add_option("bentley", "Bentley Continental", "Continental 🤍")
         .add_option("mazda", "Mazda rx 7", "Mazda rx 7 🩵")
         .add_option("toyota", "Toyota Supra mk5", "Supra mk5 💜")
-        .wait(CALLBACK_QUERY_FOR_MESSAGE, message.ctx_api)
+        .wait(CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api)
     )
     await message.edit(
         "🚘 You picked: {}.".format(", ".join(c for c in picked if picked[c])),
@@ -67,14 +67,12 @@ async def handle_menu_command(message: Message) -> None:
 async def handle_query_webhook(cb: CallbackQuery) -> None:
     await cb.answer()
     await cb.ctx_api.send_message(
-        text=HTMLFormatter(
-            link(
-                "https://core.telegram.org/bots/webhooks",
-                text="🛰 Marvin's Marvellous Guide to All Things Webhook.",
-            )
+        text=link(
+            "https://core.telegram.org/bots/webhooks",
+            text="🛰 Marvin's Marvellous Guide to All Things Webhook.",
         ),
         chat_id=cb.chat_id.unwrap(),
-        parse_mode=HTMLFormatter.PARSE_MODE,
+        parse_mode=HTML.PARSE_MODE,
     )
 
 
@@ -88,11 +86,11 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        *MESSAGE_IN_CHAT(message.chat.id),
+        hasher=MESSAGE_IN_CHAT(dp.message, message.chat.id),
         release=HasText(),
         on_miss=MessageReplyHandler("Im still waiting for your message!"),
     )
-    await msg.reply(HTMLFormatter(block_quote(msg.text.unwrap())), parse_mode=HTMLFormatter.PARSE_MODE)
+    await msg.reply(blockquote(msg.text.unwrap()), parse_mode=HTML.PARSE_MODE)
 
 
 @dp.callback_query(PayloadEqRule("action/guess"))
@@ -105,8 +103,7 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
         )
     ).unwrap()
     msg, _ = await wm.wait(
-        MESSAGE_IN_CHAT,
-        message.chat.id,
+        hasher=MESSAGE_IN_CHAT(dp.message, message.chat.id),
         release=IntegerInRange(range(1, 11)),
         on_miss=MessageReplyHandler("Send a number between 1 and 10!"),
     )

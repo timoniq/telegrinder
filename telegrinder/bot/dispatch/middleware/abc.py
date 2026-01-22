@@ -1,121 +1,112 @@
+import typing
 from abc import ABC
 from functools import cached_property
 
-import typing_extensions as typing
-from fntypes.result import Error, Ok
+from kungfu.library.monad.result import Error, Ok
+from nodnod.agent.event_loop.agent import EventLoopAgent
+from nodnod.error import NodeError
+from nodnod.interface.node_from_function import create_node_from_function
 
-from telegrinder.api.api import API
-from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
-from telegrinder.node.base import IsNode, get_nodes
-from telegrinder.node.composer import compose_nodes
-from telegrinder.tools.aio import maybe_awaitable
+from telegrinder.node.compose import compose, create_composable
+from telegrinder.node.utils import get_globals_from_function, get_locals_from_function
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.lifespan import Lifespan
-from telegrinder.tools.magic.function import bundle
-from telegrinder.types.objects import Update
 
-type Event = Update | BaseCute[typing.Any]
-type MiddlewareResult = bool | None | typing.Coroutine[typing.Any, typing.Any, bool | None]
+if typing.TYPE_CHECKING:
+    from nodnod.agent.base import Agent
+
+    from telegrinder.node.compose import Composable
+
+type Node = typing.Any
+type MiddlewareResult = bool | typing.Awaitable[bool | None] | None
+
+
+async def run_pre_middleware(middleware: ABCMiddleware, context: Context) -> bool:
+    if middleware.is_pre:
+        return bool(await run_middleware(middleware, context, composable=middleware.pre_composable))
+    return True
+
+
+async def run_post_middleware(middleware: ABCMiddleware, context: Context) -> None:
+    if middleware.is_post:
+        await run_middleware(middleware, context, composable=middleware.post_composable)
 
 
 async def run_middleware(
-    method: typing.Callable[..., MiddlewareResult],
-    api: API,
-    event: Update,
-    ctx: Context,
-    required_nodes: typing.Mapping[str, IsNode] | None = None,
+    middleware: ABCMiddleware,
+    context: Context,
+    *,
+    composable: Composable[typing.Any],
 ) -> bool | None:
-    node_col = None
-    data = {API: api, Update: event, Context: ctx}
-
-    if required_nodes:
-        match await compose_nodes(required_nodes, ctx, data=data):
-            case Ok(value):
-                node_col = value
-            case Error(compose_error):
-                logger.debug(
-                    "Cannot compose nodes for `{}`, error: {!r}",
-                    method.__qualname__,
-                    compose_error.message,
+    async with compose(composable, context) as result:
+        match result:
+            case Ok(response):
+                return response
+            case Error(error):
+                await logger.adebug(
+                    "Middleware `{!r}` failed with error:{}\n",
+                    middleware_name := fullname(middleware),
+                    NodeError(f"* failed to compose middleware `{middleware_name}`", from_error=error),
                 )
-                return False
-
-    try:
-        bundle_method = bundle(method, ctx | ({} if node_col is None else node_col.values))
-        bundle_method &= bundle(method, data, typebundle=True)
-        return await maybe_awaitable(bundle_method())
-    finally:
-        if node_col is not None:
-            await node_col.close_all()
 
 
 class ABCMiddleware(ABC):
+    agent_cls: type[Agent] = EventLoopAgent
+    pre_required_nodes: typing.Mapping[str, Node] | None = None
+    post_required_nodes: typing.Mapping[str, Node] | None = None
+
     def __repr__(self) -> str:
-        name = f"middleware {type(self).__name__!r}"
-        middleware_class = type(self)
+        return "<{}{}>".format(
+            "".join(
+                (
+                    f"{'pre-' if self.is_pre else ''}",
+                    f"{'post-' if self.is_post else ''}",
+                ),
+            ),
+            f"middleware `{fullname(self)}`",
+        )
 
-        if middleware_class.post is not ABCMiddleware.post:
-            name = "post-" + name
+    @property
+    def is_pre(self) -> bool:
+        return type(self).pre is not ABCMiddleware.pre
 
-        if middleware_class.pre is not ABCMiddleware.pre:
-            name = "pre-" + name
-
-        return f"<{name}>"
-
-    if typing.TYPE_CHECKING:
-
-        def pre(self, *args: typing.Any, **kwargs: typing.Any) -> MiddlewareResult: ...
-
-        def post(self, *args: typing.Any, **kwargs: typing.Any) -> MiddlewareResult: ...
-
-    else:
-
-        def pre(self, *args, **kwargs): ...
-
-        def post(self, *args, **kwargs): ...
+    @property
+    def is_post(self) -> bool:
+        return type(self).post is not ABCMiddleware.post
 
     @cached_property
-    def pre_required_nodes(self) -> dict[str, IsNode]:
-        return get_nodes(self.pre)
+    def pre_composable(self) -> Composable:
+        return self.get_composable(self.pre, self.agent_cls, required_nodes=self.pre_required_nodes)
 
     @cached_property
-    def post_required_nodes(self) -> dict[str, IsNode]:
-        return get_nodes(self.post)
+    def post_composable(self) -> Composable:
+        return self.get_composable(self.post, self.agent_cls, required_nodes=self.post_required_nodes)
 
-    def to_lifespan(
-        self,
-        event: Event,
-        ctx: Context,
-        *,
-        api: API | None = None,
-    ) -> Lifespan:
-        if isinstance(event, BaseCute):
-            event, api = event.raw_update, event.api
+    @staticmethod
+    def get_composable(
+        method: typing.Callable[..., typing.Any],
+        agent_cls: type[Agent] | None,
+        required_nodes: typing.Mapping[str, Node] | None,
+    ) -> Composable:
+        node = create_node_from_function(
+            method,
+            dependencies=required_nodes,
+            forward_refs=get_globals_from_function(method),
+            namespace=get_locals_from_function(method),
+        )
+        return create_composable(node, agent_cls=agent_cls)
 
-        if api is None:
-            raise LookupError("Cannot get api, please pass as kwarg or provide BaseCute api-bound event.")
+    def pre(self, *args: typing.Any, **kwargs: typing.Any) -> MiddlewareResult: ...
 
+    def post(self, *args: typing.Any, **kwargs: typing.Any) -> MiddlewareResult: ...
+
+    def to_lifespan(self, context: Context) -> Lifespan:
         return Lifespan(
-            startup_tasks=[
-                run_middleware(
-                    self.pre,
-                    api,
-                    event,
-                    ctx,
-                    required_nodes=self.pre_required_nodes,
-                ),
-            ],
-            shutdown_tasks=[
-                run_middleware(
-                    self.post,
-                    api,
-                    event,
-                    ctx,
-                    required_nodes=self.post_required_nodes,
-                ),
-            ],
+            startup_tasks=[run_pre_middleware(self, context)],
+            shutdown_tasks=[run_post_middleware(self, context)],
         )
 
 
-__all__ = ("ABCMiddleware", "run_middleware")
+__all__ = ("ABCMiddleware", "run_post_middleware", "run_pre_middleware")

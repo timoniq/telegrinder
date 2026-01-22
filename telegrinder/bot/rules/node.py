@@ -1,44 +1,43 @@
-from fntypes.result import Ok
+import typing
 
-from telegrinder.api.api import API
+from kungfu.library.monad.result import Ok
+from nodnod.agent.event_loop.agent import EventLoopAgent
+
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node.base import IsNode, is_node
-from telegrinder.node.composer import compose_nodes
-from telegrinder.types.objects import Update
+from telegrinder.node.compose import run_agent
+from telegrinder.node.utils import as_node
+
+if typing.TYPE_CHECKING:
+    from nodnod.agent.base import Agent
+
+type Node = typing.Any
 
 
 class NodeRule(ABCRule):
-    def __init__(self, *nodes: IsNode | tuple[str, IsNode]) -> None:
-        self.nodes: list[IsNode] = []
-        self.node_keys: list[str | None] = []
+    nodes: tuple[tuple[str | None, Node], ...]
 
-        for binding in nodes:
-            node_key, node_t = binding if isinstance(binding, tuple) else (None, binding)
-            if not is_node(node_t):
-                continue
-            self.nodes.append(node_t)
-            self.node_keys.append(node_key)
+    def __init__(
+        self,
+        *nodes: Node | tuple[str, Node],
+        agent: type[Agent] | None = None,
+        roots: dict[type[typing.Any], typing.Any] | None = None,
+    ) -> None:
+        self.agent = (agent or EventLoopAgent).build(nodes=set(map(as_node, nodes)))
+        self.nodes = tuple((x if isinstance(x, tuple) else (None, x)) for x in nodes)
+        self.roots = roots
 
-    async def check(self, update: Update, api: API, context: Context) -> bool:
-        result = await compose_nodes(
-            nodes={f"node_{i}": node for i, node in enumerate(self.nodes)},
-            ctx=context,
-            data={Update: update, API: api},
-        )
+    async def check(self, context: Context) -> bool:
+        async with run_agent(self.agent, context, roots=self.roots) as result:
+            match result:
+                case Ok(scope):
+                    for key, node in self.nodes:
+                        if key is not None and node in scope:
+                            context[key] = scope[node].value
 
-        match result:
-            case Ok(collection):
-                resolved_nodes = collection.sessions
-            case _:
-                return False
-
-        for i, (node_key, node_value) in enumerate(resolved_nodes.items()):
-            if (key := self.node_keys[i]) and node_key == key:
-                context[key] = node_value
-
-        await collection.close_all()
-        return True
+                    return True
+                case _:
+                    return False
 
 
 __all__ = ("NodeRule",)

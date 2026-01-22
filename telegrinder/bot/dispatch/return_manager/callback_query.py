@@ -7,13 +7,13 @@ from telegrinder.bot.dispatch.return_manager.abc import BaseReturnManager, regis
 class CallbackQueryReturnManager(BaseReturnManager):
     @register_manager(str)
     @staticmethod
-    async def str_manager(value: str, event: CallbackQueryCute) -> None:
-        await event.answer(value)
+    async def str_manager(handler_response: str, event: CallbackQueryCute) -> None:
+        await event.answer(handler_response)
 
     @register_manager(dict)
     @staticmethod
-    async def dict_manager(value: dict[str, typing.Any], event: CallbackQueryCute) -> None:
-        await event.answer(**value)
+    async def dict_manager(handler_response: dict[str, typing.Any], event: CallbackQueryCute) -> None:
+        await event.answer(**handler_response)
 
 
 __all__ = ("CallbackQueryReturnManager",)

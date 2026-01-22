@@ -1,181 +1,362 @@
-from __future__ import annotations
+import typing
+from collections import deque
+from functools import cached_property
 
-import dataclasses
-
-import typing_extensions as typing
-from fntypes.option import Nothing, Option, Some
-from vbml.patcher.abc import ABCPatcher
+from nodnod.interface.inject import inject_internals
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.bot.dispatch.handler.func import FuncHandler, Function
-from telegrinder.bot.dispatch.middleware.abc import run_middleware
-from telegrinder.bot.dispatch.middleware.global_middleware import GlobalMiddleware
-from telegrinder.bot.dispatch.view.abc import ABCView
-from telegrinder.bot.dispatch.view.box import (
-    CallbackQueryView,
-    ChatJoinRequestView,
-    ChatMemberView,
-    ErrorView,
-    InlineQueryView,
-    MessageView,
-    PreCheckoutQueryView,
-    RawEventView,
-    ViewBox,
-)
+from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware, run_post_middleware, run_pre_middleware
+from telegrinder.bot.dispatch.middleware.box import MiddlewareBox
+from telegrinder.bot.dispatch.router.base import Router
+from telegrinder.bot.dispatch.view.base import ErrorView, View
+from telegrinder.bot.dispatch.view.box import ViewBox
 from telegrinder.modules import logger
-from telegrinder.node.composer import CONTEXT_STORE_NODES_KEY, NodeScope
+from telegrinder.node.scope import PER_EVENT
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
-    from telegrinder.bot.cute_types.base import BaseCute
-    from telegrinder.bot.rules.abc import ABCRule
-    from telegrinder.node.composer import Composer
+    from vbml.patcher.abc import ABCPatcher
 
-T = typing.TypeVar("T", default=typing.Any)
-R = typing.TypeVar("R", covariant=True, default=typing.Any)
-Event = typing.TypeVar("Event", bound="BaseCute")
-P = typing.ParamSpec("P", default=...)
+    from telegrinder.bot.dispatch.view.base import EventView, RawEventView, View
+    from telegrinder.bot.dispatch.view.media_group import MediaGroupView
+
+NANOSECONDS_PER_MILLISECOND: typing.Final = 1_000_000_000
 
 
-@dataclasses.dataclass(repr=False, kw_only=True)
-class Dispatch(
+class ViewGetter:
+    main_router: Router
+
+    def __getattr__(self, name: str, /) -> typing.Any:
+        if name in ViewBox.__dataclass_fields__ or name in ViewBox.__dict__:
+            return getattr(self.main_router, name)
+        return super().__getattribute__(name)
+
+
+class Dispatch[
+    T: MiddlewareBox = MiddlewareBox,
+    ErrorHandler: ErrorView = ErrorView,
+    MessageView: EventView = EventView,
+    EditedMessageView: EventView = EventView,
+    ChannelPostView: EventView = EventView,
+    EditedChannelPostView: EventView = EventView,
+    BusinessConnectionView: EventView = EventView,
+    BusinessMessageView: EventView = EventView,
+    EditedBusinessMessageView: EventView = EventView,
+    DeletedBusinessMessagesView: EventView = EventView,
+    MessageReactionView: EventView = EventView,
+    MessageReactionCountView: EventView = EventView,
+    InlineQueryView: EventView = EventView,
+    ChosenInlineResultView: EventView = EventView,
+    CallbackQueryView: EventView = EventView,
+    ShippingQueryView: EventView = EventView,
+    PreCheckoutQueryView: EventView = EventView,
+    PurchasedPaidMediaView: EventView = EventView,
+    PollView: EventView = EventView,
+    PollAnswerView: EventView = EventView,
+    MyChatMemberView: EventView = EventView,
+    ChatMemberView: EventView = EventView,
+    ChatJoinRequestView: EventView = EventView,
+    ChatBoostView: EventView = EventView,
+    RemovedChatBoostView: EventView = EventView,
+    MediaGroup: View = MediaGroupView,
+    EventError: ErrorView = ErrorView,
+    RawEvent: RawEventView = RawEventView,
+](
     ABCDispatch,
     ViewBox[
-        CallbackQueryView,
-        ChatJoinRequestView,
-        ChatMemberView,
-        InlineQueryView,
         MessageView,
-        PreCheckoutQueryView,
-        RawEventView,
-        ErrorView,
-    ],
-    typing.Generic[
-        CallbackQueryView,
-        ChatJoinRequestView,
-        ChatMemberView,
+        EditedMessageView,
+        ChannelPostView,
+        EditedChannelPostView,
+        BusinessConnectionView,
+        BusinessMessageView,
+        EditedBusinessMessageView,
+        DeletedBusinessMessagesView,
+        MessageReactionView,
+        MessageReactionCountView,
         InlineQueryView,
-        MessageView,
+        ChosenInlineResultView,
+        CallbackQueryView,
+        ShippingQueryView,
         PreCheckoutQueryView,
-        RawEventView,
-        ErrorView,
-    ],
+        PurchasedPaidMediaView,
+        PollView,
+        PollAnswerView,
+        MyChatMemberView,
+        ChatMemberView,
+        ChatJoinRequestView,
+        ChatBoostView,
+        RemovedChatBoostView,
+        MediaGroup,
+        EventError,
+        RawEvent,
+    ]
+    if typing.TYPE_CHECKING
+    else ViewGetter,
 ):
-    global_context: TelegrinderContext = dataclasses.field(
-        init=False,
-        default_factory=TelegrinderContext,
-    )
-    global_middleware: "GlobalMiddleware" = dataclasses.field(
-        default_factory=lambda: GlobalMiddleware(),
-    )
+    type MainRouter = Router[
+        MessageView,
+        EditedMessageView,
+        ChannelPostView,
+        EditedChannelPostView,
+        BusinessConnectionView,
+        BusinessMessageView,
+        EditedBusinessMessageView,
+        DeletedBusinessMessagesView,
+        MessageReactionView,
+        MessageReactionCountView,
+        InlineQueryView,
+        ChosenInlineResultView,
+        CallbackQueryView,
+        ShippingQueryView,
+        PreCheckoutQueryView,
+        PurchasedPaidMediaView,
+        PollView,
+        PollAnswerView,
+        MyChatMemberView,
+        ChatMemberView,
+        ChatJoinRequestView,
+        ChatBoostView,
+        RemovedChatBoostView,
+        MediaGroup,
+        EventError,
+        RawEvent,
+    ]
 
-    def __repr__(self) -> str:
-        return "Dispatch(%s)" % ", ".join(f"{k}={v!r}" for k, v in self.get_views().items())
+    main_router: MainRouter
+    error_handler: ErrorHandler
+    middlewares: T
+    _routers: deque[Router] | None = None
+
+    @typing.overload
+    def __init__(self) -> None: ...
+
+    @typing.overload
+    def __init__(self, *, router: MainRouter) -> None: ...
+
+    @typing.overload
+    def __init__(self, *, middleware_box: T) -> None: ...
+
+    @typing.overload
+    def __init__(self, *, router: MainRouter, middleware_box: T) -> None: ...
+
+    def __init__(
+        self,
+        *,
+        router: MainRouter | None = None,
+        error_handler: ErrorHandler | None = None,
+        middleware_box: MiddlewareBox | None = None,
+    ) -> None:
+        self.main_router = router or Router()  # type: ignore
+        self.error_handler = error_handler or ErrorView()  # type: ignore
+        self.global_context = TelegrinderContext()
+        self.global_scope = self.global_context.node_global_scope
+        self.loop_wrapper = self.global_context.loop_wrapper
+        self.middlewares = self.global_context.setdefault_value("middleware_box", middleware_box or MiddlewareBox())
+
+    def __setitem__(self, injection_type: typing.Any, injection_value: typing.Any, /) -> None:
+        self.global_scope.inject(injection_type, injection_value)
+
+    @property
+    def routers(self) -> deque[Router]:
+        if self._routers is None:
+            self._routers = deque((self.main_router,) if self.main_router else ())  # type: ignore
+        return self._routers  # type: ignore
+
+    @cached_property
+    def raw_views(self) -> tuple[View, ...]:
+        return tuple(filter(None, (router.raw for router in self.routers)))
 
     @property
     def patcher(self) -> ABCPatcher:
-        """Alias `patcher` to get `vbml.Patcher` from the global context."""
+        """Alias `patcher` to get a vbml patcher from the global context."""
         return self.global_context.vbml_patcher
 
     @property
-    def composer(self) -> Composer:
-        """Alias `composer` to get `telegrinder.node.composer.Composer` from the global context."""
-        return self.global_context.composer.unwrap()
+    def register_middleware[Middleware: ABCMiddleware](self) -> typing.Callable[[type[Middleware]], type[Middleware]]:
+        """Decorator to register a custom middleware in the dispatch's middleware box."""
+        return self.middlewares.__call__
 
-    def handle[T: Function](self, *rules: ABCRule, final: bool = True) -> typing.Callable[[T], T]:
-        def wrapper(func: T, /) -> T:
-            self.raw_event.handlers.append(
-                FuncHandler(
-                    function=func,
-                    rules=list(rules),
-                    final=final,
-                ),
+    async def _handle_exceptions(
+        self,
+        api: API,
+        update: Update,
+        context: Context,
+        exceptions: tuple[BaseException | BaseExceptionGroup[BaseException], ...],
+    ) -> None:
+        unhandled_exceptions: list[BaseException] = []
+
+        try:
+            async with self.loop_wrapper.create_task_group() as task_group:
+                for exception in exceptions:
+                    if isinstance(exception, BaseExceptionGroup):
+                        task_group.create_task(self._handle_exceptions(api, update, context, exception.exceptions))
+                    elif isinstance(exception, Exception):
+                        task_group.create_task(
+                            self.main_router.route_view(
+                                self.error_handler,
+                                api,
+                                update,
+                                context.copy().add_exception_update(exception),
+                            ),
+                        )
+                    else:
+                        unhandled_exceptions.append(exception)
+        except BaseExceptionGroup as group:
+            raise BaseExceptionGroup(
+                "Unhandled exception groups:",
+                [group, BaseExceptionGroup("Unhandled exceptions:", unhandled_exceptions)],
             )
-            return func
 
-        return wrapper
+        if unhandled_exceptions:
+            raise BaseExceptionGroup("Unhandled exceptions:", unhandled_exceptions)
 
-    async def feed(self, event: Update, api: API) -> bool:
-        logger.info("New Update(id={}, type={!r})", event.update_id, event.update_type)
-        processed = False
-        context = Context().add_update_cute(event, api)
-        start_time = self.global_context.loop_wrapper.loop.time()
+    async def _process_views(
+        self,
+        views: typing.Iterable[View],
+        api: API,
+        update: Update,
+        context: Context,
+    ) -> bool:
+        async with self.loop_wrapper.create_task_group() as task_group:
+            for view in views:
+                task_group.create_task(self.main_router.route_view(view, api, update, context))
 
-        if (
-            await run_middleware(
-                self.global_middleware.pre,
-                api,
-                event,
-                context,
-                required_nodes=self.global_middleware.pre_required_nodes,
-            )
-            is False
-        ):
-            return processed
+        return any(task_group.results())
 
-        for view in self.get_views().values():
-            if await view.check(event):
-                logger.debug(
-                    "Processing update (id={}, type={!r}) with view {!r} by bot (id={})",
-                    event.update_id,
-                    event.update_type,
-                    view,
+    async def _process_update_exceptions(
+        self,
+        api: API,
+        update: Update,
+        context: Context,
+    ) -> None:
+        await logger.adebug(
+            "Processing error views with exceptions [{}] for update (id={}, type={!r})",
+            ", ".join(f"{type(e).__name__}" for e in context.exceptions_update.values()),
+            update.update_id,
+            update.update_type,
+        )
+
+        async with self.loop_wrapper.create_task_group() as task_group:
+            for router, exception in context.exceptions_update.items():
+                await logger.adebug(
+                    "Routing exception update (id={}, type={!r}) to router `{!r}`",
+                    update.update_id,
+                    update.update_type,
+                    router,
+                )
+                task_group.create_task(
+                    router.route_view(
+                        router.event_error,
+                        api,
+                        update,
+                        context.copy().add_exception_update(exception),
+                    ),
+                )
+
+    async def _route_update(self, api: API, update: Update, context: Context) -> bool:
+        async with self.loop_wrapper.create_task_group() as task_group:
+            for router in self.routers:
+                await logger.adebug(
+                    "Routing update (id={}, type={!r}) to router `{!r}`",
+                    update.update_id,
+                    update.update_type,
+                    router,
+                )
+                task_group.create_task(router.route(api, update, context))
+
+        return any(task_group.results())
+
+    async def feed(self, api: API, update: Update) -> None:
+        await logger.ainfo(
+            "New Update(id={}, type={!r}) received by bot (id={})",
+            update.update_id,
+            update.update_type,
+            api.id,
+        )
+
+        per_event_scope = self.global_scope.create_child(detail=PER_EVENT)
+        context = Context().add_roots(api, update, per_event_scope)
+
+        inject_internals(per_event_scope, {API: api, Update: update})
+
+        failed = False
+        middlewares = self.middlewares
+        start_time = self.loop_wrapper.time
+
+        try:
+            for middleware in middlewares:
+                if await run_pre_middleware(middleware, context) is not True:
+                    await logger.ainfo(
+                        "Update(id={}, type={!r}) processed with dispatch's pre-middleware `{}` and raised failure.",
+                        update.update_id,
+                        update.update_type,
+                        fullname(middleware),
+                    )
+                    return
+
+            if not self.routers:
+                await logger.adebug(
+                    "No corresponding routers from dispatch found for update (id={}, type={!r}).",
+                    update.update_id,
+                    update.update_type,
+                )
+            elif not await self._route_update(api, update, context) and self.raw_views:
+                await self._process_views(self.raw_views, api, update, context)
+
+            for middleware in middlewares:
+                await run_post_middleware(middleware, context)
+        except BaseException as exc:
+            failed = True
+
+            if context.exceptions_update:
+                try:
+                    await self._process_update_exceptions(api, update, context)
+                except BaseExceptionGroup as group:
+                    if not self.error_handler:
+                        raise
+
+                    await logger.adebug(
+                        "Dispatch caught unhandled exceptions while processing update (id={}, type={!r}), routing to error handler...",
+                        update.update_id,
+                        update.update_type,
+                    )
+                    await self._handle_exceptions(api, update, context, group.exceptions)
+
+                return
+
+            if isinstance(exc, Exception) and self.error_handler:
+                await logger.adebug(
+                    "Dispatch caught an exception while processing update (id={}, type={!r}), routing to error handler...",
+                    update.update_id,
+                    update.update_type,
+                )
+                await self.main_router.route_view(self.error_handler, api, update, context.add_exception_update(exc))
+                return
+
+            raise
+        finally:
+            await per_event_scope.close()
+
+            if not failed:
+                elapsed_time = self.loop_wrapper.time - start_time
+                elapsed_ms = elapsed_time * 1000
+                await logger.adebug(
+                    "Update (id={}, type={!r}) processed in {} {} by bot (id={})",
+                    update.update_id,
+                    update.update_type,
+                    int(elapsed_time * NANOSECONDS_PER_MILLISECOND) if elapsed_ms < 1 else int(elapsed_ms),
+                    "ns" if elapsed_ms < 1 else "ms",
                     api.id,
                 )
 
-                try:
-                    if await view.process(event, api, context):
-                        processed = True
-                        break
-                except BaseException as exception:
-                    if not await self.error.process(event, api, context.add_exception_update(exception)):
-                        raise exception
-                finally:
-                    for session in context.get(CONTEXT_STORE_NODES_KEY, {}).values():
-                        await session.close(scopes=(NodeScope.PER_EVENT,))
-
-        await run_middleware(
-            self.global_middleware.post,
-            api,
-            event,
-            context,
-            required_nodes=self.global_middleware.post_required_nodes,
-        )
-        logger.debug(
-            "Update (id={}, type={!r}) processed in {} ms by bot (id={})",
-            event.update_id,
-            event.update_type,
-            int((self.global_context.loop_wrapper.loop.time() - start_time) * 1000),
-            api.id,
-        )
-        return processed
-
     def load(self, external: typing.Self) -> None:
-        views_external = external.get_views()
-
-        for name, view in self.get_views().items():
-            assert name in views_external, f"View {name!r} is undefined in external dispatch."
-            view.load(views_external[name])
-            setattr(external, name, view)
-
-        self.global_middleware.filters.difference_update(external.global_middleware.filters)
-
-    def get_view(self, of_type: type[T]) -> Option[T]:
-        for view in self.get_views().values():
-            if isinstance(view, of_type):
-                return Some(view)
-        return Nothing()
-
-    def get_views(self) -> dict[str, ABCView]:
-        """Get all views."""
-        return {
-            name: view for name, view in self.__dict__.items() if isinstance(view, ABCView) and name != "error"
-        }
-
-    __call__ = handle
+        self.routers.extend(filter(None, external.routers))
+        self.error_handler.load(external.error_handler)
 
 
 __all__ = ("Dispatch",)

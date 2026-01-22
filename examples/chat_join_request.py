@@ -1,11 +1,10 @@
-from fntypes.result import Error, Ok
+from kungfu.library.monad.result import Error, Ok
 
 from telegrinder import API, ChatJoinRequest, Telegrinder, Token
 from telegrinder.modules import logger
 from telegrinder.rules import HasInviteLink, IsUser
 
 bot = Telegrinder(API(Token.from_env()))
-logger.set_level("DEBUG")
 
 
 @bot.on.chat_join_request(HasInviteLink(), IsUser())

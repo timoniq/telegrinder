@@ -3,12 +3,12 @@ import typing
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.node.command import CommandInfo, single_split
-from telegrinder.node.me import Me
-from telegrinder.node.source import ChatSource
+from telegrinder.node.nodes.command import CommandInfo, single_split
+from telegrinder.node.nodes.me import Me
+from telegrinder.node.nodes.source import ChatSource
 from telegrinder.types.enums import ChatType
 
-type Validator = typing.Callable[[str], typing.Any | None]
+type Validator = typing.Callable[[str], typing.Any | None] | typing.Callable[[typing.Any], typing.Any | None]
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -18,14 +18,21 @@ class Argument:
     optional: bool = dataclasses.field(default=False, kw_only=True)
 
     def check(self, data: str) -> typing.Any | None:
+        if not data:
+            return None
+
+        result = data
         for validator in self.validators:
-            data = validator(data)  # type: ignore
-            if data is None:
+            result = validator(result)
+            if result is None:
                 return None
-        return data
+
+        return result
 
 
 class Command(ABCRule):
+    names: typing.Iterable[str]
+
     def __init__(
         self,
         names: str | typing.Iterable[str],
@@ -61,7 +68,7 @@ class Command(ABCRule):
         data_s: str,
         new_s: str,
         s: str,
-    ) -> dict | None:
+    ) -> dict[str, typing.Any] | None:
         argument = arguments[0]
         data = argument.check(data_s)
         if data is None and not argument.optional:
@@ -123,7 +130,7 @@ class Command(ABCRule):
         if result is None:
             return False
 
-        ctx.update(result)
+        ctx |= result
         return True
 
 

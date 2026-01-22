@@ -3,13 +3,14 @@ import typing
 import aiosqlite  # type: ignore
 
 from telegrinder.modules import logger
-from telegrinder.node import NodeScope, scalar_node
+from telegrinder.node import per_call, scalar_node
 
 
-@scalar_node(scope=NodeScope.PER_CALL)
+@per_call  # type: ignore
+@scalar_node
 class DB:
     @classmethod
-    async def compose(cls) -> typing.AsyncGenerator[aiosqlite.Connection, None]:  # type: ignore
+    async def __compose__(cls) -> typing.AsyncGenerator[aiosqlite.Connection, None]:  # type: ignore
         connection = await aiosqlite.connect("test.db")  # type: ignore
         logger.info("Opening connection")
         yield connection

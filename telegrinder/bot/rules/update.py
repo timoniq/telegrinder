@@ -7,8 +7,8 @@ class IsUpdateType(ABCRule):
     def __init__(self, update_type: UpdateType, /) -> None:
         self.update_type = update_type
 
-    def check(self, event: Update) -> bool:
-        return event.update_type == self.update_type
+    def check(self, update: Update) -> bool:
+        return update.update_type == self.update_type
 
 
 __all__ = ("IsUpdateType",)

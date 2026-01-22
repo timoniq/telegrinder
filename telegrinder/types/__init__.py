@@ -1,5 +1,6 @@
 from telegrinder.types.enums import *
 from telegrinder.types.objects import *
+from telegrinder.types.webapp import *
 
 __all__ = (
     "AcceptedGiftTypes",
@@ -81,6 +82,7 @@ __all__ = (
     "Dice",
     "DiceEmoji",
     "DirectMessagePriceChanged",
+    "DirectMessagesTopic",
     "Document",
     "EncryptedCredentials",
     "EncryptedPassportElement",
@@ -98,6 +100,7 @@ __all__ = (
     "GeneralForumTopicHidden",
     "GeneralForumTopicUnhidden",
     "Gift",
+    "GiftBackground",
     "GiftInfo",
     "Gifts",
     "Giveaway",
@@ -267,6 +270,14 @@ __all__ = (
     "StoryAreaTypeUniqueGift",
     "StoryAreaTypeWeather",
     "SuccessfulPayment",
+    "SuggestedPostApprovalFailed",
+    "SuggestedPostApproved",
+    "SuggestedPostDeclined",
+    "SuggestedPostInfo",
+    "SuggestedPostPaid",
+    "SuggestedPostParameters",
+    "SuggestedPostPrice",
+    "SuggestedPostRefunded",
     "SwitchInlineQueryChosenChat",
     "TextQuote",
     "TopicIconColor",
@@ -282,6 +293,7 @@ __all__ = (
     "UniqueGift",
     "UniqueGiftBackdrop",
     "UniqueGiftBackdropColors",
+    "UniqueGiftColors",
     "UniqueGiftInfo",
     "UniqueGiftInfoOriginType",
     "UniqueGiftModel",
@@ -291,6 +303,7 @@ __all__ = (
     "User",
     "UserChatBoosts",
     "UserProfilePhotos",
+    "UserRating",
     "UsersShared",
     "Venue",
     "Video",
@@ -300,8 +313,11 @@ __all__ = (
     "VideoChatStarted",
     "VideoNote",
     "Voice",
+    "WebAppChat",
     "WebAppData",
     "WebAppInfo",
+    "WebAppInitData",
+    "WebAppUser",
     "WebhookInfo",
     "WriteAccessAllowed",
 )

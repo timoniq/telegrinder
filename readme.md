@@ -1,6 +1,10 @@
 <p>
   <a href="https://github.com/timoniq/telegrinder">
-    <img width="200px" height="145px" alt="Telegrinder" src="https://raw.githubusercontent.com/timoniq/telegrinder/main/docs/logo.svg">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/timoniq/telegrinder/dev/docs/logo-white.png">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/timoniq/telegrinder/dev/docs/logo-black.png">
+      <img alt="Logo" src="https://raw.githubusercontent.com/timoniq/telegrinder/dev/docs/logo-black.png" width="200">
+    </picture>
   </a>
 </p>
 
@@ -23,21 +27,22 @@
 </p>
 
 
-* Type hinted
+* Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
 * Customizable and extensible
-* Ready to use scenarios and rules
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
+* API client powered by fast [rnet](https://github.com/0x676e67/rnet) library
 * Both low-level and high-level API
-
+* Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
+* <details> <summary>A variety of state management tools</summary><p>○ <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/blueprint_bot/handlers/with_enum.py#L18">waiter machine</a> for runtime inline short state funneling<br>○  <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/state_mutator_player.py">state mutator</a> to declare complex state sets</p></details>
 
 Basic example:
 
 ```python
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.modules import logger
+from telegrinder.modules import setup_logger
 from telegrinder.rules import Text
 
-logger.set_level("INFO")
+setup_logger(level="INFO")
 api = API(token=Token("123:token"))
 bot = Telegrinder(api)
 
@@ -69,17 +74,17 @@ Or install from source (unstable):
 
 ```console
 uv add "telegrinder @ git+https://github.com/timoniq/telegrinder@dev"
-poetry add git+https://github.com/timoniq/telegrinder.git#dev
-pip install git+https://github.com/timoniq/telegrinder/archive/dev.zip
+poetry add git+https://github.com/timoniq/telegrinder@dev
+pip install git+https://github.com/timoniq/telegrinder@dev
 ```
 
 # Documentation
 
-[Tutorial](/docs/tutorial/en/0_tutorial.md)
+[**Tutorial 📖**](/docs/tutorial/en/0_tutorial.md)
 
 # Community
 
-Join our [telegram forum](https://t.me/botoforum).
+Join one of our [forums](https://github.com/timoniq/telegrinder/blob/dev/docs/community_links.md).
 
 # License
 
@@ -89,9 +94,12 @@ Copyright © 2024 [luwqz1](https://github.com/luwqz1)
 
 # Contributors
 
-[How to contribute](https://github.com/timoniq/telegrinder/blob/main/contributing.md)
-
+<p>
+    <img src="https://arseny.neocities.org/assets/te_agradezco.png" height="50px" style="vertical-align: middle;">
+</p>
 
 <a href="https://github.com/timoniq/telegrinder/graphs/contributors">
- <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder" />
+ <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder"/>
 </a>
+
+We welcome your pull requests ([contrubution notes](https://github.com/timoniq/telegrinder/blob/main/contributing.md)). Telegrinder is built by the community

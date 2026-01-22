@@ -1,7 +1,6 @@
-from fntypes.option import Some
+from kungfu.library.monad.option import Some
 
-from telegrinder.bot.cute_types import CallbackQueryCute as CallbackQuery
-from telegrinder.bot.dispatch.view import CallbackQueryView
+from telegrinder.bot.cute_types.callback_query import CallbackQueryCute as CallbackQuery
 from telegrinder.bot.dispatch.waiter_machine.hasher.hasher import Hasher
 
 
@@ -32,19 +31,16 @@ def get_chat_and_message_for_event(event: CallbackQuery) -> tuple[int, int] | No
 
 
 CALLBACK_QUERY_FROM_CHAT = Hasher(
-    view_class=CallbackQueryView,
     get_hash_from_data=from_chat_hash,
     get_data_from_event=get_chat_from_event,
 )
 
 CALLBACK_QUERY_FOR_MESSAGE = Hasher(
-    view_class=CallbackQueryView,
     get_hash_from_data=for_message_hash,
     get_data_from_event=get_message_for_event,
 )
 
 CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE = Hasher(
-    view_class=CallbackQueryView,
     get_hash_from_data=for_message_in_chat,
     get_data_from_event=get_chat_and_message_for_event,
 )
