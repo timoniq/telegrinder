@@ -20,7 +20,7 @@ def woops_handler():
     raise ValueError("Wow oopsii!")
 
 
-@bot.on.error(IsUser())
+@bot.on.event_error(IsUser())
 async def error_handler(err: Error[RuntimeError, ValueError], m: Message):
     await m.answer(f"okay..( Something happened: {err.exception}")
 

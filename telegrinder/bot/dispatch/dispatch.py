@@ -1,5 +1,6 @@
 import typing
 from collections import deque
+from functools import cached_property
 
 from nodnod.interface.inject import inject_internals
 
@@ -9,7 +10,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware, run_post_middleware, run_pre_middleware
 from telegrinder.bot.dispatch.middleware.box import MiddlewareBox
 from telegrinder.bot.dispatch.router.base import Router
-from telegrinder.bot.dispatch.view.base import View
+from telegrinder.bot.dispatch.view.base import ErrorView, View
 from telegrinder.bot.dispatch.view.box import ViewBox
 from telegrinder.modules import logger
 from telegrinder.node.scope import PER_EVENT
@@ -20,7 +21,7 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from vbml.patcher.abc import ABCPatcher
 
-    from telegrinder.bot.dispatch.view.base import ErrorView, EventView, RawEventView, View
+    from telegrinder.bot.dispatch.view.base import EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
 
 NANOSECONDS_PER_MILLISECOND: typing.Final = 1_000_000_000
@@ -37,6 +38,7 @@ class ViewGetter:
 
 class Dispatch[
     T: MiddlewareBox = MiddlewareBox,
+    ErrorHandler: ErrorView = ErrorView,
     MessageView: EventView = EventView,
     EditedMessageView: EventView = EventView,
     ChannelPostView: EventView = EventView,
@@ -61,7 +63,7 @@ class Dispatch[
     ChatBoostView: EventView = EventView,
     RemovedChatBoostView: EventView = EventView,
     MediaGroup: View = MediaGroupView,
-    Error: ErrorView = ErrorView,
+    EventError: ErrorView = ErrorView,
     RawEvent: RawEventView = RawEventView,
 ](
     ABCDispatch,
@@ -90,7 +92,7 @@ class Dispatch[
         ChatBoostView,
         RemovedChatBoostView,
         MediaGroup,
-        Error,
+        EventError,
         RawEvent,
     ]
     if typing.TYPE_CHECKING
@@ -121,13 +123,14 @@ class Dispatch[
         ChatBoostView,
         RemovedChatBoostView,
         MediaGroup,
-        Error,
+        EventError,
         RawEvent,
     ]
 
     main_router: MainRouter
+    error_handler: ErrorHandler
     middlewares: T
-    _routers: deque[Router] | None
+    _routers: deque[Router] | None = None
 
     @typing.overload
     def __init__(self) -> None: ...
@@ -145,14 +148,15 @@ class Dispatch[
         self,
         *,
         router: MainRouter | None = None,
+        error_handler: ErrorHandler | None = None,
         middleware_box: MiddlewareBox | None = None,
     ) -> None:
         self.main_router = router or Router()  # type: ignore
-        self.middlewares = middleware_box or MiddlewareBox()  # type: ignore
+        self.error_handler = error_handler or ErrorView()  # type: ignore
         self.global_context = TelegrinderContext()
         self.global_scope = self.global_context.node_global_scope
         self.loop_wrapper = self.global_context.loop_wrapper
-        self._routers = None
+        self.middlewares = self.global_context.setdefault_value("middleware_box", middleware_box or MiddlewareBox())
 
     def __setitem__(self, injection_type: typing.Any, injection_value: typing.Any, /) -> None:
         self.global_scope.inject(injection_type, injection_value)
@@ -163,7 +167,7 @@ class Dispatch[
             self._routers = deque((self.main_router,) if self.main_router else ())  # type: ignore
         return self._routers  # type: ignore
 
-    @property
+    @cached_property
     def raw_views(self) -> tuple[View, ...]:
         return tuple(filter(None, (router.raw for router in self.routers)))
 
@@ -174,8 +178,36 @@ class Dispatch[
 
     @property
     def register_middleware[Middleware: ABCMiddleware](self) -> typing.Callable[[type[Middleware]], type[Middleware]]:
-        """Decorator to register a custom middleware in the middleware box."""
+        """Decorator to register a custom middleware in the dispatch's middleware box."""
         return self.middlewares.__call__
+
+    async def _handle_exceptions(
+        self,
+        api: API,
+        update: Update,
+        context: Context,
+        exceptions: tuple[BaseException | BaseExceptionGroup[BaseException], ...],
+    ) -> None:
+        unhandled_exceptions: list[BaseException] = []
+
+        async with self.loop_wrapper.create_task_group() as task_group:
+            for exception in exceptions:
+                if isinstance(exception, BaseExceptionGroup):
+                    task_group.create_task(self._handle_exceptions(api, update, context, exception.exceptions))
+                elif isinstance(exception, Exception):
+                    task_group.create_task(
+                        self.main_router.route_view(
+                            self.error_handler,
+                            api,
+                            update,
+                            context.copy().add_exception_update(exception),
+                        ),
+                    )
+                else:
+                    unhandled_exceptions.append(exception)
+
+        if unhandled_exceptions:
+            raise BaseExceptionGroup("Unhandled exceptions:", unhandled_exceptions)
 
     async def _process_views(
         self,
@@ -184,9 +216,6 @@ class Dispatch[
         update: Update,
         context: Context,
     ) -> bool:
-        if not views:
-            return False
-
         async with self.loop_wrapper.create_task_group() as task_group:
             for view in views:
                 task_group.create_task(self.main_router.route_view(view, api, update, context))
@@ -216,7 +245,7 @@ class Dispatch[
                 )
                 task_group.create_task(
                     router.route_view(
-                        router.error,
+                        router.event_error,
                         api,
                         update,
                         context.copy().add_exception_update(exception),
@@ -224,9 +253,6 @@ class Dispatch[
                 )
 
     async def _route_update(self, api: API, update: Update, context: Context) -> bool:
-        if not self.routers:
-            return False
-
         async with self.loop_wrapper.create_task_group() as task_group:
             for router in self.routers:
                 await logger.adebug(
@@ -240,7 +266,12 @@ class Dispatch[
         return any(task_group.results())
 
     async def feed(self, api: API, update: Update) -> None:
-        await logger.ainfo("New Update(id={}, type={!r})", update.update_id, update.update_type)
+        await logger.ainfo(
+            "New Update(id={}, type={!r}) received by bot (id={})",
+            update.update_id,
+            update.update_type,
+            api.id,
+        )
 
         per_event_scope = self.global_scope.create_child(detail=PER_EVENT)
         context = Context().add_roots(api, update, per_event_scope)
@@ -249,7 +280,7 @@ class Dispatch[
 
         failed = False
         middlewares = self.middlewares
-        start_time = self.loop_wrapper.loop.time()
+        start_time = self.loop_wrapper.time
 
         try:
             for middleware in middlewares:
@@ -264,27 +295,49 @@ class Dispatch[
 
             if not self.routers:
                 await logger.adebug(
-                    "Dispatch has empty routers, skipping update (id={}, type={!r}).",
+                    "No corresponding routers from dispatch found for update (id={}, type={!r}).",
                     update.update_id,
                     update.update_type,
                 )
-            elif not await self._route_update(api, update, context):
+            elif not await self._route_update(api, update, context) and self.raw_views:
                 await self._process_views(self.raw_views, api, update, context)
 
             for middleware in middlewares:
                 await run_post_middleware(middleware, context)
-        except BaseException as e:
+        except BaseException as exc:
             failed = True
 
-            if (
-                not isinstance(e, Exception) and not isinstance(e, BaseExceptionGroup)
-            ) or not context.exceptions_update:
-                raise
+            if context.exceptions_update:
+                try:
+                    await self._process_update_exceptions(api, update, context)
+                except BaseExceptionGroup as group:
+                    if not self.error_handler:
+                        raise
 
-            await self._process_update_exceptions(api, update, context)
+                    await logger.adebug(
+                        "Dispatch caught unhandled exceptions while processing update (id={}, type={!r}), routing to error handler...",
+                        update.update_id,
+                        update.update_type,
+                    )
+                    await self._handle_exceptions(api, update, context, group.exceptions)
+
+                return
+
+            if isinstance(exc, Exception) and self.error_handler:
+                await logger.adebug(
+                    "Dispatch caught an exception while processing update (id={}, type={!r}), routing to error handler...",
+                    update.update_id,
+                    update.update_type,
+                )
+                await self.main_router.route_view(self.error_handler, api, update, context.add_exception_update(exc))
+                return
+
+            raise
         finally:
+            await per_event_scope.close()
+
             if not failed:
-                elapsed_time = self.loop_wrapper.loop.time() - start_time
+                elapsed_time = self.loop_wrapper.time - start_time
                 elapsed_ms = elapsed_time * 1000
                 await logger.adebug(
                     "Update (id={}, type={!r}) processed in {} {} by bot (id={})",
@@ -295,10 +348,9 @@ class Dispatch[
                     api.id,
                 )
 
-            await per_event_scope.close()
-
     def load(self, external: typing.Self) -> None:
         self.routers.extend(filter(None, external.routers))
+        self.error_handler.load(external.error_handler)
 
 
 __all__ = ("Dispatch",)

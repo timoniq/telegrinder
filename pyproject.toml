@@ -78,7 +78,7 @@ package = true
 
 [tool.uv.sources]
 betterconf = { git = "https://github.com/prostomarkeloff/betterconf", rev = "master" }
-nodnod = { git = "https://github.com/luwqz1/nodnod", rev = "fix" }
+nodnod = { git = "https://github.com/timoniq/nodnod", rev = "dev" }
 kungfu = { git = "https://github.com/timoniq/kungfu", rev = "main" }
 vbml2 = { git = "https://github.com/tesseradecade/vbml", rev = "master" }
 

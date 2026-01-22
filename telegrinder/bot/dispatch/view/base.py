@@ -126,6 +126,19 @@ class View(ABCView):
         self.middlewares.append(middleware() if isinstance(middleware, type) else middleware)
         return middleware if isinstance(middleware, type) else None
 
+    def load(self, external: typing.Self, /) -> None:
+        self.handlers.extend(external.handlers)
+        self.middlewares.extend(external.middlewares)
+
+        if not isinstance(external.filter, Always):
+            self.filter &= external.filter
+
+        if external.return_manager is not None and self.return_manager is None:
+            self.return_manager = external.return_manager
+
+        elif self.return_manager is not None and external.return_manager is not None:
+            self.return_manager.managers.extend(external.return_manager.managers)
+
     async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
         if not bool(self):
             return Error("View is empty.")

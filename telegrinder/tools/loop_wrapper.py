@@ -118,6 +118,10 @@ class LoopWrapper(Singleton, Final):
         return self._loop
 
     @property
+    def time(self) -> float:
+        return self._loop.time()
+
+    @property
     def running(self) -> bool:
         return self._state in {LoopWrapperState.RUNNING, LoopWrapperState.RUNNING_MANUALLY}
 

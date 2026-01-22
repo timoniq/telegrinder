@@ -35,7 +35,7 @@ async def handler(message: Message) -> None:
     await message.answer("hi boss 😎")
 
 
-@bot.on.error()
+@bot.on.event_error()
 async def handle_not_admin_error(message: Message, e: Error[IsNotAdminError]) -> None:
     await message.answer(str(e.exception))
 

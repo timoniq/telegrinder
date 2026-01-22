@@ -189,7 +189,7 @@ class ViewBox[
         RemovedChatBoostView,
     ],
 ):
-    error: Error = dataclasses.field(default_factory=view(ErrorView), metadata=EXCLUDE_VIEW_META)
+    event_error: Error = dataclasses.field(default_factory=view(ErrorView), metadata=EXCLUDE_VIEW_META)
     raw: RawEvent = dataclasses.field(default_factory=view(RawEventView), metadata=EXCLUDE_VIEW_META)
 
     @cached_property

@@ -86,7 +86,7 @@ class Router[
         return hash(self.name)
 
     def __bool__(self) -> bool:
-        return any(self.views.values()) or bool(self.raw) or bool(self.error)
+        return any(self.views.values()) or bool(self.raw) or bool(self.event_error)
 
     async def route_view(self, view: View, api: API, update: Update, context: Context) -> bool:
         # Check if the view is applicable to the update
@@ -145,7 +145,7 @@ class Router[
 
             return False
         except Exception as exception:
-            if self.error:
+            if self.event_error:
                 context.exceptions_update[self] = exception  # type: ignore
 
             raise

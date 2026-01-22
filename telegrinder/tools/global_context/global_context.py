@@ -416,6 +416,13 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
         """Returns True if name is a root attribute."""
         return name in cls.__root_attributes__
 
+    def setdefault_value(self, name: str, default: CtxValueT) -> CtxValueT:
+        with self.lock_context:
+            if name in self:
+                return self[name]
+            self[name] = default
+            return default
+
     def set_context_variables(self, variables: typing.Mapping[str, CtxValueT | CtxVariable[CtxValueT]]) -> None:
         """Set context variables from mapping."""
         with self.lock_context:

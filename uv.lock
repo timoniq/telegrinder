@@ -281,7 +281,7 @@ wheels = [
 [[package]]
 name = "nodnod"
 version = "0.1.0"
-source = { git = "https://github.com/luwqz1/nodnod?rev=fix#4f53907c4b383cc1a1f800f06ac6ac173863eff1" }
+source = { git = "https://github.com/timoniq/nodnod?rev=dev#12df5e329e0626fb5bebd06f9edd428dee6a0544" }
 dependencies = [
     { name = "kungfu" },
     { name = "typing-extensions" },
@@ -559,7 +559,7 @@ requires-dist = [
     { name = "kungfu", git = "https://github.com/timoniq/kungfu?rev=main" },
     { name = "loguru", marker = "extra == 'loguru'" },
     { name = "msgspec", specifier = ">=0.20.0,<0.21.0" },
-    { name = "nodnod", git = "https://github.com/luwqz1/nodnod?rev=fix" },
+    { name = "nodnod", git = "https://github.com/timoniq/nodnod?rev=dev" },
     { name = "rnet", specifier = ">=3.0.0rc20" },
     { name = "structlog", marker = "extra == 'structlog'" },
     { name = "uvloop", marker = "(sys_platform == 'darwin' and extra == 'uvloop') or (sys_platform == 'linux' and extra == 'uvloop')" },
