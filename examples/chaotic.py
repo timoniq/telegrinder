@@ -32,7 +32,7 @@ from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import InputFile
 
 setup_logger(
-    level="ERROR",
+    level="DEBUG",
     format="<level>{levelname: <8}</level>{module}:{funcName}:{lineno}:<light_white>{message}</light_white>",
 )
 

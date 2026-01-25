@@ -354,7 +354,7 @@ class Dispatch[
                 if not failed:
                     elapsed_time = self.loop_wrapper.time - start_time
                     elapsed_ms = elapsed_time * 1000
-                    await logger.aerror(
+                    await logger.adebug(
                         "Update (id={}, type={!r}) processed in {} {} by bot (id={})",
                         update.update_id,
                         update.update_type,

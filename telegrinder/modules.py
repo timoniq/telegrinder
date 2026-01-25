@@ -145,7 +145,7 @@ ASSIGNMENT_OPERATOR: typing.Final = "="
 LOGGER_LEVELS: typing.Final = ("DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL", "EXCEPTION")
 LOGGER_MODULES: typing.Final = ("logging", "loguru", "structlog")
 _NODEFAULT: typing.Final = typing.cast("typing.Any", object())
-_LOAD_ENV_FILE = True
+_LOAD_ENV_FILE = False
 _ENV_FILE_NAME = ".env"
 _ENV_FILE_PATH: pathlib.Path | None = None
 _ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
@@ -1042,7 +1042,7 @@ def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> Logger:
 
 def configure_dotenv(
     *,
-    load_file: bool = True,
+    load_file: bool = False,
     file_name: str | None = None,
     file_path: str | pathlib.Path | None = None,
 ) -> None:
