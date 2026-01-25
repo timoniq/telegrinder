@@ -98,6 +98,7 @@ Copyright © 2024 [luwqz1](https://github.com/luwqz1)
     <img src="https://arseny.neocities.org/assets/te_agradezco.png" height="50px" style="vertical-align: middle;">
 </p>
 
+\
 <a href="https://github.com/timoniq/telegrinder/graphs/contributors">
  <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder"/>
 </a>

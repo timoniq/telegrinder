@@ -128,7 +128,7 @@ class WaiterMachine:
         **context: typing.Any,
     ) -> None:
         preset_context = (
-            short_state.context.context.copy().as_dict() | context if short_state.context is not None else context
+            (short_state.context.context.as_dict() | context) if short_state.context is not None else context
         )
 
         try:

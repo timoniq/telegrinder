@@ -27,12 +27,13 @@ type Function[**P = ..., R = typing.Any] = typing.Callable[P, R]
 class FuncHandler[T: Function](ABCHandler):
     function: T
     rules: dataclasses.InitVar[typing.Iterable[ABCRule] | None] = dataclasses.field(default=None)
-    agent: type[Agent] | None = dataclasses.field(default=None, kw_only=True)
+    agent: dataclasses.InitVar[type[Agent] | None] = dataclasses.field(default=None, kw_only=True)
     final: bool = dataclasses.field(default=True, kw_only=True)
-    preset_context: Context = dataclasses.field(default_factory=lambda: Context(), kw_only=True)
+    preset_context: Context | None = dataclasses.field(default=None, kw_only=True)
 
-    def __post_init__(self, rules: typing.Iterable[ABCRule] | None) -> None:
+    def __post_init__(self, rules: typing.Iterable[ABCRule] | None, agent: type[Agent] | None) -> None:
         self.check_rules = deque(rules or ())
+        self.agent_cls = agent or EventLoopAgent
 
     def __repr__(self) -> str:
         return fullname(self.function)
@@ -48,21 +49,21 @@ class FuncHandler[T: Function](ABCHandler):
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, str]:
-        temp_ctx = context | self.preset_context
+        if self.preset_context:
+            context |= self.preset_context
 
         if check and self.check_rules:
             await logger.adebug("Checking rules for handler `{!r}`...", self)
 
             for rule in self.check_rules:
-                if not await check_rule(rule, temp_ctx):
+                if not await check_rule(rule, context):
                     return Error(f"Rule {rule!r} failed.")
 
             await logger.adebug("Rules passed, composing nodes and running handler `{!r}`...", self)
         else:
             await logger.adebug("Composing nodes and running handler `{!r}`...", self)
 
-        context |= temp_ctx
-        async with compose(self.function, context, agent_cls=self.agent or EventLoopAgent) as result:
+        async with compose(self.function, context, agent_cls=self.agent_cls) as result:
             return result.map_err(
                 lambda error: "{}\n".format(
                     NodeError(f"* failed to compose handler `{self!r}`", from_error=error),

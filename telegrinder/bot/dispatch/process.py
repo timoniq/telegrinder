@@ -65,13 +65,9 @@ async def process_inner(
 
 
 async def check_rule(rule: ABCRule, context: Context) -> bool:
-    ctx_copy = context.copy()
-
     for requirement in rule.requires:
-        if not await check_rule(requirement, ctx_copy):
+        if not await check_rule(requirement, context):
             return False
-
-    context |= ctx_copy
 
     await logger.adebug("  → Checking rule `{!r}`...", rule)
 
