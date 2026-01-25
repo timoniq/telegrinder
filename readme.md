@@ -18,7 +18,7 @@
 </p>
 
 <p>
-  <a href="#contributors"><img src="https://img.shields.io/badge/1.0.0rc1-E3956B?logo=textpattern&logoColor=fff&style=flat-square&color=black"></img></a>
+  <a href="https://github.com/timoniq/telegrinder"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Ftimoniq%2Ftelegrinder%2Freleases%2Flatest&query=%24.name&style=flat-square&logo=textpattern&logoColor=fff&label=version&labelColor=black&color=black"></img></a>
   <a href="#license"><img alt="GitHub License" src="https://img.shields.io/github/license/timoniq/telegrinder.svg?color=lightGreen&labelColor=black&style=flat-square"></img></a>
   <a href="https://docs.astral.sh/ruff/"><img alt="Code Style" src="https://img.shields.io/badge/code_style-Ruff-D7FF64?logo=ruff&logoColor=fff&style=flat-square&labelColor=black"></img></a>
   <a href="https://docs.basedpyright.com/latest/"><img alt="Type Checker" src="https://img.shields.io/badge/types-basedpyright-black?logo=python&color=%23FBCA04&logoColor=edb641&labelColor=black&style=flat-square"></img></a>
