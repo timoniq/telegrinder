@@ -277,7 +277,6 @@ class Dispatch[
         return any(task_group.results())
 
     async def feed(self, api: API, update: Update) -> None:
-        self.count += 1
         await logger.ainfo(
             "New Update(id={}, type={!r}) received by bot (id={})",
             update.update_id,
