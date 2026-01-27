@@ -59,9 +59,7 @@ class RuleEnum(ABCRule):
             return True
 
         for enum in self.__enum__:
-            ctx_copy = ctx.copy()
-            if await check_rule(enum.rule, ctx_copy):
-                ctx |= ctx_copy
+            if await check_rule(enum.rule, ctx):
                 self.save_state(ctx, enum)
                 return True
 

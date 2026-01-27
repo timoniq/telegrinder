@@ -61,8 +61,8 @@ Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.14.13,<1",
-    "basedpyright>=1.37.1,<2",
+    "ruff>=0.14.14,<1",
+    "basedpyright>=1.37.2,<2",
     "requests>=2.32.5,<3",
     "tomlkit>=0.14.0,<1",
     "libcst>=1.8.6,<2",

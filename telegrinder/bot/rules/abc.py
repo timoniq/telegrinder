@@ -91,13 +91,10 @@ class AndRule(ABCRule):
         self.rules = rules
 
     async def check(self, context: Context) -> bool:
-        ctx_copy = context.copy()
-
         for rule in self.rules:
-            if not await check_rule(rule, ctx_copy):
+            if not await check_rule(rule, context):
                 return False
 
-        context |= ctx_copy
         return True
 
 
@@ -107,10 +104,7 @@ class OrRule(ABCRule):
 
     async def check(self, context: Context) -> bool:
         for rule in self.rules:
-            ctx_copy = context.copy()
-
-            if await check_rule(rule, ctx_copy):
-                context |= ctx_copy
+            if await check_rule(rule, context):
                 return True
 
         return False
@@ -121,7 +115,7 @@ class NotRule(ABCRule):
         self.rule = rule
 
     async def check(self, context: Context) -> bool:
-        return not await check_rule(self.rule, context.copy())
+        return not await check_rule(self.rule, context)
 
 
 class Never(ABCRule):
