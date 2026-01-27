@@ -65,7 +65,7 @@ def mention(s: FormatString, /, *, user_id: int) -> TagFormat:
 
 
 def tg_emoji(s: FormatString, /, *, emoji_id: int) -> TagFormat:
-    return TagFormat(s, tag=Tag.EMOJI, emoji_id=emoji_id)
+    return TagFormat(s, tag=Tag.EMOJI, emoji_id=f'"{emoji_id}"')
 
 
 def underline(s: FormatString, /) -> TagFormat:
