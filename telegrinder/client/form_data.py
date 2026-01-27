@@ -12,7 +12,7 @@ def encode_form_data(
     return {
         k: encoder.encode(v, context=context).strip('"')  # Remove quoted string
         if not isinstance(v, str)
-        else v
+        else v.__str__()
         for k, v in data.items()
     }
 
