@@ -7,6 +7,7 @@ from string.templatelib import Template
 from telegrinder.tools.formatting.deep_links.links import tg_mention_link
 from telegrinder.tools.parse_mode import ParseMode
 
+type Format = str
 type FormatString = object | Template
 type Formatter = typing.Callable[[FormatString], TagFormat]
 
@@ -64,7 +65,7 @@ def mention(s: FormatString, /, *, user_id: int) -> TagFormat:
     return link(tg_mention_link(user_id=user_id), text=text)
 
 
-def tg_emoji(s: FormatString, /, *, emoji_id: int) -> TagFormat:
+def tg_emoji(s: FormatString, /, *, emoji_id: str | int) -> TagFormat:
     return TagFormat(s, tag=Tag.EMOJI, **{"emoji-id": f'"{emoji_id}"'})
 
 
@@ -199,7 +200,7 @@ class HTML(str, metaclass=HTMLMeta):
         return self.__class__.__new__(self.__class__, self + addition)
 
 
-FORMATTERS: types.MappingProxyType[str, Formatter] = types.MappingProxyType(
+FORMATTERS: types.MappingProxyType[Format, Formatter] = types.MappingProxyType(
     mapping=dict(
         bold=bold,
         b=bold,

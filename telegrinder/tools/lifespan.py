@@ -3,6 +3,7 @@ import dataclasses
 import datetime
 import typing
 from contextlib import asynccontextmanager
+from inspect import iscoroutine, iscoroutinefunction
 
 from telegrinder.modules import logger
 from telegrinder.tools.aio import run_task
@@ -14,10 +15,10 @@ type Task[**P, T] = CoroutineFunc[P, T] | CoroutineTask[T] | DelayedTask[P]
 
 
 def to_coroutine_task[T](task: Task[..., T], /) -> CoroutineTask[T]:
-    if asyncio.iscoroutinefunction(task) or isinstance(task, DelayedTask):
+    if iscoroutinefunction(task) or isinstance(task, DelayedTask):
         task = task()
-    elif not asyncio.iscoroutine(task):
-        raise TypeError("Task should be coroutine or coroutine function.")
+    elif not iscoroutine(task):
+        raise TypeError("Task should be coroutine, coroutine function or delayed task.")
     return task
 
 
@@ -34,7 +35,7 @@ class DelayedTask[**P]:
     def __post_init__(self) -> None:
         self.function.cancel = self.cancel
 
-    async def __call__(self, *args: P.args, **kwargs: P.kwargs) -> None:
+    async def __call__(self, *args: P.args, **kwargs: P.kwargs) -> typing.Any:
         stopped = False
 
         while not stopped and not self.is_cancelled:

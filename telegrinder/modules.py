@@ -148,7 +148,7 @@ _NODEFAULT: typing.Final = typing.cast("typing.Any", object())
 _LOAD_ENV_FILE = False
 _ENV_FILE_NAME = ".env"
 _ENV_FILE_PATH: pathlib.Path | None = None
-_ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+_ANSI_ESCAPE: typing.Final = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
 def _find_env_file() -> Option[pathlib.Path]:
@@ -1042,9 +1042,9 @@ def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> Logger:
 
 def configure_dotenv(
     *,
-    load_file: bool = False,
-    file_name: str | None = None,
-    file_path: str | pathlib.Path | None = None,
+    load_file: bool = _LOAD_ENV_FILE,
+    file_name: str | None = _ENV_FILE_PATH,
+    file_path: str | pathlib.Path | None = _ENV_FILE_PATH,
 ) -> None:
     global _LOAD_ENV_FILE, _ENV_FILE_NAME, _ENV_FILE_PATH
 

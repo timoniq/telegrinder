@@ -6,12 +6,12 @@ from reprlib import recursive_repr
 
 import msgspec
 from kungfu.library.monad.option import NOTHING
+from msgspec import UNSET
 
 from telegrinder.msgspec_utils import Option, decoder, encoder, is_none, struct_asdict
 
 type From[T] = T
 
-UNSET: typing.Final = typing.cast("typing.Any", msgspec.UNSET)
 MODEL_CONFIG: typing.Final[dict[str, typing.Any]] = {
     "dict": True,
     "rename": {kw + "_": kw for kw in keyword.kwlist},

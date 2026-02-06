@@ -100,9 +100,9 @@ def build_html(text: str, entities: list[MessageEntity], /) -> str:
             elif e.type in (MessageEntityType.PRE, MessageEntityType.CODE):
                 formatted = pre_code(formatted, lang=e.language.unwrap_or_none())
             elif e.type == MessageEntityType.TEXT_LINK:
-                formatted = link(e.url.unwrap(), text=formatted)
+                formatted = link(e.url.expect("URL for text link is required."), text=formatted)
             elif e.type == MessageEntityType.CUSTOM_EMOJI:
-                formatted = tg_emoji(formatted, emoji_id=e.custom_emoji_id.map(int).unwrap())
+                formatted = tg_emoji(formatted, emoji_id=e.custom_emoji_id.expect("Custom emoji id is required."))
 
         result.append(formatted)
         utf16_pos = next_utf16
