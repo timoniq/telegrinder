@@ -5,7 +5,6 @@ from telegrinder.bot.rules.abc import ABCRule, Always
 from telegrinder.node.nodes.source import ChatSource, UserSource
 from telegrinder.types.enums import ChatType, DiceEmoji
 
-type Message = MessageCute
 type ForwardType = typing.Literal["user", "hidden_user", "chat", "channel"]
 
 TELEGRAM_ID: typing.Final = 777000
@@ -80,7 +79,7 @@ class IsChat(ABCRule):
 
 
 class IsDice(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.dice)
 
 
@@ -88,12 +87,12 @@ class IsDiceEmoji(ABCRule, requires=[IsDice()]):
     def __init__(self, dice_emoji: DiceEmoji, /) -> None:
         self.dice_emoji = dice_emoji
 
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return message.dice.unwrap().emoji == self.dice_emoji
 
 
 class IsForward(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.forward_origin)
 
 
@@ -101,82 +100,82 @@ class IsForwardType(ABCRule, requires=[IsForward()]):
     def __init__(self, fwd_type: ForwardType, /) -> None:
         self.fwd_type = fwd_type
 
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return message.forward_origin.unwrap().v.type == self.fwd_type
 
 
 class IsReply(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.reply_to_message)
 
 
 class IsSticker(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.sticker)
 
 
 class IsVideoNote(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.video_note)
 
 
 class IsDocument(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.document)
 
 
 class IsPhoto(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.photo)
 
 
 class IsContact(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.contact)
 
 
 class IsLocation(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.location)
 
 
 class IsChecklist(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.checklist)
 
 
 class IsGame(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.game)
 
 
 class IsPoll(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.poll)
 
 
 class IsVenue(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.venue)
 
 
 class IsNewChatMembers(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.new_chat_members)
 
 
 class IsLeftChatMember(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.left_chat_member)
 
 
 class IsNewChatTitle(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.new_chat_title)
 
 
 class IsNewChatPhoto(ABCRule):
-    def check(self, message: Message) -> bool:
+    def check(self, message: MessageCute) -> bool:
         return bool(message.new_chat_photo)
 
 

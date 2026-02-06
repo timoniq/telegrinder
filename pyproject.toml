@@ -43,7 +43,7 @@ dependencies = [
     "choicelib (>=0.1.5)",
     "env-better (>=1.0.0)",
     "kungfu-fp (>=1.0.0)",
-    "nodnod (>=1.0.0)",
+    "nodnod",
     "vbml2 (>=2.0.0)",
 ]
 
@@ -75,6 +75,9 @@ dev = [
 
 [tool.uv]
 package = true
+
+[tool.uv.sources]
+nodnod = { git = "https://github.com/luwqz1/nodnod", rev = "bug" }
 
 [tool.hatch.version]
 path = "telegrinder/__meta__.py"

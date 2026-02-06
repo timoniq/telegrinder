@@ -289,14 +289,10 @@ wheels = [
 [[package]]
 name = "nodnod"
 version = "1.0.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/luwqz1/nodnod?rev=bug#56a2382e074e7643429894362a90eb6509a3b80c" }
 dependencies = [
     { name = "kungfu-fp" },
     { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ba/a4/48f1bfdcf90501280c3fe8844cf888f2e99f2dead49c051e0cd71287824c/nodnod-1.0.0.tar.gz", hash = "sha256:0e6db51faf73f358c59654dab416efe816ed40bf7b6307d1cafbd01e787e255b", size = 51997, upload-time = "2026-01-22T14:24:00.567Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f2/ef/55f85f8b011a127e8a3e6255a003327a2e55ca1d1bb44116bf8c91c3b062/nodnod-1.0.0-py3-none-any.whl", hash = "sha256:bda31bb79391911a2d413cf9c640957b371dfe6892e1235adfa87d2a7ba97df7", size = 34136, upload-time = "2026-01-22T14:23:59.195Z" },
 ]
 
 [[package]]
@@ -570,7 +566,7 @@ requires-dist = [
     { name = "kungfu-fp", specifier = ">=1.0.0" },
     { name = "loguru", marker = "extra == 'loguru'" },
     { name = "msgspec", specifier = ">=0.20.0" },
-    { name = "nodnod", specifier = ">=1.0.0" },
+    { name = "nodnod", git = "https://github.com/luwqz1/nodnod?rev=bug" },
     { name = "rnet", specifier = ">=3.0.0rc20" },
     { name = "structlog", marker = "extra == 'structlog'" },
     { name = "uvloop", marker = "(sys_platform == 'darwin' and extra == 'uvloop') or (sys_platform == 'linux' and extra == 'uvloop')" },
