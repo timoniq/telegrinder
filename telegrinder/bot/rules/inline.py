@@ -5,7 +5,6 @@ from telegrinder.bot.rules.markup import Markup, PatternLike, check_string
 from telegrinder.types.enums import ChatType
 
 
-
 class HasLocation(ABCRule):
     def check(self, query: InlineQueryCute) -> bool:
         return bool(query.location)
