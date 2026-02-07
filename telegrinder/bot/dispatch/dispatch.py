@@ -13,7 +13,7 @@ from telegrinder.bot.dispatch.router.base import Router
 from telegrinder.bot.dispatch.view.base import ErrorView, View
 from telegrinder.bot.dispatch.view.box import ViewBox
 from telegrinder.modules import logger
-from telegrinder.node.scope import PER_EVENT
+from telegrinder.node.scope import create_per_event_scope
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.types.objects import Update
@@ -284,11 +284,9 @@ class Dispatch[
             api.id,
         )
 
-        per_event_scope = self.global_scope.create_child(detail=PER_EVENT)
+        inject_internals(per_event_scope := create_per_event_scope(), {API: api, Update: update})
+
         context = Context().add_roots(api, update, per_event_scope)
-
-        inject_internals(per_event_scope, {API: api, Update: update})
-
         failed = False
         middlewares = self.middlewares
         start_time = self.loop_wrapper.time

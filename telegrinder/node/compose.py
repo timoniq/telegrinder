@@ -1,14 +1,12 @@
 """Compose nodes with specific agent and context.
 
-This module provides the `compose` function for executing nodes with dependency injection.
-
 Key features:
-- Execute functions as nodes with automatic dependency resolution
-- Work with Node classes and ready-made Composable objects
-- Integration with `Context` for access to API, events, data, and other nodes
+- Computes functions as nodes with automatic dependency composition
+- Work with `Node` classes and ready-made `Composable` objects
+- Integration with `Context` for access to API, update and externals
 
 ```python
-# Executing a function node
+# Compose a function node
 async def process_data(user_id: int, api: API) -> str:
     user = await api.get_chat(user_id)
     return f"Hello, {user.first_name}!"
@@ -21,7 +19,7 @@ async def handler(context: Context):
             case Error(error):
                 print(f"Error: {error}")
 
-# Executing a node with additional dependencies
+# Compose a node with additional dependencies
 from telegrinder.node import per_call, scalar_node
 
 @per_call
@@ -32,14 +30,14 @@ class Database:
         return cls()
 
 async def get_user_data(db: Database, user_id: int) -> dict[str, Any]:
-    # Use db to fetch data
+    # Use `db` to fetch data
     return {"id": user_id, "name": "User"}
 
 async def handler(context: Context):
     async with compose(get_user_data, context) as result:
         user_data = result.unwrap()
 
-# Passing additional root dependencies
+# Inject additional dependencies
 async def handler(context: Context):
     custom_data = {"custom_key": "custom_value"}
 
@@ -53,9 +51,8 @@ async def handler(context: Context):
 ```
 
 The `compose` function returns an async context manager that:
-
 - Creates a local scope for node composing
-- Automatically resolves all node dependencies
+- Automatically runs an agent with the specified node
 - Returns `Result[T, NodeError]` with the composed result
 """
 
@@ -75,16 +72,43 @@ from nodnod.node import Node
 from nodnod.scope import Scope
 from nodnod.utils.is_type import is_type
 
-from telegrinder.node.scope import TELEGRINDER_CONTEXT, MappedScopes, NodeScope
+from telegrinder.node.scope import NODE_GLOBAL_SCOPE, MappedScopes, create_per_call_scope
 from telegrinder.tools.aio import maybe_awaitable
-from telegrinder.tools.magic.function import Function
+from telegrinder.tools.magic.function import Function, FunctionGenerator
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.context import Context
 
 type _Composable[T: Agent] = Function[..., typing.Any] | type[Node[typing.Any, typing.Any]] | Composable[T]
+type AnyType = typing.Any
 
-NODE_GLOBAL_SCOPE: typing.Final = TELEGRINDER_CONTEXT.node_global_scope
+
+@asynccontextmanager
+async def _compose_node(
+    node: _Composable[Agent],
+    context: Context | None = None,
+    per_event_scope: Scope | None = None,
+    agent: Agent | None = None,
+    agent_cls: type[Agent] = EventLoopAgent,
+    roots: dict[AnyType, typing.Any] | None = None,
+) -> typing.AsyncGenerator[Result[typing.Any, NodeError], None]:
+    composable = None
+
+    if isinstance(node, Composable):
+        composable = node
+    elif not is_node(node):
+        composable = create_composable(node, agent_cls=agent_cls)
+
+    if composable is not None:
+        node, agent = composable.node, typing.cast("Agent", composable.agent)
+    elif not is_type(node, Node):
+        raise TypeError("Compose requires function, node, or composable.")
+
+    if agent is None:
+        raise ValueError("Agent is required.")
+
+    async with run_agent(agent, context, roots=roots, per_event_scope=per_event_scope) as result:
+        yield result.map(lambda scope: scope[node].value)
 
 
 @lru_cache(maxsize=1024 * 4)
@@ -102,32 +126,34 @@ def create_composable[T: Agent](
 @asynccontextmanager
 async def run_agent(
     agent: Agent,
-    context: Context,
+    context: Context | None = None,
     *,
-    roots: dict[type[typing.Any], typing.Any] | None = None,
+    roots: dict[AnyType, typing.Any] | None = None,
     per_event_scope: Scope | None = None,
 ) -> typing.AsyncGenerator[Result[Scope, NodeError]]:
-    event_scope = per_event_scope if per_event_scope is not None else context.per_event_scope
-    mapped_scopes = MappedScopes(global_scope=NODE_GLOBAL_SCOPE, per_event_scope=event_scope)
-    internals = {type(context): context, Externals: context}
+    internals: dict[typing.Any, typing.Any] = (
+        {type(context): context, Externals: context} if context is not None else {Externals: Externals()}
+    )
+    mapped_scopes = MappedScopes(global_scope=NODE_GLOBAL_SCOPE, per_event_scope=per_event_scope)
+    scope = create_per_call_scope(NODE_GLOBAL_SCOPE if per_event_scope is None else per_event_scope)
 
-    async with event_scope.create_child(detail=NodeScope.PER_CALL) as local_scope:
+    async with scope:
         try:
-            inject_internals(local_scope, internals | (roots or {}))
-            await maybe_awaitable(agent.run(local_scope, mapped_scopes))
-            yield Ok(local_scope.merge())
+            inject_internals(scope, internals if not roots else (internals | roots))
+            await maybe_awaitable(agent.run(scope, mapped_scopes))
+            yield Ok(scope.merge())
         except NodeError as error:
             yield Error(error)
 
 
 @typing.overload
 def compose[R](
-    function: Function[..., R],
+    function: FunctionGenerator[..., typing.Any, R] | Function[..., R],
     /,
     context: Context,
     *,
     per_event_scope: Scope | None = None,
-    agent_cls: type[Agent] | None = None,
+    agent_cls: type[Agent] = EventLoopAgent,
     roots: dict[type[typing.Any], typing.Any] | None = None,
 ) -> typing.AsyncContextManager[Result[R, NodeError], None]: ...
 
@@ -155,33 +181,62 @@ def compose[T](
 ) -> typing.AsyncContextManager[Result[T, NodeError], None]: ...
 
 
-@asynccontextmanager
-async def compose[T = typing.Any](
+def compose(
     node: _Composable[Agent],
     context: Context,
     *,
     per_event_scope: Scope | None = None,
     agent: Agent | None = None,
-    agent_cls: type[Agent] | None = None,
+    agent_cls: type[Agent] = EventLoopAgent,
     roots: dict[type[typing.Any], typing.Any] | None = None,
-) -> typing.AsyncGenerator[Result[T, NodeError], None]:
-    composable = None
+) -> typing.AsyncContextManager[Result[typing.Any, NodeError], None]:
+    if per_event_scope is None:
+        per_event_scope = context.per_event_scope
+    return _compose_node(node, context, per_event_scope, agent, agent_cls, roots)  # type: ignore
 
-    if isinstance(node, Composable):
-        composable = node
-    elif not is_node(node):
-        composable = create_composable(node, agent_cls=agent_cls or EventLoopAgent)
 
-    if composable is not None:
-        node, agent = composable.node, typing.cast("Agent", composable.agent)
-    elif not is_type(node, Node):
-        raise TypeError("Compose requires function, node, or composable.")
+@typing.overload
+def compose_once[R](
+    function: FunctionGenerator[..., typing.Any, R] | Function[..., R],
+    /,
+    *,
+    context: Context | None = None,
+    agent_cls: type[Agent] = EventLoopAgent,
+    roots: dict[AnyType, typing.Any] | None = None,
+) -> typing.AsyncContextManager[Result[R, NodeError], None]: ...
 
-    if agent is None:
-        raise ValueError("Agent is required.")
 
-    async with run_agent(agent, context, roots=roots, per_event_scope=per_event_scope) as result:
-        yield result.map(lambda scope: scope[node].value)
+@typing.overload
+def compose_once(
+    composable: Composable[Agent],
+    /,
+    *,
+    context: Context | None = None,
+    roots: dict[AnyType, typing.Any] | None = None,
+) -> typing.AsyncContextManager[Result[typing.Any, NodeError], None]: ...
+
+
+@typing.overload
+def compose_once[R](
+    node: type[Node[R, typing.Any]],
+    /,
+    *,
+    context: Context | None = None,
+    agent: Agent | None = None,
+    agent_cls: type[Agent] = EventLoopAgent,
+    roots: dict[AnyType, typing.Any] | None = None,
+) -> typing.AsyncContextManager[Result[R, NodeError], None]: ...
+
+
+def compose_once(
+    node: _Composable[Agent],
+    *,
+    context: Context | None = None,
+    agent: Agent | None = None,
+    agent_cls: type[Agent] = EventLoopAgent,
+    roots: dict[AnyType, typing.Any] | None = None,
+) -> typing.AsyncContextManager[Result[typing.Any, NodeError], None]:
+    return _compose_node(node, context, agent=agent, agent_cls=agent_cls, roots=roots)  # type: ignore
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -190,4 +245,4 @@ class Composable[T: Agent = Agent]:
     agent: T
 
 
-__all__ = ("Composable", "compose", "create_composable", "run_agent")
+__all__ = ("Composable", "compose", "compose_once", "create_composable", "run_agent")

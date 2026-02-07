@@ -1,6 +1,7 @@
 import typing
 
 from kungfu.library import Error, Ok, Result, unwrapping
+from nodnod.agent.event_loop.agent import EventLoopAgent
 from nodnod.error import NodeError
 
 from telegrinder.api.api import API
@@ -33,7 +34,7 @@ async def run_action_function[T: Handler](
     api: API,
     update: Update,
     context: Context,
-    agent: type[Agent] | None = None,
+    agent: type[Agent] = EventLoopAgent,
 ) -> Result[typing.Any, str]:
     async with compose(
         function,
@@ -51,14 +52,18 @@ async def run_action_function[T: Handler](
                 )
 
 
-def action(function: ActionFunction, agent: type[Agent] | None = None) -> Action:
+def action(function: ActionFunction, agent: type[Agent] = EventLoopAgent) -> Action:
     return Action(function, agent=agent)
 
 
 class Action:
     _on: ABCRule
 
-    def __init__(self, function: ActionFunction, agent: type[Agent] | None = None) -> None:
+    def __init__(
+        self,
+        function: ActionFunction,
+        agent: type[Agent] = EventLoopAgent,
+    ) -> None:
         self.function = function
         self.agent = agent
         self._on = Always()

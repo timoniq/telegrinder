@@ -7,7 +7,6 @@ from nodnod.scope import Scope
 from vbml.patcher.abc import ABCPatcher
 from vbml.patcher.patcher import Patcher
 
-from telegrinder.modules import logger
 from telegrinder.tools.global_context.global_context import GlobalContext, ctx_var, runtime_init
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
@@ -39,7 +38,6 @@ class TelegrinderContext(GlobalContext, thread_safe=True):
 
     async def close_global_scope(self) -> None:
         await self.node_global_scope.close()
-        logger.debug("Node global scope closed")
 
 
 __all__ = ("TelegrinderContext",)

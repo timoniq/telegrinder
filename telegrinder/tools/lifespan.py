@@ -5,9 +5,15 @@ import typing
 from contextlib import asynccontextmanager
 from inspect import iscoroutine, iscoroutinefunction
 
+from kungfu import Error, Ok, Result
+from nodnod.error import NodeError
+
 from telegrinder.modules import logger
-from telegrinder.tools.aio import run_task
+from telegrinder.tools.aio import next_generator, run_task, stop_generator
 from telegrinder.tools.fullname import fullname
+
+if typing.TYPE_CHECKING:
+    from telegrinder.tools.magic.function import Function
 
 type CoroutineTask[T] = typing.Coroutine[typing.Any, typing.Any, T]
 type CoroutineFunc[**P, T] = typing.Callable[P, CoroutineTask[T]]
@@ -28,14 +34,16 @@ class DelayedTask[**P]:
     _event: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False, repr=False)
     _timer: asyncio.TimerHandle | None = dataclasses.field(default=None, init=False, repr=False)
 
-    function: typing.Callable[P, CoroutineTask[typing.Any]]
+    function: Function[P, typing.Any]
     seconds: float | datetime.timedelta
     repeat: bool = dataclasses.field(default=False, kw_only=True)
 
     def __post_init__(self) -> None:
         self.function.cancel = self.cancel
 
-    async def __call__(self, *args: P.args, **kwargs: P.kwargs) -> typing.Any:
+    async def __call__(self) -> typing.Any:
+        from telegrinder.node.compose import compose_once
+
         stopped = False
 
         while not stopped and not self.is_cancelled:
@@ -43,7 +51,8 @@ class DelayedTask[**P]:
             await self._event.wait()
 
             try:
-                await self.function(*args, **kwargs)
+                async with compose_once(self.function) as result:
+                    result.unwrap()
             except Exception:
                 await logger.aexception(
                     "Delayed task `{}` failed with exception, traceback message below:",
@@ -68,7 +77,7 @@ class DelayedTask[**P]:
         if self._timer is None:
             self._timer = asyncio.get_running_loop().call_later(
                 self.delay,
-                callback=lambda: (self._event.set() if not self._event.is_set() else None),
+                callback=lambda: self._event.set() if not self._event.is_set() else None,
             )
 
     def cancel(self) -> bool:
@@ -94,12 +103,17 @@ class DelayedTask[**P]:
 @dataclasses.dataclass(kw_only=True, slots=True, repr=False)
 class Lifespan:
     _started: bool = dataclasses.field(default=False, init=False)
-    _lifespan_context: typing.AsyncContextManager[typing.Any] | None = dataclasses.field(default=None, init=False)
+    _lifespan_generator: typing.AsyncGenerator[Result[typing.Any, NodeError], None] | None = dataclasses.field(
+        default=None,
+        init=False,
+    )
     lifespan_function: typing.Callable[[], typing.AsyncContextManager[typing.Any]] | None = dataclasses.field(
         default=None
     )
     startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
+    startup_coro_task_functions: list[CoroutineFunc[..., typing.Any]] = dataclasses.field(default_factory=lambda: [])
     shutdown_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
+    shutdown_coro_task_functions: list[CoroutineFunc[..., typing.Any]] = dataclasses.field(default_factory=lambda: [])
 
     def __repr__(self) -> str:
         return "<{}: started={}>".format(fullname(self), self._started)
@@ -130,9 +144,9 @@ class Lifespan:
         exc_value: typing.Any | None,
         exc_tb: typing.Any | None,
     ) -> None:
-        await self._shutdown(exc_type, exc_value, exc_tb)
+        await self._shutdown()
 
-    def __call__[Function: typing.Callable[[], typing.AsyncGenerator[typing.Any, None]]](
+    def __call__[Function: typing.Callable[..., typing.AsyncGenerator[typing.Any]]](
         self,
         func: Function,
         /,
@@ -149,40 +163,83 @@ class Lifespan:
         while tasks:
             await tasks.pop(0)
 
+    @staticmethod
+    async def _run_coro_task_functions(tasks: list[CoroutineFunc[..., typing.Any]], /) -> None:
+        from telegrinder.node.compose import compose_once
+
+        while tasks:
+            async with compose_once(tasks.pop(0)) as result:
+                match result:
+                    case Error(error):
+                        await logger.aerror(
+                            "Coroutine task function `{}` failed with error: {}\n",
+                            fullname(tasks.pop(0)),
+                            NodeError(
+                                f"* failed to compose coroutine task function `{fullname(tasks.pop(0))}`",
+                                from_error=error,
+                            ),
+                        )
+
     async def _start(self) -> None:
+        from telegrinder.node.compose import compose_once
+
         if not self._started:
             await logger.adebug("Running lifespan startup tasks")
             self._started = True
 
             if self.lifespan_function is not None:
-                self._lifespan_context = self.lifespan_function()
-                await self._lifespan_context.__aenter__()
+                self._lifespan_generator = getattr(compose_once(self.lifespan_function), "gen", None)
 
+                if self._lifespan_generator is not None:
+                    match await next_generator(self._lifespan_generator):
+                        case Ok(gen):
+                            await next_generator(gen.gen)
+                            await stop_generator(self._lifespan_generator)
+                            self._lifespan_generator = gen.gen
+                        case Error(error):
+                            await logger.aerror(
+                                "Lifespan function `{}` failed with error: {}\n",
+                                fullname(self.lifespan_function),
+                                NodeError(
+                                    f"* failed to compose lifespan function `{fullname(self.lifespan_function)}`",
+                                    from_error=error,
+                                ),
+                            )
+                            await stop_generator(self._lifespan_generator)
+
+            await self._run_coro_task_functions(self.startup_coro_task_functions)
             await self._run_tasks(self.startup_tasks)
 
-    async def _shutdown(self, *suppress_args: typing.Any) -> None:
+    async def _shutdown(self) -> None:
         if self._started:
             await logger.adebug("Running lifespan shutdown tasks")
             self._started = False
 
-            if self._lifespan_context is not None:
-                await self._lifespan_context.__aexit__(*suppress_args)
-                self._lifespan_context = None
+            if self._lifespan_generator is not None:
+                await stop_generator(self._lifespan_generator)
+                self._lifespan_generator = None
 
+            await self._run_coro_task_functions(self.shutdown_coro_task_functions)
             await self._run_tasks(self.shutdown_tasks)
 
     def start(self, loop: asyncio.AbstractEventLoop | None = None) -> None:
         run_task(self._start(), loop=loop)
 
     def shutdown(self, loop: asyncio.AbstractEventLoop | None = None) -> None:
-        run_task(self._shutdown(None, None, None), loop=loop)
+        run_task(self._shutdown(), loop=loop)
 
-    def on_startup[**P, T](self, task: Task[P, T], /) -> Task[P, T]:
+    def add_startup_task[**P, T](self, task: Task[P, T], /) -> None:
         self.startup_tasks.append(to_coroutine_task(task))
+
+    def add_shutdown_task[**P, T](self, task: Task[P, T], /) -> None:
+        self.shutdown_tasks.append(to_coroutine_task(task))
+
+    def on_startup[**P, T](self, task: CoroutineFunc[P, T], /) -> CoroutineFunc[P, T]:
+        self.startup_coro_task_functions.append(task)
         return task
 
-    def on_shutdown[**P, T](self, task: Task[P, T], /) -> Task[P, T]:
-        self.shutdown_tasks.append(to_coroutine_task(task))
+    def on_shutdown[**P, T](self, task: CoroutineFunc[P, T], /) -> CoroutineFunc[P, T]:
+        self.shutdown_coro_task_functions.append(task)
         return task
 
 

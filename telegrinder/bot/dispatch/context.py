@@ -156,7 +156,7 @@ class Context(Externals):
         del self[key]
 
 
-_CONTEXT_CLASS_ATTRS = frozenset(Context.__dict__ | dict.__dict__ | object.__dict__)
+_CONTEXT_CLASS_ATTRS: typing.Final = frozenset(Context.__dict__ | Externals.__dict__ | dict.__dict__ | object.__dict__)
 
 
 __all__ = ("Context",)

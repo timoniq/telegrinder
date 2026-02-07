@@ -2,6 +2,7 @@ import typing
 
 from kungfu.library.monad.result import Ok
 from nodnod.agent.event_loop.agent import EventLoopAgent
+from nodnod.scope import Scope
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
@@ -27,8 +28,13 @@ class NodeRule(ABCRule):
         self.nodes = tuple((x if isinstance(x, tuple) else (None, x)) for x in nodes)
         self.roots = roots
 
-    async def check(self, context: Context) -> bool:
-        async with run_agent(self.agent, context, roots=self.roots) as result:
+    async def check(self, per_event_scope: Scope, context: Context) -> bool:
+        async with run_agent(
+            self.agent,
+            context,
+            per_event_scope=per_event_scope,
+            roots=self.roots,
+        ) as result:
             match result:
                 case Ok(scope):
                     for key, node in self.nodes:

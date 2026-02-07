@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from functools import cached_property
 
 from kungfu.library.monad.result import Error
+from nodnod.agent.event_loop.agent import EventLoopAgent
 from nodnod.error import NodeError
 
 from telegrinder.api.api import API
@@ -33,7 +34,7 @@ def register_manager(return_type: typing.Any, /) -> typing.Callable[[ManagerFunc
 class Manager:
     types: tuple[typing.Any, ...]
     function: ManagerFunction
-    agent_cls: type[Agent] | None = None
+    agent_cls: type[Agent] = EventLoopAgent
 
     async def __call__(self, response: typing.Any, context: Context) -> None:
         ctx = context.copy()
