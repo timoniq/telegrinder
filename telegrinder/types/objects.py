@@ -485,6 +485,10 @@ class User(Model):
     """Optional. True, if the bot has forum topic mode enabled in private chats.
     Returned only in getMe."""
 
+    allows_users_to_create_topics: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the bot allows users to create and delete topics in private
+    chats. Returned only in getMe."""
+
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -733,6 +737,10 @@ class ChatFullInfo(Model):
     rating: Option[UserRating] = field(default=..., converter=From["UserRating | None"])
     """Optional. For private chats, the rating of the user if any."""
 
+    first_profile_audio: Option[Audio] = field(default=..., converter=From["Audio | None"])
+    """Optional. For private chats, the first audio added to the profile of the
+    user."""
+
     unique_gift_colors: Option[UniqueGiftColors] = field(default=..., converter=From["UniqueGiftColors | None"])
     """Optional. The color scheme based on a unique gift that must be used for the
     chat's name, message replies and link previews."""
@@ -962,6 +970,12 @@ class Message(MaybeInaccessibleMessage):
     left_chat_member: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. A member was removed from the group, information about them (this
     member may be the bot itself)."""
+
+    chat_owner_left: Option[ChatOwnerLeft] = field(default=..., converter=From["ChatOwnerLeft | None"])
+    """Optional. Service message: chat owner has left."""
+
+    chat_owner_changed: Option[ChatOwnerChanged] = field(default=..., converter=From["ChatOwnerChanged | None"])
+    """Optional. Service message: chat owner has changed."""
 
     new_chat_title: Option[str] = field(default=..., converter=From[str | None])
     """Optional. A chat title was changed to this value."""
@@ -1636,6 +1650,36 @@ class Story(Model):
     """Unique identifier for the story in the chat."""
 
 
+class VideoQuality(Model):
+    """Object `VideoQuality`, see the [documentation](https://core.telegram.org/bots/api#videoquality).
+
+    This object represents a video file of a specific quality.
+    """
+
+    file_id: str = field()
+    """Identifier for this file, which can be used to download or reuse the file."""
+
+    file_unique_id: str = field()
+    """Unique identifier for this file, which is supposed to be the same over time
+    and for different bots. Can't be used to download or reuse the file."""
+
+    width: int = field()
+    """Video width."""
+
+    height: int = field()
+    """Video height."""
+
+    codec: str = field()
+    """Codec that was used to encode the video, for example, `h264`, `h265`, or
+    `av01`."""
+
+    file_size: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. File size in bytes. It can be bigger than 2^31 and some programming
+    languages may have difficulty/silent defects in interpreting it. But
+    it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    float type are safe for storing this value."""
+
+
 class Video(Model):
     """Object `Video`, see the [documentation](https://core.telegram.org/bots/api#video).
 
@@ -1666,6 +1710,9 @@ class Video(Model):
 
     start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Timestamp in seconds from which the video will play in the message."""
+
+    qualities: Option[list[VideoQuality]] = field(default=..., converter=From["list[VideoQuality] | None"])
+    """Optional. List of available qualities of the video."""
 
     file_name: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Original filename as defined by the sender."""
@@ -2864,6 +2911,19 @@ class UserProfilePhotos(Model):
     """Requested profile pictures (in up to 4 sizes each)."""
 
 
+class UserProfileAudios(Model):
+    """Object `UserProfileAudios`, see the [documentation](https://core.telegram.org/bots/api#userprofileaudios).
+
+    This object represents the audios displayed on a user's profile.
+    """
+
+    total_count: int = field()
+    """Total number of profile audios for the target user."""
+
+    audios: list[Audio] = field()
+    """Requested profile audios."""
+
+
 class File(Model):
     """Object `File`, see the [documentation](https://core.telegram.org/bots/api#file).
 
@@ -2946,13 +3006,23 @@ class ReplyKeyboardMarkup(Model):
 class KeyboardButton(Model):
     """Object `KeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#keyboardbutton).
 
-    This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
-    Note: request_users and request_chat options will only work in Telegram versions released after 3 February, 2023. Older clients will display unsupported message.
+    This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
     """
 
     text: str = field()
-    """Text of the button. If none of the optional fields are used, it will be sent
-    as a message when the button is pressed."""
+    """Text of the button. If none of the fields other than text, icon_custom_emoji_id,
+    and style are used, it will be sent as a message when the button is pressed."""
+
+    icon_custom_emoji_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Unique identifier of the custom emoji shown before the text of
+    the button. Can only be used by bots that purchased additional usernames
+    on Fragment or in the messages directly sent by the bot to private, group
+    and supergroup chats if the owner of the bot has a Telegram Premium subscription."""
+
+    style: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Style of the button. Must be one of `danger` (red), `success`
+    (green) or `primary` (blue). If omitted, then an app-specific style is
+    used."""
 
     request_users: Option[KeyboardButtonRequestUsers] = field(
         default=..., converter=From["KeyboardButtonRequestUsers | None"]
@@ -3120,11 +3190,22 @@ class InlineKeyboardMarkup(Model):
 class InlineKeyboardButton(Model):
     """Object `InlineKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardbutton).
 
-    This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.
+    This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button.
     """
 
     text: str = field()
     """Label text on the button."""
+
+    icon_custom_emoji_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Unique identifier of the custom emoji shown before the text of
+    the button. Can only be used by bots that purchased additional usernames
+    on Fragment or in the messages directly sent by the bot to private, group
+    and supergroup chats if the owner of the bot has a Telegram Premium subscription."""
+
+    style: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Style of the button. Must be one of `danger` (red), `success`
+    (green) or `primary` (blue). If omitted, then an app-specific style is
+    used."""
 
     url: Option[str] = field(default=..., converter=From[str | None])
     """Optional. HTTP or tg:// URL to be opened when the button is pressed. Links
@@ -4297,7 +4378,12 @@ class UniqueGiftModel(Model):
     """The sticker that represents the unique gift."""
 
     rarity_per_mille: int = field()
-    """The number of unique gifts that receive this model for every 1000 gifts upgraded."""
+    """The number of unique gifts that receive this model for every 1000 gift upgrades.
+    Always 0 for crafted gifts."""
+
+    rarity: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Rarity of the model if it is a crafted model. Currently, can be
+    `uncommon`, `rare`, `epic`, or `legendary`."""
 
 
 class UniqueGiftSymbol(Model):
@@ -4410,6 +4496,10 @@ class UniqueGift(Model):
     is_premium: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the original regular gift was exclusively purchaseable
     by Telegram Premium subscribers."""
+
+    is_burned: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the gift was used to craft another gift and isn't available
+    anymore."""
 
     is_from_blockchain: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the gift is assigned from the TON blockchain and can't
@@ -4939,6 +5029,27 @@ class ChatBoostRemoved(Model):
         converter=From["ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway"]
     )
     """Source of the removed boost."""
+
+
+class ChatOwnerLeft(Model):
+    """Object `ChatOwnerLeft`, see the [documentation](https://core.telegram.org/bots/api#chatownerleft).
+
+    Describes a service message about the chat owner leaving the chat.
+    """
+
+    new_owner: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. The user which will be the new owner of the chat if the previous
+    owner does not return to the chat."""
+
+
+class ChatOwnerChanged(Model):
+    """Object `ChatOwnerChanged`, see the [documentation](https://core.telegram.org/bots/api#chatownerchanged).
+
+    Describes a service message about an ownership change in the chat.
+    """
+
+    new_owner: User = field()
+    """The new owner of the chat."""
 
 
 class UserChatBoosts(Model):
@@ -7957,6 +8068,8 @@ __all__ = (
     "ChatMemberOwner",
     "ChatMemberRestricted",
     "ChatMemberUpdated",
+    "ChatOwnerChanged",
+    "ChatOwnerLeft",
     "ChatPermissions",
     "ChatPhoto",
     "ChatShared",
@@ -8166,6 +8279,7 @@ __all__ = (
     "Update",
     "User",
     "UserChatBoosts",
+    "UserProfileAudios",
     "UserProfilePhotos",
     "UserRating",
     "UsersShared",
@@ -8176,6 +8290,7 @@ __all__ = (
     "VideoChatScheduled",
     "VideoChatStarted",
     "VideoNote",
+    "VideoQuality",
     "Voice",
     "WebAppData",
     "WebAppInfo",
