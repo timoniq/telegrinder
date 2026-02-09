@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API version `9.3`, released `December 31, 2025`."""
+    """Telegram Bot API version `9.4`, released `February 9, 2026`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -1960,6 +1960,34 @@ class APIMethods:
         )
         return full_result(method_response, UserProfilePhotos)
 
+    async def get_user_profile_audios(
+        self,
+        *,
+        user_id: int,
+        offset: int | None = None,
+        limit: int | None = None,
+        **other: typing.Any,
+    ) -> Result[UserProfileAudios, APIError]:
+        """Method `getUserProfileAudios`, see the [documentation](https://core.telegram.org/bots/api#getuserprofileaudios)
+
+        Use this method to get a list of profile audios for a user. Returns a UserProfileAudios
+        object.
+
+        :param user_id: Unique identifier of the target user.
+
+        :param offset: Sequential number of the first audio to be returned. By default, all audios \
+        are returned.
+
+        :param limit: Limits the number of audios to be retrieved. Values between 1-100 are accepted. \
+        Defaults to 100.
+        """
+
+        method_response = await self.api.request_raw(
+            "getUserProfileAudios",
+            get_params(locals()),
+        )
+        return full_result(method_response, UserProfileAudios)
+
     async def set_user_emoji_status(
         self,
         *,
@@ -2961,10 +2989,10 @@ class APIMethods:
     ) -> Result[ForumTopic, APIError]:
         """Method `createForumTopic`, see the [documentation](https://core.telegram.org/bots/api#createforumtopic)
 
-        Use this method to create a topic in a forum supergroup chat. The bot must
-        be an administrator in the chat for this to work and must have the can_manage_topics
-        administrator rights. Returns information about the created topic as
-        a ForumTopic object.
+        Use this method to create a topic in a forum supergroup chat or a private chat
+        with a user. In the case of a supergroup chat the bot must be an administrator
+        in the chat for this to work and must have the can_manage_topics administrator
+        right. Returns information about the created topic as a ForumTopic object.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
@@ -3564,6 +3592,38 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(method_response, BotShortDescription)
+
+    async def set_my_profile_photo(
+        self,
+        *,
+        photo: InputProfilePhoto,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setMyProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#setmyprofilephoto)
+
+        Changes the profile photo of the bot. Returns True on success.
+
+        :param photo: The new profile photo to set.
+        """
+
+        method_response = await self.api.request_raw(
+            "setMyProfilePhoto",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def remove_my_profile_photo(self, **other: typing.Any) -> Result[bool, APIError]:
+        """Method `removeMyProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#removemyprofilephoto)
+
+        Removes the profile photo of the bot. Requires no parameters. Returns True
+        on success.
+        """
+
+        method_response = await self.api.request_raw(
+            "removeMyProfilePhoto",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
 
     async def set_chat_menu_button(
         self,
