@@ -763,10 +763,28 @@ fields = [
 ]
 
 [[generator.objects.fields.annotations.literals]]
+object_name = "KeyboardButton"
+fields = [
+    { name = "style", enum = "KeyboardButtonStyle" },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InlineKeyboardButton"
+fields = [
+    { name = "style", enum = "KeyboardButtonStyle" },
+]
+
+[[generator.objects.fields.annotations.literals]]
 object_name = "UniqueGiftInfo"
 fields = [
     { name = "origin", enum = "UniqueGiftInfoOriginType", default = "UPGRADE" },
     { name = "last_resale_currency", enum_literals = { name = "Currency", enumerations = ["XTR", "TON",] } },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "UniqueGiftModel"
+fields = [
+    { name = "rarity", enum = "UniqueGiftModelRarity" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
@@ -779,6 +797,12 @@ fields = [
 object_name = "OwnedGiftUnique"
 fields = [
     { name = "type", literals = ["unique",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "VideoQuality"
+fields = [
+    { name = "codec", enum = "VideoQualityCodec" },
 ]
 
 [[generator.objects.fields.annotations.literals]]

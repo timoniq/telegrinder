@@ -1669,7 +1669,7 @@ class VideoQuality(Model):
     height: int = field()
     """Video height."""
 
-    codec: str = field()
+    codec: VideoQualityCodec = field()
     """Codec that was used to encode the video, for example, `h264`, `h265`, or
     `av01`."""
 
@@ -3019,7 +3019,7 @@ class KeyboardButton(Model):
     on Fragment or in the messages directly sent by the bot to private, group
     and supergroup chats if the owner of the bot has a Telegram Premium subscription."""
 
-    style: Option[str] = field(default=..., converter=From[str | None])
+    style: Option[KeyboardButtonStyle] = field(default=..., converter=From[KeyboardButtonStyle | None])
     """Optional. Style of the button. Must be one of `danger` (red), `success`
     (green) or `primary` (blue). If omitted, then an app-specific style is
     used."""
@@ -3202,7 +3202,7 @@ class InlineKeyboardButton(Model):
     on Fragment or in the messages directly sent by the bot to private, group
     and supergroup chats if the owner of the bot has a Telegram Premium subscription."""
 
-    style: Option[str] = field(default=..., converter=From[str | None])
+    style: Option[KeyboardButtonStyle] = field(default=..., converter=From[KeyboardButtonStyle | None])
     """Optional. Style of the button. Must be one of `danger` (red), `success`
     (green) or `primary` (blue). If omitted, then an app-specific style is
     used."""
@@ -4381,7 +4381,7 @@ class UniqueGiftModel(Model):
     """The number of unique gifts that receive this model for every 1000 gift upgrades.
     Always 0 for crafted gifts."""
 
-    rarity: Option[str] = field(default=..., converter=From[str | None])
+    rarity: Option[UniqueGiftModelRarity] = field(default=..., converter=From[UniqueGiftModelRarity | None])
     """Optional. Rarity of the model if it is a crafted model. Currently, can be
     `uncommon`, `rare`, `epic`, or `legendary`."""
 

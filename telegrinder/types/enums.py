@@ -718,6 +718,44 @@ class UniqueGiftInfoOriginType(enum.StrEnum, metaclass=BaseEnumMeta):
     OFFER = "offer"
 
 
+class UniqueGiftModelRarity(enum.StrEnum, metaclass=BaseEnumMeta):
+    """Rarity of the unique gift model. Currently, can be
+    `uncommon`, `rare`, `epic`, or `legendary`.
+    Docs: https://core.telegram.org/bots/api#uniquegiftmodel
+    """
+
+    UNCOMMON = "uncommon"
+    RARE = "rare"
+    EPIC = "epic"
+    LEGENDARY = "legendary"
+
+
+class KeyboardButtonStyle(enum.StrEnum, metaclass=BaseEnumMeta):
+    """Style of the keyboard button. Currently, can be
+    `danger`, `success`, or `primary`.
+    """
+
+    DANGER = "danger"
+    """Red button."""
+
+    SUCCESS = "success"
+    """Green button."""
+
+    PRIMARY = "primary"
+    """Blue button."""
+
+
+class VideoQualityCodec(enum.StrEnum, metaclass=BaseEnumMeta):
+    """Codec of the video quality. Currently, can be
+    `h264`, `h265`, or `av01`.
+    Docs: https://core.telegram.org/bots/api#videoquality
+    """
+
+    H264 = "h264"
+    H265 = "h265"
+    AV01 = "av01"
+
+
 __all__ = (
     "BotCommandScopeType",
     "ChatAction",
@@ -736,6 +774,7 @@ __all__ = (
     "InlineQueryResultMpeg4GifThumbnailMimeType",
     "InlineQueryResultThumbnailMimeType",
     "InlineQueryResultVideoMimeType",
+    "KeyboardButtonStyle",
     "MaskPositionPoint",
     "MessageEntityType",
     "MessageOriginType",
@@ -750,5 +789,7 @@ __all__ = (
     "TopicIconColor",
     "TransactionPartnerUserTransactionType",
     "UniqueGiftInfoOriginType",
+    "UniqueGiftModelRarity",
     "UpdateType",
+    "VideoQualityCodec",
 )
