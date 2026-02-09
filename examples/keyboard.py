@@ -4,20 +4,30 @@ from telegrinder import (
     API,
     Button,
     CallbackQuery,
+    DangerButton,
     InlineButton,
     InlineKeyboard,
     Keyboard,
     Message,
+    PrimaryButton,
+    SuccessButton,
     Telegrinder,
     Token,
 )
-from telegrinder.modules import setup_logger
+from telegrinder.modules import configure_dotenv, setup_logger
 from telegrinder.rules import PayloadModelRule, Text
 
+configure_dotenv(load_file=True)
 setup_logger()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
+
+
+class MenuKeyboard(Keyboard, max_in_row=2):
+    PROFILE = SuccessButton("Profile")
+    BALANCE = PrimaryButton("Balance")
+    EXIT = DangerButton("Exit")
 
 
 class FruitsKeyboard(Keyboard, max_in_row=2, one_time_keyboard=True):
@@ -51,6 +61,14 @@ async def start(message: Message) -> None:
     await message.answer(
         text="Hello! Choose what you need:",
         reply_markup=kb,
+    )
+
+
+@bot.on.message(Text("/menu"))
+async def menu(message: Message) -> None:
+    await message.answer(
+        text="Menu:",
+        reply_markup=MenuKeyboard.get_markup(),
     )
 
 
@@ -92,6 +110,21 @@ async def eat_kiwi(message: Message) -> None:
         text="Very sour kiwi... Bon appetit!",
         reply_markup=FruitsKeyboard.get_keyboard_remove(),
     )
+
+
+@bot.on.message(MenuKeyboard.PROFILE)
+async def profile(message: Message) -> None:
+    await message.reply(text="Wow, you have a nice profile!")
+
+
+@bot.on.message(MenuKeyboard.BALANCE)
+async def balance(message: Message) -> None:
+    await message.reply(text="Your balance is $1000")
+
+
+@bot.on.message(MenuKeyboard.EXIT)
+async def exit(message: Message) -> None:
+    await message.reply(text="Okay, exit!")
 
 
 @bot.on.callback_query(PayloadModelRule(ItemModel, alias="data"))

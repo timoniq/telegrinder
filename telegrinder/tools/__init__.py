@@ -60,7 +60,20 @@ from telegrinder.tools.global_context import (
     runtime_init,
 )
 from telegrinder.tools.input_file_directory import InputFileDirectory
-from telegrinder.tools.keyboard import ABCKeyboard, Button, InlineButton, InlineKeyboard, Keyboard, RowButtons
+from telegrinder.tools.keyboard import (
+    ABCKeyboard,
+    Button,
+    DangerButton,
+    DangerInlineButton,
+    InlineButton,
+    InlineKeyboard,
+    Keyboard,
+    PrimaryButton,
+    PrimaryInlineButton,
+    RowButtons,
+    SuccessButton,
+    SuccessInlineButton,
+)
 from telegrinder.tools.lifespan import Lifespan
 from telegrinder.tools.limited_dict import LimitedDict
 from telegrinder.tools.loop_wrapper import DelayedTask, LoopWrapper
@@ -100,6 +113,8 @@ __all__ = (
     "Bundle",
     "Button",
     "CtxVar",
+    "DangerButton",
+    "DangerInlineButton",
     "DelayedTask",
     "GlobalContext",
     "GlobalCtxVar",
@@ -114,10 +129,14 @@ __all__ = (
     "MemoryStateStorage",
     "MsgPackSerializer",
     "ParseMode",
+    "PrimaryButton",
+    "PrimaryInlineButton",
     "RowButtons",
     "Singleton",
     "SingletonMeta",
     "StateData",
+    "SuccessButton",
+    "SuccessInlineButton",
     "TaskGroup",
     "TelegrinderContext",
     "additional_property",
