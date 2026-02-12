@@ -58,6 +58,9 @@ class LoopWrapperState(enum.Enum):
     SHUTDOWN = enum.auto()
 
 
+RUNNING_STATES: typing.Final = frozenset({LoopWrapperState.RUNNING, LoopWrapperState.RUNNING_MANUALLY})
+
+
 @typing.final
 class LoopWrapper(Singleton, Final):
     _loop: asyncio.AbstractEventLoop
@@ -93,11 +96,11 @@ class LoopWrapper(Singleton, Final):
         self._lifespan = Lifespan()
         self._event_stop = asyncio.Event()
         self._state = LoopWrapperState.NOT_RUNNING
-        self._future_tasks = [self._waiter_stop()]
+        self._future_tasks = [self._wait_for_shutdown()]
         self._all_tasks = set()
         self._is_attached_to_running_loop = False
 
-        signal.signal(signal.SIGTERM, lambda *_: self.stop())
+        signal.signal(signal.SIGTERM, lambda *_: self.shutdown())
 
     def __repr__(self) -> str:
         return "<{}: loop={!r}, lifespan={!r}>".format(
@@ -123,10 +126,10 @@ class LoopWrapper(Singleton, Final):
 
     @property
     def running(self) -> bool:
-        return self._state in {LoopWrapperState.RUNNING, LoopWrapperState.RUNNING_MANUALLY}
+        return self._state in RUNNING_STATES
 
     @property
-    def shutdown(self) -> bool:
+    def shutting_down(self) -> bool:
         return self._state is LoopWrapperState.SHUTDOWN
 
     async def _run_async_event_loop(self) -> None:
@@ -169,15 +172,18 @@ class LoopWrapper(Singleton, Final):
             await self._shutdown()
 
     async def _shutdown(self) -> None:
-        await self.lifespan._shutdown()
-        await logger.adebug("Shutting down loop wrapper")
-        self._state = LoopWrapperState.SHUTDOWN
+        if self.running:
+            await self.lifespan._shutdown()
+            await logger.adebug("Shutting down loop wrapper")
+            self._state = LoopWrapperState.SHUTDOWN
 
-    async def _waiter_stop(self) -> None:
-        await self._event_stop.wait()
-        self._event_stop.clear()
-        await self._shutdown()
-        await self._cancel_tasks()
+    async def _wait_for_shutdown(self) -> None:
+        try:
+            await self._event_stop.wait()
+            await self._shutdown()
+            await self._cancel_tasks()
+        finally:
+            self._event_stop.clear()
 
     def _run_lw_later(self) -> asyncio.Handle:
         return self._loop.call_soon_threadsafe(lambda l: l.create_task(self._run_async_event_loop()), self._loop)
@@ -238,12 +244,12 @@ class LoopWrapper(Singleton, Final):
         with self._wrap_loop(close_loop=close_loop):
             run_task(self._run(), loop=self._loop)
 
-    def stop(self) -> None:
-        if self.running:
-            self._state = LoopWrapperState.SHUTDOWN
-
+    def shutdown(self) -> None:
         if not self._event_stop.is_set():
             self._event_stop.set()
+
+        if self.running:
+            self._state = LoopWrapperState.SHUTDOWN
 
     def add_task(self, task: Task[..., typing.Any], /) -> None:
         coro_task = to_coroutine_task(task)
@@ -260,16 +266,22 @@ class LoopWrapper(Singleton, Final):
         if self.running:
             raise RuntimeError("Cannot attach the running loop wrapper to the running loop.")
 
-        self._loop = asyncio.get_running_loop()
-        self._run_lw_task.cancel()
         self._is_attached_to_running_loop = True
-        self._run_lw_task = self._run_lw_later()
+        self.bind_event_loop(asyncio.get_running_loop())
 
     def create_task_group[T](self) -> TaskGroup[typing.Any]:
         loop = asyncio.get_running_loop()
         if not self.running and self._loop is not loop:
             self.attach_to_running_loop()
         return TaskGroup(loop)
+
+    def bind_event_loop(self, loop: asyncio.AbstractEventLoop, /) -> None:
+        if self.running:
+            raise RuntimeError("Cannot bind the event loop to the running loop wrapper.")
+
+        self._loop = loop
+        self._run_lw_task.cancel()
+        self._run_lw_task = self._run_lw_later()
 
 
 __all__ = ("DelayedTask", "LoopWrapper", "to_coroutine_task")

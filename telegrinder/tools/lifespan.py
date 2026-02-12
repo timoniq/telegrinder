@@ -52,7 +52,12 @@ class DelayedTask[**P]:
 
             try:
                 async with compose_once(self.function) as result:
-                    result.unwrap()
+                    result.map_err(
+                        lambda error: NodeError(
+                            f"* failed to compose delayed task `{fullname(self.function)}`",
+                            from_error=error,
+                        ),
+                    ).unwrap()
             except Exception:
                 await logger.aexception(
                     "Delayed task `{}` failed with exception, traceback message below:",
@@ -184,7 +189,7 @@ class Lifespan:
         from telegrinder.node.compose import compose_once
 
         if not self._started:
-            await logger.adebug("Running lifespan startup tasks")
+            await logger.adebug("Starting lifespan and running startup tasks")
             self._started = True
 
             if self.lifespan_function is not None:
@@ -212,7 +217,7 @@ class Lifespan:
 
     async def _shutdown(self) -> None:
         if self._started:
-            await logger.adebug("Running lifespan shutdown tasks")
+            await logger.adebug("Shutting down lifespan and running shutdown tasks")
             self._started = False
 
             if self._lifespan_generator is not None:
