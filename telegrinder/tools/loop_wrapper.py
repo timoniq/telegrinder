@@ -155,6 +155,11 @@ class LoopWrapper(Singleton, Final):
                         await logger.aexception("Traceback message below:")
 
     async def _cancel_tasks(self) -> None:
+        if not self.running:
+            return
+
+        await logger.adebug("Cancelling tasks...")
+
         with suppress(asyncio.exceptions.CancelledError):
             await cancel_future(asyncio.gather(*self._get_all_tasks(), return_exceptions=True))
 
@@ -166,7 +171,6 @@ class LoopWrapper(Singleton, Final):
             finally:
                 yield
         except asyncio.CancelledError:
-            await logger.adebug("Cancelling tasks...")
             await self._cancel_tasks()
         finally:
             await self._shutdown()
@@ -178,12 +182,10 @@ class LoopWrapper(Singleton, Final):
             self._state = LoopWrapperState.SHUTDOWN
 
     async def _wait_for_shutdown(self) -> None:
-        try:
+        if not self._event_stop.is_set():
             await self._event_stop.wait()
             await self._shutdown()
             await self._cancel_tasks()
-        finally:
-            self._event_stop.clear()
 
     def _run_lw_later(self) -> asyncio.Handle:
         return self._loop.call_soon_threadsafe(lambda l: l.create_task(self._run_async_event_loop()), self._loop)
@@ -247,9 +249,6 @@ class LoopWrapper(Singleton, Final):
     def shutdown(self) -> None:
         if not self._event_stop.is_set():
             self._event_stop.set()
-
-        if self.running:
-            self._state = LoopWrapperState.SHUTDOWN
 
     def add_task(self, task: Task[..., typing.Any], /) -> None:
         coro_task = to_coroutine_task(task)
