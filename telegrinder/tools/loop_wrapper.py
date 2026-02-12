@@ -142,12 +142,14 @@ class LoopWrapper(Singleton, Final):
             self._create_task(self._future_tasks.pop(0))
 
         while self.running and (tasks := self._get_all_tasks()):
-            tasks_results, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
-            for task_result in tasks_results:
-                try:
-                    task_result.result()
-                except Exception:
-                    await logger.aexception("Traceback message below:")
+            with suppress(asyncio.CancelledError):
+                tasks_results, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+
+                for task_result in tasks_results:
+                    try:
+                        task_result.result()
+                    except Exception:
+                        await logger.aexception("Traceback message below:")
 
     async def _cancel_tasks(self) -> None:
         with suppress(asyncio.exceptions.CancelledError):
@@ -173,7 +175,6 @@ class LoopWrapper(Singleton, Final):
 
     async def _waiter_stop(self) -> None:
         await self._event_stop.wait()
-        self._state = LoopWrapperState.SHUTDOWN
         self._event_stop.clear()
         await self._shutdown()
         await self._cancel_tasks()
@@ -238,6 +239,9 @@ class LoopWrapper(Singleton, Final):
             run_task(self._run(), loop=self._loop)
 
     def stop(self) -> None:
+        if self.running:
+            self._state = LoopWrapperState.SHUTDOWN
+
         if not self._event_stop.is_set():
             self._event_stop.set()
 
