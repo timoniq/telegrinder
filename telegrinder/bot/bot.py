@@ -61,7 +61,7 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
 
         self.loop_wrapper.add_task(listen_polling())
 
-    def run_forever(self, *, offset: int = 0, skip_updates: bool = False) -> typing.NoReturn:
+    def run_forever(self, *, offset: int = 0, skip_updates: bool = False) -> None:
         logger.info("Running blocking polling (id={})", self.api.id)
         self.loop_wrapper.add_task(self.run_polling(offset=offset, skip_updates=skip_updates))
         self.loop_wrapper.run()

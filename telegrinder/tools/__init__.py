@@ -74,9 +74,9 @@ from telegrinder.tools.keyboard import (
     SuccessButton,
     SuccessInlineButton,
 )
-from telegrinder.tools.lifespan import Lifespan
+from telegrinder.tools.lifespan import DelayedTask, Lifespan
 from telegrinder.tools.limited_dict import LimitedDict
-from telegrinder.tools.loop_wrapper import DelayedTask, LoopWrapper
+from telegrinder.tools.loop_wrapper import LoopWrapper
 from telegrinder.tools.magic import (
     Annotations,
     Bundle,

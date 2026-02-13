@@ -122,8 +122,8 @@ from .tools.keyboard import (
     SuccessButton,
     SuccessInlineButton,
 )
-from .tools.lifespan import Lifespan
-from .tools.loop_wrapper import DelayedTask, LoopWrapper
+from .tools.lifespan import DelayedTask, Lifespan
+from .tools.loop_wrapper import LoopWrapper
 from .tools.parse_mode import ParseMode
 from .tools.state_storage import ABCStateStorage, MemoryStateStorage, StateData
 

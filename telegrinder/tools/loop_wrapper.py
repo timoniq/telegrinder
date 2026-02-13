@@ -63,12 +63,16 @@ RUNNING_STATES: typing.Final = frozenset({LoopWrapperState.RUNNING, LoopWrapperS
 
 @typing.final
 class LoopWrapper(Singleton, Final):
+    """Loop wrapper is a singleton wrapper around the event loop that provides a way
+    to run tasks in the event loop, manage the lifespan of the application, and manage
+    the tasks in the event loop."""
+
     _loop: asyncio.AbstractEventLoop
     _lifespan: Lifespan
     _future_tasks: list[CoroutineTask[typing.Any]]
     _state: LoopWrapperState
     _all_tasks: set[asyncio.Task[typing.Any]]
-    _event_stop: asyncio.Event
+    _event_shutdown: asyncio.Event
     _run_lw_task: asyncio.Handle
     _is_attached_to_running_loop: bool
 
@@ -81,7 +85,7 @@ class LoopWrapper(Singleton, Final):
         "_state",
         "_all_tasks",
         "_loop",
-        "_event_stop",
+        "_event_shutdown",
         "_run_lw_task",
         "_is_attached_to_running_loop",
     )
@@ -94,13 +98,13 @@ class LoopWrapper(Singleton, Final):
 
         self._run_lw_task = self._run_lw_later()
         self._lifespan = Lifespan()
-        self._event_stop = asyncio.Event()
+        self._event_shutdown = asyncio.Event()
         self._state = LoopWrapperState.NOT_RUNNING
         self._future_tasks = [self._wait_for_shutdown()]
         self._all_tasks = set()
         self._is_attached_to_running_loop = False
 
-        signal.signal(signal.SIGTERM, lambda *_: self.shutdown())
+        self._register_termination_signal_handler()
 
     def __repr__(self) -> str:
         return "<{}: loop={!r}, lifespan={!r}>".format(
@@ -135,7 +139,7 @@ class LoopWrapper(Singleton, Final):
     async def _run_async_event_loop(self) -> None:
         if not self.running:
             self._state = LoopWrapperState.RUNNING
-            async with self._async_wrap_loop():
+            async with self._async_capture_loop():
                 await self._run()
 
     async def _run(self) -> None:
@@ -155,37 +159,51 @@ class LoopWrapper(Singleton, Final):
                         await logger.aexception("Traceback message below:")
 
     async def _cancel_tasks(self) -> None:
-        if not self.running:
+        tasks = self._get_all_tasks()
+
+        if not tasks:
             return
 
-        await logger.adebug("Cancelling tasks...")
+        await logger.adebug("Cancelling tasks")
 
-        with suppress(asyncio.exceptions.CancelledError):
-            await cancel_future(asyncio.gather(*self._get_all_tasks(), return_exceptions=True))
+        with suppress(asyncio.CancelledError, asyncio.InvalidStateError):
+            await cancel_future(asyncio.gather(*tasks, return_exceptions=True))
 
     @contextlib.asynccontextmanager
-    async def _async_wrap_loop(self) -> typing.AsyncGenerator[typing.Any, None]:
+    async def _async_capture_loop(self) -> typing.AsyncGenerator[typing.Any, None]:
         try:
             try:
                 await self._lifespan._start()
             finally:
                 yield
-        except asyncio.CancelledError:
-            await self._cancel_tasks()
         finally:
             await self._shutdown()
 
+    def _register_termination_signal_handler(self) -> None:
+        old_handler = signal.getsignal(signal.SIGTERM)
+
+        def handler(*_: typing.Any) -> None:
+            logger.debug("Caught termination signal")
+            self.shutdown()
+
+            if callable(old_handler):
+                old_handler(*_)
+
+        signal.signal(signal.SIGTERM, handler)
+
     async def _shutdown(self) -> None:
-        if self.running:
-            await self.lifespan._shutdown()
-            await logger.adebug("Shutting down loop wrapper")
-            self._state = LoopWrapperState.SHUTDOWN
+        if not self.running:
+            return
+
+        self._state = LoopWrapperState.SHUTDOWN
+
+        await logger.adebug("Shutting down loop wrapper")
+        await self.lifespan._shutdown()
+        await self._cancel_tasks()
 
     async def _wait_for_shutdown(self) -> None:
-        if not self._event_stop.is_set():
-            await self._event_stop.wait()
-            await self._shutdown()
-            await self._cancel_tasks()
+        await self._event_shutdown.wait()
+        await self._shutdown()
 
     def _run_lw_later(self) -> asyncio.Handle:
         return self._loop.call_soon_threadsafe(lambda l: l.create_task(self._run_async_event_loop()), self._loop)
@@ -219,38 +237,57 @@ class LoopWrapper(Singleton, Final):
             self._loop.close()
 
     @contextlib.contextmanager
-    def _wrap_loop(self, *, close_loop: bool = True) -> typing.Generator[typing.Any, None, None]:
+    def _capture_loop(self, *, close_loop: bool = True) -> typing.Generator[typing.Any, None, None]:
         try:
             try:
                 self.lifespan.start(self._loop)
             finally:
                 yield
-        except (KeyboardInterrupt, SystemExit) as e:
+        except KeyboardInterrupt:
             print(flush=True)
-            logger.info(f"Caught {e.__class__.__name__}, cancelling tasks")
-            run_task(self._cancel_tasks(), loop=self._loop)
-
-            if isinstance(e, SystemExit):
-                raise
+            logger.info("Caught keyboard interrupt signal")
         finally:
             run_task(self._shutdown(), loop=self._loop)
 
             if close_loop:
                 self._close_loop()
 
-    def run(self, *, close_loop: bool = True) -> typing.NoReturn:  # type: ignore
+    def run(self, *, close_loop: bool = True) -> None:
+        """Run the loop wrapper.
+
+        Raises:
+            RuntimeError: If the loop wrapper is already running.
+
+        """
         if self.running:
             raise RuntimeError("Loop wrapper already running.")
 
         self._state = LoopWrapperState.RUNNING_MANUALLY
-        with self._wrap_loop(close_loop=close_loop):
+        with self._capture_loop(close_loop=close_loop):
             run_task(self._run(), loop=self._loop)
 
     def shutdown(self) -> None:
-        if not self._event_stop.is_set():
-            self._event_stop.set()
+        """Shutdown the loop wrapper via setting the shutdown event.
+
+        Using `call_soon_threadsafe` instead of directly calling `.set()`
+        because `.set()` internally uses `call_soon()` which does NOT write to the event
+        loop's self-pipe. When a signal handler (registered via `signal.signal()`) calls
+        `.set()` during a selector syscall (e.g. `kqueue.control()`), PEP 475 causes
+        the syscall to be automatically retried after the Python handler returns, leaving
+        the event loop blocked in `select()` with unprocessed callbacks in the `_ready` queue.
+        `call_soon_threadsafe` writes to the self-pipe via `_write_to_self()`, ensuring the
+        selector wakes up immediately on retry.
+        """
+
+        if self.running:
+            self._loop.call_soon_threadsafe(self._event_shutdown.set)
 
     def add_task(self, task: Task[..., typing.Any], /) -> None:
+        """Add a task to the loop wrapper.
+
+        if the loop wrapper is not running, the task is added to the future tasks list,
+        otherwise the task is created in the event loop and added to the all tasks set.
+        """
         coro_task = to_coroutine_task(task)
 
         if not self.running:
@@ -262,6 +299,12 @@ class LoopWrapper(Singleton, Final):
             self._create_task(coro_task)
 
     def attach_to_running_loop(self) -> None:
+        """Attach the loop wrapper to the running loop.
+
+        Raises:
+            RuntimeError: If the loop wrapper is already running or the event loop is not running.
+
+        """
         if self.running:
             raise RuntimeError("Cannot attach the running loop wrapper to the running loop.")
 
@@ -274,13 +317,20 @@ class LoopWrapper(Singleton, Final):
             self.attach_to_running_loop()
         return TaskGroup(loop)
 
-    def bind_event_loop(self, loop: asyncio.AbstractEventLoop, /) -> None:
+    def bind_event_loop(self, loop: asyncio.AbstractEventLoop, /) -> typing.Self:
+        """Bind the event loop to the loop wrapper.
+
+        Raises:
+            RuntimeError: If the loop wrapper is already running or the event loop is not running.
+
+        """
         if self.running:
             raise RuntimeError("Cannot bind the event loop to the running loop wrapper.")
 
         self._loop = loop
         self._run_lw_task.cancel()
         self._run_lw_task = self._run_lw_later()
+        return self
 
 
-__all__ = ("DelayedTask", "LoopWrapper", "to_coroutine_task")
+__all__ = ("LoopWrapper",)

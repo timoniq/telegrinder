@@ -113,7 +113,8 @@ class Lifespan:
         init=False,
     )
     lifespan_function: typing.Callable[[], typing.AsyncContextManager[typing.Any]] | None = dataclasses.field(
-        default=None
+        default=None,
+        init=False,
     )
     startup_tasks: list[CoroutineTask[typing.Any]] = dataclasses.field(default_factory=lambda: [])
     startup_coro_task_functions: list[CoroutineFunc[..., typing.Any]] = dataclasses.field(default_factory=lambda: [])
