@@ -12,7 +12,7 @@ from telegrinder.bot.dispatch.middleware.box import MiddlewareBox
 from telegrinder.bot.dispatch.router.base import Router
 from telegrinder.bot.dispatch.view.base import ErrorView, View
 from telegrinder.bot.dispatch.view.box import ViewBox
-from telegrinder.modules import logger
+from telegrinder.modules import LOG_SCOPE, logger
 from telegrinder.node.scope import create_per_event_scope
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context import TelegrinderContext
@@ -240,20 +240,13 @@ class Dispatch[
         context: Context,
     ) -> None:
         await logger.adebug(
-            "Processing error views with exceptions [{}] for update (id={}, type={!r})",
+            "Processing error views with exceptions [{}]",
             ", ".join(f"{type(e).__name__}" for e in context.exceptions_update.values()),
-            update.update_id,
-            update.update_type,
         )
 
         async with self.loop_wrapper.create_task_group() as task_group:
             for router, exception in context.exceptions_update.items():
-                await logger.adebug(
-                    "Routing exception update (id={}, type={!r}) to router `{!r}`",
-                    update.update_id,
-                    update.update_type,
-                    router,
-                )
+                await logger.adebug("Routing exception to router `{!r}`", router)
                 task_group.create_task(
                     router.route_view(
                         router.event_error,
@@ -266,12 +259,7 @@ class Dispatch[
     async def _route_update(self, api: API, update: Update, context: Context) -> bool:
         async with self.loop_wrapper.create_task_group() as task_group:
             for router in self.routers:
-                await logger.adebug(
-                    "Routing update (id={}, type={!r}) to router `{!r}`",
-                    update.update_id,
-                    update.update_type,
-                    router,
-                )
+                await logger.adebug("Routing to router `{!r}`", router)
                 task_group.create_task(router.route(api, update, context.copy()))
 
         return any(task_group.results())
@@ -284,6 +272,7 @@ class Dispatch[
             api.id,
         )
 
+        LOG_SCOPE.set(f"Update:{update.update_id}")
         inject_internals(per_event_scope := create_per_event_scope(), {API: api, Update: update})
 
         context = Context().add_roots(api, update, per_event_scope)
@@ -296,19 +285,13 @@ class Dispatch[
                 for middleware in middlewares:
                     if await run_pre_middleware(middleware, context) is not True:
                         await logger.ainfo(
-                            "Update(id={}, type={!r}) processed with dispatch's pre-middleware `{}` and raised failure.",
-                            update.update_id,
-                            update.update_type,
+                            "Dispatch pre-middleware `{}` raised failure.",
                             fullname(middleware),
                         )
                         return
 
                 if not self.routers:
-                    await logger.adebug(
-                        "No corresponding routers from dispatch found for update (id={}, type={!r}).",
-                        update.update_id,
-                        update.update_type,
-                    )
+                    await logger.adebug("No corresponding routers found.")
                 elif not await self._route_update(api, update, context) and self.raw_views:
                     await self._process_views(self.raw_views, api, update, context)
 
@@ -325,10 +308,7 @@ class Dispatch[
                             raise
 
                         await logger.adebug(
-                            "Dispatch caught unhandled exceptions while processing update (id={}, type={!r}), "
-                            "routing to error handler...",
-                            update.update_id,
-                            update.update_type,
+                            "Dispatch caught unhandled exceptions, routing to error handler...",
                         )
                         await self._handle_exceptions(api, update, context, group.exceptions)
 
@@ -336,10 +316,7 @@ class Dispatch[
 
                 if isinstance(exc, Exception) and self.error_handler:
                     await logger.adebug(
-                        "Dispatch caught an exception while processing update (id={}, type={!r}), "
-                        "routing to error handler...",
-                        update.update_id,
-                        update.update_type,
+                        "Dispatch caught an exception, routing to error handler...",
                     )
                     await self.main_router.route_view(
                         self.error_handler, api, update, context.add_exception_update(exc)
@@ -352,12 +329,9 @@ class Dispatch[
                     elapsed_time = self.loop_wrapper.time - start_time
                     elapsed_ms = elapsed_time * 1000
                     await logger.adebug(
-                        "Update (id={}, type={!r}) processed in {} {} by bot (id={})",
-                        update.update_id,
-                        update.update_type,
+                        "Processed in {} {}.",
                         int(elapsed_time * NANOSECONDS_PER_MILLISECOND) if elapsed_ms < 1 else int(elapsed_ms),
                         "ns" if elapsed_ms < 1 else "ms",
-                        api.id,
                     )
 
     def load(self, external: typing.Self) -> None:

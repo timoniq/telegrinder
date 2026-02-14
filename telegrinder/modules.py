@@ -1,6 +1,7 @@
 # pyright: reportMissingImports=none, reportAttributeAccessIssue=none, reportMissingModuleSource=none
 
 import asyncio
+import contextlib
 import contextvars
 import inspect
 import logging
@@ -83,6 +84,7 @@ DEFAULT_LOGURU_FORMAT: typing.Final = (
 )
 
 CALL_STACK_CONTEXT: typing.Final = contextvars.ContextVar[tuple[types.FrameType, "OptExcInfo"]]("_call_stack")
+LOG_SCOPE: typing.Final = contextvars.ContextVar[str]("_log_scope", default="")
 
 COLORS: typing.Final = dict(
     reset=Colors.RESET,
@@ -177,6 +179,32 @@ def _find_env_file() -> Option[pathlib.Path]:
             return Some(pathlib.Path(root) / _ENV_FILE_NAME)
 
     return NOTHING
+
+
+@contextlib.contextmanager
+def log_scope(
+    name: str | typing.Callable[..., str],
+    /,
+    *args: typing.Any,
+    **kwargs: typing.Any,
+) -> typing.Iterator[None]:
+    """Context manager to set a log scope for the current async task.
+
+    >>> with log_scope("{handlers_folder} → {view!r}", handlers_folder="handlers", view=view):
+    ...     await logger.adebug("hello, admin!")  # [handlers → MessageView] hello, admin!
+    """
+
+    if logger.logger is not None:
+        current = LOG_SCOPE.get("")
+        formatted_name = name.format(*args, **kwargs) if isinstance(name, str) else name(*args, **kwargs)
+        token = LOG_SCOPE.set(" → ".join((current, formatted_name)) if current else formatted_name)
+
+        try:
+            yield
+        finally:
+            LOG_SCOPE.reset(token)
+    else:
+        yield
 
 
 @typing.overload
@@ -396,7 +424,9 @@ class LogMessage:
         self.kwargs = kwargs
 
     def __str__(self) -> str:
-        return self.fmt.format(*self.args, **self.kwargs)
+        message = self.fmt.format(*self.args, **self.kwargs)
+        scope = LOG_SCOPE.get("")
+        return f"[{scope}] {message}" if scope else message
 
 
 class LoggingStyleAdapter(logging.LoggerAdapter):
@@ -514,6 +544,10 @@ def _loguru_filter(record: dict[str, typing.Any]) -> bool:
         from loguru._recattrs import RecordException  # type: ignore
 
         record["exception"] = RecordException(exc_info[0], exc_info[1], exc_info[2])  # type: ignore
+
+    scope = LOG_SCOPE.get("")
+    if scope:
+        record["message"] = f"[{scope}] {record['message']}"
 
     return True
 
@@ -715,6 +749,10 @@ def _configure_structlog(
                     if key in event_dict:
                         del event_dict[key]
 
+            scope = LOG_SCOPE.get("")
+            if scope and "event" in event_dict:
+                event_dict["event"] = f"[{scope}] {event_dict['event']}"
+
             return event_dict
 
         def _colorize(self, value: typing.Any, log_level: str) -> str:
@@ -811,7 +849,7 @@ def _configure_structlog(
                     formatted = message
 
                 return formatted, used_kwargs
-            except (TypeError, KeyError, ValueError):
+            except TypeError, KeyError, ValueError:
                 if kwargs:
                     try:
                         formatted = message % kwargs
@@ -819,7 +857,7 @@ def _configure_structlog(
                         for value in kwargs.values():
                             formatted = self._highlight_single_value(formatted, value, log_level)
                         return formatted, used_kwargs
-                    except (TypeError, KeyError):
+                    except TypeError, KeyError:
                         pass
 
                 if args:
@@ -828,7 +866,7 @@ def _configure_structlog(
                         for value in args:
                             formatted = self._highlight_single_value(formatted, value, log_level)
                         return formatted, used_kwargs
-                    except (TypeError, ValueError):
+                    except TypeError, ValueError:
                         pass
 
                 return message, used_kwargs
@@ -1071,10 +1109,12 @@ else:
 
 
 __all__ = (
+    "LOG_SCOPE",
     "FileHandlerConfig",
     "LoggingStyleAdapter",
     "configure_dotenv",
     "json",
+    "log_scope",
     "logger",
     "setup_logger",
     "take_env",

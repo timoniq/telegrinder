@@ -8,6 +8,7 @@ from nodnod.interface.node_from_function import create_node_from_function
 
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
+from telegrinder.modules import log_scope
 from telegrinder.node.compose import create_composable
 from telegrinder.node.utils import get_globals_from_function, get_locals_from_function
 from telegrinder.tools.fullname import fullname
@@ -19,6 +20,10 @@ if typing.TYPE_CHECKING:
 
 type CheckResult = bool | typing.Awaitable[bool]
 type Node = typing.Any
+
+
+def get_rules_names(rules: typing.Iterable[ABCRule], /) -> typing.Iterable[str]:
+    return (type(rule).__name__ for rule in rules)
 
 
 class ABCRule(ABC):
@@ -91,9 +96,10 @@ class AndRule(ABCRule):
         self.rules = rules
 
     async def check(self, context: Context) -> bool:
-        for rule in self.rules:
-            if not await check_rule(rule, context):
-                return False
+        with log_scope(lambda: "{{{}}}".format(" & ".join(get_rules_names(self.rules)))):
+            for rule in self.rules:
+                if not await check_rule(rule, context):
+                    return False
 
         return True
 
@@ -103,9 +109,10 @@ class OrRule(ABCRule):
         self.rules = rules
 
     async def check(self, context: Context) -> bool:
-        for rule in self.rules:
-            if await check_rule(rule, context):
-                return True
+        with log_scope(lambda: "{{{}}}".format(" | ".join(get_rules_names(self.rules)))):
+            for rule in self.rules:
+                if await check_rule(rule, context):
+                    return True
 
         return False
 
@@ -115,7 +122,8 @@ class NotRule(ABCRule):
         self.rule = rule
 
     async def check(self, context: Context) -> bool:
-        return not await check_rule(self.rule, context)
+        with log_scope("~{}", type(self).__name__):
+            return not await check_rule(self.rule, context)
 
 
 class Never(ABCRule):
