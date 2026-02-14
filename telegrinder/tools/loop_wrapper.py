@@ -3,6 +3,7 @@ import contextlib
 import datetime
 import enum
 import signal
+import threading
 import typing
 from contextlib import suppress
 
@@ -180,6 +181,10 @@ class LoopWrapper(Singleton, Final):
             await self._shutdown()
 
     def _register_termination_signal_handler(self) -> None:
+        if threading.current_thread() is not threading.main_thread():
+            logger.warning("Loop wrapper cannot register termination signal handler in non-main thread")
+            return
+
         old_handler = signal.getsignal(signal.SIGTERM)
 
         def handler(*_: typing.Any) -> None:
