@@ -2,7 +2,7 @@ import typing
 from dataclasses import dataclass, field
 
 from kungfu.library.monad.option import NOTHING, Nothing, Option, Some
-from nodnod.interface.data import Node
+from nodnod.node import Node
 
 from telegrinder.node.nodes.text import Caption, Text
 
