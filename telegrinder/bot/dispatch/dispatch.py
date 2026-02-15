@@ -23,6 +23,7 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.bot.dispatch.view.base import EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
+    from telegrinder.tools.lifespan import Lifespan
 
 NANOSECONDS_PER_MILLISECOND: typing.Final = 1_000_000_000
 
@@ -175,6 +176,11 @@ class Dispatch[
     def patcher(self) -> ABCPatcher:
         """Alias `patcher` to get a vbml patcher from the global context."""
         return self.global_context.vbml_patcher
+
+    @property
+    def lifespan(self) -> Lifespan:
+        """Alias `lifespan` to get a lifespan from the loop wrapper."""
+        return self.global_context.lifespan
 
     @property
     def register_middleware[Middleware: ABCMiddleware](self) -> typing.Callable[[type[Middleware]], type[Middleware]]:

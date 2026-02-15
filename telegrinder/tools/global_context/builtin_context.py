@@ -10,6 +10,9 @@ from vbml.patcher.patcher import Patcher
 from telegrinder.tools.global_context.global_context import GlobalContext, ctx_var, runtime_init
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
+if typing.TYPE_CHECKING:
+    from telegrinder.tools.lifespan import Lifespan
+
 
 @runtime_init
 class TelegrinderContext(GlobalContext, thread_safe=True):
@@ -35,6 +38,10 @@ class TelegrinderContext(GlobalContext, thread_safe=True):
     vbml_pattern_flags: re.RegexFlag | None = ctx_var(default=None, init=False)
     vbml_patcher: ABCPatcher = ctx_var(default_factory=Patcher, init=False)
     loop_wrapper: typing.Final[LoopWrapper] = ctx_var(default_factory=LoopWrapper, init=False, const=True)
+
+    @property
+    def lifespan(self) -> Lifespan:
+        return self.loop_wrapper.lifespan
 
     async def close_global_scope(self) -> None:
         await self.node_global_scope.close()

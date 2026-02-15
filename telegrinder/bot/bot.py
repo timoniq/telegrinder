@@ -7,6 +7,7 @@ from telegrinder.bot.polling import polling as pg
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
+from telegrinder.tools.lifespan import Lifespan
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
 TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
@@ -38,6 +39,10 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
     @property
     def on(self) -> Dispatch:
         return self.dispatch
+
+    @property
+    def lifespan(self) -> Lifespan:
+        return self.loop_wrapper.lifespan
 
     async def drop_pending_updates(self) -> None:
         await logger.adebug("Dropping pending updates")

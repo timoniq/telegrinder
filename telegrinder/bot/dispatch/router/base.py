@@ -90,7 +90,7 @@ class Router[
         return any(self.views.values()) or bool(self.raw) or bool(self.event_error)
 
     async def route_view(self, view: View, api: API, update: Update, context: Context) -> bool:
-        with log_scope(type(view).__name__):
+        with log_scope(repr, view):
             await logger.adebug("Checking view `{!r}`...", view)
 
             match await view.check(api, update, context):
@@ -110,7 +110,7 @@ class Router[
         return False
 
     async def route(self, api: API, update: Update, context: Context) -> bool:
-        with log_scope(self.module):
+        with log_scope(lambda: self.module):
             try:
                 for view in filter(None, self.views.values()):
                     if await self.route_view(view, api, update, context):

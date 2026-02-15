@@ -183,7 +183,7 @@ def _find_env_file() -> Option[pathlib.Path]:
 
 @contextlib.contextmanager
 def log_scope(
-    name: str | typing.Callable[..., str],
+    ident: str | typing.Callable[..., str],
     /,
     *args: typing.Any,
     **kwargs: typing.Any,
@@ -196,8 +196,8 @@ def log_scope(
 
     if logger.logger is not None:
         current = LOG_SCOPE.get("")
-        formatted_name = name.format(*args, **kwargs) if isinstance(name, str) else name(*args, **kwargs)
-        token = LOG_SCOPE.set(" → ".join((current, formatted_name)) if current else formatted_name)
+        ident = ident.format(*args, **kwargs) if isinstance(ident, str) else ident(*args, **kwargs)
+        token = LOG_SCOPE.set(" → ".join((current, ident)) if current else ident)
 
         try:
             yield

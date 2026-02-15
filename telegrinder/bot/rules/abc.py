@@ -122,7 +122,7 @@ class NotRule(ABCRule):
         self.rule = rule
 
     async def check(self, context: Context) -> bool:
-        with log_scope("~{}", type(self).__name__):
+        with log_scope(lambda: f"~{type(self).__name__}"):
             return not await check_rule(self.rule, context)
 
 
