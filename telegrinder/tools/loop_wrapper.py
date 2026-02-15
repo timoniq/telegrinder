@@ -4,8 +4,10 @@ import datetime
 import enum
 import signal
 import threading
+import types
 import typing
 from contextlib import suppress
+from functools import partial
 
 from telegrinder.modules import logger
 from telegrinder.tools.aio import TaskGroup, cancel_future, loop_is_running, run_task
@@ -36,6 +38,9 @@ if typing.TYPE_CHECKING:
         def cancel(self) -> bool:
             """Cancel delayed task."""
             ...
+
+
+SIGNALS: typing.Final = (signal.SIGTERM,) + ((signal.SIGBREAK,) if hasattr(signal, "SIGBREAK") else ())
 
 
 class Timer(datetime.timedelta):
@@ -105,7 +110,7 @@ class LoopWrapper(Singleton, Final):
         self._all_tasks = set()
         self._is_attached_to_running_loop = False
 
-        self._register_termination_signal_handler()
+        self._register_signal_handlers()
 
     def __repr__(self) -> str:
         return "<{}: loop={!r}, lifespan={!r}>".format(
@@ -144,7 +149,7 @@ class LoopWrapper(Singleton, Final):
                 await self._run()
 
     async def _run(self) -> None:
-        await logger.adebug("Running loop wrapper")
+        await logger.ainfo("Running loop wrapper")
 
         while self._future_tasks:
             self._create_task(self._future_tasks.pop(0))
@@ -180,21 +185,39 @@ class LoopWrapper(Singleton, Final):
         finally:
             await self._shutdown()
 
-    def _register_termination_signal_handler(self) -> None:
+    def _register_signal_handlers(self) -> None:
         if threading.current_thread() is not threading.main_thread():
-            logger.warning("Loop wrapper cannot register termination signal handler in non-main thread")
+            logger.warning("Loop wrapper cannot register signal handlers in non-main thread")
             return
 
-        old_handler = signal.getsignal(signal.SIGTERM)
+        for signalnum in (signal.SIGTERM,) + ((signal.SIGBREAK,) if hasattr(signal, "SIGBREAK") else ()):
+            signal.signal(
+                signalnum,
+                partial(self._signal_handler, h if callable(h := signal.getsignal(signalnum)) else None),
+            )
 
-        def handler(*_: typing.Any) -> None:
-            logger.debug("Caught termination signal")
-            self.shutdown()
+    def _signal_handler(
+        self,
+        old_handler: typing.Callable[[int, types.FrameType | None], typing.Any] | None,
+        sig: int,
+        frame: types.FrameType | None,
+    ) -> None:
+        sig = signal.Signals(sig)
 
-            if callable(old_handler):
-                old_handler(*_)
+        if sig not in SIGNALS:
+            return
 
-        signal.signal(signal.SIGTERM, handler)
+        logger.info(
+            "Caught {} (Signal {}, {}, {})",
+            sig.name,
+            sig.value,
+            "ANSI" if sig is signal.SIGTERM else "WIN32",
+            "termination program" if sig is signal.SIGTERM else "interrupt from keyboard",
+        )
+        self.shutdown()
+
+        if old_handler is not None:
+            old_handler(sig, frame)
 
     async def _shutdown(self) -> None:
         if not self.running:
@@ -250,7 +273,7 @@ class LoopWrapper(Singleton, Final):
                 yield
         except KeyboardInterrupt:
             print(flush=True)
-            logger.info("Caught keyboard interrupt signal")
+            logger.info("Caught SIGINT (Signal 2, ANSI, interrupt from keyboard), shutting down")
         finally:
             run_task(self._shutdown(), loop=self._loop)
 
@@ -274,10 +297,10 @@ class LoopWrapper(Singleton, Final):
     def shutdown(self) -> None:
         """Shutdown the loop wrapper via setting the shutdown event.
 
-        Using `call_soon_threadsafe` instead of directly calling `.set()`
-        because `.set()` internally uses `call_soon()` which does NOT write to the event
+        Using `call_soon_threadsafe` instead of directly calling `Event.set()`
+        because `Event.set()` internally uses `call_soon()` which does NOT write to the event
         loop's self-pipe. When a signal handler (registered via `signal.signal()`) calls
-        `.set()` during a selector syscall (e.g. `kqueue.control()`), PEP 475 causes
+        `Event.set()` during a selector syscall (e.g. `kqueue.control()`), PEP 475 causes
         the syscall to be automatically retried after the Python handler returns, leaving
         the event loop blocked in `select()` with unprocessed callbacks in the `_ready` queue.
         `call_soon_threadsafe` writes to the self-pipe via `_write_to_self()`, ensuring the
