@@ -1078,15 +1078,37 @@ def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> Logger:
     return logger
 
 
+@typing.overload
+def configure_dotenv() -> None: ...
+
+
+@typing.overload
+def configure_dotenv(*, file_name: str | None) -> None: ...
+
+
+@typing.overload
+def configure_dotenv(*, file_path: str | pathlib.Path | None) -> None: ...
+
+
 def configure_dotenv(
     *,
-    load_file: bool = _LOAD_ENV_FILE,
     file_name: str | None = _ENV_FILE_PATH,
     file_path: str | pathlib.Path | None = _ENV_FILE_PATH,
 ) -> None:
+    """Configure the dotenv file to load and load it if exists.
+
+    Args:
+        file_name: The name of the env file. If None, will use `.env` by default.
+        file_path: The path to the env file. If None, will find recursively from the directory of the caller.
+
+    Raises:
+        FileNotFoundError: If the env file is not found.
+
+    """
+
     global _LOAD_ENV_FILE, _ENV_FILE_NAME, _ENV_FILE_PATH
 
-    _LOAD_ENV_FILE = load_file
+    _LOAD_ENV_FILE = True
 
     if file_name and file_path:
         _ENV_FILE_PATH = pathlib.Path(file_path) / file_name

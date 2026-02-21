@@ -63,10 +63,14 @@ async def process_inner(
 
 async def check_rule(rule: ABCRule, context: Context) -> bool:
     if rule.requires:
+        ctx = context.copy()
+
         with log_scope(lambda: f"rule:{fullname(rule)}"):
             for requirement in rule.requires:
-                if not await check_rule(requirement, context):
+                if not await check_rule(requirement, ctx):
                     return False
+
+        context |= ctx
 
     await logger.adebug("  → Checking rule `{!r}`...", rule)
 

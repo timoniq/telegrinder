@@ -325,7 +325,10 @@ class Dispatch[
                         "Dispatch caught an exception, routing to error handler...",
                     )
                     await self.main_router.route_view(
-                        self.error_handler, api, update, context.add_exception_update(exc)
+                        self.error_handler,
+                        api,
+                        update,
+                        context.copy().add_exception_update(exc),
                     )
                     return
 
