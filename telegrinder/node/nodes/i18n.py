@@ -30,7 +30,7 @@ class KeySeparator(GlobalNode[Separator]):
 
 
 @dataclasses.dataclass(kw_only=True)
-class ABCTranslator(Node, abc.ABC):
+class ABCTranslator(Node, abc.ABC, abstract=True):
     locale: str
     separator: str
     _keys: list[str] = dataclasses.field(default_factory=list[str], init=False)

@@ -66,11 +66,9 @@ from nodnod.agent.base import Agent
 from nodnod.agent.event_loop.agent import EventLoopAgent
 from nodnod.error import NodeError
 from nodnod.interface import create_agent_from_node, create_node_from_function, inject_internals
-from nodnod.interface.is_node import is_node
 from nodnod.interface.node_from_function import Externals
 from nodnod.node import Node
 from nodnod.scope import Scope
-from nodnod.utils.is_type import is_type
 
 from telegrinder.node.scope import NODE_GLOBAL_SCOPE, MappedScopes, create_per_call_scope
 from telegrinder.tools.aio import maybe_awaitable
@@ -92,23 +90,23 @@ async def _compose_node(
     agent_cls: type[Agent] = EventLoopAgent,
     roots: dict[AnyType, typing.Any] | None = None,
 ) -> typing.AsyncGenerator[Result[typing.Any, NodeError], None]:
-    composable = None
+    composable = (
+        typing.cast("Composable[Agent]", node)
+        if isinstance(node, Composable)
+        else create_composable(
+            node,
+            agent=agent,
+            agent_cls=agent_cls,
+        )
+    )
 
-    if isinstance(node, Composable):
-        composable = node
-    elif not is_node(node):
-        composable = create_composable(node, agent_cls=agent_cls)
-
-    if composable is not None:
-        node, agent = composable.node, typing.cast("Agent", composable.agent)
-    elif not is_type(node, Node):
-        raise TypeError("Compose requires function, node, or composable.")
-
-    if agent is None:
-        raise ValueError("Agent is required.")
-
-    async with run_agent(agent, context, roots=roots, per_event_scope=per_event_scope) as result:
-        yield result.map(lambda scope: scope[node].value)
+    async with run_agent(
+        composable.agent,
+        context,
+        roots=roots,
+        per_event_scope=per_event_scope,
+    ) as result:
+        yield result.map(lambda scope: scope[composable.node].value)
 
 
 @lru_cache(maxsize=1024 * 4)
@@ -116,11 +114,16 @@ def create_composable[T: Agent](
     node_or_function: type[Node[typing.Any, typing.Any]] | Function[..., typing.Any],
     /,
     *,
+    agent: T | None = None,
     agent_cls: type[T] = EventLoopAgent,
 ) -> Composable[T]:
     if not isinstance(node_or_function, type):
         node_or_function = create_node_from_function(node_or_function)
-    return Composable(node_or_function, create_agent_from_node(node_or_function, agent_cls=agent_cls))
+
+    if agent is None:
+        agent = create_agent_from_node(node_or_function, agent_cls=agent_cls)
+
+    return Composable(node_or_function, agent)
 
 
 @asynccontextmanager

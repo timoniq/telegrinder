@@ -17,7 +17,7 @@ from telegrinder import (
 from telegrinder.modules import configure_dotenv, setup_logger
 from telegrinder.rules import PayloadModelRule, Text
 
-configure_dotenv(load_file=True)
+configure_dotenv()
 setup_logger()
 
 api = API(token=Token.from_env())
