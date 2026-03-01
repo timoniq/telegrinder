@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API version `9.4`, released `February 9, 2026`."""
+    """Telegram Bot API version `9.5`, released `March 1, 2026`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -1829,8 +1829,7 @@ class APIMethods:
         """Method `sendMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendmessagedraft)
 
         Use this method to stream a partial message to a user while the message is
-        being generated; supported only for bots with forum topic mode enabled.
-        Returns True on success.
+        being generated. Returns True on success.
 
         :param chat_id: Unique identifier for the target private chat.
 
@@ -2173,6 +2172,7 @@ class APIMethods:
         can_pin_messages: bool | None = None,
         can_manage_topics: bool | None = None,
         can_manage_direct_messages: bool | None = None,
+        can_manage_tags: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Method `promoteChatMember`, see the [documentation](https://core.telegram.org/bots/api#promotechatmember)
@@ -2231,6 +2231,9 @@ class APIMethods:
 
         :param can_manage_direct_messages: Pass True if the administrator can manage direct messages within the channel \
         and decline suggested posts; for channels only.
+
+        :param can_manage_tags: Pass True if the administrator can edit the tags of regular members; for \
+        groups and supergroups only.
         """
 
         method_response = await self.api.request_raw(
@@ -2263,6 +2266,34 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "setChatAdministratorCustomTitle",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def set_chat_member_tag(
+        self,
+        *,
+        chat_id: int | str,
+        user_id: int,
+        tag: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setChatMemberTag`, see the [documentation](https://core.telegram.org/bots/api#setchatmembertag)
+
+        Use this method to set a tag for a regular member in a group or a supergroup.
+        The bot must be an administrator in the chat for this to work and must have
+        the can_manage_tags administrator right. Returns True on success.
+
+        :param chat_id: Unique identifier for the target chat or username of the target supergroup \
+        (in the format @supergroupusername).
+
+        :param user_id: Unique identifier of the target user.
+
+        :param tag: New tag for the member; 0-16 characters, emoji are not allowed.
+        """
+
+        method_response = await self.api.request_raw(
+            "setChatMemberTag",
             get_params(locals()),
         )
         return full_result(method_response, bool)
