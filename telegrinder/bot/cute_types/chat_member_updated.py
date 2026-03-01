@@ -102,6 +102,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         can_invite_users: bool | None = None,
         can_manage_chat: bool | None = None,
         can_manage_direct_messages: bool | None = None,
+        can_manage_tags: bool | None = None,
         can_manage_topics: bool | None = None,
         can_manage_video_chats: bool | None = None,
         can_pin_messages: bool | None = None,

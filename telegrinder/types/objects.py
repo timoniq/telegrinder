@@ -802,6 +802,10 @@ class Message(MaybeInaccessibleMessage):
     account. Available only for outgoing messages sent on behalf of the connected
     business account."""
 
+    sender_tag: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Tag or custom title of the sender of the message; for supergroups
+    only."""
+
     business_connection_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the business connection from which the
     message was received. If non-empty, the message belongs to a chat of the
@@ -864,8 +868,8 @@ class Message(MaybeInaccessibleMessage):
     be deleted for 24 hours to receive the payment and can't be edited."""
 
     media_group_id: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. The unique identifier of a media message group this message belongs
-    to."""
+    """Optional. The unique identifier inside this chat of a media message group
+    this message belongs to."""
 
     author_signature: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Signature of the post author for messages in channels, or the
@@ -1257,7 +1261,8 @@ class MessageEntity(Model):
     `blockquote` (block quotation), `expandable_blockquote` (collapsed-by-default
     block quotation), `code` (monowidth string), `pre` (monowidth block),
     `text_link` (for clickable text URLs), `text_mention` (for users without
-    usernames), `custom_emoji` (for inline custom emoji stickers)."""
+    usernames), `custom_emoji` (for inline custom emoji stickers), or `date_time`
+    (for formatted date and time)."""
 
     offset: int = field()
     """Offset in UTF-16 code units to the start of the entity."""
@@ -1278,6 +1283,13 @@ class MessageEntity(Model):
     custom_emoji_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. For `custom_emoji` only, unique identifier of the custom emoji.
     Use getCustomEmojiStickers to get full information about the sticker."""
+
+    unix_time: Option[datetime] = field(default=..., converter=From[datetime | int | None])
+    """Optional. For `date_time` only, the Unix time associated with the entity."""
+
+    date_time_format: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. For `date_time` only, the string that defines the formatting
+    of the date and time. See date-time entity formatting for more details."""
 
 
 class TextQuote(Model):
@@ -3523,6 +3535,10 @@ class ChatAdministratorRights(Model):
     """Optional. True, if the administrator can manage direct messages of the
     channel and decline suggested posts; for channels only."""
 
+    can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the administrator can edit the tags of regular members;
+    for groups and supergroups only. If omitted defaults to the value of can_pin_messages."""
+
 
 class ChatMemberUpdated(Model):
     """Object `ChatMemberUpdated`, see the [documentation](https://core.telegram.org/bots/api#chatmemberupdated).
@@ -3678,6 +3694,10 @@ class ChatMemberAdministrator(ChatMember):
     """Optional. True, if the administrator can manage direct messages of the
     channel and decline suggested posts; for channels only."""
 
+    can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the administrator can edit the tags of regular members;
+    for groups and supergroups only. If omitted defaults to the value of can_pin_messages."""
+
     custom_title: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Custom title for this user."""
 
@@ -3693,6 +3713,9 @@ class ChatMemberMember(ChatMember):
 
     status: Literal["member"] = field(default="member")
     """The member's status in the chat, always `member`."""
+
+    tag: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Tag of the member."""
 
     until_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Date when the user's subscription will expire; Unix time."""
@@ -3742,6 +3765,9 @@ class ChatMemberRestricted(ChatMember):
     can_add_web_page_previews: bool = field()
     """True, if the user is allowed to add web page previews to their messages."""
 
+    can_edit_tag: bool = field()
+    """True, if the user is allowed to edit their own tag."""
+
     can_change_info: bool = field()
     """True, if the user is allowed to change the chat title, photo and other settings."""
 
@@ -3760,6 +3786,9 @@ class ChatMemberRestricted(ChatMember):
 
     status: Literal["restricted"] = field(default="restricted")
     """The member's status in the chat, always `restricted`."""
+
+    tag: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Tag of the member."""
 
 
 class ChatMemberLeft(ChatMember):
@@ -3865,6 +3894,9 @@ class ChatPermissions(Model):
 
     can_add_web_page_previews: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to add web page previews to their messages."""
+
+    can_edit_tag: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the user is allowed to edit their own tag."""
 
     can_change_info: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to change the chat title, photo and
