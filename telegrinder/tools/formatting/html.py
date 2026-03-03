@@ -1,3 +1,4 @@
+import datetime
 import enum
 import html
 import types
@@ -6,6 +7,8 @@ from string.templatelib import Template
 
 from telegrinder.tools.formatting.deep_links.links import tg_mention_link
 from telegrinder.tools.parse_mode import ParseMode
+from telegrinder.types.enums import DateTimeFormat
+from telegrinder.types.objects import DateTimeFormatSeq
 
 type Format = str
 type FormatString = object | Template
@@ -110,6 +113,50 @@ def escape(s: FormatString, /) -> str:
     return html.escape(str(s))
 
 
+@typing.overload
+def date_time(
+    s: FormatString,
+    unix: datetime.datetime | int,
+    /,
+) -> TagFormat: ...
+
+
+@typing.overload
+def date_time(
+    s: FormatString,
+    unix: datetime.datetime | int,
+    /,
+    *formats: DateTimeFormat,
+) -> TagFormat: ...
+
+
+@typing.overload
+def date_time(
+    s: FormatString,
+    unix: datetime.datetime | int,
+    /,
+    *,
+    format: str | DateTimeFormatSeq | None,
+) -> TagFormat: ...
+
+
+def date_time(
+    s: FormatString,
+    unix: datetime.datetime | int,
+    /,
+    *fmts: DateTimeFormat,
+    format: str | DateTimeFormatSeq | None = None,
+) -> TagFormat:
+    fmt = format if format else (("".join(x.value for x in fmts)) or None)
+    fmt = None if not fmt else fmt.string_format if isinstance(fmt, DateTimeFormatSeq) else fmt
+    return TagFormat(
+        s,
+        tag=Tag.TIME,
+        unix='"{}"'.format(int(unix.timestamp()) if isinstance(unix, datetime.datetime) else unix),
+        **{"format": f'"{fmt}"'} if fmt else {},
+    )
+
+
 class HTMLMeta(type):
     def __lshift__[T](cls: typing.Callable[..., T], other: object, /) -> T:
         if not isinstance(other, str | Template | TagFormat):
@@ -128,6 +175,7 @@ class Tag(enum.StrEnum):
     SPOILER = "tg-spoiler"
     BLOCK_QUOTE = "blockquote"
     EMOJI = "tg-emoji"
+    TIME = "tg-time"
 
     def __str__(self) -> str:
         return self.value
@@ -155,7 +203,7 @@ class TagFormat(str):
 
     @property
     def tag_data(self) -> str:
-        return "".join(f" {k}={v}" if v is not None else f" {k}" for k, v in self.data.items())
+        return ",".join(f" {k}={v}" if v is not None else f" {k}" for k, v in self.data.items())
 
     def formatting(self) -> str:
         return TAG_FORMAT.format(
@@ -228,6 +276,7 @@ __all__ = (
     "blockquote",
     "bold",
     "code_inline",
+    "date_time",
     "escape",
     "expandable_blockquote",
     "italic",

@@ -470,6 +470,7 @@ class ObjectGenerator(ABCGenerator):
             "import typing\n\n",
             "from kungfu.library import Sum\n",
             "from telegrinder.model import From, Model, field, is_none\n",
+            "from telegrinder.types.date_time_format import DateTimeFormatSeq\n",
             "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
             "from telegrinder.msgspec_utils.custom_types import Option, Literal, datetime, timedelta\n\n",
@@ -478,7 +479,7 @@ class ObjectGenerator(ABCGenerator):
         if self.config.generator.objects.fields.annotations.literals:
             lines.append("from telegrinder.types.enums import *  # noqa: F403\n")
 
-        all_ = ["Model"]
+        all_ = ["Model", "DateTimeFormatSeq"]
         for object_schema in sorted(self.objects, key=lambda obj: obj.subtypes, reverse=True):
             if object_schema.name != "InputFile":
                 lines.append(self.make_object(object_schema) + "\n\n")

@@ -30,7 +30,7 @@ _METHODS_MAP: typing.Final[dict[Method, HTTPMethod]] = {
     "TRACE": HTTPMethod.TRACE,
     "PATCH": HTTPMethod.PATCH,
 }
-USER_AGENT: typing.Final = "CPython/{}.{} RNET/3 Telegrinder/{}".format(
+USER_AGENT: typing.Final = "CPython/{}.{}; Telegrinder/{}".format(
     sys.version_info.major,
     sys.version_info.minor,
     __version__,
@@ -111,7 +111,7 @@ class RnetClient(ABCClient):
         return "<{} {!r}, timeout={!r}>".format(
             type(self).__name__,
             self._client,
-            self._timeout,
+            self._timeout.total_seconds(),
         )
 
     @property
@@ -159,7 +159,7 @@ class RnetClient(ABCClient):
         data: Data | None = None,
         **kwargs: typing.Unpack[Request],
     ) -> str:
-        return await (await self.request(url, method, data=data, **kwargs)).response.text_with_charset(encoding="utf-8")
+        return await (await self.request(url, method, data=data, **kwargs)).response.text()
 
     async def request_bytes(
         self,

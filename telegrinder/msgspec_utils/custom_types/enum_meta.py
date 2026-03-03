@@ -9,8 +9,8 @@ NOT_SUPPORTED: typing.Final = "NOT_SUPPORTED"
 ENUM_FRIENDS: typing.Final = (str, int, float)
 NOT_SUPPORTED_VALUES: typing.Final = {
     str: NOT_SUPPORTED,
-    int: math.inf,
-    float: sys.maxsize,
+    int: sys.maxsize,
+    float: math.inf,
 }
 
 

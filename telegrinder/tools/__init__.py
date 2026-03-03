@@ -13,6 +13,7 @@ from telegrinder.tools.formatting import (
     blockquote,
     bold,
     code_inline,
+    date_time,
     escape,
     italic,
     link,
@@ -99,7 +100,7 @@ from telegrinder.tools.serialization import (
 )
 from telegrinder.tools.singleton import ABCSingleton, ABCSingletonMeta, Singleton, SingletonMeta
 from telegrinder.tools.state_storage import ABCStateStorage, MemoryStateStorage, StateData
-from telegrinder.tools.strings import to_utf16_map, utf16_to_py_index
+from telegrinder.tools.strings import to_utf16_map, utf8_utf16_length, utf16_to_py_index
 
 __all__ = (
     "HTML",
@@ -146,6 +147,7 @@ __all__ = (
     "cancel_future",
     "code_inline",
     "ctx_var",
+    "date_time",
     "escape",
     "fullname",
     "get_default_args",
@@ -198,5 +200,6 @@ __all__ = (
     "tg_story_link",
     "to_utf16_map",
     "underline",
+    "utf8_utf16_length",
     "utf16_to_py_index",
 )

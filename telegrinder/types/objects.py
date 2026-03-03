@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import secrets
+import typing
 from functools import cached_property
 
 from kungfu.library import Sum
 
 from telegrinder.model import From, Model, field, is_none
 from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime, timedelta
+from telegrinder.types.date_time_format import DateTimeFormatSeq
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.input_file import InputFile
 
@@ -1287,7 +1289,9 @@ class MessageEntity(Model):
     unix_time: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. For `date_time` only, the Unix time associated with the entity."""
 
-    date_time_format: Option[str] = field(default=..., converter=From[str | None])
+    date_time_format: Option[DateTimeFormatSeq] = field(
+        default=..., converter=From[typing.Iterable[str | DateTimeFormat] | None]
+    )
     """Optional. For `date_time` only, the string that defines the formatting
     of the date and time. See date-time entity formatting for more details."""
 
@@ -8112,6 +8116,7 @@ __all__ = (
     "ChosenInlineResult",
     "Contact",
     "CopyTextButton",
+    "DateTimeFormatSeq",
     "Dice",
     "DirectMessagePriceChanged",
     "DirectMessagesTopic",

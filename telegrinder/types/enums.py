@@ -494,7 +494,11 @@ class DiceEmoji(enum.StrEnum, metaclass=BaseEnumMeta):
 
 
 class MessageEntityType(enum.StrEnum, metaclass=BaseEnumMeta):
-    """Type of the entity. Currently, can be `mention` (@username), `hashtag`
+    """Type of the entity.
+
+    Read the [documentation](https://core.telegram.org/api/entities) about entities.
+
+    Currently, can be `mention` (@username), `hashtag`
     (#hashtag or #hashtag@chatusername), `cashtag` ($USD or $USD@chatusername),
     `bot_command` (/start@jobs_bot), `url` (https://telegram.org), `email`
     (do-not-reply@telegram.org), `phone_number` (+1-212-555-0123),
@@ -503,7 +507,8 @@ class MessageEntityType(enum.StrEnum, metaclass=BaseEnumMeta):
     `blockquote` (block quotation), `expandable_blockquote` (collapsed-by-default
     block quotation), `code` (monowidth string), `pre` (monowidth block),
     `text_link` (for clickable text URLs), `text_mention` (for users without
-    usernames), `custom_emoji` (for inline custom emoji stickers)."""
+    usernames), `custom_emoji` (for inline custom emoji stickers), or `date_time`
+    (for formatted date and time)."""
 
     MENTION = "mention"
     HASHTAG = "hashtag"
@@ -518,12 +523,13 @@ class MessageEntityType(enum.StrEnum, metaclass=BaseEnumMeta):
     STRIKETHROUGH = "strikethrough"
     SPOILER = "spoiler"
     BLOCKQUOTE = "blockquote"
+    EXPANDABLE_BLOCKQUOTE = "expandable_blockquote"
     CODE = "code"
     PRE = "pre"
     TEXT_LINK = "text_link"
     TEXT_MENTION = "text_mention"
     CUSTOM_EMOJI = "custom_emoji"
-    EXPANDABLE_BLOCKQUOTE = "expandable_blockquote"
+    DATETIME = "date_time"
 
 
 class PollType(enum.StrEnum, metaclass=BaseEnumMeta):
@@ -756,6 +762,18 @@ class VideoQualityCodec(enum.StrEnum, metaclass=BaseEnumMeta):
     AV01 = "av01"
 
 
+class DateTimeFormat(enum.StrEnum, metaclass=BaseEnumMeta):
+    """Type of the formatting of the date and time.
+    See date-time entity formatting for more details."""
+
+    SHORT_DATE = "d"
+    SHORT_TIME = "t"
+    LONG_DATE = "D"
+    LONG_TIME = "T"
+    DAY_OF_WEEK = "W"
+    RELATIVE = "R"
+
+
 __all__ = (
     "BotCommandScopeType",
     "ChatAction",
@@ -764,6 +782,7 @@ __all__ = (
     "ChatType",
     "ContentType",
     "Currency",
+    "DateTimeFormat",
     "DefaultAccentColor",
     "DiceEmoji",
     "EncryptedPassportElementType",
