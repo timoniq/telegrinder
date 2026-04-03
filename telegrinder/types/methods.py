@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API version `9.5`, released `March 1, 2026`."""
+    """Telegram Bot API version `9.6`, released `April 3, 2026`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -583,7 +583,7 @@ class APIMethods:
         photo from the Internet, or upload a new photo using multipart/form-data. \
         The photo must be at most 10 MB in size. The photo's width and height must not \
         exceed 10000 in total. Width and height ratio must be at most 20. More information \
-        on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        on Sending Files В».
 
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024 \
         characters after entities parsing.
@@ -674,7 +674,7 @@ class APIMethods:
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get an audio file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param caption: Audio caption, 0-1024 characters after entities parsing.
 
@@ -696,7 +696,7 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -770,7 +770,7 @@ class APIMethods:
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
         file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
         file is supported server-side. The thumbnail should be in JPEG format and \
@@ -778,7 +778,7 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param caption: Document caption (may also be used when resending documents by file_id), \
         0-1024 characters after entities parsing.
@@ -872,7 +872,7 @@ class APIMethods:
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
         video from the Internet, or upload a new video using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param duration: Duration of sent video in seconds.
 
@@ -886,13 +886,13 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param cover: Cover for the video in the message. Pass a file_id to send a file that exists \
         on the Telegram servers (recommended), pass an HTTP URL for Telegram to \
         get a file from the Internet, or pass `attach://<file_attach_name>` to \
         upload a new one using multipart/form-data under <file_attach_name> \
-        name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        name. More information on Sending Files В».
 
         :param start_timestamp: Start timestamp for the video in the message.
 
@@ -987,7 +987,7 @@ class APIMethods:
         :param animation: Animation to send. Pass a file_id as String to send an animation that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get an animation from the Internet, or upload a new animation using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param duration: Duration of sent animation in seconds.
 
@@ -1001,7 +1001,7 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param caption: Animation caption (may also be used when resending animation by file_id), \
         0-1024 characters after entities parsing.
@@ -1090,7 +1090,7 @@ class APIMethods:
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get a file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
 
@@ -1171,8 +1171,8 @@ class APIMethods:
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that exists \
         on the Telegram servers (recommended) or upload a new video using multipart/form-data. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-        Sending video notes by a URL is currently unsupported.
+        More information on Sending Files В». Sending video notes by a URL is currently \
+        unsupported.
 
         :param duration: Duration of sent video in seconds.
 
@@ -1184,7 +1184,7 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        More information on Sending Files В».
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -1612,13 +1612,20 @@ class APIMethods:
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         allows_multiple_answers: bool | None = None,
-        correct_option_id: int | None = None,
+        allows_revoting: bool | None = None,
+        shuffle_options: bool | None = None,
+        allow_adding_options: bool | None = None,
+        hide_results_until_closes: bool | None = None,
+        correct_option_ids: list[int] | None = None,
         explanation: str | None = None,
         explanation_parse_mode: str | None = None,
         explanation_entities: list[MessageEntity] | None = None,
         open_period: int | None = None,
         close_date: datetime | int | None = None,
         is_closed: bool | None = None,
+        description: str | None = None,
+        description_parse_mode: str | None = None,
+        description_entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = default_params["disable_notification"],
         protect_content: bool | None = default_params["protect_content"],
         allow_paid_broadcast: bool | None = default_params["allow_paid_broadcast"],
@@ -1656,11 +1663,20 @@ class APIMethods:
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode, \
-        defaults to False.
+        :param allows_multiple_answers: Pass True, if the poll allows multiple answers, defaults to False.
 
-        :param correct_option_id: 0-based identifier of the correct answer option, required for polls in \
-        quiz mode.
+        :param allows_revoting: Pass True, if the poll allows to change chosen answer options, defaults \
+        to False for quizzes and to True for regular polls.
+
+        :param shuffle_options: Pass True, if the poll options must be shown in random order.
+
+        :param allow_adding_options: Pass True, if answer options can be added to the poll after creation; not \
+        supported for anonymous polls and quizzes.
+
+        :param hide_results_until_closes: Pass True, if poll results must be shown only after the poll closes.
+
+        :param correct_option_ids: A JSON-serialized list of monotonically increasing 0-based identifiers \
+        of the correct answer options, required for polls in quiz mode.
 
         :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lamp \
         icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after \
@@ -1672,15 +1688,23 @@ class APIMethods:
         :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation. \
         It can be specified instead of explanation_parse_mode.
 
-        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600. \
+        :param open_period: Amount of time in seconds the poll will be active after creation, 5-2628000. \
         Can't be used together with close_date.
 
         :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed. \
-        Must be at least 5 and no more than 600 seconds in the future. Can't be used \
-        together with open_period.
+        Must be at least 5 and no more than 2628000 seconds in the future. Can't be \
+        used together with open_period.
 
         :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful for \
         poll preview.
+
+        :param description: Description of the poll to be sent, 0-1024 characters after entities parsing. \
+
+        :param description_parse_mode: Mode for parsing entities in the poll description. See formatting options \
+        for more details.
+
+        :param description_entities: A JSON-serialized list of special entities that appear in the poll description, \
+        which can be specified instead of description_parse_mode.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -1784,8 +1808,9 @@ class APIMethods:
         required if the message is sent to a direct messages chat.
 
         :param emoji: Emoji on which the dice throw animation is based. Currently, must be one \
-        of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and \
-        `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`. \
+        of `рџЋІ`, `рџЋЇ`, `рџЏЂ`, `вљЅ`, `рџЋі`, or `рџЋ°`. Dice can have values \
+        1-6 for `рџЋІ`, `рџЋЇ` and `рџЋі`, values 1-5 for `рџЏЂ` and `вљЅ`, and values \
+        1-64 for `рџЋ°`. Defaults to `рџЋІ`.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -3408,6 +3433,46 @@ class APIMethods:
         )
         return full_result(method_response, BusinessConnection)
 
+    async def get_managed_bot_token(
+        self,
+        *,
+        user_id: int,
+        **other: typing.Any,
+    ) -> Result[str, APIError]:
+        """Method `getManagedBotToken`, see the [documentation](https://core.telegram.org/bots/api#getmanagedbottoken)
+
+        Use this method to get the token of a managed bot. Returns the token as String
+        on success.
+
+        :param user_id: User identifier of the managed bot whose token will be returned.
+        """
+
+        method_response = await self.api.request_raw(
+            "getManagedBotToken",
+            get_params(locals()),
+        )
+        return full_result(method_response, str)
+
+    async def replace_managed_bot_token(
+        self,
+        *,
+        user_id: int,
+        **other: typing.Any,
+    ) -> Result[str, APIError]:
+        """Method `replaceManagedBotToken`, see the [documentation](https://core.telegram.org/bots/api#replacemanagedbottoken)
+
+        Use this method to revoke the current token of a managed bot and generate
+        a new one. Returns the new token as String on success.
+
+        :param user_id: User identifier of the managed bot whose token will be replaced.
+        """
+
+        method_response = await self.api.request_raw(
+            "replaceManagedBotToken",
+            get_params(locals()),
+        )
+        return full_result(method_response, str)
+
     async def set_my_commands(
         self,
         *,
@@ -3797,12 +3862,12 @@ class APIMethods:
 
         :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
         Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
-        `spoiler`, and `custom_emoji` are ignored.
+        `spoiler`, `custom_emoji`, and `date_time` are ignored.
 
         :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
         It can be specified instead of text_parse_mode. Entities other than `bold`, \
-        `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` \
-        are ignored.
+        `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, \
+        and `date_time` are ignored.
         """
 
         method_response = await self.api.request_raw(
@@ -3841,12 +3906,12 @@ class APIMethods:
 
         :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
         Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
-        `spoiler`, and `custom_emoji` are ignored.
+        `spoiler`, `custom_emoji`, and `date_time` are ignored.
 
         :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
         It can be specified instead of text_parse_mode. Entities other than `bold`, \
-        `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` \
-        are ignored.
+        `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, \
+        and `date_time` are ignored.
         """
 
         method_response = await self.api.request_raw(
@@ -4607,6 +4672,89 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
+    async def answer_web_app_query(
+        self,
+        *,
+        web_app_query_id: str,
+        result: InlineQueryResult,
+        **other: typing.Any,
+    ) -> Result[SentWebAppMessage, APIError]:
+        """Method `answerWebAppQuery`, see the [documentation](https://core.telegram.org/bots/api#answerwebappquery)
+
+        Use this method to set the result of an interaction with a Web App and send
+        a corresponding message on behalf of the user to the chat from which the query
+        originated. On success, a SentWebAppMessage object is returned.
+
+        :param web_app_query_id: Unique identifier for the query to be answered.
+
+        :param result: A JSON-serialized object describing the message to be sent.
+        """
+
+        method_response = await self.api.request_raw(
+            "answerWebAppQuery",
+            get_params(locals()),
+        )
+        return full_result(method_response, SentWebAppMessage)
+
+    async def save_prepared_inline_message(
+        self,
+        *,
+        user_id: int,
+        result: InlineQueryResult,
+        allow_user_chats: bool | None = None,
+        allow_bot_chats: bool | None = None,
+        allow_group_chats: bool | None = None,
+        allow_channel_chats: bool | None = None,
+        **other: typing.Any,
+    ) -> Result[PreparedInlineMessage, APIError]:
+        """Method `savePreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#savepreparedinlinemessage)
+
+        Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage
+        object.
+
+        :param user_id: Unique identifier of the target user that can use the prepared message. \
+
+        :param result: A JSON-serialized object describing the message to be sent.
+
+        :param allow_user_chats: Pass True if the message can be sent to private chats with users.
+
+        :param allow_bot_chats: Pass True if the message can be sent to private chats with bots.
+
+        :param allow_group_chats: Pass True if the message can be sent to group and supergroup chats.
+
+        :param allow_channel_chats: Pass True if the message can be sent to channel chats.
+        """
+
+        method_response = await self.api.request_raw(
+            "savePreparedInlineMessage",
+            get_params(locals()),
+        )
+        return full_result(method_response, PreparedInlineMessage)
+
+    async def save_prepared_keyboard_button(
+        self,
+        *,
+        user_id: int,
+        button: KeyboardButton,
+        **other: typing.Any,
+    ) -> Result[PreparedKeyboardButton, APIError]:
+        """Method `savePreparedKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#savepreparedkeyboardbutton)
+
+        Stores a keyboard button that can be used by a user within a Mini App. Returns
+        a PreparedKeyboardButton object.
+
+        :param user_id: Unique identifier of the target user that can use the button.
+
+        :param button: A JSON-serialized object describing the button to be saved. The button \
+        must be of the type request_users, request_chat, or request_managed_bot. \
+        """
+
+        method_response = await self.api.request_raw(
+            "savePreparedKeyboardButton",
+            get_params(locals()),
+        )
+        return full_result(method_response, PreparedKeyboardButton)
+
     async def edit_message_text(
         self,
         *,
@@ -5120,9 +5268,8 @@ class APIMethods:
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM \
-        sticker using multipart/form-data. More information on Sending Files: \
-        https://core.telegram.org/bots/api#sending-files. Video and animated \
-        stickers can't be sent via an HTTP URL.
+        sticker using multipart/form-data. More information on Sending Files \
+        В». Video and animated stickers can't be sent via an HTTP URL.
 
         :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
 
@@ -5211,7 +5358,7 @@ class APIMethods:
         :param user_id: User identifier of sticker file owner.
 
         :param sticker: A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See https://core.telegram.org/stickers \
-        for technical requirements. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        for technical requirements. More information on Sending Files В».
 
         :param sticker_format: Format of the sticker, must be one of `static`, `animated`, `video`.
         """
@@ -5492,10 +5639,9 @@ class APIMethods:
         for video sticker technical requirements. Pass a file_id as a String to \
         send a file that already exists on the Telegram servers, pass an HTTP URL \
         as a String for Telegram to get a file from the Internet, or upload a new one \
-        using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
-        Animated and video sticker set thumbnails can't be uploaded via HTTP URL. \
-        If omitted, then the thumbnail is dropped and the first sticker is used as \
-        the thumbnail.
+        using multipart/form-data. More information on Sending Files В». Animated \
+        and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, \
+        then the thumbnail is dropped and the first sticker is used as the thumbnail. \
 
         :param format: Format of the thumbnail, must be one of `static` for a .WEBP or .PNG image, \
         `animated` for a .TGS animation, or `video` for a .WEBM video.
@@ -5591,65 +5737,6 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(method_response, bool)
-
-    async def answer_web_app_query(
-        self,
-        *,
-        web_app_query_id: str,
-        result: InlineQueryResult,
-        **other: typing.Any,
-    ) -> Result[SentWebAppMessage, APIError]:
-        """Method `answerWebAppQuery`, see the [documentation](https://core.telegram.org/bots/api#answerwebappquery)
-
-        Use this method to set the result of an interaction with a Web App and send
-        a corresponding message on behalf of the user to the chat from which the query
-        originated. On success, a SentWebAppMessage object is returned.
-
-        :param web_app_query_id: Unique identifier for the query to be answered.
-
-        :param result: A JSON-serialized object describing the message to be sent.
-        """
-
-        method_response = await self.api.request_raw(
-            "answerWebAppQuery",
-            get_params(locals()),
-        )
-        return full_result(method_response, SentWebAppMessage)
-
-    async def save_prepared_inline_message(
-        self,
-        *,
-        user_id: int,
-        result: InlineQueryResult,
-        allow_user_chats: bool | None = None,
-        allow_bot_chats: bool | None = None,
-        allow_group_chats: bool | None = None,
-        allow_channel_chats: bool | None = None,
-        **other: typing.Any,
-    ) -> Result[PreparedInlineMessage, APIError]:
-        """Method `savePreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#savepreparedinlinemessage)
-
-        Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage
-        object.
-
-        :param user_id: Unique identifier of the target user that can use the prepared message. \
-
-        :param result: A JSON-serialized object describing the message to be sent.
-
-        :param allow_user_chats: Pass True if the message can be sent to private chats with users.
-
-        :param allow_bot_chats: Pass True if the message can be sent to private chats with bots.
-
-        :param allow_group_chats: Pass True if the message can be sent to group and supergroup chats.
-
-        :param allow_channel_chats: Pass True if the message can be sent to channel chats.
-        """
-
-        method_response = await self.api.request_raw(
-            "savePreparedInlineMessage",
-            get_params(locals()),
-        )
-        return full_result(method_response, PreparedInlineMessage)
 
     async def send_invoice(
         self,
