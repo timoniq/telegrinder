@@ -29,6 +29,25 @@ async def test_log_scope_is_nested():
 
 
 @pytest.mark.asyncio()
+async def test_log_buffer_preserves_original_log_frame():
+    sink = io.StringIO()
+    _configure_logging("DEBUG", None, False, sink)
+
+    async def demo() -> None:
+        from telegrinder.modules import log_buffer
+
+        with log_buffer("Update:1"), log_scope("scope"):
+            await logger.ainfo("hello")
+
+    await demo()
+
+    output = sink.getvalue()
+    assert "__main__" not in output
+    assert "modules:<lambda>" not in output
+    assert "demo:" in output
+
+
+@pytest.mark.asyncio()
 async def test_dispatch_feed_flushes_buffered_logs_in_one_block(api_instance, message_update, monkeypatch):
     sink = io.StringIO()
     _configure_logging("DEBUG", None, False, sink)

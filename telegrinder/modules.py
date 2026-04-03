@@ -690,11 +690,16 @@ class BufferedStreamHandler(logging.StreamHandler[BufferedStream]):
             super().emit(record)
             return
 
+        buffered_record = logging.makeLogRecord(record.__dict__.copy())
+
+        if isinstance(self.formatter, LoggingFormatter):
+            buffered_record = _rich_log_record(buffered_record, self.formatter.logger_module)
+
         buffer.append(
             BufferedLoggingLogRecord(
                 scope=LOG_SCOPE.get(""),
                 handler=self,
-                record=logging.makeLogRecord(record.__dict__.copy()),
+                record=buffered_record,
             ),
         )
 
