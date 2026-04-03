@@ -12,7 +12,7 @@ from telegrinder.bot.dispatch.middleware.box import MiddlewareBox
 from telegrinder.bot.dispatch.router.base import Router
 from telegrinder.bot.dispatch.view.base import ErrorView, View
 from telegrinder.bot.dispatch.view.box import ViewBox
-from telegrinder.modules import LOG_SCOPE, logger
+from telegrinder.modules import log_buffer, logger
 from telegrinder.node.scope import create_per_event_scope
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context import TelegrinderContext
@@ -201,7 +201,7 @@ class Dispatch[
                 for exception in exceptions:
                     if isinstance(exception, BaseExceptionGroup):
                         task_group.create_task(
-                            self._handle_exceptions(api, update, context.copy(), exception.exceptions)
+                            self._handle_exceptions(api, update, context.copy(), exception.exceptions),
                         )
                     elif isinstance(exception, Exception):
                         task_group.create_task(
@@ -220,7 +220,7 @@ class Dispatch[
 
             raise BaseExceptionGroup(
                 "Unhandled exception groups:",
-                [group, BaseExceptionGroup("Unhandled exceptions:", unhandled_exceptions)],
+                (group, BaseExceptionGroup("Unhandled exceptions:", unhandled_exceptions)),
             )
 
         if unhandled_exceptions:
@@ -271,77 +271,76 @@ class Dispatch[
         return any(task_group.results())
 
     async def feed(self, api: API, update: Update) -> None:
-        await logger.ainfo(
-            "New Update(id={}, type={!r}) received by bot (id={})",
-            update.update_id,
-            update.update_type,
-            api.id,
-        )
+        with log_buffer(f"Update:{update.update_id}"):
+            await logger.ainfo(
+                "New Update(id={}, type={!r}) received by bot (id={})",
+                update.update_id,
+                update.update_type,
+                api.id,
+            )
+            inject_internals(per_event_scope := create_per_event_scope(), {API: api, Update: update})
 
-        LOG_SCOPE.set(f"Update:{update.update_id}")
-        inject_internals(per_event_scope := create_per_event_scope(), {API: api, Update: update})
+            context = Context().add_roots(api, update, per_event_scope)
+            failed = False
+            middlewares = self.middlewares
+            start_time = self.loop_wrapper.time
 
-        context = Context().add_roots(api, update, per_event_scope)
-        failed = False
-        middlewares = self.middlewares
-        start_time = self.loop_wrapper.time
+            async with per_event_scope:
+                try:
+                    for middleware in middlewares:
+                        if await run_pre_middleware(middleware, context) is not True:
+                            await logger.ainfo(
+                                "Dispatch pre-middleware `{}` raised failure.",
+                                fullname(middleware),
+                            )
+                            return
 
-        async with per_event_scope:
-            try:
-                for middleware in middlewares:
-                    if await run_pre_middleware(middleware, context) is not True:
-                        await logger.ainfo(
-                            "Dispatch pre-middleware `{}` raised failure.",
-                            fullname(middleware),
+                    if not self.routers:
+                        await logger.adebug("No corresponding routers found.")
+                    elif not await self._route_update(api, update, context) and self.raw_views:
+                        await self._process_views(self.raw_views, api, update, context)
+
+                    for middleware in middlewares:
+                        await run_post_middleware(middleware, context)
+                except BaseException as exc:
+                    failed = True
+
+                    if context.exceptions_update:
+                        try:
+                            await self._process_update_exceptions(api, update, context)
+                        except BaseExceptionGroup as group:
+                            if not self.error_handler:
+                                raise
+
+                            await logger.adebug(
+                                "Dispatch caught unhandled exceptions, routing to error handler...",
+                            )
+                            await self._handle_exceptions(api, update, context, group.exceptions)
+
+                        return
+
+                    if isinstance(exc, Exception) and self.error_handler:
+                        await logger.adebug(
+                            "Dispatch caught an exception, routing to error handler...",
+                        )
+                        await self.main_router.route_view(
+                            self.error_handler,
+                            api,
+                            update,
+                            context.copy().add_exception_update(exc),
                         )
                         return
 
-                if not self.routers:
-                    await logger.adebug("No corresponding routers found.")
-                elif not await self._route_update(api, update, context) and self.raw_views:
-                    await self._process_views(self.raw_views, api, update, context)
-
-                for middleware in middlewares:
-                    await run_post_middleware(middleware, context)
-            except BaseException as exc:
-                failed = True
-
-                if context.exceptions_update:
-                    try:
-                        await self._process_update_exceptions(api, update, context)
-                    except BaseExceptionGroup as group:
-                        if not self.error_handler:
-                            raise
-
+                    raise
+                finally:
+                    if not failed:
+                        elapsed_time = self.loop_wrapper.time - start_time
+                        elapsed_ms = elapsed_time * 1000
                         await logger.adebug(
-                            "Dispatch caught unhandled exceptions, routing to error handler...",
+                            "Processed in {} {}.",
+                            int(elapsed_time * NANOSECONDS_PER_MILLISECOND) if elapsed_ms < 1 else int(elapsed_ms),
+                            "ns" if elapsed_ms < 1 else "ms",
                         )
-                        await self._handle_exceptions(api, update, context, group.exceptions)
-
-                    return
-
-                if isinstance(exc, Exception) and self.error_handler:
-                    await logger.adebug(
-                        "Dispatch caught an exception, routing to error handler...",
-                    )
-                    await self.main_router.route_view(
-                        self.error_handler,
-                        api,
-                        update,
-                        context.copy().add_exception_update(exc),
-                    )
-                    return
-
-                raise
-            finally:
-                if not failed:
-                    elapsed_time = self.loop_wrapper.time - start_time
-                    elapsed_ms = elapsed_time * 1000
-                    await logger.adebug(
-                        "Processed in {} {}.",
-                        int(elapsed_time * NANOSECONDS_PER_MILLISECOND) if elapsed_ms < 1 else int(elapsed_ms),
-                        "ns" if elapsed_ms < 1 else "ms",
-                    )
 
     def load(self, external: typing.Self) -> None:
         self.routers.extend(filter(None, external.routers))
