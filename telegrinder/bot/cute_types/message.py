@@ -168,7 +168,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files В».
+
         :param caption: Audio caption, 0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the audio caption. See formatting optionsfor more details.
@@ -181,7 +182,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param title: Track name.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
@@ -239,14 +241,16 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files В».
+
         :param duration: Duration of sent animation in seconds.
 
         :param width: Animation width.
 
         :param height: Animation height.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
         :param caption: Animation caption (may also be used when resending animation by file_id),0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the animation caption. See formatting optionsfor more details.
@@ -310,8 +314,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files В».
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
         :param caption: Document caption (may also be used when resending documents by file_id),0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the document caption. See formatting optionsfor more details.
@@ -371,7 +377,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files В».
+
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the photo caption. See formatting optionsfor more details.
@@ -430,7 +437,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
+        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending FilesВ». Video and animated stickers can't be sent via an HTTP URL.
 
         :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
 
@@ -495,15 +502,18 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files В».
+
         :param duration: Duration of sent video in seconds.
 
         :param width: Video width.
 
         :param height: Video height.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
-        :param cover: Cover for the video in the message. Pass a file_id to send a file that existson the Telegram servers (recommended), pass an HTTP URL for Telegram toget a file from the Internet, or pass `attach://<file_attach_name>` toupload a new one using multipart/form-data under <file_attach_name>name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
+        :param cover: Cover for the video in the message. Pass a file_id to send a file that existson the Telegram servers (recommended), pass an HTTP URL for Telegram toget a file from the Internet, or pass `attach://<file_attach_name>` toupload a new one using multipart/form-data under <file_attach_name>name. More information on Sending Files В».
+
         :param start_timestamp: Start timestamp for the video in the message.
 
         :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
@@ -569,13 +579,14 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
+        :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files В». Sending video notes by a URL is currentlyunsupported.
 
         :param duration: Duration of sent video in seconds.
 
         :param length: Video width and height, i.e. diameter of the video message.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
@@ -631,7 +642,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files В».
+
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the voice message caption. See formattingoptions for more details.
@@ -663,16 +675,23 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         question: str,
         *,
         options: list[InputPollOption],
+        allow_adding_options: bool | None = None,
         allow_paid_broadcast: bool | None = None,
         allows_multiple_answers: bool | None = None,
+        allows_revoting: bool | None = None,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         close_date: datetime | int | None = None,
         correct_option_id: int | None = None,
+        correct_option_ids: list[int] | None = None,
+        description: str | None = None,
+        description_entities: list[MessageEntity] | None = None,
+        description_parse_mode: str | None = None,
         disable_notification: bool | None = None,
         explanation: str | None = None,
         explanation_entities: list[MessageEntity] | None = None,
         explanation_parse_mode: str | None = None,
+        hide_results_until_closes: bool | None = None,
         is_anonymous: bool | None = None,
         is_closed: bool | None = None,
         message_effect_id: str | None = None,
@@ -684,6 +703,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
+        shuffle_options: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
@@ -708,9 +728,17 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode,defaults to False.
+        :param allows_multiple_answers: Pass True, if the poll allows multiple answers, defaults to False.
 
-        :param correct_option_id: 0-based identifier of the correct answer option, required for polls inquiz mode.
+        :param allows_revoting: Pass True, if the poll allows to change chosen answer options, defaultsto False for quizzes and to True for regular polls.
+
+        :param shuffle_options: Pass True, if the poll options must be shown in random order.
+
+        :param allow_adding_options: Pass True, if answer options can be added to the poll after creation; notsupported for anonymous polls and quizzes.
+
+        :param hide_results_until_closes: Pass True, if poll results must be shown only after the poll closes.
+
+        :param correct_option_ids: A JSON-serialized list of monotonically increasing 0-based identifiersof the correct answer options, required for polls in quiz mode.
 
         :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lampicon in a quiz-style poll, 0-200 characters with at most 2 line feeds afterentities parsing.
 
@@ -718,11 +746,16 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation.It can be specified instead of explanation_parse_mode.
 
-        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600.Can't be used together with close_date.
+        :param open_period: Amount of time in seconds the poll will be active after creation, 5-2628000.Can't be used together with close_date.
 
-        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 600 seconds in the future. Can't be usedtogether with open_period.
+        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 2628000 seconds in the future. Can't beused together with open_period.
 
         :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful forpoll preview.
+
+        :param description: Description of the poll to be sent, 0-1024 characters after entities parsing.
+        :param description_parse_mode: Mode for parsing entities in the poll description. See formatting optionsfor more details.
+
+        :param description_entities: A JSON-serialized list of special entities that appear in the poll description,which can be specified instead of description_parse_mode.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
@@ -840,7 +873,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param emoji: Emoji on which the dice throw animation is based. Currently, must be oneof `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and`🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`.
+        :param emoji: Emoji on which the dice throw animation is based. Currently, must be oneof `рџЋІ`, `рџЋЇ`, `рџЏЂ`, `вљЅ`, `рџЋі`, or `рџЋ°`. Dice can have values1-6 for `рџЋІ`, `рџЋЇ` and `рџЋі`, values 1-5 for `рџЏЂ` and `вљЅ`, and values1-64 for `рџЋ°`. Defaults to `рџЋІ`.
+
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding.
 
@@ -1184,7 +1218,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files В».
+
         :param caption: Audio caption, 0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the audio caption. See formatting optionsfor more details.
@@ -1197,7 +1232,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param title: Track name.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
@@ -1255,14 +1291,16 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files В».
+
         :param duration: Duration of sent animation in seconds.
 
         :param width: Animation width.
 
         :param height: Animation height.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
         :param caption: Animation caption (may also be used when resending animation by file_id),0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the animation caption. See formatting optionsfor more details.
@@ -1326,8 +1364,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files В».
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
         :param caption: Document caption (may also be used when resending documents by file_id),0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the document caption. See formatting optionsfor more details.
@@ -1387,7 +1427,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files В».
+
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the photo caption. See formatting optionsfor more details.
@@ -1446,7 +1487,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
+        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending FilesВ». Video and animated stickers can't be sent via an HTTP URL.
 
         :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
 
@@ -1511,15 +1552,18 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files В».
+
         :param duration: Duration of sent video in seconds.
 
         :param width: Video width.
 
         :param height: Video height.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
-        :param cover: Cover for the video in the message. Pass a file_id to send a file that existson the Telegram servers (recommended), pass an HTTP URL for Telegram toget a file from the Internet, or pass `attach://<file_attach_name>` toupload a new one using multipart/form-data under <file_attach_name>name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
+        :param cover: Cover for the video in the message. Pass a file_id to send a file that existson the Telegram servers (recommended), pass an HTTP URL for Telegram toget a file from the Internet, or pass `attach://<file_attach_name>` toupload a new one using multipart/form-data under <file_attach_name>name. More information on Sending Files В».
+
         :param start_timestamp: Start timestamp for the video in the message.
 
         :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
@@ -1585,13 +1629,14 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
+        :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files В». Sending video notes by a URL is currentlyunsupported.
 
         :param duration: Duration of sent video in seconds.
 
         :param length: Video width and height, i.e. diameter of the video message.
 
-        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files В».
+
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
@@ -1647,7 +1692,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files В».
+
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
 
         :param parse_mode: Mode for parsing entities in the voice message caption. See formattingoptions for more details.
@@ -1679,16 +1725,23 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         question: str,
         *,
         options: list[InputPollOption],
+        allow_adding_options: bool | None = None,
         allow_paid_broadcast: bool | None = None,
         allows_multiple_answers: bool | None = None,
+        allows_revoting: bool | None = None,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         close_date: datetime | int | None = None,
         correct_option_id: int | None = None,
+        correct_option_ids: list[int] | None = None,
+        description: str | None = None,
+        description_entities: list[MessageEntity] | None = None,
+        description_parse_mode: str | None = None,
         disable_notification: bool | None = None,
         explanation: str | None = None,
         explanation_entities: list[MessageEntity] | None = None,
         explanation_parse_mode: str | None = None,
+        hide_results_until_closes: bool | None = None,
         is_anonymous: bool | None = None,
         is_closed: bool | None = None,
         message_effect_id: str | None = None,
@@ -1700,6 +1753,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
+        shuffle_options: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
@@ -1724,9 +1778,17 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode,defaults to False.
+        :param allows_multiple_answers: Pass True, if the poll allows multiple answers, defaults to False.
 
-        :param correct_option_id: 0-based identifier of the correct answer option, required for polls inquiz mode.
+        :param allows_revoting: Pass True, if the poll allows to change chosen answer options, defaultsto False for quizzes and to True for regular polls.
+
+        :param shuffle_options: Pass True, if the poll options must be shown in random order.
+
+        :param allow_adding_options: Pass True, if answer options can be added to the poll after creation; notsupported for anonymous polls and quizzes.
+
+        :param hide_results_until_closes: Pass True, if poll results must be shown only after the poll closes.
+
+        :param correct_option_ids: A JSON-serialized list of monotonically increasing 0-based identifiersof the correct answer options, required for polls in quiz mode.
 
         :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lampicon in a quiz-style poll, 0-200 characters with at most 2 line feeds afterentities parsing.
 
@@ -1734,11 +1796,16 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation.It can be specified instead of explanation_parse_mode.
 
-        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600.Can't be used together with close_date.
+        :param open_period: Amount of time in seconds the poll will be active after creation, 5-2628000.Can't be used together with close_date.
 
-        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 600 seconds in the future. Can't be usedtogether with open_period.
+        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 2628000 seconds in the future. Can't beused together with open_period.
 
         :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful forpoll preview.
+
+        :param description: Description of the poll to be sent, 0-1024 characters after entities parsing.
+        :param description_parse_mode: Mode for parsing entities in the poll description. See formatting optionsfor more details.
+
+        :param description_entities: A JSON-serialized list of special entities that appear in the poll description,which can be specified instead of description_parse_mode.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
@@ -1856,7 +1923,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param emoji: Emoji on which the dice throw animation is based. Currently, must be oneof `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and`🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`.
+        :param emoji: Emoji on which the dice throw animation is based. Currently, must be oneof `рџЋІ`, `рџЋЇ`, `рџЏЂ`, `вљЅ`, `рџЋі`, or `рџЋ°`. Dice can have values1-6 for `рџЋІ`, `рџЋЇ` and `рџЋі`, values 1-5 for `рџЏЂ` and `вљЅ`, and values1-64 for `рџЋ°`. Defaults to `рџЋІ`.
+
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding.
 

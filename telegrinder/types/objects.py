@@ -378,6 +378,10 @@ class Update(Model):
     """Optional. A boost was removed from a chat. The bot must be an administrator
     in the chat to receive these updates."""
 
+    managed_bot: Option[ManagedBotUpdated] = field(default=..., converter=From["ManagedBotUpdated | None"])
+    """Optional. A new bot was created to be managed by the bot or token of a bot was
+    changed."""
+
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -490,6 +494,10 @@ class User(Model):
     allows_users_to_create_topics: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the bot allows users to create and delete topics in private
     chats. Returned only in getMe."""
+
+    can_manage_bots: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if other bots can be created to be controlled by the bot.
+    Returned only in getMe."""
 
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
@@ -852,6 +860,10 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Identifier of the specific checklist task that is being replied
     to."""
 
+    reply_to_poll_option_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Persistent identifier of the specific poll option that is being
+    replied to."""
+
     via_bot: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. Bot through which the message was sent."""
 
@@ -956,8 +968,8 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Message is a dice with random value."""
 
     game: Option[Game] = field(default=..., converter=From["Game | None"])
-    """Optional. Message is a game, information about the game. More about games:
-    https://core.telegram.org/bots/api#games."""
+    """Optional. Message is a game, information about the game. More about games
+    В»."""
 
     poll: Option[Poll] = field(default=..., converter=From["Poll | None"])
     """Optional. Message is a native poll, information about the poll."""
@@ -1036,15 +1048,15 @@ class Message(MaybeInaccessibleMessage):
 
     invoice: Option[Invoice] = field(default=..., converter=From["Invoice | None"])
     """Optional. Message is an invoice for a payment, information about the invoice.
-    More about payments: https://core.telegram.org/bots/api#payments."""
+    More about payments В»."""
 
     successful_payment: Option[SuccessfulPayment] = field(default=..., converter=From["SuccessfulPayment | None"])
     """Optional. Message is a service message about a successful payment, information
-    about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
+    about the payment. More about payments В»."""
 
     refunded_payment: Option[RefundedPayment] = field(default=..., converter=From["RefundedPayment | None"])
     """Optional. Message is a service message about a refunded payment, information
-    about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
+    about the payment. More about payments В»."""
 
     users_shared: Option[UsersShared] = field(default=..., converter=From["UsersShared | None"])
     """Optional. Service message: users were shared with the bot."""
@@ -1064,7 +1076,7 @@ class Message(MaybeInaccessibleMessage):
 
     connected_website: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The domain name of the website on which the user has logged in.
-    More about Telegram Login: https://core.telegram.org/widgets/login."""
+    More about Telegram Login В»."""
 
     write_access_allowed: Option[WriteAccessAllowed] = field(default=..., converter=From["WriteAccessAllowed | None"])
     """Optional. Service message: the user allowed the bot to write messages after
@@ -1135,11 +1147,21 @@ class Message(MaybeInaccessibleMessage):
     giveaway_completed: Option[GiveawayCompleted] = field(default=..., converter=From["GiveawayCompleted | None"])
     """Optional. Service message: a giveaway without public winners was completed."""
 
+    managed_bot_created: Option[ManagedBotCreated] = field(default=..., converter=From["ManagedBotCreated | None"])
+    """Optional. Service message: user created a bot that will be managed by the
+    current bot."""
+
     paid_message_price_changed: Option[PaidMessagePriceChanged] = field(
         default=..., converter=From["PaidMessagePriceChanged | None"]
     )
     """Optional. Service message: the price for paid messages has changed in the
     chat."""
+
+    poll_option_added: Option[PollOptionAdded] = field(default=..., converter=From["PollOptionAdded | None"])
+    """Optional. Service message: answer option was added to a poll."""
+
+    poll_option_deleted: Option[PollOptionDeleted] = field(default=..., converter=From["PollOptionDeleted | None"])
+    """Optional. Service message: answer option was deleted from a poll."""
 
     suggested_post_approved: Option[SuggestedPostApproved] = field(
         default=..., converter=From["SuggestedPostApproved | None"]
@@ -1311,8 +1333,8 @@ class TextQuote(Model):
 
     entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the quote. Currently, only bold,
-    italic, underline, strikethrough, spoiler, and custom_emoji entities
-    are kept in quotes."""
+    italic, underline, strikethrough, spoiler, custom_emoji, and date_time
+    entities are kept in quotes."""
 
     is_manual: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the quote was chosen manually by the message sender.
@@ -1385,8 +1407,8 @@ class ExternalReplyInfo(Model):
     """Optional. Message is a dice with random value."""
 
     game: Option[Game] = field(default=..., converter=From["Game | None"])
-    """Optional. Message is a game, information about the game. More about games:
-    https://core.telegram.org/bots/api#games."""
+    """Optional. Message is a game, information about the game. More about games
+    В»."""
 
     giveaway: Option[Giveaway] = field(default=..., converter=From["Giveaway | None"])
     """Optional. Message is a scheduled giveaway, information about the giveaway."""
@@ -1396,7 +1418,7 @@ class ExternalReplyInfo(Model):
 
     invoice: Option[Invoice] = field(default=..., converter=From["Invoice | None"])
     """Optional. Message is an invoice for a payment, information about the invoice.
-    More about payments: https://core.telegram.org/bots/api#payments."""
+    More about payments В»."""
 
     location: Option[Location] = field(default=..., converter=From["Location | None"])
     """Optional. Message is a shared location, information about the location."""
@@ -1433,8 +1455,8 @@ class ReplyParameters(Model):
     """Optional. Quoted part of the message to be replied to; 0-1024 characters
     after entities parsing. The quote must be an exact substring of the message
     to be replied to, including bold, italic, underline, strikethrough, spoiler,
-    and custom_emoji entities. The message will fail to send if the quote isn't
-    found in the original message."""
+    custom_emoji, and date_time entities. The message will fail to send if
+    the quote isn't found in the original message."""
 
     quote_parse_mode: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Mode for parsing entities in the quote. See formatting options
@@ -1449,6 +1471,10 @@ class ReplyParameters(Model):
 
     checklist_task_id: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Identifier of the specific checklist task to be replied to."""
+
+    poll_option_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Persistent identifier of the specific poll option to be replied
+    to."""
 
 
 class MessageOriginUser(MessageOrigin):
@@ -1891,8 +1917,8 @@ class Dice(Model):
     """Emoji on which the dice throw animation is based."""
 
     value: int = field()
-    """Value of the dice, 1-6 for `🎲`, `🎯` and `🎳` base emoji, 1-5 for `🏀` and `⚽` base
-    emoji, 1-64 for `🎰` base emoji."""
+    """Value of the dice, 1-6 for `рџЋІ`, `рџЋЇ` and `рџЋі` base emoji, 1-5 for `рџЏЂ`
+    and `вљЅ` base emoji, 1-64 for `рџЋ°` base emoji."""
 
 
 class PollOption(Model):
@@ -1901,15 +1927,30 @@ class PollOption(Model):
     This object contains information about one answer option in a poll.
     """
 
+    persistent_id: str = field()
+    """Unique identifier of the option, persistent on option addition and deletion."""
+
     text: str = field()
     """Option text, 1-100 characters."""
 
     voter_count: int = field()
-    """Number of users that voted for this option."""
+    """Number of users who voted for this option; may be 0 if unknown."""
 
     text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the option text. Currently,
     only custom emoji entities are allowed in poll option texts."""
+
+    added_by_user: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. User who added the option; omitted if the option wasn't added
+    by a user after poll creation."""
+
+    added_by_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
+    """Optional. Chat that added the option; omitted if the option wasn't added
+    by a chat after poll creation."""
+
+    addition_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
+    """Optional. Point in time (Unix timestamp) when the option was added; omitted
+    if the option existed in the original poll."""
 
 
 class InputPollOption(Model):
@@ -1942,6 +1983,10 @@ class PollAnswer(Model):
     option_ids: list[int] = field()
     """0-based identifiers of chosen answer options. May be empty if the vote was
     retracted."""
+
+    option_persistent_ids: list[str] = field()
+    """Persistent identifiers of the chosen answer options. May be empty if the
+    vote was retracted."""
 
     voter_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
     """Optional. The chat that changed the answer to the poll, if the voter is anonymous."""
@@ -1978,6 +2023,9 @@ class Poll(Model):
     allows_multiple_answers: bool = field()
     """True, if the poll allows multiple answers."""
 
+    allows_revoting: bool = field()
+    """True, if the poll allows to change the chosen answer options."""
+
     type: PollType = field(default=PollType.REGULAR)
     """Poll type, currently can be `regular` or `quiz`."""
 
@@ -1985,9 +2033,9 @@ class Poll(Model):
     """Optional. Special entities that appear in the question. Currently, only
     custom emoji entities are allowed in poll questions."""
 
-    correct_option_id: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. 0-based identifier of the correct answer option. Available
-    only for polls in the quiz mode, which are closed, or was sent (not forwarded)
+    correct_option_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
+    """Optional. Array of 0-based identifiers of the correct answer options.
+    Available only for polls in quiz mode which are closed or were sent (not forwarded)
     by the bot or to the private chat with the bot."""
 
     explanation: Option[str] = field(default=..., converter=From[str | None])
@@ -2004,6 +2052,14 @@ class Poll(Model):
     close_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Point in time (Unix timestamp) when the poll will be automatically
     closed."""
+
+    description: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Description of the poll; for polls inside the Message object
+    only."""
+
+    description_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities like usernames, URLs, bot commands, etc. that
+    appear in the description."""
 
 
 class ChecklistTask(Model):
@@ -2078,7 +2134,7 @@ class InputChecklistTask(Model):
     text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the text, which can be
     specified instead of parse_mode. Currently, only bold, italic, underline,
-    strikethrough, spoiler, and custom_emoji entities are allowed."""
+    strikethrough, spoiler, custom_emoji, and date_time entities are allowed."""
 
 
 class InputChecklist(Model):
@@ -2100,7 +2156,7 @@ class InputChecklist(Model):
     title_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the title, which can be
     specified instead of parse_mode. Currently, only bold, italic, underline,
-    strikethrough, spoiler, and custom_emoji entities are allowed."""
+    strikethrough, spoiler, custom_emoji, and date_time entities are allowed."""
 
     others_can_add_tasks: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if other users can add tasks to the checklist."""
@@ -2239,6 +2295,77 @@ class MessageAutoDeleteTimerChanged(Model):
 
     message_auto_delete_time: int = field()
     """New auto-delete time for messages in the chat; in seconds."""
+
+
+class ManagedBotCreated(Model):
+    """Object `ManagedBotCreated`, see the [documentation](https://core.telegram.org/bots/api#managedbotcreated).
+
+    This object contains information about the bot that was created to be managed by the current bot.
+    """
+
+    bot: User = field()
+    """Information about the bot. The bot's token can be fetched using the method
+    getManagedBotToken."""
+
+
+class ManagedBotUpdated(Model):
+    """Object `ManagedBotUpdated`, see the [documentation](https://core.telegram.org/bots/api#managedbotupdated).
+
+    This object contains information about the creation or token update of a bot that is managed by the current bot.
+    """
+
+    user: User = field()
+    """User that created the bot."""
+
+    bot: User = field()
+    """Information about the bot. Token of the bot can be fetched using the method
+    getManagedBotToken."""
+
+
+class PollOptionAdded(Model):
+    """Object `PollOptionAdded`, see the [documentation](https://core.telegram.org/bots/api#polloptionadded).
+
+    Describes a service message about an option added to a poll.
+    """
+
+    option_persistent_id: str = field()
+    """Unique identifier of the added option."""
+
+    option_text: str = field()
+    """Option text."""
+
+    poll_message: Option[Sum[Message, InaccessibleMessage]] = field(
+        default=..., converter=From["Message | InaccessibleMessage | None"]
+    )
+    """Optional. Message containing the poll to which the option was added, if
+    known. Note that the Message object in this field will not contain the reply_to_message
+    field even if it itself is a reply."""
+
+    option_text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities that appear in the option_text."""
+
+
+class PollOptionDeleted(Model):
+    """Object `PollOptionDeleted`, see the [documentation](https://core.telegram.org/bots/api#polloptiondeleted).
+
+    Describes a service message about an option deleted from a poll.
+    """
+
+    option_persistent_id: str = field()
+    """Unique identifier of the deleted option."""
+
+    option_text: str = field()
+    """Option text."""
+
+    poll_message: Option[Sum[Message, InaccessibleMessage]] = field(
+        default=..., converter=From["Message | InaccessibleMessage | None"]
+    )
+    """Optional. Message containing the poll from which the option was deleted,
+    if known. Note that the Message object in this field will not contain the
+    reply_to_message field even if it itself is a reply."""
+
+    option_text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities that appear in the option_text."""
 
 
 class ChatBoostAdded(Model):
@@ -3054,6 +3181,14 @@ class KeyboardButton(Model):
     chats. Tapping on a chat will send its identifier to the bot in a `chat_shared`
     service message. Available in private chats only."""
 
+    request_managed_bot: Option[KeyboardButtonRequestManagedBot] = field(
+        default=..., converter=From["KeyboardButtonRequestManagedBot | None"]
+    )
+    """Optional. If specified, pressing the button will ask the user to create
+    and share a bot that will be managed by the current bot. Available for bots
+    that enabled management of other bots in the @BotFather Mini App. Available
+    in private chats only."""
+
     request_contact: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. If True, the user's phone number will be sent as a contact when
     the button is pressed. Available in private chats only."""
@@ -3075,7 +3210,7 @@ class KeyboardButton(Model):
 class KeyboardButtonRequestUsers(Model):
     """Object `KeyboardButtonRequestUsers`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestusers).
 
-    This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users: https://core.telegram.org/bots/features#chat-and-user-selection
+    This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users В»
     """
 
     request_id: int = field()
@@ -3107,7 +3242,7 @@ class KeyboardButtonRequestUsers(Model):
 class KeyboardButtonRequestChat(Model):
     """Object `KeyboardButtonRequestChat`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestchat).
 
-    This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. More about requesting chats: https://core.telegram.org/bots/features#chat-and-user-selection.
+    This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. More about requesting chats В».
     """
 
     request_id: int = field()
@@ -3157,6 +3292,22 @@ class KeyboardButtonRequestChat(Model):
 
     request_photo: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True to request the chat's photo."""
+
+
+class KeyboardButtonRequestManagedBot(Model):
+    """Object `KeyboardButtonRequestManagedBot`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestmanagedbot).
+
+    This object defines the parameters for the creation of a managed bot. Information about the created bot will be shared with the bot using the update managed_bot and a Message with the field managed_bot_created.
+    """
+
+    request_id: int = field()
+    """Signed 32-bit identifier of the request. Must be unique within the message."""
+
+    suggested_name: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Suggested name for the bot."""
+
+    suggested_username: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Suggested username for the bot."""
 
 
 class KeyboardButtonPollType(Model):
@@ -3278,8 +3429,8 @@ class InlineKeyboardButton(Model):
     first row."""
 
     pay: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Specify True, to send a Pay button. Substrings `⭐` and `XTR` in
-    the buttons's text will be replaced with a Telegram Star icon. NOTE: This
+    """Optional. Specify True, to send a Pay button. Substrings `в­ђ` and `XTR`
+    in the buttons's text will be replaced with a Telegram Star icon. NOTE: This
     type of button must always be the first button in the first row and can only
     be used in invoice messages."""
 
@@ -5201,6 +5352,41 @@ class BusinessMessagesDeleted(Model):
     """The list of identifiers of deleted messages in the chat of the business account."""
 
 
+class SentWebAppMessage(Model):
+    """Object `SentWebAppMessage`, see the [documentation](https://core.telegram.org/bots/api#sentwebappmessage).
+
+    Describes an inline message sent by a Web App on behalf of a user.
+    """
+
+    inline_message_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Identifier of the sent inline message. Available only if there
+    is an inline keyboard attached to the message."""
+
+
+class PreparedInlineMessage(Model):
+    """Object `PreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#preparedinlinemessage).
+
+    Describes an inline message to be sent by a user of a Mini App.
+    """
+
+    id: str = field()
+    """Unique identifier of the prepared message."""
+
+    expiration_date: datetime = field(converter=From[datetime | int])
+    """Expiration date of the prepared message, in Unix time. Expired prepared
+    messages can no longer be used."""
+
+
+class PreparedKeyboardButton(Model):
+    """Object `PreparedKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#preparedkeyboardbutton).
+
+    Describes a keyboard button to be used by a user of a Mini App.
+    """
+
+    id: str = field()
+    """Unique identifier of the keyboard button."""
+
+
 class ResponseParameters(Model):
     """Object `ResponseParameters`, see the [documentation](https://core.telegram.org/bots/api#responseparameters).
 
@@ -5229,7 +5415,7 @@ class InputMediaPhoto(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    under <file_attach_name> name. More information on Sending Files В»."""
 
     type: Literal["photo"] = field(default="photo")
     """Type of the result, must be photo."""
@@ -5263,7 +5449,7 @@ class InputMediaVideo(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    under <file_attach_name> name. More information on Sending Files В»."""
 
     type: Literal["video"] = field(default="video")
     """Type of the result, must be video."""
@@ -5275,14 +5461,14 @@ class InputMediaVideo(InputMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    More information on Sending Files В»."""
 
     cover: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
     to upload a new one using multipart/form-data under <file_attach_name>
-    name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    name. More information on Sending Files В»."""
 
     start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Start timestamp for the video in the message."""
@@ -5328,7 +5514,7 @@ class InputMediaAnimation(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    under <file_attach_name> name. More information on Sending Files В»."""
 
     type: Literal["animation"] = field(default="animation")
     """Type of the result, must be animation."""
@@ -5340,7 +5526,7 @@ class InputMediaAnimation(InputMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    More information on Sending Files В»."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the animation to be sent, 0-1024 characters after
@@ -5380,7 +5566,7 @@ class InputMediaAudio(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    under <file_attach_name> name. More information on Sending Files В»."""
 
     type: Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
@@ -5392,7 +5578,7 @@ class InputMediaAudio(InputMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    More information on Sending Files В»."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the audio to be sent, 0-1024 characters after entities
@@ -5426,7 +5612,7 @@ class InputMediaDocument(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    under <file_attach_name> name. More information on Sending Files В»."""
 
     type: Literal["document"] = field(default="document")
     """Type of the result, must be document."""
@@ -5438,7 +5624,7 @@ class InputMediaDocument(InputMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    More information on Sending Files В»."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
@@ -5470,7 +5656,7 @@ class InputPaidMediaPhoto(InputPaidMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    under <file_attach_name> name. More information on Sending Files В»."""
 
     type: Literal["photo"] = field(default="photo")
     """Type of the media, must be photo."""
@@ -5486,7 +5672,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    under <file_attach_name> name. More information on Sending Files В»."""
 
     type: Literal["video"] = field(default="video")
     """Type of the media, must be video."""
@@ -5498,14 +5684,14 @@ class InputPaidMediaVideo(InputPaidMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    More information on Sending Files В»."""
 
     cover: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
     to upload a new one using multipart/form-data under <file_attach_name>
-    name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    name. More information on Sending Files В»."""
 
     start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Start timestamp for the video in the message."""
@@ -5533,7 +5719,7 @@ class InputProfilePhotoStatic(InputProfilePhoto):
     """The static profile photo. Profile photos can't be reused and can only be
     uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    More information on Sending Files В»."""
 
     type: Literal["static"] = field(default="static")
     """Type of the profile photo, must be static."""
@@ -5549,7 +5735,7 @@ class InputProfilePhotoAnimated(InputProfilePhoto):
     """The animated profile photo. Profile photos can't be reused and can only
     be uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    More information on Sending Files В»."""
 
     type: Literal["animated"] = field(default="animated")
     """Type of the profile photo, must be animated."""
@@ -5570,7 +5756,7 @@ class InputStoryContentPhoto(InputStoryContent):
     not exceed 10 MB. The photo can't be reused and can only be uploaded as a new
     file, so you can pass `attach://<file_attach_name>` if the photo was uploaded
     using multipart/form-data under <file_attach_name>. More information
-    on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    on Sending Files В»."""
 
     type: Literal["photo"] = field(default="photo")
     """Type of the content, must be photo."""
@@ -5588,7 +5774,7 @@ class InputStoryContentVideo(InputStoryContent):
     format, and must not exceed 30 MB. The video can't be reused and can only be
     uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the video was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    More information on Sending Files В»."""
 
     type: Literal["video"] = field(default="video")
     """Type of the content, must be video."""
@@ -5719,7 +5905,7 @@ class InputSticker(Model):
     file from the Internet, or pass `attach://<file_attach_name>` to upload
     a new file using multipart/form-data under <file_attach_name> name.
     Animated and video stickers can't be uploaded via HTTP URL. More information
-    on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    on Sending Files В»."""
 
     emoji_list: list[str] = field()
     """List of 1-20 emoji associated with the sticker."""
@@ -7160,31 +7346,6 @@ class ChosenInlineResult(Model):
     queries and can be used to edit the message."""
 
 
-class SentWebAppMessage(Model):
-    """Object `SentWebAppMessage`, see the [documentation](https://core.telegram.org/bots/api#sentwebappmessage).
-
-    Describes an inline message sent by a Web App on behalf of a user.
-    """
-
-    inline_message_id: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Identifier of the sent inline message. Available only if there
-    is an inline keyboard attached to the message."""
-
-
-class PreparedInlineMessage(Model):
-    """Object `PreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#preparedinlinemessage).
-
-    Describes an inline message to be sent by a user of a Mini App.
-    """
-
-    id: str = field()
-    """Unique identifier of the prepared message."""
-
-    expiration_date: datetime = field(converter=From[datetime | int])
-    """Expiration date of the prepared message, in Unix time. Expired prepared
-    messages can no longer be used."""
-
-
 class LabeledPrice(Model):
     """Object `LabeledPrice`, see the [documentation](https://core.telegram.org/bots/api#labeledprice).
 
@@ -8199,12 +8360,15 @@ __all__ = (
     "KeyboardButton",
     "KeyboardButtonPollType",
     "KeyboardButtonRequestChat",
+    "KeyboardButtonRequestManagedBot",
     "KeyboardButtonRequestUsers",
     "LabeledPrice",
     "LinkPreviewOptions",
     "Location",
     "LocationAddress",
     "LoginUrl",
+    "ManagedBotCreated",
+    "ManagedBotUpdated",
     "MaskPosition",
     "MaybeInaccessibleMessage",
     "MenuButton",
@@ -8251,8 +8415,11 @@ __all__ = (
     "Poll",
     "PollAnswer",
     "PollOption",
+    "PollOptionAdded",
+    "PollOptionDeleted",
     "PreCheckoutQuery",
     "PreparedInlineMessage",
+    "PreparedKeyboardButton",
     "ProximityAlertTriggered",
     "ReactionCount",
     "ReactionType",
