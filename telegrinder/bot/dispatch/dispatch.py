@@ -1,3 +1,4 @@
+import asyncio
 import typing
 from collections import deque
 from functools import cached_property
@@ -226,19 +227,6 @@ class Dispatch[
         if unhandled_exceptions:
             raise BaseExceptionGroup("Unhandled exceptions:", unhandled_exceptions)
 
-    async def _process_views(
-        self,
-        views: typing.Iterable[View],
-        api: API,
-        update: Update,
-        context: Context,
-    ) -> bool:
-        async with self.loop_wrapper.create_task_group() as task_group:
-            for view in views:
-                task_group.create_task(self.main_router.route_view(view, api, update, context.copy()))
-
-        return any(task_group.results())
-
     async def _process_update_exceptions(
         self,
         api: API,
@@ -247,7 +235,7 @@ class Dispatch[
     ) -> None:
         await logger.adebug(
             "Processing error views with exceptions [{}]",
-            ", ".join(f"{type(e).__name__}" for e in context.exceptions_update.values()),
+            ", ".join(fullname(e) for e in context.exceptions_update.values()),
         )
 
         async with self.loop_wrapper.create_task_group() as task_group:
@@ -262,11 +250,45 @@ class Dispatch[
                     ),
                 )
 
-    async def _route_update(self, api: API, update: Update, context: Context) -> bool:
+    async def _route_update(self, api: API, update: Update, context: Context) -> tuple[RawEventView, ...] | None:
+        """Route an update through all routers.
+
+        Returns:
+            None: If the update was fully handled during router processing.
+            tuple[RawEventView, ...]: Raw views from routers that did not handle the update but define
+            a raw view, so the update can be passed to them for further processing.
+
+        """
+
+        routers_tasks: dict[Router, asyncio.Task[bool]] = {}
+
         async with self.loop_wrapper.create_task_group() as task_group:
             for router in self.routers:
                 await logger.adebug("Routing to router `{!r}`", router)
-                task_group.create_task(router.route(api, update, context.copy()))
+                task = task_group.create_task(router.route(api, update, context.copy()))
+                routers_tasks[router] = task
+
+        failed_routers: list[Router] = []
+
+        for router, task in routers_tasks.items():
+            if task.result() is False:
+                failed_routers.append(router)
+
+        if not failed_routers:
+            return None
+
+        return tuple(router.raw for router in failed_routers if router.raw)
+
+    async def _process_views(
+        self,
+        views: typing.Iterable[View],
+        api: API,
+        update: Update,
+        context: Context,
+    ) -> bool:
+        async with self.loop_wrapper.create_task_group() as task_group:
+            for view in views:
+                task_group.create_task(self.main_router.route_view(view, api, update, context.copy()))
 
         return any(task_group.results())
 
@@ -283,9 +305,10 @@ class Dispatch[
             context = Context().add_roots(api, update, per_event_scope)
             failed = False
             middlewares = self.middlewares
-            start_time = self.loop_wrapper.time
 
             async with per_event_scope:
+                start_time = self.loop_wrapper.time
+
                 try:
                     for middleware in middlewares:
                         if await run_pre_middleware(middleware, context) is not True:
@@ -295,10 +318,8 @@ class Dispatch[
                             )
                             return
 
-                    if not self.routers:
-                        await logger.adebug("No corresponding routers found.")
-                    elif not await self._route_update(api, update, context) and self.raw_views:
-                        await self._process_views(self.raw_views, api, update, context)
+                    if self.routers and (raw_views := await self._route_update(api, update, context)):
+                        await self._process_views(raw_views, api, update, context)
 
                     for middleware in middlewares:
                         await run_post_middleware(middleware, context)

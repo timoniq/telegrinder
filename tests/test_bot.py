@@ -59,8 +59,6 @@ async def test_dispatch_feed_flushes_buffered_logs_in_one_block(api_instance, me
             task_group.create_task(first_router())
             task_group.create_task(second_router())
 
-        return True
-
     monkeypatch.setattr(dispatch, "_route_update", fake_route_update)
 
     await dispatch.feed(api_instance, message_update)
@@ -104,8 +102,6 @@ async def test_dispatch_feed_flushes_buffered_loguru_logs(api_instance, message_
         async with dispatch.loop_wrapper.create_task_group() as task_group:
             task_group.create_task(first_router())
             task_group.create_task(second_router())
-
-        return True
 
     monkeypatch.setattr(dispatch, "_route_update", fake_route_update)
 
@@ -162,8 +158,6 @@ async def test_set_logger_with_wrapped_logging_logger_preserves_buffered_dispatc
             task_group.create_task(first_router())
             task_group.create_task(second_router())
 
-        return True
-
     monkeypatch.setattr(dispatch, "_route_update", fake_route_update)
 
     await dispatch.feed(api_instance, message_update)
@@ -207,8 +201,6 @@ async def test_set_logger_without_wrapper_keeps_immediate_logging(api_instance, 
         async with dispatch.loop_wrapper.create_task_group() as task_group:
             task_group.create_task(first_router())
             task_group.create_task(second_router())
-
-        return True
 
     monkeypatch.setattr(dispatch, "_route_update", fake_route_update)
 
