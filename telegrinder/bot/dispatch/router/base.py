@@ -87,34 +87,57 @@ class Router[
         return hash(self.name)
 
     def __bool__(self) -> bool:
-        return any(self.views.values()) or bool(self.raw) or bool(self.event_error)
+        return any((*self.event_views.values(), *self.views.values()))
 
-    async def route_view(self, view: View, api: API, update: Update, context: Context) -> bool:
+    @staticmethod
+    async def check_view(view: View, api: API, update: Update, context: Context) -> bool:
         with log_scope(repr, view):
-            await logger.adebug("Checking view `{!r}`...", view)
+            await logger.adebug("Checking view...")
 
             match await view.check(api, update, context):
-                case Ok(_):
-                    await logger.adebug("Processing...")
-                    result = await view.process(api, update, context)
-
-                    match result:
-                        case Err(error) if isinstance(error, Exception):
-                            raise error from None
-
-                    await logger.ainfo("{}", result.error if not result else result.value)
-                    return bool(result)
+                case Ok():
+                    return True
                 case Err(error):
                     await logger.adebug("Checking view failed: {}", error)
 
-        return False
+            return False
+
+    async def process_view(
+        self,
+        view: View,
+        api: API,
+        update: Update,
+        context: Context,
+        *,
+        raw_process_on_fail: bool = False,
+    ) -> bool:
+        with log_scope(repr, view):
+            await logger.adebug("Processing...")
+            result = await view.process(api, update, context)
+
+            match result:
+                case Err(error) if isinstance(error, Exception):
+                    raise error from None
+
+            await logger.ainfo("{}", result.error if not result else result.value)
+
+            result = bool(result)
+            if (
+                not result
+                and raw_process_on_fail is True
+                and self.raw
+                and await self.check_view(self.raw, api, update, context)
+            ):
+                return await self.process_view(self.raw, api, update, context)
+
+            return result
 
     async def route(self, api: API, update: Update, context: Context) -> bool:
         with log_scope(lambda: self.module):
             try:
-                for view in filter(None, self.views.values()):
-                    if await self.route_view(view, api, update, context):
-                        return True
+                for event_view in filter(None, self.event_views.values()):
+                    if await self.check_view(event_view, api, update, context):
+                        return await self.process_view(event_view, api, update, context, raw_process_on_fail=True)
 
                 return False
             except Exception as exception:

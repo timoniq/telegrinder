@@ -1,7 +1,5 @@
-import asyncio
 import typing
 from collections import deque
-from functools import cached_property
 
 from nodnod.interface.inject import inject_internals
 
@@ -29,7 +27,7 @@ if typing.TYPE_CHECKING:
 NANOSECONDS_PER_MILLISECOND: typing.Final = 1_000_000_000
 
 
-class ViewGetter:
+class _ViewGetter:
     main_router: Router
 
     def __getattr__(self, name: str, /) -> typing.Any:
@@ -98,7 +96,7 @@ class Dispatch[
         RawEvent,
     ]
     if typing.TYPE_CHECKING
-    else ViewGetter,
+    else _ViewGetter,
 ):
     type MainRouter = Router[
         MessageView,
@@ -169,10 +167,6 @@ class Dispatch[
             self._routers = deque((self.main_router,) if self.main_router else ())  # type: ignore
         return self._routers  # type: ignore
 
-    @cached_property
-    def raw_views(self) -> tuple[View, ...]:
-        return tuple(filter(None, (router.raw for router in self.routers)))
-
     @property
     def patcher(self) -> ABCPatcher:
         """Alias `patcher` to get a vbml patcher from the global context."""
@@ -206,7 +200,7 @@ class Dispatch[
                         )
                     elif isinstance(exception, Exception):
                         task_group.create_task(
-                            self.main_router.route_view(
+                            self.main_router.process_view(
                                 self.error_handler,
                                 api,
                                 update,
@@ -240,9 +234,9 @@ class Dispatch[
 
         async with self.loop_wrapper.create_task_group() as task_group:
             for router, exception in context.exceptions_update.items():
-                await logger.adebug("Routing exception to router `{!r}`", router)
+                await logger.adebug("Proccessing exception via router `{!r}`", router)
                 task_group.create_task(
-                    router.route_view(
+                    router.process_view(
                         router.event_error,
                         api,
                         update,
@@ -250,47 +244,11 @@ class Dispatch[
                     ),
                 )
 
-    async def _route_update(self, api: API, update: Update, context: Context) -> tuple[RawEventView, ...] | None:
-        """Route an update through all routers.
-
-        Returns:
-            None: If the update was fully handled during router processing.
-            tuple[RawEventView, ...]: Raw views from routers that did not handle the update but define
-            a raw view, so the update can be passed to them for further processing.
-
-        """
-
-        routers_tasks: dict[Router, asyncio.Task[bool]] = {}
-
+    async def _route_update(self, api: API, update: Update, context: Context) -> None:
         async with self.loop_wrapper.create_task_group() as task_group:
             for router in self.routers:
                 await logger.adebug("Routing to router `{!r}`", router)
-                task = task_group.create_task(router.route(api, update, context.copy()))
-                routers_tasks[router] = task
-
-        failed_routers: list[Router] = []
-
-        for router, task in routers_tasks.items():
-            if task.result() is False:
-                failed_routers.append(router)
-
-        if not failed_routers:
-            return None
-
-        return tuple(router.raw for router in failed_routers if router.raw)
-
-    async def _process_views(
-        self,
-        views: typing.Iterable[View],
-        api: API,
-        update: Update,
-        context: Context,
-    ) -> bool:
-        async with self.loop_wrapper.create_task_group() as task_group:
-            for view in views:
-                task_group.create_task(self.main_router.route_view(view, api, update, context.copy()))
-
-        return any(task_group.results())
+                task_group.create_task(router.route(api, update, context.copy()))
 
     async def feed(self, api: API, update: Update) -> None:
         with log_buffer(f"Update:{update.update_id}"):
@@ -318,8 +276,8 @@ class Dispatch[
                             )
                             return
 
-                    if self.routers and (raw_views := await self._route_update(api, update, context)):
-                        await self._process_views(raw_views, api, update, context)
+                    if self.routers:
+                        await self._route_update(api, update, context)
 
                     for middleware in middlewares:
                         await run_post_middleware(middleware, context)
@@ -340,11 +298,15 @@ class Dispatch[
 
                         return
 
-                    if isinstance(exc, Exception) and self.error_handler:
+                    if (
+                        isinstance(exc, Exception)
+                        and self.error_handler
+                        and await self.main_router.check_view(self.error_handler, api, update, context)
+                    ):
                         await logger.adebug(
                             "Dispatch caught an exception, routing to error handler...",
                         )
-                        await self.main_router.route_view(
+                        await self.main_router.process_view(
                             self.error_handler,
                             api,
                             update,
