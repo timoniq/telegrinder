@@ -583,7 +583,7 @@ class APIMethods:
         photo from the Internet, or upload a new photo using multipart/form-data. \
         The photo must be at most 10 MB in size. The photo's width and height must not \
         exceed 10000 in total. Width and height ratio must be at most 20. More information \
-        on Sending Files В».
+        on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024 \
         characters after entities parsing.
@@ -674,7 +674,7 @@ class APIMethods:
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get an audio file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param caption: Audio caption, 0-1024 characters after entities parsing.
 
@@ -696,7 +696,7 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -770,7 +770,7 @@ class APIMethods:
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
         file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for the \
         file is supported server-side. The thumbnail should be in JPEG format and \
@@ -778,7 +778,7 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param caption: Document caption (may also be used when resending documents by file_id), \
         0-1024 characters after entities parsing.
@@ -872,7 +872,7 @@ class APIMethods:
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
         video from the Internet, or upload a new video using multipart/form-data. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param duration: Duration of sent video in seconds.
 
@@ -886,13 +886,13 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param cover: Cover for the video in the message. Pass a file_id to send a file that exists \
         on the Telegram servers (recommended), pass an HTTP URL for Telegram to \
         get a file from the Internet, or pass `attach://<file_attach_name>` to \
         upload a new one using multipart/form-data under <file_attach_name> \
-        name. More information on Sending Files В».
+        name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param start_timestamp: Start timestamp for the video in the message.
 
@@ -987,7 +987,7 @@ class APIMethods:
         :param animation: Animation to send. Pass a file_id as String to send an animation that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get an animation from the Internet, or upload a new animation using multipart/form-data. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param duration: Duration of sent animation in seconds.
 
@@ -1001,7 +1001,7 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param caption: Animation caption (may also be used when resending animation by file_id), \
         0-1024 characters after entities parsing.
@@ -1090,7 +1090,7 @@ class APIMethods:
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get a file from the Internet, or upload a new one using multipart/form-data. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
 
@@ -1171,8 +1171,8 @@ class APIMethods:
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that exists \
         on the Telegram servers (recommended) or upload a new video using multipart/form-data. \
-        More information on Sending Files В». Sending video notes by a URL is currently \
-        unsupported.
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        Sending video notes by a URL is currently unsupported.
 
         :param duration: Duration of sent video in seconds.
 
@@ -1184,7 +1184,7 @@ class APIMethods:
         320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails \
         can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` \
         if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. \
-        More information on Sending Files В».
+        More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -1808,9 +1808,8 @@ class APIMethods:
         required if the message is sent to a direct messages chat.
 
         :param emoji: Emoji on which the dice throw animation is based. Currently, must be one \
-        of `рџЋІ`, `рџЋЇ`, `рџЏЂ`, `вљЅ`, `рџЋі`, or `рџЋ°`. Dice can have values \
-        1-6 for `рџЋІ`, `рџЋЇ` and `рџЋі`, values 1-5 for `рџЏЂ` and `вљЅ`, and values \
-        1-64 for `рџЋ°`. Defaults to `рџЋІ`.
+        of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and \
+        `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`. \
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -5268,8 +5267,9 @@ class APIMethods:
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
         to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM \
-        sticker using multipart/form-data. More information on Sending Files \
-        В». Video and animated stickers can't be sent via an HTTP URL.
+        sticker using multipart/form-data. More information on Sending Files: \
+        https://core.telegram.org/bots/api#sending-files. Video and animated \
+        stickers can't be sent via an HTTP URL.
 
         :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
 
@@ -5358,7 +5358,7 @@ class APIMethods:
         :param user_id: User identifier of sticker file owner.
 
         :param sticker: A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See https://core.telegram.org/stickers \
-        for technical requirements. More information on Sending Files В».
+        for technical requirements. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
 
         :param sticker_format: Format of the sticker, must be one of `static`, `animated`, `video`.
         """
@@ -5639,9 +5639,10 @@ class APIMethods:
         for video sticker technical requirements. Pass a file_id as a String to \
         send a file that already exists on the Telegram servers, pass an HTTP URL \
         as a String for Telegram to get a file from the Internet, or upload a new one \
-        using multipart/form-data. More information on Sending Files В». Animated \
-        and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, \
-        then the thumbnail is dropped and the first sticker is used as the thumbnail. \
+        using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. \
+        Animated and video sticker set thumbnails can't be uploaded via HTTP URL. \
+        If omitted, then the thumbnail is dropped and the first sticker is used as \
+        the thumbnail.
 
         :param format: Format of the thumbnail, must be one of `static` for a .WEBP or .PNG image, \
         `animated` for a .TGS animation, or `video` for a .WEBM video.

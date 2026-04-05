@@ -968,8 +968,8 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Message is a dice with random value."""
 
     game: Option[Game] = field(default=..., converter=From["Game | None"])
-    """Optional. Message is a game, information about the game. More about games
-    В»."""
+    """Optional. Message is a game, information about the game. More about games:
+    https://core.telegram.org/bots/api#games."""
 
     poll: Option[Poll] = field(default=..., converter=From["Poll | None"])
     """Optional. Message is a native poll, information about the poll."""
@@ -1048,15 +1048,15 @@ class Message(MaybeInaccessibleMessage):
 
     invoice: Option[Invoice] = field(default=..., converter=From["Invoice | None"])
     """Optional. Message is an invoice for a payment, information about the invoice.
-    More about payments В»."""
+    More about payments: https://core.telegram.org/bots/api#payments."""
 
     successful_payment: Option[SuccessfulPayment] = field(default=..., converter=From["SuccessfulPayment | None"])
     """Optional. Message is a service message about a successful payment, information
-    about the payment. More about payments В»."""
+    about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
 
     refunded_payment: Option[RefundedPayment] = field(default=..., converter=From["RefundedPayment | None"])
     """Optional. Message is a service message about a refunded payment, information
-    about the payment. More about payments В»."""
+    about the payment. More about payments: https://core.telegram.org/bots/api#payments."""
 
     users_shared: Option[UsersShared] = field(default=..., converter=From["UsersShared | None"])
     """Optional. Service message: users were shared with the bot."""
@@ -1076,7 +1076,7 @@ class Message(MaybeInaccessibleMessage):
 
     connected_website: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The domain name of the website on which the user has logged in.
-    More about Telegram Login В»."""
+    More about Telegram Login: https://core.telegram.org/widgets/login."""
 
     write_access_allowed: Option[WriteAccessAllowed] = field(default=..., converter=From["WriteAccessAllowed | None"])
     """Optional. Service message: the user allowed the bot to write messages after
@@ -1407,8 +1407,8 @@ class ExternalReplyInfo(Model):
     """Optional. Message is a dice with random value."""
 
     game: Option[Game] = field(default=..., converter=From["Game | None"])
-    """Optional. Message is a game, information about the game. More about games
-    В»."""
+    """Optional. Message is a game, information about the game. More about games:
+    https://core.telegram.org/bots/api#games."""
 
     giveaway: Option[Giveaway] = field(default=..., converter=From["Giveaway | None"])
     """Optional. Message is a scheduled giveaway, information about the giveaway."""
@@ -1418,7 +1418,7 @@ class ExternalReplyInfo(Model):
 
     invoice: Option[Invoice] = field(default=..., converter=From["Invoice | None"])
     """Optional. Message is an invoice for a payment, information about the invoice.
-    More about payments В»."""
+    More about payments: https://core.telegram.org/bots/api#payments."""
 
     location: Option[Location] = field(default=..., converter=From["Location | None"])
     """Optional. Message is a shared location, information about the location."""
@@ -1917,8 +1917,8 @@ class Dice(Model):
     """Emoji on which the dice throw animation is based."""
 
     value: int = field()
-    """Value of the dice, 1-6 for `рџЋІ`, `рџЋЇ` and `рџЋі` base emoji, 1-5 for `рџЏЂ`
-    and `вљЅ` base emoji, 1-64 for `рџЋ°` base emoji."""
+    """Value of the dice, 1-6 for `🎲`, `🎯` and `🎳` base emoji, 1-5 for `🏀` and `⚽` base
+    emoji, 1-64 for `🎰` base emoji."""
 
 
 class PollOption(Model):
@@ -3210,7 +3210,7 @@ class KeyboardButton(Model):
 class KeyboardButtonRequestUsers(Model):
     """Object `KeyboardButtonRequestUsers`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestusers).
 
-    This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users В»
+    This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users: https://core.telegram.org/bots/features#chat-and-user-selection
     """
 
     request_id: int = field()
@@ -3242,7 +3242,7 @@ class KeyboardButtonRequestUsers(Model):
 class KeyboardButtonRequestChat(Model):
     """Object `KeyboardButtonRequestChat`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestchat).
 
-    This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. More about requesting chats В».
+    This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. More about requesting chats: https://core.telegram.org/bots/features#chat-and-user-selection.
     """
 
     request_id: int = field()
@@ -3429,8 +3429,8 @@ class InlineKeyboardButton(Model):
     first row."""
 
     pay: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Specify True, to send a Pay button. Substrings `в­ђ` and `XTR`
-    in the buttons's text will be replaced with a Telegram Star icon. NOTE: This
+    """Optional. Specify True, to send a Pay button. Substrings `⭐` and `XTR` in
+    the buttons's text will be replaced with a Telegram Star icon. NOTE: This
     type of button must always be the first button in the first row and can only
     be used in invoice messages."""
 
@@ -5415,7 +5415,7 @@ class InputMediaPhoto(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files В»."""
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["photo"] = field(default="photo")
     """Type of the result, must be photo."""
@@ -5449,7 +5449,7 @@ class InputMediaVideo(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files В»."""
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["video"] = field(default="video")
     """Type of the result, must be video."""
@@ -5461,14 +5461,14 @@ class InputMediaVideo(InputMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files В»."""
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     cover: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
     to upload a new one using multipart/form-data under <file_attach_name>
-    name. More information on Sending Files В»."""
+    name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Start timestamp for the video in the message."""
@@ -5514,7 +5514,7 @@ class InputMediaAnimation(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files В»."""
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["animation"] = field(default="animation")
     """Type of the result, must be animation."""
@@ -5526,7 +5526,7 @@ class InputMediaAnimation(InputMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files В»."""
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the animation to be sent, 0-1024 characters after
@@ -5566,7 +5566,7 @@ class InputMediaAudio(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files В»."""
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
@@ -5578,7 +5578,7 @@ class InputMediaAudio(InputMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files В»."""
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the audio to be sent, 0-1024 characters after entities
@@ -5612,7 +5612,7 @@ class InputMediaDocument(InputMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files В»."""
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["document"] = field(default="document")
     """Type of the result, must be document."""
@@ -5624,7 +5624,7 @@ class InputMediaDocument(InputMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files В»."""
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
@@ -5656,7 +5656,7 @@ class InputPaidMediaPhoto(InputPaidMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files В»."""
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["photo"] = field(default="photo")
     """Type of the media, must be photo."""
@@ -5672,7 +5672,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files В»."""
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["video"] = field(default="video")
     """Type of the media, must be video."""
@@ -5684,14 +5684,14 @@ class InputPaidMediaVideo(InputPaidMedia):
     320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
     can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files В»."""
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     cover: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
     to upload a new one using multipart/form-data under <file_attach_name>
-    name. More information on Sending Files В»."""
+    name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Start timestamp for the video in the message."""
@@ -5719,7 +5719,7 @@ class InputProfilePhotoStatic(InputProfilePhoto):
     """The static profile photo. Profile photos can't be reused and can only be
     uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files В»."""
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["static"] = field(default="static")
     """Type of the profile photo, must be static."""
@@ -5735,7 +5735,7 @@ class InputProfilePhotoAnimated(InputProfilePhoto):
     """The animated profile photo. Profile photos can't be reused and can only
     be uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files В»."""
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["animated"] = field(default="animated")
     """Type of the profile photo, must be animated."""
@@ -5756,7 +5756,7 @@ class InputStoryContentPhoto(InputStoryContent):
     not exceed 10 MB. The photo can't be reused and can only be uploaded as a new
     file, so you can pass `attach://<file_attach_name>` if the photo was uploaded
     using multipart/form-data under <file_attach_name>. More information
-    on Sending Files В»."""
+    on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["photo"] = field(default="photo")
     """Type of the content, must be photo."""
@@ -5774,7 +5774,7 @@ class InputStoryContentVideo(InputStoryContent):
     format, and must not exceed 30 MB. The video can't be reused and can only be
     uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the video was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files В»."""
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["video"] = field(default="video")
     """Type of the content, must be video."""
@@ -5905,7 +5905,7 @@ class InputSticker(Model):
     file from the Internet, or pass `attach://<file_attach_name>` to upload
     a new file using multipart/form-data under <file_attach_name> name.
     Animated and video stickers can't be uploaded via HTTP URL. More information
-    on Sending Files В»."""
+    on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     emoji_list: list[str] = field()
     """List of 1-20 emoji associated with the sticker."""
