@@ -1,4 +1,3 @@
-import copy
 import typing
 from abc import ABC, abstractmethod
 from collections import deque
@@ -11,6 +10,7 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import log_scope
 from telegrinder.node.compose import create_composable
+from telegrinder.node.scope import NodeScope
 from telegrinder.node.utils import get_globals_from_function, get_locals_from_function
 from telegrinder.tools.fullname import fullname
 
@@ -31,11 +31,7 @@ class ABCRule(ABC):
     required_nodes: typing.Mapping[str, Node] | None = None
     agent_cls: type[Agent] = EventLoopAgent
     requires: deque[ABCRule] | None = None
-
-    def __new__(cls, *args: typing.Any, **kwargs: typing.Any) -> typing.Self:
-        rule = super().__new__(cls)
-        rule.requires = deque(copy.deepcopy(cls.requires)) if cls.requires is not None else None
-        return rule
+    rule_scope: NodeScope = NodeScope.PER_CALL
 
     @abstractmethod
     def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult:
@@ -45,6 +41,7 @@ class ABCRule(ABC):
         cls,
         *,
         requires: typing.Iterable[ABCRule] | None = None,
+        scope: NodeScope = NodeScope.PER_CALL,
     ) -> None:
         requirements: list[ABCRule] = []
 
@@ -54,6 +51,7 @@ class ABCRule(ABC):
 
         requirements.extend(requires or ())
         cls.requires = deque(dict.fromkeys(requirements))
+        cls.rule_scope = scope
 
     def __and__(self, other: object, /) -> AndRule:
         if not isinstance(other, ABCRule):
@@ -94,7 +92,7 @@ class ABCRule(ABC):
             forward_refs=get_globals_from_function(self.check),
             namespace=get_locals_from_function(self.check),
         )
-        return create_composable(node, agent_cls=self.agent_cls)
+        return create_composable(node, agent_cls=self.agent_cls, scope=self.rule_scope)
 
 
 class AndRule(ABCRule):

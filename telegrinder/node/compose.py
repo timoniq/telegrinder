@@ -70,7 +70,7 @@ from nodnod.interface.node_from_function import Externals
 from nodnod.node import Node
 from nodnod.scope import Scope
 
-from telegrinder.node.scope import NODE_GLOBAL_SCOPE, MappedScopes, create_per_call_scope
+from telegrinder.node.scope import NODE_GLOBAL_SCOPE, MappedScopes, NodeScope, create_per_call_scope
 from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.tools.magic.function import Function, FunctionGenerator
 
@@ -116,6 +116,7 @@ def create_composable[T: Agent](
     *,
     agent: T | None = None,
     agent_cls: type[T] = EventLoopAgent,
+    scope: NodeScope = NodeScope.PER_CALL,
 ) -> Composable[T]:
     if not isinstance(node_or_function, type):
         node_or_function = create_node_from_function(node_or_function)
@@ -123,7 +124,7 @@ def create_composable[T: Agent](
     if agent is None:
         agent = create_agent_from_node(node_or_function, agent_cls=agent_cls)
 
-    return Composable(node_or_function, agent)
+    return Composable(scope(node_or_function), agent)
 
 
 @asynccontextmanager
