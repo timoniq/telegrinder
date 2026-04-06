@@ -55,7 +55,7 @@ async def run_middleware(
 
 class ABCMiddleware(ABC):
     agent_cls: type[Agent] = EventLoopAgent
-    scope: NodeScope = NodeScope.PER_CALL
+    middleware_scope: NodeScope = NodeScope.PER_CALL
     pre_required_nodes: typing.Mapping[str, Node] | None = None
     post_required_nodes: typing.Mapping[str, Node] | None = None
 
@@ -81,18 +81,18 @@ class ABCMiddleware(ABC):
     @cached_property
     def pre_composable(self) -> Composable:
         return self.get_composable(
-            self.pre,
-            self.scope,
-            self.agent_cls,
+            method=self.pre,
+            scope=self.middleware_scope,
+            agent_cls=self.agent_cls,
             required_nodes=self.pre_required_nodes,
         )
 
     @cached_property
     def post_composable(self) -> Composable:
         return self.get_composable(
-            self.post,
-            self.scope,
-            self.agent_cls,
+            method=self.post,
+            scope=self.middleware_scope,
+            agent_cls=self.agent_cls,
             required_nodes=self.post_required_nodes,
         )
 
