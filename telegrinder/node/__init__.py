@@ -39,6 +39,7 @@ from nodnod import (
     Injection,
     Node,
     NodeConstructor,
+    NodeError,
     ResultNode,
     Scalar,
     case,
@@ -47,34 +48,51 @@ from nodnod import (
     scalar_node,
 )
 
-from telegrinder.node.compose import Composable, compose, create_composable, run_agent
+from telegrinder.node.compose import Composable, compose, compose_once, create_composable, run_agent
 from telegrinder.node.nodes import *
 from telegrinder.node.nodes import __all__ as nodes_all
-from telegrinder.node.scope import GLOBAL, PER_CALL, PER_EVENT, NodeScope, global_node, per_call, per_event
+from telegrinder.node.scope import (
+    GLOBAL,
+    NODE_GLOBAL_SCOPE,
+    PER_CALL,
+    PER_EVENT,
+    NodeScope,
+    create_per_call_scope,
+    create_per_event_scope,
+    global_node,
+    per_call,
+    per_event,
+)
 from telegrinder.node.utils import as_node, is_node
 
-__all__ = nodes_all + (
+__all__ = (
+    *nodes_all,
     "GLOBAL",
+    "NODE_GLOBAL_SCOPE",
     "PER_CALL",
     "PER_EVENT",
     "Composable",
     "DataNode",
-    "NodeConstructor",
-    "NodeScope",
-    "Node",
-    "ResultNode",
     "Injection",
+    "Node",
+    "NodeConstructor",
+    "NodeError",
+    "NodeScope",
+    "ResultNode",
     "Scalar",
     "as_node",
+    "case",
     "compose",
+    "compose_once",
     "create_composable",
-    "run_agent",
+    "create_per_call_scope",
+    "create_per_event_scope",
+    "generic_node",
     "global_node",
     "is_node",
-    "case",
-    "generic_node",
-    "polymorphic",
-    "scalar_node",
     "per_call",
     "per_event",
+    "polymorphic",
+    "run_agent",
+    "scalar_node",
 )

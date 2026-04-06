@@ -22,7 +22,6 @@ type ChatMember = typing.Union[
     ChatMemberOwner,
     ChatMemberRestricted,
 ]
-type ChatMemberUpdated = ChatMemberUpdatedCute
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -106,7 +105,7 @@ class ChatMemberUpdatedRule(ABCRule):
 
         return status == checking_status or status in checking_status
 
-    def check(self, event: ChatMemberUpdated) -> bool:
+    def check(self, event: ChatMemberUpdatedCute) -> bool:
         checking_new_status, checking_old_status = (
             (
                 self.status.new,

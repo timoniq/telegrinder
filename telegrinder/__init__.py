@@ -111,13 +111,19 @@ from .tools.input_file_directory import InputFileDirectory
 from .tools.keyboard import (
     ABCKeyboard,
     Button,
+    DangerButton,
+    DangerInlineButton,
     InlineButton,
     InlineKeyboard,
     Keyboard,
+    PrimaryButton,
+    PrimaryInlineButton,
     RowButtons,
+    SuccessButton,
+    SuccessInlineButton,
 )
-from .tools.lifespan import Lifespan
-from .tools.loop_wrapper import DelayedTask, LoopWrapper
+from .tools.lifespan import DelayedTask, Lifespan
+from .tools.loop_wrapper import LoopWrapper
 from .tools.parse_mode import ParseMode
 from .tools.state_storage import ABCStateStorage, MemoryStateStorage, StateData
 
@@ -185,6 +191,8 @@ __all__ = (
     "ChosenInlineResult",
     "ChosenInlineResultCute",
     "Context",
+    "DangerButton",
+    "DangerInlineButton",
     "DelayedTask",
     "Dispatch",
     "DocumentReplyHandler",
@@ -230,6 +238,8 @@ __all__ = (
     "PreCheckoutQuery",
     "PreCheckoutQueryCute",
     "PreCheckoutQueryReturnManager",
+    "PrimaryButton",
+    "PrimaryInlineButton",
     "RawEventView",
     "RnetClient",
     "Router",
@@ -239,6 +249,8 @@ __all__ = (
     "ShortState",
     "StateData",
     "StickerReplyHandler",
+    "SuccessButton",
+    "SuccessInlineButton",
     "Telegrinder",
     "TelegrinderContext",
     "Token",

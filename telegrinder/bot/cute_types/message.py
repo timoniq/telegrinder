@@ -663,16 +663,23 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         question: str,
         *,
         options: list[InputPollOption],
+        allow_adding_options: bool | None = None,
         allow_paid_broadcast: bool | None = None,
         allows_multiple_answers: bool | None = None,
+        allows_revoting: bool | None = None,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         close_date: datetime | int | None = None,
         correct_option_id: int | None = None,
+        correct_option_ids: list[int] | None = None,
+        description: str | None = None,
+        description_entities: list[MessageEntity] | None = None,
+        description_parse_mode: str | None = None,
         disable_notification: bool | None = None,
         explanation: str | None = None,
         explanation_entities: list[MessageEntity] | None = None,
         explanation_parse_mode: str | None = None,
+        hide_results_until_closes: bool | None = None,
         is_anonymous: bool | None = None,
         is_closed: bool | None = None,
         message_effect_id: str | None = None,
@@ -684,6 +691,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
+        shuffle_options: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
@@ -708,9 +716,17 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode,defaults to False.
+        :param allows_multiple_answers: Pass True, if the poll allows multiple answers, defaults to False.
 
-        :param correct_option_id: 0-based identifier of the correct answer option, required for polls inquiz mode.
+        :param allows_revoting: Pass True, if the poll allows to change chosen answer options, defaultsto False for quizzes and to True for regular polls.
+
+        :param shuffle_options: Pass True, if the poll options must be shown in random order.
+
+        :param allow_adding_options: Pass True, if answer options can be added to the poll after creation; notsupported for anonymous polls and quizzes.
+
+        :param hide_results_until_closes: Pass True, if poll results must be shown only after the poll closes.
+
+        :param correct_option_ids: A JSON-serialized list of monotonically increasing 0-based identifiersof the correct answer options, required for polls in quiz mode.
 
         :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lampicon in a quiz-style poll, 0-200 characters with at most 2 line feeds afterentities parsing.
 
@@ -718,11 +734,16 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation.It can be specified instead of explanation_parse_mode.
 
-        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600.Can't be used together with close_date.
+        :param open_period: Amount of time in seconds the poll will be active after creation, 5-2628000.Can't be used together with close_date.
 
-        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 600 seconds in the future. Can't be usedtogether with open_period.
+        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 2628000 seconds in the future. Can't beused together with open_period.
 
         :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful forpoll preview.
+
+        :param description: Description of the poll to be sent, 0-1024 characters after entities parsing.
+        :param description_parse_mode: Mode for parsing entities in the poll description. See formatting optionsfor more details.
+
+        :param description_entities: A JSON-serialized list of special entities that appear in the poll description,which can be specified instead of description_parse_mode.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
@@ -1679,16 +1700,23 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         question: str,
         *,
         options: list[InputPollOption],
+        allow_adding_options: bool | None = None,
         allow_paid_broadcast: bool | None = None,
         allows_multiple_answers: bool | None = None,
+        allows_revoting: bool | None = None,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         close_date: datetime | int | None = None,
         correct_option_id: int | None = None,
+        correct_option_ids: list[int] | None = None,
+        description: str | None = None,
+        description_entities: list[MessageEntity] | None = None,
+        description_parse_mode: str | None = None,
         disable_notification: bool | None = None,
         explanation: str | None = None,
         explanation_entities: list[MessageEntity] | None = None,
         explanation_parse_mode: str | None = None,
+        hide_results_until_closes: bool | None = None,
         is_anonymous: bool | None = None,
         is_closed: bool | None = None,
         message_effect_id: str | None = None,
@@ -1700,6 +1728,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
+        shuffle_options: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
@@ -1724,9 +1753,17 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode,defaults to False.
+        :param allows_multiple_answers: Pass True, if the poll allows multiple answers, defaults to False.
 
-        :param correct_option_id: 0-based identifier of the correct answer option, required for polls inquiz mode.
+        :param allows_revoting: Pass True, if the poll allows to change chosen answer options, defaultsto False for quizzes and to True for regular polls.
+
+        :param shuffle_options: Pass True, if the poll options must be shown in random order.
+
+        :param allow_adding_options: Pass True, if answer options can be added to the poll after creation; notsupported for anonymous polls and quizzes.
+
+        :param hide_results_until_closes: Pass True, if poll results must be shown only after the poll closes.
+
+        :param correct_option_ids: A JSON-serialized list of monotonically increasing 0-based identifiersof the correct answer options, required for polls in quiz mode.
 
         :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lampicon in a quiz-style poll, 0-200 characters with at most 2 line feeds afterentities parsing.
 
@@ -1734,11 +1771,16 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation.It can be specified instead of explanation_parse_mode.
 
-        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600.Can't be used together with close_date.
+        :param open_period: Amount of time in seconds the poll will be active after creation, 5-2628000.Can't be used together with close_date.
 
-        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 600 seconds in the future. Can't be usedtogether with open_period.
+        :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed.Must be at least 5 and no more than 2628000 seconds in the future. Can't beused together with open_period.
 
         :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful forpoll preview.
+
+        :param description: Description of the poll to be sent, 0-1024 characters after entities parsing.
+        :param description_parse_mode: Mode for parsing entities in the poll description. See formatting optionsfor more details.
+
+        :param description_entities: A JSON-serialized list of special entities that appear in the poll description,which can be specified instead of description_parse_mode.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.

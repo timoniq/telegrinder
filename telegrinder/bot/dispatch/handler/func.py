@@ -10,7 +10,7 @@ from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.process import check_rule
-from telegrinder.modules import logger
+from telegrinder.modules import log_scope, logger
 from telegrinder.node.compose import compose
 from telegrinder.tools.fullname import fullname
 from telegrinder.types.objects import Update
@@ -55,9 +55,10 @@ class FuncHandler[T: Function](ABCHandler):
         if check and self.check_rules:
             await logger.adebug("Checking rules for handler `{!r}`...", self)
 
-            for rule in self.check_rules:
-                if not await check_rule(rule, context):
-                    return Error(f"Rule {rule!r} failed.")
+            with log_scope(lambda: self.function.__name__):
+                for rule in self.check_rules:
+                    if not await check_rule(rule, context):
+                        return Error(f"Rule {rule!r} failed.")
 
             await logger.adebug("Rules passed, composing nodes and running handler `{!r}`...", self)
         else:

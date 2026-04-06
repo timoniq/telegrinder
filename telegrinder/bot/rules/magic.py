@@ -2,10 +2,11 @@ import typing
 from contextlib import suppress
 
 import kungfu
+from nodnod.interface.composable import Composable
+from nodnod.utils.is_type import is_type
 
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node import EventNode
-from telegrinder.node.utils import is_node
 from telegrinder.tools.member_descriptor_proxy import MemberDescriptorProxy, evaluate_operations
 
 
@@ -20,7 +21,7 @@ class Magic[R, **P = [R]](kungfu.F[R, P], ABCRule):
             node = EventNode[owner_cls]
             super().__init__(lambda obj: evaluate_operations(obj, member_name, operations))  # type: ignore
 
-        elif is_node(field):
+        elif is_type(field, Composable):
             node = field
             super().__init__()  # type: ignore
 

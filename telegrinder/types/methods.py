@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API version `9.3`, released `December 31, 2025`."""
+    """Telegram Bot API version `9.6`, released `April 3, 2026`."""
 
     default_params = ProxiedDict(
         typing.TypedDict(
@@ -1612,13 +1612,20 @@ class APIMethods:
         is_anonymous: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         allows_multiple_answers: bool | None = None,
-        correct_option_id: int | None = None,
+        allows_revoting: bool | None = None,
+        shuffle_options: bool | None = None,
+        allow_adding_options: bool | None = None,
+        hide_results_until_closes: bool | None = None,
+        correct_option_ids: list[int] | None = None,
         explanation: str | None = None,
         explanation_parse_mode: str | None = None,
         explanation_entities: list[MessageEntity] | None = None,
         open_period: int | None = None,
         close_date: datetime | int | None = None,
         is_closed: bool | None = None,
+        description: str | None = None,
+        description_parse_mode: str | None = None,
+        description_entities: list[MessageEntity] | None = None,
         disable_notification: bool | None = default_params["disable_notification"],
         protect_content: bool | None = default_params["protect_content"],
         allow_paid_broadcast: bool | None = default_params["allow_paid_broadcast"],
@@ -1656,11 +1663,20 @@ class APIMethods:
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode, \
-        defaults to False.
+        :param allows_multiple_answers: Pass True, if the poll allows multiple answers, defaults to False.
 
-        :param correct_option_id: 0-based identifier of the correct answer option, required for polls in \
-        quiz mode.
+        :param allows_revoting: Pass True, if the poll allows to change chosen answer options, defaults \
+        to False for quizzes and to True for regular polls.
+
+        :param shuffle_options: Pass True, if the poll options must be shown in random order.
+
+        :param allow_adding_options: Pass True, if answer options can be added to the poll after creation; not \
+        supported for anonymous polls and quizzes.
+
+        :param hide_results_until_closes: Pass True, if poll results must be shown only after the poll closes.
+
+        :param correct_option_ids: A JSON-serialized list of monotonically increasing 0-based identifiers \
+        of the correct answer options, required for polls in quiz mode.
 
         :param explanation: Text that is shown when a user chooses an incorrect answer or taps on the lamp \
         icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after \
@@ -1672,15 +1688,23 @@ class APIMethods:
         :param explanation_entities: A JSON-serialized list of special entities that appear in the poll explanation. \
         It can be specified instead of explanation_parse_mode.
 
-        :param open_period: Amount of time in seconds the poll will be active after creation, 5-600. \
+        :param open_period: Amount of time in seconds the poll will be active after creation, 5-2628000. \
         Can't be used together with close_date.
 
         :param close_date: Point in time (Unix timestamp) when the poll will be automatically closed. \
-        Must be at least 5 and no more than 600 seconds in the future. Can't be used \
-        together with open_period.
+        Must be at least 5 and no more than 2628000 seconds in the future. Can't be \
+        used together with open_period.
 
         :param is_closed: Pass True if the poll needs to be immediately closed. This can be useful for \
         poll preview.
+
+        :param description: Description of the poll to be sent, 0-1024 characters after entities parsing. \
+
+        :param description_parse_mode: Mode for parsing entities in the poll description. See formatting options \
+        for more details.
+
+        :param description_entities: A JSON-serialized list of special entities that appear in the poll description, \
+        which can be specified instead of description_parse_mode.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
 
@@ -1829,8 +1853,7 @@ class APIMethods:
         """Method `sendMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendmessagedraft)
 
         Use this method to stream a partial message to a user while the message is
-        being generated; supported only for bots with forum topic mode enabled.
-        Returns True on success.
+        being generated. Returns True on success.
 
         :param chat_id: Unique identifier for the target private chat.
 
@@ -1959,6 +1982,34 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(method_response, UserProfilePhotos)
+
+    async def get_user_profile_audios(
+        self,
+        *,
+        user_id: int,
+        offset: int | None = None,
+        limit: int | None = None,
+        **other: typing.Any,
+    ) -> Result[UserProfileAudios, APIError]:
+        """Method `getUserProfileAudios`, see the [documentation](https://core.telegram.org/bots/api#getuserprofileaudios)
+
+        Use this method to get a list of profile audios for a user. Returns a UserProfileAudios
+        object.
+
+        :param user_id: Unique identifier of the target user.
+
+        :param offset: Sequential number of the first audio to be returned. By default, all audios \
+        are returned.
+
+        :param limit: Limits the number of audios to be retrieved. Values between 1-100 are accepted. \
+        Defaults to 100.
+        """
+
+        method_response = await self.api.request_raw(
+            "getUserProfileAudios",
+            get_params(locals()),
+        )
+        return full_result(method_response, UserProfileAudios)
 
     async def set_user_emoji_status(
         self,
@@ -2145,6 +2196,7 @@ class APIMethods:
         can_pin_messages: bool | None = None,
         can_manage_topics: bool | None = None,
         can_manage_direct_messages: bool | None = None,
+        can_manage_tags: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Method `promoteChatMember`, see the [documentation](https://core.telegram.org/bots/api#promotechatmember)
@@ -2203,6 +2255,9 @@ class APIMethods:
 
         :param can_manage_direct_messages: Pass True if the administrator can manage direct messages within the channel \
         and decline suggested posts; for channels only.
+
+        :param can_manage_tags: Pass True if the administrator can edit the tags of regular members; for \
+        groups and supergroups only.
         """
 
         method_response = await self.api.request_raw(
@@ -2235,6 +2290,34 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "setChatAdministratorCustomTitle",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def set_chat_member_tag(
+        self,
+        *,
+        chat_id: int | str,
+        user_id: int,
+        tag: str | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setChatMemberTag`, see the [documentation](https://core.telegram.org/bots/api#setchatmembertag)
+
+        Use this method to set a tag for a regular member in a group or a supergroup.
+        The bot must be an administrator in the chat for this to work and must have
+        the can_manage_tags administrator right. Returns True on success.
+
+        :param chat_id: Unique identifier for the target chat or username of the target supergroup \
+        (in the format @supergroupusername).
+
+        :param user_id: Unique identifier of the target user.
+
+        :param tag: New tag for the member; 0-16 characters, emoji are not allowed.
+        """
+
+        method_response = await self.api.request_raw(
+            "setChatMemberTag",
             get_params(locals()),
         )
         return full_result(method_response, bool)
@@ -2961,10 +3044,10 @@ class APIMethods:
     ) -> Result[ForumTopic, APIError]:
         """Method `createForumTopic`, see the [documentation](https://core.telegram.org/bots/api#createforumtopic)
 
-        Use this method to create a topic in a forum supergroup chat. The bot must
-        be an administrator in the chat for this to work and must have the can_manage_topics
-        administrator rights. Returns information about the created topic as
-        a ForumTopic object.
+        Use this method to create a topic in a forum supergroup chat or a private chat
+        with a user. In the case of a supergroup chat the bot must be an administrator
+        in the chat for this to work and must have the can_manage_topics administrator
+        right. Returns information about the created topic as a ForumTopic object.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         (in the format @supergroupusername).
@@ -3349,6 +3432,46 @@ class APIMethods:
         )
         return full_result(method_response, BusinessConnection)
 
+    async def get_managed_bot_token(
+        self,
+        *,
+        user_id: int,
+        **other: typing.Any,
+    ) -> Result[str, APIError]:
+        """Method `getManagedBotToken`, see the [documentation](https://core.telegram.org/bots/api#getmanagedbottoken)
+
+        Use this method to get the token of a managed bot. Returns the token as String
+        on success.
+
+        :param user_id: User identifier of the managed bot whose token will be returned.
+        """
+
+        method_response = await self.api.request_raw(
+            "getManagedBotToken",
+            get_params(locals()),
+        )
+        return full_result(method_response, str)
+
+    async def replace_managed_bot_token(
+        self,
+        *,
+        user_id: int,
+        **other: typing.Any,
+    ) -> Result[str, APIError]:
+        """Method `replaceManagedBotToken`, see the [documentation](https://core.telegram.org/bots/api#replacemanagedbottoken)
+
+        Use this method to revoke the current token of a managed bot and generate
+        a new one. Returns the new token as String on success.
+
+        :param user_id: User identifier of the managed bot whose token will be replaced.
+        """
+
+        method_response = await self.api.request_raw(
+            "replaceManagedBotToken",
+            get_params(locals()),
+        )
+        return full_result(method_response, str)
+
     async def set_my_commands(
         self,
         *,
@@ -3565,6 +3688,38 @@ class APIMethods:
         )
         return full_result(method_response, BotShortDescription)
 
+    async def set_my_profile_photo(
+        self,
+        *,
+        photo: InputProfilePhoto,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `setMyProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#setmyprofilephoto)
+
+        Changes the profile photo of the bot. Returns True on success.
+
+        :param photo: The new profile photo to set.
+        """
+
+        method_response = await self.api.request_raw(
+            "setMyProfilePhoto",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def remove_my_profile_photo(self, **other: typing.Any) -> Result[bool, APIError]:
+        """Method `removeMyProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#removemyprofilephoto)
+
+        Removes the profile photo of the bot. Requires no parameters. Returns True
+        on success.
+        """
+
+        method_response = await self.api.request_raw(
+            "removeMyProfilePhoto",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
     async def set_chat_menu_button(
         self,
         *,
@@ -3706,12 +3861,12 @@ class APIMethods:
 
         :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
         Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
-        `spoiler`, and `custom_emoji` are ignored.
+        `spoiler`, `custom_emoji`, and `date_time` are ignored.
 
         :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
         It can be specified instead of text_parse_mode. Entities other than `bold`, \
-        `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` \
-        are ignored.
+        `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, \
+        and `date_time` are ignored.
         """
 
         method_response = await self.api.request_raw(
@@ -3750,12 +3905,12 @@ class APIMethods:
 
         :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
         Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
-        `spoiler`, and `custom_emoji` are ignored.
+        `spoiler`, `custom_emoji`, and `date_time` are ignored.
 
         :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
         It can be specified instead of text_parse_mode. Entities other than `bold`, \
-        `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` \
-        are ignored.
+        `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, \
+        and `date_time` are ignored.
         """
 
         method_response = await self.api.request_raw(
@@ -4515,6 +4670,89 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(method_response, bool)
+
+    async def answer_web_app_query(
+        self,
+        *,
+        web_app_query_id: str,
+        result: InlineQueryResult,
+        **other: typing.Any,
+    ) -> Result[SentWebAppMessage, APIError]:
+        """Method `answerWebAppQuery`, see the [documentation](https://core.telegram.org/bots/api#answerwebappquery)
+
+        Use this method to set the result of an interaction with a Web App and send
+        a corresponding message on behalf of the user to the chat from which the query
+        originated. On success, a SentWebAppMessage object is returned.
+
+        :param web_app_query_id: Unique identifier for the query to be answered.
+
+        :param result: A JSON-serialized object describing the message to be sent.
+        """
+
+        method_response = await self.api.request_raw(
+            "answerWebAppQuery",
+            get_params(locals()),
+        )
+        return full_result(method_response, SentWebAppMessage)
+
+    async def save_prepared_inline_message(
+        self,
+        *,
+        user_id: int,
+        result: InlineQueryResult,
+        allow_user_chats: bool | None = None,
+        allow_bot_chats: bool | None = None,
+        allow_group_chats: bool | None = None,
+        allow_channel_chats: bool | None = None,
+        **other: typing.Any,
+    ) -> Result[PreparedInlineMessage, APIError]:
+        """Method `savePreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#savepreparedinlinemessage)
+
+        Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage
+        object.
+
+        :param user_id: Unique identifier of the target user that can use the prepared message. \
+
+        :param result: A JSON-serialized object describing the message to be sent.
+
+        :param allow_user_chats: Pass True if the message can be sent to private chats with users.
+
+        :param allow_bot_chats: Pass True if the message can be sent to private chats with bots.
+
+        :param allow_group_chats: Pass True if the message can be sent to group and supergroup chats.
+
+        :param allow_channel_chats: Pass True if the message can be sent to channel chats.
+        """
+
+        method_response = await self.api.request_raw(
+            "savePreparedInlineMessage",
+            get_params(locals()),
+        )
+        return full_result(method_response, PreparedInlineMessage)
+
+    async def save_prepared_keyboard_button(
+        self,
+        *,
+        user_id: int,
+        button: KeyboardButton,
+        **other: typing.Any,
+    ) -> Result[PreparedKeyboardButton, APIError]:
+        """Method `savePreparedKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#savepreparedkeyboardbutton)
+
+        Stores a keyboard button that can be used by a user within a Mini App. Returns
+        a PreparedKeyboardButton object.
+
+        :param user_id: Unique identifier of the target user that can use the button.
+
+        :param button: A JSON-serialized object describing the button to be saved. The button \
+        must be of the type request_users, request_chat, or request_managed_bot. \
+        """
+
+        method_response = await self.api.request_raw(
+            "savePreparedKeyboardButton",
+            get_params(locals()),
+        )
+        return full_result(method_response, PreparedKeyboardButton)
 
     async def edit_message_text(
         self,
@@ -5500,65 +5738,6 @@ class APIMethods:
             get_params(locals()),
         )
         return full_result(method_response, bool)
-
-    async def answer_web_app_query(
-        self,
-        *,
-        web_app_query_id: str,
-        result: InlineQueryResult,
-        **other: typing.Any,
-    ) -> Result[SentWebAppMessage, APIError]:
-        """Method `answerWebAppQuery`, see the [documentation](https://core.telegram.org/bots/api#answerwebappquery)
-
-        Use this method to set the result of an interaction with a Web App and send
-        a corresponding message on behalf of the user to the chat from which the query
-        originated. On success, a SentWebAppMessage object is returned.
-
-        :param web_app_query_id: Unique identifier for the query to be answered.
-
-        :param result: A JSON-serialized object describing the message to be sent.
-        """
-
-        method_response = await self.api.request_raw(
-            "answerWebAppQuery",
-            get_params(locals()),
-        )
-        return full_result(method_response, SentWebAppMessage)
-
-    async def save_prepared_inline_message(
-        self,
-        *,
-        user_id: int,
-        result: InlineQueryResult,
-        allow_user_chats: bool | None = None,
-        allow_bot_chats: bool | None = None,
-        allow_group_chats: bool | None = None,
-        allow_channel_chats: bool | None = None,
-        **other: typing.Any,
-    ) -> Result[PreparedInlineMessage, APIError]:
-        """Method `savePreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#savepreparedinlinemessage)
-
-        Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage
-        object.
-
-        :param user_id: Unique identifier of the target user that can use the prepared message. \
-
-        :param result: A JSON-serialized object describing the message to be sent.
-
-        :param allow_user_chats: Pass True if the message can be sent to private chats with users.
-
-        :param allow_bot_chats: Pass True if the message can be sent to private chats with bots.
-
-        :param allow_group_chats: Pass True if the message can be sent to group and supergroup chats.
-
-        :param allow_channel_chats: Pass True if the message can be sent to channel chats.
-        """
-
-        method_response = await self.api.request_raw(
-            "savePreparedInlineMessage",
-            get_params(locals()),
-        )
-        return full_result(method_response, PreparedInlineMessage)
 
     async def send_invoice(
         self,

@@ -28,7 +28,7 @@ class Context(Externals):
     raw_update: Update
     update_cute: UpdateCute
     per_event_scope: Scope
-    exceptions_update: dict[Router, Exception] = {}
+    exceptions_update: dict[Router, Exception]
     exception_update: Option[Exception] = NOTHING
 
     @typing.overload
@@ -120,6 +120,7 @@ class Context(Externals):
             "update": update,
             "update_cute": UpdateCute.from_update(update, bound_api=api),
             "per_event_scope": per_event_scope,
+            "exceptions_update": {},
         }.items():
             self[key] = value
 
@@ -156,7 +157,7 @@ class Context(Externals):
         del self[key]
 
 
-_CONTEXT_CLASS_ATTRS = frozenset(Context.__dict__ | dict.__dict__ | object.__dict__)
+_CONTEXT_CLASS_ATTRS: typing.Final = frozenset(Context.__dict__ | Externals.__dict__ | dict.__dict__ | object.__dict__)
 
 
 __all__ = ("Context",)

@@ -9,6 +9,7 @@ from telegrinder.bot.dispatch.return_manager.message import MessageReturnManager
 from telegrinder.bot.dispatch.return_manager.pre_checkout_query import PreCheckoutQueryReturnManager
 from telegrinder.bot.dispatch.view.base import (
     ErrorView,
+    EventModelView,
     EventView,
     RawEventView,
     View,
@@ -18,8 +19,6 @@ from telegrinder.types.enums import UpdateType
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
-
-EXCLUDE_VIEW_META: typing.Final = dict(exclude_view=True)
 
 
 def event_view[T: EventView](
@@ -129,7 +128,7 @@ class EventViewBox[
 @dataclasses.dataclass(kw_only=True)
 class EventModelViewBox[MediaGroup: View = MediaGroupView]:
     media_group: MediaGroup = dataclasses.field(
-        default_factory=event_model_view(MediaGroupView, MessageReturnManager())
+        default_factory=event_model_view(MediaGroupView, MessageReturnManager()),
     )
 
 
@@ -189,8 +188,8 @@ class ViewBox[
         RemovedChatBoostView,
     ],
 ):
-    event_error: Error = dataclasses.field(default_factory=view(ErrorView), metadata=EXCLUDE_VIEW_META)
-    raw: RawEvent = dataclasses.field(default_factory=view(RawEventView), metadata=EXCLUDE_VIEW_META)
+    event_error: Error = dataclasses.field(default_factory=view(ErrorView))
+    raw: RawEvent = dataclasses.field(default_factory=view(RawEventView))
 
     @cached_property
     def views(self) -> MappingProxyType[str, View]:
@@ -199,7 +198,17 @@ class ViewBox[
                 field.name: obj
                 for field in dataclasses.fields(self)
                 if isinstance(obj := getattr(self, field.name), View)
-                and field.metadata.get("exclude_view", False) is False
+                and not isinstance(obj, EventView | EventModelView)
+            }
+        )
+
+    @cached_property
+    def event_views(self) -> MappingProxyType[str, EventView | EventModelView[typing.Any]]:
+        return MappingProxyType(
+            mapping={
+                field.name: obj
+                for field in dataclasses.fields(self)
+                if isinstance(obj := getattr(self, field.name), EventView | EventModelView)
             },
         )
 

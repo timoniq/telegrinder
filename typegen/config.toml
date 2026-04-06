@@ -1,5 +1,5 @@
 [telegram-bot-api]
-version = "v9.3"
+version = "v9.6"
 schema_url = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/refs/heads/main/api.min.json"
 
 [generator]
@@ -172,6 +172,12 @@ fields = [
 object_name = "SuggestedPostParameters"
 fields = [
     { name = "send_date", annotation = "timedelta", convert_from = "timedelta | int" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "MessageEntity"
+fields = [
+    { name = "date_time_format", annotation = "DateTimeFormatSeq", convert_from = "typing.Iterable[str | DateTimeFormat]" },
 ]
 
 # Generator :: Objects :: Fields :: Annotations :: Literals (typing.Literal, enum.Enum)
@@ -763,10 +769,28 @@ fields = [
 ]
 
 [[generator.objects.fields.annotations.literals]]
+object_name = "KeyboardButton"
+fields = [
+    { name = "style", enum = "KeyboardButtonStyle" },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InlineKeyboardButton"
+fields = [
+    { name = "style", enum = "KeyboardButtonStyle" },
+]
+
+[[generator.objects.fields.annotations.literals]]
 object_name = "UniqueGiftInfo"
 fields = [
     { name = "origin", enum = "UniqueGiftInfoOriginType", default = "UPGRADE" },
     { name = "last_resale_currency", enum_literals = { name = "Currency", enumerations = ["XTR", "TON",] } },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "UniqueGiftModel"
+fields = [
+    { name = "rarity", enum = "UniqueGiftModelRarity" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
@@ -779,6 +803,12 @@ fields = [
 object_name = "OwnedGiftUnique"
 fields = [
     { name = "type", literals = ["unique",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "VideoQuality"
+fields = [
+    { name = "codec", enum = "VideoQualityCodec" },
 ]
 
 [[generator.objects.fields.annotations.literals]]

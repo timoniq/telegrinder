@@ -15,6 +15,7 @@ from telegrinder.types.objects import (
     KeyboardButtonPollType,
     KeyboardButtonRequestChat,
     KeyboardButtonRequestUsers,
+    KeyboardButtonStyle,
     LoginUrl,
     SwitchInlineQueryChosenChat,
     WebAppInfo,
@@ -37,7 +38,14 @@ type InlineKeyboard = keyboard.InlineKeyboard
 
 @dataclasses.dataclass(kw_only=True)
 class BaseButton[T: BaseKeyboard = typing.Any](abc.ABC):
-    new_row: bool = dataclasses.field(default=False)
+    new_row: bool = dataclasses.field(default=False, repr=False)
+    style: KeyboardButtonStyle | None = dataclasses.field(default=None)
+    icon_id: dataclasses.InitVar[str | int | None] = dataclasses.field(default=None)
+    icon_custom_emoji_id: str | None = dataclasses.field(default=None, init=False)
+
+    def __post_init__(self, icon_id: str | int | None) -> None:
+        if icon_id is not None:
+            self.icon_custom_emoji_id = icon_id if isinstance(icon_id, str) else str(icon_id)
 
     @property
     @abc.abstractmethod
@@ -75,15 +83,30 @@ class BaseButton[T: BaseKeyboard = typing.Any](abc.ABC):
 
 
 @dataclasses.dataclass
+class BaseDangerButton[T: BaseKeyboard = typing.Any](BaseButton[T]):
+    style: KeyboardButtonStyle = dataclasses.field(default=KeyboardButtonStyle.DANGER, init=False)
+
+
+@dataclasses.dataclass
+class BaseSuccessButton[T: BaseKeyboard = typing.Any](BaseButton[T]):
+    style: KeyboardButtonStyle = dataclasses.field(default=KeyboardButtonStyle.SUCCESS, init=False)
+
+
+@dataclasses.dataclass
+class BasePrimaryButton[T: BaseKeyboard = typing.Any](BaseButton[T]):
+    style: KeyboardButtonStyle = dataclasses.field(default=KeyboardButtonStyle.PRIMARY, init=False)
+
+
+@dataclasses.dataclass
 class Button(BaseButton[Keyboard]):
     text: str
-    request_contact: bool = dataclasses.field(default=False, kw_only=True)
-    request_location: bool = dataclasses.field(default=False, kw_only=True)
+    request_contact: bool | None = dataclasses.field(default=None, kw_only=True)
+    request_location: bool | None = dataclasses.field(default=None, kw_only=True)
     request_chat: KeyboardButtonRequestChat | None = dataclasses.field(
         default=None,
         kw_only=True,
     )
-    request_user: KeyboardButtonRequestUsers | None = dataclasses.field(default=None, kw_only=True)
+    request_users: KeyboardButtonRequestUsers | None = dataclasses.field(default=None, kw_only=True)
     request_poll: KeyboardButtonPollType | None = dataclasses.field(
         default=None,
         kw_only=True,
@@ -101,6 +124,21 @@ class Button(BaseButton[Keyboard]):
         from telegrinder.tools.keyboard.keyboard import Keyboard
 
         return Keyboard
+
+
+@dataclasses.dataclass
+class DangerButton(BaseDangerButton[Keyboard], Button):
+    """Red button."""
+
+
+@dataclasses.dataclass
+class SuccessButton(BaseSuccessButton[Keyboard], Button):
+    """Green button."""
+
+
+@dataclasses.dataclass
+class PrimaryButton(BasePrimaryButton[Keyboard], Button):
+    """Blue button."""
 
 
 @dataclasses.dataclass
@@ -124,7 +162,9 @@ class InlineButton(BaseButton[InlineKeyboard]):
     )
     web_app: str | WebAppInfo | None = dataclasses.field(default=None, kw_only=True)
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, icon_id: str | int | None) -> None:
+        super().__post_init__(icon_id)
+
         model_serializer = get_model_serializer(self.callback_data)
 
         self.input_callback_data = self.callback_data
@@ -178,4 +218,29 @@ class InlineButton(BaseButton[InlineKeyboard]):
         return InlineKeyboard
 
 
-__all__ = ("BaseButton", "Button", "InlineButton")
+@dataclasses.dataclass
+class DangerInlineButton(BaseDangerButton[InlineKeyboard], InlineButton):
+    """Red inline button."""
+
+
+@dataclasses.dataclass
+class SuccessInlineButton(BaseSuccessButton[InlineKeyboard], InlineButton):
+    """Green inline button."""
+
+
+@dataclasses.dataclass
+class PrimaryInlineButton(BasePrimaryButton[InlineKeyboard], InlineButton):
+    """Blue inline button."""
+
+
+__all__ = (
+    "BaseButton",
+    "Button",
+    "DangerButton",
+    "DangerInlineButton",
+    "InlineButton",
+    "PrimaryButton",
+    "PrimaryInlineButton",
+    "SuccessButton",
+    "SuccessInlineButton",
+)

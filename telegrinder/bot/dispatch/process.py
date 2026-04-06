@@ -6,7 +6,7 @@ from nodnod.error import NodeError
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import run_post_middleware, run_pre_middleware
-from telegrinder.modules import logger
+from telegrinder.modules import log_scope, logger
 from telegrinder.node.compose import compose
 from telegrinder.tools.fullname import fullname
 from telegrinder.types.objects import Update
@@ -26,10 +26,7 @@ async def process_inner(
     for middleware in view.middlewares:
         if await run_pre_middleware(middleware, context) is False:
             await logger.ainfo(
-                "Update(id={}, type={!r}) processed with view `{}`. Pre-middleware `{}` raised failure.",
-                update.update_id,
-                update.update_type,
-                view,
+                "Pre-middleware `{}` raised failure.",
                 fullname(middleware),
             )
             return Error(f"Pre-middleware `{fullname(middleware)}` raised failure.")
@@ -65,9 +62,11 @@ async def process_inner(
 
 
 async def check_rule(rule: ABCRule, context: Context) -> bool:
-    for requirement in rule.requires:
-        if not await check_rule(requirement, context):
-            return False
+    if rule.requires:
+        with log_scope(lambda: f"Rule:{fullname(rule)}"):
+            for requirement in rule.requires:
+                if not await check_rule(requirement, context):
+                    return False
 
     await logger.adebug("  → Checking rule `{!r}`...", rule)
 

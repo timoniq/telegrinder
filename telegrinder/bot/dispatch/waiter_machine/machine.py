@@ -29,7 +29,6 @@ type HasherWithData[Event: BaseCute, ViewType: View, Data] = tuple[Hasher[Event,
 
 _NODATA: typing.Final = object()
 MAX_STORAGE_SIZE: typing.Final = 10000
-ONE_MINUTE: typing.Final = datetime.timedelta(minutes=1)
 WEEK: typing.Final = datetime.timedelta(days=7)
 
 
@@ -55,7 +54,6 @@ class WaiterMachine:
         *,
         max_storage_size: int = MAX_STORAGE_SIZE,
         base_state_lifetime: datetime.timedelta = WEEK,
-        clear_storage_interval: datetime.timedelta = ONE_MINUTE,
     ) -> None:
         self.max_storage_size = max_storage_size
         self.base_state_lifetime = base_state_lifetime

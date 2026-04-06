@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import secrets
+import typing
 from functools import cached_property
 
 from kungfu.library import Sum
 
 from telegrinder.model import From, Model, field, is_none
 from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime, timedelta
+from telegrinder.types.date_time_format import DateTimeFormatSeq
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.input_file import InputFile
 
@@ -376,6 +378,10 @@ class Update(Model):
     """Optional. A boost was removed from a chat. The bot must be an administrator
     in the chat to receive these updates."""
 
+    managed_bot: Option[ManagedBotUpdated] = field(default=..., converter=From["ManagedBotUpdated | None"])
+    """Optional. A new bot was created to be managed by the bot or token of a bot was
+    changed."""
+
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -483,6 +489,14 @@ class User(Model):
 
     has_topics_enabled: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the bot has forum topic mode enabled in private chats.
+    Returned only in getMe."""
+
+    allows_users_to_create_topics: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the bot allows users to create and delete topics in private
+    chats. Returned only in getMe."""
+
+    can_manage_bots: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if other bots can be created to be controlled by the bot.
     Returned only in getMe."""
 
     def __eq__(self, other: object, /) -> bool:
@@ -733,6 +747,10 @@ class ChatFullInfo(Model):
     rating: Option[UserRating] = field(default=..., converter=From["UserRating | None"])
     """Optional. For private chats, the rating of the user if any."""
 
+    first_profile_audio: Option[Audio] = field(default=..., converter=From["Audio | None"])
+    """Optional. For private chats, the first audio added to the profile of the
+    user."""
+
     unique_gift_colors: Option[UniqueGiftColors] = field(default=..., converter=From["UniqueGiftColors | None"])
     """Optional. The color scheme based on a unique gift that must be used for the
     chat's name, message replies and link previews."""
@@ -794,6 +812,10 @@ class Message(MaybeInaccessibleMessage):
     account. Available only for outgoing messages sent on behalf of the connected
     business account."""
 
+    sender_tag: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Tag or custom title of the sender of the message; for supergroups
+    only."""
+
     business_connection_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the business connection from which the
     message was received. If non-empty, the message belongs to a chat of the
@@ -838,6 +860,10 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Identifier of the specific checklist task that is being replied
     to."""
 
+    reply_to_poll_option_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Persistent identifier of the specific poll option that is being
+    replied to."""
+
     via_bot: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. Bot through which the message was sent."""
 
@@ -856,8 +882,8 @@ class Message(MaybeInaccessibleMessage):
     be deleted for 24 hours to receive the payment and can't be edited."""
 
     media_group_id: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. The unique identifier of a media message group this message belongs
-    to."""
+    """Optional. The unique identifier inside this chat of a media message group
+    this message belongs to."""
 
     author_signature: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Signature of the post author for messages in channels, or the
@@ -962,6 +988,12 @@ class Message(MaybeInaccessibleMessage):
     left_chat_member: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. A member was removed from the group, information about them (this
     member may be the bot itself)."""
+
+    chat_owner_left: Option[ChatOwnerLeft] = field(default=..., converter=From["ChatOwnerLeft | None"])
+    """Optional. Service message: chat owner has left."""
+
+    chat_owner_changed: Option[ChatOwnerChanged] = field(default=..., converter=From["ChatOwnerChanged | None"])
+    """Optional. Service message: chat owner has changed."""
 
     new_chat_title: Option[str] = field(default=..., converter=From[str | None])
     """Optional. A chat title was changed to this value."""
@@ -1115,11 +1147,21 @@ class Message(MaybeInaccessibleMessage):
     giveaway_completed: Option[GiveawayCompleted] = field(default=..., converter=From["GiveawayCompleted | None"])
     """Optional. Service message: a giveaway without public winners was completed."""
 
+    managed_bot_created: Option[ManagedBotCreated] = field(default=..., converter=From["ManagedBotCreated | None"])
+    """Optional. Service message: user created a bot that will be managed by the
+    current bot."""
+
     paid_message_price_changed: Option[PaidMessagePriceChanged] = field(
         default=..., converter=From["PaidMessagePriceChanged | None"]
     )
     """Optional. Service message: the price for paid messages has changed in the
     chat."""
+
+    poll_option_added: Option[PollOptionAdded] = field(default=..., converter=From["PollOptionAdded | None"])
+    """Optional. Service message: answer option was added to a poll."""
+
+    poll_option_deleted: Option[PollOptionDeleted] = field(default=..., converter=From["PollOptionDeleted | None"])
+    """Optional. Service message: answer option was deleted from a poll."""
 
     suggested_post_approved: Option[SuggestedPostApproved] = field(
         default=..., converter=From["SuggestedPostApproved | None"]
@@ -1243,7 +1285,8 @@ class MessageEntity(Model):
     `blockquote` (block quotation), `expandable_blockquote` (collapsed-by-default
     block quotation), `code` (monowidth string), `pre` (monowidth block),
     `text_link` (for clickable text URLs), `text_mention` (for users without
-    usernames), `custom_emoji` (for inline custom emoji stickers)."""
+    usernames), `custom_emoji` (for inline custom emoji stickers), or `date_time`
+    (for formatted date and time)."""
 
     offset: int = field()
     """Offset in UTF-16 code units to the start of the entity."""
@@ -1265,6 +1308,15 @@ class MessageEntity(Model):
     """Optional. For `custom_emoji` only, unique identifier of the custom emoji.
     Use getCustomEmojiStickers to get full information about the sticker."""
 
+    unix_time: Option[datetime] = field(default=..., converter=From[datetime | int | None])
+    """Optional. For `date_time` only, the Unix time associated with the entity."""
+
+    date_time_format: Option[DateTimeFormatSeq] = field(
+        default=..., converter=From[typing.Iterable[str | DateTimeFormat] | None]
+    )
+    """Optional. For `date_time` only, the string that defines the formatting
+    of the date and time. See date-time entity formatting for more details."""
+
 
 class TextQuote(Model):
     """Object `TextQuote`, see the [documentation](https://core.telegram.org/bots/api#textquote).
@@ -1281,8 +1333,8 @@ class TextQuote(Model):
 
     entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the quote. Currently, only bold,
-    italic, underline, strikethrough, spoiler, and custom_emoji entities
-    are kept in quotes."""
+    italic, underline, strikethrough, spoiler, custom_emoji, and date_time
+    entities are kept in quotes."""
 
     is_manual: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the quote was chosen manually by the message sender.
@@ -1403,8 +1455,8 @@ class ReplyParameters(Model):
     """Optional. Quoted part of the message to be replied to; 0-1024 characters
     after entities parsing. The quote must be an exact substring of the message
     to be replied to, including bold, italic, underline, strikethrough, spoiler,
-    and custom_emoji entities. The message will fail to send if the quote isn't
-    found in the original message."""
+    custom_emoji, and date_time entities. The message will fail to send if
+    the quote isn't found in the original message."""
 
     quote_parse_mode: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Mode for parsing entities in the quote. See formatting options
@@ -1419,6 +1471,10 @@ class ReplyParameters(Model):
 
     checklist_task_id: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Identifier of the specific checklist task to be replied to."""
+
+    poll_option_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Persistent identifier of the specific poll option to be replied
+    to."""
 
 
 class MessageOriginUser(MessageOrigin):
@@ -1636,6 +1692,36 @@ class Story(Model):
     """Unique identifier for the story in the chat."""
 
 
+class VideoQuality(Model):
+    """Object `VideoQuality`, see the [documentation](https://core.telegram.org/bots/api#videoquality).
+
+    This object represents a video file of a specific quality.
+    """
+
+    file_id: str = field()
+    """Identifier for this file, which can be used to download or reuse the file."""
+
+    file_unique_id: str = field()
+    """Unique identifier for this file, which is supposed to be the same over time
+    and for different bots. Can't be used to download or reuse the file."""
+
+    width: int = field()
+    """Video width."""
+
+    height: int = field()
+    """Video height."""
+
+    codec: VideoQualityCodec = field()
+    """Codec that was used to encode the video, for example, `h264`, `h265`, or
+    `av01`."""
+
+    file_size: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. File size in bytes. It can be bigger than 2^31 and some programming
+    languages may have difficulty/silent defects in interpreting it. But
+    it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    float type are safe for storing this value."""
+
+
 class Video(Model):
     """Object `Video`, see the [documentation](https://core.telegram.org/bots/api#video).
 
@@ -1666,6 +1752,9 @@ class Video(Model):
 
     start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Timestamp in seconds from which the video will play in the message."""
+
+    qualities: Option[list[VideoQuality]] = field(default=..., converter=From["list[VideoQuality] | None"])
+    """Optional. List of available qualities of the video."""
 
     file_name: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Original filename as defined by the sender."""
@@ -1838,15 +1927,30 @@ class PollOption(Model):
     This object contains information about one answer option in a poll.
     """
 
+    persistent_id: str = field()
+    """Unique identifier of the option, persistent on option addition and deletion."""
+
     text: str = field()
     """Option text, 1-100 characters."""
 
     voter_count: int = field()
-    """Number of users that voted for this option."""
+    """Number of users who voted for this option; may be 0 if unknown."""
 
     text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the option text. Currently,
     only custom emoji entities are allowed in poll option texts."""
+
+    added_by_user: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. User who added the option; omitted if the option wasn't added
+    by a user after poll creation."""
+
+    added_by_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
+    """Optional. Chat that added the option; omitted if the option wasn't added
+    by a chat after poll creation."""
+
+    addition_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
+    """Optional. Point in time (Unix timestamp) when the option was added; omitted
+    if the option existed in the original poll."""
 
 
 class InputPollOption(Model):
@@ -1879,6 +1983,10 @@ class PollAnswer(Model):
     option_ids: list[int] = field()
     """0-based identifiers of chosen answer options. May be empty if the vote was
     retracted."""
+
+    option_persistent_ids: list[str] = field()
+    """Persistent identifiers of the chosen answer options. May be empty if the
+    vote was retracted."""
 
     voter_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
     """Optional. The chat that changed the answer to the poll, if the voter is anonymous."""
@@ -1915,6 +2023,9 @@ class Poll(Model):
     allows_multiple_answers: bool = field()
     """True, if the poll allows multiple answers."""
 
+    allows_revoting: bool = field()
+    """True, if the poll allows to change the chosen answer options."""
+
     type: PollType = field(default=PollType.REGULAR)
     """Poll type, currently can be `regular` or `quiz`."""
 
@@ -1922,9 +2033,9 @@ class Poll(Model):
     """Optional. Special entities that appear in the question. Currently, only
     custom emoji entities are allowed in poll questions."""
 
-    correct_option_id: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. 0-based identifier of the correct answer option. Available
-    only for polls in the quiz mode, which are closed, or was sent (not forwarded)
+    correct_option_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
+    """Optional. Array of 0-based identifiers of the correct answer options.
+    Available only for polls in quiz mode which are closed or were sent (not forwarded)
     by the bot or to the private chat with the bot."""
 
     explanation: Option[str] = field(default=..., converter=From[str | None])
@@ -1941,6 +2052,14 @@ class Poll(Model):
     close_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Point in time (Unix timestamp) when the poll will be automatically
     closed."""
+
+    description: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Description of the poll; for polls inside the Message object
+    only."""
+
+    description_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities like usernames, URLs, bot commands, etc. that
+    appear in the description."""
 
 
 class ChecklistTask(Model):
@@ -2015,7 +2134,7 @@ class InputChecklistTask(Model):
     text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the text, which can be
     specified instead of parse_mode. Currently, only bold, italic, underline,
-    strikethrough, spoiler, and custom_emoji entities are allowed."""
+    strikethrough, spoiler, custom_emoji, and date_time entities are allowed."""
 
 
 class InputChecklist(Model):
@@ -2037,7 +2156,7 @@ class InputChecklist(Model):
     title_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the title, which can be
     specified instead of parse_mode. Currently, only bold, italic, underline,
-    strikethrough, spoiler, and custom_emoji entities are allowed."""
+    strikethrough, spoiler, custom_emoji, and date_time entities are allowed."""
 
     others_can_add_tasks: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if other users can add tasks to the checklist."""
@@ -2176,6 +2295,77 @@ class MessageAutoDeleteTimerChanged(Model):
 
     message_auto_delete_time: int = field()
     """New auto-delete time for messages in the chat; in seconds."""
+
+
+class ManagedBotCreated(Model):
+    """Object `ManagedBotCreated`, see the [documentation](https://core.telegram.org/bots/api#managedbotcreated).
+
+    This object contains information about the bot that was created to be managed by the current bot.
+    """
+
+    bot: User = field()
+    """Information about the bot. The bot's token can be fetched using the method
+    getManagedBotToken."""
+
+
+class ManagedBotUpdated(Model):
+    """Object `ManagedBotUpdated`, see the [documentation](https://core.telegram.org/bots/api#managedbotupdated).
+
+    This object contains information about the creation or token update of a bot that is managed by the current bot.
+    """
+
+    user: User = field()
+    """User that created the bot."""
+
+    bot: User = field()
+    """Information about the bot. Token of the bot can be fetched using the method
+    getManagedBotToken."""
+
+
+class PollOptionAdded(Model):
+    """Object `PollOptionAdded`, see the [documentation](https://core.telegram.org/bots/api#polloptionadded).
+
+    Describes a service message about an option added to a poll.
+    """
+
+    option_persistent_id: str = field()
+    """Unique identifier of the added option."""
+
+    option_text: str = field()
+    """Option text."""
+
+    poll_message: Option[Sum[Message, InaccessibleMessage]] = field(
+        default=..., converter=From["Message | InaccessibleMessage | None"]
+    )
+    """Optional. Message containing the poll to which the option was added, if
+    known. Note that the Message object in this field will not contain the reply_to_message
+    field even if it itself is a reply."""
+
+    option_text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities that appear in the option_text."""
+
+
+class PollOptionDeleted(Model):
+    """Object `PollOptionDeleted`, see the [documentation](https://core.telegram.org/bots/api#polloptiondeleted).
+
+    Describes a service message about an option deleted from a poll.
+    """
+
+    option_persistent_id: str = field()
+    """Unique identifier of the deleted option."""
+
+    option_text: str = field()
+    """Option text."""
+
+    poll_message: Option[Sum[Message, InaccessibleMessage]] = field(
+        default=..., converter=From["Message | InaccessibleMessage | None"]
+    )
+    """Optional. Message containing the poll from which the option was deleted,
+    if known. Note that the Message object in this field will not contain the
+    reply_to_message field even if it itself is a reply."""
+
+    option_text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities that appear in the option_text."""
 
 
 class ChatBoostAdded(Model):
@@ -2864,6 +3054,19 @@ class UserProfilePhotos(Model):
     """Requested profile pictures (in up to 4 sizes each)."""
 
 
+class UserProfileAudios(Model):
+    """Object `UserProfileAudios`, see the [documentation](https://core.telegram.org/bots/api#userprofileaudios).
+
+    This object represents the audios displayed on a user's profile.
+    """
+
+    total_count: int = field()
+    """Total number of profile audios for the target user."""
+
+    audios: list[Audio] = field()
+    """Requested profile audios."""
+
+
 class File(Model):
     """Object `File`, see the [documentation](https://core.telegram.org/bots/api#file).
 
@@ -2946,13 +3149,23 @@ class ReplyKeyboardMarkup(Model):
 class KeyboardButton(Model):
     """Object `KeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#keyboardbutton).
 
-    This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
-    Note: request_users and request_chat options will only work in Telegram versions released after 3 February, 2023. Older clients will display unsupported message.
+    This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
     """
 
     text: str = field()
-    """Text of the button. If none of the optional fields are used, it will be sent
-    as a message when the button is pressed."""
+    """Text of the button. If none of the fields other than text, icon_custom_emoji_id,
+    and style are used, it will be sent as a message when the button is pressed."""
+
+    icon_custom_emoji_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Unique identifier of the custom emoji shown before the text of
+    the button. Can only be used by bots that purchased additional usernames
+    on Fragment or in the messages directly sent by the bot to private, group
+    and supergroup chats if the owner of the bot has a Telegram Premium subscription."""
+
+    style: Option[KeyboardButtonStyle] = field(default=..., converter=From[KeyboardButtonStyle | None])
+    """Optional. Style of the button. Must be one of `danger` (red), `success`
+    (green) or `primary` (blue). If omitted, then an app-specific style is
+    used."""
 
     request_users: Option[KeyboardButtonRequestUsers] = field(
         default=..., converter=From["KeyboardButtonRequestUsers | None"]
@@ -2967,6 +3180,14 @@ class KeyboardButton(Model):
     """Optional. If specified, pressing the button will open a list of suitable
     chats. Tapping on a chat will send its identifier to the bot in a `chat_shared`
     service message. Available in private chats only."""
+
+    request_managed_bot: Option[KeyboardButtonRequestManagedBot] = field(
+        default=..., converter=From["KeyboardButtonRequestManagedBot | None"]
+    )
+    """Optional. If specified, pressing the button will ask the user to create
+    and share a bot that will be managed by the current bot. Available for bots
+    that enabled management of other bots in the @BotFather Mini App. Available
+    in private chats only."""
 
     request_contact: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. If True, the user's phone number will be sent as a contact when
@@ -3073,6 +3294,22 @@ class KeyboardButtonRequestChat(Model):
     """Optional. Pass True to request the chat's photo."""
 
 
+class KeyboardButtonRequestManagedBot(Model):
+    """Object `KeyboardButtonRequestManagedBot`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonrequestmanagedbot).
+
+    This object defines the parameters for the creation of a managed bot. Information about the created bot will be shared with the bot using the update managed_bot and a Message with the field managed_bot_created.
+    """
+
+    request_id: int = field()
+    """Signed 32-bit identifier of the request. Must be unique within the message."""
+
+    suggested_name: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Suggested name for the bot."""
+
+    suggested_username: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Suggested username for the bot."""
+
+
 class KeyboardButtonPollType(Model):
     """Object `KeyboardButtonPollType`, see the [documentation](https://core.telegram.org/bots/api#keyboardbuttonpolltype).
 
@@ -3120,11 +3357,22 @@ class InlineKeyboardMarkup(Model):
 class InlineKeyboardButton(Model):
     """Object `InlineKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardbutton).
 
-    This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.
+    This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button.
     """
 
     text: str = field()
     """Label text on the button."""
+
+    icon_custom_emoji_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Unique identifier of the custom emoji shown before the text of
+    the button. Can only be used by bots that purchased additional usernames
+    on Fragment or in the messages directly sent by the bot to private, group
+    and supergroup chats if the owner of the bot has a Telegram Premium subscription."""
+
+    style: Option[KeyboardButtonStyle] = field(default=..., converter=From[KeyboardButtonStyle | None])
+    """Optional. Style of the button. Must be one of `danger` (red), `success`
+    (green) or `primary` (blue). If omitted, then an app-specific style is
+    used."""
 
     url: Option[str] = field(default=..., converter=From[str | None])
     """Optional. HTTP or tg:// URL to be opened when the button is pressed. Links
@@ -3442,6 +3690,10 @@ class ChatAdministratorRights(Model):
     """Optional. True, if the administrator can manage direct messages of the
     channel and decline suggested posts; for channels only."""
 
+    can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the administrator can edit the tags of regular members;
+    for groups and supergroups only. If omitted defaults to the value of can_pin_messages."""
+
 
 class ChatMemberUpdated(Model):
     """Object `ChatMemberUpdated`, see the [documentation](https://core.telegram.org/bots/api#chatmemberupdated).
@@ -3597,6 +3849,10 @@ class ChatMemberAdministrator(ChatMember):
     """Optional. True, if the administrator can manage direct messages of the
     channel and decline suggested posts; for channels only."""
 
+    can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the administrator can edit the tags of regular members;
+    for groups and supergroups only. If omitted defaults to the value of can_pin_messages."""
+
     custom_title: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Custom title for this user."""
 
@@ -3612,6 +3868,9 @@ class ChatMemberMember(ChatMember):
 
     status: Literal["member"] = field(default="member")
     """The member's status in the chat, always `member`."""
+
+    tag: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Tag of the member."""
 
     until_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Date when the user's subscription will expire; Unix time."""
@@ -3661,6 +3920,9 @@ class ChatMemberRestricted(ChatMember):
     can_add_web_page_previews: bool = field()
     """True, if the user is allowed to add web page previews to their messages."""
 
+    can_edit_tag: bool = field()
+    """True, if the user is allowed to edit their own tag."""
+
     can_change_info: bool = field()
     """True, if the user is allowed to change the chat title, photo and other settings."""
 
@@ -3679,6 +3941,9 @@ class ChatMemberRestricted(ChatMember):
 
     status: Literal["restricted"] = field(default="restricted")
     """The member's status in the chat, always `restricted`."""
+
+    tag: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Tag of the member."""
 
 
 class ChatMemberLeft(ChatMember):
@@ -3784,6 +4049,9 @@ class ChatPermissions(Model):
 
     can_add_web_page_previews: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to add web page previews to their messages."""
+
+    can_edit_tag: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the user is allowed to edit their own tag."""
 
     can_change_info: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to change the chat title, photo and
@@ -4297,7 +4565,12 @@ class UniqueGiftModel(Model):
     """The sticker that represents the unique gift."""
 
     rarity_per_mille: int = field()
-    """The number of unique gifts that receive this model for every 1000 gifts upgraded."""
+    """The number of unique gifts that receive this model for every 1000 gift upgrades.
+    Always 0 for crafted gifts."""
+
+    rarity: Option[UniqueGiftModelRarity] = field(default=..., converter=From[UniqueGiftModelRarity | None])
+    """Optional. Rarity of the model if it is a crafted model. Currently, can be
+    `uncommon`, `rare`, `epic`, or `legendary`."""
 
 
 class UniqueGiftSymbol(Model):
@@ -4410,6 +4683,10 @@ class UniqueGift(Model):
     is_premium: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the original regular gift was exclusively purchaseable
     by Telegram Premium subscribers."""
+
+    is_burned: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the gift was used to craft another gift and isn't available
+    anymore."""
 
     is_from_blockchain: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the gift is assigned from the TON blockchain and can't
@@ -4941,6 +5218,27 @@ class ChatBoostRemoved(Model):
     """Source of the removed boost."""
 
 
+class ChatOwnerLeft(Model):
+    """Object `ChatOwnerLeft`, see the [documentation](https://core.telegram.org/bots/api#chatownerleft).
+
+    Describes a service message about the chat owner leaving the chat.
+    """
+
+    new_owner: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. The user which will be the new owner of the chat if the previous
+    owner does not return to the chat."""
+
+
+class ChatOwnerChanged(Model):
+    """Object `ChatOwnerChanged`, see the [documentation](https://core.telegram.org/bots/api#chatownerchanged).
+
+    Describes a service message about an ownership change in the chat.
+    """
+
+    new_owner: User = field()
+    """The new owner of the chat."""
+
+
 class UserChatBoosts(Model):
     """Object `UserChatBoosts`, see the [documentation](https://core.telegram.org/bots/api#userchatboosts).
 
@@ -5052,6 +5350,41 @@ class BusinessMessagesDeleted(Model):
 
     message_ids: list[int] = field()
     """The list of identifiers of deleted messages in the chat of the business account."""
+
+
+class SentWebAppMessage(Model):
+    """Object `SentWebAppMessage`, see the [documentation](https://core.telegram.org/bots/api#sentwebappmessage).
+
+    Describes an inline message sent by a Web App on behalf of a user.
+    """
+
+    inline_message_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Identifier of the sent inline message. Available only if there
+    is an inline keyboard attached to the message."""
+
+
+class PreparedInlineMessage(Model):
+    """Object `PreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#preparedinlinemessage).
+
+    Describes an inline message to be sent by a user of a Mini App.
+    """
+
+    id: str = field()
+    """Unique identifier of the prepared message."""
+
+    expiration_date: datetime = field(converter=From[datetime | int])
+    """Expiration date of the prepared message, in Unix time. Expired prepared
+    messages can no longer be used."""
+
+
+class PreparedKeyboardButton(Model):
+    """Object `PreparedKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#preparedkeyboardbutton).
+
+    Describes a keyboard button to be used by a user of a Mini App.
+    """
+
+    id: str = field()
+    """Unique identifier of the keyboard button."""
 
 
 class ResponseParameters(Model):
@@ -7013,31 +7346,6 @@ class ChosenInlineResult(Model):
     queries and can be used to edit the message."""
 
 
-class SentWebAppMessage(Model):
-    """Object `SentWebAppMessage`, see the [documentation](https://core.telegram.org/bots/api#sentwebappmessage).
-
-    Describes an inline message sent by a Web App on behalf of a user.
-    """
-
-    inline_message_id: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Identifier of the sent inline message. Available only if there
-    is an inline keyboard attached to the message."""
-
-
-class PreparedInlineMessage(Model):
-    """Object `PreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#preparedinlinemessage).
-
-    Describes an inline message to be sent by a user of a Mini App.
-    """
-
-    id: str = field()
-    """Unique identifier of the prepared message."""
-
-    expiration_date: datetime = field(converter=From[datetime | int])
-    """Expiration date of the prepared message, in Unix time. Expired prepared
-    messages can no longer be used."""
-
-
 class LabeledPrice(Model):
     """Object `LabeledPrice`, see the [documentation](https://core.telegram.org/bots/api#labeledprice).
 
@@ -7957,6 +8265,8 @@ __all__ = (
     "ChatMemberOwner",
     "ChatMemberRestricted",
     "ChatMemberUpdated",
+    "ChatOwnerChanged",
+    "ChatOwnerLeft",
     "ChatPermissions",
     "ChatPhoto",
     "ChatShared",
@@ -7967,6 +8277,7 @@ __all__ = (
     "ChosenInlineResult",
     "Contact",
     "CopyTextButton",
+    "DateTimeFormatSeq",
     "Dice",
     "DirectMessagePriceChanged",
     "DirectMessagesTopic",
@@ -8049,12 +8360,15 @@ __all__ = (
     "KeyboardButton",
     "KeyboardButtonPollType",
     "KeyboardButtonRequestChat",
+    "KeyboardButtonRequestManagedBot",
     "KeyboardButtonRequestUsers",
     "LabeledPrice",
     "LinkPreviewOptions",
     "Location",
     "LocationAddress",
     "LoginUrl",
+    "ManagedBotCreated",
+    "ManagedBotUpdated",
     "MaskPosition",
     "MaybeInaccessibleMessage",
     "MenuButton",
@@ -8101,8 +8415,11 @@ __all__ = (
     "Poll",
     "PollAnswer",
     "PollOption",
+    "PollOptionAdded",
+    "PollOptionDeleted",
     "PreCheckoutQuery",
     "PreparedInlineMessage",
+    "PreparedKeyboardButton",
     "ProximityAlertTriggered",
     "ReactionCount",
     "ReactionType",
@@ -8166,6 +8483,7 @@ __all__ = (
     "Update",
     "User",
     "UserChatBoosts",
+    "UserProfileAudios",
     "UserProfilePhotos",
     "UserRating",
     "UsersShared",
@@ -8176,6 +8494,7 @@ __all__ = (
     "VideoChatScheduled",
     "VideoChatStarted",
     "VideoNote",
+    "VideoQuality",
     "Voice",
     "WebAppData",
     "WebAppInfo",

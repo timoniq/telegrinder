@@ -3,7 +3,7 @@ import typing
 import msgspec
 from kungfu.library.monad.option import Nothing
 
-UNSET: typing.Final = typing.cast("typing.Any", msgspec.UNSET)
+UNSET: typing.Final[typing.Any]
 
 def is_none(obj: typing.Any, /) -> typing.TypeIs[Nothing | None]: ...
 

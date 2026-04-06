@@ -7,6 +7,7 @@ from telegrinder.bot.polling import polling as pg
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
+from telegrinder.tools.lifespan import Lifespan
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
 TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
@@ -39,6 +40,10 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
     def on(self) -> Dispatch:
         return self.dispatch
 
+    @property
+    def lifespan(self) -> Lifespan:
+        return self.loop_wrapper.lifespan
+
     async def drop_pending_updates(self) -> None:
         await logger.adebug("Dropping pending updates")
         await self.api.delete_webhook(drop_pending_updates=True)
@@ -61,7 +66,7 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
 
         self.loop_wrapper.add_task(listen_polling())
 
-    def run_forever(self, *, offset: int = 0, skip_updates: bool = False) -> typing.NoReturn:
+    def run_forever(self, *, offset: int = 0, skip_updates: bool = False) -> None:
         logger.info("Running blocking polling (id={})", self.api.id)
         self.loop_wrapper.add_task(self.run_polling(offset=offset, skip_updates=skip_updates))
         self.loop_wrapper.run()

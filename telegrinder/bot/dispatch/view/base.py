@@ -173,6 +173,9 @@ class EventView(View):
         )
         self.update_type = update_type
 
+    def __str__(self) -> str:
+        return f"@{self.update_type.value}"
+
     def __repr__(self) -> str:
         return "<{}: {!r}>".format(type(self).__name__, self.update_type)
 

@@ -25,12 +25,12 @@ class KeySeparator(GlobalNode[Separator]):
         super().set(cls(value))
 
     @classmethod
-    def compose(cls) -> Separator:
+    def __compose__(cls) -> Separator:
         return cls.get(default=cls(DEFAULT_SEPARATOR))
 
 
 @dataclasses.dataclass(kw_only=True)
-class ABCTranslator(Node, abc.ABC):
+class ABCTranslator(Node, abc.ABC, abstract=True):
     locale: str
     separator: str
     _keys: list[str] = dataclasses.field(default_factory=list[str], init=False)
@@ -60,7 +60,7 @@ class ABCTranslator(Node, abc.ABC):
         pass
 
     @classmethod
-    def compose(cls, locale: Locale, separator: KeySeparator) -> typing.Self:
+    def __compose__(cls, locale: Locale, separator: KeySeparator) -> typing.Self:
         return cls(locale=locale, separator=separator.value)
 
 

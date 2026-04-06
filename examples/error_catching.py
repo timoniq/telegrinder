@@ -1,8 +1,9 @@
 from telegrinder import API, Message, Telegrinder, Token
-from telegrinder.modules import setup_logger
+from telegrinder.modules import configure_dotenv, setup_logger
 from telegrinder.node import Error
 from telegrinder.rules import IsUser, Text
 
+configure_dotenv()
 setup_logger()
 
 api = API(token=Token.from_env())

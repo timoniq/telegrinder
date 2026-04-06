@@ -32,7 +32,7 @@ from telegrinder.rules import (
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import InputFile
 
-configure_dotenv(load_file=True)
+configure_dotenv()
 setup_logger(
     level="DEBUG",
     format="<level>{levelname: <8}</level>{module}:{funcName}:{lineno}:<light_white>{message}</light_white>",

@@ -1,7 +1,9 @@
 # pyright: reportMissingImports=none, reportAttributeAccessIssue=none, reportMissingModuleSource=none
 
 import asyncio
+import contextlib
 import contextvars
+import dataclasses
 import inspect
 import logging
 import os
@@ -81,8 +83,19 @@ DEFAULT_LOGURU_FORMAT: typing.Final = (
     "<le>{name}</le>:<le>{function}</le>:"
     "<le>{line}</le> > <lw>{message}</lw>"
 )
+DEFAULT_BUFFERED_LOGURU_FORMAT: typing.Final = (
+    "telegrinder | <level>{levelname: <8}</level> | "
+    "<light_green>{asctime}</light_green> | "
+    "<level_module>{module}</level_module>:<func_name>{funcName}</func_name>:"
+    "<lineno>{lineno}</lineno> > <message>{message}</message>"
+)
 
 CALL_STACK_CONTEXT: typing.Final = contextvars.ContextVar[tuple[types.FrameType, "OptExcInfo"]]("_call_stack")
+LOG_SCOPE: typing.Final = contextvars.ContextVar[str]("_log_scope", default="")
+LOG_BUFFER: typing.Final = contextvars.ContextVar[list["BufferedLogRecord"] | None](
+    "_log_buffer",
+    default=None,
+)
 
 COLORS: typing.Final = dict(
     reset=Colors.RESET,
@@ -148,7 +161,7 @@ _NODEFAULT: typing.Final = typing.cast("typing.Any", object())
 _LOAD_ENV_FILE = False
 _ENV_FILE_NAME = ".env"
 _ENV_FILE_PATH: pathlib.Path | None = None
-_ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+_ANSI_ESCAPE: typing.Final = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
 def _find_env_file() -> Option[pathlib.Path]:
@@ -177,6 +190,141 @@ def _find_env_file() -> Option[pathlib.Path]:
             return Some(pathlib.Path(root) / _ENV_FILE_NAME)
 
     return NOTHING
+
+
+@contextlib.contextmanager
+def log_scope(
+    ident: str | typing.Callable[..., str],
+    /,
+    *args: typing.Any,
+    **kwargs: typing.Any,
+) -> typing.Iterator[None]:
+    """Context manager to set a log scope for the current async task.
+
+    >>> with log_scope("{handlers_folder} → {view!r}", handlers_folder="handlers", view=view):
+    ...     await logger.adebug("hello, admin!")  # [handlers → MessageView] hello, admin!
+    """
+
+    if logger.logger is None:
+        yield
+        return
+
+    current = LOG_SCOPE.get("")
+    scope_ident = ident.format(*args, **kwargs) if isinstance(ident, str) else ident(*args, **kwargs)
+    token = LOG_SCOPE.set(" > ".join(filter(None, (current, scope_ident))))
+
+    try:
+        yield
+    finally:
+        LOG_SCOPE.reset(token)
+
+
+class BufferedStream:
+    def __init__(self, stream: Sink, /) -> None:
+        self.stream = stream
+
+    def write(self, message: str, /) -> int:
+        if (buffer := LOG_BUFFER.get(None)) is not None:
+            buffer.append(BufferedTextLogRecord(scope=LOG_SCOPE.get(""), stream=self, message=message))
+            return len(message)
+
+        return self.write_direct(message)
+
+    def write_direct(self, message: str, /) -> int:
+        return self.stream.write(message)
+
+    def flush(self) -> None:
+        if LOG_BUFFER.get(None) is None and hasattr(self.stream, "flush"):
+            self.stream.flush()
+
+    def __getattr__(self, name: str, /) -> typing.Any:
+        return getattr(self.stream, name)
+
+
+@dataclasses.dataclass(slots=True)
+class BufferedLogRecord:
+    scope: str
+
+    def flush(self, flushed_streams: set[BufferedStream], /) -> None:
+        raise NotImplementedError
+
+
+@dataclasses.dataclass(slots=True)
+class BufferedTextLogRecord(BufferedLogRecord):
+    stream: BufferedStream
+    message: str
+
+    def flush(self, flushed_streams: set[BufferedStream], /) -> None:
+        self.stream.write_direct(self.message)
+        flushed_streams.add(self.stream)
+
+
+@dataclasses.dataclass(slots=True)
+class BufferedLoggingLogRecord(BufferedLogRecord):
+    handler: "BufferedStreamHandler"
+    record: logging.LogRecord
+
+    def flush(self, flushed_streams: set[BufferedStream], /) -> None:
+        self.handler.flush_record(self.record)
+        flushed_streams.add(self.handler.stream)
+
+
+@dataclasses.dataclass(slots=True)
+class _ScopeLogTree:
+    entries: list["BufferedLogRecord | _ScopeLogTree"] = dataclasses.field(default_factory=list)
+    children: dict[str, "_ScopeLogTree"] = dataclasses.field(default_factory=dict)
+
+
+def _flush_scope_tree(tree: _ScopeLogTree, flushed_streams: set[BufferedStream], /) -> None:
+    for entry in tree.entries:
+        if isinstance(entry, _ScopeLogTree):
+            _flush_scope_tree(entry, flushed_streams)
+        else:
+            entry.flush(flushed_streams)
+
+
+def flush_log_buffer(buffer: list[BufferedLogRecord], /) -> None:
+    if not buffer:
+        return
+
+    root = _ScopeLogTree()
+
+    for record in buffer:
+        node = root
+
+        for scope_part in filter(None, record.scope.split(" > ")):
+            if scope_part not in node.children:
+                child = _ScopeLogTree()
+                node.children[scope_part] = child
+                node.entries.append(child)
+
+            node = node.children[scope_part]
+
+        node.entries.append(record)
+
+    flushed_streams = set[BufferedStream]()
+    _flush_scope_tree(root, flushed_streams)
+
+    for stream in flushed_streams:
+        stream.flush()
+
+
+def set_log_scope(scope: str, /) -> contextvars.Token[str]:
+    return LOG_SCOPE.set(scope)
+
+
+@contextlib.contextmanager
+def log_buffer(scope: str, /) -> typing.Iterator[list[BufferedLogRecord]]:
+    log_buffer: list[BufferedLogRecord] = []
+    log_buffer_token = LOG_BUFFER.set(log_buffer)
+    scope_token = set_log_scope(scope)
+
+    try:
+        yield log_buffer
+    finally:
+        LOG_BUFFER.reset(log_buffer_token)
+        flush_log_buffer(log_buffer)
+        LOG_SCOPE.reset(scope_token)
 
 
 @typing.overload
@@ -394,9 +542,11 @@ class LogMessage:
         self.fmt = fmt
         self.args = args
         self.kwargs = kwargs
+        self.scope = LOG_SCOPE.get("")
 
     def __str__(self) -> str:
-        return self.fmt.format(*self.args, **self.kwargs)
+        message = self.fmt.format(*self.args, **self.kwargs)
+        return f"[{self.scope}] {message}" if self.scope else message
 
 
 class LoggingStyleAdapter(logging.LoggerAdapter):
@@ -515,11 +665,109 @@ def _loguru_filter(record: dict[str, typing.Any]) -> bool:
 
         record["exception"] = RecordException(exc_info[0], exc_info[1], exc_info[2])  # type: ignore
 
+    scope = LOG_SCOPE.get("")
+    if scope:
+        record["message"] = f"[{scope}] {record['message']}"
+
     return True
 
 
 def _remove_ansi_colors(text: str) -> str:
     return _ANSI_ESCAPE.sub("", text)
+
+
+def _wrap_sink(stream: Sink | None, /) -> Sink | None:
+    if stream is None or isinstance(stream, BufferedStream):
+        return stream
+    return BufferedStream(stream)
+
+
+class BufferedStreamHandler(logging.StreamHandler[BufferedStream]):
+    stream: BufferedStream
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if (buffer := LOG_BUFFER.get(None)) is None:
+            super().emit(record)
+            return
+
+        buffered_record = logging.makeLogRecord(record.__dict__.copy())
+
+        if isinstance(self.formatter, LoggingFormatter):
+            buffered_record = _rich_log_record(buffered_record, self.formatter.logger_module)
+
+        buffer.append(
+            BufferedLoggingLogRecord(
+                scope=LOG_SCOPE.get(""),
+                handler=self,
+                record=buffered_record,
+            ),
+        )
+
+    def flush_record(self, record: logging.LogRecord, /) -> None:
+        message = self.format(record)
+        self.stream.write_direct(message + self.terminator)
+
+
+def _make_buffered_stream_handler(handler: logging.StreamHandler[typing.Any], /) -> BufferedStreamHandler | None:
+    if isinstance(handler, (BufferedStreamHandler, logging.FileHandler)):
+        return None
+
+    stream = _wrap_sink(getattr(handler, "stream", None))
+    if stream is None:
+        return None
+
+    buffered_handler = BufferedStreamHandler(stream)  # type: ignore
+    buffered_handler.setLevel(handler.level)
+    buffered_handler.setFormatter(handler.formatter)
+    buffered_handler.terminator = handler.terminator
+    buffered_handler.name = handler.name
+
+    for flt in handler.filters:
+        buffered_handler.addFilter(flt)
+
+    return buffered_handler
+
+
+def _buffer_logging_handlers(raw_logger: logging.Logger, /) -> None:
+    handlers = list[logging.Handler]()
+
+    for handler in raw_logger.handlers:
+        if isinstance(handler, logging.StreamHandler):
+            handlers.append(_make_buffered_stream_handler(handler) or handler)
+        else:
+            handlers.append(handler)
+
+    raw_logger.handlers[:] = handlers
+
+
+def wrap_logging_logger(raw_logger: logging.Logger, /) -> logging.Logger:
+    _buffer_logging_handlers(raw_logger)
+    return raw_logger
+
+
+def wrap_structlog_logger(struct_logger: typing.Any, /) -> typing.Any:
+    raw_logger = getattr(struct_logger, "_logger", None)
+
+    if not isinstance(raw_logger, logging.Logger):
+        raise TypeError("wrap_structlog_logger expects a structlog logger backed by logging.Logger.")
+
+    wrap_logging_logger(raw_logger)
+    return struct_logger
+
+
+def wrap_loguru_logger(loguru_logger: typing.Any, /, *, colorize: bool = True) -> typing.Any:
+    if not hasattr(loguru_logger, "add") or not hasattr(loguru_logger, "remove"):
+        raise TypeError("wrap_loguru_logger expects a loguru logger instance.")
+
+    console_handler = BufferedStreamHandler(_wrap_sink(sys.stderr))  # type: ignore
+    console_handler.setFormatter(LoggingFormatter(DEFAULT_BUFFERED_LOGURU_FORMAT, colorize, "loguru"))
+
+    loguru_logger.add(
+        console_handler,
+        format="{message}",
+        filter=_loguru_filter,
+    )
+    return loguru_logger
 
 
 class _json:  # noqa: N801
@@ -581,8 +829,11 @@ class _LoggerProxy:
         return self
 
     def set_logger(self, logger: Logger, logger_module: LoggerModule | None = None) -> None:
-        self.logger = logger if not isinstance(logger, logging.Logger) else LoggingStyleAdapter(logger)
-        self.async_logger = WrapperAsyncLogger(logger) if not _is_async_logger(logger) else logger
+        configured_logger = logger if not isinstance(logger, logging.Logger) else LoggingStyleAdapter(logger)
+        self.logger = configured_logger
+        self.async_logger = (
+            WrapperAsyncLogger(configured_logger) if not _is_async_logger(configured_logger) else configured_logger  # type: ignore
+        )
         self.logger_module = logger_module
 
 
@@ -666,6 +917,8 @@ def _configure_structlog(
 
     import structlog
 
+    console_sink = _wrap_sink(console_sink)
+
     levels_colors = dict(
         debug=COLORS["light_blue"],
         info=COLORS["light_green"],
@@ -714,6 +967,10 @@ def _configure_structlog(
                 for key in used_kwargs:
                     if key in event_dict:
                         del event_dict[key]
+
+            scope = LOG_SCOPE.get("")
+            if scope and "event" in event_dict:
+                event_dict["event"] = f"[{scope}] {event_dict['event']}"
 
             return event_dict
 
@@ -811,7 +1068,7 @@ def _configure_structlog(
                     formatted = message
 
                 return formatted, used_kwargs
-            except (TypeError, KeyError, ValueError):
+            except TypeError, KeyError, ValueError:
                 if kwargs:
                     try:
                         formatted = message % kwargs
@@ -819,7 +1076,7 @@ def _configure_structlog(
                         for value in kwargs.values():
                             formatted = self._highlight_single_value(formatted, value, log_level)
                         return formatted, used_kwargs
-                    except (TypeError, KeyError):
+                    except TypeError, KeyError:
                         pass
 
                 if args:
@@ -828,7 +1085,7 @@ def _configure_structlog(
                         for value in args:
                             formatted = self._highlight_single_value(formatted, value, log_level)
                         return formatted, used_kwargs
-                    except (TypeError, ValueError):
+                    except TypeError, ValueError:
                         pass
 
                 return message, used_kwargs
@@ -902,7 +1159,7 @@ def _configure_structlog(
     _remove_handlers(telegrinder_logger)
 
     if console_sink is not None:
-        console_handler = logging.StreamHandler(console_sink)
+        console_handler = BufferedStreamHandler(console_sink)  # type: ignore
         console_handler.setFormatter(LoggingFormatter(format or DEFAULT_STRUCTLOG_FORMAT, colorize, "structlog"))
         console_handler.addFilter(Filter(colorize))
         telegrinder_logger.addHandler(console_handler)
@@ -941,6 +1198,8 @@ def _configure_loguru(
 
     from loguru._logger import Core, Logger
 
+    console_sink = _wrap_sink(console_sink)
+
     loguru_logger = Logger(
         core=Core(),
         exception=None,
@@ -966,13 +1225,13 @@ def _configure_loguru(
     handlers = []
 
     if console_sink is not None:
+        console_handler = BufferedStreamHandler(console_sink)  # type: ignore
+        console_handler.setFormatter(LoggingFormatter(DEFAULT_BUFFERED_LOGURU_FORMAT, colorize, "loguru"))
         handlers.append(
             dict(
-                sink=console_sink,
+                sink=console_handler,
                 level=level,
-                enqueue=True,
-                colorize=colorize,
-                format=format or DEFAULT_LOGURU_FORMAT,
+                format="{message}",
                 filter=_loguru_filter,
             ),
         )
@@ -999,12 +1258,13 @@ def _configure_logging(
     file: FileHandlerConfig | None = None,
     /,
 ) -> None:
+    console_sink = _wrap_sink(console_sink)
     _logger = logging.getLogger("telegrinder")
     _logger.setLevel(level)
     _remove_handlers(_logger)
 
     if console_sink is not None:
-        console_handler = logging.StreamHandler(console_sink)
+        console_handler = BufferedStreamHandler(console_sink)  # type: ignore
         console_handler.setFormatter(LoggingFormatter(format or DEFAULT_LOGGING_FORMAT, colorize, "logging"))
         _logger.addHandler(console_handler)
 
@@ -1040,15 +1300,37 @@ def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> Logger:
     return logger
 
 
+@typing.overload
+def configure_dotenv() -> None: ...
+
+
+@typing.overload
+def configure_dotenv(*, file_name: str | None) -> None: ...
+
+
+@typing.overload
+def configure_dotenv(*, file_path: str | pathlib.Path | None) -> None: ...
+
+
 def configure_dotenv(
     *,
-    load_file: bool = False,
-    file_name: str | None = None,
-    file_path: str | pathlib.Path | None = None,
+    file_name: str | None = _ENV_FILE_PATH,
+    file_path: str | pathlib.Path | None = _ENV_FILE_PATH,
 ) -> None:
+    """Configure the dotenv file to load and load it if exists.
+
+    Args:
+        file_name: The name of the env file. If None, will use `.env` by default.
+        file_path: The path to the env file. If None, will find recursively from the directory of the caller.
+
+    Raises:
+        FileNotFoundError: If the env file is not found.
+
+    """
+
     global _LOAD_ENV_FILE, _ENV_FILE_NAME, _ENV_FILE_PATH
 
-    _LOAD_ENV_FILE = load_file
+    _LOAD_ENV_FILE = True
 
     if file_name and file_path:
         _ENV_FILE_PATH = pathlib.Path(file_path) / file_name
@@ -1071,11 +1353,16 @@ else:
 
 
 __all__ = (
+    "LOG_SCOPE",
     "FileHandlerConfig",
     "LoggingStyleAdapter",
     "configure_dotenv",
     "json",
+    "log_scope",
     "logger",
     "setup_logger",
     "take_env",
+    "wrap_logging_logger",
+    "wrap_loguru_logger",
+    "wrap_structlog_logger",
 )

@@ -1,8 +1,8 @@
 import collections
 import typing
 
-from telegrinder.tools.formatting.html import FORMATTERS, link, pre_code, tg_emoji
-from telegrinder.tools.strings import to_utf16_map, utf16_to_py_index
+from telegrinder.tools.formatting.html import FORMATTERS, date_time, link, pre_code, tg_emoji
+from telegrinder.tools.strings import to_utf16_map, utf8_utf16_length, utf16_to_py_index
 from telegrinder.types.enums import ContentType, MessageEntityType
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import (
@@ -45,18 +45,13 @@ INPUT_TYPES: typing.Final = (
     InputMediaVideo,
 )
 INPUT_MEDIA_TYPES: typing.Final[dict[ContentType, type[InputMedia]]] = dict(zip(MEDIA_TYPES, INPUT_TYPES))
-HTML_FORMAT_ENTITIES: typing.Final[tuple[MessageEntityType, ...]] = (
-    MessageEntityType.PRE,
-    MessageEntityType.CODE,
-    MessageEntityType.TEXT_LINK,
-    MessageEntityType.CUSTOM_EMOJI,
-    *tuple(x for x in MessageEntityType if x.name.lower() in FORMATTERS),
-)
 
 
 def build_html(text: str, entities: list[MessageEntity], /) -> str:
-    utf16_map = to_utf16_map(text)
-    text_length_utf16 = utf16_map[-1]
+    if not text or not entities:
+        return ""
+
+    utf8_text_utf16_length = utf8_utf16_length(text)
     events = set[int]()
 
     for entity in entities:
@@ -64,7 +59,8 @@ def build_html(text: str, entities: list[MessageEntity], /) -> str:
         events.add(entity.offset + entity.length)
 
     events = sorted(events)
-    utf16_to_py = {u: utf16_to_py_index(utf16_map, u) for u in events + [0, text_length_utf16]}
+    utf16_map = to_utf16_map(text)
+    utf16_index_map = {u: utf16_to_py_index(utf16_map, u) for u in events + [0, utf8_text_utf16_length]}
 
     opens = EntitiesDict(list)
     closes = EntitiesDict(list)
@@ -77,35 +73,38 @@ def build_html(text: str, entities: list[MessageEntity], /) -> str:
     stack = collections.deque[MessageEntity]()
     utf16_pos = 0
 
-    while utf16_pos < text_length_utf16:
-        py_start = utf16_to_py[utf16_pos]
-        next_events = [u for u in events if u > utf16_pos]
-        next_utf16 = min(next_events) if next_events else text_length_utf16
-        py_end = utf16_to_py[next_utf16]
+    while utf16_pos < utf8_text_utf16_length:
+        start_index = utf16_index_map[utf16_pos]
+        next_events = tuple(u for u in events if u > utf16_pos)
+        next_utf16_pos = min(next_events) if next_events else utf8_text_utf16_length
+        end_index = utf16_index_map[next_utf16_pos]
 
-        if closes[utf16_pos]:
-            for _ in closes[utf16_pos]:
-                stack.pop()
+        for _ in closes.get(utf16_pos, ()):
+            stack.pop()
 
-        if opens[utf16_pos]:
-            for e in sorted(opens[utf16_pos], key=lambda e: e.length, reverse=True):
-                stack.append(e)
+        for e in sorted(opens.get(utf16_pos, ()), key=lambda e: e.length, reverse=True):
+            stack.append(e)
 
-        chunk = text[py_start:py_end]
-        formatted = chunk
+        formatted = text[start_index:end_index]
 
         for e in reversed(stack):
-            if (formatter := FORMATTERS.get(e.type.name.lower())) is not None:
+            if (formatter := FORMATTERS.get(e.type.value)) is not None:
                 formatted = formatter(formatted)
             elif e.type in (MessageEntityType.PRE, MessageEntityType.CODE):
                 formatted = pre_code(formatted, lang=e.language.unwrap_or_none())
             elif e.type == MessageEntityType.TEXT_LINK:
-                formatted = link(e.url.unwrap(), text=formatted)
+                formatted = link(e.url.expect("URL for text link is required."), text=formatted)
             elif e.type == MessageEntityType.CUSTOM_EMOJI:
-                formatted = tg_emoji(formatted, emoji_id=e.custom_emoji_id.map(int).unwrap())
+                formatted = tg_emoji(formatted, emoji_id=e.custom_emoji_id.expect("Custom emoji id is required."))
+            elif e.type == MessageEntityType.DATETIME:
+                formatted = date_time(
+                    formatted,
+                    e.unix_time.expect("Unix timestamp is required."),
+                    format=e.date_time_format.unwrap_or_none(),
+                )
 
         result.append(formatted)
-        utf16_pos = next_utf16
+        utf16_pos = next_utf16_pos
 
     return "".join(result)
 

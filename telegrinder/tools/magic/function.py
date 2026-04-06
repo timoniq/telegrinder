@@ -9,13 +9,14 @@ from telegrinder.tools.magic.annotations import Annotations, MappingAnnotations
 
 type AnyFunction = Func[..., typing.Any]
 type Func[**P, R] = typing.Callable[P, R]
-type Function[**P, R] = typing.Callable[
+type FunctionGenerator[**P, R, Yield] = typing.Callable[P, typing.Generator[Yield, typing.Any, R]]
+type Function[**P, R, Yield = typing.Any] = typing.Callable[
     P,
     typing.Union[
         typing.Coroutine[typing.Any, typing.Any, R],
         typing.Awaitable[R],
         typing.AsyncGenerator[R, typing.Any],
-        typing.Generator[typing.Any, typing.Any, R],
+        typing.Generator[Yield, typing.Any, R],
         typing.AsyncContextManager[R, typing.Any],
         typing.ContextManager[R, typing.Any],
         R,

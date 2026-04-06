@@ -8,7 +8,7 @@ from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.router.abc import ABCRouter
 from telegrinder.bot.dispatch.view.box import ViewBox
-from telegrinder.modules import logger
+from telegrinder.modules import log_scope, logger
 from telegrinder.tools.magic.inspect import get_frame_module_name
 from telegrinder.types.objects import Update
 
@@ -77,7 +77,8 @@ class Router[
     ],
 ):
     def __post_init__(self) -> None:
-        self.name = ":".join((get_frame_module_name(), self.__class__.__name__, hex(id(self))))
+        self.module = get_frame_module_name()
+        self.name = ":".join((self.module, self.__class__.__name__, hex(id(self))))
 
     def __repr__(self) -> str:
         return f"<{self.name}>"
@@ -86,69 +87,64 @@ class Router[
         return hash(self.name)
 
     def __bool__(self) -> bool:
-        return any(self.views.values()) or bool(self.raw) or bool(self.event_error)
+        return any((*self.event_views.values(), *self.views.values()))
 
-    async def route_view(self, view: View, api: API, update: Update, context: Context) -> bool:
-        # Check if the view is applicable to the update
+    @staticmethod
+    async def check_view(view: View, api: API, update: Update, context: Context) -> bool:
+        with log_scope(str, view):
+            await logger.adebug("Checking view...")
 
-        await logger.adebug(
-            "Checking view `{!r}` from router `{!r}` for update (id={}, type={!r})...",
-            view,
-            self,
-            update.update_id,
-            update.update_type,
-        )
-
-        match await view.check(api, update, context):
-            case Ok(_):
-                await logger.adebug(
-                    "View `{!r}` from router `{!r}` for update (id={}, type={!r}) is happy, processing...",
-                    view,
-                    self,
-                    update.update_id,
-                    update.update_type,
-                )
-                result = await view.process(api, update, context)
-
-                match result:
-                    case Err(error) if isinstance(error, Exception):
-                        raise error from None
-
-                await logger.ainfo(
-                    "Update(id={}, type={!r}) processed with view `{!r}` from router `{!r}`. {}",
-                    update.update_id,
-                    update.update_type,
-                    view,
-                    self,
-                    result.error if not result else result.value,
-                )
-                return bool(result)
-            case Err(error):
-                await logger.adebug(
-                    "Checking view `{!r}` from router `{!r}` for update (id={}, type={!r}) failed: {}",
-                    view,
-                    self,
-                    update.update_id,
-                    update.update_type,
-                    error,
-                )
-
-        return False
-
-    async def route(self, api: API, update: Update, context: Context) -> bool:
-        try:
-            # Filtering non-empty views
-            for view in filter(None, self.views.values()):
-                # Route the non-empty view
-                if await self.route_view(view, api, update, context):
+            match await view.check(api, update, context):
+                case Ok():
                     return True
+                case Err(error):
+                    await logger.adebug("Checking view failed: {}", error)
 
             return False
-        except Exception as exception:
-            if self.event_error:
-                context.exceptions_update[self] = exception  # type: ignore
 
-            raise
+    async def process_view(
+        self,
+        view: View,
+        api: API,
+        update: Update,
+        context: Context,
+        *,
+        raw_process_on_fail: bool = False,
+    ) -> bool:
+        with log_scope(str, view):
+            await logger.adebug("Processing...")
+            result = await view.process(api, update, context)
+
+            match result:
+                case Err(error) if isinstance(error, Exception):
+                    raise error from None
+
+            await logger.ainfo("{}", result.error if not result else result.value)
+
+            result = bool(result)
+            if (
+                not result
+                and raw_process_on_fail is True
+                and self.raw
+                and await self.check_view(self.raw, api, update, context)
+            ):
+                return await self.process_view(self.raw, api, update, context)
+
+            return result
+
+    async def route(self, api: API, update: Update, context: Context) -> bool:
+        with log_scope(lambda: f"Module:{self.module}"):
+            try:
+                for event_view in filter(None, self.event_views.values()):
+                    if await self.check_view(event_view, api, update, context):
+                        return await self.process_view(event_view, api, update, context, raw_process_on_fail=True)
+
+                return False
+            except Exception as exception:
+                if self.event_error:
+                    context.exceptions_update[self] = exception  # type: ignore
+
+                raise
 
 
 __all__ = ("Router",)
