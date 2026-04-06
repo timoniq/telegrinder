@@ -63,7 +63,7 @@ async def process_inner(
 
 async def check_rule(rule: ABCRule, context: Context) -> bool:
     if rule.requires:
-        with log_scope(lambda: f"rule:{fullname(rule)}"):
+        with log_scope(lambda: f"Rule:{fullname(rule)}"):
             for requirement in rule.requires:
                 if not await check_rule(requirement, context):
                     return False

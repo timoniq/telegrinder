@@ -251,15 +251,9 @@ class Dispatch[
                 task_group.create_task(router.route(api, update, context.copy()))
 
     async def feed(self, api: API, update: Update) -> None:
-        with log_buffer(f"Update:{update.update_id}"):
-            await logger.ainfo(
-                "New Update(id={}, type={!r}) received by bot (id={})",
-                update.update_id,
-                update.update_type,
-                api.id,
-            )
-            inject_internals(per_event_scope := create_per_event_scope(), {API: api, Update: update})
+        inject_internals(per_event_scope := create_per_event_scope(), {API: api, Update: update})
 
+        with log_buffer(f"Update:{update.update_id} > Bot:{api.id}"):
             context = Context().add_roots(api, update, per_event_scope)
             failed = False
             middlewares = self.middlewares
@@ -277,6 +271,7 @@ class Dispatch[
                             return
 
                     if self.routers:
+                        await logger.adebug("Route update...")
                         await self._route_update(api, update, context)
 
                     for middleware in middlewares:

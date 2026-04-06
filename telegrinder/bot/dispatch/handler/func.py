@@ -55,7 +55,7 @@ class FuncHandler[T: Function](ABCHandler):
         if check and self.check_rules:
             await logger.adebug("Checking rules for handler `{!r}`...", self)
 
-            with log_scope("{!r}", self):
+            with log_scope(lambda: self.function.__name__):
                 for rule in self.check_rules:
                     if not await check_rule(rule, context):
                         return Error(f"Rule {rule!r} failed.")

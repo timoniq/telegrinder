@@ -1,3 +1,4 @@
+import copy
 import typing
 from abc import ABC, abstractmethod
 from collections import deque
@@ -29,7 +30,12 @@ def get_rules_names(rules: typing.Iterable[ABCRule], /) -> typing.Iterable[str]:
 class ABCRule(ABC):
     required_nodes: typing.Mapping[str, Node] | None = None
     agent_cls: type[Agent] = EventLoopAgent
-    requires: deque[ABCRule] = deque()
+    requires: deque[ABCRule] | None = None
+
+    def __new__(cls, *args: typing.Any, **kwargs: typing.Any) -> typing.Self:
+        rule = super().__new__(cls)
+        rule.requires = deque(copy.deepcopy(cls.requires)) if cls.requires is not None else None
+        return rule
 
     @abstractmethod
     def check(self, *args: typing.Any, **kwargs: typing.Any) -> CheckResult:
@@ -96,7 +102,7 @@ class AndRule(ABCRule):
         self.rules = rules
 
     async def check(self, context: Context) -> bool:
-        with log_scope(lambda: "{{{}}}".format(" & ".join(get_rules_names(self.rules)))):
+        with log_scope(lambda: "Rule{{{}}}".format(" & ".join(get_rules_names(self.rules)))):
             for rule in self.rules:
                 if not await check_rule(rule, context):
                     return False
@@ -109,7 +115,7 @@ class OrRule(ABCRule):
         self.rules = rules
 
     async def check(self, context: Context) -> bool:
-        with log_scope(lambda: "{{{}}}".format(" | ".join(get_rules_names(self.rules)))):
+        with log_scope(lambda: "Rule{{{}}}".format(" | ".join(get_rules_names(self.rules)))):
             for rule in self.rules:
                 if await check_rule(rule, context):
                     return True

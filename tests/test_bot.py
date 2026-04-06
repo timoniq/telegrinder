@@ -1,11 +1,17 @@
 import asyncio
 import io
 import logging
+import re
 from collections import deque
 
 import pytest
+from kungfu.library.monad.result import Ok
 
+from telegrinder import Message
+from telegrinder.api.api import API, Token
 from telegrinder.bot.dispatch.dispatch import Dispatch
+from telegrinder.bot.rules.abc import ABCRule
+from telegrinder.bot.rules.regex import Regex
 from telegrinder.modules import (
     _configure_logging,
     _configure_loguru,
@@ -15,6 +21,9 @@ from telegrinder.modules import (
     wrap_loguru_logger,
     wrap_structlog_logger,
 )
+from telegrinder.node import Text
+from telegrinder.types.objects import Update, User
+from tests.test_utils import MockedHttpClient
 
 
 @pytest.mark.asyncio()
@@ -84,9 +93,9 @@ async def test_dispatch_feed_flushes_buffered_logs_in_one_block(api_instance, me
 
     output = sink.getvalue()
     assert output.index("first") < output.index("third") < output.index("second")
-    assert "[Update:12345 > router-1] first" in output
-    assert "[Update:12345 > router-1] third" in output
-    assert "[Update:12345 > router-2] second" in output
+    assert "[Update:12345 > Bot:123 > router-1] first" in output
+    assert "[Update:12345 > Bot:123 > router-1] third" in output
+    assert "[Update:12345 > Bot:123 > router-2] second" in output
 
 
 @pytest.mark.asyncio()
@@ -128,9 +137,9 @@ async def test_dispatch_feed_flushes_buffered_loguru_logs(api_instance, message_
 
     output = sink.getvalue()
     assert output.index("first") < output.index("third") < output.index("second")
-    assert "[Update:12345 > router-1] first" in output
-    assert "[Update:12345 > router-1] third" in output
-    assert "[Update:12345 > router-2] second" in output
+    assert "[Update:12345 > Bot:123 > router-1] first" in output
+    assert "[Update:12345 > Bot:123 > router-1] third" in output
+    assert "[Update:12345 > Bot:123 > router-2] second" in output
 
 
 @pytest.mark.asyncio()
@@ -183,8 +192,8 @@ async def test_set_logger_with_wrapped_logging_logger_preserves_buffered_dispatc
 
     output = sink.getvalue()
     assert output.index("first") < output.index("third") < output.index("second")
-    assert "[Update:12345 > router-1] first" in output
-    assert "[Update:12345 > router-2] second" in output
+    assert "[Update:12345 > Bot:123 > router-1] first" in output
+    assert "[Update:12345 > Bot:123 > router-2] second" in output
 
 
 @pytest.mark.asyncio()
@@ -257,3 +266,48 @@ def test_wrap_logging_logger_buffers_stream_handlers():
 def test_wrap_loguru_logger_rejects_invalid_logger():
     with pytest.raises(TypeError):
         wrap_loguru_logger(object())
+
+
+@pytest.mark.asyncio()
+async def test_requires_are_isolated_between_rule_instances():
+    class DummyAPI(API):
+        async def get_me(self, **other):
+            return Ok(User(id=999, is_bot=True, first_name="Bot", username="bot"))
+
+    class PrefixCommand(ABCRule, requires=[Regex(re.compile(r"^/"))]):
+        def __init__(self, command: str) -> None:
+            self.command = command
+
+        def check(self, text: Text, ctx) -> bool:
+            if not (matches := ctx.get("matches")):
+                return False
+            return text.removeprefix(matches[0]) == self.command
+
+    def make_update(update_id: int, text: str) -> Update:
+        return Update.from_raw(
+            (
+                f'{{"update_id": {update_id}, "message": {{"message_id": 1, "from": {{"id": 123, "is_bot": false, "first_name": "John"}}, '
+                f'"chat": {{"id": 123, "first_name": "John", "type": "private"}}, "date": 1234567898, "text": "{text}"}}}}'
+            ).encode(),
+        )
+
+    api = DummyAPI(Token("123:ABCdef"), http=MockedHttpClient())
+    first = Dispatch()
+    second = Dispatch()
+    root = Dispatch()
+    called: list[str] = []
+
+    @first.message(PrefixCommand("funnel"))
+    async def funnel_handler(message: Message):
+        called.append(message.text.unwrap())
+
+    @second.message(PrefixCommand("explode"))
+    async def explode_handler(message: Message):
+        called.append(message.text.unwrap())
+
+    root.load_many(first, second)
+
+    await root.feed(api, make_update(1, "/funnel"))
+    await root.feed(api, make_update(2, "/explode"))
+
+    assert called == ["/funnel", "/explode"]
