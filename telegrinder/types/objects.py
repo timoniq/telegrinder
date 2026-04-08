@@ -379,8 +379,8 @@ class Update(Model):
     in the chat to receive these updates."""
 
     managed_bot: Option[ManagedBotUpdated] = field(default=..., converter=From["ManagedBotUpdated | None"])
-    """Optional. A new bot was created to be managed by the bot or token of a bot was
-    changed."""
+    """Optional. A new bot was created to be managed by the bot, or token or owner
+    of a managed bot was changed."""
 
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
@@ -2311,7 +2311,7 @@ class ManagedBotCreated(Model):
 class ManagedBotUpdated(Model):
     """Object `ManagedBotUpdated`, see the [documentation](https://core.telegram.org/bots/api#managedbotupdated).
 
-    This object contains information about the creation or token update of a bot that is managed by the current bot.
+    This object contains information about the creation, token update, or owner update of a bot that is managed by the current bot.
     """
 
     user: User = field()
