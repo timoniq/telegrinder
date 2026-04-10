@@ -25,7 +25,7 @@ async def process_inner(
 ) -> Result[str, str]:
     for middleware in view.middlewares:
         if await run_pre_middleware(middleware, context) is False:
-            await logger.ainfo(
+            logger.info(
                 "Pre-middleware `{}` raised failure.",
                 fullname(middleware),
             )
@@ -46,7 +46,7 @@ async def process_inner(
                 if handler.final is True:
                     break
             case Error(error):
-                await logger.adebug("Running handler `{!r}` failed with error: {}", handler, error)
+                logger.debug("Running handler `{!r}` failed with error: {}", handler, error)
 
     context.responses = responses
 
@@ -68,15 +68,15 @@ async def check_rule(rule: ABCRule, context: Context) -> bool:
                 if not await check_rule(requirement, context):
                     return False
 
-    await logger.adebug("  → Checking rule `{!r}`...", rule)
+    logger.debug("  → Checking rule `{!r}`...", rule)
 
     async with compose(rule.composable, context) as result:
         match result:
             case Ok(result):
-                await logger.adebug("    * Rule `{!r}` is {}", rule, "ok" if result else "failed")
+                logger.debug("    * Rule `{!r}` is {}", rule, "ok" if result else "failed")
                 return result
             case Error(error):
-                await logger.adebug(
+                logger.debug(
                     "    * Rule `{}` failed with error:{}\n",
                     fullname(rule),
                     NodeError(f"* failed to compose check of `{fullname(rule)}` rule", from_error=error),

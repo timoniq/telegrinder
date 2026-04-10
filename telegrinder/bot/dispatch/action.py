@@ -77,7 +77,7 @@ class Action:
 
         async def action_wrapper(api: API, update: Update, context: Context) -> typing.Any:
             if not await check_rule(self._on, context):
-                await logger.adebug("Action rule `{!r}` failed.", self._on)
+                logger.debug("Action rule `{!r}` failed.", self._on)
                 result = await func_handler.run(api, update, context)
             else:
                 result = await run_action_function(
@@ -93,7 +93,7 @@ class Action:
                 case Ok(value):
                     return value
                 case Error(error):
-                    await logger.adebug(error)
+                    logger.debug(error)
                     return None
 
         action_wrapper.__name__ = f"<action for {handler.__name__}>"

@@ -47,7 +47,7 @@ class Manager:
         ) as result:
             match result:
                 case Error(error):
-                    await logger.adebug(
+                    logger.debug(
                         "Return manager `{}` failed with error:{}",
                         fullname(self.function),
                         NodeError(f"failed to compose return manager `{fullname(self.function)}`", from_error=error),
@@ -84,7 +84,7 @@ class BaseReturnManager(ABCReturnManager):
     ) -> None:
         for manager in self.managers:
             if typing.Any in manager.types or type(response) in manager.types:
-                await logger.adebug(
+                logger.debug(
                     "Running manager `{}` for response of type `{}`",
                     fullname(manager.function),
                     fullname(response),

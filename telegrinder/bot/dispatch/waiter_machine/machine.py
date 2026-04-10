@@ -132,7 +132,7 @@ class WaiterMachine:
         try:
             await self.drop(hasher, data, expired=expired, **preset_context)
         except Exception as e:
-            await logger.aerror("Error dropping state for hasher {!r}: {}", hasher, e)
+            logger.error("Error dropping state for hasher {!r}: {}", hasher, e)
 
     async def drop_state_many[Event: BaseCute, ViewType: View, HasherData](
         self,

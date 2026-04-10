@@ -45,7 +45,7 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
         return self.loop_wrapper.lifespan
 
     async def drop_pending_updates(self) -> None:
-        await logger.adebug("Dropping pending updates")
+        logger.debug("Dropping pending updates")
         await self.api.delete_webhook(drop_pending_updates=True)
 
     async def run_polling(

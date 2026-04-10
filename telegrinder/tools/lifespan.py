@@ -59,7 +59,7 @@ class DelayedTask[**P]:
                         ),
                     ).unwrap()
             except Exception:
-                await logger.aexception(
+                logger.exception(
                     "Delayed task `{}` failed with exception, traceback message below:",
                     fullname(self.function),
                 )
@@ -177,7 +177,7 @@ class Lifespan:
             async with compose_once(tasks.pop(0)) as result:
                 match result:
                     case Error(error):
-                        await logger.aerror(
+                        logger.error(
                             "Coroutine task function `{}` failed with error: {}\n",
                             fullname(tasks.pop(0)),
                             NodeError(
@@ -190,7 +190,7 @@ class Lifespan:
         from telegrinder.node.compose import compose_once
 
         if not self._started:
-            await logger.adebug("Starting lifespan and running startup tasks")
+            logger.debug("Starting lifespan and running startup tasks")
             self._started = True
 
             if self.lifespan_function is not None:
@@ -203,7 +203,7 @@ class Lifespan:
                             await stop_generator(self._lifespan_generator)
                             self._lifespan_generator = gen.gen
                         case Error(error):
-                            await logger.aerror(
+                            logger.error(
                                 "Lifespan function `{}` failed with error: {}\n",
                                 fullname(self.lifespan_function),
                                 NodeError(
@@ -218,7 +218,7 @@ class Lifespan:
 
     async def _shutdown(self) -> None:
         if self._started:
-            await logger.adebug("Shutting down lifespan and running shutdown tasks")
+            logger.debug("Shutting down lifespan and running shutdown tasks")
             self._started = False
 
             if self._lifespan_generator is not None:

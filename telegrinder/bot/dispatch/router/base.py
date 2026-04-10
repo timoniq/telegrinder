@@ -92,13 +92,13 @@ class Router[
     @staticmethod
     async def check_view(view: View, api: API, update: Update, context: Context) -> bool:
         with log_scope(str, view):
-            await logger.adebug("Checking view...")
+            logger.debug("Checking view...")
 
             match await view.check(api, update, context):
                 case Ok():
                     return True
                 case Err(error):
-                    await logger.adebug("Checking view failed: {}", error)
+                    logger.debug("Checking view failed: {}", error)
 
             return False
 
@@ -112,14 +112,14 @@ class Router[
         raw_process_on_fail: bool = False,
     ) -> bool:
         with log_scope(str, view):
-            await logger.adebug("Processing...")
+            logger.debug("Processing...")
             result = await view.process(api, update, context)
 
             match result:
                 case Err(error) if isinstance(error, Exception):
                     raise error from None
 
-            await logger.ainfo("{}", result.error if not result else result.value)
+            logger.info("{}", result.error if not result else result.value)
 
             result = bool(result)
             if (

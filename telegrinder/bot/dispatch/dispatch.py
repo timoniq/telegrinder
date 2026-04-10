@@ -227,14 +227,14 @@ class Dispatch[
         update: Update,
         context: Context,
     ) -> None:
-        await logger.adebug(
+        logger.debug(
             "Processing error views with exceptions [{}]",
             ", ".join(fullname(e) for e in context.exceptions_update.values()),
         )
 
         async with self.loop_wrapper.create_task_group() as task_group:
             for router, exception in context.exceptions_update.items():
-                await logger.adebug("Proccessing exception via router `{!r}`", router)
+                logger.debug("Proccessing exception via router `{!r}`", router)
                 task_group.create_task(
                     router.process_view(
                         router.event_error,
@@ -247,7 +247,7 @@ class Dispatch[
     async def _route_update(self, api: API, update: Update, context: Context) -> None:
         async with self.loop_wrapper.create_task_group() as task_group:
             for router in self.routers:
-                await logger.adebug("Routing to router `{!r}`", router)
+                logger.debug("Routing to router `{!r}`", router)
                 task_group.create_task(router.route(api, update, context.copy()))
 
     async def feed(self, api: API, update: Update) -> None:
@@ -264,14 +264,14 @@ class Dispatch[
                 try:
                     for middleware in middlewares:
                         if await run_pre_middleware(middleware, context) is not True:
-                            await logger.ainfo(
+                            logger.info(
                                 "Dispatch pre-middleware `{}` raised failure.",
                                 fullname(middleware),
                             )
                             return
 
                     if self.routers:
-                        await logger.adebug("Route update...")
+                        logger.debug("Route update...")
                         await self._route_update(api, update, context)
 
                     for middleware in middlewares:
@@ -286,7 +286,7 @@ class Dispatch[
                             if not self.error_handler:
                                 raise
 
-                            await logger.adebug(
+                            logger.debug(
                                 "Dispatch caught unhandled exceptions, routing to error handler...",
                             )
                             await self._handle_exceptions(api, update, context, group.exceptions)
@@ -298,7 +298,7 @@ class Dispatch[
                         and self.error_handler
                         and await self.main_router.check_view(self.error_handler, api, update, context)
                     ):
-                        await logger.adebug(
+                        logger.debug(
                             "Dispatch caught an exception, routing to error handler...",
                         )
                         await self.main_router.process_view(
@@ -314,7 +314,7 @@ class Dispatch[
                     if not failed:
                         elapsed_time = self.loop_wrapper.time - start_time
                         elapsed_ms = elapsed_time * 1000
-                        await logger.adebug(
+                        logger.debug(
                             "Processed in {} {}.",
                             int(elapsed_time * NANOSECONDS_PER_MILLISECOND) if elapsed_ms < 1 else int(elapsed_ms),
                             "ns" if elapsed_ms < 1 else "ms",

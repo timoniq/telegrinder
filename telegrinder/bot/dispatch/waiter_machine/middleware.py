@@ -33,7 +33,7 @@ class WaiterMiddleware(ABCMiddleware):
         event = update_cute.incoming_update
         key = self.hasher.get_hash_from_data_from_event(event)
         if not key:
-            await logger.ainfo("Unable to get hash from event with hasher {!r}", self.hasher)
+            logger.info("Unable to get hash from event with hasher {!r}", self.hasher)
             return True
 
         short_state: ShortState | None = self.machine.storage[self.hasher].get(key.unwrap())
@@ -49,7 +49,7 @@ class WaiterMiddleware(ABCMiddleware):
             preset_context |= short_state.context.context
 
         if short_state.filter is not None and not await check_rule(short_state.filter, preset_context):
-            await logger.adebug("Filter rule {!r} failed!", short_state.filter)
+            logger.debug("Filter rule {!r} failed!", short_state.filter)
             return True
 
         handler = FuncHandler(

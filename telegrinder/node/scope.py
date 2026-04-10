@@ -35,9 +35,9 @@ async def close_node_global_scope() -> None:
     try:
         await TELEGRINDER_CONTEXT.close_global_scope()
     except Exception:
-        await logger.aexception("While closing node global scope, an error occurred:")
+        logger.exception("While closing node global scope, an error occurred:")
     else:
-        await logger.adebug("Node global scope closed")
+        logger.debug("Node global scope closed")
 
 
 def create_per_event_scope() -> Scope:

@@ -46,7 +46,7 @@ async def run_middleware(
             case Ok(response):
                 return response
             case Error(error):
-                await logger.adebug(
+                logger.debug(
                     "Middleware `{!r}` failed with error:{}\n",
                     middleware_name := fullname(middleware),
                     NodeError(f"* failed to compose middleware `{middleware_name}`", from_error=error),
