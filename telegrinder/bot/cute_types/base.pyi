@@ -1,10 +1,10 @@
 import typing
 
 from kungfu.library.monad.option import Option
+from msgspex.model import Model
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-from msgspex.model import Model
 from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.objects import Update
 
