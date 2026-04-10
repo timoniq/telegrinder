@@ -4,7 +4,7 @@ from kungfu.library.monad.option import Option
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.model import Model
+from msgspex.model import Model
 from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.objects import Update
 

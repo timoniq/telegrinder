@@ -8,8 +8,9 @@ from functools import cached_property
 
 import msgspec
 from kungfu.library.monad.result import Error, Ok, Result
+from msgspec._utils import get_class_annotations
+from msgspex import decoder, encoder
 
-from telegrinder.msgspec_utils import decoder, encoder, get_class_annotations
 from telegrinder.tools.serialization.abc import ABCDataSerializer, ModelType
 from telegrinder.tools.serialization.utils import get_model_ident_key
 

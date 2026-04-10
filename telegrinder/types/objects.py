@@ -5,9 +5,10 @@ import typing
 from functools import cached_property
 
 from kungfu.library import Sum
+from msgspex.custom_types import Literal, Option, datetime, timedelta
+from msgspex.model import From, Model, field
+from msgspex.tools import is_none
 
-from telegrinder.model import From, Model, field, is_none
-from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime, timedelta
 from telegrinder.types.date_time_format import DateTimeFormatSeq
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.input_file import InputFile

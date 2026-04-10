@@ -4,8 +4,8 @@ import typing
 from functools import cached_property
 
 import msgspec
+from msgspex.encoder import encoder
 
-from telegrinder.msgspec_utils.encoder import encoder
 from telegrinder.tools.keyboard.utils import freaky_keyboard_merge
 from telegrinder.tools.serialization.json_ser import JSONSerializer
 from telegrinder.tools.serialization.utils import get_model_serializer

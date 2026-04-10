@@ -104,7 +104,6 @@ from .bot import (
     register_manager,
 )
 from .client import ABCClient, WreqClient
-from .model import Model, field
 from .modules import configure_dotenv, logger, setup_logger
 from .tools.global_context import ABCGlobalContext, GlobalContext, TelegrinderContext
 from .tools.input_file_directory import InputFileDirectory
@@ -225,7 +224,6 @@ __all__ = (
     "MessageReplyHandler",
     "MessageReturnManager",
     "MiddlewareBox",
-    "Model",
     "PaidMediaPurchased",
     "PaidMediaPurchasedCute",
     "ParseMode",
@@ -263,7 +261,6 @@ __all__ = (
     "WreqClient",
     "action",
     "configure_dotenv",
-    "field",
     "logger",
     "register_manager",
     "setup_logger",

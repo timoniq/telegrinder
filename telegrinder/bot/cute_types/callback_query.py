@@ -6,6 +6,8 @@ from datetime import timedelta
 import msgspec
 from kungfu.library import Nothing, Result, Some, Sum, unwrapping
 from kungfu.library.monad.option import NOTHING
+from msgspex import Option, decoder
+from msgspex.model import UNSET, From, field
 
 from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
@@ -15,8 +17,6 @@ from telegrinder.bot.cute_types.message import (
     ReplyMarkup,
     execute_method_edit,
 )
-from telegrinder.model import UNSET, From, field
-from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
 

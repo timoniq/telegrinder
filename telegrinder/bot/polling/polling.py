@@ -4,6 +4,7 @@ from http import HTTPStatus
 
 import msgspec
 from kungfu.library.misc import is_ok
+from msgspex import decoder
 
 from telegrinder.api.api import API
 from telegrinder.api.error import APIServerError, InvalidTokenError
@@ -11,7 +12,6 @@ from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.bot.polling.error_handler import ErrorHandler
 from telegrinder.bot.polling.utils import compute_number
 from telegrinder.modules import logger
-from telegrinder.msgspec_utils import decoder
 from telegrinder.types.objects import Update, UpdateType
 
 DEFAULT_OFFSET: typing.Final = 0

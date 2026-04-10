@@ -5,12 +5,13 @@ from functools import cached_property
 
 from kungfu.library import Some, Sum
 from kungfu.library.misc import from_optional
+from msgspec._utils import get_class_annotations
+from msgspex import Option, encoder, struct_asdict
+from msgspex.model import Model
 from nodnod.error import NodeError
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.model import Model
-from telegrinder.msgspec_utils import Option, encoder, get_class_annotations, struct_asdict
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.objects import Update
@@ -150,7 +151,7 @@ class BaseCute[T: Model = typing.Any](Model):
         if cls.__cute_annotations__ is None:
             cls.__cute_annotations__ = get_cute_annotations(cls.__annotations__)
 
-        cute = cls(
+        cute = cls.initialize(
             **{
                 field: to_cute(cls, field, value, bound_api) if field in cls.__cute_annotations__ else value
                 for field, value in update.to_dict().items()

@@ -1,5 +1,5 @@
-from telegrinder.model import From, Model, field
-from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime
+from msgspex.custom_types import Literal, Option, datetime
+from msgspex.model import From, Model, field
 
 type ChatType = Literal["sender", "private", "group", "supergroup", "channel"]
 

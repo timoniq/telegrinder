@@ -232,6 +232,19 @@ wheels = [
 ]
 
 [[package]]
+name = "msgspex"
+version = "1.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "kungfu-fp" },
+    { name = "msgspec" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/13/ae/71fb7310303a4995f2df60308041ea9b50eb0036518cf5d5fd65f0e99416/msgspex-1.4.1.tar.gz", hash = "sha256:b0985c98da0390751bd383fb9dd7672d91ffa46f6f831e5f4a17eb8e54511695", size = 28731, upload-time = "2026-04-10T14:08:23.665Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/83/0e/b46871972a6f8993cf63b9afd7188d0505ccf853d7e2a9acf507d87cf425/msgspex-1.4.1-py3-none-any.whl", hash = "sha256:3b3a14f1811244407260dcb72c56014d58e44edae648808969cabce953968478", size = 42535, upload-time = "2026-04-10T14:08:22.402Z" },
+]
+
+[[package]]
 name = "nodeenv"
 version = "1.10.0"
 source = { registry = "https://pypi.org/simple" }
@@ -456,7 +469,7 @@ dependencies = [
     { name = "choicelib" },
     { name = "env-better" },
     { name = "kungfu-fp" },
-    { name = "msgspec" },
+    { name = "msgspex" },
     { name = "nodnod" },
     { name = "vbml2" },
     { name = "wreq" },
@@ -500,7 +513,7 @@ requires-dist = [
     { name = "env-better", specifier = ">=1.0.0" },
     { name = "kungfu-fp", specifier = ">=1.0.0" },
     { name = "loguru", marker = "extra == 'loguru'" },
-    { name = "msgspec", specifier = ">=0.20.0" },
+    { name = "msgspex", specifier = ">=1.4.1" },
     { name = "nodnod", specifier = ">=1.0.1" },
     { name = "structlog", marker = "extra == 'structlog'" },
     { name = "uvloop", marker = "(sys_platform == 'darwin' and extra == 'uvloop') or (sys_platform == 'linux' and extra == 'uvloop')" },

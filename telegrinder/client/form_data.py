@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.msgspec_utils import encoder
+from msgspex import encoder
 
 
 def encode_form_data(

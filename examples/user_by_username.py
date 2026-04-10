@@ -4,11 +4,11 @@ to work with databases.
 
 import aiosqlite  # type: ignore
 from kungfu.library.monad.option import Nothing
+from msgspex import Option, decoder
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
-from telegrinder.msgspec_utils import Option, decoder
 from telegrinder.rules import IsReply, Markup, MessageEntities, Text
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import User
@@ -74,7 +74,7 @@ class DummyDatabase:
             if row is None:
                 return Nothing()
             return decoder.convert(
-                obj=get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
+                get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
                 type=Option[User],  # type: ignore
             )
 
@@ -92,7 +92,7 @@ class DummyDatabase:
             if row is None:
                 return Nothing()
             return decoder.convert(
-                obj=get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
+                get_result_with_names(cur, row, as_bool={"is_premium", "is_bot"}),
                 type=Option[User],  # type: ignore
             )
 

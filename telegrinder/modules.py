@@ -772,12 +772,12 @@ def wrap_loguru_logger(loguru_logger: typing.Any, /, *, colorize: bool = True) -
 
 class _json:  # noqa: N801
     def __getattr__(self, __name: str) -> typing.Any:
-        from telegrinder.msgspec_utils import json
+        from telegrinder.tools import json
 
         return getattr(json, __name)
 
     def __repr__(self) -> str:
-        return "<module 'telegrinder.msgspec_utils.json'>"
+        return "<module 'telegrinder.tools.json'>"
 
 
 class _LoggerProxy:
@@ -1347,7 +1347,7 @@ def configure_dotenv(
 
 
 if typing.TYPE_CHECKING:
-    from telegrinder.msgspec_utils import json
+    from telegrinder.tools import json
 else:
     json = _json()
 

@@ -5,12 +5,12 @@ from functools import cached_property
 
 from kungfu.library import Result, Some, Sum
 from kungfu.library.monad import option
+from msgspex import Option
+from msgspex.model import From, field
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import MediaType, build_html, compose_reactions, input_media
-from telegrinder.model import From, field
-from telegrinder.msgspec_utils import Option
 from telegrinder.tools.magic.descriptors import additional_property
 from telegrinder.types import *
 from telegrinder.types.methods_utils import get_params

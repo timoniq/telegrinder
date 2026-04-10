@@ -2,13 +2,13 @@ import dataclasses
 import typing
 
 import msgspec
+from msgspex import decoder
 from nodnod.error import NodeError
 from nodnod.interface.generic import generic_node
 
 from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.update import UpdateCute
-from telegrinder.msgspec_utils import decoder
 from telegrinder.tools.fullname import fullname
 from telegrinder.types.objects import Model, Update
 
@@ -48,7 +48,7 @@ class EventNode[Dataclass: DataclassType]:  # type: ignore[reportRedeclaration]
                 orig_dataclass,
             ):
                 obj = decoder.convert(
-                    obj=raw_update.incoming_update,
+                    raw_update.incoming_update,
                     type=dataclass,
                     from_attributes=True,
                 )

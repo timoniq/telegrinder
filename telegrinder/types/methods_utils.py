@@ -5,9 +5,8 @@ from types import NoneType
 import msgspec
 from kungfu.library.monad.option import Nothing
 from kungfu.library.monad.result import Result
-
-from telegrinder.msgspec_utils.decoder import decoder
-from telegrinder.msgspec_utils.encoder import encoder
+from msgspex.decoder import decoder
+from msgspex.encoder import encoder
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError

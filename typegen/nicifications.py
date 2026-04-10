@@ -10,8 +10,8 @@ from datetime import datetime
 from functools import cached_property
 
 from kungfu.library.monad.option import Option
+from msgspex.model import Model, is_none
 
-from telegrinder.model import Model, is_none
 from telegrinder.types import (
     Birthdate,
     Chat,

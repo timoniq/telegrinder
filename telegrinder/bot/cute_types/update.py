@@ -1,6 +1,8 @@
 from functools import cached_property
 
 from kungfu.library.monad.option import NOTHING, Some
+from msgspex import Option
+from msgspex.model import From, field
 
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.bot.cute_types.business_connection import BusinessConnectionCute
@@ -20,8 +22,6 @@ from telegrinder.bot.cute_types.poll import PollCute
 from telegrinder.bot.cute_types.poll_answer import PollAnswerCute
 from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.bot.cute_types.shipping_query import ShippingQueryCute
-from telegrinder.model import From, field
-from telegrinder.msgspec_utils import Option
 from telegrinder.types.objects import *
 
 

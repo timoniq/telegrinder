@@ -1,7 +1,7 @@
 import typing
 
-from telegrinder.msgspec_utils import decoder, encoder
-from telegrinder.tools.fullname import fullname
+from msgspex import decoder, encoder, fullname
+
 from telegrinder.types.enums import DateTimeFormat
 
 

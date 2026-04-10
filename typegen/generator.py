@@ -469,11 +469,12 @@ class ObjectGenerator(ABCGenerator):
             "import secrets\n",
             "import typing\n\n",
             "from kungfu.library import Sum\n",
-            "from telegrinder.model import From, Model, field, is_none\n",
+            "from msgspex.model import From, Model, field\n",
+            "from msgspex.tools import is_none\n",
             "from telegrinder.types.date_time_format import DateTimeFormatSeq\n",
             "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
-            "from telegrinder.msgspec_utils.custom_types import Option, Literal, datetime, timedelta\n\n",
+            "from msgspex.custom_types import Option, Literal, datetime, timedelta\n\n",
         ]
 
         if self.config.generator.objects.fields.annotations.literals:
