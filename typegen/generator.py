@@ -8,7 +8,7 @@ import sys
 import typing
 
 import msgspec
-import requests
+import wreq.blocking as wreq
 
 from .config import ConfigTOML, read_config
 from .merge_shortcuts import merge_shortcuts
@@ -35,7 +35,7 @@ try:
 except ImportError:
     import logging
 
-    logger = logging.getLogger("typegen")
+    logger = logging.getLogger("telegrinder")
 
 TYPEGEN_DIR: typing.Final = pathlib.Path(__file__).parent
 TAB: typing.Final = "    "
@@ -54,7 +54,7 @@ INPUTFILE_DOCSTRING: typing.Final = "using multipart/form-data"
 def download_schema(config_toml: ConfigTOML, config_model: Config, /) -> TelegramBotAPISchema:
     logger.debug(f"Downloading schema from {config_model.telegram_bot_api.schema_url!r}...")
 
-    schema: dict[str, typing.Any] = msgspec.json.decode(requests.get(config_model.telegram_bot_api.schema_url).text)
+    schema: dict[str, typing.Any] = msgspec.json.decode(wreq.get(config_model.telegram_bot_api.schema_url).bytes())
     schema_version = float(schema["version"].split()[-1])
     schema.update(
         dict(

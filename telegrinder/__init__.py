@@ -3,7 +3,7 @@
 * Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
 * Customizable and extensible
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
-* API client powered by fast [rnet](https://github.com/0x676e67/rnet) library
+* API client powered by fast [wreq](https://github.com/0x676e67/wreq-python) library
 * Both low-level and high-level API
 * Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
 
@@ -103,7 +103,7 @@ from .bot import (
     action,
     register_manager,
 )
-from .client import ABCClient, RnetClient
+from .client import ABCClient, WreqClient
 from .model import Model, field
 from .modules import configure_dotenv, logger, setup_logger
 from .tools.global_context import ABCGlobalContext, GlobalContext, TelegrinderContext
@@ -241,7 +241,6 @@ __all__ = (
     "PrimaryButton",
     "PrimaryInlineButton",
     "RawEventView",
-    "RnetClient",
     "Router",
     "RowButtons",
     "ShippingQuery",
@@ -261,6 +260,7 @@ __all__ = (
     "ViewBox",
     "ViewBox",
     "WaiterMachine",
+    "WreqClient",
     "action",
     "configure_dotenv",
     "field",

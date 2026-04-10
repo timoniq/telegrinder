@@ -12,7 +12,7 @@ from kungfu.library.monad.result import Error, Ok, Result
 from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
 from telegrinder.api.token import Token
-from telegrinder.client import ABCClient, RnetClient
+from telegrinder.client import ABCClient, WreqClient
 from telegrinder.msgspec_utils import decoder
 from telegrinder.types.methods import APIMethods
 
@@ -78,7 +78,7 @@ class API(APIMethods):
         max_retries: int = DEFAULT_MAX_RETRIES,
     ) -> None:
         self.token = token
-        self.http = http or RnetClient()
+        self.http = http or WreqClient()
         self._retryer_is_enabled = retryer
         self._max_retries = max_retries
         super().__init__(api=self)

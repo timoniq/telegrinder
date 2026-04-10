@@ -1,11 +1,11 @@
 from telegrinder.client.abc import ABCClient, Response
 from telegrinder.client.form_data import MultipartBuilderProto, encode_form_data
-from telegrinder.client.rnet import RnetClient
+from telegrinder.client.wreq import WreqClient
 
 __all__ = (
     "ABCClient",
     "MultipartBuilderProto",
     "Response",
-    "RnetClient",
+    "WreqClient",
     "encode_form_data",
 )

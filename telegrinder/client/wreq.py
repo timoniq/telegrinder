@@ -6,18 +6,18 @@ import typing
 from http import HTTPStatus
 
 import certifi
-import rnet
-import rnet.exceptions
-from rnet import Method as HTTPMethod
+import wreq
+import wreq.exceptions
+from wreq import Method as HTTPMethod
 
 from telegrinder.__meta__ import __version__
 from telegrinder.client.abc import ABCClient, Response
 from telegrinder.modules import json
 
 if typing.TYPE_CHECKING:
-    from rnet import ClientConfig, Request
+    from wreq import ClientConfig, Request
 
-type Data = dict[str, typing.Any] | rnet.Multipart
+type Data = dict[str, typing.Any] | wreq.Multipart
 type Method = typing.Literal["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "TRACE", "PATCH"]
 
 _METHODS_MAP: typing.Final[dict[Method, HTTPMethod]] = {
@@ -30,7 +30,7 @@ _METHODS_MAP: typing.Final[dict[Method, HTTPMethod]] = {
     "TRACE": HTTPMethod.TRACE,
     "PATCH": HTTPMethod.PATCH,
 }
-USER_AGENT: typing.Final = "CPython/{}.{}; Telegrinder/{}".format(
+USER_AGENT: typing.Final = "CPython/{}.{}; wreq; Telegrinder/{}".format(
     sys.version_info.major,
     sys.version_info.minor,
     __version__,
@@ -56,8 +56,8 @@ CONNECTION_POOL_MAX_SIZE: typing.Final = DEFAULT_CONNECTION_POOL_CONNECTIONS * 2
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
-class RnetMultipartBuilder:
-    parts: list[rnet.Part] = dataclasses.field(default_factory=list[rnet.Part])
+class WreqMultipartBuilder:
+    parts: list[wreq.Part] = dataclasses.field(default_factory=list[wreq.Part])
 
     def add_field(
         self,
@@ -67,25 +67,25 @@ class RnetMultipartBuilder:
         *,
         filename: str | None = None,
     ) -> None:
-        self.parts.append(rnet.Part(name, value, filename=filename))
+        self.parts.append(wreq.Part(name, value, filename=filename))
 
-    def build(self) -> rnet.Multipart:
-        return rnet.Multipart(*self.parts)
+    def build(self) -> wreq.Multipart:
+        return wreq.Multipart(*self.parts)
 
 
-class RnetClient(ABCClient):
+class WreqClient(ABCClient):
     __slots__ = ("_timeout", "_client")
 
     CONNECTION_TIMEOUT_ERRORS: typing.ClassVar = (
         TimeoutError,
-        rnet.exceptions.TimeoutError,
-        rnet.exceptions.RustPanic,
+        wreq.exceptions.TimeoutError,
+        wreq.exceptions.RustPanic,
     )
     CLIENT_CONNECTION_ERRORS: typing.ClassVar = (
-        rnet.exceptions.ConnectionError,
-        rnet.exceptions.ConnectionResetError,
-        rnet.exceptions.TlsError,
-        rnet.exceptions.RustPanic,
+        wreq.exceptions.ConnectionError,
+        wreq.exceptions.ConnectionResetError,
+        wreq.exceptions.TlsError,
+        wreq.exceptions.RustPanic,
     )
 
     def __init__(self, **params: typing.Unpack[ClientConfig]) -> None:
@@ -105,7 +105,7 @@ class RnetClient(ABCClient):
         params.setdefault("pool_max_size", CONNECTION_POOL_MAX_SIZE)
 
         self._timeout = params.setdefault("timeout", DEFAULT_TIMEOUT)
-        self._client = rnet.Client(**params)
+        self._client = wreq.Client(**params)
 
     def __repr__(self) -> str:
         return "<{} {!r}, timeout={!r}>".format(
@@ -119,8 +119,8 @@ class RnetClient(ABCClient):
         return self._timeout
 
     @classmethod
-    def multipart_form_builder(cls) -> RnetMultipartBuilder:
-        return RnetMultipartBuilder()
+    def multipart_form_builder(cls) -> WreqMultipartBuilder:
+        return WreqMultipartBuilder()
 
     async def request(
         self,
@@ -128,12 +128,12 @@ class RnetClient(ABCClient):
         method: Method = "GET",
         data: Data | None = None,
         **kwargs: typing.Unpack[Request],
-    ) -> Response[rnet.Response]:
-        kwargs.setdefault("version", rnet.Version.HTTP_2)
+    ) -> Response[wreq.Response]:
+        kwargs.setdefault("version", wreq.Version.HTTP_2)
         kwargs.setdefault("zstd", DEFAULT_ZSTD)
 
         if data is not None:
-            if isinstance(data, rnet.Multipart):
+            if isinstance(data, wreq.Multipart):
                 kwargs["multipart"] = data
             elif isinstance(data, dict):
                 kwargs["json"] = data
@@ -195,4 +195,4 @@ class RnetClient(ABCClient):
         return None
 
 
-__all__ = ("RnetClient", "RnetMultipartBuilder")
+__all__ = ("WreqClient", "WreqMultipartBuilder")
