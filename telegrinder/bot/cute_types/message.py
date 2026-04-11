@@ -288,7 +288,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
         message_thread_id: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -2321,7 +2321,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         inline_message_id: str | None = None,
         message_id: int | None = None,
         message_thread_id: str | None = None,
-        parse_mode: str | None = API.default_params["parse_mode"],
+        parse_mode: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Sum[MessageCute, bool], APIError]:

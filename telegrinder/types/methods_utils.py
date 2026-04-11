@@ -3,7 +3,7 @@ import typing
 from types import NoneType
 
 import msgspec
-from kungfu.library.monad.option import Nothing
+from kungfu.library.monad.option import NOTHING, Nothing, Option, Some
 from kungfu.library.monad.result import Result
 from msgspex.decoder import decoder
 from msgspex.encoder import encoder
@@ -41,6 +41,21 @@ class Proxy[T]:
 
     def get(self) -> typing.Any | None:
         return self.cfg._defaults.get(self.key)
+
+    def get_or_default(self, default: typing.Any) -> typing.Any:
+        if self.key not in self.cfg._defaults:
+            return default
+        return self.cfg._defaults[self.key]
+
+    def get_or_error(self) -> typing.Any:
+        if self.key not in self.cfg._defaults:
+            raise ValueError(f"Value for default parameter `{self.key}` is not defined.")
+        return self.cfg._defaults[self.key]
+
+    def get_or_nothing(self) -> Option[typing.Any]:
+        if self.key not in self.cfg._defaults:
+            return NOTHING
+        return Some(self.cfg._defaults[self.key])
 
 
 class ProxiedDict[T]:
