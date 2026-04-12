@@ -4,8 +4,8 @@ from kungfu.library.monad.result import Result
 
 from telegrinder.api.error import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
-from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import PreCheckoutQuery, User
+from telegrinder.types.utils import get_params
 
 
 class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only=True):

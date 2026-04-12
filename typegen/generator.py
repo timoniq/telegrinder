@@ -36,6 +36,7 @@ except ImportError:
     import logging
 
     logger = logging.getLogger("telegrinder")
+    logger.setLevel(logging.ERROR)
 
 TYPEGEN_DIR: typing.Final = pathlib.Path(__file__).parent
 TAB: typing.Final = "    "
@@ -377,17 +378,14 @@ class ObjectGenerator(ABCGenerator):
         if converter == '"{converter}"':
             converter = '"{}"'.format(field_type) if not field.required else None
 
-        default_factory = field.default_factory
-        if default_factory is None and self.get_typed_default_param(field.name) is not None:
-            default_parameter = "default_parameter_as_option" if not field.required else "default_parameter"
-            default_factory = f'{default_parameter}("{makesafe_name(field.name)}"'
-            if field.default is not None:
-                default_factory += f", {field.default}"
-            default_factory += ")"
-
-        field_value = make_field_function(field, converter=converter, default_factory=default_factory)
-
+        field_value = make_field_function(
+            field,
+            converter=converter,
+            default=field.default,
+            default_factory=field.default_factory,
+        )
         code += f"{field_type} = {field_value}"
+
         if field.description:
             description = field.description.replace('"', "`")
             sep = "\n" + TAB
@@ -459,15 +457,34 @@ class ObjectGenerator(ABCGenerator):
                         nbytes=generation_id_by_default.nbytes,
                     )
 
+                if self.get_typed_default_param(f.name) is not None:
+                    default_parameter = (
+                        "default_parameter_as_option_for_field" if not f.required else "default_parameter_for_field"
+                    )
+                    default_factory = f'DefaultFactory(on_init={default_parameter}("{makesafe_name(f.name)}")'
+
+                    if f.default_factory is not None:
+                        default_factory += f", on_decode={f.default_factory}"
+
+                    if f.default is None and not f.required:
+                        default_factory += f", default=UNSET,"
+                    elif f.default is not None:
+                        default_factory += f", default={f.default},"
+                        f.default = None
+
+                    default_factory += ")"
+                    f.default_factory = default_factory
+
             code += TAB
             for field in (
                 *filter(
-                    lambda f: f.default is None and f.default_factory is None and f.required,
+                    lambda f: f.required and f.default is None and f.default_factory is None,
                     object_schema.fields,
                 ),
-                *filter(lambda f: f.default is not None, object_schema.fields),
-                *filter(lambda f: f.default_factory is not None, object_schema.fields),
-                *filter(lambda f: not f.required, object_schema.fields),
+                *filter(
+                    lambda f: not (f.required and f.default is None and f.default_factory is None),
+                    object_schema.fields,
+                ),
             ):
                 literal_types = self.get_literal_types_field(object_name, field.name)
                 annotation = self.get_object_field_annotation(object_name, field.name)
@@ -496,12 +513,12 @@ class ObjectGenerator(ABCGenerator):
             "import secrets\n",
             "import typing\n\n",
             "from kungfu.library import Sum\n",
-            "from msgspex.model import From, Model, field\n",
+            "from msgspex.model import UNSET, DefaultFactory, From, Model, field\n",
             "from msgspex.tools import is_none\n",
             "from telegrinder.types.date_time_format import DateTimeFormatSeq\n",
             "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
-            "from telegrinder.types.objects_utils import default_parameter, default_parameter_as_option\n",
+            "from telegrinder.types.utils import default_parameter_as_option_for_field, default_parameter_for_field\n",
             "from msgspex.custom_types import Option, Literal, datetime, timedelta\n\n",
         ]
 
@@ -748,7 +765,7 @@ class MethodGenerator(ABCGenerator):
             "from datetime import datetime, timedelta\n\n"
             "from kungfu.library import Result, Sum\n"
             "from telegrinder.api.error import APIError\n",
-            "from telegrinder.types.methods_utils import full_result, get_params\n",
+            "from telegrinder.types.utils import full_result, get_params\n",
             f"from {os.path.splitext(str(default_params_file))[0].replace(os.path.sep, '.')} import DEFAULT_PARAMETERS\n",
             "from telegrinder.types.enums import *  # noqa: F403\n"
             "from telegrinder.types.objects import *  # noqa: F403\n\n"
@@ -772,7 +789,7 @@ class MethodGenerator(ABCGenerator):
             lines = [
                 "from __future__ import annotations\n\n",
                 "import typing\n\n",
-                "from telegrinder.types.methods_utils import ProxiedDict\n\n",
+                "from telegrinder.types.utils import ProxiedDict\n\n",
                 "if typing.TYPE_CHECKING:\n",
                 "    from telegrinder.types.objects import *  # noqa: F403\n\n\n",
                 "class DefaultParameters(typing.TypedDict):\n",

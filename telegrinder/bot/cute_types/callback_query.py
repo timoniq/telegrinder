@@ -17,8 +17,8 @@ from telegrinder.bot.cute_types.message import (
     ReplyMarkup,
     execute_method_edit,
 )
-from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import *
+from telegrinder.types.utils import get_params
 
 CACHED_CALLBACK_DATA_KEY: typing.Final = "cached_callback_data"
 

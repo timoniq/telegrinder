@@ -9,16 +9,15 @@ if typing.TYPE_CHECKING:
 
     def _f[**P](_: typing.Callable[P, typing.Any], /) -> typing.Callable[P, DefaultFactory]: ...
 
-    _: DefaultParameters = ...  # pyright: ignore[reportAssignmentType]
-    default_parameter = _f(_.get)  # pyright: ignore[reportArgumentType]
-    default_parameter_as_option = _f(_.get)  # pyright: ignore[reportArgumentType]
+    default_parameter_for_field = _f(DefaultParameters().get)  # type: ignore
+    default_parameter_as_option_for_field = _f(DefaultParameters().get)  # type: ignore
 else:
     _NODEFAULT: typing.Final[typing.Any] = object()
 
     def _get_proxy_default_parameter(parameter_name: str, /) -> typing.Any:
         return DEFAULT_PARAMETERS[parameter_name]
 
-    def default_parameter(
+    def default_parameter_for_field(
         k: str,
         default: typing.Any = _NODEFAULT,
     ) -> DefaultFactory:
@@ -29,7 +28,7 @@ else:
             else proxy_default_parameter.get_or_default(default)
         )
 
-    def default_parameter_as_option(
+    def default_parameter_as_option_for_field(
         k: str,
         default: typing.Any = _NODEFAULT,
     ) -> DefaultFactory:
@@ -41,4 +40,4 @@ else:
         )
 
 
-__all__ = ("default_parameter", "default_parameter_as_option")
+__all__ = ("default_parameter_as_option_for_field", "default_parameter_for_field")

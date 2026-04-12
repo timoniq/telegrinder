@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from telegrinder.types.methods_utils import ProxiedDict
+from telegrinder.types.utils import ProxiedDict
 
 if typing.TYPE_CHECKING:
     from telegrinder.types.objects import *  # noqa: F403

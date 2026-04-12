@@ -7,7 +7,7 @@ from functools import wraps
 from kungfu.library.monad.result import Result
 
 from telegrinder.tools.magic.function import get_func_parameters
-from telegrinder.types.methods_utils import get_params
+from telegrinder.types.utils import get_params
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError

@@ -6,8 +6,8 @@ from kungfu.library import Result, Sum
 from telegrinder.api.error import APIError
 from telegrinder.types.default_params import DEFAULT_PARAMETERS
 from telegrinder.types.enums import *  # noqa: F403
-from telegrinder.types.methods_utils import full_result, get_params
 from telegrinder.types.objects import *  # noqa: F403
+from telegrinder.types.utils import full_result, get_params
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API

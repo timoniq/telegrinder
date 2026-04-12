@@ -6,13 +6,13 @@ from functools import cached_property
 
 from kungfu.library import Sum
 from msgspex.custom_types import Literal, Option, datetime, timedelta
-from msgspex.model import From, Model, field
+from msgspex.model import UNSET, DefaultFactory, From, Model, field
 from msgspex.tools import is_none
 
 from telegrinder.types.date_time_format import DateTimeFormatSeq
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.input_file import InputFile
-from telegrinder.types.objects_utils import default_parameter_as_option
+from telegrinder.types.utils import default_parameter_as_option_for_field
 
 
 class TransactionPartner(Model):
@@ -903,7 +903,11 @@ class Message(MaybeInaccessibleMessage):
     commands, etc. that appear in the text."""
 
     link_preview_options: Option[LinkPreviewOptions] = field(
-        default_factory=default_parameter_as_option("link_preview_options"), converter=From["LinkPreviewOptions | None"]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("link_preview_options"),
+            default=UNSET,
+        ),
+        converter=From["LinkPreviewOptions | None"],
     )
     """Optional. Options used for link preview generation for the message, if
     it is a text message and link preview options were changed."""
@@ -1365,7 +1369,11 @@ class ExternalReplyInfo(Model):
     only if the original chat is a supergroup or a channel."""
 
     link_preview_options: Option[LinkPreviewOptions] = field(
-        default_factory=default_parameter_as_option("link_preview_options"), converter=From["LinkPreviewOptions | None"]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("link_preview_options"),
+            default=UNSET,
+        ),
+        converter=From["LinkPreviewOptions | None"],
     )
     """Optional. Options used for link preview generation for the original message,
     if it is a text message."""
@@ -1969,7 +1977,11 @@ class InputPollOption(Model):
     """Option text, 1-100 characters."""
 
     text_parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("text_parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("text_parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the text. See formatting options
     for more details. Currently, only custom emoji entities are allowed."""
@@ -2034,12 +2046,12 @@ class Poll(Model):
     allows_revoting: bool = field()
     """True, if the poll allows to change the chosen answer options."""
 
-    type: PollType = field(default=PollType.REGULAR)
-    """Poll type, currently can be `regular` or `quiz`."""
-
     question_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the question. Currently, only
     custom emoji entities are allowed in poll questions."""
+
+    type: PollType = field(default=PollType.REGULAR)
+    """Poll type, currently can be `regular` or `quiz`."""
 
     correct_option_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
     """Optional. Array of 0-based identifiers of the correct answer options.
@@ -2136,7 +2148,11 @@ class InputChecklistTask(Model):
     """Text of the task; 1-100 characters after entities parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the text. See formatting options
     for more details."""
@@ -2160,7 +2176,11 @@ class InputChecklist(Model):
     """List of 1-30 tasks in the checklist."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the title. See formatting options
     for more details."""
@@ -2823,16 +2843,16 @@ class SuggestedPostRefunded(Model):
     Describes a service message about a payment refund for a suggested post.
     """
 
+    suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the suggested post. Note that the Message
+    object in this field will not contain the reply_to_message field even if
+    it itself is a reply."""
+
     reason: Literal["post_deleted", "payment_refunded"] = field(default="post_deleted")
     """Reason for the refund. Currently, one of `post_deleted` if the post was
     deleted within 24 hours of being posted or removed from scheduled messages
     without being posted, or `payment_refunded` if the payer refunded their
     payment."""
-
-    suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
-    """Optional. Message containing the suggested post. Note that the Message
-    object in this field will not contain the reply_to_message field even if
-    it itself is a reply."""
 
 
 class GiveawayCreated(Model):
@@ -5437,7 +5457,11 @@ class InputMediaPhoto(InputMedia):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
@@ -5492,7 +5516,11 @@ class InputMediaVideo(InputMedia):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
@@ -5549,7 +5577,11 @@ class InputMediaAnimation(InputMedia):
     entities parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the animation caption. See formatting
     options for more details."""
@@ -5603,7 +5635,11 @@ class InputMediaAudio(InputMedia):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
@@ -5651,7 +5687,11 @@ class InputMediaDocument(InputMedia):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
@@ -6084,7 +6124,11 @@ class InlineQueryResultPhoto(InlineQueryResult):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
@@ -6157,7 +6201,11 @@ class InlineQueryResultGif(InlineQueryResult):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
@@ -6230,7 +6278,11 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     entities parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
@@ -6280,18 +6332,22 @@ class InlineQueryResultVideo(InlineQueryResult):
     type: Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
-    mime_type: InlineQueryResultVideoMimeType = field(default=InlineQueryResultVideoMimeType.TEXT_HTML)
-    """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
-
     id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
+
+    mime_type: InlineQueryResultVideoMimeType = field(default=InlineQueryResultVideoMimeType.TEXT_HTML)
+    """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
@@ -6359,7 +6415,11 @@ class InlineQueryResultAudio(InlineQueryResult):
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
@@ -6416,7 +6476,11 @@ class InlineQueryResultVoice(InlineQueryResult):
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
@@ -6463,9 +6527,6 @@ class InlineQueryResultDocument(InlineQueryResult):
     type: Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    mime_type: InlineQueryResultDocumentMimeType = field(default=InlineQueryResultDocumentMimeType.APPLICATION_PDF)
-    """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
-
     id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
@@ -6474,7 +6535,11 @@ class InlineQueryResultDocument(InlineQueryResult):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
@@ -6482,6 +6547,9 @@ class InlineQueryResultDocument(InlineQueryResult):
     caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
+
+    mime_type: InlineQueryResultDocumentMimeType = field(default=InlineQueryResultDocumentMimeType.APPLICATION_PDF)
+    """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
 
     description: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Short description of the result."""
@@ -6748,7 +6816,11 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
@@ -6803,7 +6875,11 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
@@ -6858,7 +6934,11 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     entities parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
@@ -6951,7 +7031,11 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
@@ -7006,7 +7090,11 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
@@ -7060,7 +7148,11 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
@@ -7108,7 +7200,11 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
@@ -7147,7 +7243,11 @@ class InputTextMessageContent(InputMessageContent):
     """Text of the message to be sent, 1-4096 characters."""
 
     parse_mode: Option[str] = field(
-        default_factory=default_parameter_as_option("parse_mode"), converter=From[str | None]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
     )
     """Optional. Mode for parsing entities in the message text. See formatting
     options for more details."""
@@ -7157,7 +7257,11 @@ class InputTextMessageContent(InputMessageContent):
     be specified instead of parse_mode."""
 
     link_preview_options: Option[LinkPreviewOptions] = field(
-        default_factory=default_parameter_as_option("link_preview_options"), converter=From["LinkPreviewOptions | None"]
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("link_preview_options"),
+            default=UNSET,
+        ),
+        converter=From["LinkPreviewOptions | None"],
     )
     """Optional. Link preview generation options for the message."""
 
