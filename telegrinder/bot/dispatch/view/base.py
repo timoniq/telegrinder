@@ -204,7 +204,7 @@ class EventModelView[T: (UpdateModel)](View):
 
     async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
         # If update object is not of the expected type of object, instantly skip checking the view
-        if update.incoming_update.__class__ is not self.model:
+        if not issubclass(update.incoming_update.__class__, self.model):
             return Error(
                 f"Incoming event model `{update.incoming_update.__class__.__name__!r}`"
                 f" is not `{self.model.__name__!r}`.",

@@ -17,11 +17,11 @@ if typing.TYPE_CHECKING:
 type Key = str
 type AnyValue = typing.Any
 
+SELF_CONTEXT_KEYS: typing.Final = frozenset(("context", "ctx"))
+
 
 class Context(Externals):
     """Low level per event context storage."""
-
-    SELF_CONTEXT_KEYS: typing.Final = frozenset(("context", "ctx"))
 
     api: API
     update: Update
@@ -58,7 +58,7 @@ class Context(Externals):
         Externals.__setitem__(self, __key, __value)
 
     def __getitem__(self, __key: Key) -> AnyValue:
-        if __key in type(self).SELF_CONTEXT_KEYS:
+        if __key in SELF_CONTEXT_KEYS:
             return self
         return Externals.__getitem__(self, __key)
 
@@ -69,7 +69,7 @@ class Context(Externals):
         self.__setitem__(__name, __value)
 
     def __getattribute__(self, __name: str) -> AnyValue:
-        if __name in type(self).SELF_CONTEXT_KEYS:
+        if __name in SELF_CONTEXT_KEYS:
             return self
 
         if __name in _CONTEXT_CLASS_ATTRS and not Externals.__contains__(self, __name):
@@ -81,7 +81,7 @@ class Context(Externals):
         self.__delitem__(__name)
 
     def __contains__(self, __key: object) -> bool:
-        if __key in type(self).SELF_CONTEXT_KEYS:
+        if __key in SELF_CONTEXT_KEYS:
             return True
         return Externals.__contains__(self, __key)
 
@@ -114,11 +114,17 @@ class Context(Externals):
     ) -> typing.Self:
         from telegrinder.bot.cute_types.update import UpdateCute
 
+        update_cute = (
+            update.bind_raw_update(update)
+            if isinstance(update, UpdateCute)
+            else UpdateCute.from_update(update, bound_api=api)
+        )
+
         for key, value in {
             "api": api,
             "raw_update": update,
             "update": update,
-            "update_cute": UpdateCute.from_update(update, bound_api=api),
+            "update_cute": update_cute,
             "per_event_scope": per_event_scope,
             "exceptions_update": {},
         }.items():

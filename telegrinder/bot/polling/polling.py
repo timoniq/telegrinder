@@ -8,6 +8,7 @@ from msgspex import decoder
 
 from telegrinder.api.api import API
 from telegrinder.api.error import APIServerError, InvalidTokenError
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.bot.polling.error_handler import ErrorHandler
 from telegrinder.bot.polling.utils import compute_number
@@ -40,12 +41,14 @@ class Polling(ABCPolling):
         timeout: int | float | datetime.timedelta | None = None,
         limit: int | None = None,
         offset: int = DEFAULT_OFFSET,
+        update_model: type[Update] = UpdateCute,
         reconnect_after: float = DEFAULT_RECONNECT_AFTER,
         max_reconnects: int = DEFAULT_MAX_RECONNECTS,
         include_updates: set[UpdateType] | None = None,
         exclude_updates: set[UpdateType] | None = None,
     ) -> None:
         self.api = api
+        self.update_model = update_model
         self.timeout = timeout if isinstance(timeout, datetime.timedelta) else datetime.timedelta(seconds=timeout or 0)
         self.timeout_seconds = int(self.timeout.total_seconds())
         self.limit = limit
@@ -62,11 +65,12 @@ class Polling(ABCPolling):
 
     def __repr__(self) -> str:
         return (
-            "<{}: api={!r}, running={}, offset={}, timeout={}, limit={}, "
-            "allowed_updates={!r}, max_reconnects={}, reconnect_after={}>"
+            "<{}: api={!r}, update_model={!r}, running={}, offset={}, timeout={}, "
+            "limit={}, allowed_updates={!r}, max_reconnects={}, reconnect_after={}>"
         ).format(
             type(self).__name__,
             self.api,
+            self.update_model,
             self._running,
             self.offset,
             self.timeout,
@@ -143,7 +147,7 @@ class Polling(ABCPolling):
         logger.debug("Listening polling")
         self._running = True
 
-        with decoder(list[Update]) as updates_decoder:
+        with decoder(list[self.update_model]) as updates_decoder:
             while self._running:
                 try:
                     if (raw := await self.get_updates()) and (updates := updates_decoder.decode(raw)):

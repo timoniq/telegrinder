@@ -4,6 +4,7 @@ from collections import deque
 from nodnod.interface.inject import inject_internals
 
 from telegrinder.api.api import API
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware, run_post_middleware, run_pre_middleware
@@ -319,6 +320,12 @@ class Dispatch[
                             int(elapsed_time * NANOSECONDS_PER_MILLISECOND) if elapsed_ms < 1 else int(elapsed_ms),
                             "ns" if elapsed_ms < 1 else "ms",
                         )
+
+    async def feed_raw(self, api: API, raw_update: str | bytes) -> None:
+        await self.feed(api, UpdateCute.from_raw(raw_update))
+
+    async def feed_cute(self, api: API, update_cute: UpdateCute) -> None:
+        await self.feed(api, update_cute)
 
     def load(self, external: typing.Self) -> None:
         self.routers.extend(filter(None, external.routers))

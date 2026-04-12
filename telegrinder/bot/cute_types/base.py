@@ -131,7 +131,7 @@ class BaseCute[T: Model = typing.Any](Model):
         super().__init_subclass__(*args, **kwargs)
 
     @classmethod
-    def __compose__(cls, update: Update, context: Context) -> typing.Any:
+    def __compose__(cls, context: Context) -> typing.Any:
         update_cute = context.update_cute
 
         if type(update_cute) is cls:
@@ -212,7 +212,7 @@ class BaseCute[T: Model = typing.Any](Model):
     def _to_dict(self, dct_name: str, exclude_fields: set[str], full: bool) -> dict[str, typing.Any]:
         if dct_name not in self.__dict__:
             dct = struct_asdict(self)
-            self.__dict__[dct_name] = dct if not full else encoder.to_builtins(dct, order="deterministic")  # type: ignore
+            self.__dict__[dct_name] = dct if not full else encoder.to_builtins(dct)  # type: ignore
 
         if not exclude_fields:
             return self.__dict__[dct_name]
