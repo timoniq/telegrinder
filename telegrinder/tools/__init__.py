@@ -8,6 +8,7 @@ from telegrinder.tools.aio import (
     send_generator_value,
     stop_generator,
 )
+from telegrinder.tools.encode import datetime_to_int_timestamp_hook
 from telegrinder.tools.formatting import (
     HTML,
     blockquote,
@@ -148,6 +149,7 @@ __all__ = (
     "code_inline",
     "ctx_var",
     "date_time",
+    "datetime_to_int_timestamp_hook",
     "escape",
     "fullname",
     "get_default_args",
