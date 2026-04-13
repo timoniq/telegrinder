@@ -8,13 +8,13 @@ Scopes:
 
 from __future__ import annotations
 
+import asyncio
 import enum
 import typing
 
 from nodnod.node import Node
 from nodnod.scope import Scope
 
-from telegrinder.modules import logger
 from telegrinder.node.utils import as_node
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 
@@ -28,16 +28,13 @@ TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
 NODE_GLOBAL_SCOPE: typing.Final = TELEGRINDER_CONTEXT.node_global_scope
 
 
-@TELEGRINDER_CONTEXT.loop_wrapper.lifespan.on_shutdown
-async def close_node_global_scope() -> None:
-    logger.debug("Closing node global scope")
+async def wait_for_close_node_global_scope() -> None:
+    future = asyncio.get_running_loop().create_future()
 
     try:
+        await future
+    finally:
         await TELEGRINDER_CONTEXT.close_global_scope()
-    except Exception:
-        logger.exception("While closing node global scope, an error occurred:")
-    else:
-        logger.debug("Node global scope closed")
 
 
 def create_per_event_scope() -> Scope:

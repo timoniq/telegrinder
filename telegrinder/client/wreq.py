@@ -92,7 +92,7 @@ class WreqClient(ABCClient):
         params.setdefault("user_agent", USER_AGENT)
         params.setdefault("connect_timeout", DEFAULT_CONNECTION_TIMEOUT)
         params.setdefault("read_timeout", DEFAULT_READ_TIMEOUT)
-        params.setdefault("verify", DEFAULT_VERIFY)
+        params.setdefault("tls_verify", DEFAULT_VERIFY)
         params.setdefault("http2_only", DEFAULT_HTTP2_ONLY)
         params.setdefault("zstd", DEFAULT_ZSTD)
         params.setdefault("tcp_keepalive", DEFAULT_TCP_KEEPALIVE_TIME)
