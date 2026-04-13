@@ -30,7 +30,7 @@ class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only
         is returned. Note: The Bot API must receive an answer within 10 seconds after
         the pre-checkout query was sent."""
         params = compose_method_params(get_params(locals()), self, default_params={("pre_checkout_query_id", "id")})
-        return await self.ctx_api.answer_pre_checkout_query(**params)
+        return await self.bound_api.answer_pre_checkout_query(**params)
 
 
 __all__ = ("PreCheckoutQueryCute",)

@@ -8,6 +8,7 @@ from telegrinder.tools.aio import (
     send_generator_value,
     stop_generator,
 )
+from telegrinder.tools.decode import int_timestamp_to_datetime_hook
 from telegrinder.tools.encode import datetime_to_int_timestamp_hook
 from telegrinder.tools.formatting import (
     HTML,
@@ -157,6 +158,7 @@ __all__ = (
     "get_func_parameters",
     "get_generic_parameters",
     "get_tasks_results",
+    "int_timestamp_to_datetime_hook",
     "italic",
     "link",
     "maybe_awaitable",

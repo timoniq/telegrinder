@@ -21,20 +21,19 @@ class BaseShortcuts[Cute: BaseCute[typing.Any] = typing.Any]:
 
 class BaseCute[T: Model = typing.Any](Model):
     api: typing.Final[API]
+    """Alias for `bound_api`."""
+
+    bound_api: typing.Final[API]
     """`API` bound to the cute model."""
 
-    ctx_api: typing.Final[API]
-    """Alias for `api`."""
-
-    raw_update: typing.Final[Update]
-    """`Update` bound to the cute model."""
+    bound_update: typing.Final[Update]
+    """`Update` object bound to the cute model."""
 
     @classmethod
     def __compose__(cls, update: Update, context: Context) -> typing.Self: ...
     @classmethod
     def from_update(cls, update: T, bound_api: API) -> typing.Self: ...
-    def bind_raw_update(self, raw_update: Update, /) -> typing.Self: ...
-    def get_raw_update(self) -> Option[Update]: ...
+    def bind(self, update: Update, api: API) -> typing.Self: ...
     def to_dict(
         self,
         *,

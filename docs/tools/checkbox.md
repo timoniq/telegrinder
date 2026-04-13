@@ -71,11 +71,11 @@ async def start(m: Message):
     # now your checkbox is ready to use.
     # picked is a dictionary option name to option state
     # message_id is the id of the one sent with `msg` text
-    picked, message_id = await checkbox.wait(CALLBACK_QUERY_FOR_MESSAGE, m.ctx_api)
+    picked, message_id = await checkbox.wait(CALLBACK_QUERY_FOR_MESSAGE, m.api)
 
     # usually this message is edited
     # with received information
-    await m.ctx_api.edit_message_text(
+    await m.api.edit_message_text(
         m.chat.id,
         message_id,
         text="You picked {}".format(

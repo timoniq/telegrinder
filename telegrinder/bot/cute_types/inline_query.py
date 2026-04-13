@@ -35,7 +35,7 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
             default_params={("inline_query_id", "id")},
         )
         params["results"] = [results] if not isinstance(results, list) else results
-        return await self.ctx_api.answer_inline_query(**params)
+        return await self.bound_api.answer_inline_query(**params)
 
 
 __all__ = ("InlineQueryCute",)

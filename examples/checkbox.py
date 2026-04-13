@@ -17,7 +17,7 @@ async def action(m: Message) -> None:
         .add_option("apple", "Apple", "Apple 🍏")
         .add_option("banana", "Banana", "Banana 🍌", is_picked=True)
         .add_option("pear", "Pear", "Pear 🍐")
-        .wait(CALLBACK_QUERY_FOR_MESSAGE, bot.on.callback_query, m.ctx_api)
+        .wait(CALLBACK_QUERY_FOR_MESSAGE, bot.on.callback_query, m.api)
     )
     await m.edit(
         text="You picked: {}".format(", ".join(c for c in picked if picked[c])),

@@ -9,7 +9,6 @@ from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.dispatch.waiter_machine.short_state import ShortStateContext
 from telegrinder.modules import logger
-from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.waiter_machine.hasher import Hasher
@@ -26,7 +25,7 @@ class WaiterMiddleware(ABCMiddleware):
         self.machine = machine
         self.hasher = hasher
 
-    async def pre(self, update_cute: UpdateCute, raw_update: Update, api: API, ctx: Context) -> bool:
+    async def pre(self, update_cute: UpdateCute, api: API, ctx: Context) -> bool:
         if self.hasher not in self.machine.storage:
             return True
 
@@ -58,8 +57,8 @@ class WaiterMiddleware(ABCMiddleware):
             preset_context=preset_context,
         )
 
-        if not await handler.run(api, raw_update, ctx) and (on_miss := short_state.actions.get("on_miss")) is not None:
-            await on_miss.run(api, raw_update, ctx)
+        if not await handler.run(api, update_cute, ctx) and (on_miss := short_state.actions.get("on_miss")) is not None:
+            await on_miss.run(api, update_cute, ctx)
 
         return False
 

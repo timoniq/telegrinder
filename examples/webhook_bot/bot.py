@@ -39,7 +39,7 @@ kb = (
 
 @dp.message(Text("/start") | FuzzyText("hello"))
 async def start(message: Message) -> None:
-    me = (await message.ctx_api.get_me()).unwrap().full_name
+    me = (await message.api.get_me()).unwrap().full_name
     await message.answer(f"Hello, {message.from_user.full_name}, im {me} and i work on a webhook server!")
 
 
@@ -50,7 +50,7 @@ async def car_choice(message: Message) -> None:
         .add_option("bentley", "Bentley Continental", "Continental 🤍")
         .add_option("mazda", "Mazda rx 7", "Mazda rx 7 🩵")
         .add_option("toyota", "Toyota Supra mk5", "Supra mk5 💜")
-        .wait(CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api)
+        .wait(CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.api)
     )
     await message.edit(
         "🚘 You picked: {}.".format(", ".join(c for c in picked if picked[c])),
@@ -66,7 +66,7 @@ async def handle_menu_command(message: Message) -> None:
 @dp.callback_query(PayloadEqRule("action/webhooks"))
 async def handle_query_webhook(cb: CallbackQuery) -> None:
     await cb.answer()
-    await cb.ctx_api.send_message(
+    await cb.api.send_message(
         text=link(
             "https://core.telegram.org/bots/webhooks",
             text="🛰 Marvin's Marvellous Guide to All Things Webhook.",
@@ -80,7 +80,7 @@ async def handle_query_webhook(cb: CallbackQuery) -> None:
 async def handle_query_quote(cb: CallbackQuery) -> None:
     await cb.answer()
     message = (
-        await cb.ctx_api.send_message(
+        await cb.api.send_message(
             text="✍️ Send me any message and i'll quote it!",
             chat_id=cb.chat_id.unwrap(),
         )
@@ -97,7 +97,7 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
 async def handle_query_guess(cb: CallbackQuery) -> None:
     await cb.answer()
     message = (
-        await cb.ctx_api.send_message(
+        await cb.api.send_message(
             text="🎲 Okay, i guessed a number between 1 and 10!",
             chat_id=cb.chat_id.unwrap(),
         )

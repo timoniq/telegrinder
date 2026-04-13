@@ -114,17 +114,15 @@ class Context(Externals):
     ) -> typing.Self:
         from telegrinder.bot.cute_types.update import UpdateCute
 
-        update_cute = (
-            update.bind_raw_update(update)
-            if isinstance(update, UpdateCute)
-            else UpdateCute.from_update(update, bound_api=api)
-        )
-
         for key, value in {
             "api": api,
             "raw_update": update,
             "update": update,
-            "update_cute": update_cute,
+            "update_cute": (
+                update.bind(update, api)
+                if isinstance(update, UpdateCute)
+                else UpdateCute.from_update(update, bound_api=api)
+            ),
             "per_event_scope": per_event_scope,
             "exceptions_update": {},
         }.items():

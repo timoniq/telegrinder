@@ -18,7 +18,7 @@ class Choice[Key: typing.Hashable](Checkbox[Key]):
         for i, choice in enumerate(self.choices):
             if choice.code == code:
                 self.choices[i].is_picked = True
-                await cb.ctx_api.edit_message_text(
+                await cb.bound_api.edit_message_text(
                     text=self.message,
                     chat_id=cb.message.unwrap().v.chat.id,
                     message_id=cb.message.unwrap().v.message_id,

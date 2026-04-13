@@ -37,15 +37,15 @@ async def execute_method_answer(
             "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False),
         },
     )
-    result = await getattr(message.api, method_name)(**params)
+    result = await getattr(message.bound_api, method_name)(**params)
     return result.map(
         lambda x: (
             x
             if isinstance(x, bool)
             else (
-                message.from_update(x, bound_api=message.api)
+                message.from_update(x, bound_api=message.bound_api)
                 if not isinstance(x, list)
-                else [message.from_update(m, bound_api=message.api) for m in x]
+                else [message.from_update(m, bound_api=message.bound_api) for m in x]
             )
         )
     )
@@ -95,7 +95,7 @@ async def execute_method_edit(
         params.pop("message_id", None)
         params.pop("chat_id", None)
 
-    result = await getattr(update.ctx_api, method_name)(**params)
+    result = await getattr(update.bound_api, method_name)(**params)
     return result.map(
         lambda v: Sum[MessageCute, bool](
             v.only()
@@ -2602,7 +2602,7 @@ class MessageCute(
             default_params={"chat_id", "message_id", "message_thread_id"},
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return await self.ctx_api.delete_message(**params)
+        return await self.bound_api.delete_message(**params)
 
     @shortcut(
         "edit_message_text",
@@ -2698,7 +2698,7 @@ class MessageCute(
             reply_parameters.setdefault("message_id", params.get("message_id"))
             reply_parameters.setdefault("chat_id", params.get("chat_id"))
             params["reply_parameters"] = ReplyParameters(**reply_parameters)
-        return await self.ctx_api.copy_message(**params)
+        return await self.bound_api.copy_message(**params)
 
     @shortcut(
         "set_message_reaction",
@@ -2730,7 +2730,7 @@ class MessageCute(
             params["reaction"] = compose_reactions(
                 reaction.unwrap() if isinstance(reaction, Some) else reaction,
             )
-        return await self.ctx_api.set_message_reaction(**params)
+        return await self.bound_api.set_message_reaction(**params)
 
     @shortcut("forward_message", custom_params={"message_thread_id", "from_chat_id", "message_id"})
     async def forward(
@@ -2780,7 +2780,7 @@ class MessageCute(
             },
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return (await self.ctx_api.forward_message(**params)).map(
+        return (await self.bound_api.forward_message(**params)).map(
             lambda message: MessageCute.from_update(message, bound_api=self.api),
         )
 
@@ -2815,7 +2815,7 @@ class MessageCute(
             default_params={"chat_id", "message_id", "message_thread_id"},
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return await self.ctx_api.pin_chat_message(**params)
+        return await self.bound_api.pin_chat_message(**params)
 
     @shortcut("unpin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def unpin(
@@ -2845,7 +2845,7 @@ class MessageCute(
             default_params={"chat_id", "message_id", "message_thread_id"},
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return await self.ctx_api.unpin_chat_message(**params)
+        return await self.bound_api.unpin_chat_message(**params)
 
 
 __all__ = ("MessageCute",)

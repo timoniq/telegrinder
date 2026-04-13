@@ -22,7 +22,7 @@ async def chat_member_interaction(
         update,
         default_params={"chat_id", "user_id"},
     )
-    return await getattr(update.ctx_api, method_name)(**params)
+    return await getattr(update.bound_api, method_name)(**params)
 
 
 class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequestCute"]):

@@ -129,7 +129,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         The answer will be displayed to the user as a notification at the top of the
         chat screen or as an alert. On success, True is returned."""
         params = compose_method_params(get_params(locals()), self, default_params={("callback_query_id", "id")})
-        return await self.ctx_api.answer_callback_query(**params)
+        return await self.bound_api.answer_callback_query(**params)
 
     @shortcut(
         "copy_message",
