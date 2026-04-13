@@ -9,7 +9,7 @@ from telegrinder.tools.aio import (
     stop_generator,
 )
 from telegrinder.tools.decode import int_timestamp_to_datetime_hook
-from telegrinder.tools.encode import datetime_to_int_timestamp_hook
+from telegrinder.tools.encode import datetime_to_int_timestamp_hook, timedelta_to_int_timedelta
 from telegrinder.tools.formatting import (
     HTML,
     blockquote,
@@ -202,6 +202,7 @@ __all__ = (
     "tg_public_username_link",
     "tg_share_link",
     "tg_story_link",
+    "timedelta_to_int_timedelta",
     "to_utf16_map",
     "underline",
     "utf8_utf16_length",
