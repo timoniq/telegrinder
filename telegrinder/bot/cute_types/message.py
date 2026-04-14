@@ -962,7 +962,66 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
-        Use this method to send invoices. On success, the sent Message is returned."""
+        Use this method to send invoices. On success, the sent Message is returned.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param title: Product name, 1-32 characters.
+
+        :param description: Product description, 1-255 characters.
+
+        :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed tothe user, use it for your internal processes.
+
+        :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty stringfor payments in Telegram Stars.
+
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR`for payments in Telegram Stars.
+
+        :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price,tax, discount, delivery cost, delivery tax, bonus, etc.). Must containexactly one item for payments in Telegram Stars.
+
+        :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency(integer, not float/double). For example, for a maximum tip of US$ 1.45pass max_tip_amount = 145. See the exp parameter in currencies.json, itshows the number of digits past the decimal point for each currency (2 forthe majority of currencies). Defaults to 0. Not supported for paymentsin Telegram Stars.
+
+        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest unitsof the currency (integer, not float/double). At most 4 suggested tip amountscan be specified. The suggested tip amounts must be positive, passed ina strictly increased order and must not exceed max_tip_amount.
+
+        :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of thesent message will have a Pay button, allowing multiple users to pay directlyfrom the forwarded message, using the same invoice. If non-empty, forwardedcopies of the sent message will have a URL button with a deep link to the bot(instead of a Pay button), with the value used as the start parameter.
+
+        :param provider_data: JSON-serialized data about the invoice, which will be shared with the paymentprovider. A detailed description of required fields should be providedby the payment provider.
+
+        :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketingimage for a service. People like it better when they see what they are payingfor.
+
+        :param photo_size: Photo size in bytes.
+
+        :param photo_width: Photo width.
+
+        :param photo_height: Photo height.
+
+        :param need_name: Pass True if you require the user's full name to complete the order. Ignoredfor payments in Telegram Stars.
+
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order. Ignoredfor payments in Telegram Stars.
+
+        :param need_email: Pass True if you require the user's email address to complete the order.Ignored for payments in Telegram Stars.
+
+        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order.Ignored for payments in Telegram Stars.
+
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider. Ignoredfor payments in Telegram Stars.
+
+        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider. Ignoredfor payments in Telegram Stars.
+
+        :param is_flexible: Pass True if the final price depends on the shipping method. Ignored forpayments in Telegram Stars.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay totalprice' button will be shown. If not empty, the first button must be a Pay button."""
         ...
 
     @shortcut(
@@ -1999,7 +2058,66 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
-        Use this method to send invoices. On success, the sent Message is returned."""
+        Use this method to send invoices. On success, the sent Message is returned.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param title: Product name, 1-32 characters.
+
+        :param description: Product description, 1-255 characters.
+
+        :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed tothe user, use it for your internal processes.
+
+        :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty stringfor payments in Telegram Stars.
+
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR`for payments in Telegram Stars.
+
+        :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price,tax, discount, delivery cost, delivery tax, bonus, etc.). Must containexactly one item for payments in Telegram Stars.
+
+        :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency(integer, not float/double). For example, for a maximum tip of US$ 1.45pass max_tip_amount = 145. See the exp parameter in currencies.json, itshows the number of digits past the decimal point for each currency (2 forthe majority of currencies). Defaults to 0. Not supported for paymentsin Telegram Stars.
+
+        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest unitsof the currency (integer, not float/double). At most 4 suggested tip amountscan be specified. The suggested tip amounts must be positive, passed ina strictly increased order and must not exceed max_tip_amount.
+
+        :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of thesent message will have a Pay button, allowing multiple users to pay directlyfrom the forwarded message, using the same invoice. If non-empty, forwardedcopies of the sent message will have a URL button with a deep link to the bot(instead of a Pay button), with the value used as the start parameter.
+
+        :param provider_data: JSON-serialized data about the invoice, which will be shared with the paymentprovider. A detailed description of required fields should be providedby the payment provider.
+
+        :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketingimage for a service. People like it better when they see what they are payingfor.
+
+        :param photo_size: Photo size in bytes.
+
+        :param photo_width: Photo width.
+
+        :param photo_height: Photo height.
+
+        :param need_name: Pass True if you require the user's full name to complete the order. Ignoredfor payments in Telegram Stars.
+
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order. Ignoredfor payments in Telegram Stars.
+
+        :param need_email: Pass True if you require the user's email address to complete the order.Ignored for payments in Telegram Stars.
+
+        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order.Ignored for payments in Telegram Stars.
+
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider. Ignoredfor payments in Telegram Stars.
+
+        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider. Ignoredfor payments in Telegram Stars.
+
+        :param is_flexible: Pass True if the final price depends on the shipping method. Ignored forpayments in Telegram Stars.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay totalprice' button will be shown. If not empty, the first button must be a Pay button."""
         ...
 
     @shortcut(
@@ -2595,7 +2713,10 @@ class MessageCute(
         administrator right in a supergroup or a channel, it can delete any message
         there. - If the bot has can_manage_direct_messages administrator right
         in a channel, it can delete any message in the corresponding direct messages
-        chat. Returns True on success."""
+        chat. Returns True on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to delete."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -2682,7 +2803,38 @@ class MessageCute(
         messages can't be copied. A quiz poll can be copied only if the value of the
         field correct_option_id is known to the bot. The method is analogous to
         the method forwardMessage, but the copied message doesn't have a link to
-        the original message. Returns the MessageId of the sent message on success."""
+        the original message. Returns the MessageId of the sent message on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channelusername in the format @channelusername).
+
+        :param message_id: Message identifier in the chat specified in from_chat_id.
+
+        :param video_start_timestamp: New start timestamp for the copied video in the message.
+
+        :param caption: New caption for media, 0-1024 characters after entities parsing. If notspecified, the original caption is kept.
+
+        :param parse_mode: Mode for parsing entities in the new caption. See formatting options formore details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the new caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Ignoredif a new caption isn't specified.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; onlyavailable when copying to private chats.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -2719,7 +2871,13 @@ class MessageCute(
         Use this method to change the chosen reactions on a message. Service messages
         of some types can't be reacted to. Automatically forwarded messages from
         a channel to its discussion group have the same available reactions as messages
-        in the channel. Bots can't use paid reactions. Returns True on success."""
+        in the channel. Bots can't use paid reactions. Returns True on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the target message. If the message belongs to a media group,the reaction is set to the first non-deleted message in the group instead.
+        :param reaction: A JSON-serialized list of reaction types to set on the message. Currently,as non-premium users, bots can set up to one reaction per message. A customemoji reaction can be used if it is either already present on the messageor explicitly allowed by chat administrators. Paid reactions can't beused by bots.
+
+        :param is_big: Pass True to set the reaction with a big animation."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,

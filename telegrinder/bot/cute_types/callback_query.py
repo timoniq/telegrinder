@@ -127,7 +127,16 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
         Use this method to send answers to callback queries sent from inline keyboards.
         The answer will be displayed to the user as a notification at the top of the
-        chat screen or as an alert. On success, True is returned."""
+        chat screen or as an alert. On success, True is returned.
+        :param callback_query_id: [`CUSTOM PARAMETER`] Unique identifier for the query to be answered.
+
+        :param text: Text of the notification. If not specified, nothing will be shown to theuser, 0-200 characters.
+
+        :param show_alert: If True, an alert will be shown by the client instead of a notification atthe top of the chat screen. Defaults to false.
+
+        :param url: URL that will be opened by the user's client. If you have created a Game andaccepted the conditions via @BotFather, specify the URL that opens yourgame - note that this will only work if the query comes from a callback_gamebutton. Otherwise, you may use links like t.me/your_bot?start=XXXX thatopen your bot with a parameter.
+
+        :param cache_time: The maximum amount of time in seconds that the result of the callback querymay be cached client-side. Telegram apps will support caching startingin version 3.14. Defaults to 0."""
         params = compose_method_params(get_params(locals()), self, default_params={("callback_query_id", "id")})
         return await self.bound_api.answer_callback_query(**params)
 
@@ -170,7 +179,38 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         messages can't be copied. A quiz poll can be copied only if the value of the
         field correct_option_id is known to the bot. The method is analogous to
         the method forwardMessage, but the copied message doesn't have a link to
-        the original message. Returns the MessageId of the sent message on success."""
+        the original message. Returns the MessageId of the sent message on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channelusername in the format @channelusername).
+
+        :param message_id: Message identifier in the chat specified in from_chat_id.
+
+        :param video_start_timestamp: New start timestamp for the copied video in the message.
+
+        :param caption: New caption for media, 0-1024 characters after entities parsing. If notspecified, the original caption is kept.
+
+        :param parse_mode: Mode for parsing entities in the new caption. See formatting options formore details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the new caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Ignoredif a new caption isn't specified.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; onlyavailable when copying to private chats.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         return await MessageCute.copy(self, **get_params(locals()))  # type: ignore
 
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
@@ -196,7 +236,10 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         administrator right in a supergroup or a channel, it can delete any message
         there. - If the bot has can_manage_direct_messages administrator right
         in a channel, it can delete any message in the corresponding direct messages
-        chat. Returns True on success."""
+        chat. Returns True on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to delete."""
         return await MessageCute.delete(self, **get_params(locals()))  # type: ignore
 
     @shortcut(

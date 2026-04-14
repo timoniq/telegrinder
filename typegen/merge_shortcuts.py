@@ -96,13 +96,13 @@ def prepare_docstring(
         )
 
         for param, docstring in api_method_docstring_params.items():
-            if param in custom_params:
-                continue
             shortcut_docstring_params[param] = docstring
 
         for param, docstring in shortcut_docstring_params.items():
             docstring = docstring.replace("         ", "")
-            shortcut_docstring_s += f"\n:param {param}: {docstring}"
+            shortcut_docstring_s += (
+                f"\n:param {param}: {'[`CUSTOM PARAMETER`] ' if param in custom_params else ''}{docstring}"
+            )
 
         return '"""{}"""'.format(shortcut_docstring_s)
 

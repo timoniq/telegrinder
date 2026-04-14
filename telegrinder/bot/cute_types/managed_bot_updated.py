@@ -24,9 +24,7 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
 
         Use this method to get the token of a managed bot. Returns the token as String
         on success.
-
-        :param user_id: User identifier of the managed bot whose token will be returned.
-        """
+        :param user_id: [`CUSTOM PARAMETER`] User identifier of the managed bot whose token will be returned."""
         return await self.bound_api.get_managed_bot_token(
             user_id=self.user.id if user_id is None else user_id,
             **other,
