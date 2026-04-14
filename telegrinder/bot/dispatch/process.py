@@ -24,7 +24,7 @@ async def process_inner(
     view: View,
 ) -> Result[str, str]:
     for middleware in view.middlewares:
-        if await run_pre_middleware(middleware, context) is False:
+        if await run_pre_middleware(middleware, context) is not True:
             logger.info(
                 "Pre-middleware `{}` raised failure.",
                 fullname(middleware),
@@ -68,16 +68,16 @@ async def check_rule(rule: ABCRule, context: Context) -> bool:
                 if not await check_rule(requirement, context):
                     return False
 
-    logger.debug("  → Checking rule `{!r}`...", rule)
+    logger.debug("  → Checking `{!r}`...", rule)
 
     async with compose(rule.composable, context) as result:
         match result:
             case Ok(result):
-                logger.debug("    * Rule `{!r}` is {}", rule, "ok" if result else "failed")
+                logger.debug("    * `{!r}` is {}", rule, "ok" if result else "failed")
                 return result
             case Error(error):
                 logger.debug(
-                    "    * Rule `{}` failed with error:{}\n",
+                    "    * `{}` failed with error:{}\n",
                     fullname(rule),
                     NodeError(f"* failed to compose check of `{fullname(rule)}` rule", from_error=error),
                 )

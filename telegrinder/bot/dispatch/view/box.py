@@ -71,6 +71,7 @@ class EventViewBox[
     ChatJoinRequestView: EventView = EventView,
     ChatBoostView: EventView = EventView,
     RemovedChatBoostView: EventView = EventView,
+    ManagedBotUpdatedView: EventView = EventView,
 ]:
     message: MessageView = dataclasses.field(default_factory=event_view(UpdateType.MESSAGE, MessageReturnManager()))
     edited_message: EditedMessageView = dataclasses.field(
@@ -123,6 +124,9 @@ class EventViewBox[
     removed_chat_boost: RemovedChatBoostView = dataclasses.field(
         default_factory=event_view(UpdateType.REMOVED_CHAT_BOOST),
     )
+    managed_bot: ManagedBotUpdatedView = dataclasses.field(
+        default_factory=event_view(UpdateType.MANAGED_BOT),
+    )
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -157,6 +161,7 @@ class ViewBox[
     ChatJoinRequestView: EventView = EventView,
     ChatBoostView: EventView = EventView,
     RemovedChatBoostView: EventView = EventView,
+    ManagedBotUpdatedView: EventView = EventView,
     MediaGroup: View = MediaGroupView,
     Error: ErrorView = ErrorView,
     RawEvent: RawEventView = RawEventView,
@@ -186,6 +191,7 @@ class ViewBox[
         ChatJoinRequestView,
         ChatBoostView,
         RemovedChatBoostView,
+        ManagedBotUpdatedView,
     ],
 ):
     event_error: Error = dataclasses.field(default_factory=view(ErrorView))

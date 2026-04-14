@@ -2353,6 +2353,11 @@ class ManagedBotUpdated(Model):
     """Information about the bot. Token of the bot can be fetched using the method
     getManagedBotToken."""
 
+    @property
+    def user_id(self) -> int:
+        """`user_id` instead of `user.id`."""
+        return self.user.id
+
 
 class PollOptionAdded(Model):
     """Object `PollOptionAdded`, see the [documentation](https://core.telegram.org/bots/api#polloptionadded).

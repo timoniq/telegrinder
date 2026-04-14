@@ -73,6 +73,7 @@ from .bot import (
     Hasher,
     InlineQueryCute,
     InlineQueryReturnManager,
+    ManagedBotUpdatedCute,
     MediaGroupMiddleware,
     MediaGroupReplyHandler,
     MediaGroupView,
@@ -144,6 +145,7 @@ BusinessConnection: typing.TypeAlias = BusinessConnectionCute
 BusinessMessagesDeleted: typing.TypeAlias = BusinessMessagesDeletedCute
 MessageReactionCountUpdated: typing.TypeAlias = MessageReactionCountUpdatedCute
 MessageReactionUpdated: typing.TypeAlias = MessageReactionUpdatedCute
+ManagedBotUpdated: typing.TypeAlias = ManagedBotUpdatedCute
 Bot: typing.TypeAlias = Telegrinder
 
 
@@ -211,6 +213,8 @@ __all__ = (
     "Keyboard",
     "Lifespan",
     "LoopWrapper",
+    "ManagedBotUpdated",
+    "ManagedBotUpdatedCute",
     "MediaGroupMiddleware",
     "MediaGroupReplyHandler",
     "MediaGroupView",

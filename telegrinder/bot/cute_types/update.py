@@ -14,6 +14,7 @@ from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberUpdatedCute
 from telegrinder.bot.cute_types.chosen_inline_result import ChosenInlineResultCute
 from telegrinder.bot.cute_types.inline_query import InlineQueryCute
+from telegrinder.bot.cute_types.managed_bot_updated import ManagedBotUpdatedCute
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.cute_types.message_reaction_count_updated import MessageReactionCountUpdatedCute
 from telegrinder.bot.cute_types.message_reaction_updated import MessageReactionUpdatedCute
@@ -34,13 +35,13 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
 
     message: Option[MessageCute] = field(
         default=...,
-        converter=From[MessageCute | None],
+        converter=From[Message | None],
     )
     """Optional. New incoming message of any kind - text, photo, sticker, etc."""
 
     edited_message: Option[MessageCute] = field(
         default=...,
-        converter=From[MessageCute | None],
+        converter=From[Message | None],
     )
     """Optional. New version of a message that is known to the bot and was edited.
     This update may at times be triggered by changes to message fields that are
@@ -48,14 +49,14 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
 
     channel_post: Option[MessageCute] = field(
         default=...,
-        converter=From[MessageCute | None],
+        converter=From[Message | None],
     )
     """Optional. New incoming channel post of any kind - text, photo, sticker,
     etc."""
 
     edited_channel_post: Option[MessageCute] = field(
         default=...,
-        converter=From[MessageCute | None],
+        converter=From[Message | None],
     )
     """Optional. New version of a channel post that is known to the bot and was edited.
     This update may at times be triggered by changes to message fields that are
@@ -63,32 +64,32 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
 
     business_connection: Option[BusinessConnectionCute] = field(
         default=...,
-        converter=From["BusinessConnectionCute | None"],
+        converter=From["BusinessConnection | None"],
     )
     """Optional. The bot was connected to or disconnected from a business account,
     or a user edited an existing connection with the bot."""
 
     business_message: Option[MessageCute] = field(
         default=...,
-        converter=From[MessageCute | None],
+        converter=From[Message | None],
     )
     """Optional. New message from a connected business account."""
 
     edited_business_message: Option[MessageCute] = field(
         default=...,
-        converter=From[MessageCute | None],
+        converter=From[Message | None],
     )
     """Optional. New version of a message from a connected business account."""
 
     deleted_business_messages: Option[BusinessMessagesDeletedCute] = field(
         default=...,
-        converter=From["BusinessMessagesDeletedCute | None"],
+        converter=From["BusinessMessagesDeleted | None"],
     )
     """Optional. Messages were deleted from a connected business account."""
 
     message_reaction: Option[MessageReactionUpdatedCute] = field(
         default=...,
-        converter=From["MessageReactionUpdatedCute | None"],
+        converter=From["MessageReactionUpdated | None"],
     )
     """Optional. A reaction to a message was changed by a user. The bot must be an
     administrator in the chat and must explicitly specify `message_reaction`
@@ -97,7 +98,7 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
 
     message_reaction_count: Option[MessageReactionCountUpdatedCute] = field(
         default=...,
-        converter=From["MessageReactionCountUpdatedCute | None"],
+        converter=From["MessageReactionCountUpdated | None"],
     )
     """Optional. Reactions to a message with anonymous reactions were changed.
     The bot must be an administrator in the chat and must explicitly specify
@@ -106,13 +107,13 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
 
     inline_query: Option[InlineQueryCute] = field(
         default=...,
-        converter=From[InlineQueryCute | None],
+        converter=From[InlineQuery | None],
     )
     """Optional. New incoming inline query."""
 
     chosen_inline_result: Option[ChosenInlineResultCute] = field(
         default=...,
-        converter=From["ChosenInlineResultCute | None"],
+        converter=From["ChosenInlineResult | None"],
     )
     """Optional. The result of an inline query that was chosen by a user and sent
     to their chat partner. Please see our documentation on the feedback collecting
@@ -120,48 +121,48 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
 
     callback_query: Option[CallbackQueryCute] = field(
         default=...,
-        converter=From[CallbackQueryCute | None],
+        converter=From[CallbackQuery | None],
     )
     """Optional. New incoming callback query."""
 
     shipping_query: Option[ShippingQueryCute] = field(
         default=...,
-        converter=From[ShippingQueryCute | None],
+        converter=From[ShippingQuery | None],
     )
     """Optional. New incoming shipping query. Only for invoices with flexible
     price."""
 
     pre_checkout_query: Option[PreCheckoutQueryCute] = field(
         default=...,
-        converter=From[PreCheckoutQueryCute | None],
+        converter=From[PreCheckoutQuery | None],
     )
     """Optional. New incoming pre-checkout query. Contains full information
     about checkout."""
 
     purchased_paid_media: Option[PaidMediaPurchasedCute] = field(
         default=...,
-        converter=From["PaidMediaPurchasedCute | None"],
+        converter=From["PaidMediaPurchased | None"],
     )
     """Optional. A user purchased paid media with a non-empty payload sent by the
     bot in a non-channel chat."""
 
     poll: Option[PollCute] = field(
         default=...,
-        converter=From["PollCute | None"],
+        converter=From["Poll | None"],
     )
     """Optional. New poll state. Bots receive only updates about manually stopped
     polls and polls, which are sent by the bot."""
 
     poll_answer: Option[PollAnswerCute] = field(
         default=...,
-        converter=From["PollAnswerCute | None"],
+        converter=From["PollAnswer | None"],
     )
     """Optional. A user changed their answer in a non-anonymous poll. Bots receive
     new votes only in polls that were sent by the bot itself."""
 
     my_chat_member: Option[ChatMemberUpdatedCute] = field(
         default=...,
-        converter=From[ChatMemberUpdatedCute | None],
+        converter=From[ChatMemberUpdated | None],
     )
     """Optional. The bot's chat member status was updated in a chat. For private
     chats, this update is received only when the bot is blocked or unblocked
@@ -169,7 +170,7 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
 
     chat_member: Option[ChatMemberUpdatedCute] = field(
         default=...,
-        converter=From[ChatMemberUpdatedCute | None],
+        converter=From[ChatMemberUpdated | None],
     )
     """Optional. A chat member's status was updated in a chat. The bot must be an
     administrator in the chat and must explicitly specify `chat_member` in
@@ -177,24 +178,31 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
 
     chat_join_request: Option[ChatJoinRequestCute] = field(
         default=...,
-        converter=From[ChatJoinRequestCute | None],
+        converter=From[ChatJoinRequest | None],
     )
     """Optional. A request to join the chat has been sent. The bot must have the can_invite_users
     administrator right in the chat to receive these updates."""
 
     chat_boost: Option[ChatBoostUpdatedCute] = field(
         default=...,
-        converter=From["ChatBoostUpdatedCute | None"],
+        converter=From["ChatBoostUpdated | None"],
     )
     """Optional. A chat boost was added or changed. The bot must be an administrator
     in the chat to receive these updates."""
 
     removed_chat_boost: Option[ChatBoostRemovedCute] = field(
         default=...,
-        converter=From["ChatBoostRemovedCute | None"],
+        converter=From["ChatBoostRemoved | None"],
     )
     """Optional. A boost was removed from a chat. The bot must be an administrator
     in the chat to receive these updates."""
+
+    managed_bot: Option[ManagedBotUpdatedCute] = field(
+        default=...,
+        converter=From["ManagedBotUpdated | None"],
+    )
+    """Optional. A new bot was created to be managed by the bot, or token or owner
+    of a managed bot was changed."""
 
     @cached_property
     def incoming_update(self) -> BaseCute:

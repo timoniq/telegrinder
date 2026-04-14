@@ -10,7 +10,8 @@ from datetime import datetime
 from functools import cached_property
 
 from kungfu.library.monad.option import Option
-from msgspex.model import Model, is_none
+from msgspex.model import Model
+from msgspex.tools import is_none
 
 from telegrinder.types import (
     Birthdate,
@@ -20,6 +21,7 @@ from telegrinder.types import (
     ChatType,
     ContentType,
     DefaultAccentColor,
+    ManagedBotUpdated,
     Message,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
@@ -142,3 +144,10 @@ class _ReplyKeyboardMarkup(ReplyKeyboardMarkup):
     def empty_markup(self) -> ReplyKeyboardRemove:
         """Empty keyboard to remove the custom keyboard."""
         return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective.unwrap_or_none())
+
+
+class _ManagedBotUpdated(ManagedBotUpdated):
+    @property
+    def user_id(self) -> int:
+        """`user_id` instead of `user.id`."""
+        return self.user.id

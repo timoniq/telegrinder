@@ -44,7 +44,7 @@ dependencies = [
     "msgspex (>=1.5.1)",
     "nodnod (>=1.0.1)",
     "vbml2 (>=2.0.0)",
-    "wreq (>=0.11.0)",
+    "wreq (>=0.11.1)",
 ]
 
 [project.optional-dependencies]

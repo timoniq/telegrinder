@@ -20,13 +20,13 @@ class BaseShortcuts[Cute: BaseCute[typing.Any] = typing.Any]:
     cute: typing.Final[Cute]
 
 class BaseCute[T: Model = typing.Any](Model):
-    api: typing.Final[API]
+    api: typing.ClassVar[typing.Final[API]]
     """Alias for `bound_api`."""
 
-    bound_api: typing.Final[API]
+    bound_api: typing.ClassVar[typing.Final[API]]
     """`API` bound to the cute model."""
 
-    bound_update: typing.Final[Update]
+    bound_update: typing.ClassVar[typing.Final[Update]]
     """`Update` object bound to the cute model."""
 
     @classmethod

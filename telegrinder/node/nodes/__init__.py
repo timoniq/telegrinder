@@ -31,6 +31,13 @@ from telegrinder.node.nodes.event import EventNode
 from telegrinder.node.nodes.file import File, FileId
 from telegrinder.node.nodes.global_node import GlobalNode
 from telegrinder.node.nodes.i18n import ABCTranslator, BaseTranslator, I18NConfig, KeySeparator
+from telegrinder.node.nodes.managed_bot import (
+    ManagedBotCreated,
+    ManagedBotCreatedBot,
+    ManagedBotCreatedBotId,
+    ManagedBotCreatedBotName,
+    ManagedBotCreatedBotUsername,
+)
 from telegrinder.node.nodes.me import BotUsername, Me
 from telegrinder.node.nodes.message_entities import MessageEntities
 from telegrinder.node.nodes.payload import Payload, PayloadData, PayloadSerializer
@@ -72,6 +79,11 @@ __all__ = (
     "I18NConfig",
     "KeySeparator",
     "Locale",
+    "ManagedBotCreated",
+    "ManagedBotCreatedBot",
+    "ManagedBotCreatedBotId",
+    "ManagedBotCreatedBotName",
+    "ManagedBotCreatedBotUsername",
     "Me",
     "MediaGroup",
     "MessageEntities",

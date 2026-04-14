@@ -63,6 +63,7 @@ class Dispatch[
     ChatJoinRequestView: EventView = EventView,
     ChatBoostView: EventView = EventView,
     RemovedChatBoostView: EventView = EventView,
+    ManagedBotUpdatedView: EventView = EventView,
     MediaGroup: View = MediaGroupView,
     EventError: ErrorView = ErrorView,
     RawEvent: RawEventView = RawEventView,
@@ -92,6 +93,7 @@ class Dispatch[
         ChatJoinRequestView,
         ChatBoostView,
         RemovedChatBoostView,
+        ManagedBotUpdatedView,
         MediaGroup,
         EventError,
         RawEvent,
@@ -123,6 +125,7 @@ class Dispatch[
         ChatJoinRequestView,
         ChatBoostView,
         RemovedChatBoostView,
+        ManagedBotUpdatedView,
         MediaGroup,
         EventError,
         RawEvent,
@@ -148,11 +151,12 @@ class Dispatch[
     def __init__(
         self,
         *,
+        name: str | None = None,
         router: MainRouter | None = None,
         error_handler: ErrorHandler | None = None,
         middleware_box: MiddlewareBox | None = None,
     ) -> None:
-        self.main_router = router or Router()  # type: ignore
+        self.main_router = router or Router(name=name)  # type: ignore
         self.error_handler = error_handler or ErrorView()  # type: ignore
         self.global_context = TelegrinderContext()
         self.global_scope = self.global_context.node_global_scope
@@ -255,6 +259,8 @@ class Dispatch[
         inject_internals(per_event_scope := create_per_event_scope(), {API: api, Update: update})
 
         with log_buffer(f"Update:{update.update_id} > Bot:{api.id}"):
+            logger.info("New update was received, processing...")
+
             context = Context().add_roots(api, update, per_event_scope)
             failed = False
             middlewares = self.middlewares
@@ -272,7 +278,6 @@ class Dispatch[
                             return
 
                     if self.routers:
-                        logger.debug("Route update...")
                         await self._route_update(api, update, context)
 
                     for middleware in middlewares:
@@ -316,7 +321,7 @@ class Dispatch[
                         elapsed_time = self.loop_wrapper.time - start_time
                         elapsed_ms = elapsed_time * 1000
                         logger.debug(
-                            "Processed in {} {}.",
+                            "Update processed in {} {}.",
                             int(elapsed_time * NANOSECONDS_PER_MILLISECOND) if elapsed_ms < 1 else int(elapsed_ms),
                             "ns" if elapsed_ms < 1 else "ms",
                         )
