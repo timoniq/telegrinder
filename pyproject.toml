@@ -45,6 +45,7 @@ dependencies = [
     "nodnod (>=1.0.1)",
     "vbml2 (>=2.0.0)",
     "wreq (>=0.11.1)",
+    "typing-extensions (>=4.15.0)",
 ]
 
 [project.optional-dependencies]
@@ -158,6 +159,7 @@ exclude = [
 typeCheckingMode = "basic"
 pythonPlatform = "All"
 pythonVersion = "3.14"
+enableExperimentalFeatures = true
 reportMissingImports = true
 reportMissingTypeStubs = false
 reportSelfClsParameterName = false

@@ -14,6 +14,7 @@ from telegrinder.bot.cute_types.utils import MediaType, build_html, compose_reac
 from telegrinder.tools.magic.descriptors import additional_property
 from telegrinder.types import *
 from telegrinder.types.utils import get_params
+from telegrinder.types.utils.lazy_result import lazy_result
 
 if typing.TYPE_CHECKING:
     from datetime import datetime, timedelta
@@ -22,6 +23,37 @@ if typing.TYPE_CHECKING:
 
 type InputMediaType = str | InputMedia | InputFile
 type ReplyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
+
+
+def _to_message_cute(message: Message, bound_api: API, /) -> MessageCute:
+    return MessageCute.from_update(message, bound_api=bound_api)
+
+
+def _to_message_cute_list(messages: list[Message], bound_api: API, /) -> list[MessageCute]:
+    return [_to_message_cute(message, bound_api) for message in messages]
+
+
+def _to_answer_result(
+    value: typing.Any,
+    bound_api: API,
+    /,
+) -> typing.Any:
+    if isinstance(value, bool):
+        return value
+
+    return (
+        _to_message_cute(value, bound_api) if not isinstance(value, list) else _to_message_cute_list(value, bound_api)
+    )
+
+
+def _to_edit_result(
+    value: Sum[Message, bool],
+    bound_api: API,
+    /,
+) -> Sum[MessageCute, bool]:
+    return Sum[MessageCute, bool](
+        value.only().map(lambda message: _to_message_cute(message, bound_api)).unwrap_or(value.v),  # type: ignore
+    )
 
 
 async def execute_method_answer(
@@ -38,17 +70,7 @@ async def execute_method_answer(
         },
     )
     result = await getattr(message.bound_api, method_name)(**params)
-    return result.map(
-        lambda x: (
-            x
-            if isinstance(x, bool)
-            else (
-                message.from_update(x, bound_api=message.bound_api)
-                if not isinstance(x, list)
-                else [message.from_update(m, bound_api=message.bound_api) for m in x]
-            )
-        )
-    )
+    return lazy_result(result, lambda value: _to_answer_result(value, message.bound_api))
 
 
 async def execute_method_reply(
@@ -96,19 +118,11 @@ async def execute_method_edit(
         params.pop("chat_id", None)
 
     result = await getattr(update.bound_api, method_name)(**params)
-    return result.map(
-        lambda v: Sum[MessageCute, bool](
-            v.only()
-            .map(
-                lambda x: MessageCute.from_update(x, bound_api=update.api),
-            )
-            .unwrap_or(typing.cast("bool", v.v))
-        )
-    )
+    return lazy_result(result, lambda value: _to_edit_result(value, update.api))
 
 
 def get_entity_value(
-    entity_value: typing.Literal["user", "url", "custom_emoji_id", "language"],
+    entity_value: typing.Literal["user", "url", "custom_emoji_id", "language", "date_time_format", "unixtime"],
     entities: option.Option[list[MessageEntity]],
     caption_entities: option.Option[list[MessageEntity]],
 ) -> option.Option[typing.Any]:
@@ -2567,6 +2581,16 @@ class MessageCute(
         """Unique identifier of the custom emoji."""
         return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)
 
+    @property
+    def unixtime(self) -> option.Option[datetime]:
+        """The Unix time associated with the `date_time` entity."""
+        return get_entity_value("unixtime", self.entities, self.caption_entities)
+
+    @property
+    def date_time_format(self) -> option.Option[DateTimeFormatSeq]:
+        """The sequence of the char that defines the formatting of the date and time."""
+        return get_entity_value("date_time_format", self.entities, self.caption_entities)
+
     def build_html_text(self, text: Option[str], entities: Option[list[MessageEntity]], /) -> Option[str]:
         if not text:
             return option.NOTHING
@@ -2938,7 +2962,8 @@ class MessageCute(
             },
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return (await self.bound_api.forward_message(**params)).map(
+        return lazy_result(
+            await self.bound_api.forward_message(**params),
             lambda message: MessageCute.from_update(message, bound_api=self.api),
         )
 

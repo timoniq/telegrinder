@@ -21,6 +21,7 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from vbml.patcher.abc import ABCPatcher
 
+    from telegrinder.bot.dispatch.middleware.filter import FilterMiddleware
     from telegrinder.bot.dispatch.view.base import EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
     from telegrinder.tools.lifespan import Lifespan
@@ -186,6 +187,11 @@ class Dispatch[
     def register_middleware[Middleware: ABCMiddleware](self) -> typing.Callable[[type[Middleware]], type[Middleware]]:
         """Decorator to register a custom middleware in the dispatch's middleware box."""
         return self.middlewares.__call__
+
+    @property
+    def filter(self) -> FilterMiddleware:
+        """Alias `filter` to get a filter middleware from the middleware box."""
+        return self.middlewares.filter
 
     async def _handle_exceptions(
         self,

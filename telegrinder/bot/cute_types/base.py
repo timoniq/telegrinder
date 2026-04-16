@@ -90,7 +90,7 @@ def wrap_value(value: typing.Any, type_: typing.Any, /) -> typing.Any:
         arg = args.pop(0)
         origin_arg = typing.get_origin(arg) or arg
 
-        if issubclass(origin_arg, Sum | Option):
+        if issubclass(origin_arg, Sum | Option):  # type: ignore
             args.extend(typing.get_args(arg))
             types.append(Some if issubclass(origin_arg, Option) else arg)  # type: ignore
 

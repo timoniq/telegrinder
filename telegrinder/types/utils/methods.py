@@ -1,22 +1,25 @@
 import dataclasses
 import typing
-from types import NoneType
 
 import msgspec
-from kungfu.library.monad.option import NOTHING, Nothing, Option, Some
+from kungfu.library.monad.option import NOTHING, Option, Some
 from kungfu.library.monad.result import Result
 from msgspex.decoder import decoder
 from msgspex.encoder import encoder
+from typing_extensions import TypeForm
+
+from telegrinder.types.utils.lazy_result import lazy_result
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
 
 
-def full_result[T](
-    result: Result[msgspec.Raw, APIError],
-    full_t: type[T],
-) -> Result[T, APIError]:
-    return result.map(lambda v: decoder.decode(v, type=full_t))
+def decode_full_result[T](raw: msgspec.Raw, full_t: TypeForm[T], /) -> T:
+    return decoder.decode(raw, type=full_t)
+
+
+def full_result[T](res: Result[msgspec.Raw, APIError], full_t: TypeForm[T]) -> Result[T, APIError]:
+    return lazy_result(res, lambda raw: decode_full_result(raw, full_t))
 
 
 def get_params(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
@@ -27,9 +30,10 @@ def get_params(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
             *params.items(),
         )
         if key != "self"
-        and not isinstance(
-            value := val.get() if isinstance(val, Proxy) else val,
-            NoneType | msgspec.UnsetType | Nothing,
+        and not (
+            (value := val.get() if isinstance(val, Proxy) else val) is None
+            or value is NOTHING
+            or value is msgspec.UNSET
         )
     }
 
@@ -77,4 +81,4 @@ class ProxiedDict[T]:
         self._defaults[key] = value
 
 
-__all__ = ("ProxiedDict", "full_result", "get_params")
+__all__ = ("ProxiedDict", "decode_full_result", "full_result", "get_params")
