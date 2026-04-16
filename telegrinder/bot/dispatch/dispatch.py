@@ -29,7 +29,7 @@ if typing.TYPE_CHECKING:
 NANOSECONDS_PER_MILLISECOND: typing.Final = 1_000_000_000
 
 
-class _ViewGetter:
+class _ViewGetter:  # type: ignore
     main_router: Router
 
     def __getattr__(self, name: str, /) -> typing.Any:
@@ -141,10 +141,16 @@ class Dispatch[
     def __init__(self) -> None: ...
 
     @typing.overload
+    def __init__(self, *, name: str) -> None: ...
+
+    @typing.overload
     def __init__(self, *, router: MainRouter) -> None: ...
 
     @typing.overload
     def __init__(self, *, middleware_box: T) -> None: ...
+
+    @typing.overload
+    def __init__(self, *, name: str, middleware_box: T) -> None: ...
 
     @typing.overload
     def __init__(self, *, router: MainRouter, middleware_box: T) -> None: ...
