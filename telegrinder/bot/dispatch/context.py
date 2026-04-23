@@ -7,6 +7,7 @@ from kungfu.library.monad.option import NOTHING, Option, Some
 from nodnod.interface.node_from_function import Externals
 
 if typing.TYPE_CHECKING:
+    from _typeshed import SupportsKeysAndGetItem
     from nodnod.scope import Scope
 
     from telegrinder.api.api import API
@@ -58,9 +59,7 @@ class Context(Externals):
         Externals.__setitem__(self, __key, __value)
 
     def __getitem__(self, __key: Key) -> AnyValue:
-        if __key in SELF_CONTEXT_KEYS:
-            return self
-        return Externals.__getitem__(self, __key)
+        return self if __key in SELF_CONTEXT_KEYS else Externals.__getitem__(self, __key)
 
     def __delitem__(self, __key: Key) -> None:
         Externals.__delitem__(self, __key)
@@ -69,41 +68,27 @@ class Context(Externals):
         self.__setitem__(__name, __value)
 
     def __getattribute__(self, __name: str) -> AnyValue:
-        if __name in SELF_CONTEXT_KEYS:
-            return self
-
-        if __name in _CONTEXT_CLASS_ATTRS and not Externals.__contains__(self, __name):
+        try:
+            return self[__name]
+        except KeyError:
             return super().__getattribute__(__name)
-
-        return self[__name]
 
     def __delattr__(self, __name: str) -> None:
         self.__delitem__(__name)
 
     def __contains__(self, __key: object) -> bool:
-        if __key in SELF_CONTEXT_KEYS:
-            return True
-        return Externals.__contains__(self, __key)
+        return __key in SELF_CONTEXT_KEYS or Externals.__contains__(self, __key)
 
-    def __or__(self, other: object, /) -> typing.Self:
-        if type(other) is not Context and not isinstance(other, dict):
-            return NotImplemented
-
-        new_context = type(self)(self)
-        new_context |= other
+    def __or__(self, other: SupportsKeysAndGetItem[str, typing.Any], /) -> Context:
+        Externals.update(new_context := self.copy(), other)
         return new_context
 
-    def __ior__(self, other: object, /) -> typing.Self:
-        if type(other) is not Context and not isinstance(other, dict):
-            raise TypeError(f"Cannot update `Context` with `{type(other).__name__}`.")
-
-        for key, value in other.items():
-            self[key] = value
-
+    def __ior__(self, other: SupportsKeysAndGetItem[str, typing.Any], /) -> typing.Self:
+        Externals.update(self, other)
         return self
 
     def as_dict(self) -> dict[Key, AnyValue]:
-        return {key: value for key, value in Externals.items(self)}
+        return dict(self)
 
     def add_roots(
         self,
@@ -134,8 +119,8 @@ class Context(Externals):
         self.exception_update = Some(exception_update)
         return self
 
-    def copy(self) -> typing.Self:
-        return type(self)(self)
+    def copy(self) -> Context:
+        return Context(self)
 
     def set(self, key: Key, value: AnyValue) -> None:
         self[key] = value
@@ -153,15 +138,14 @@ class Context(Externals):
         return dict.get(self, key, default)
 
     def get_or_set[T](self, key: Key, default: T) -> T:
-        if key not in self:
-            self.set(key, default)
-        return self.get(key, default)
+        try:
+            return self[key]
+        except KeyError:
+            self[key] = default
+            return default
 
     def delete(self, key: Key) -> None:
         del self[key]
-
-
-_CONTEXT_CLASS_ATTRS: typing.Final = frozenset(Context.__dict__ | Externals.__dict__ | dict.__dict__ | object.__dict__)
 
 
 __all__ = ("Context",)
