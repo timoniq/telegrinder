@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 
 type CtxVariable[T = typing.Any] = CtxVar[T] | GlobalCtxVar[T]
 
+VarContext = dict[str, typing.Any]
+
 NOVALUE: typing.Final = object()
 
 
@@ -36,9 +38,11 @@ class GlobalCtxVar[T = typing.Any](CtxVar[T]):
         const: bool = False,
     ) -> typing.Self:
         var = CtxVar(ctx_value, const=const) if not isinstance(ctx_value, CtxVar | GlobalCtxVar) else ctx_value
+
         if var.value is NOVALUE and var.factory is not NOVALUE:
             var = dataclasses.replace(var, value=var.factory())
-        return cls(**dict(var.__dict__) | dict(name=name))
+
+        return cls(**VarContext(var.__dict__) | VarContext(name=name))
 
 
 class ABCGlobalContext[T = typing.Any](ABC):

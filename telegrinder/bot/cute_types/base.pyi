@@ -1,6 +1,5 @@
 import typing
 
-from kungfu.library.monad.option import Option
 from msgspex.model import Model
 
 from telegrinder.api.api import API

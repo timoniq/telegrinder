@@ -6,29 +6,27 @@ import typing
 from http import HTTPStatus
 
 import certifi
-import wreq
-import wreq.exceptions
-from wreq import Method as HTTPMethod
+from wreq import exceptions, wreq
 
 from telegrinder.__meta__ import __version__
 from telegrinder.client.abc import ABCClient, Response
 from telegrinder.modules import json
 
 if typing.TYPE_CHECKING:
-    from wreq import ClientConfig, Request
+    from wreq.wreq import ClientConfig, Request
 
 type Data = dict[str, typing.Any] | wreq.Multipart
 type Method = typing.Literal["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "TRACE", "PATCH"]
 
-_METHODS_MAP: typing.Final[dict[Method, HTTPMethod]] = {
-    "GET": HTTPMethod.GET,
-    "HEAD": HTTPMethod.HEAD,
-    "POST": HTTPMethod.POST,
-    "PUT": HTTPMethod.PUT,
-    "DELETE": HTTPMethod.DELETE,
-    "OPTIONS": HTTPMethod.OPTIONS,
-    "TRACE": HTTPMethod.TRACE,
-    "PATCH": HTTPMethod.PATCH,
+_METHODS_MAP: typing.Final[dict[Method, wreq.Method]] = {
+    "GET": wreq.Method.GET,
+    "HEAD": wreq.Method.HEAD,
+    "POST": wreq.Method.POST,
+    "PUT": wreq.Method.PUT,
+    "DELETE": wreq.Method.DELETE,
+    "OPTIONS": wreq.Method.OPTIONS,
+    "TRACE": wreq.Method.TRACE,
+    "PATCH": wreq.Method.PATCH,
 }
 USER_AGENT: typing.Final = "CPython/{}.{}; wreq; Telegrinder/{}".format(
     sys.version_info.major,
@@ -78,14 +76,14 @@ class WreqClient(ABCClient):
 
     CONNECTION_TIMEOUT_ERRORS: typing.ClassVar = (
         TimeoutError,
-        wreq.exceptions.TimeoutError,
-        wreq.exceptions.RustPanic,
+        exceptions.TimeoutError,
+        exceptions.RustPanic,
     )
     CLIENT_CONNECTION_ERRORS: typing.ClassVar = (
-        wreq.exceptions.ConnectionError,
-        wreq.exceptions.ConnectionResetError,
-        wreq.exceptions.TlsError,
-        wreq.exceptions.RustPanic,
+        exceptions.ConnectionError,
+        exceptions.ConnectionResetError,
+        exceptions.TlsError,
+        exceptions.RustPanic,
     )
 
     def __init__(self, **params: typing.Unpack[ClientConfig]) -> None:
