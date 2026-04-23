@@ -3,13 +3,10 @@ import random
 from telegrinder import (
     MESSAGE_IN_CHAT,
     CallbackQuery,
-    Checkbox,
     Dispatch,
     Message,
     MessageReplyHandler,
-    WaiterMachine,
 )
-from telegrinder.bot.dispatch.waiter_machine.hasher.callback import CALLBACK_QUERY_FOR_MESSAGE
 from telegrinder.rules import (
     FuzzyText,
     HasText,
@@ -22,7 +19,6 @@ from telegrinder.tools.formatting import HTML, blockquote, link
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 dp = Dispatch()
-wm = WaiterMachine()
 
 
 kb = (
@@ -46,11 +42,11 @@ async def start(message: Message) -> None:
 @dp.message(Text("/cars"))
 async def car_choice(message: Message) -> None:
     picked, m_id = await (
-        Checkbox(wm, message.chat.id, "🚘 Choose no more than three cars", max_in_row=2)
+        dp.checkbox(message.chat.id, message="🚘 Choose no more than three cars", max_in_row=2)
         .add_option("bentley", "Bentley Continental", "Continental 🤍")
         .add_option("mazda", "Mazda rx 7", "Mazda rx 7 🩵")
         .add_option("toyota", "Toyota Supra mk5", "Supra mk5 💜")
-        .wait(CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.api)
+        .wait(message.api)
     )
     await message.edit(
         "🚘 You picked: {}.".format(", ".join(c for c in picked if picked[c])),
@@ -85,8 +81,8 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
             chat_id=cb.chat_id.unwrap(),
         )
     ).unwrap()
-    msg, _ = await wm.wait(
-        hasher=MESSAGE_IN_CHAT(dp.message, message.chat.id),
+    msg, _ = await dp.message.wait(
+        hasher=MESSAGE_IN_CHAT(message.chat.id),
         release=HasText(),
         on_miss=MessageReplyHandler("Im still waiting for your message!"),
     )
@@ -102,8 +98,8 @@ async def handle_query_guess(cb: CallbackQuery) -> None:
             chat_id=cb.chat_id.unwrap(),
         )
     ).unwrap()
-    msg, _ = await wm.wait(
-        hasher=MESSAGE_IN_CHAT(dp.message, message.chat.id),
+    msg, _ = await dp.message.wait(
+        hasher=MESSAGE_IN_CHAT(message.chat.id),
         release=IntegerInRange(range(1, 11)),
         on_miss=MessageReplyHandler("Send a number between 1 and 10!"),
     )

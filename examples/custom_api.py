@@ -2,12 +2,14 @@ import typing
 
 from kungfu.library.monad.result import Error, Ok, Result
 
-from telegrinder import Dispatch, LoopWrapper, Message, Polling
+from telegrinder import Dispatch, LoopWrapper, Message, Polling, configure_dotenv
 from telegrinder.api import API, Token
 from telegrinder.api.error import APIError
 from telegrinder.modules import setup_logger
 from telegrinder.rules import Command
 from telegrinder.types.objects import User
+
+configure_dotenv()
 
 
 class DummyAPI(API):

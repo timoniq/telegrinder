@@ -8,10 +8,13 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.handler.abc import ABCHandler
 from telegrinder.bot.dispatch.handler.func import FuncHandler, Function
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware
+from telegrinder.bot.dispatch.middleware.box import ViewMiddlewareBox
+from telegrinder.bot.dispatch.middleware.waiter import WaiterMiddleware
 from telegrinder.bot.dispatch.process import check_rule, process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.rules.abc import ABCRule, Always
+from telegrinder.tools.waiter_machine.machine import WaiterMachine
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import (
     BusinessConnection,
@@ -23,6 +26,7 @@ from telegrinder.types.objects import (
     ChatMemberUpdated,
     ChosenInlineResult,
     InlineQuery,
+    ManagedBotCreated,
     Message,
     MessageReactionCountUpdated,
     MessageReactionUpdated,
@@ -35,7 +39,13 @@ from telegrinder.types.objects import (
 )
 
 if typing.TYPE_CHECKING:
+    import datetime
+
     from nodnod.agent.base import Agent
+
+    from telegrinder.bot.cute_types.base import BaseCute
+    from telegrinder.tools.lifespan import Lifespan
+    from telegrinder.tools.waiter_machine.machine import HasherWithData, ShortStateContext, WaiterActions
 
 type UpdateModel = typing.Union[
     BusinessConnection,
@@ -55,6 +65,7 @@ type UpdateModel = typing.Union[
     PollAnswer,
     PreCheckoutQuery,
     ShippingQuery,
+    ManagedBotCreated,
 ]
 type ViewResult = Result[str, str] | Result[str, Exception]
 
@@ -64,20 +75,29 @@ OK_CHECK: typing.Final = Ok()
 class View(ABCView):
     filter: ABCRule
     handlers: deque[ABCHandler]
-    middlewares: deque[ABCMiddleware]
+    waiter_machine: WaiterMachine
+    middlewares: ViewMiddlewareBox
+    agent_cls: type[Agent] | None
     return_manager: ABCReturnManager | None
 
     def __init__(
         self,
         *,
-        agent_cls: type[Agent] | None = None,
+        middlewares: ViewMiddlewareBox | None = None,
+        waiter_machine: WaiterMachine | None = None,
         return_manager: ABCReturnManager | None = None,
+        agent_cls: type[Agent] | None = None,
     ) -> None:
         self.filter = Always()
         self.handlers = deque()
-        self.middlewares = deque()
         self.agent_cls = agent_cls
         self.return_manager = return_manager
+        self.waiter_machine = (waiter_machine or WaiterMachine()).bind_view(self)
+        self.middlewares = (
+            ViewMiddlewareBox(waiter=WaiterMiddleware(machine=self.waiter_machine))
+            if middlewares is None
+            else middlewares
+        )
 
     def __bool__(self) -> bool:
         return bool(self.handlers) or bool(self.middlewares)
@@ -123,7 +143,7 @@ class View(ABCView):
         self,
         middleware: type[ABCMiddleware] | ABCMiddleware,
     ) -> typing.Callable[..., typing.Any] | None:
-        self.middlewares.append(middleware() if isinstance(middleware, type) else middleware)
+        self.middlewares.put(middleware() if isinstance(middleware, type) else middleware)
         return middleware if isinstance(middleware, type) else None
 
     def load(self, external: typing.Self, /) -> None:
@@ -136,11 +156,34 @@ class View(ABCView):
         if not isinstance(external.filter, Always):
             self.filter &= external.filter
 
+        if external.waiter_machine.storage:
+            self.waiter_machine.storage.update(external.waiter_machine.storage)
+
         if external.return_manager is not None and self.return_manager is None:
             self.return_manager = external.return_manager
 
         elif self.return_manager is not None and external.return_manager is not None:
             self.return_manager.managers.extend(external.return_manager.managers)
+
+    async def wait[Event: BaseCute, Data](
+        self,
+        hasher: HasherWithData[Event, Data],
+        *,
+        filter: ABCRule | None = None,
+        release: ABCRule | None = None,
+        lifetime: datetime.timedelta | float | None = None,
+        lifespan: Lifespan | None = None,
+        **actions: typing.Unpack[WaiterActions[Event]],
+    ) -> ShortStateContext[Event]:
+        return await self.waiter_machine.wait(
+            hasher=hasher,
+            view=self,
+            filter=filter,
+            release=release,
+            lifetime=lifetime,
+            lifespan=lifespan,
+            **actions,
+        )
 
     async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
         if not bool(self):
@@ -164,11 +207,16 @@ class EventView(View):
     def __init__(
         self,
         update_type: UpdateType,
+        *,
+        middlewares: ViewMiddlewareBox | None = None,
+        waiter_machine: WaiterMachine | None = None,
         return_manager: ABCReturnManager | None = None,
         agent_cls: type[Agent] | None = None,
     ) -> None:
         super().__init__(
             agent_cls=agent_cls,
+            middlewares=middlewares,
+            waiter_machine=waiter_machine,
             return_manager=return_manager,
         )
         self.update_type = update_type
@@ -190,11 +238,16 @@ class EventModelView[T: (UpdateModel)](View):
     def __init__(
         self,
         model: type[T],
+        *,
+        middlewares: ViewMiddlewareBox | None = None,
+        waiter_machine: WaiterMachine | None = None,
         return_manager: ABCReturnManager | None = None,
         agent_cls: type[Agent] | None = None,
     ) -> None:
         super().__init__(
             agent_cls=agent_cls,
+            middlewares=middlewares,
+            waiter_machine=waiter_machine,
             return_manager=return_manager,
         )
         self.model = model

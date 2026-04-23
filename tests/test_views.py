@@ -43,7 +43,7 @@ async def test_register_middleware():
             pass
 
     assert len(view.middlewares) == 1
-    assert isinstance(view.middlewares[0], SomeMiddleware)
+    assert isinstance(view.middlewares.user_middlewares[0], SomeMiddleware)
 
 
 @pytest.mark.asyncio()
@@ -98,7 +98,7 @@ async def test_view_check_and_process(api_instance, message_update, message_cont
 @pytest.mark.asyncio()
 async def test_process_pre_middleware(api_instance, message_update, message_context):
     view = CustomMessageView()
-    view.middlewares.append(PreMiddleware())
+    view.middlewares.put(PreMiddleware())
 
     @view()
     async def handler(message: MessageCute):
@@ -111,7 +111,7 @@ async def test_process_pre_middleware(api_instance, message_update, message_cont
 @pytest.mark.asyncio()
 async def test_process_post_middleware(api_instance, message_update, message_context):
     view = CustomMessageView()
-    view.middlewares.append(PostMiddleware())
+    view.middlewares.put(PostMiddleware())
 
     @view()
     async def handler(message: MessageCute):

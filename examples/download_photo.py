@@ -1,7 +1,9 @@
 import pathlib
 
-from telegrinder import API, Message, Telegrinder, Token
+from telegrinder import API, Message, Telegrinder, Token, configure_dotenv
 from telegrinder.rules import ABCRule
+
+configure_dotenv()
 
 bot = Telegrinder(API(Token.from_env()))
 photos_path = pathlib.Path("photos")

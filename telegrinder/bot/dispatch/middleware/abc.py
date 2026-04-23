@@ -10,7 +10,6 @@ from nodnod.interface.node_from_function import create_node_from_function
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.modules import logger
 from telegrinder.node.compose import compose, create_composable
-from telegrinder.node.scope import NodeScope
 from telegrinder.node.utils import get_globals_from_function, get_locals_from_function
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.lifespan import Lifespan
@@ -55,7 +54,6 @@ async def run_middleware(
 
 class ABCMiddleware(ABC):
     agent_cls: type[Agent] = EventLoopAgent
-    middleware_scope: NodeScope = NodeScope.PER_CALL
     pre_required_nodes: typing.Mapping[str, Node] | None = None
     post_required_nodes: typing.Mapping[str, Node] | None = None
 
@@ -82,7 +80,6 @@ class ABCMiddleware(ABC):
     def pre_composable(self) -> Composable:
         return self.get_composable(
             method=self.pre,
-            scope=self.middleware_scope,
             agent_cls=self.agent_cls,
             required_nodes=self.pre_required_nodes,
         )
@@ -91,7 +88,6 @@ class ABCMiddleware(ABC):
     def post_composable(self) -> Composable:
         return self.get_composable(
             method=self.post,
-            scope=self.middleware_scope,
             agent_cls=self.agent_cls,
             required_nodes=self.post_required_nodes,
         )
@@ -99,7 +95,6 @@ class ABCMiddleware(ABC):
     @staticmethod
     def get_composable(
         method: typing.Callable[..., typing.Any],
-        scope: NodeScope,
         agent_cls: type[Agent] | None,
         required_nodes: typing.Mapping[str, Node] | None,
     ) -> Composable:
@@ -109,7 +104,7 @@ class ABCMiddleware(ABC):
             forward_refs=get_globals_from_function(method),
             namespace=get_locals_from_function(method),
         )
-        return create_composable(node, agent_cls=agent_cls, scope=scope)
+        return create_composable(node, agent_cls=agent_cls)
 
     def pre(self, *args: typing.Any, **kwargs: typing.Any) -> MiddlewareResult: ...
 

@@ -1,20 +1,21 @@
-from telegrinder import API, Choice, Message, Telegrinder, Token, WaiterMachine
-from telegrinder.bot.dispatch.waiter_machine.hasher.callback import CALLBACK_QUERY_FOR_MESSAGE
+from telegrinder import API, Message, Telegrinder, Token, configure_dotenv, setup_logger
 from telegrinder.rules import Text
+
+setup_logger()
+configure_dotenv()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)
-wm = WaiterMachine()
 
 
 @bot.on.message(Text("/choice"))
 async def action(m: Message):
     chosen, m_id = await (
-        Choice(wm, m.chat.id, "Choose something", max_in_row=1)
+        bot.dispatch.choice(m.chat.id, message="Choose something", max_in_row=1)
         .add_option("apple", "Apple 🔴", "Apple 🟢")
         .add_option("banana", "Banana 🔴", "Banana 🟢", is_picked=True)
         .add_option("pear", "Pear 🔴", "Pear 🟢")
-        .wait(CALLBACK_QUERY_FOR_MESSAGE, bot.on.callback_query, m.api)
+        .wait(m.api)
     )
     await m.edit(text=f"You chose - {chosen}", message_id=m_id)
 

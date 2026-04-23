@@ -34,6 +34,9 @@ class FilterMiddleware(ABCMiddleware):
         self.source_filters = dict()
         self._source_node_agents = dict()
 
+    def __bool__(self) -> bool:
+        return bool(self.source_filters)
+
     async def pre(self, context: Context) -> bool:
         for source_node, (agent_cls, source_filter) in self.source_filters.items():
             if source_node not in self._source_node_agents:

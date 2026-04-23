@@ -4,9 +4,10 @@ from telegrinder import API, Message, Telegrinder, Token
 from telegrinder.bot.dispatch.action import action
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.text import Text
-from telegrinder.modules import setup_logger
+from telegrinder.modules import configure_dotenv, setup_logger
 from telegrinder.node import ChatId, Error, UserId, UserSource
 
+configure_dotenv()
 setup_logger()
 
 bot = Telegrinder(API(Token.from_env()))

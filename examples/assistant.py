@@ -2,9 +2,11 @@ import time
 
 from kungfu.library.monad.result import Error, Ok
 
-from telegrinder import API, Message, Telegrinder, Token
+from telegrinder import API, Message, Telegrinder, Token, configure_dotenv
 from telegrinder.rules import ABCRule, IsChat, Markup, Text
 from telegrinder.types import ChatPermissions
+
+configure_dotenv()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

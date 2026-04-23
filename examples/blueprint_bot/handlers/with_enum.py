@@ -1,4 +1,3 @@
-from examples.blueprint_bot.client import wm
 from telegrinder import MESSAGE_FROM_USER, Dispatch, Message, MessageReplyHandler
 from telegrinder.modules import logger
 from telegrinder.rules import ABCRule, HasText, Markup, RuleEnum, Text
@@ -15,8 +14,8 @@ class Commands(RuleEnum):
 class WasNaughty(ABCRule, requires=[HasText()]):
     async def check(self, message: Message) -> bool:
         await message.answer("Ok, but were you naughty this year?")
-        m, _ = await wm.wait(
-            MESSAGE_FROM_USER(dp.message, message.from_user.id),
+        m, _ = await dp.message.wait(
+            MESSAGE_FROM_USER(message.from_user.id),
             release=Text(["yes", "no"], ignore_case=True),
             on_miss=MessageReplyHandler("Yes or no? Were you naughty??"),
         )
@@ -50,7 +49,7 @@ async def handle_get_presents(m: Message):
 async def handle_commit_suicide(m: Message, reason: str | None = None):
     if reason is None:
         await m.answer("Please specify your reason to do that")
-        await wm.wait(MESSAGE_FROM_USER(dp.message, m.from_user.id), release=HasText())
+        await dp.message.wait(MESSAGE_FROM_USER(m.from_user.id), release=HasText())
     await m.answer(
         "Thats a bad reason because nothing in life is final until it's over you know.. There is no reason to live but at the moment you are not knowing the reason you are living despite everything"
     )

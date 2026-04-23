@@ -1,5 +1,7 @@
-from telegrinder import API, InlineButton, InlineKeyboard, Message, Telegrinder, Token
+from telegrinder import API, InlineButton, InlineKeyboard, Message, Telegrinder, Token, configure_dotenv
 from telegrinder.rules import CallbackDataMap, Text
+
+configure_dotenv()
 
 bot = Telegrinder(API(Token.from_env()))
 kb = (

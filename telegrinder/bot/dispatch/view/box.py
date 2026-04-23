@@ -27,7 +27,7 @@ def event_view[T: EventView](
     /,
 ) -> typing.Callable[[], T]:
     def factory() -> T:
-        return typing.cast("T", EventView(update_type, return_manager))
+        return typing.cast("T", EventView(update_type, return_manager=return_manager))
 
     return factory
 

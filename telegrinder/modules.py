@@ -283,7 +283,10 @@ def _flush_scope_tree(tree: _ScopeLogTree, flushed_streams: set[BufferedStream],
             entry.flush(flushed_streams)
 
 
-def flush_log_buffer(buffer: list[BufferedLogRecord], /) -> None:
+def flush_log_buffer(buffer: list[BufferedLogRecord] | None = None, /) -> None:
+    if buffer is None:
+        buffer = LOG_BUFFER.get(None)
+
     if not buffer:
         return
 
@@ -314,13 +317,17 @@ def set_log_scope(scope: str, /) -> contextvars.Token[str]:
 
 
 @contextlib.contextmanager
-def log_buffer(scope: str, /) -> typing.Iterator[list[BufferedLogRecord]]:
+def log_buffer(scope: str, /) -> typing.Iterator[None]:
+    if logger.logger is None:
+        yield
+        return
+
     log_buffer: list[BufferedLogRecord] = []
     log_buffer_token = LOG_BUFFER.set(log_buffer)
     scope_token = set_log_scope(scope)
 
     try:
-        yield log_buffer
+        yield
     finally:
         LOG_BUFFER.reset(log_buffer_token)
         flush_log_buffer(log_buffer)

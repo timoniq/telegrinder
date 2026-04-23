@@ -9,22 +9,45 @@ from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.abc import ABCMiddleware, run_post_middleware, run_pre_middleware
 from telegrinder.bot.dispatch.middleware.box import MiddlewareBox
+from telegrinder.bot.dispatch.middleware.waiter import WaiterMiddleware
 from telegrinder.bot.dispatch.router.base import Router
 from telegrinder.bot.dispatch.view.base import ErrorView, View
 from telegrinder.bot.dispatch.view.box import ViewBox
+from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.modules import log_buffer, logger
 from telegrinder.node.scope import create_per_event_scope
+from telegrinder.scenario.checkbox import Checkbox
+from telegrinder.scenario.choice import Choice
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context import TelegrinderContext
+from telegrinder.tools.waiter_machine.machine import (
+    ContextUnpackProto,
+    HasherWithData,
+    WaiterMachine,
+    unpack_to_context,
+)
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
+    import datetime
+
     from vbml.patcher.abc import ABCPatcher
 
+    from telegrinder.bot.cute_types.base import BaseCute
     from telegrinder.bot.dispatch.middleware.filter import FilterMiddleware
     from telegrinder.bot.dispatch.view.base import EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
     from telegrinder.tools.lifespan import Lifespan
+    from telegrinder.tools.waiter_machine.actions import WaiterActions
+    from telegrinder.tools.waiter_machine.hasher.hasher import Hasher
+
+    class DispatchParams[R, E](typing.TypedDict):
+        name: typing.NotRequired[str]
+        router: typing.NotRequired[R]
+        error_handler: typing.NotRequired[E]
+        waiter_machine: typing.NotRequired[WaiterMachine]
+        middleware_box: typing.NotRequired[MiddlewareBox]
+
 
 NANOSECONDS_PER_MILLISECOND: typing.Final = 1_000_000_000
 
@@ -135,6 +158,7 @@ class Dispatch[
     main_router: MainRouter
     error_handler: ErrorHandler
     middlewares: T
+    waiter_machine: WaiterMachine
     _routers: deque[Router] | None = None
 
     @typing.overload
@@ -144,31 +168,37 @@ class Dispatch[
     def __init__(self, *, name: str) -> None: ...
 
     @typing.overload
-    def __init__(self, *, router: MainRouter) -> None: ...
-
-    @typing.overload
-    def __init__(self, *, middleware_box: T) -> None: ...
-
-    @typing.overload
-    def __init__(self, *, name: str, middleware_box: T) -> None: ...
-
-    @typing.overload
-    def __init__(self, *, router: MainRouter, middleware_box: T) -> None: ...
+    def __init__(self, **params: typing.Unpack[DispatchParams[MainRouter, ErrorHandler]]) -> None: ...
 
     def __init__(
         self,
         *,
         name: str | None = None,
         router: MainRouter | None = None,
+        waiter_machine: WaiterMachine | None = None,
         error_handler: ErrorHandler | None = None,
         middleware_box: MiddlewareBox | None = None,
     ) -> None:
+        self.global_context = TelegrinderContext()
         self.main_router = router or Router(name=name)  # type: ignore
         self.error_handler = error_handler or ErrorView()  # type: ignore
-        self.global_context = TelegrinderContext()
         self.global_scope = self.global_context.node_global_scope
         self.loop_wrapper = self.global_context.loop_wrapper
-        self.middlewares = self.global_context.setdefault_value("middleware_box", middleware_box or MiddlewareBox())
+
+        if waiter_machine is None:
+            waiter = (
+                WaiterMachine() if "waiter_machine" not in self.global_context else self.global_context.waiter_machine
+            )
+
+        if middleware_box is None:
+            middlewares = (
+                MiddlewareBox(waiter=WaiterMiddleware(waiter))
+                if "middleware_box" not in self.global_context
+                else self.global_context.middleware_box
+            )
+
+        self.waiter_machine = self.global_context.setdefault_value("waiter_machine", waiter)
+        self.middlewares = self.global_context.setdefault_value("middleware_box", middlewares)
 
     def __setitem__(self, injection_type: typing.Any, injection_value: typing.Any, /) -> None:
         self.global_scope.inject(injection_type, injection_value)
@@ -198,6 +228,24 @@ class Dispatch[
     def filter(self) -> FilterMiddleware:
         """Alias `filter` to get a filter middleware from the middleware box."""
         return self.middlewares.filter
+
+    @property
+    def choice(self) -> type[Choice[typing.Any]]:
+        """Alias `choice` to create a choice scenario."""
+        return lambda *args, **kwargs: Choice(  # type: ignore
+            *args,
+            waiter_machine=self.main_router.callback_query.waiter_machine,
+            **kwargs,
+        )
+
+    @property
+    def checkbox(self) -> type[Checkbox[typing.Any]]:
+        """Alias `checkbox` to create a checkbox scenario."""
+        return lambda *args, **kwargs: Checkbox(  # type: ignore
+            *args,
+            waiter_machine=self.main_router.callback_query.waiter_machine,
+            **kwargs,
+        )
 
     async def _handle_exceptions(
         self,
@@ -343,6 +391,27 @@ class Dispatch[
 
     async def feed_cute(self, api: API, update_cute: UpdateCute) -> None:
         await self.feed(api, update_cute)
+
+    async def wait_many[Event: BaseCute[typing.Any], Data, *Ts](
+        self,
+        *hashers: HasherWithData[Event, Data],
+        filter: ABCRule | None = None,
+        release: ABCRule | None = None,
+        lifetime: datetime.timedelta | float | None = None,
+        lifespan: Lifespan | None = None,
+        unpack: ContextUnpackProto[*Ts] = unpack_to_context,
+        **actions: typing.Unpack[WaiterActions[typing.Any]],
+    ) -> tuple[Hasher[Event, Data], Event, *Ts]:
+        return await self.waiter_machine.wait_many(
+            *hashers,
+            waiter_middleware=self.middlewares.waiter,
+            filter=filter,
+            release=release,
+            lifetime=lifetime,
+            lifespan=lifespan,
+            unpack=unpack,
+            **actions,
+        )
 
     def load(self, external: typing.Self) -> None:
         self.routers.extend(filter(None, external.routers))

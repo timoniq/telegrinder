@@ -64,7 +64,11 @@ class FuncHandler[T: Function](ABCHandler):
         else:
             logger.debug("Composing nodes and running handler `{!r}`...", self)
 
-        async with compose(self.function, context, agent_cls=self.agent_cls) as result:
+        async with compose(
+            self.function,
+            context=context if not self.preset_context else context | self.preset_context,
+            agent_cls=self.agent_cls,
+        ) as result:
             return result.map_err(
                 lambda error: "{}\n".format(
                     NodeError(f"* failed to compose handler `{self!r}`", from_error=error),

@@ -9,6 +9,7 @@ from telegrinder import (
     Message,
     Telegrinder,
     Token,
+    configure_dotenv,
 )
 from telegrinder.modules import logger, setup_logger
 from telegrinder.node import PayloadData
@@ -20,6 +21,7 @@ from telegrinder.rules import (
 )
 from telegrinder.tools.serialization import MsgPackSerializer
 
+configure_dotenv()
 setup_logger()
 
 api = API(token=Token.from_env())
