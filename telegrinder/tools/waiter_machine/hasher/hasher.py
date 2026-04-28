@@ -25,6 +25,10 @@ def _from_optional(x: typing.Any, /) -> Option[typing.Any]:
     return Some(x) if x is not None else NOTHING
 
 
+def identity[T](x: T, /) -> T:
+    return x
+
+
 @dataclasses.dataclass(kw_only=True, frozen=True, repr=False)
 class Hasher(typing.Generic[Event, Data]):
     update_types: frozenset[UpdateType]
