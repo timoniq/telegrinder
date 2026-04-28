@@ -145,7 +145,7 @@ class Router[
                         return await self.process_view(event_view, api, update, context, raw_process_on_fail=True)
 
                 return False
-            except Exception as exception:
+            except BaseException as exception:
                 if self.event_error:
                     context.exceptions_update[self] = exception  # type: ignore
 

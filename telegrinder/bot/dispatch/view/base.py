@@ -67,7 +67,7 @@ type UpdateModel = typing.Union[
     ShippingQuery,
     ManagedBotCreated,
 ]
-type ViewResult = Result[str, str] | Result[str, Exception]
+type ViewResult = Result[str, str] | Result[str, BaseException]
 
 OK_CHECK: typing.Final = Ok()
 

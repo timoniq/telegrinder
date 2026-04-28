@@ -263,7 +263,7 @@ class Dispatch[
                         task_group.create_task(
                             self._handle_exceptions(api, update, context.copy(), exception.exceptions),
                         )
-                    elif isinstance(exception, Exception):
+                    elif not isinstance(exception, KeyboardInterrupt | SystemExit):
                         task_group.create_task(
                             self.main_router.process_view(
                                 self.error_handler,
@@ -342,6 +342,8 @@ class Dispatch[
 
                     for middleware in middlewares:
                         await run_post_middleware(middleware, context)
+                except KeyboardInterrupt, SystemExit:
+                    raise
                 except BaseException as exc:
                     failed = True
 
@@ -353,25 +355,23 @@ class Dispatch[
                                 raise
 
                             logger.debug(
-                                "Dispatch caught unhandled exceptions, routing to error handler...",
+                                "Dispatch caught unhandled exceptions, routing to the error handler...",
                             )
                             await self._handle_exceptions(api, update, context, group.exceptions)
 
                         return
 
-                    if (
-                        isinstance(exc, Exception)
-                        and self.error_handler
-                        and await self.main_router.check_view(self.error_handler, api, update, context)
+                    if self.error_handler and await self.main_router.check_view(
+                        self.error_handler, api, update, context
                     ):
                         logger.debug(
-                            "Dispatch caught an exception, routing to error handler...",
+                            "Dispatch caught an exception, routing to the error handler...",
                         )
                         await self.main_router.process_view(
                             self.error_handler,
                             api,
                             update,
-                            context.copy().add_exception_update(exc),
+                            context.add_exception_update(exc),
                         )
                         return
 

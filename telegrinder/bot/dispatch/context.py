@@ -15,38 +15,51 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.router.base import Router
     from telegrinder.types.objects import Update
 
-type Key = str
-type AnyValue = typing.Any
+    type Key = str
+    type Value = typing.Any
 
 SELF_CONTEXT_KEYS: typing.Final = frozenset(("context", "ctx"))
 
 
+class ContextKeyError(KeyError):
+    def __str__(self) -> str:
+        return BaseException.__str__(self)
+
+
 class Context(Externals):
-    """Low level per event context storage."""
+    """Low level per event mutable context storage."""
 
-    api: API
-    update: Update
-    raw_update: Update
-    update_cute: UpdateCute
-    per_event_scope: Scope
-    exceptions_update: dict[Router, Exception]
-    exception_update: Option[Exception] = NOTHING
+    if typing.TYPE_CHECKING:
+        api: API
+        update: Update
+        raw_update: Update
+        update_cute: UpdateCute
+        per_event_scope: Scope
+        exceptions_update: dict[Router, BaseException]
+        exception_update: Option[BaseException]
 
-    @typing.overload
-    def __init__(self) -> None: ...
+        @typing.overload
+        def __init__(self) -> None: ...
 
-    @typing.overload
-    def __init__(self, map: typing.Mapping[Key, AnyValue], /) -> None: ...
+        @typing.overload
+        def __init__(self, map: SupportsKeysAndGetItem[Key, Value], /) -> None: ...
 
-    @typing.overload
-    def __init__(self, **kwargs: AnyValue) -> None: ...
+        @typing.overload
+        def __init__(self, **context: Value) -> None: ...
 
-    def __init__(
-        self,
-        map: typing.Mapping[Key, AnyValue] | None = None,
-        **kwargs: AnyValue,
-    ) -> None:
-        Externals.__init__(self, map or kwargs)
+        def __init__(
+            self,
+            map: SupportsKeysAndGetItem[Key, Value] | None = None,
+            **context: Value,
+        ) -> None: ...
+
+        def __setattr__(self, __key: Key, __value: Value) -> None: ...
+
+        def __delattr__(self, __name: Key) -> None: ...
+
+    else:
+        __setattr__ = Externals.__setitem__
+        __delattr__ = Externals.__delitem__
 
     @recursive_repr()
     def __repr__(self) -> str:
@@ -55,39 +68,31 @@ class Context(Externals):
             ", ".join(f"{k}={repr(v) if v is not self else '<self>'}" for k, v in self.items()),
         )
 
-    def __setitem__(self, __key: Key, __value: AnyValue) -> None:
-        Externals.__setitem__(self, __key, __value)
+    def __getitem__(self, __key: Key) -> Value:
+        if __key in SELF_CONTEXT_KEYS:
+            return Externals.get(self, __key, self)
 
-    def __getitem__(self, __key: Key) -> AnyValue:
-        return self if __key in SELF_CONTEXT_KEYS else Externals.__getitem__(self, __key)
-
-    def __delitem__(self, __key: Key) -> None:
-        Externals.__delitem__(self, __key)
-
-    def __setattr__(self, __name: str, __value: AnyValue) -> None:
-        self.__setitem__(__name, __value)
-
-    def __getattribute__(self, __name: str) -> AnyValue:
         try:
-            return self[__name]
-        except KeyError:
-            return super().__getattribute__(__name)
+            return Externals.__getitem__(self, __key)
+        except KeyError as error:
+            raise ContextKeyError(f"`Context` does not have `{error.args[0]}` key.") from None
 
-    def __delattr__(self, __name: str) -> None:
-        self.__delitem__(__name)
+    __getattr__ = __getitem__
 
-    def __contains__(self, __key: object) -> bool:
+    def __contains__(self, __key: Key) -> bool:
+        """Key in self."""
         return __key in SELF_CONTEXT_KEYS or Externals.__contains__(self, __key)
 
-    def __or__(self, other: SupportsKeysAndGetItem[str, typing.Any], /) -> Context:
+    def __or__(self, other: SupportsKeysAndGetItem[Key, Value], /) -> Context:
         Externals.update(new_context := self.copy(), other)
         return new_context
 
-    def __ior__(self, other: SupportsKeysAndGetItem[str, typing.Any], /) -> typing.Self:
+    def __ior__(self, other: SupportsKeysAndGetItem[Key, Value], /) -> typing.Self:
         Externals.update(self, other)
         return self
 
-    def as_dict(self) -> dict[Key, AnyValue]:
+    def as_dict(self) -> dict[Key, Value]:
+        """Return a context as a dict."""
         return dict(self)
 
     def add_roots(
@@ -99,7 +104,7 @@ class Context(Externals):
     ) -> typing.Self:
         from telegrinder.bot.cute_types.update import UpdateCute
 
-        for key, value in {
+        self |= {
             "api": api,
             "raw_update": update,
             "update": update,
@@ -110,42 +115,28 @@ class Context(Externals):
             ),
             "per_event_scope": per_event_scope,
             "exceptions_update": {},
-        }.items():
-            self[key] = value
-
+            "exception_update": NOTHING,
+        }
         return self
 
-    def add_exception_update(self, exception_update: Exception, /) -> typing.Self:
+    def add_exception_update(self, exception_update: BaseException, /) -> typing.Self:
         self.exception_update = Some(exception_update)
         return self
 
     def copy(self) -> Context:
+        """Return a shallow copy of the Context."""
         return Context(self)
 
-    def set(self, key: Key, value: AnyValue) -> None:
-        self[key] = value
+    set = Externals.__setitem__
+    delete = Externals.__delitem__
 
-    @typing.overload
-    def get(self, key: Key) -> AnyValue | None: ...
-
-    @typing.overload
-    def get[T](self, key: Key, default: T) -> T | AnyValue: ...
-
-    @typing.overload
-    def get(self, key: Key, default: None = None) -> AnyValue | None: ...
-
-    def get[T](self, key: Key, default: T | None = None) -> T | AnyValue | None:
-        return dict.get(self, key, default)
-
-    def get_or_set[T](self, key: Key, default: T) -> T:
+    def get_or_set[Default](self, key: Key, default: Default, /) -> Default:
+        """Return self[key] if exists, otherwise set self[key] to default and return it."""
         try:
             return self[key]
         except KeyError:
             self[key] = default
             return default
-
-    def delete(self, key: Key) -> None:
-        del self[key]
 
 
 __all__ = ("Context",)
