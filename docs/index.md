@@ -6,6 +6,6 @@ Welcome to telegrinder documentation.
 
 You may be interested in:
 
-* [Guide](guide/index.md)
+* [Tutorial](tutorial/en/0_tutorial.md)
 * [API](api.md)
 * [Tools](tools/index.md)
