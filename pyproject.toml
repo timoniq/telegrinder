@@ -8,7 +8,7 @@ description = "Modern visionary telegram bot framework."
 authors = [{ name = "timoniq", email = "tesseradecades@mail.ru" }]
 requires-python = ">=3.14,<4.0"
 readme = "readme.md"
-license = { file = "license" }
+license = { file = "LICENSE" }
 maintainers = [{ name = "luwqz1", email = "howluwqz1@gmail.com" }]
 dynamic = ["version"]
 keywords = [
