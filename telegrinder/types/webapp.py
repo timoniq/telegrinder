@@ -1,5 +1,10 @@
-from telegrinder.model import From, Model, field
-from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime
+import typing
+from urllib.parse import parse_qsl
+
+import msgspec
+import msgspex
+from msgspex.custom_types import Literal, Option, datetime
+from msgspex.model import From, Model, field
 
 type ChatType = Literal["sender", "private", "group", "supergroup", "channel"]
 
@@ -124,6 +129,16 @@ class WebAppInitData(Model):
 
     can_send_after: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Time in seconds, after which a message can be sent via the answerWebAppQuery method."""
+
+    @classmethod
+    def parse(cls, raw: str, /) -> typing.Self:
+        data = {
+            key: msgspec.json.decode(value)
+            if (value.startswith("{") and value.endswith("}")) or (value.startswith("[") and value.endswith("]"))
+            else value
+            for key, value in parse_qsl(raw)
+        }
+        return msgspex.decoder.convert(data, type=cls, strict=False)
 
 
 __all__ = ("WebAppChat", "WebAppInitData", "WebAppUser")

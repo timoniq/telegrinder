@@ -49,22 +49,23 @@ class FuncHandler[T: Function](ABCHandler):
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, str]:
-        if self.preset_context:
-            context |= self.preset_context
-
         if check and self.check_rules:
-            await logger.adebug("Checking rules for handler `{!r}`...", self)
-
             with log_scope(lambda: self.function.__name__):
+                logger.debug("Checking rules...")
+
                 for rule in self.check_rules:
                     if not await check_rule(rule, context):
                         return Error(f"Rule {rule!r} failed.")
 
-            await logger.adebug("Rules passed, composing nodes and running handler `{!r}`...", self)
+                logger.debug("Rules passed, composing nodes and running handler...")
         else:
-            await logger.adebug("Composing nodes and running handler `{!r}`...", self)
+            logger.debug("Composing nodes and running handler `{!r}`...", self)
 
-        async with compose(self.function, context, agent_cls=self.agent_cls) as result:
+        async with compose(
+            self.function,
+            context=context if not self.preset_context else context | self.preset_context,
+            agent_cls=self.agent_cls,
+        ) as result:
             return result.map_err(
                 lambda error: "{}\n".format(
                     NodeError(f"* failed to compose handler `{self!r}`", from_error=error),

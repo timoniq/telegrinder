@@ -19,6 +19,7 @@ __all__ = (
     "tg_bot_startgroup_link",
     "tg_chat_folder_link",
     "tg_chat_invite_link",
+    "tg_create_managed_bot",
     "tg_direct_mini_app_link",
     "tg_emoji_link",
     "tg_emoji_stickerset_link",

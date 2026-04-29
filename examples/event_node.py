@@ -1,12 +1,13 @@
 import typing
 
 from telegrinder import API, Telegrinder, Token
-from telegrinder.modules import setup_logger
+from telegrinder.modules import configure_dotenv, setup_logger
 from telegrinder.node import EventNode
 from telegrinder.rules import IsUpdateType, Text
 from telegrinder.types import UpdateType
 from telegrinder.types.objects import Message
 
+configure_dotenv()
 setup_logger()
 
 bot = Telegrinder(API(Token.from_env()))

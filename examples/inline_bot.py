@@ -1,9 +1,12 @@
-from telegrinder import API, InlineQuery, Telegrinder, Token
+from telegrinder import API, InlineQuery, Telegrinder, Token, configure_dotenv, setup_logger
 from telegrinder.rules import InlineQueryText
 from telegrinder.types import (
     InlineQueryResultArticle,
     InputTextMessageContent,
 )
+
+configure_dotenv()
+setup_logger()
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

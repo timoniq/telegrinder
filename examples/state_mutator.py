@@ -47,10 +47,11 @@ def login_as_ghost(silently: bool = False):
 # State use
 
 
-from telegrinder import API, Bot, Token, setup_logger
+from telegrinder import API, Bot, Token, configure_dotenv, setup_logger
 from telegrinder.rules import Text
 
 bot = Bot(API(Token.from_env()))
+configure_dotenv()
 setup_logger()
 
 

@@ -5,15 +5,28 @@ from functools import cached_property
 
 from kungfu.library import Result, Some, Sum
 from kungfu.library.monad import option
+from msgspex import Option
+from msgspex.model import From, field
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import MediaType, build_html, compose_reactions, input_media
-from telegrinder.model import From, field
-from telegrinder.msgspec_utils import Option
 from telegrinder.tools.magic.descriptors import additional_property
+from telegrinder.tools.waiter_machine.hasher import (
+    BUSINESS_MESSAGE,
+    CALLBACK_QUERY_FOR_MESSAGE,
+    CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
+    CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE,
+    MESSAGE_FROM_USER,
+    MESSAGE_FROM_USER_IN_CHAT,
+    MESSAGE_FROM_USER_IN_CHAT_THREAD,
+    MESSAGE_FROM_USER_IN_THREAD,
+    MESSAGE_IN_CHAT,
+    MESSAGE_POST_IN_CHANNEL,
+)
 from telegrinder.types import *
-from telegrinder.types.methods_utils import get_params
+from telegrinder.types.utils import get_params
+from telegrinder.types.utils.lazy_result import lazy_result
 
 if typing.TYPE_CHECKING:
     from datetime import datetime, timedelta
@@ -22,6 +35,37 @@ if typing.TYPE_CHECKING:
 
 type InputMediaType = str | InputMedia | InputFile
 type ReplyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
+
+
+def _to_message_cute(message: Message, bound_api: API, /) -> MessageCute:
+    return MessageCute.from_update(message, bound_api=bound_api)
+
+
+def _to_message_cute_list(messages: list[Message], bound_api: API, /) -> list[MessageCute]:
+    return [_to_message_cute(message, bound_api) for message in messages]
+
+
+def _to_answer_result(
+    value: typing.Any,
+    bound_api: API,
+    /,
+) -> typing.Any:
+    if isinstance(value, bool):
+        return value
+
+    return (
+        _to_message_cute(value, bound_api) if not isinstance(value, list) else _to_message_cute_list(value, bound_api)
+    )
+
+
+def _to_edit_result(
+    value: Sum[Message, bool],
+    bound_api: API,
+    /,
+) -> Sum[MessageCute, bool]:
+    return Sum[MessageCute, bool](
+        value.only().map(lambda message: _to_message_cute(message, bound_api)).unwrap_or(value.v),  # type: ignore
+    )
 
 
 async def execute_method_answer(
@@ -37,18 +81,8 @@ async def execute_method_answer(
             "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False),
         },
     )
-    result = await getattr(message.api, method_name)(**params)
-    return result.map(
-        lambda x: (
-            x
-            if isinstance(x, bool)
-            else (
-                message.from_update(x, bound_api=message.api)
-                if not isinstance(x, list)
-                else [message.from_update(m, bound_api=message.api) for m in x]
-            )
-        )
-    )
+    result = await getattr(message.bound_api, method_name)(**params)
+    return lazy_result(result, lambda value: _to_answer_result(value, message.bound_api))
 
 
 async def execute_method_reply(
@@ -95,20 +129,12 @@ async def execute_method_edit(
         params.pop("message_id", None)
         params.pop("chat_id", None)
 
-    result = await getattr(update.ctx_api, method_name)(**params)
-    return result.map(
-        lambda v: Sum[MessageCute, bool](
-            v.only()
-            .map(
-                lambda x: MessageCute.from_update(x, bound_api=update.api),
-            )
-            .unwrap_or(typing.cast("bool", v.v))
-        )
-    )
+    result = await getattr(update.bound_api, method_name)(**params)
+    return lazy_result(result, lambda value: _to_edit_result(value, update.api))
 
 
 def get_entity_value(
-    entity_value: typing.Literal["user", "url", "custom_emoji_id", "language"],
+    entity_value: typing.Literal["user", "url", "custom_emoji_id", "language", "date_time_format", "unixtime"],
     entities: option.Option[list[MessageEntity]],
     caption_entities: option.Option[list[MessageEntity]],
 ) -> option.Option[typing.Any]:
@@ -288,7 +314,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
         message_thread_id: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -962,7 +988,66 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
-        Use this method to send invoices. On success, the sent Message is returned."""
+        Use this method to send invoices. On success, the sent Message is returned.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param title: Product name, 1-32 characters.
+
+        :param description: Product description, 1-255 characters.
+
+        :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed tothe user, use it for your internal processes.
+
+        :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty stringfor payments in Telegram Stars.
+
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR`for payments in Telegram Stars.
+
+        :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price,tax, discount, delivery cost, delivery tax, bonus, etc.). Must containexactly one item for payments in Telegram Stars.
+
+        :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency(integer, not float/double). For example, for a maximum tip of US$ 1.45pass max_tip_amount = 145. See the exp parameter in currencies.json, itshows the number of digits past the decimal point for each currency (2 forthe majority of currencies). Defaults to 0. Not supported for paymentsin Telegram Stars.
+
+        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest unitsof the currency (integer, not float/double). At most 4 suggested tip amountscan be specified. The suggested tip amounts must be positive, passed ina strictly increased order and must not exceed max_tip_amount.
+
+        :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of thesent message will have a Pay button, allowing multiple users to pay directlyfrom the forwarded message, using the same invoice. If non-empty, forwardedcopies of the sent message will have a URL button with a deep link to the bot(instead of a Pay button), with the value used as the start parameter.
+
+        :param provider_data: JSON-serialized data about the invoice, which will be shared with the paymentprovider. A detailed description of required fields should be providedby the payment provider.
+
+        :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketingimage for a service. People like it better when they see what they are payingfor.
+
+        :param photo_size: Photo size in bytes.
+
+        :param photo_width: Photo width.
+
+        :param photo_height: Photo height.
+
+        :param need_name: Pass True if you require the user's full name to complete the order. Ignoredfor payments in Telegram Stars.
+
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order. Ignoredfor payments in Telegram Stars.
+
+        :param need_email: Pass True if you require the user's email address to complete the order.Ignored for payments in Telegram Stars.
+
+        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order.Ignored for payments in Telegram Stars.
+
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider. Ignoredfor payments in Telegram Stars.
+
+        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider. Ignoredfor payments in Telegram Stars.
+
+        :param is_flexible: Pass True if the final price depends on the shipping method. Ignored forpayments in Telegram Stars.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay totalprice' button will be shown. If not empty, the first button must be a Pay button."""
         ...
 
     @shortcut(
@@ -1999,7 +2084,66 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
-        Use this method to send invoices. On success, the sent Message is returned."""
+        Use this method to send invoices. On success, the sent Message is returned.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param title: Product name, 1-32 characters.
+
+        :param description: Product description, 1-255 characters.
+
+        :param payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed tothe user, use it for your internal processes.
+
+        :param provider_token: Payment provider token, obtained via @BotFather. Pass an empty stringfor payments in Telegram Stars.
+
+        :param currency: Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR`for payments in Telegram Stars.
+
+        :param prices: Price breakdown, a JSON-serialized list of components (e.g. product price,tax, discount, delivery cost, delivery tax, bonus, etc.). Must containexactly one item for payments in Telegram Stars.
+
+        :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency(integer, not float/double). For example, for a maximum tip of US$ 1.45pass max_tip_amount = 145. See the exp parameter in currencies.json, itshows the number of digits past the decimal point for each currency (2 forthe majority of currencies). Defaults to 0. Not supported for paymentsin Telegram Stars.
+
+        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest unitsof the currency (integer, not float/double). At most 4 suggested tip amountscan be specified. The suggested tip amounts must be positive, passed ina strictly increased order and must not exceed max_tip_amount.
+
+        :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of thesent message will have a Pay button, allowing multiple users to pay directlyfrom the forwarded message, using the same invoice. If non-empty, forwardedcopies of the sent message will have a URL button with a deep link to the bot(instead of a Pay button), with the value used as the start parameter.
+
+        :param provider_data: JSON-serialized data about the invoice, which will be shared with the paymentprovider. A detailed description of required fields should be providedby the payment provider.
+
+        :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketingimage for a service. People like it better when they see what they are payingfor.
+
+        :param photo_size: Photo size in bytes.
+
+        :param photo_width: Photo width.
+
+        :param photo_height: Photo height.
+
+        :param need_name: Pass True if you require the user's full name to complete the order. Ignoredfor payments in Telegram Stars.
+
+        :param need_phone_number: Pass True if you require the user's phone number to complete the order. Ignoredfor payments in Telegram Stars.
+
+        :param need_email: Pass True if you require the user's email address to complete the order.Ignored for payments in Telegram Stars.
+
+        :param need_shipping_address: Pass True if you require the user's shipping address to complete the order.Ignored for payments in Telegram Stars.
+
+        :param send_phone_number_to_provider: Pass True if the user's phone number should be sent to the provider. Ignoredfor payments in Telegram Stars.
+
+        :param send_email_to_provider: Pass True if the user's email address should be sent to the provider. Ignoredfor payments in Telegram Stars.
+
+        :param is_flexible: Pass True if the final price depends on the shipping method. Ignored forpayments in Telegram Stars.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay totalprice' button will be shown. If not empty, the first button must be a Pay button."""
         ...
 
     @shortcut(
@@ -2321,7 +2465,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         inline_message_id: str | None = None,
         message_id: int | None = None,
         message_thread_id: str | None = None,
-        parse_mode: str | None = API.default_params["parse_mode"],
+        parse_mode: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Sum[MessageCute, bool], APIError]:
@@ -2449,6 +2593,16 @@ class MessageCute(
         """Unique identifier of the custom emoji."""
         return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)
 
+    @property
+    def unixtime(self) -> option.Option[datetime]:
+        """The Unix time associated with the `date_time` entity."""
+        return get_entity_value("unixtime", self.entities, self.caption_entities)
+
+    @property
+    def date_time_format(self) -> option.Option[DateTimeFormatSeq]:
+        """The sequence of the char that defines the formatting of the date and time."""
+        return get_entity_value("date_time_format", self.entities, self.caption_entities)
+
     def build_html_text(self, text: Option[str], entities: Option[list[MessageEntity]], /) -> Option[str]:
         if not text:
             return option.NOTHING
@@ -2458,6 +2612,89 @@ class MessageCute(
                 return option.Some(build_html(text.unwrap(), ents))
             case _:
                 return option.NOTHING
+
+    def BUSINESS(self, business_connection_id: str | None = None):
+        return BUSINESS_MESSAGE(
+            business_connection_id
+            if business_connection_id is not None
+            else self.business_connection_id.expect(
+                ValueError("Business message hasher requires business_connection_id."),
+            ),
+        )
+
+    def FROM_USER(self, user_id: int | None = None):
+        return MESSAGE_FROM_USER(self.from_user.id if user_id is None else user_id)
+
+    def FROM_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return MESSAGE_FROM_USER_IN_CHAT(
+            (
+                self.chat_id if chat_id is None else chat_id,
+                self.from_user.id if user_id is None else user_id,
+            ),
+        )
+
+    def FROM_USER_IN_THREAD(self, message_thread_id: int | None = None, user_id: int | None = None):
+        return MESSAGE_FROM_USER_IN_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(ValueError("Thread message hasher requires message_thread_id.")),
+                self.from_user.id if user_id is None else user_id,
+            ),
+        )
+
+    def FROM_USER_IN_CHAT_THREAD(
+        self,
+        message_thread_id: int | None = None,
+        chat_id: int | None = None,
+        user_id: int | None = None,
+    ):
+        return MESSAGE_FROM_USER_IN_CHAT_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("Chat thread message hasher requires message_thread_id.")
+                ),
+                self.chat_id if chat_id is None else chat_id,
+                self.from_user.id if user_id is None else user_id,
+            ),
+        )
+
+    def IN_CHAT(self, chat_id: int | None = None):
+        return MESSAGE_IN_CHAT(self.chat_id if chat_id is None else chat_id)
+
+    def POST_IN_CHANNEL(self, chat_id: int | None = None):
+        return MESSAGE_POST_IN_CHANNEL(self.chat_id if chat_id is None else chat_id)
+
+    def CALLBACK_QUERY(self, message_id: int | None = None):
+        return CALLBACK_QUERY_FOR_MESSAGE(self.message_id if message_id is None else message_id)
+
+    def CALLBACK_QUERY_IN_CHAT(self, chat_id: int | None = None, message_id: int | None = None):
+        return CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE(
+            (
+                self.chat_id if chat_id is None else chat_id,
+                self.message_id if message_id is None else message_id,
+            ),
+        )
+
+    def CALLBACK_QUERY_IN_CHAT_THREAD(
+        self,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        chat_id: int | None = None,
+    ):
+        return CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE(
+            (
+                self.message_id if message_id is None else message_id,
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("Chat thread callback query hasher requires message_thread_id."),
+                ),
+                self.chat_id if chat_id is None else chat_id,
+            ),
+        )
 
     @shortcut(
         "send_message",
@@ -2595,14 +2832,17 @@ class MessageCute(
         administrator right in a supergroup or a channel, it can delete any message
         there. - If the bot has can_manage_direct_messages administrator right
         in a channel, it can delete any message in the corresponding direct messages
-        chat. Returns True on success."""
+        chat. Returns True on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the message to delete."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
             default_params={"chat_id", "message_id", "message_thread_id"},
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return await self.ctx_api.delete_message(**params)
+        return await self.bound_api.delete_message(**params)
 
     @shortcut(
         "edit_message_text",
@@ -2682,7 +2922,38 @@ class MessageCute(
         messages can't be copied. A quiz poll can be copied only if the value of the
         field correct_option_id is known to the bot. The method is analogous to
         the method forwardMessage, but the copied message doesn't have a link to
-        the original message. Returns the MessageId of the sent message on success."""
+        the original message. Returns the MessageId of the sent message on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channelusername in the format @channelusername).
+
+        :param message_id: Message identifier in the chat specified in from_chat_id.
+
+        :param video_start_timestamp: New start timestamp for the copied video in the message.
+
+        :param caption: New caption for media, 0-1024 characters after entities parsing. If notspecified, the original caption is kept.
+
+        :param parse_mode: Mode for parsing entities in the new caption. See formatting options formore details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the new caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Ignoredif a new caption isn't specified.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; onlyavailable when copying to private chats.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -2698,7 +2969,7 @@ class MessageCute(
             reply_parameters.setdefault("message_id", params.get("message_id"))
             reply_parameters.setdefault("chat_id", params.get("chat_id"))
             params["reply_parameters"] = ReplyParameters(**reply_parameters)
-        return await self.ctx_api.copy_message(**params)
+        return await self.bound_api.copy_message(**params)
 
     @shortcut(
         "set_message_reaction",
@@ -2719,7 +2990,13 @@ class MessageCute(
         Use this method to change the chosen reactions on a message. Service messages
         of some types can't be reacted to. Automatically forwarded messages from
         a channel to its discussion group have the same available reactions as messages
-        in the channel. Bots can't use paid reactions. Returns True on success."""
+        in the channel. Bots can't use paid reactions. Returns True on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_id: Identifier of the target message. If the message belongs to a media group,the reaction is set to the first non-deleted message in the group instead.
+        :param reaction: A JSON-serialized list of reaction types to set on the message. Currently,as non-premium users, bots can set up to one reaction per message. A customemoji reaction can be used if it is either already present on the messageor explicitly allowed by chat administrators. Paid reactions can't beused by bots.
+
+        :param is_big: Pass True to set the reaction with a big animation."""
         params = compose_method_params(
             params=get_params(locals()),
             update=self,
@@ -2730,7 +3007,7 @@ class MessageCute(
             params["reaction"] = compose_reactions(
                 reaction.unwrap() if isinstance(reaction, Some) else reaction,
             )
-        return await self.ctx_api.set_message_reaction(**params)
+        return await self.bound_api.set_message_reaction(**params)
 
     @shortcut("forward_message", custom_params={"message_thread_id", "from_chat_id", "message_id"})
     async def forward(
@@ -2780,7 +3057,8 @@ class MessageCute(
             },
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return (await self.ctx_api.forward_message(**params)).map(
+        return lazy_result(
+            await self.bound_api.forward_message(**params),
             lambda message: MessageCute.from_update(message, bound_api=self.api),
         )
 
@@ -2815,7 +3093,7 @@ class MessageCute(
             default_params={"chat_id", "message_id", "message_thread_id"},
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return await self.ctx_api.pin_chat_message(**params)
+        return await self.bound_api.pin_chat_message(**params)
 
     @shortcut("unpin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def unpin(
@@ -2845,7 +3123,7 @@ class MessageCute(
             default_params={"chat_id", "message_id", "message_thread_id"},
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return await self.ctx_api.unpin_chat_message(**params)
+        return await self.bound_api.unpin_chat_message(**params)
 
 
 __all__ = ("MessageCute",)

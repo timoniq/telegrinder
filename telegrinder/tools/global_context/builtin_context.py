@@ -11,12 +11,14 @@ from telegrinder.tools.global_context.global_context import GlobalContext, ctx_v
 from telegrinder.tools.loop_wrapper import LoopWrapper
 
 if typing.TYPE_CHECKING:
+    from telegrinder.bot import MiddlewareBox
+    from telegrinder.tools import WaiterMachine
     from telegrinder.tools.lifespan import Lifespan
 
 
 @runtime_init
-class TelegrinderContext(GlobalContext, thread_safe=True):
-    """The thread-safe type-hinted telegrinder context.
+class TelegrinderContext(GlobalContext):
+    """The type-hinted telegrinder context.
 
     Example:
     ```
@@ -29,6 +31,10 @@ class TelegrinderContext(GlobalContext, thread_safe=True):
     """
 
     __ctx_name__ = "telegrinder"
+
+    if typing.TYPE_CHECKING:
+        middleware_box: typing.ClassVar[MiddlewareBox]
+        waiter_machine: typing.ClassVar[WaiterMachine]
 
     node_global_scope: typing.Final[Scope] = ctx_var(
         default_factory=lambda: Scope(detail="global"),

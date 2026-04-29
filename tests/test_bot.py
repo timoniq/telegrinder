@@ -32,7 +32,7 @@ async def test_log_scope_is_nested():
     _configure_logging("DEBUG", None, False, sink)
 
     with log_scope("outer"), log_scope("inner"):
-        await logger.ainfo("hello")
+        logger.info("hello")
 
     assert "[outer > inner] hello" in sink.getvalue()
 
@@ -46,7 +46,7 @@ async def test_log_buffer_preserves_original_log_frame():
         from telegrinder.modules import log_buffer
 
         with log_buffer("Update:1"), log_scope("scope"):
-            await logger.ainfo("hello")
+            logger.info("hello")
 
     await demo()
 
@@ -69,17 +69,17 @@ async def test_dispatch_feed_flushes_buffered_logs_in_one_block(api_instance, me
     async def fake_route_update(*_args):
         async def first_router() -> None:
             with log_scope("router-1"):
-                await logger.ainfo("first")
+                logger.info("first")
                 assert sink.getvalue() == ""
                 first_log_written.set()
                 await second_log_written.wait()
-                await logger.ainfo("third")
+                logger.info("third")
                 assert sink.getvalue() == ""
 
         async def second_router() -> None:
             await first_log_written.wait()
             with log_scope("router-2"):
-                await logger.ainfo("second")
+                logger.info("second")
                 assert sink.getvalue() == ""
                 second_log_written.set()
 
@@ -113,17 +113,17 @@ async def test_dispatch_feed_flushes_buffered_loguru_logs(api_instance, message_
     async def fake_route_update(*_args):
         async def first_router() -> None:
             with log_scope("router-1"):
-                await logger.ainfo("first")
+                logger.info("first")
                 assert sink.getvalue() == ""
                 first_log_written.set()
                 await second_log_written.wait()
-                await logger.ainfo("third")
+                logger.info("third")
                 assert sink.getvalue() == ""
 
         async def second_router() -> None:
             await first_log_written.wait()
             with log_scope("router-2"):
-                await logger.ainfo("second")
+                logger.info("second")
                 assert sink.getvalue() == ""
                 second_log_written.set()
 
@@ -168,17 +168,17 @@ async def test_set_logger_with_wrapped_logging_logger_preserves_buffered_dispatc
     async def fake_route_update(*_args):
         async def first_router() -> None:
             with log_scope("router-1"):
-                await logger.ainfo("first")
+                logger.info("first")
                 assert sink.getvalue() == ""
                 first_log_written.set()
                 await second_log_written.wait()
-                await logger.ainfo("third")
+                logger.info("third")
                 assert sink.getvalue() == ""
 
         async def second_router() -> None:
             await first_log_written.wait()
             with log_scope("router-2"):
-                await logger.ainfo("second")
+                logger.info("second")
                 assert sink.getvalue() == ""
                 second_log_written.set()
 
@@ -217,14 +217,14 @@ async def test_set_logger_without_wrapper_keeps_immediate_logging(api_instance, 
     async def fake_route_update(*_args):
         async def first_router() -> None:
             with log_scope("router-1"):
-                await logger.ainfo("first")
+                logger.info("first")
                 assert sink.getvalue() != ""
                 first_log_written.set()
 
         async def second_router() -> None:
             await first_log_written.wait()
             with log_scope("router-2"):
-                await logger.ainfo("second")
+                logger.info("second")
 
         async with dispatch.loop_wrapper.create_task_group() as task_group:
             task_group.create_task(first_router())

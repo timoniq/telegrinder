@@ -9,12 +9,13 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
-from telegrinder.modules import setup_logger
+from telegrinder.modules import configure_dotenv, setup_logger
 from telegrinder.node import ChatId
 from telegrinder.rules import PayloadModelRule, Text
 from telegrinder.tools import MsgPackSerializer
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
+configure_dotenv()
 setup_logger()
 
 api = API(token=Token.from_env())

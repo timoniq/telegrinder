@@ -1,19 +1,23 @@
 """Webhook Bot example. This example uses fastapi + uvicorn."""
 
+# type: ignore
+# pyright: reportMissingImports=false
+
+import asyncio
 import os
 import secrets
 import typing
 from contextlib import asynccontextmanager
 
-import uvicorn  # type: ignore
+import uvicorn
 from bot import dp
-from fastapi import FastAPI, Request, Response  # type: ignore
+from fastapi import FastAPI, Request, Response
 
 from telegrinder import API, Token
-from telegrinder.modules import logger, setup_logger
-from telegrinder.tools.loop_wrapper import LoopWrapper
-from telegrinder.types.objects import Update
-from telegrinder.verification_utils import verify_secret_token
+from telegrinder.modules import configure_dotenv, setup_logger
+from telegrinder.tools import verify_secret_token
+
+configure_dotenv()
 
 TOKEN = Token.from_env()
 HOST = os.environ["HOST"]  # > host, for example: https://domain.com
@@ -32,33 +36,22 @@ async def lifespan(_) -> typing.AsyncGenerator[None, None]:
     await api.delete_webhook(drop_pending_updates=True)
 
 
-app = FastAPI(lifespan=lifespan)  # type: ignore
+app = FastAPI(lifespan=lifespan)
 
 
-@app.post(WEBHOOK_PATH, response_class=Response)  # type: ignore
-async def webhook_bot(request: Request) -> Response:  # type: ignore
-    if not verify_secret_token(SECRET_TOKEN, request.headers):  # type: ignore
-        return Response(status_code=404)  # type: ignore
+@app.post(WEBHOOK_PATH, response_class=Response)
+async def webhook_bot(request: Request) -> Response:
+    if not verify_secret_token(SECRET_TOKEN, request.headers):
+        return Response(
+            content="The secret token verification failed; the request was not processed.",
+            status_code=200,
+        )
 
-    update = Update.from_raw(await request.body())  # type: ignore
-    logger.debug(
-        "Webhook received update (update_id={}, update_type={!r})",
-        update.update_id,
-        update.update_type,
-    )
-    loop_wrapper.add_task(dp.feed(api, update))
-    return Response(status_code=200)  # type: ignore
-
-
-async def run_application(server_config: uvicorn.Config, /) -> None:  # type: ignore
-    server = uvicorn.Server(server_config)  # type: ignore
-    await server.serve()  # type: ignore
+    asyncio.create_task(dp.feed_raw(api, await request.body()))
+    return Response(status_code=202)
 
 
 if __name__ == "__main__":
     setup_logger(level="DEBUG")
 
-    loop_wrapper = LoopWrapper()
-    config = uvicorn.Config(app, host="0.0.0.0", port=PORT, loop="none")  # type: ignore
-    loop_wrapper.add_task(run_application(config))  # type: ignore
-    loop_wrapper.run()
+    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="DEBUG")

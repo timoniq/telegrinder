@@ -2,9 +2,9 @@ import typing
 
 import msgspec
 from kungfu.library.monad.result import Error, Ok, Result
+from msgspex import decoder
 
 from telegrinder.modules import json
-from telegrinder.msgspec_utils import decoder
 from telegrinder.tools.serialization.abc import ABCDataSerializer, ModelType
 from telegrinder.tools.serialization.utils import get_model_ident_key
 
@@ -45,13 +45,13 @@ class JSONSerializer[JsonT: Json](ABCDataSerializer[JsonT]):
         data = serialized_data.removeprefix(self.key)
         try:
             data_obj = json.loads(data)
-        except (msgspec.ValidationError, msgspec.DecodeError):
+        except msgspec.ValidationError, msgspec.DecodeError:
             return Error("Cannot decode json.")
 
         if not issubclass(self.model_t, dict):
             try:
                 return Ok(decoder.convert(data_obj, type=self.model_t))
-            except (msgspec.ValidationError, msgspec.DecodeError):
+            except msgspec.ValidationError, msgspec.DecodeError:
                 return Error("Incorrect data.")
 
         return Ok(data_obj)

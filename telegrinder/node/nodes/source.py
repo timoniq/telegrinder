@@ -13,6 +13,7 @@ from telegrinder.bot.cute_types import (
     ChatMemberUpdatedCute,
     ChosenInlineResultCute,
     InlineQueryCute,
+    ManagedBotUpdatedCute,
     MessageCute,
     MessageReactionUpdatedCute,
     PaidMediaPurchasedCute,
@@ -115,6 +116,13 @@ class Source:
         return cls(
             api=shipping_query.api,
             from_user=shipping_query.from_user,
+        )
+
+    @case
+    def compose_managed_bot_updated(cls, managed_bot: ManagedBotUpdatedCute) -> typing.Self:
+        return cls(
+            api=managed_bot.api,
+            from_user=managed_bot.from_user,
         )
 
     async def send(self, text: str, **kwargs: typing.Any) -> Message:

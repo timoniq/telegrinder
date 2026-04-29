@@ -5,12 +5,14 @@ import typing
 from functools import cached_property
 
 from kungfu.library import Sum
+from msgspex.custom_types import Literal, Option, datetime, timedelta
+from msgspex.model import UNSET, DefaultFactory, From, Model, field
+from msgspex.tools import is_none
 
-from telegrinder.model import From, Model, field, is_none
-from telegrinder.msgspec_utils.custom_types import Literal, Option, datetime, timedelta
 from telegrinder.types.date_time_format import DateTimeFormatSeq
 from telegrinder.types.enums import *  # noqa: F403
 from telegrinder.types.input_file import InputFile
+from telegrinder.types.utils import default_parameter_as_option_for_field
 
 
 class TransactionPartner(Model):
@@ -379,8 +381,8 @@ class Update(Model):
     in the chat to receive these updates."""
 
     managed_bot: Option[ManagedBotUpdated] = field(default=..., converter=From["ManagedBotUpdated | None"])
-    """Optional. A new bot was created to be managed by the bot or token of a bot was
-    changed."""
+    """Optional. A new bot was created to be managed by the bot, or token or owner
+    of a managed bot was changed."""
 
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
@@ -900,7 +902,13 @@ class Message(MaybeInaccessibleMessage):
     """Optional. For text messages, special entities like usernames, URLs, bot
     commands, etc. that appear in the text."""
 
-    link_preview_options: Option[LinkPreviewOptions] = field(default=..., converter=From["LinkPreviewOptions | None"])
+    link_preview_options: Option[LinkPreviewOptions] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("link_preview_options"),
+            default=UNSET,
+        ),
+        converter=From["LinkPreviewOptions | None"],
+    )
     """Optional. Options used for link preview generation for the message, if
     it is a text message and link preview options were changed."""
 
@@ -1360,7 +1368,13 @@ class ExternalReplyInfo(Model):
     """Optional. Unique message identifier inside the original chat. Available
     only if the original chat is a supergroup or a channel."""
 
-    link_preview_options: Option[LinkPreviewOptions] = field(default=..., converter=From["LinkPreviewOptions | None"])
+    link_preview_options: Option[LinkPreviewOptions] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("link_preview_options"),
+            default=UNSET,
+        ),
+        converter=From["LinkPreviewOptions | None"],
+    )
     """Optional. Options used for link preview generation for the original message,
     if it is a text message."""
 
@@ -1962,7 +1976,13 @@ class InputPollOption(Model):
     text: str = field()
     """Option text, 1-100 characters."""
 
-    text_parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    text_parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("text_parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the text. See formatting options
     for more details. Currently, only custom emoji entities are allowed."""
 
@@ -2026,12 +2046,12 @@ class Poll(Model):
     allows_revoting: bool = field()
     """True, if the poll allows to change the chosen answer options."""
 
-    type: PollType = field(default=PollType.REGULAR)
-    """Poll type, currently can be `regular` or `quiz`."""
-
     question_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the question. Currently, only
     custom emoji entities are allowed in poll questions."""
+
+    type: PollType = field(default=PollType.REGULAR)
+    """Poll type, currently can be `regular` or `quiz`."""
 
     correct_option_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
     """Optional. Array of 0-based identifiers of the correct answer options.
@@ -2127,7 +2147,13 @@ class InputChecklistTask(Model):
     text: str = field()
     """Text of the task; 1-100 characters after entities parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the text. See formatting options
     for more details."""
 
@@ -2149,7 +2175,13 @@ class InputChecklist(Model):
     tasks: list[InputChecklistTask] = field()
     """List of 1-30 tasks in the checklist."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the title. See formatting options
     for more details."""
 
@@ -2311,7 +2343,7 @@ class ManagedBotCreated(Model):
 class ManagedBotUpdated(Model):
     """Object `ManagedBotUpdated`, see the [documentation](https://core.telegram.org/bots/api#managedbotupdated).
 
-    This object contains information about the creation or token update of a bot that is managed by the current bot.
+    This object contains information about the creation, token update, or owner update of a bot that is managed by the current bot.
     """
 
     user: User = field()
@@ -2320,6 +2352,11 @@ class ManagedBotUpdated(Model):
     bot: User = field()
     """Information about the bot. Token of the bot can be fetched using the method
     getManagedBotToken."""
+
+    @property
+    def user_id(self) -> int:
+        """`user_id` instead of `user.id`."""
+        return self.user.id
 
 
 class PollOptionAdded(Model):
@@ -2811,16 +2848,16 @@ class SuggestedPostRefunded(Model):
     Describes a service message about a payment refund for a suggested post.
     """
 
+    suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the suggested post. Note that the Message
+    object in this field will not contain the reply_to_message field even if
+    it itself is a reply."""
+
     reason: Literal["post_deleted", "payment_refunded"] = field(default="post_deleted")
     """Reason for the refund. Currently, one of `post_deleted` if the post was
     deleted within 24 hours of being posted or removed from scheduled messages
     without being posted, or `payment_refunded` if the payer refunded their
     payment."""
-
-    suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
-    """Optional. Message containing the suggested post. Note that the Message
-    object in this field will not contain the reply_to_message field even if
-    it itself is a reply."""
 
 
 class GiveawayCreated(Model):
@@ -5424,7 +5461,13 @@ class InputMediaPhoto(InputMedia):
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
@@ -5477,7 +5520,13 @@ class InputMediaVideo(InputMedia):
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
@@ -5532,7 +5581,13 @@ class InputMediaAnimation(InputMedia):
     """Optional. Caption of the animation to be sent, 0-1024 characters after
     entities parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the animation caption. See formatting
     options for more details."""
 
@@ -5584,7 +5639,13 @@ class InputMediaAudio(InputMedia):
     """Optional. Caption of the audio to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
@@ -5630,7 +5691,13 @@ class InputMediaDocument(InputMedia):
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
@@ -6004,9 +6071,7 @@ class InlineQueryResultArticle(InlineQueryResult):
     type: Literal["article"] = field(default="article")
     """Type of the result, must be article."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 Bytes."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
@@ -6044,9 +6109,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     type: Literal["photo"] = field(default="photo")
     """Type of the result, must be photo."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     photo_width: Option[int] = field(default=..., converter=From[int | None])
@@ -6065,7 +6128,13 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
@@ -6111,9 +6180,7 @@ class InlineQueryResultGif(InlineQueryResult):
     type: Literal["gif"] = field(default="gif")
     """Type of the result, must be gif."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     gif_width: Option[int] = field(default=..., converter=From[int | None])
@@ -6138,7 +6205,13 @@ class InlineQueryResultGif(InlineQueryResult):
     """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
@@ -6184,9 +6257,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     type: Literal["mpeg4_gif"] = field(default="mpeg4_gif")
     """Type of the result, must be mpeg4_gif."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     mpeg4_width: Option[int] = field(default=..., converter=From[int | None])
@@ -6211,7 +6282,13 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after
     entities parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
@@ -6260,19 +6337,23 @@ class InlineQueryResultVideo(InlineQueryResult):
     type: Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
+    """Unique identifier for this result, 1-64 bytes."""
+
     mime_type: InlineQueryResultVideoMimeType = field(default=InlineQueryResultVideoMimeType.TEXT_HTML)
     """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
-
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
-    """Unique identifier for this result, 1-64 bytes."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
@@ -6332,15 +6413,19 @@ class InlineQueryResultAudio(InlineQueryResult):
     type: Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
@@ -6389,15 +6474,19 @@ class InlineQueryResultVoice(InlineQueryResult):
     type: Literal["voice"] = field(default="voice")
     """Type of the result, must be voice."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
 
@@ -6443,25 +6532,29 @@ class InlineQueryResultDocument(InlineQueryResult):
     type: Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    mime_type: InlineQueryResultDocumentMimeType = field(default=InlineQueryResultDocumentMimeType.APPLICATION_PDF)
-    """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
-
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
     caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
+
+    mime_type: InlineQueryResultDocumentMimeType = field(default=InlineQueryResultDocumentMimeType.APPLICATION_PDF)
+    """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
 
     description: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Short description of the result."""
@@ -6513,9 +6606,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     type: Literal["location"] = field(default="location")
     """Type of the result, must be location."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(64))
     """Unique identifier for this result, 1-64 Bytes."""
 
     horizontal_accuracy: Option[float] = field(default=..., converter=From[float | None])
@@ -6586,9 +6677,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     type: Literal["venue"] = field(default="venue")
     """Type of the result, must be venue."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 Bytes."""
 
     foursquare_id: Option[str] = field(default=..., converter=From[str | None])
@@ -6648,9 +6737,7 @@ class InlineQueryResultContact(InlineQueryResult):
     type: Literal["contact"] = field(default="contact")
     """Type of the result, must be contact."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(64),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(64))
     """Unique identifier for this result, 1-64 Bytes."""
 
     last_name: Option[str] = field(default=..., converter=From[str | None])
@@ -6701,9 +6788,7 @@ class InlineQueryResultGame(InlineQueryResult):
     type: Literal["game"] = field(default="game")
     """Type of the result, must be game."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
@@ -6722,9 +6807,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     type: Literal["photo"] = field(default="photo")
     """Type of the result, must be photo."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     title: Option[str] = field(default=..., converter=From[str | None])
@@ -6737,7 +6820,13 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
@@ -6780,9 +6869,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     type: Literal["gif"] = field(default="gif")
     """Type of the result, must be gif."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     title: Option[str] = field(default=..., converter=From[str | None])
@@ -6792,7 +6879,13 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     """Optional. Caption of the GIF file to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
@@ -6835,9 +6928,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     type: Literal["mpeg4_gif"] = field(default="mpeg4_gif")
     """Type of the result, must be mpeg4_gif."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     title: Option[str] = field(default=..., converter=From[str | None])
@@ -6847,7 +6938,13 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     """Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after
     entities parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
@@ -6890,9 +6987,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     type: Literal["sticker"] = field(default="sticker")
     """Type of the result, must be sticker."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
@@ -6930,9 +7025,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     type: Literal["document"] = field(default="document")
     """Type of the result, must be document."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     description: Option[str] = field(default=..., converter=From[str | None])
@@ -6942,7 +7035,13 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     """Optional. Caption of the document to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
@@ -6985,9 +7084,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     type: Literal["video"] = field(default="video")
     """Type of the result, must be video."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     description: Option[str] = field(default=..., converter=From[str | None])
@@ -6997,7 +7094,13 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     """Optional. Caption of the video to be sent, 0-1024 characters after entities
     parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
@@ -7043,15 +7146,19 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     type: Literal["voice"] = field(default="voice")
     """Type of the result, must be voice."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
 
@@ -7091,15 +7198,19 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     type: Literal["audio"] = field(default="audio")
     """Type of the result, must be audio."""
 
-    id: str = field(
-        default_factory=lambda: secrets.token_urlsafe(32),
-    )
+    id: str = field(default_factory=lambda: secrets.token_urlsafe(32))
     """Unique identifier for this result, 1-64 bytes."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption, 0-1024 characters after entities parsing."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
@@ -7136,7 +7247,13 @@ class InputTextMessageContent(InputMessageContent):
     message_text: str = field()
     """Text of the message to be sent, 1-4096 characters."""
 
-    parse_mode: Option[str] = field(default=..., converter=From[str | None])
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
     """Optional. Mode for parsing entities in the message text. See formatting
     options for more details."""
 
@@ -7144,7 +7261,13 @@ class InputTextMessageContent(InputMessageContent):
     """Optional. List of special entities that appear in message text, which can
     be specified instead of parse_mode."""
 
-    link_preview_options: Option[LinkPreviewOptions] = field(default=..., converter=From["LinkPreviewOptions | None"])
+    link_preview_options: Option[LinkPreviewOptions] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("link_preview_options"),
+            default=UNSET,
+        ),
+        converter=From["LinkPreviewOptions | None"],
+    )
     """Optional. Link preview generation options for the message."""
 
 

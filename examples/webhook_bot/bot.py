@@ -3,13 +3,10 @@ import random
 from telegrinder import (
     MESSAGE_IN_CHAT,
     CallbackQuery,
-    Checkbox,
     Dispatch,
     Message,
     MessageReplyHandler,
-    WaiterMachine,
 )
-from telegrinder.bot.dispatch.waiter_machine.hasher.callback import CALLBACK_QUERY_FOR_MESSAGE
 from telegrinder.rules import (
     FuzzyText,
     HasText,
@@ -22,7 +19,6 @@ from telegrinder.tools.formatting import HTML, blockquote, link
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 dp = Dispatch()
-wm = WaiterMachine()
 
 
 kb = (
@@ -39,18 +35,18 @@ kb = (
 
 @dp.message(Text("/start") | FuzzyText("hello"))
 async def start(message: Message) -> None:
-    me = (await message.ctx_api.get_me()).unwrap().full_name
+    me = (await message.api.get_me()).unwrap().full_name
     await message.answer(f"Hello, {message.from_user.full_name}, im {me} and i work on a webhook server!")
 
 
 @dp.message(Text("/cars"))
 async def car_choice(message: Message) -> None:
     picked, m_id = await (
-        Checkbox(wm, message.chat.id, "🚘 Choose no more than three cars", max_in_row=2)
+        dp.checkbox(message.chat.id, message="🚘 Choose no more than three cars", max_in_row=2)
         .add_option("bentley", "Bentley Continental", "Continental 🤍")
         .add_option("mazda", "Mazda rx 7", "Mazda rx 7 🩵")
         .add_option("toyota", "Toyota Supra mk5", "Supra mk5 💜")
-        .wait(CALLBACK_QUERY_FOR_MESSAGE, dp.callback_query, message.ctx_api)
+        .wait(message.api)
     )
     await message.edit(
         "🚘 You picked: {}.".format(", ".join(c for c in picked if picked[c])),
@@ -66,7 +62,7 @@ async def handle_menu_command(message: Message) -> None:
 @dp.callback_query(PayloadEqRule("action/webhooks"))
 async def handle_query_webhook(cb: CallbackQuery) -> None:
     await cb.answer()
-    await cb.ctx_api.send_message(
+    await cb.api.send_message(
         text=link(
             "https://core.telegram.org/bots/webhooks",
             text="🛰 Marvin's Marvellous Guide to All Things Webhook.",
@@ -80,13 +76,13 @@ async def handle_query_webhook(cb: CallbackQuery) -> None:
 async def handle_query_quote(cb: CallbackQuery) -> None:
     await cb.answer()
     message = (
-        await cb.ctx_api.send_message(
+        await cb.api.send_message(
             text="✍️ Send me any message and i'll quote it!",
             chat_id=cb.chat_id.unwrap(),
         )
     ).unwrap()
-    msg, _ = await wm.wait(
-        hasher=MESSAGE_IN_CHAT(dp.message, message.chat.id),
+    msg, _ = await dp.message.wait(
+        hasher=MESSAGE_IN_CHAT(message.chat.id),
         release=HasText(),
         on_miss=MessageReplyHandler("Im still waiting for your message!"),
     )
@@ -97,13 +93,13 @@ async def handle_query_quote(cb: CallbackQuery) -> None:
 async def handle_query_guess(cb: CallbackQuery) -> None:
     await cb.answer()
     message = (
-        await cb.ctx_api.send_message(
+        await cb.api.send_message(
             text="🎲 Okay, i guessed a number between 1 and 10!",
             chat_id=cb.chat_id.unwrap(),
         )
     ).unwrap()
-    msg, _ = await wm.wait(
-        hasher=MESSAGE_IN_CHAT(dp.message, message.chat.id),
+    msg, _ = await dp.message.wait(
+        hasher=MESSAGE_IN_CHAT(message.chat.id),
         release=IntegerInRange(range(1, 11)),
         on_miss=MessageReplyHandler("Send a number between 1 and 10!"),
     )

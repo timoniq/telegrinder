@@ -6,8 +6,8 @@ import msgspec
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.markup import Markup, PatternLike, check_string
-from telegrinder.msgspec_utils.json import loads
 from telegrinder.node.nodes.payload import Payload, PayloadData
+from telegrinder.tools.json import loads
 from telegrinder.tools.serialization.abc import ABCDataSerializer, ModelType
 from telegrinder.tools.serialization.json_ser import JSONSerializer
 from telegrinder.tools.serialization.utils import get_model_serializer

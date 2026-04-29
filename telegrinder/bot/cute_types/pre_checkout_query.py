@@ -4,14 +4,37 @@ from kungfu.library.monad.result import Result
 
 from telegrinder.api.error import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
-from telegrinder.types.methods_utils import get_params
+from telegrinder.tools.waiter_machine.hasher import (
+    PRE_CHECKOUT_QUERY,
+    PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER,
+    PRE_CHECKOUT_QUERY_FROM_USER,
+    PRE_CHECKOUT_QUERY_OPTION,
+)
 from telegrinder.types.objects import PreCheckoutQuery, User
+from telegrinder.types.utils import get_params
 
 
 class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only=True):
     @property
     def from_user(self) -> User:
         return self.from_
+
+    def QUERY(self, query_id: str | None = None):
+        return PRE_CHECKOUT_QUERY(self.id if query_id is None else query_id)
+
+    def OPTION(self, option: str | None = None):
+        return PRE_CHECKOUT_QUERY_OPTION(self.invoice_payload if option is None else option)
+
+    def FROM_USER(self, user_id: int | None = None):
+        return PRE_CHECKOUT_QUERY_FROM_USER(self.from_user.id if user_id is None else user_id)
+
+    def FOR_OPTION_FROM_USER(self, option: str | None = None, user_id: int | None = None):
+        return PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER(
+            (
+                self.invoice_payload if option is None else option,
+                self.from_user.id if user_id is None else user_id,
+            ),
+        )
 
     @shortcut("answer_pre_checkout_query", custom_params={"pre_checkout_query_id"})
     async def answer(
@@ -28,9 +51,13 @@ class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only
         API sends the final confirmation in the form of an Update with the field pre_checkout_query.
         Use this method to respond to such pre-checkout queries. On success, True
         is returned. Note: The Bot API must receive an answer within 10 seconds after
-        the pre-checkout query was sent."""
+        the pre-checkout query was sent.
+        :param pre_checkout_query_id: [`CUSTOM PARAMETER`] Unique identifier for the query to be answered.
+
+        :param ok: Specify True if everything is alright (goods are available, etc.) and thebot is ready to proceed with the order. Use False if there are any problems.
+        :param error_message: Required if ok is False. Error message in human readable form that explainsthe reason for failure to proceed with the checkout (e.g. `Sorry, somebodyjust bought the last of our amazing black T-shirts while you were busy fillingout your payment details. Please choose a different color or garment!`).Telegram will display this message to the user."""
         params = compose_method_params(get_params(locals()), self, default_params={("pre_checkout_query_id", "id")})
-        return await self.ctx_api.answer_pre_checkout_query(**params)
+        return await self.bound_api.answer_pre_checkout_query(**params)
 
 
 __all__ = ("PreCheckoutQueryCute",)

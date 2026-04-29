@@ -2,9 +2,9 @@ import typing
 
 import msgspec
 from kungfu.library.monad.result import Error, Ok, Result
+from msgspex.model import Model
 
 from telegrinder.api.error import APIError
-from telegrinder.model import Model
 
 
 class APIResponse(Model):

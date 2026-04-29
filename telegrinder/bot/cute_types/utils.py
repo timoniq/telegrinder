@@ -4,7 +4,6 @@ import typing
 from telegrinder.tools.formatting.html import FORMATTERS, date_time, link, pre_code, tg_emoji
 from telegrinder.tools.strings import to_utf16_map, utf8_utf16_length, utf16_to_py_index
 from telegrinder.types.enums import ContentType, MessageEntityType
-from telegrinder.types.methods_utils import get_params
 from telegrinder.types.objects import (
     InputFile,
     InputMediaAnimation,
@@ -17,6 +16,7 @@ from telegrinder.types.objects import (
     ReactionType,
     ReactionTypeEmoji,
 )
+from telegrinder.types.utils import get_params
 
 type InputMedia = typing.Union[
     InputMediaAnimation,

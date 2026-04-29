@@ -2,7 +2,7 @@ import pathlib
 import secrets
 import typing
 
-from telegrinder.msgspec_utils import encoder
+from msgspex import encoder
 
 type Files = dict[str, tuple[str, bytes]]
 

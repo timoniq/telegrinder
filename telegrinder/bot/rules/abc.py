@@ -10,9 +10,10 @@ from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.modules import log_scope
 from telegrinder.node.compose import create_composable
-from telegrinder.node.scope import NodeScope
+from telegrinder.node.scope import PER_EVENT, NodeScope
 from telegrinder.node.utils import get_globals_from_function, get_locals_from_function
 from telegrinder.tools.fullname import fullname
+from telegrinder.tools.singleton.abc import ABCSingleton
 
 if typing.TYPE_CHECKING:
     from nodnod.agent.base import Agent
@@ -130,14 +131,14 @@ class NotRule(ABCRule):
             return not await check_rule(self.rule, context)
 
 
-class Never(ABCRule):
+class Never(ABCSingleton, ABCRule, scope=PER_EVENT):
     """Neutral element for `|` (OrRule)."""
 
     def check(self) -> typing.Literal[False]:
         return False
 
 
-class Always(ABCRule):
+class Always(ABCSingleton, ABCRule, scope=PER_EVENT):
     """Neutral element for `&` (AndRule)."""
 
     def check(self) -> typing.Literal[True]:

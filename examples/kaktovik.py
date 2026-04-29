@@ -1,8 +1,12 @@
 import pathlib
 
-from telegrinder import API, Message, Telegrinder, Token
+from telegrinder import API, Message, Telegrinder, Token, configure_dotenv, setup_logger
 from telegrinder.rules import IsInteger, IsPrivate
 from telegrinder.tools.formatting import HTML, link
+
+configure_dotenv()
+setup_logger()
+
 
 api = API(Token.from_env())
 bot = Telegrinder(api)

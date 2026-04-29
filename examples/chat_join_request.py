@@ -1,8 +1,11 @@
 from kungfu.library.monad.result import Error, Ok
 
-from telegrinder import API, ChatJoinRequest, Telegrinder, Token
-from telegrinder.modules import logger
+from telegrinder import API, ChatJoinRequest, Telegrinder, Token, configure_dotenv
+from telegrinder.modules import configure_dotenv, logger, setup_logger
 from telegrinder.rules import HasInviteLink, IsUser
+
+configure_dotenv()
+setup_logger()
 
 bot = Telegrinder(API(Token.from_env()))
 
@@ -11,7 +14,7 @@ bot = Telegrinder(API(Token.from_env()))
 async def approve_user(request: ChatJoinRequest) -> None:
     match await request.approve():
         case Ok(ok) if ok:
-            await request.ctx_api.send_message(
+            await request.api.send_message(
                 chat_id=request.chat.id,
                 text=f"Welcome to the chat {request.chat.title.unwrap()!r}, {request.from_user.full_name}!",
             )

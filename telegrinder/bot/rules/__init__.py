@@ -78,7 +78,7 @@ from telegrinder.bot.rules.rule_enum import RuleEnum
 from telegrinder.bot.rules.start import StartCommand
 from telegrinder.bot.rules.state import State, StateMeta
 from telegrinder.bot.rules.text import HasCaption, HasText, Text
-from telegrinder.bot.rules.update import IsUpdateType
+from telegrinder.bot.rules.update import IsUpdateModelType, IsUpdateType
 
 __all__ = (
     "ABCRule",
@@ -138,6 +138,7 @@ __all__ = (
     "IsSticker",
     "IsSuperGroup",
     "IsTelegram",
+    "IsUpdateModelType",
     "IsUpdateType",
     "IsUser",
     "IsUserId",

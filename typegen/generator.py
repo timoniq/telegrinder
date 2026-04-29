@@ -8,7 +8,7 @@ import sys
 import typing
 
 import msgspec
-import requests
+import wreq.blocking as wreq
 
 from .config import ConfigTOML, read_config
 from .merge_shortcuts import merge_shortcuts
@@ -35,7 +35,8 @@ try:
 except ImportError:
     import logging
 
-    logger = logging.getLogger("typegen")
+    logger = logging.getLogger("telegrinder")
+    logger.setLevel(logging.ERROR)
 
 TYPEGEN_DIR: typing.Final = pathlib.Path(__file__).parent
 TAB: typing.Final = "    "
@@ -49,12 +50,13 @@ TYPES: typing.Final = {
     "Timestamp": "timedelta",
 }
 INPUTFILE_DOCSTRING: typing.Final = "using multipart/form-data"
+NODEFAULT: typing.Final = object()
 
 
 def download_schema(config_toml: ConfigTOML, config_model: Config, /) -> TelegramBotAPISchema:
     logger.debug(f"Downloading schema from {config_model.telegram_bot_api.schema_url!r}...")
 
-    schema: dict[str, typing.Any] = msgspec.json.decode(requests.get(config_model.telegram_bot_api.schema_url).text)
+    schema: dict[str, typing.Any] = msgspec.json.decode(wreq.get(config_model.telegram_bot_api.schema_url).bytes())
     schema_version = float(schema["version"].split()[-1])
     schema.update(
         dict(
@@ -106,11 +108,23 @@ def makesafe_name(s: str, /) -> str:
     return s + "_" if keyword.iskeyword(s) else s
 
 
-def make_field_function(field: ObjectField, **kwargs: str | None) -> str:
+def make_field_function(
+    field: ObjectField,
+    *,
+    default: str | object = NODEFAULT,
+    default_factory: str | None = None,
+    **kwargs: str | None,
+) -> str:
     args: list[str] = []
-    default = kwargs.pop("default", None) or field.default
+    if default is NODEFAULT:
+        default = field.default
 
-    if not field.required or default is not None:
+    if default_factory is None:
+        default_factory = field.default_factory
+
+    if default_factory is not None:
+        args.append(f"default_factory={default_factory}")
+    elif not field.required or default is not None:
         args.append(f"default={default or '...'}")
 
     for k, v in kwargs.items():
@@ -255,6 +269,15 @@ class ObjectGenerator(ABCGenerator):
 
         return None
 
+    def get_typed_default_param(self, name: str, /) -> TypedDefaultParameter | None:
+        name = makesafe_name(name)
+
+        for param in self.config.generator.api.typed_default_parameters:
+            if param.name == name:
+                return param
+
+        return None
+
     def make_object_field(  # noqa: PLR0915
         self,
         field: ObjectField,
@@ -263,11 +286,11 @@ class ObjectGenerator(ABCGenerator):
     ) -> str:
         code = makesafe_name(field.name) + ": "
         field_type = "typing.Any"
-        field_value = make_field_function(field, converter='"{converter}"')
+        converter: str | None = '"{converter}"'
 
         if annotation is not None:
             field_type = annotation.annotation
-            field_value = make_field_function(field, converter=annotation.convert_from)
+            converter = annotation.convert_from
         elif literal_types is not None and any(
             (literal_types.enum, literal_types.literals, literal_types.enum_literals)
         ):
@@ -290,7 +313,7 @@ class ObjectGenerator(ABCGenerator):
             field_type = (
                 f"list[{literal_type_hint}]" if any("Array of" in x for x in field.types) else literal_type_hint
             )
-            field_value = make_field_function(field, converter=field_type if not field.required else None)
+            converter = field_type if not field.required else None
         else:
             if is_timestamp_type(field.name, field.types):
                 field_type = "timedelta"
@@ -303,11 +326,11 @@ class ObjectGenerator(ABCGenerator):
                     field.types.remove("Float")
                     converter_type += "| float"
 
-                field_value = make_field_function(field, converter=converter_type)
+                converter = converter_type
             elif is_unixtime_type(field.name, field.types, field.description or ""):
                 field.types.remove("Integer")
                 field_type = "datetime"
-                field_value = make_field_function(field, converter="datetime | int")
+                converter = "datetime | int"
 
             if "InputFile" in field.types:
                 field.types.append(field.types.pop(field.types.index("InputFile")))
@@ -323,7 +346,7 @@ class ObjectGenerator(ABCGenerator):
                 )
                 if '"' in union_types:
                     union_types = '"{}"'.format(union_types.replace('"', ""))
-                field_value = make_field_function(field, converter=union_types)
+                converter = union_types
 
             elif len(field.types) == 1:
                 field_type = convert_to_python_type(field.types[0], self.parent_types)
@@ -345,22 +368,24 @@ class ObjectGenerator(ABCGenerator):
                     ) and not any(x == converted_type.split("[")[0] for x in TYPES.values()):
                         converted_type = converted_type_with_quotes
 
-                    field_value = make_field_function(field, converter=converted_type)
+                    converter = converted_type
                 else:
-                    field_value = make_field_function(field)
+                    converter = None
 
         if not field.required:
             field_type = f"Option[{field_type}]"
 
-        if "{converter}" in field_value:
-            field_value = make_field_function(
-                field, converter='"{}"'.format(field_type) if not field.required else None
-            )
+        if converter == '"{converter}"':
+            converter = '"{}"'.format(field_type) if not field.required else None
 
-        if field.default_factory is not None:
-            field_value = field_value.replace(")", f"default_factory={field.default_factory},)")
-
+        field_value = make_field_function(
+            field,
+            converter=converter,
+            default=field.default,
+            default_factory=field.default_factory,
+        )
         code += f"{field_type} = {field_value}"
+
         if field.description:
             description = field.description.replace('"', "`")
             sep = "\n" + TAB
@@ -432,15 +457,34 @@ class ObjectGenerator(ABCGenerator):
                         nbytes=generation_id_by_default.nbytes,
                     )
 
+                if self.get_typed_default_param(f.name) is not None:
+                    default_parameter = (
+                        "default_parameter_as_option_for_field" if not f.required else "default_parameter_for_field"
+                    )
+                    default_factory = f'DefaultFactory(on_init={default_parameter}("{makesafe_name(f.name)}")'
+
+                    if f.default_factory is not None:
+                        default_factory += f", on_decode={f.default_factory}"
+
+                    if f.default is None and not f.required:
+                        default_factory += f", default=UNSET,"
+                    elif f.default is not None:
+                        default_factory += f", default={f.default},"
+                        f.default = None
+
+                    default_factory += ")"
+                    f.default_factory = default_factory
+
             code += TAB
             for field in (
                 *filter(
-                    lambda f: f.default is None and f.default_factory is None and f.required,
+                    lambda f: f.required and f.default is None and f.default_factory is None,
                     object_schema.fields,
                 ),
-                *filter(lambda f: f.default is not None, object_schema.fields),
-                *filter(lambda f: f.default_factory is not None, object_schema.fields),
-                *filter(lambda f: not f.required, object_schema.fields),
+                *filter(
+                    lambda f: not (f.required and f.default is None and f.default_factory is None),
+                    object_schema.fields,
+                ),
             ):
                 literal_types = self.get_literal_types_field(object_name, field.name)
                 annotation = self.get_object_field_annotation(object_name, field.name)
@@ -469,11 +513,13 @@ class ObjectGenerator(ABCGenerator):
             "import secrets\n",
             "import typing\n\n",
             "from kungfu.library import Sum\n",
-            "from telegrinder.model import From, Model, field, is_none\n",
+            "from msgspex.model import UNSET, DefaultFactory, From, Model, field\n",
+            "from msgspex.tools import is_none\n",
             "from telegrinder.types.date_time_format import DateTimeFormatSeq\n",
             "from telegrinder.types.input_file import InputFile\n",
             "from functools import cached_property\n",
-            "from telegrinder.msgspec_utils.custom_types import Option, Literal, datetime, timedelta\n\n",
+            "from telegrinder.types.utils import default_parameter_as_option_for_field, default_parameter_for_field\n",
+            "from msgspex.custom_types import Option, Literal, datetime, timedelta\n\n",
         ]
 
         if self.config.generator.objects.fields.annotations.literals:
@@ -667,7 +713,7 @@ class MethodGenerator(ABCGenerator):
                 p.types.insert(p.types.index("Integer"), "Unixtime")
 
             default_param_value = (
-                None if self.get_typed_default_param(param_name) is None else f'default_params["{param_name}"]'
+                None if self.get_typed_default_param(param_name) is None else f'DEFAULT_PARAMETERS["{param_name}"]'
             )
             code = f"{TAB * 2}{param_name}: "
 
@@ -713,25 +759,20 @@ class MethodGenerator(ABCGenerator):
             self.version,
             self.release_date,
         )
-        default_params_typeddict = 'typing.TypedDict("DefaultParams", {},)'.format(
-            "{%s}"
-            % ", ".join(
-                f""""{x.name}": {convert_to_python_type(x.type, parent_types=self.parent_types)}"""
-                for x in self.config.generator.api.typed_default_parameters
-            )
-        )
+        default_params_file = path / "default_params.py"
         lines = [
             "import typing\n",
             "from datetime import datetime, timedelta\n\n"
             "from kungfu.library import Result, Sum\n"
             "from telegrinder.api.error import APIError\n",
-            "from telegrinder.types.methods_utils import ProxiedDict, full_result, get_params\n",
+            "from telegrinder.types.utils import full_result, get_params\n",
+            f"from {os.path.splitext(str(default_params_file))[0].replace(os.path.sep, '.')} import DEFAULT_PARAMETERS\n",
             "from telegrinder.types.enums import *  # noqa: F403\n"
             "from telegrinder.types.objects import *  # noqa: F403\n\n"
             "if typing.TYPE_CHECKING:\n",
             "    from telegrinder.api.api import API\n\n\n",
             "class APIMethods:\n" + docstring,
-            f"\n\n    default_params = ProxiedDict({default_params_typeddict},)\n\n",
+            "\n\n    default_params = DEFAULT_PARAMETERS\n\n",
             '    def __init__(self, api: "API") -> None:\n',
             "        self.api = api\n\n",
         ]
@@ -742,6 +783,24 @@ class MethodGenerator(ABCGenerator):
         methods_file = path / "methods.py"
         with open(file=methods_file, mode="w+", encoding="UTF-8") as f:
             lines.append('\n\n\n__all__ = ("APIMethods",)\n\n')
+            f.writelines(lines)
+
+        with open(file=default_params_file, mode="w+", encoding="UTF-8") as f:
+            lines = [
+                "from __future__ import annotations\n\n",
+                "import typing\n\n",
+                "from telegrinder.types.utils import ProxiedDict\n\n",
+                "if typing.TYPE_CHECKING:\n",
+                "    from telegrinder.types.objects import *  # noqa: F403\n\n\n",
+                "class DefaultParameters(typing.TypedDict):\n",
+                *[
+                    f"    {x.name}: {convert_to_python_type(x.type, parent_types=self.parent_types)}\n"
+                    for x in self.config.generator.api.typed_default_parameters
+                ],
+                "\n",
+                "DEFAULT_PARAMETERS: typing.Final = ProxiedDict(DefaultParameters)\n\n",
+                '\n__all__ = ("DEFAULT_PARAMETERS", "DefaultParameters")\n',
+            ]
             f.writelines(lines)
 
         logger.info(

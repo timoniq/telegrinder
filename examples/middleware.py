@@ -1,7 +1,11 @@
-from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
+from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token, configure_dotenv, setup_logger
 from telegrinder.bot import Context
 from telegrinder.rules import IsChat, IsPrivate, IsUser, Text
 from telegrinder.tools.global_context import GlobalContext
+
+configure_dotenv()
+setup_logger()
+
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

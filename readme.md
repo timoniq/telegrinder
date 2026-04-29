@@ -30,7 +30,7 @@
 * Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
 * Customizable and extensible
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
-* API client powered by fast [rnet](https://github.com/0x676e67/rnet) library
+* API client powered by fast [wreq](https://github.com/0x676e67/wreq-python) library
 * Both low-level and high-level API
 * Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
 * <details> <summary>A variety of state management tools</summary><p>○ <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/blueprint_bot/handlers/with_enum.py#L18">waiter machine</a> for runtime inline short state funneling<br>○  <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/state_mutator_player.py">state mutator</a> to declare complex state sets</p></details>

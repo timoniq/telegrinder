@@ -8,6 +8,7 @@ from telegrinder.bot.cute_types.chat_join_request import ChatJoinRequestCute
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberUpdatedCute
 from telegrinder.bot.cute_types.chosen_inline_result import ChosenInlineResultCute
 from telegrinder.bot.cute_types.inline_query import InlineQueryCute
+from telegrinder.bot.cute_types.managed_bot_updated import ManagedBotUpdatedCute
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.cute_types.message_reaction_count_updated import MessageReactionCountUpdatedCute
 from telegrinder.bot.cute_types.message_reaction_updated import MessageReactionUpdatedCute
@@ -29,6 +30,7 @@ __all__ = (
     "ChatMemberUpdatedCute",
     "ChosenInlineResultCute",
     "InlineQueryCute",
+    "ManagedBotUpdatedCute",
     "MessageCute",
     "MessageReactionCountUpdatedCute",
     "MessageReactionUpdatedCute",

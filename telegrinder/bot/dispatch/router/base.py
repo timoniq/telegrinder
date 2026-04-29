@@ -42,6 +42,7 @@ class Router[
     ChatJoinRequestView: EventView = EventView,
     ChatBoostView: EventView = EventView,
     RemovedChatBoostView: EventView = EventView,
+    ManagedBotUpdatedView: EventView = EventView,
     MediaGroup: View = MediaGroupView,
     Error: ErrorView = ErrorView,
     RawEvent: RawEventView = RawEventView,
@@ -71,34 +72,38 @@ class Router[
         ChatJoinRequestView,
         ChatBoostView,
         RemovedChatBoostView,
+        ManagedBotUpdatedView,
         MediaGroup,
         Error,
         RawEvent,
     ],
 ):
+    name: str | None = None
+
     def __post_init__(self) -> None:
+        self.qualname = ":".join((type(self).__name__, self.name or hex(id(self))))
         self.module = get_frame_module_name()
-        self.name = ":".join((self.module, self.__class__.__name__, hex(id(self))))
+        self.ident = ":".join((self.module, self.qualname))
 
     def __repr__(self) -> str:
-        return f"<{self.name}>"
+        return f"<{self.ident if not self.name else self.qualname}>"
 
     def __hash__(self) -> int:
-        return hash(self.name)
+        return hash(self.ident)
 
     def __bool__(self) -> bool:
-        return any((*self.event_views.values(), *self.views.values()))
+        return any(self.event_views.values()) or any(self.views.values())
 
     @staticmethod
     async def check_view(view: View, api: API, update: Update, context: Context) -> bool:
         with log_scope(str, view):
-            await logger.adebug("Checking view...")
+            logger.debug("Checking...")
 
             match await view.check(api, update, context):
                 case Ok():
                     return True
                 case Err(error):
-                    await logger.adebug("Checking view failed: {}", error)
+                    logger.debug("Checking failed: {}", error)
 
             return False
 
@@ -112,14 +117,14 @@ class Router[
         raw_process_on_fail: bool = False,
     ) -> bool:
         with log_scope(str, view):
-            await logger.adebug("Processing...")
+            logger.debug("Processing...")
             result = await view.process(api, update, context)
 
             match result:
                 case Err(error) if isinstance(error, Exception):
                     raise error from None
 
-            await logger.ainfo("{}", result.error if not result else result.value)
+            logger.info("{}", result.error if not result else result.value)
 
             result = bool(result)
             if (
@@ -133,14 +138,14 @@ class Router[
             return result
 
     async def route(self, api: API, update: Update, context: Context) -> bool:
-        with log_scope(lambda: f"Module:{self.module}"):
+        with log_scope(lambda: f"Module:{self.module} > {self.qualname}"):
             try:
-                for event_view in filter(None, self.event_views.values()):
-                    if await self.check_view(event_view, api, update, context):
+                for event_view in self.event_views.values():
+                    if event_view and await self.check_view(event_view, api, update, context):
                         return await self.process_view(event_view, api, update, context, raw_process_on_fail=True)
 
                 return False
-            except Exception as exception:
+            except BaseException as exception:
                 if self.event_error:
                     context.exceptions_update[self] = exception  # type: ignore
 

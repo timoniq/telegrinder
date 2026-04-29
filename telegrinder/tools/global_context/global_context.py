@@ -6,9 +6,9 @@ from functools import cached_property, wraps
 
 from kungfu.library.misc import from_optional
 from kungfu.library.monad import Error, Nothing, Ok, Option, Result, Some
+from msgspex import convert
 
 from telegrinder.modules import logger
-from telegrinder.msgspec_utils import convert
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context.abc import NOVALUE, ABCGlobalContext, CtxVar, CtxVariable, GlobalCtxVar
 

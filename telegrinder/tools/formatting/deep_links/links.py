@@ -439,6 +439,35 @@ def tg_bot_attach_open_any_chat(
     ...
 
 
+@typing.overload
+def tg_create_managed_bot(*, manager: str) -> str: ...
+
+
+@typing.overload
+def tg_create_managed_bot(
+    *,
+    manager: str,
+    username: str,
+    name: str,
+) -> str: ...
+
+
+@deep_link("tg://newbot")
+def tg_create_managed_bot(
+    *,
+    manager: str,
+    username: str | None = None,
+    name: str | None = None,
+) -> str:
+    """Used to allow others to utilize the bot to create and manage their own bots.
+
+    :param manager: Manager's username.
+    :param username: A username for a new bot.
+    :param name: A name for a new bot.
+    """
+    ...
+
+
 __all__ = (
     "tg_bot_attach_open_any_chat",
     "tg_bot_attach_open_current_chat",
@@ -448,6 +477,7 @@ __all__ = (
     "tg_bot_startgroup_link",
     "tg_chat_folder_link",
     "tg_chat_invite_link",
+    "tg_create_managed_bot",
     "tg_direct_mini_app_link",
     "tg_emoji_link",
     "tg_emoji_stickerset_link",

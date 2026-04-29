@@ -1,6 +1,10 @@
-from telegrinder import API, Telegrinder, Token
+from telegrinder import API, Telegrinder, Token, configure_dotenv, setup_logger
 from telegrinder.node import BaseTranslator, I18NConfig, KeySeparator, UserSource
 from telegrinder.rules import Text
+
+configure_dotenv()
+setup_logger()
+
 
 bot = Telegrinder(API(Token.from_env()))
 

@@ -56,6 +56,7 @@ The `compose` function returns an async context manager that:
 - Returns `Result[T, NodeError]` with the composed result
 """
 
+import asyncio
 import dataclasses
 import typing
 from contextlib import asynccontextmanager
@@ -70,7 +71,13 @@ from nodnod.interface.node_from_function import Externals
 from nodnod.node import Node
 from nodnod.scope import Scope
 
-from telegrinder.node.scope import NODE_GLOBAL_SCOPE, MappedScopes, NodeScope, create_per_call_scope
+from telegrinder.node.scope import (
+    NODE_GLOBAL_SCOPE,
+    MappedScopes,
+    NodeScope,
+    create_per_call_scope,
+    wait_for_close_node_global_scope,
+)
 from telegrinder.tools.aio import maybe_awaitable
 from telegrinder.tools.magic.function import Function, FunctionGenerator
 
@@ -79,6 +86,11 @@ if typing.TYPE_CHECKING:
 
 type _Composable[T: Agent] = Function[..., typing.Any] | type[Node[typing.Any, typing.Any]] | Composable[T]
 type AnyType = typing.Any
+
+
+@lru_cache(maxsize=None)
+def _register_waiter_close_node_global_scope() -> None:
+    asyncio.create_task(wait_for_close_node_global_scope())
 
 
 @asynccontextmanager
@@ -148,6 +160,8 @@ async def run_agent(
             yield Ok(scope.merge())
         except NodeError as error:
             yield Error(error)
+        finally:
+            _register_waiter_close_node_global_scope()
 
 
 @typing.overload

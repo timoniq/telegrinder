@@ -7,11 +7,11 @@ from nodnod.node import Node
 
 from telegrinder.bot.dispatch.context import Context
 
-type ExceptionType = type[Exception]
+type ExceptionType = type[BaseException]
 
 
-def can_catch[ExceptionT: Exception](
-    exc: Exception | ExceptionType,
+def can_catch[ExceptionT: BaseException](
+    exc: BaseException | ExceptionType,
     exc_types: type[ExceptionT] | tuple[type[ExceptionT], ...],
 ) -> typing.TypeGuard[ExceptionT]:
     return issubclass(exc, exc_types) if isinstance(exc, type) else isinstance(exc, exc_types)
@@ -19,12 +19,12 @@ def can_catch[ExceptionT: Exception](
 
 @generic_node
 @dataclasses.dataclass(kw_only=True, frozen=True)
-class Error[*Exceptions = *tuple[type[Exception], ...]](Node):
-    exception_update: Exception
+class Error[*Exceptions = *tuple[type[BaseException], ...]](Node):
+    exception_update: BaseException
 
     @property
-    def exception[T: Exception = Exception](self: Error[*tuple[T, ...]]) -> T:
-        return self.exception_update  # type: ignore[reportReturnType]
+    def exception[T: BaseException = BaseException](self: Error[*tuple[T, ...]]) -> T:
+        return self.exception_update  # type: ignore
 
     @classmethod
     def __compose__(

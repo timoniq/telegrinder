@@ -3,7 +3,7 @@
 * Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
 * Customizable and extensible
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
-* API client powered by fast [rnet](https://github.com/0x676e67/rnet) library
+* API client powered by fast [wreq](https://github.com/0x676e67/wreq-python) library
 * Both low-level and high-level API
 * Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
 
@@ -33,12 +33,6 @@ import typing
 
 from .api import API, APIError, APIResponse, APIServerError, Token
 from .bot import (
-    CALLBACK_QUERY_FOR_MESSAGE,
-    CALLBACK_QUERY_FROM_CHAT,
-    CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
-    MESSAGE_FROM_USER,
-    MESSAGE_FROM_USER_IN_CHAT,
-    MESSAGE_IN_CHAT,
     ABCDispatch,
     ABCHandler,
     ABCMiddleware,
@@ -46,7 +40,6 @@ from .bot import (
     ABCReturnManager,
     ABCRouter,
     ABCRule,
-    ABCScenario,
     ABCView,
     AudioReplyHandler,
     BaseCute,
@@ -59,8 +52,6 @@ from .bot import (
     ChatBoostUpdatedCute,
     ChatJoinRequestCute,
     ChatMemberUpdatedCute,
-    Checkbox,
-    Choice,
     ChosenInlineResultCute,
     Context,
     Dispatch,
@@ -70,9 +61,9 @@ from .bot import (
     EventView,
     FilterMiddleware,
     FuncHandler,
-    Hasher,
     InlineQueryCute,
     InlineQueryReturnManager,
+    ManagedBotUpdatedCute,
     MediaGroupMiddleware,
     MediaGroupReplyHandler,
     MediaGroupView,
@@ -92,20 +83,20 @@ from .bot import (
     RawEventView,
     Router,
     ShippingQueryCute,
-    ShortState,
     StickerReplyHandler,
     Telegrinder,
     UpdateCute,
     VideoReplyHandler,
     View,
     ViewBox,
-    WaiterMachine,
+    ViewMiddlewareBox,
+    WaiterMiddleware,
     action,
     register_manager,
 )
-from .client import ABCClient, RnetClient
-from .model import Model, field
+from .client import ABCClient, WreqClient
 from .modules import configure_dotenv, logger, setup_logger
+from .scenario import ABCScenario, Checkbox, Choice, Option
 from .tools.global_context import ABCGlobalContext, GlobalContext, TelegrinderContext
 from .tools.input_file_directory import InputFileDirectory
 from .tools.keyboard import (
@@ -126,6 +117,36 @@ from .tools.lifespan import DelayedTask, Lifespan
 from .tools.loop_wrapper import LoopWrapper
 from .tools.parse_mode import ParseMode
 from .tools.state_storage import ABCStateStorage, MemoryStateStorage, StateData
+from .tools.waiter_machine import (
+    ANY_MESSAGE_FROM_USER,
+    BUSINESS_MESSAGE,
+    CALLBACK_QUERY_FOR_MESSAGE,
+    CALLBACK_QUERY_FROM_CHAT,
+    CALLBACK_QUERY_FROM_CHAT_THREAD,
+    CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
+    CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE,
+    CHOSEN_INLINE_RESULT,
+    CHOSEN_INLINE_RESULT_FOR_MESSAGE,
+    CHOSEN_INLINE_RESULT_FOR_MESSAGE_FROM_USER,
+    CHOSEN_INLINE_RESULT_FROM_USER,
+    INLINE_QUERY,
+    INLINE_QUERY_FROM_USER,
+    MESSAGE_FROM_USER,
+    MESSAGE_FROM_USER_IN_CHAT,
+    MESSAGE_FROM_USER_IN_CHAT_THREAD,
+    MESSAGE_FROM_USER_IN_THREAD,
+    MESSAGE_IN_CHAT,
+    MESSAGE_POST_IN_CHANNEL,
+    PAID_MEDIA_PURCHASED_FROM_USER,
+    PRE_CHECKOUT_QUERY,
+    PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER,
+    PRE_CHECKOUT_QUERY_FROM_USER,
+    PRE_CHECKOUT_QUERY_OPTION,
+    SHIPPING_QUERY,
+    SHIPPING_QUERY_FROM_USER,
+    Hasher,
+    WaiterMachine,
+)
 
 Update: typing.TypeAlias = UpdateCute
 Message: typing.TypeAlias = MessageCute
@@ -145,17 +166,38 @@ BusinessConnection: typing.TypeAlias = BusinessConnectionCute
 BusinessMessagesDeleted: typing.TypeAlias = BusinessMessagesDeletedCute
 MessageReactionCountUpdated: typing.TypeAlias = MessageReactionCountUpdatedCute
 MessageReactionUpdated: typing.TypeAlias = MessageReactionUpdatedCute
+ManagedBotUpdated: typing.TypeAlias = ManagedBotUpdatedCute
 Bot: typing.TypeAlias = Telegrinder
 
 
 __all__ = (
+    "ANY_MESSAGE_FROM_USER",
     "API",
+    "BUSINESS_MESSAGE",
     "CALLBACK_QUERY_FOR_MESSAGE",
     "CALLBACK_QUERY_FROM_CHAT",
+    "CALLBACK_QUERY_FROM_CHAT_THREAD",
     "CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE",
+    "CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE",
+    "CHOSEN_INLINE_RESULT",
+    "CHOSEN_INLINE_RESULT_FOR_MESSAGE",
+    "CHOSEN_INLINE_RESULT_FOR_MESSAGE_FROM_USER",
+    "CHOSEN_INLINE_RESULT_FROM_USER",
+    "INLINE_QUERY",
+    "INLINE_QUERY_FROM_USER",
     "MESSAGE_FROM_USER",
     "MESSAGE_FROM_USER_IN_CHAT",
+    "MESSAGE_FROM_USER_IN_CHAT_THREAD",
+    "MESSAGE_FROM_USER_IN_THREAD",
     "MESSAGE_IN_CHAT",
+    "MESSAGE_POST_IN_CHANNEL",
+    "PAID_MEDIA_PURCHASED_FROM_USER",
+    "PRE_CHECKOUT_QUERY",
+    "PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER",
+    "PRE_CHECKOUT_QUERY_FROM_USER",
+    "PRE_CHECKOUT_QUERY_OPTION",
+    "SHIPPING_QUERY",
+    "SHIPPING_QUERY_FROM_USER",
     "ABCClient",
     "ABCDispatch",
     "ABCGlobalContext",
@@ -212,6 +254,8 @@ __all__ = (
     "Keyboard",
     "Lifespan",
     "LoopWrapper",
+    "ManagedBotUpdated",
+    "ManagedBotUpdatedCute",
     "MediaGroupMiddleware",
     "MediaGroupReplyHandler",
     "MediaGroupView",
@@ -225,7 +269,7 @@ __all__ = (
     "MessageReplyHandler",
     "MessageReturnManager",
     "MiddlewareBox",
-    "Model",
+    "Option",
     "PaidMediaPurchased",
     "PaidMediaPurchasedCute",
     "ParseMode",
@@ -241,12 +285,10 @@ __all__ = (
     "PrimaryButton",
     "PrimaryInlineButton",
     "RawEventView",
-    "RnetClient",
     "Router",
     "RowButtons",
     "ShippingQuery",
     "ShippingQueryCute",
-    "ShortState",
     "StateData",
     "StickerReplyHandler",
     "SuccessButton",
@@ -260,10 +302,12 @@ __all__ = (
     "View",
     "ViewBox",
     "ViewBox",
+    "ViewMiddlewareBox",
     "WaiterMachine",
+    "WaiterMiddleware",
+    "WreqClient",
     "action",
     "configure_dotenv",
-    "field",
     "logger",
     "register_manager",
     "setup_logger",

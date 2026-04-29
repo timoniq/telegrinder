@@ -1,5 +1,9 @@
-from telegrinder import API, Message, Telegrinder, Token
+from telegrinder import API, Message, Telegrinder, Token, configure_dotenv, setup_logger
 from telegrinder.rules import Text
+
+configure_dotenv()
+setup_logger()
+
 
 SECRET_CHAT_ID = 123456789
 bot = Telegrinder(API(Token.from_env()))

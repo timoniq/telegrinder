@@ -28,6 +28,9 @@ class MediaGroupMiddleware(ABCMiddleware):
         self.wait_time = wait_time
         self.media_groups = {}
 
+    def __bool__(self) -> bool:
+        return bool(self.media_groups)
+
     async def pre(self, message: MessageCute | None, context: Context) -> bool:
         if message is None:
             return True

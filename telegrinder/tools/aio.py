@@ -65,23 +65,23 @@ async def maybe_awaitable[T](obj: T | typing.Awaitable[T], /) -> T:
     return obj
 
 
-# Source code: https://github.com/facebookincubator/later/blob/main/later/task.py#L68
+# Source code: https://github.com/facebookincubator/later/blob/main/later/task.py#L88
 async def cancel_future(fut: asyncio.Future[typing.Any], /) -> None:
     if fut.done():
         return
 
     fut.cancel()
+
     exc: asyncio.CancelledError | None = None
 
     while not fut.done():
         shielded = asyncio.shield(fut)
+
         try:
-            await asyncio.wait([shielded])
+            await asyncio.wait((shielded,))
         except asyncio.CancelledError as ex:
             exc = ex
         finally:
-            # Insure we handle the exception/value that may exist on the shielded task
-            # This will prevent errors logged to the asyncio logger
             if shielded.done() and not shielded.cancelled() and not shielded.exception():
                 shielded.result()
 
@@ -95,7 +95,7 @@ async def cancel_future(fut: asyncio.Future[typing.Any], /) -> None:
         raise ex from None
 
     raise asyncio.InvalidStateError(
-        f"Task did not raise CancelledError on cancel: {fut!r} had result {fut.result()!r}",
+        f"Task did not raise `CancelledError` on cancel: `{fut!r}` had result `{fut.result()!r}`.",
     )
 
 

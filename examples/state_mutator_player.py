@@ -1,10 +1,11 @@
 import datetime
 from dataclasses import dataclass
 
-from telegrinder import API, Bot, Token, logger, setup_logger
+from telegrinder import API, Bot, Token, configure_dotenv, logger, setup_logger
 from telegrinder.rules import Argument, Command
 from telegrinder.tools.state_mutator import State, StateMutator, mutation
 
+configure_dotenv()
 setup_logger()
 bot = Bot(API(Token.from_env()))
 

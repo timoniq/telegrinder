@@ -1,9 +1,9 @@
 import pytest
+from msgspex import decoder
 
 from telegrinder.api.api import API, Token
 from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
-from telegrinder.msgspec_utils import decoder
 from telegrinder.types.objects import User
 
 from .test_utils import with_mocked_api
