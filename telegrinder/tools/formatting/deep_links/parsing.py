@@ -51,6 +51,7 @@ def parse_query_params(
         if value in (True, NO_VALUE):
             no_value_params.add(key)
             continue
+
         if isinstance(value, timedelta):
             value = int(value.total_seconds())
 
