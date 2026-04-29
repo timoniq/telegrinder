@@ -104,6 +104,7 @@ from telegrinder.tools.serialization import (
 from telegrinder.tools.singleton import ABCSingleton, ABCSingletonMeta, Singleton, SingletonMeta
 from telegrinder.tools.state_storage import ABCStateStorage, MemoryStateStorage, StateData
 from telegrinder.tools.strings import to_utf16_map, utf8_utf16_length, utf16_to_py_index
+from telegrinder.tools.verification import verify_secret_token, webapp_validate_raw, webapp_validate_request
 from telegrinder.tools.waiter_machine import (
     ANY_MESSAGE_FROM_USER,
     BUSINESS_MESSAGE,
@@ -269,4 +270,7 @@ __all__ = (
     "underline",
     "utf8_utf16_length",
     "utf16_to_py_index",
+    "verify_secret_token",
+    "webapp_validate_raw",
+    "webapp_validate_request",
 )

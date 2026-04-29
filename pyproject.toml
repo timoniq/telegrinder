@@ -8,24 +8,26 @@ description = "Modern visionary telegram bot framework."
 authors = [{ name = "timoniq", email = "tesseradecades@mail.ru" }]
 requires-python = ">=3.14,<4.0"
 readme = "readme.md"
-license = { file = "LICENSE" }
+license = { file = "license" }
 maintainers = [{ name = "luwqz1", email = "howluwqz1@gmail.com" }]
 dynamic = ["version"]
 keywords = [
     "asyncio",
     "api schema",
+    "schema",
     "async",
     "bot building",
     "bot api",
-    "custom rules",
+    "chatbot",
     "telegram",
     "telegram bot api framework",
     "telegrinder framework",
-    "middleware",
     "nodes",
+    "wreq",
+    "msgspec",
+    "msgspex",
     "framework",
     "telegrinder",
-    "waiter machine",
 ]
 classifiers = [
     "Environment :: Console",
