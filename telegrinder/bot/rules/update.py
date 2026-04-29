@@ -1,3 +1,5 @@
+from msgspex import Model
+
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import Update
@@ -11,4 +13,12 @@ class IsUpdateType(ABCRule):
         return update.update_type == self.update_type
 
 
-__all__ = ("IsUpdateType",)
+class IsUpdateModelType(ABCRule):
+    def __init__(self, model_type: type[Model], /) -> None:
+        self.model_type = model_type
+
+    def check(self, update: Update) -> bool:
+        return issubclass(type(update.incoming_update), self.model_type)
+
+
+__all__ = ("IsUpdateModelType", "IsUpdateType")

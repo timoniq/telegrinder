@@ -49,18 +49,15 @@ class FuncHandler[T: Function](ABCHandler):
         context: Context,
         check: bool = True,
     ) -> Result[typing.Any, str]:
-        if self.preset_context:
-            context |= self.preset_context
-
         if check and self.check_rules:
-            logger.debug("Checking rules for handler `{!r}`...", self)
-
             with log_scope(lambda: self.function.__name__):
+                logger.debug("Checking rules...")
+
                 for rule in self.check_rules:
                     if not await check_rule(rule, context):
                         return Error(f"Rule {rule!r} failed.")
 
-            logger.debug("Rules passed, composing nodes and running handler `{!r}`...", self)
+                logger.debug("Rules passed, composing nodes and running handler...")
         else:
             logger.debug("Composing nodes and running handler `{!r}`...", self)
 

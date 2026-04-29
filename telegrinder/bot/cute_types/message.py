@@ -12,6 +12,18 @@ from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import MediaType, build_html, compose_reactions, input_media
 from telegrinder.tools.magic.descriptors import additional_property
+from telegrinder.tools.waiter_machine.hasher import (
+    BUSINESS_MESSAGE,
+    CALLBACK_QUERY_FOR_MESSAGE,
+    CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
+    CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE,
+    MESSAGE_FROM_USER,
+    MESSAGE_FROM_USER_IN_CHAT,
+    MESSAGE_FROM_USER_IN_CHAT_THREAD,
+    MESSAGE_FROM_USER_IN_THREAD,
+    MESSAGE_IN_CHAT,
+    MESSAGE_POST_IN_CHANNEL,
+)
 from telegrinder.types import *
 from telegrinder.types.utils import get_params
 from telegrinder.types.utils.lazy_result import lazy_result
@@ -2600,6 +2612,89 @@ class MessageCute(
                 return option.Some(build_html(text.unwrap(), ents))
             case _:
                 return option.NOTHING
+
+    def BUSINESS(self, business_connection_id: str | None = None):
+        return BUSINESS_MESSAGE(
+            business_connection_id
+            if business_connection_id is not None
+            else self.business_connection_id.expect(
+                ValueError("Business message hasher requires business_connection_id."),
+            ),
+        )
+
+    def FROM_USER(self, user_id: int | None = None):
+        return MESSAGE_FROM_USER(self.from_user.id if user_id is None else user_id)
+
+    def FROM_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return MESSAGE_FROM_USER_IN_CHAT(
+            (
+                self.chat_id if chat_id is None else chat_id,
+                self.from_user.id if user_id is None else user_id,
+            ),
+        )
+
+    def FROM_USER_IN_THREAD(self, message_thread_id: int | None = None, user_id: int | None = None):
+        return MESSAGE_FROM_USER_IN_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(ValueError("Thread message hasher requires message_thread_id.")),
+                self.from_user.id if user_id is None else user_id,
+            ),
+        )
+
+    def FROM_USER_IN_CHAT_THREAD(
+        self,
+        message_thread_id: int | None = None,
+        chat_id: int | None = None,
+        user_id: int | None = None,
+    ):
+        return MESSAGE_FROM_USER_IN_CHAT_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("Chat thread message hasher requires message_thread_id.")
+                ),
+                self.chat_id if chat_id is None else chat_id,
+                self.from_user.id if user_id is None else user_id,
+            ),
+        )
+
+    def IN_CHAT(self, chat_id: int | None = None):
+        return MESSAGE_IN_CHAT(self.chat_id if chat_id is None else chat_id)
+
+    def POST_IN_CHANNEL(self, chat_id: int | None = None):
+        return MESSAGE_POST_IN_CHANNEL(self.chat_id if chat_id is None else chat_id)
+
+    def CALLBACK_QUERY(self, message_id: int | None = None):
+        return CALLBACK_QUERY_FOR_MESSAGE(self.message_id if message_id is None else message_id)
+
+    def CALLBACK_QUERY_IN_CHAT(self, chat_id: int | None = None, message_id: int | None = None):
+        return CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE(
+            (
+                self.chat_id if chat_id is None else chat_id,
+                self.message_id if message_id is None else message_id,
+            ),
+        )
+
+    def CALLBACK_QUERY_IN_CHAT_THREAD(
+        self,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        chat_id: int | None = None,
+    ):
+        return CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE(
+            (
+                self.message_id if message_id is None else message_id,
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("Chat thread callback query hasher requires message_thread_id."),
+                ),
+                self.chat_id if chat_id is None else chat_id,
+            ),
+        )
 
     @shortcut(
         "send_message",

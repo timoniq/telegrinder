@@ -2,8 +2,11 @@ import typing
 
 import aiosqlite  # type: ignore
 
-from telegrinder.modules import logger
+from telegrinder.modules import configure_dotenv, logger, setup_logger
 from telegrinder.node import per_call, scalar_node
+
+configure_dotenv()
+setup_logger()
 
 
 @per_call  # type: ignore

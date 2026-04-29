@@ -1,5 +1,9 @@
-from telegrinder import API, Message, Telegrinder, Token
+from telegrinder import API, Message, Telegrinder, Token, configure_dotenv, setup_logger
 from telegrinder.rules import StartCommand
+
+configure_dotenv()
+setup_logger()
+
 
 api = API(token=Token.from_env())
 bot = Telegrinder(api)

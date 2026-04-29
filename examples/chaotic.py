@@ -5,8 +5,6 @@ from functools import partial
 
 from telegrinder import (
     API,
-    CALLBACK_QUERY_FOR_MESSAGE,
-    MESSAGE_FROM_USER_IN_CHAT,
     Context,
     Dispatch,
     InlineButton,
@@ -24,12 +22,10 @@ from telegrinder.rules import (
     CallbackDataEq,
     FuzzyText,
     HasText,
-    IsUpdateType,
     IsUser,
     Markup,
     Text,
 )
-from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import InputFile
 
 configure_dotenv()
@@ -67,7 +63,7 @@ async def start(message: Message, me: Me) -> None:
         ),
     )
     m, _ = await dp.message.wait(
-        MESSAGE_FROM_USER_IN_CHAT((message.chat_id, message.from_user.id)),
+        message.FROM_USER_IN_CHAT(),
         release=Text(["fine", "bad"], ignore_case=True),
         lifetime=timedelta(seconds=60),
         on_miss=MessageReplyHandler("Fine or bad", as_reply=True),
@@ -88,7 +84,7 @@ async def start(message: Message, me: Me) -> None:
 async def react(message: Message, context: Context):
     await message.reply("Send me any message...")
     msg, _ = await dp.message.wait(
-        MESSAGE_FROM_USER_IN_CHAT((message.from_user.id, message.chat_id)),
+        message.FROM_USER_IN_CHAT(),
         release=HasText(),
         on_miss=MessageReplyHandler("Your message has no text!"),
         lifespan=DummyMiddleware().to_lifespan(context),
@@ -122,7 +118,7 @@ async def hello(message: Message):
 
 
 @bot.on.message(FuzzyText("freeze"))
-async def freeze_handler(message: Message):
+async def freeze_handler(message: Message, user_id: UserId):
     msg = (
         await message.answer(
             text="Well ok freezing",
@@ -130,15 +126,8 @@ async def freeze_handler(message: Message):
         )
     ).unwrap()
 
-    with dp.filter.hold(
-        UserId,
-        message.from_user.id,
-        IsUpdateType(UpdateType.CALLBACK_QUERY),
-    ):
-        cb, _ = await dp.callback_query.wait(
-            hasher=CALLBACK_QUERY_FOR_MESSAGE(msg.message_id),
-            release=CallbackDataEq("unfreeze"),
-        )
+    with dp.callback_query.hold(UserId, user_id):
+        cb, _ = await dp.callback_query.wait(msg.CALLBACK_QUERY(), release=CallbackDataEq("unfreeze"))
         await cb.edit_text("Wow heated!")
 
 

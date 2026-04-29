@@ -9,12 +9,14 @@ from telegrinder import (
     Telegrinder,
     Token,
     configure_dotenv,
+    setup_logger,
 )
 from telegrinder.rules import Text
 
 CANCEL_MARKUP = InlineKeyboard().add(InlineButton("Cancel", callback_data="cancel")).get_markup()
 
 configure_dotenv()
+setup_logger()
 
 api = API(Token.from_env())
 bot = Telegrinder(api)

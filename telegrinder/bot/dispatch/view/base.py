@@ -14,6 +14,8 @@ from telegrinder.bot.dispatch.process import check_rule, process_inner
 from telegrinder.bot.dispatch.return_manager.abc import ABCReturnManager
 from telegrinder.bot.dispatch.view.abc import ABCView
 from telegrinder.bot.rules.abc import ABCRule, Always
+from telegrinder.bot.rules.update import IsUpdateModelType, IsUpdateType
+from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.waiter_machine.machine import WaiterMachine
 from telegrinder.types.enums import UpdateType
 from telegrinder.types.objects import (
@@ -47,6 +49,7 @@ if typing.TYPE_CHECKING:
     from telegrinder.tools.lifespan import Lifespan
     from telegrinder.tools.waiter_machine.machine import HasherWithData, ShortStateContext, WaiterActions
 
+type AnyNode = typing.Any
 type UpdateModel = typing.Union[
     BusinessConnection,
     BusinessMessagesDeleted,
@@ -69,11 +72,14 @@ type UpdateModel = typing.Union[
 ]
 type ViewResult = Result[str, str] | Result[str, BaseException]
 
-OK_CHECK: typing.Final = Ok()
+VIEW_IS_OK: typing.Final = Ok()
+VIEW_IS_EMPTY_ERROR: typing.Final = Error("View is empty.")
+VIEW_FILTER_IS_FAILED_ERROR: typing.Final = Error("Filter is failed.")
+TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
 
 
 class View(ABCView):
-    filter: ABCRule
+    _filter: ABCRule
     handlers: deque[ABCHandler]
     waiter_machine: WaiterMachine
     middlewares: ViewMiddlewareBox
@@ -88,7 +94,7 @@ class View(ABCView):
         return_manager: ABCReturnManager | None = None,
         agent_cls: type[Agent] | None = None,
     ) -> None:
-        self.filter = Always()
+        self._filter = Always()
         self.handlers = deque()
         self.agent_cls = agent_cls
         self.return_manager = return_manager
@@ -106,13 +112,21 @@ class View(ABCView):
         return "<{}>".format(type(self).__name__)
 
     @property
+    def filter(self) -> ABCRule:
+        return self._filter
+
+    @filter.setter
+    def filter(self, value: ABCRule, /) -> None:
+        self._filter &= value
+
+    @property
     def auto_rules(self) -> ABCRule:
-        return self.filter
+        return self._filter
 
     @auto_rules.setter
     def auto_rules(self, value: ABCRule | typing.Iterable[ABCRule], /) -> None:
         for rule in (value,) if isinstance(value, ABCRule) else value:
-            self.filter &= rule
+            self.filter = rule
 
     def __call__[T: Function](
         self,
@@ -186,21 +200,16 @@ class View(ABCView):
         )
 
     async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
-        if not bool(self):
-            return Error("View is empty.")
+        if not self:
+            return VIEW_IS_EMPTY_ERROR
 
         if not await check_rule(self.filter, context):
-            return Error("Filter is failed.")
+            return VIEW_FILTER_IS_FAILED_ERROR
 
-        return OK_CHECK
+        return VIEW_IS_OK
 
     async def process(self, api: API, update: Update, context: Context) -> ViewResult:
-        return await process_inner(
-            api,
-            update,
-            context,
-            self,
-        )
+        return await process_inner(api, update, context, self)
 
 
 class EventView(View):
@@ -220,6 +229,7 @@ class EventView(View):
             return_manager=return_manager,
         )
         self.update_type = update_type
+        self._filter = self._update_filter = IsUpdateType(update_type)
 
     def __str__(self) -> str:
         return f"@{self.update_type.value}"
@@ -227,11 +237,21 @@ class EventView(View):
     def __repr__(self) -> str:
         return "<{}: {!r}>".format(type(self).__name__, self.update_type)
 
-    async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
-        # If update is not of the expected, instantly skip checking the view
-        if update.update_type != self.update_type:
-            return Error(f"Incoming event `{update.update_type!r}` is not `{self.update_type!r}`.")
-        return await super().check(api, update, context)
+    def hold(
+        self,
+        source_node: AnyNode,
+        source_value: typing.Any,
+        /,
+        *filters: ABCRule,
+        agent: type[Agent] | None = None,
+    ) -> typing.ContextManager[None]:
+        return TELEGRINDER_CONTEXT.middleware_box.filter.hold(
+            source_node,
+            source_value,
+            self._update_filter,
+            *filters,
+            agent_cls=agent,
+        )
 
 
 class EventModelView[T: (UpdateModel)](View):
@@ -251,18 +271,26 @@ class EventModelView[T: (UpdateModel)](View):
             return_manager=return_manager,
         )
         self.model = model
+        self._filter = self._update_filter = IsUpdateModelType(model)
 
     def __repr__(self) -> str:
         return "<{}: {}>".format(type(self).__name__, self.model.__name__)
 
-    async def check(self, api: API, update: Update, context: Context) -> Pulse[str]:
-        # If update object is not of the expected type of object, instantly skip checking the view
-        if not issubclass(update.incoming_update.__class__, self.model):
-            return Error(
-                f"Incoming event model `{update.incoming_update.__class__.__name__!r}`"
-                f" is not `{self.model.__name__!r}`.",
-            )
-        return await super().check(api, update, context)
+    def hold(
+        self,
+        source_node: AnyNode,
+        source_value: typing.Any,
+        /,
+        *filters: ABCRule,
+        agent: type[Agent] | None = None,
+    ) -> typing.ContextManager[None]:
+        return TELEGRINDER_CONTEXT.middleware_box.filter.hold(
+            source_node,
+            source_value,
+            self._update_filter,
+            *filters,
+            agent_cls=agent,
+        )
 
 
 class ErrorView(View):

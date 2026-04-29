@@ -1,10 +1,11 @@
 from kungfu.library.monad.result import Error, Ok
 
 from telegrinder import API, ChatJoinRequest, Telegrinder, Token, configure_dotenv
-from telegrinder.modules import logger
+from telegrinder.modules import configure_dotenv, logger, setup_logger
 from telegrinder.rules import HasInviteLink, IsUser
 
 configure_dotenv()
+setup_logger()
 
 bot = Telegrinder(API(Token.from_env()))
 

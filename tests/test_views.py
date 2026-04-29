@@ -42,7 +42,7 @@ async def test_register_middleware():
         async def pre(self, event: MessageCute) -> None:
             pass
 
-    assert len(view.middlewares) == 1
+    assert view.middlewares.count() == 1
     assert isinstance(view.middlewares.user_middlewares[0], SomeMiddleware)
 
 

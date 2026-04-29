@@ -6,6 +6,14 @@ from telegrinder.tools.waiter_machine.hasher.callback import (
     CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE,
 )
 from telegrinder.tools.waiter_machine.hasher.hasher import Hasher
+from telegrinder.tools.waiter_machine.hasher.inline import (
+    CHOSEN_INLINE_RESULT,
+    CHOSEN_INLINE_RESULT_FOR_MESSAGE,
+    CHOSEN_INLINE_RESULT_FOR_MESSAGE_FROM_USER,
+    CHOSEN_INLINE_RESULT_FROM_USER,
+    INLINE_QUERY,
+    INLINE_QUERY_FROM_USER,
+)
 from telegrinder.tools.waiter_machine.hasher.message import (
     ANY_MESSAGE_FROM_USER,
     BUSINESS_MESSAGE,
@@ -16,6 +24,15 @@ from telegrinder.tools.waiter_machine.hasher.message import (
     MESSAGE_IN_CHAT,
     MESSAGE_POST_IN_CHANNEL,
 )
+from telegrinder.tools.waiter_machine.hasher.payment import (
+    PAID_MEDIA_PURCHASED_FROM_USER,
+    PRE_CHECKOUT_QUERY,
+    PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER,
+    PRE_CHECKOUT_QUERY_FROM_USER,
+    PRE_CHECKOUT_QUERY_OPTION,
+    SHIPPING_QUERY,
+    SHIPPING_QUERY_FROM_USER,
+)
 
 __all__ = (
     "ANY_MESSAGE_FROM_USER",
@@ -25,11 +42,24 @@ __all__ = (
     "CALLBACK_QUERY_FROM_CHAT_THREAD",
     "CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE",
     "CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE",
+    "CHOSEN_INLINE_RESULT",
+    "CHOSEN_INLINE_RESULT_FOR_MESSAGE",
+    "CHOSEN_INLINE_RESULT_FOR_MESSAGE_FROM_USER",
+    "CHOSEN_INLINE_RESULT_FROM_USER",
+    "INLINE_QUERY",
+    "INLINE_QUERY_FROM_USER",
     "MESSAGE_FROM_USER",
     "MESSAGE_FROM_USER_IN_CHAT",
     "MESSAGE_FROM_USER_IN_CHAT_THREAD",
     "MESSAGE_FROM_USER_IN_THREAD",
     "MESSAGE_IN_CHAT",
     "MESSAGE_POST_IN_CHANNEL",
+    "PAID_MEDIA_PURCHASED_FROM_USER",
+    "PRE_CHECKOUT_QUERY",
+    "PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER",
+    "PRE_CHECKOUT_QUERY_FROM_USER",
+    "PRE_CHECKOUT_QUERY_OPTION",
+    "SHIPPING_QUERY",
+    "SHIPPING_QUERY_FROM_USER",
     "Hasher",
 )

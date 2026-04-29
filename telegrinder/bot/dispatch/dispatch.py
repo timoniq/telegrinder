@@ -381,7 +381,7 @@ class Dispatch[
                         elapsed_time = self.loop_wrapper.time - start_time
                         elapsed_ms = elapsed_time * 1000
                         logger.debug(
-                            "Update processed in {} {}.",
+                            "Processed in {} {}.",
                             int(elapsed_time * NANOSECONDS_PER_MILLISECOND) if elapsed_ms < 1 else int(elapsed_ms),
                             "ns" if elapsed_ms < 1 else "ms",
                         )

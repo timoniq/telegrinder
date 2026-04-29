@@ -6,12 +6,16 @@ import aiosqlite  # type: ignore
 from kungfu.library.monad.option import Nothing
 from msgspex import Option, decoder
 
-from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
+from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token, configure_dotenv, setup_logger
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.rules import IsReply, Markup, MessageEntities, Text
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import User
+
+configure_dotenv()
+setup_logger()
+
 
 db_path = "examples/assets/users.db"
 bot = Telegrinder(API(Token.from_env()))

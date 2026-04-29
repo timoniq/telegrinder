@@ -10,9 +10,10 @@ from telegrinder import (
     Telegrinder,
     Token,
 )
-from telegrinder.modules import setup_logger
+from telegrinder.modules import configure_dotenv, setup_logger
 from telegrinder.rules import EnumTextRule, StartCommand
 
+configure_dotenv()
 setup_logger()
 
 api = API(token=Token.from_env())

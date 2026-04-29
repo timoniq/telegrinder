@@ -4,6 +4,12 @@ from kungfu.library.monad.result import Result
 
 from telegrinder.api.error import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.tools.waiter_machine.hasher import (
+    PRE_CHECKOUT_QUERY,
+    PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER,
+    PRE_CHECKOUT_QUERY_FROM_USER,
+    PRE_CHECKOUT_QUERY_OPTION,
+)
 from telegrinder.types.objects import PreCheckoutQuery, User
 from telegrinder.types.utils import get_params
 
@@ -12,6 +18,23 @@ class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only
     @property
     def from_user(self) -> User:
         return self.from_
+
+    def QUERY(self, query_id: str | None = None):
+        return PRE_CHECKOUT_QUERY(self.id if query_id is None else query_id)
+
+    def OPTION(self, option: str | None = None):
+        return PRE_CHECKOUT_QUERY_OPTION(self.invoice_payload if option is None else option)
+
+    def FROM_USER(self, user_id: int | None = None):
+        return PRE_CHECKOUT_QUERY_FROM_USER(self.from_user.id if user_id is None else user_id)
+
+    def FOR_OPTION_FROM_USER(self, option: str | None = None, user_id: int | None = None):
+        return PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER(
+            (
+                self.invoice_payload if option is None else option,
+                self.from_user.id if user_id is None else user_id,
+            ),
+        )
 
     @shortcut("answer_pre_checkout_query", custom_params={"pre_checkout_query_id"})
     async def answer(

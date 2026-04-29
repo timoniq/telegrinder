@@ -17,6 +17,13 @@ from telegrinder.bot.cute_types.message import (
     ReplyMarkup,
     execute_method_edit,
 )
+from telegrinder.tools.waiter_machine.hasher import (
+    CALLBACK_QUERY_FOR_MESSAGE,
+    CALLBACK_QUERY_FROM_CHAT,
+    CALLBACK_QUERY_FROM_CHAT_THREAD,
+    CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
+    CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE,
+)
 from telegrinder.types.objects import *
 from telegrinder.types.utils import get_params
 
@@ -111,6 +118,68 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
         keys[to] = data
         return data  # type: ignore
+
+    def FROM_CHAT(self, chat_id: int | None = None):
+        return CALLBACK_QUERY_FROM_CHAT(
+            chat_id
+            if chat_id is not None
+            else self.chat_id.expect(ValueError("Callback query hasher requires chat_id.")),
+        )
+
+    def FROM_CHAT_THREAD(self, message_thread_id: int | None = None, chat_id: int | None = None):
+        return CALLBACK_QUERY_FROM_CHAT_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("Callback query chat thread hasher requires message_thread_id."),
+                ),
+                chat_id
+                if chat_id is not None
+                else self.chat_id.expect(ValueError("Callback query chat thread hasher requires chat_id.")),
+            ),
+        )
+
+    def FOR_MESSAGE(self, message_id: int | None = None):
+        return CALLBACK_QUERY_FOR_MESSAGE(
+            message_id
+            if message_id is not None
+            else self.message_id.expect(ValueError("Callback query message hasher requires message_id.")),
+        )
+
+    def IN_CHAT_FOR_MESSAGE(self, chat_id: int | None = None, message_id: int | None = None):
+        return CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE(
+            (
+                chat_id
+                if chat_id is not None
+                else self.chat_id.expect(ValueError("Callback query chat message hasher requires chat_id.")),
+                message_id
+                if message_id is not None
+                else self.message_id.expect(ValueError("Callback query chat message hasher requires message_id.")),
+            ),
+        )
+
+    def IN_CHAT_THREAD_FOR_MESSAGE(
+        self,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        chat_id: int | None = None,
+    ):
+        return CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE(
+            (
+                message_id
+                if message_id is not None
+                else self.message_id.expect(ValueError("Callback query thread message hasher requires message_id.")),
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("Callback query thread message hasher requires message_thread_id."),
+                ),
+                chat_id
+                if chat_id is not None
+                else self.chat_id.expect(ValueError("Callback query thread message hasher requires chat_id.")),
+            ),
+        )
 
     @shortcut("answer_callback_query", custom_params={"callback_query_id"})
     async def answer(

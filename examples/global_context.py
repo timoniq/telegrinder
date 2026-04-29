@@ -2,13 +2,14 @@ import typing
 from functools import reduce
 
 from telegrinder import API, ABCMiddleware, Message, Telegrinder, Token
-from telegrinder.modules import setup_logger
+from telegrinder.modules import configure_dotenv, setup_logger
 from telegrinder.rules import Markup, MessageEntities, Text
 from telegrinder.tools.formatting.html import HTML, bold, code_inline
 from telegrinder.tools.global_context import GlobalContext, ctx_var
 from telegrinder.types.enums import MessageEntityType
 from telegrinder.types.objects import MessageEntity, User
 
+configure_dotenv()
 setup_logger()
 
 api = API(token=Token.from_env())

@@ -6,9 +6,10 @@ from examples.nodes import DB, create_tables
 from telegrinder import API, Message, Telegrinder, Token, node
 from telegrinder.bot.dispatch import Context
 from telegrinder.bot.rules import ABCRule, Markup, Text
-from telegrinder.modules import setup_logger
+from telegrinder.modules import configure_dotenv, setup_logger
 from telegrinder.node import ChatSource, File, Photo, TextLiteral
 
+configure_dotenv()
 setup_logger()
 
 MessageId = type("MessageId", (int,), {})

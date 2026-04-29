@@ -28,7 +28,10 @@ class BaseMiddlewareBox:
     def __iter__(self) -> typing.Iterator[ABCMiddleware]:
         yield from self.user_middlewares
 
-    def __len__(self) -> int:
+    def __bool__(self) -> bool:
+        return len(self.user_middlewares) > 0
+
+    def count(self) -> int:
         return sum(1 for _ in self)
 
     def put(self, middleware: ABCMiddleware, /) -> None:
@@ -44,6 +47,9 @@ class ViewMiddlewareBox(BaseMiddlewareBox):
             yield self.waiter
 
         yield from self.user_middlewares
+
+    def __bool__(self) -> bool:
+        return bool(self.waiter) or super().__bool__()
 
     def extend(self, other: typing.Self, /) -> None:
         self.waiter.hashers.update(other.waiter.hashers)
@@ -67,6 +73,9 @@ class MiddlewareBox(BaseMiddlewareBox, Singleton):
             yield self.waiter
 
         yield from self.user_middlewares
+
+    def __bool__(self) -> bool:
+        return any((self.filter, self.media_group, self.waiter)) or super().__bool__()
 
 
 __all__ = ("MiddlewareBox", "ViewMiddlewareBox")

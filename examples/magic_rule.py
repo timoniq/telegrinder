@@ -1,7 +1,8 @@
-from telegrinder import API, Bot, Message, Token, setup_logger
+from telegrinder import API, Bot, Message, Token, configure_dotenv, setup_logger
 from telegrinder.node import UserSource
 from telegrinder.rules import Magic
 
+configure_dotenv()
 setup_logger(level="DEBUG")
 bot = Bot(API(Token.from_env()))
 
