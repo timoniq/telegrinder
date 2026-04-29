@@ -15,7 +15,7 @@ from fastapi import FastAPI, Request, Response
 
 from telegrinder import API, Token
 from telegrinder.modules import configure_dotenv, setup_logger
-from telegrinder.verification_utils import verify_secret_token
+from telegrinder.tools import verify_secret_token
 
 configure_dotenv()
 

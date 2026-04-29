@@ -14,12 +14,8 @@ if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
 
 
-def decode_full_result[T](raw: msgspec.Raw, full_t: TypeForm[T], /) -> T:
-    return decoder.decode(raw, type=full_t)
-
-
 def full_result[T](res: Result[msgspec.Raw, APIError], full_t: TypeForm[T]) -> Result[T, APIError]:
-    return lazy_result(res, lambda raw: decode_full_result(raw, full_t))
+    return lazy_result(res, lambda raw: decoder.decode(raw, type=full_t))
 
 
 def get_params(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
@@ -81,4 +77,4 @@ class ProxiedDict[T]:
         self._defaults[key] = value
 
 
-__all__ = ("ProxiedDict", "decode_full_result", "full_result", "get_params")
+__all__ = ("ProxiedDict", "full_result", "get_params")
