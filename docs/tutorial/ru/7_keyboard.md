@@ -1,13 +1,25 @@
 # Клавиатура, обработка полезной нагрузки
 
-Клавиатуры в telegrinder делятся на два типа:
+Клавиатуры это почти всегда первый способ сделать бота удобнее.
 
-- обычные `Keyboard`
+Без клавиатур бот обычно выглядит так:
+
+- пользователь должен помнить команды
+- пользователь должен сам вводить варианты
+- вы постоянно проверяете текст руками
+
+С клавиатурами всё становится намного дружелюбнее.
+
+В telegrinder есть два основных типа:
+
+- обычная `Keyboard`
 - инлайн `InlineKeyboard`
 
-Обе можно собирать динамически, а если клавиатура статична, её удобно описывать классом.
-
 ## Обычная клавиатура
+
+Это та клавиатура, которая появляется вместо системной клавиатуры Telegram.
+
+Простейший пример:
 
 ```python
 from telegrinder.tools import Button, Keyboard
@@ -21,7 +33,13 @@ keyboard = (
 )
 ```
 
-Клавиатуру можно отправить так:
+Что здесь происходит:
+
+- `Keyboard()` создаёт объект клавиатуры
+- `.add(...)` добавляет кнопку в текущую строку
+- `.row()` начинает новую строку
+
+Отправить её можно так:
 
 ```python
 @bot.on.message(Text("/keyboard"))
@@ -32,47 +50,33 @@ async def handle_keyboard_command(message: Message) -> None:
     )
 ```
 
-Для обычных кнопок нажатие обрабатывается как обычное сообщение. Проще всего через `Text`:
+Метод `get_markup()` превращает объект telegrinder-клавиатуры в тот markup, который понимает Telegram API.
+
+---
+
+## Как обрабатывать нажатие обычной кнопки
+
+Для обычной клавиатуры нажатие кнопки это просто новое сообщение от пользователя.
+
+Поэтому чаще всего всё сводится к `Text(...)`:
 
 ```python
 @bot.on.message(Text("1"))
 async def handle_press_button(message: Message) -> None:
-    await message.answer("Нажата кнопка 1")
+    await message.answer("Ты нажал кнопку 1")
 ```
 
----
+Это очень удобно на старте: не нужно отдельно думать про callback data.
 
-## Новые стили кнопок
-
-У обычных и инлайн-кнопок теперь есть styled-интерфейсы:
-
-- `DangerButton` и `DangerInlineButton`
-- `PrimaryButton` и `PrimaryInlineButton`
-- `SuccessButton` и `SuccessInlineButton`
-
-Они задают стиль кнопки через `KeyboardButtonStyle`.
-
-```python
-from telegrinder import DangerButton, Keyboard, PrimaryButton, SuccessButton
-
-
-class MenuKeyboard(Keyboard, max_in_row=2):
-    PROFILE = SuccessButton("Profile")
-    BALANCE = PrimaryButton("Balance")
-    EXIT = DangerButton("Exit")
-```
-
-Такие кнопки полезны, когда вы хотите явно показать намерение действия:
-
-- `Success` для подтверждения
-- `Primary` для основного действия
-- `Danger` для выхода, удаления, отмены
+> [!TIP]
+> Подсказка:
+> Если бот только начинается, обычная клавиатура часто проще инлайн-кнопок. Особенно если вы делаете меню из 2-5 простых действий.
 
 ---
 
 ## Статические клавиатуры
 
-Статические клавиатуры создаются через наследование:
+Когда клавиатура используется часто и почти не меняется, её удобнее описывать классом.
 
 ```python
 from telegrinder.tools.keyboard import Button, Keyboard
@@ -84,7 +88,13 @@ class FruitsKeyboard(Keyboard, max_in_row=2, one_time_keyboard=True):
     KIWI = Button("Kiwi")
 ```
 
-Теперь клавиатуру можно отправлять как класс:
+Плюсы такого подхода:
+
+- клавиатура описана в одном месте
+- не нужно собирать её заново в каждом хендлере
+- кнопки можно использовать как правила
+
+Отправка:
 
 ```python
 @bot.on.message(Text("/eat"))
@@ -95,7 +105,7 @@ async def eat(message: Message) -> None:
     )
 ```
 
-И что особенно удобно, статические кнопки одновременно являются и кнопкой, и правилом:
+А теперь приятная часть:
 
 ```python
 @bot.on.message(FruitsKeyboard.APPLE)
@@ -106,11 +116,53 @@ async def eat_apple(message: Message) -> None:
     )
 ```
 
+Здесь `FruitsKeyboard.APPLE` работает и как кнопка, и как правило.
+
+Это очень удобный паттерн для меню.
+
+> [!TIP]
+> Лайфхак:
+> Если одна и та же клавиатура используется больше чем в одном месте, почти всегда лучше вынести её в отдельный класс.
+
+---
+
+## Стили кнопок
+
+В telegrinder есть styled-кнопки:
+
+- `DangerButton` и `DangerInlineButton`
+- `PrimaryButton` и `PrimaryInlineButton`
+- `SuccessButton` и `SuccessInlineButton`
+
+Это помогает визуально подсказать пользователю, что за действие его ждёт.
+
+Например:
+
+```python
+from telegrinder import DangerButton, Keyboard, PrimaryButton, SuccessButton
+
+
+class MenuKeyboard(Keyboard, max_in_row=2):
+    PROFILE = SuccessButton("Profile")
+    BALANCE = PrimaryButton("Balance")
+    EXIT = DangerButton("Exit")
+```
+
+Хорошее практическое правило:
+
+- `Success` для подтверждения
+- `Primary` для главного действия
+- `Danger` для отмены, удаления, выхода
+
+Это не обязательная часть API, но для UX полезно.
+
 ---
 
 ## Инлайн-клавиатуры
 
-Теперь перейдём к `InlineKeyboard`:
+Инлайн-кнопки живут прямо под сообщением и обычно используются вместе с `callback_data`.
+
+Пример:
 
 ```python
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
@@ -124,7 +176,7 @@ inline_keyboard = (
 )
 ```
 
-Отправка выглядит так же:
+Отправка:
 
 ```python
 @bot.on.message(Text("/inline_keyboard"))
@@ -135,18 +187,34 @@ async def handle_inline_keyboard_command(message: Message) -> None:
     )
 ```
 
+Инлайн-кнопки особенно хороши, когда:
+
+- не хочется засорять чат новыми сообщениями
+- нужно редактировать текущее сообщение
+- важно хранить действие в `callback_data`
+
 ---
 
-## Обработка payload
+## Что такое payload
 
-У инлайн-кнопок вместо текста сообщения обычно используется `callback_data`. В текущем API в telegrinder для этого есть два семейства правил:
+Когда пользователь нажимает инлайн-кнопку, обычно вы не получаете "текст кнопки" как новое сообщение.
+
+Вместо этого Telegram присылает `callback_query`, а в ней лежит `callback_data`.
+
+Именно это в tutorial часто называют payload.
+
+В telegrinder для этого есть два семейства правил:
 
 - старые `CallbackData*`
-- более прямые `Payload*Rule`
+- более новые и прямые `Payload*Rule`
 
-В новых примерах удобнее использовать `Payload*Rule`.
+Для нового кода обычно проще использовать `Payload*Rule`.
 
-### Простое сравнение строки
+---
+
+## Самый простой payload
+
+Строка.
 
 ```python
 from telegrinder import CallbackQuery
@@ -158,7 +226,21 @@ async def handle_press_inline_button(cb: CallbackQuery) -> None:
     await cb.answer("Нажата кнопка 1")
 ```
 
-### Разбор по шаблону
+Это лучший способ начать.
+
+Вы даёте кнопке строку:
+
+```python
+InlineButton("1", callback_data="button/1")
+```
+
+и ловите ту же строку правилом.
+
+---
+
+## Payload по шаблону
+
+Если кнопок много и они отличаются только параметром, удобнее использовать шаблон.
 
 ```python
 from telegrinder.rules import PayloadMarkupRule
@@ -166,12 +248,25 @@ from telegrinder.rules import PayloadMarkupRule
 
 @bot.on.callback_query(PayloadMarkupRule("button/<index:int>"))
 async def handle_press_inline_button(cb: CallbackQuery, index: int) -> None:
+    # index сюда придёт уже как int.
     await cb.answer(f"Нажата кнопка {index}")
 ```
+
+Это особенно удобно для:
+
+- пагинации
+- списков товаров
+- меню с id-шниками
+
+> [!TIP]
+> Лайфхак:
+> Если вы видите, что начинаете вручную парсить строки вроде `"page/12"` через `.split("/")`, скорее всего вам уже пора на `PayloadMarkupRule`.
 
 ---
 
 ## Payload как модель
+
+Очень приятный вариант для более серьёзных меню это не строка, а модель.
 
 `callback_data` может быть:
 
@@ -180,7 +275,7 @@ async def handle_press_inline_button(cb: CallbackQuery, index: int) -> None:
 - `dataclass`
 - `msgspec.Struct`
 
-Удобный вариант для нестроковых payload — модель:
+Например:
 
 ```python
 import msgspec
@@ -205,7 +300,7 @@ keyboard = (
 )
 ```
 
-Обрабатывать это удобно через `PayloadModelRule`:
+Обработка:
 
 ```python
 from telegrinder.rules import PayloadModelRule
@@ -213,16 +308,17 @@ from telegrinder.rules import PayloadModelRule
 
 @bot.on.callback_query(PayloadModelRule(ItemModel, alias="data"))
 async def buy(cb: CallbackQuery, data: ItemModel) -> None:
+    # data уже готовый объект модели.
     await cb.edit_text(f"You bought {data.item} for {data.amount}")
 ```
 
-Альтернатива для словарей и JSON payload:
+Почему это приятно:
 
-- `CallbackDataJsonEq`
-- `CallbackDataMap`
-- `CallbackDataJsonModel`
+- не нужно руками сериализовать поля в строку
+- нет ручного парсинга обратно
+- типы помогают не запутаться
 
-Они по-прежнему доступны и полезны, особенно если вы уже используете старый стиль API.
+На маленьком боте можно обойтись строками, но для магазинов, сложных меню и админок модели обычно намного удобнее.
 
 ---
 
@@ -233,19 +329,18 @@ async def buy(cb: CallbackQuery, data: ItemModel) -> None:
 - `JSONSerializer`
 - `MsgPackSerializer`
 
-Импортируются они сейчас так:
+Импорт:
 
 ```python
 from telegrinder.tools import JSONSerializer, MsgPackSerializer
 ```
 
-Если сериализатор нужно указать явно для кнопки:
+Иногда модель сама знает, каким сериализатором пользоваться:
 
 ```python
 import dataclasses
 
 from telegrinder.tools import MsgPackSerializer
-from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
@@ -256,23 +351,15 @@ class StoreCallback:
     action: str
     item: str
     price: int
-
-
-keyboard = InlineKeyboard().add(
-    InlineButton(
-        "Coffee",
-        callback_data=StoreCallback(action="buy", item="coffee", price=3),
-    )
-)
 ```
 
-Тот же сериализатор должен понимать и rule, если вы разбираете payload как модель.
+Это полезно, когда вы хотите централизовать способ сериализации прямо рядом с моделью.
 
 ---
 
 ## Inline-кнопка как готовое правило
 
-Как и обычные статические кнопки, статические inline-кнопки можно использовать прямо в декораторе:
+Статические inline-кнопки можно использовать прямо в декораторе.
 
 ```python
 class MainMenuKeyboard(InlineKeyboard):
@@ -285,27 +372,34 @@ async def show_fact(cb: CallbackQuery) -> None:
     await cb.answer("Interesting fact")
 ```
 
-Это особенно удобно для меню, где клавиатура и обработчики живут рядом.
+Это один из самых приятных приёмов в telegrinder:
+
+- кнопка объявлена рядом с меню
+- обработчик использует саму кнопку
+- меньше риска опечататься в строковом payload
 
 ---
 
-## Где посмотреть рабочие примеры
+## Мини-шаблон для новичка
 
-Актуальные примеры лежат в:
+Если не хочется переусложнять, можно двигаться так:
 
-- [examples/keyboard.py](https://github.com/timoniq/telegrinder/blob/dev/examples/keyboard.py)
-- [examples/inline_keyboard.py](https://github.com/timoniq/telegrinder/blob/dev/examples/inline_keyboard.py)
-- [examples/callback_query.py](https://github.com/timoniq/telegrinder/blob/dev/examples/callback_query.py)
-- [examples/callback_data_map.py](https://github.com/timoniq/telegrinder/blob/dev/examples/callback_data_map.py)
+1. Для обычных меню начните с `Keyboard`.
+2. Для действий под сообщением переходите на `InlineKeyboard`.
+3. Для простых callback используйте строки и `PayloadEqRule`.
+4. Для параметризованных callback переходите на `PayloadMarkupRule`.
+5. Для сложных меню и админок используйте модели и `PayloadModelRule`.
+
+Это очень спокойная траектория. Не нужно сразу использовать все возможности API.
 
 ---
 
 ## Что запомнить
 
-- `Keyboard` и `InlineKeyboard` можно собирать динамически и статически
-- styled-кнопки `Danger`, `Primary`, `Success` помогают явно обозначать действие
-- статические кнопки можно передавать в декораторы как правила
-- для новых payload-сценариев удобнее использовать `Payload*Rule`
-- для сложных данных лучше сразу использовать модели
+- `Keyboard` хороша для простых пользовательских меню
+- `InlineKeyboard` хороша для действий под сообщением
+- статические клавиатуры удобно описывать классами
+- styled-кнопки помогают сделать интерфейс понятнее
+- для payload лучше начинать со строк, а потом при необходимости переходить на шаблоны и модели
 
 [>> Next: Работа с текстом: форматирование, локализация](8_text.md)

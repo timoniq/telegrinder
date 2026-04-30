@@ -1,19 +1,25 @@
 # Dispatch
 
-`Dispatch` is telegrinder's event routing layer. If nodes are about dependencies, dispatch is about where an event goes and which handlers get a chance to process it.
+If nodes help prepare data, `Dispatch` answers a different question: "where does this event go, and who gets to handle it?"
 
-It used to be enough to think about dispatch as a container with `message`, `callback_query`, and other views. That is still true, but now there is one more important layer: routers live inside dispatch.
+When the bot is small, you barely think about it. You have `@bot.on.message(...)`, you have a few handlers, everything feels simple. But once the project grows beyond one file, dispatch becomes a big deal.
 
-## What Dispatch contains
+## The shortest mental model
 
-A dispatch has several core parts:
+This model is enough to stay oriented:
 
-- `main_router`
-- `routers`, the queue of loaded routers
-- views such as `message`, `callback_query`, `inline_query`, `media_group`, `event_error`, `raw`
-- `middlewares`
-- `error_handler`
-- loading helpers: `load`, `load_many`, `load_from_dir`
+- `Dispatch` collects routing
+- inside it live `Router`
+- inside routers live `View`
+- inside views live handlers
+
+So the path is roughly:
+
+`Dispatch -> Router -> View -> Handler`
+
+You do not need more than that to get started.
+
+## What `bot.on` really is
 
 When you write:
 
@@ -22,58 +28,36 @@ When you write:
 async def handler(...): ...
 ```
 
-you are really registering a handler on the `message` view of `bot.on.main_router`.
+`bot.on` is the dispatch.
 
-Conceptually:
+And `bot.on.message` is the message view of the main router inside that dispatch.
 
-- `bot.on` is a `Dispatch`
-- `bot.on.message` is `bot.on.main_router.message`
-- `bot.on.callback_query` is `bot.on.main_router.callback_query`
+In other words:
 
----
+- `bot.on` is your bot's main dispatch
+- `bot.on.message` is where message handlers go
+- `bot.on.callback_query` is where callback query handlers go
 
-## What Router is
-
-`Router` stores a set of views and knows how to try processing a single update.
-
-The flow is:
-
-1. `Dispatch.feed()` receives `API` and `Update`
-2. dispatch creates `Context` and runs middleware
-3. dispatch iterates over its routers
-4. each `Router` checks matching event views
-5. the matching `View` runs its handlers
-6. if something fails inside a router, `event_error` may process it
-
-So dispatch does not route directly to plain functions. It routes through routers, and routers route through views.
+That understanding is more than enough for early projects.
 
 ---
 
-## Views
+## Why Dispatch exists at all
 
-A view is the object where you register handlers for a specific event type.
+Because keeping the whole bot in one file becomes painful very quickly.
 
-The most common ones are:
+Almost every bot eventually grows into something like:
 
-- `message`
-- `callback_query`
-- `inline_query`
-- `media_group`
-- `event_error`
-- `raw`
+- separate handlers for start
+- separate handlers for admin tools
+- separate handlers for payments
+- separate handlers for inline buttons
 
-Each view has:
-
-- a view-level filter
-- a list of handlers
-- a waiter machine
-- view-level middleware
-
-That is the right mental model: routers hold views, views hold handlers.
+If all of that stays in one `bot.py`, the file becomes hard to navigate. Dispatch solves that by letting you split the bot into logical pieces and then assemble them together.
 
 ---
 
-## A basic dispatch
+## A minimal dispatch
 
 ```python
 from telegrinder import Dispatch, Message
@@ -84,6 +68,7 @@ dp = Dispatch(name="chat-utilities")
 
 @dp.message(IsBot())
 async def bot_message_handler(message: Message) -> None:
+    # A normal handler, just registered in a local dispatch instead of bot.on.
     await message.answer("Hey bot!")
 
 
@@ -95,16 +80,19 @@ async def bot_message_handler(message: Message) -> None:
     )
 )
 async def command_handler(message: Message, text: str, times: int = 5) -> None:
+    # times will contain the parsed number or the default value.
     await message.answer(", ".join([text] * times))
 ```
 
-This is already a standalone dispatch unit that can be plugged into the main bot.
+That `dp` can already live in its own file and be plugged into the main bot later.
 
 ---
 
 ## Loading a dispatch into the bot
 
-Assume the code above lives in `handlers/chat_utilities.py`. Then the main bot can assemble everything like this:
+Suppose the code above lives in `handlers/chat_utilities.py`.
+
+Then your main bot can look like this:
 
 ```python
 from handlers import chat_utilities
@@ -113,17 +101,76 @@ from telegrinder import API, Telegrinder, Token
 api = API(Token("your-token-here"))
 bot = Telegrinder(api)
 
+# Load routers and error handlers from the external dispatch.
 bot.on.load(chat_utilities.dp)
+
 bot.run_forever()
 ```
 
-`load()` does not copy source code or import handlers one by one. It appends routers from the external dispatch into the current dispatch router queue and merges error views as well.
+This is usually the moment when things start feeling much more maintainable: the bot can be assembled from pieces instead of being written as one giant script.
+
+> [!TIP]
+> Life hack:
+> Even if the bot is still small, it is often worth splitting at least `start`, `admin`, and `callback_query` into separate files early.
 
 ---
 
-## When to use Router explicitly
+## Where routers fit in
 
-If you want stronger separation between logical areas, create routers directly:
+In the current telegrinder API, dispatch works through routers.
+
+A dispatch has:
+
+- `main_router`
+- `routers`, the queue of loaded routers
+- views such as `message`, `callback_query`, `inline_query`, `media_group`, `event_error`, `raw`
+
+When you write:
+
+```python
+@bot.on.message(Text("/start"))
+async def start(...): ...
+```
+
+you are effectively registering on:
+
+```python
+bot.on.main_router.message
+```
+
+So the main router is already there. In day-to-day bot code you just do not always need to touch it explicitly.
+
+---
+
+## What a View is
+
+A view is an object for one specific kind of event.
+
+The most common ones are:
+
+- `message`
+- `callback_query`
+- `inline_query`
+- `media_group`
+- `event_error`
+- `raw`
+
+Each view contains:
+
+- a view-level filter
+- a list of handlers
+- middleware
+- a waiter machine
+
+A beginner-friendly way to think about it is: a view is just a shelf where you put handlers of one event type.
+
+---
+
+## When using Router directly is helpful
+
+Sometimes you want to separate a clear logical area. For example, an admin zone.
+
+Then creating a router explicitly makes sense:
 
 ```python
 from telegrinder import Dispatch, Message, Router
@@ -134,21 +181,32 @@ admin_router = Router(name="admin")
 
 @admin_router.message(Text("/ban"))
 async def ban_handler(message: Message) -> None:
+    # All admin-related logic can stay inside this router.
     await message.answer("Admin action")
 
 
 admin = Dispatch(router=admin_router, name="admin-dispatch")
 ```
 
-Then you can load `admin` through `bot.on.load(admin)`.
+Then load it like any other dispatch:
 
-This is useful when you want clearly named routing groups like `admin`, `payments`, `moderation`, or `games`.
+```python
+bot.on.load(admin)
+```
+
+This becomes very nice when the project has clear domains:
+
+- admin
+- payments
+- onboarding
+- games
+- moderation
 
 ---
 
-## load_many and load_from_dir
+## `load_many` and `load_from_dir`
 
-When the project grows, two helpers become convenient.
+As the number of pieces grows, bot assembly can become even cleaner.
 
 ### Load several dispatches at once
 
@@ -156,29 +214,61 @@ When the project grows, two helpers become convenient.
 bot.on.load_many(users.dp, payments.dp, admin.dp)
 ```
 
-### Load dispatches from a directory
+This is useful when you already imported the modules yourself and just want to combine them in one place.
+
+### Auto-load from a directory
 
 ```python
 bot.on.load_from_dir("handlers", recursive=True)
 ```
 
-`load_from_dir()` imports Python modules from the directory, looks for global variables that are `Dispatch` instances, and loads them.
+Here telegrinder:
 
-There is a working example in [examples/blueprint_bot/__main__.py](https://github.com/timoniq/telegrinder/blob/dev/examples/blueprint_bot/__main__.py).
+- walks over Python files
+- imports them
+- looks for global `Dispatch` instances
+- loads them into the main dispatch
+
+This is convenient for blueprint-style project layouts.
+
+Minimal idea:
+
+```python
+# handlers/start.py
+from telegrinder import Dispatch
+
+dp = Dispatch(name="start")
+```
+
+```python
+# bot.py
+bot.on.load_from_dir("handlers", recursive=True)
+```
+
+> [!TIP]
+> `load_from_dir()` is great once your project structure is stable. Early on, many people find `load_many(...)` easier and more explicit.
+
+---
+
+## What happens when an event is processed
+
+Without going too deep into internals, the flow is roughly:
+
+1. `Dispatch.feed()` receives `API` and `Update`
+2. a `Context` is created
+3. dispatch-level middleware runs
+4. dispatch iterates through its routers
+5. each router checks matching views
+6. the matching view runs handlers
+7. if something fails, it can be processed by `event_error`
+
+You do not need to memorize every detail. It is enough to understand that dispatch is not just "a list of functions", but a fairly structured pipeline.
 
 ---
 
 ## A practical project layout
 
-A useful minimal structure is:
-
-- `bot.py` or `main.py` for app assembly
-- `handlers/` for domain dispatches
-- `keyboards/` for keyboards
-- `rules/` for custom rules
-- `nodes/` for custom nodes
-
-For example:
+Here is a very good minimal starting point:
 
 ```text
 mybot/
@@ -195,16 +285,16 @@ mybot/
     is_admin.py
 ```
 
-That scales much better than one large file full of handlers.
+This kind of layout scales much more calmly than one huge file with hundreds of lines.
 
 ---
 
 ## What to remember
 
-- `Dispatch` routes events
-- routers are now an important part of that structure
-- views belong to routers, handlers belong to views
-- `bot.on.message(...)` registers on `main_router.message`
-- `load`, `load_many`, and `load_from_dir` are how you assemble multi-file bots
+- `Dispatch` is about routing and code separation
+- routers live inside dispatch, and views live inside routers
+- `bot.on.message(...)` is basically registration on `main_router.message`
+- `load`, `load_many`, and `load_from_dir` help assemble multi-file bots
+- if your bot starts growing, split it earlier rather than later
 
 [>> Next: Keyboard, payload handling](7_keyboard.md)

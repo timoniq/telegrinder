@@ -1,13 +1,25 @@
 # Keyboard, payload handling
 
-Telegrinder keyboards come in two main forms:
+Keyboards are usually the first thing that makes a bot feel friendlier.
+
+Without keyboards, a bot often feels like this:
+
+- the user has to remember commands
+- the user has to type choices manually
+- you keep checking raw text by hand
+
+With keyboards, the interaction becomes much nicer.
+
+Telegrinder has two main keyboard types:
 
 - regular `Keyboard`
 - inline `InlineKeyboard`
 
-Both can be built dynamically, and static keyboards are often easier to maintain as classes.
-
 ## Regular keyboard
+
+This is the keyboard that replaces the user's system keyboard inside Telegram.
+
+A very small example:
 
 ```python
 from telegrinder.tools import Button, Keyboard
@@ -21,6 +33,12 @@ keyboard = (
 )
 ```
 
+What is happening here:
+
+- `Keyboard()` creates the keyboard object
+- `.add(...)` adds a button to the current row
+- `.row()` starts a new row
+
 Send it like this:
 
 ```python
@@ -32,47 +50,32 @@ async def handle_keyboard_command(message: Message) -> None:
     )
 ```
 
-Regular keyboard presses are just regular messages, so handling them is usually a `Text` rule:
+`get_markup()` converts the telegrinder keyboard object into the Telegram API markup object.
+
+---
+
+## Handling a regular button press
+
+For a regular keyboard, pressing a button is just a new incoming message.
+
+So the simplest handler is usually a `Text(...)` rule:
 
 ```python
 @bot.on.message(Text("1"))
 async def handle_press_button(message: Message) -> None:
-    await message.answer("Button 1 pressed")
+    await message.answer("You pressed button 1")
 ```
 
----
+That makes regular keyboards a very nice starting point, because you do not have to think about callback data yet.
 
-## New styled buttons
-
-Both regular and inline buttons now have styled variants:
-
-- `DangerButton` and `DangerInlineButton`
-- `PrimaryButton` and `PrimaryInlineButton`
-- `SuccessButton` and `SuccessInlineButton`
-
-They set a `KeyboardButtonStyle` for the button.
-
-```python
-from telegrinder import DangerButton, Keyboard, PrimaryButton, SuccessButton
-
-
-class MenuKeyboard(Keyboard, max_in_row=2):
-    PROFILE = SuccessButton("Profile")
-    BALANCE = PrimaryButton("Balance")
-    EXIT = DangerButton("Exit")
-```
-
-These styles are useful when you want the UI to communicate intent:
-
-- `Success` for confirmation
-- `Primary` for the main action
-- `Danger` for destructive or exit actions
+> [!TIP]
+> If the bot is still simple, regular keyboards are often easier than inline ones. Especially for menus with just a few actions.
 
 ---
 
 ## Static keyboards
 
-Static keyboards are defined via inheritance:
+When a keyboard is reused often and does not change much, defining it as a class is usually cleaner.
 
 ```python
 from telegrinder.tools.keyboard import Button, Keyboard
@@ -84,7 +87,13 @@ class FruitsKeyboard(Keyboard, max_in_row=2, one_time_keyboard=True):
     KIWI = Button("Kiwi")
 ```
 
-Send the class directly:
+Why this feels nice:
+
+- the keyboard is described in one place
+- you do not rebuild it in every handler
+- buttons can also be used as rules
+
+Sending it:
 
 ```python
 @bot.on.message(Text("/eat"))
@@ -95,7 +104,7 @@ async def eat(message: Message) -> None:
     )
 ```
 
-And static buttons are both buttons and rules:
+And now the fun part:
 
 ```python
 @bot.on.message(FruitsKeyboard.APPLE)
@@ -106,11 +115,53 @@ async def eat_apple(message: Message) -> None:
     )
 ```
 
+Here `FruitsKeyboard.APPLE` acts both as a button and as a rule.
+
+That is a very pleasant pattern for menus.
+
+> [!TIP]
+> Life hack:
+> If the same keyboard is used in more than one place, it is usually worth turning it into a class.
+
+---
+
+## Button styles
+
+Telegrinder also has styled buttons:
+
+- `DangerButton` and `DangerInlineButton`
+- `PrimaryButton` and `PrimaryInlineButton`
+- `SuccessButton` and `SuccessInlineButton`
+
+These are useful because they visually hint what kind of action the user is about to trigger.
+
+For example:
+
+```python
+from telegrinder import DangerButton, Keyboard, PrimaryButton, SuccessButton
+
+
+class MenuKeyboard(Keyboard, max_in_row=2):
+    PROFILE = SuccessButton("Profile")
+    BALANCE = PrimaryButton("Balance")
+    EXIT = DangerButton("Exit")
+```
+
+A practical rule of thumb:
+
+- `Success` for confirmation
+- `Primary` for the main action
+- `Danger` for cancel, delete, or exit
+
+Not required, but helpful for UX.
+
 ---
 
 ## Inline keyboards
 
-Now for `InlineKeyboard`:
+Inline buttons live directly under a message and usually work together with `callback_data`.
+
+Example:
 
 ```python
 from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
@@ -124,7 +175,7 @@ inline_keyboard = (
 )
 ```
 
-Sending it looks the same:
+Sending it:
 
 ```python
 @bot.on.message(Text("/inline_keyboard"))
@@ -135,18 +186,34 @@ async def handle_inline_keyboard_command(message: Message) -> None:
     )
 ```
 
+Inline buttons are especially good when:
+
+- you do not want extra messages in chat
+- you want to edit the current message
+- the action should be encoded in `callback_data`
+
 ---
 
-## Handling payload
+## What payload means here
 
-Inline buttons usually work through `callback_data`. In the current API telegrinder has two rule families for this:
+When the user presses an inline button, Telegram usually does not send you the button text as a new message.
+
+Instead, it sends a `callback_query`, and inside it there is `callback_data`.
+
+That is what people usually mean by payload in this context.
+
+Telegrinder has two rule families for this:
 
 - older `CallbackData*`
-- more direct `Payload*Rule`
+- newer and more direct `Payload*Rule`
 
-For new code, `Payload*Rule` is usually easier to follow.
+For new code, `Payload*Rule` is usually the easier path.
 
-### Simple string payload
+---
+
+## The simplest payload
+
+A plain string.
 
 ```python
 from telegrinder import CallbackQuery
@@ -158,7 +225,21 @@ async def handle_press_inline_button(cb: CallbackQuery) -> None:
     await cb.answer("Button 1 pressed")
 ```
 
-### Markup payload
+This is the best place to begin.
+
+You give the button a string:
+
+```python
+InlineButton("1", callback_data="button/1")
+```
+
+and catch the same string in the rule.
+
+---
+
+## Payload by template
+
+If you have many buttons and only one part changes, a template is cleaner.
 
 ```python
 from telegrinder.rules import PayloadMarkupRule
@@ -166,12 +247,25 @@ from telegrinder.rules import PayloadMarkupRule
 
 @bot.on.callback_query(PayloadMarkupRule("button/<index:int>"))
 async def handle_press_inline_button(cb: CallbackQuery, index: int) -> None:
+    # index arrives as an int automatically.
     await cb.answer(f"Button {index} pressed")
 ```
+
+This is especially useful for:
+
+- pagination
+- item lists
+- menu entries with ids
+
+> [!TIP]
+> Life hack:
+> If you catch yourself splitting strings like `"page/12"` manually, it is probably time to switch to `PayloadMarkupRule`.
 
 ---
 
 ## Payload as a model
+
+For more serious menus, models are often much nicer than raw strings.
 
 `callback_data` may be:
 
@@ -180,7 +274,7 @@ async def handle_press_inline_button(cb: CallbackQuery, index: int) -> None:
 - `dataclass`
 - `msgspec.Struct`
 
-For non-string payloads, typed models are often the cleanest choice:
+Example:
 
 ```python
 import msgspec
@@ -205,7 +299,7 @@ keyboard = (
 )
 ```
 
-Then process it through `PayloadModelRule`:
+Handling it:
 
 ```python
 from telegrinder.rules import PayloadModelRule
@@ -213,39 +307,39 @@ from telegrinder.rules import PayloadModelRule
 
 @bot.on.callback_query(PayloadModelRule(ItemModel, alias="data"))
 async def buy(cb: CallbackQuery, data: ItemModel) -> None:
+    # data is already a ready model object.
     await cb.edit_text(f"You bought {data.item} for {data.amount}")
 ```
 
-Alternatives for dict and JSON-style payloads are still available:
+Why this feels good:
 
-- `CallbackDataJsonEq`
-- `CallbackDataMap`
-- `CallbackDataJsonModel`
+- no need to manually pack fields into a string
+- no manual parsing on the way back
+- types help keep things straight
 
-They remain useful, especially in older codebases.
+For small bots strings are fine. For shops, admin panels, and more complex menus, models are usually much nicer.
 
 ---
 
 ## Payload serializers
 
-Telegrinder ships with two main serializers:
+Telegrinder has two main serializers:
 
 - `JSONSerializer`
 - `MsgPackSerializer`
 
-They are imported like this now:
+Import:
 
 ```python
 from telegrinder.tools import JSONSerializer, MsgPackSerializer
 ```
 
-If you need to define a serializer explicitly for the button:
+Sometimes the model itself can declare which serializer it prefers:
 
 ```python
 import dataclasses
 
 from telegrinder.tools import MsgPackSerializer
-from telegrinder.tools.keyboard import InlineButton, InlineKeyboard
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
@@ -256,23 +350,15 @@ class StoreCallback:
     action: str
     item: str
     price: int
-
-
-keyboard = InlineKeyboard().add(
-    InlineButton(
-        "Coffee",
-        callback_data=StoreCallback(action="buy", item="coffee", price=3),
-    )
-)
 ```
 
-The corresponding rule must understand the same serializer when it decodes the payload.
+That is useful when you want the serialization logic to stay close to the payload model itself.
 
 ---
 
-## Inline button as a ready rule
+## Using an inline button directly as a rule
 
-Static inline buttons can also be used directly in decorators:
+Static inline buttons can be used directly in decorators.
 
 ```python
 class MainMenuKeyboard(InlineKeyboard):
@@ -285,25 +371,34 @@ async def show_fact(cb: CallbackQuery) -> None:
     await cb.answer("Interesting fact")
 ```
 
-That is especially convenient for menus where the keyboard and handlers are meant to stay close together.
+This is one of the nicest telegrinder patterns:
+
+- the button is defined next to the menu
+- the handler uses the button itself
+- fewer chances to mistype a payload string
 
 ---
 
-## Useful examples
+## A practical beginner path
 
-- [examples/keyboard.py](https://github.com/timoniq/telegrinder/blob/dev/examples/keyboard.py)
-- [examples/inline_keyboard.py](https://github.com/timoniq/telegrinder/blob/dev/examples/inline_keyboard.py)
-- [examples/callback_query.py](https://github.com/timoniq/telegrinder/blob/dev/examples/callback_query.py)
-- [examples/callback_data_map.py](https://github.com/timoniq/telegrinder/blob/dev/examples/callback_data_map.py)
+If you do not want to overcomplicate things, a good path is:
+
+1. Start with `Keyboard` for simple menus.
+2. Move to `InlineKeyboard` for actions under a message.
+3. Use plain strings and `PayloadEqRule` for simple callback handling.
+4. Use `PayloadMarkupRule` when callback strings become structured.
+5. Use models and `PayloadModelRule` when the menu starts becoming complex.
+
+You do not need every part of the API at once.
 
 ---
 
 ## What to remember
 
-- `Keyboard` and `InlineKeyboard` can be built dynamically or statically
-- `Danger`, `Primary`, and `Success` button variants help communicate intent
-- static buttons can be used as rules
-- `Payload*Rule` is the cleaner family for new payload handling
-- typed payload models are usually the most maintainable option
+- `Keyboard` is great for simple user-facing menus
+- `InlineKeyboard` is great for actions under a message
+- static keyboards are often best expressed as classes
+- styled buttons help make the interface clearer
+- for payload handling, starting with strings is fine, and moving to templates or models later is perfectly normal
 
 [>> Next: Working with text: formatting, localization](8_text.md)

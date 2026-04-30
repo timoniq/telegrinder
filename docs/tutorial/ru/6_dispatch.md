@@ -1,19 +1,25 @@
 # Dispatch
 
-`Dispatch` в telegrinder отвечает за маршрутизацию событий. Если ноды отвечают за зависимости, то dispatch отвечает за то, куда вообще попадёт событие и какой набор обработчиков будет проверяться.
+Если ноды помогают подготовить данные, то `Dispatch` отвечает на другой вопрос: "куда вообще пойдёт событие и кто будет его обрабатывать?"
 
-Раньше достаточно было думать о dispatch как о контейнере с `message`, `callback_query` и другими views. Это по-прежнему верно, но сейчас важно понимать ещё один слой: внутри dispatch живут роутеры.
+Когда бот маленький, об этом почти не думаешь. Есть `@bot.on.message(...)`, есть хендлеры, всё работает. Но как только файлов становится больше одного, dispatch становится очень важным.
 
-## Из чего состоит Dispatch
+## Самая короткая ментальная модель
 
-У dispatch есть несколько ключевых частей:
+Можно держать в голове вот такую схему:
 
-- `main_router` — основной роутер
-- `routers` — очередь всех загруженных роутеров
-- views вроде `message`, `callback_query`, `inline_query`, `media_group`, `event_error`, `raw`
-- `middlewares`
-- `error_handler`
-- методы загрузки: `load`, `load_many`, `load_from_dir`
+- `Dispatch` собирает маршрутизацию
+- внутри него живут `Router`
+- внутри роутеров живут `View`
+- внутри view живут хендлеры
+
+То есть путь примерно такой:
+
+`Dispatch -> Router -> View -> Handler`
+
+Этой модели достаточно, чтобы не путаться дальше.
+
+## Что такое `bot.on`
 
 Когда вы пишете:
 
@@ -22,58 +28,38 @@
 async def handler(...): ...
 ```
 
-вы на самом деле регистрируете обработчик во `view` `message` основного роутера `bot.on.main_router`.
+`bot.on` это и есть dispatch.
 
-То есть концептуально:
+А `bot.on.message` это message-view основного роутера этого dispatch.
 
-- `bot.on` — это `Dispatch`
-- `bot.on.message` — это `bot.on.main_router.message`
-- `bot.on.callback_query` — это `bot.on.main_router.callback_query`
+Проще говоря:
 
----
+- `bot.on` — главный диспетчер вашего бота
+- `bot.on.message` — место, куда вы складываете обработчики сообщений
+- `bot.on.callback_query` — место для callback query
 
-## Что такое Router
-
-`Router` хранит набор views и умеет попытаться обработать один апдейт.
-
-Схема обработки такая:
-
-1. `Dispatch.feed()` получает `API` и `Update`
-2. dispatch создаёт `Context` и запускает middleware
-3. dispatch проходит по своим роутерам
-4. каждый `Router` проверяет подходящие event views
-5. подходящий `View` запускает свои хендлеры
-6. если в роутере возникла ошибка, её можно обработать через `event_error`
-
-Важно: dispatch загружает и запускает не “голые функции”, а именно роутеры со views внутри.
+Для старта этого понимания более чем достаточно.
 
 ---
 
-## Views
+## Зачем вообще нужен Dispatch
 
-View — это объект, на котором вы регистрируете обработчики для конкретного типа события.
+Чтобы не держать весь бот в одном файле.
 
-Чаще всего используются:
+Почти любой бот быстро дорастает до такого состояния:
 
-- `message`
-- `callback_query`
-- `inline_query`
-- `media_group`
-- `event_error`
-- `raw`
+- отдельные хендлеры для старта
+- отдельные для админки
+- отдельные для платежей
+- отдельные для inline-кнопок
 
-У каждого view есть:
+Если всё это держать в одном `bot.py`, через какое-то время в файле становится просто тяжело ориентироваться.
 
-- фильтр уровня view
-- список хендлеров
-- waiter machine
-- middleware уровня view
-
-Именно поэтому удобно мыслить так: router хранит views, а view хранит хендлеры.
+Dispatch решает это очень просто: вы делите бота на логические куски и потом собираете их вместе.
 
 ---
 
-## Базовый dispatch
+## Минимальный dispatch
 
 ```python
 from telegrinder import Dispatch, Message
@@ -84,6 +70,7 @@ dp = Dispatch(name="chat-utilities")
 
 @dp.message(IsBot())
 async def bot_message_handler(message: Message) -> None:
+    # Обычный обработчик, только регистрируем его не в bot.on, а в локальном dispatch.
     await message.answer("Hey bot!")
 
 
@@ -95,16 +82,19 @@ async def bot_message_handler(message: Message) -> None:
     )
 )
 async def command_handler(message: Message, text: str, times: int = 5) -> None:
+    # В times попадёт либо число из команды, либо значение по умолчанию.
     await message.answer(", ".join([text] * times))
 ```
 
-Такой код уже готов к подключению в основной бот.
+Такой `dp` уже можно вынести в отдельный файл и подключить к основному боту.
 
 ---
 
-## Подключение dispatch к боту
+## Как подключить dispatch к боту
 
-Пусть этот код лежит в `handlers/chat_utilities.py`. Тогда основной бот может собрать всё так:
+Например, пусть этот код лежит в `handlers/chat_utilities.py`.
+
+Тогда сборка бота может выглядеть так:
 
 ```python
 from handlers import chat_utilities
@@ -113,17 +103,76 @@ from telegrinder import API, Telegrinder, Token
 api = API(Token("your-token-here"))
 bot = Telegrinder(api)
 
+# Подгружаем все роутеры и error-handlers из внешнего dispatch.
 bot.on.load(chat_utilities.dp)
+
 bot.run_forever()
 ```
 
-`load()` делает не копирование текста и не импорт обработчиков по одному. Он добавляет роутеры внешнего dispatch в очередь роутеров текущего dispatch, а ещё объединяет error views.
+На этом месте обычно приходит очень полезное ощущение: бот можно собирать из кусочков, а не писать как один длинный скрипт.
+
+> [!TIP]
+> Лайфхак:
+> Даже если у вас пока маленький бот, полезно рано вынести хотя бы `start`, `admin` и `callback_query` в разные файлы. Потом спасибо скажете сами себе.
 
 ---
 
-## Когда нужен Router отдельно
+## Где здесь роутеры
 
-Если вы хотите явно отделять логические зоны, можно создавать роутеры самостоятельно:
+Сейчас в telegrinder важно понимать, что dispatch работает не "напрямую с хендлерами", а через роутеры.
+
+У dispatch есть:
+
+- `main_router`
+- `routers` — очередь загруженных роутеров
+- views вроде `message`, `callback_query`, `inline_query`, `media_group`, `event_error`, `raw`
+
+Когда вы пишете:
+
+```python
+@bot.on.message(Text("/start"))
+async def start(...): ...
+```
+
+по сути это регистрация в:
+
+```python
+bot.on.main_router.message
+```
+
+То есть основной роутер у вас уже есть, просто в обычной разработке его не всегда нужно трогать руками.
+
+---
+
+## Что такое View
+
+View это объект для конкретного типа события.
+
+Чаще всего вы будете видеть:
+
+- `message`
+- `callback_query`
+- `inline_query`
+- `media_group`
+- `event_error`
+- `raw`
+
+У view внутри есть:
+
+- фильтр уровня view
+- список хендлеров
+- middleware
+- waiter machine
+
+Для новичка полезно воспринимать view как "полку, на которую я складываю обработчики одного типа".
+
+---
+
+## Когда Router полезен отдельно
+
+Иногда хочется явно выделить отдельную логическую зону. Например, админку.
+
+Тогда можно создать роутер руками:
 
 ```python
 from telegrinder import Dispatch, Message, Router
@@ -134,51 +183,95 @@ admin_router = Router(name="admin")
 
 @admin_router.message(Text("/ban"))
 async def ban_handler(message: Message) -> None:
+    # Весь admin-related код можно держать в отдельном роутере.
     await message.answer("Admin action")
 
 
 admin = Dispatch(router=admin_router, name="admin-dispatch")
 ```
 
-После этого `admin` можно загрузить так же через `bot.on.load(admin)`.
+А потом подключить его как обычный dispatch:
 
-Это удобно, когда вы хотите отдельно именовать и группировать куски маршрутизации: например, `admin`, `payments`, `moderation`, `games`.
+```python
+bot.on.load(admin)
+```
+
+Такой подход особенно приятен, когда в проекте есть чёткие домены:
+
+- админка
+- платежи
+- onboarding
+- игры
+- модерация
 
 ---
 
-## load_many и load_from_dir
+## `load_many` и `load_from_dir`
 
-Если dispatch много, есть два удобных способа собрать приложение.
+Когда частей становится больше, собирать бот можно ещё удобнее.
 
-### Загрузить несколько dispatch сразу
+### Несколько dispatch сразу
 
 ```python
 bot.on.load_many(users.dp, payments.dp, admin.dp)
 ```
 
-### Загрузить все dispatch из директории
+Это полезно, когда вы уже импортировали нужные модули вручную и хотите собрать всё в одном месте.
+
+### Автозагрузка из директории
 
 ```python
 bot.on.load_from_dir("handlers", recursive=True)
 ```
 
-`load_from_dir()` импортирует Python-модули из папки, ищет в них глобальные переменные с экземплярами `Dispatch` и загружает их.
+Здесь telegrinder:
 
-Пример есть в [examples/blueprint_bot/__main__.py](https://github.com/timoniq/telegrinder/blob/dev/examples/blueprint_bot/__main__.py).
+- проходит по Python-файлам
+- импортирует их
+- ищет глобальные переменные с экземплярами `Dispatch`
+- подгружает их в основной dispatch
+
+Это удобно для "blueprint-style" структуры проекта.
+
+Вот минимальная идея:
+
+```python
+# handlers/start.py
+from telegrinder import Dispatch
+
+dp = Dispatch(name="start")
+```
+
+```python
+# bot.py
+bot.on.load_from_dir("handlers", recursive=True)
+```
+
+> [!TIP]
+> Подсказка:
+> `load_from_dir()` удобен, когда структура проекта уже устоялась. На старте многим проще и понятнее сначала использовать обычный `load_many(...)`.
 
 ---
 
-## Как лучше делить код
+## Как dispatch обрабатывает событие
 
-Рабочий минимальный вариант структуры:
+Без лишних деталей процесс примерно такой:
 
-- `bot.py` или `main.py` — сборка приложения
-- `handlers/` — dispatch по доменам
-- `keyboards/` — клавиатуры
-- `rules/` — кастомные правила
-- `nodes/` — кастомные ноды
+1. `Dispatch.feed()` получает `API` и `Update`
+2. создаётся `Context`
+3. запускаются middleware dispatch уровня
+4. dispatch проходит по своим роутерам
+5. каждый роутер проверяет подходящие views
+6. подходящий view запускает хендлеры
+7. если что-то падает, это можно обработать через `event_error`
 
-Например:
+Новичку не нужно помнить все внутренности. Достаточно понимать, что dispatch это не просто "список функций", а довольно аккуратный конвейер.
+
+---
+
+## Пример структуры проекта
+
+Вот хороший минимальный старт:
 
 ```text
 mybot/
@@ -195,16 +288,16 @@ mybot/
     is_admin.py
 ```
 
-Такую структуру проще масштабировать, чем один большой файл с десятками обработчиков.
+Такой проект растёт заметно спокойнее, чем один огромный файл на сотни строк.
 
 ---
 
 ## Что запомнить
 
-- `Dispatch` маршрутизирует события
-- внутри dispatch теперь важны не только views, но и `Router`
-- views принадлежат роутеру, а хендлеры принадлежат views
-- `bot.on.message(...)` регистрирует обработчик в `main_router.message`
-- `load`, `load_many`, `load_from_dir` собирают приложение из нескольких dispatch
+- `Dispatch` нужен для маршрутизации и разделения кода
+- внутри dispatch живут роутеры, а внутри роутеров живут views
+- `bot.on.message(...)` это по сути регистрация в `main_router.message`
+- `load`, `load_many` и `load_from_dir` помогают собирать проект из нескольких частей
+- если бот начал расти, лучше разделять его раньше, а не позже
 
 [>> Next: Клавиатура, обработка полезной нагрузки](7_keyboard.md)
