@@ -52,11 +52,10 @@ class WaiterMiddleware(ABCMiddleware):
             return True
 
         if await FuncHandler(
-            function=lambda: short_state.release(event=event, context=ctx),
+            function=lambda: short_state.release(event=event, context=ctx.set("initiator", initiator) or ctx),
             rules=(short_state.release_rule,) if short_state.release_rule is not None else None,
             preset_context=short_state.context.context if short_state.context is not None else None,
         ).run(api, update, ctx):
-            ctx.initiator = initiator
             return False
 
         if (on_miss := short_state.actions.get("on_miss")) is not None:
