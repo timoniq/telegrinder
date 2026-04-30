@@ -1,166 +1,215 @@
 # Ноды
 
-Ноды — это один из самых важных строительных блоков в telegrinder. Они — как простые, легко создаваемые и соединяемые между собой кусочки конструктора. Именно поэтому мы их так и называем — ноды.
+Ноды в telegrinder отвечают за dependency injection. Они позволяют описывать, как получить одно значение из другого, а затем использовать это и в хендлерах, и в правилах, и во внутренних механизмах фреймворка.
 
-Нода — это то, что мы составляем из других нод.
+Например:
 
-Например, из сообщения (message) мы можем составить текст (text) или пользователя (user).
+- из `Message` можно получить `Text`
+- из `Text` можно получить `int`
+- из `CallbackQuery` можно получить `Payload`
+- из `Source` можно получить пользователя, чат или их идентификаторы
 
-Из текста можно составить целое число, если текст состоит только из цифр.
+Идея простая: вы описываете зависимости декларативно, а telegrinder сам строит цепочку композиции.
 
-Есть корневые объекты, из которых можно составить всё остальное. В классическом боте на telegrinder это экземпляры `Update`, `API` и `Context`.
+## Корневые значения
 
-`Update` — это то, что пришло в наш бот. Оно всегда связано с каким-то `API`. `Context` — просто удобное хранилище, низкоуровневый объект, в котором хранится вся информация о пути обработки события.
+Во время обработки события в граф зависимостей уже попадают несколько корневых объектов:
 
----
+- `API`
+- `Update`
+- `Context`
 
-К этому моменту вы, вероятно, уже уловили простую идею, которая лежит в основе нод. Давай разберёмся, как реализовать свою ноду.
+Они появляются автоматически, а уже от них строятся все остальные ноды.
 
-В telegrinder нужно просто написать класс, реализующий класс-метод `compose`. Метод compose должен возвращать экземпляр ноды. И, что важно, он может принимать в качестве аргументов другие ноды. Они будут автоматически связаны с нодой и решены оптимизированным образом, когда наступит нужный момент.
-
-В telegrinder есть несколько типов нод:
-
-* Скалярная нода (scalar node) — нода, которая просто реализует метод compose для значения другого типа. Например, нода `Text` — это скалярная нода. Она возвращает `str`. И благодаря внутренней магии telegrinder, `Text` и возвращаемый тип `str` у метода `compose` распознаются как взаимозаменяемые типы.
-
-* Дата-нода (data node) — нода, которая является датаклассом. Просто комбинация, которая часто бывает полезной.
-
-* Полиморфная нода (polymorphic node) — нода с несколькими реализациями. Например, и сообщение, и callback-запрос содержат отправителя. Мы можем реализовать, как получать пользователя из каждого типа события, и получить одну полиморфную ноду, которая позволяет удобно извлекать пользователя из разных типов событий.
-
-* Любая нода — любой класс, который реализует метод compose. Если есть `compose` — это нода.
+Встроенных нод в пакете много. Их удобно смотреть в `telegrinder.node`. Например, там уже есть `Text`, `TextInteger`, `Source`, `UserSource`, `ChatSource`, `ChatId`, `Payload`, `File`, `Photo`, `Caption`, `Error` и другие.
 
 ---
 
-Давай научимся писать ноды на примере:
+## Как написать свою ноду
+
+Нода определяется через класс и метод `__compose__`. Именно этот метод telegrinder вызывает, когда нужно получить значение.
+
+Простейший вариант выглядит так:
 
 ```python
-# telegrinder.node.text
+from nodnod import NodeError
+
+from telegrinder import Message
 from telegrinder.node import scalar_node
+
 
 @scalar_node
 class Text:
     @classmethod
-    def compose(cls, message: Message) -> str:
+    def __compose__(cls, message: Message) -> str:
         if not message.text:
-            raise ComposeError("Message has no text.")
+            raise NodeError("Message has no text.")
         return message.text.unwrap()
 ```
 
-Что происходит в этом коде?
+Что здесь важно:
 
-Мы объявляем реализацию скалярной ноды `Text`. Магически определяется, что скалярное значение `Text` будет `str` по типу возвращаемого значения из метода `compose` (`-> str`).
+- `@scalar_node` говорит, что это скалярная нода
+- telegrinder берёт зависимости из параметров `__compose__`
+- если ноду собрать нельзя, нужно выбросить `NodeError`
+- тип результата берётся из аннотации `-> str`
 
-`compose` должен вернуть строку текста или выбросить ошибку `ComposeError`.
-
-Теперь её можно использовать:
+После этого ноду можно использовать в обработчике как обычный параметр:
 
 ```python
 @bot.on.message()
-async def text_message_handler(message: Message, text: Text):
+async def text_message_handler(message: Message, text: Text) -> None:
     await message.answer(text.lower())
 ```
 
-Тот же самый эхо-бот, что мы сделали в начале туториала, но гораздо элегантнее.
-
-А как насчёт правил? Время раскрыть секрет: это работает везде, включая правила:
-
+Точно так же ноды работают и в правилах:
 
 ```python
+from telegrinder.bot.rules import ABCRule
+
+
 class TextIsOfLength(ABCRule):
-    def __init__(self, l: int):
-        self.l = l
+    def __init__(self, length: int) -> None:
+        self.length = length
 
     async def check(self, text: Text) -> bool:
-        return len(text) == self.l
+        return len(text) == self.length
 
 
 @bot.on.message(TextIsOfLength(6))
-async def six_handler():
-    return "Love messages of this length.."
+async def six_handler() -> str:
+    return "Люблю сообщения такой длины."
 ```
 
 ---
 
-Отлично, теперь, когда мы знаем основы, можем написать ещё ноды:
+## Цепочки нод
+
+Самое удобное в нодах то, что они естественно собираются друг из друга:
 
 ```python
+from nodnod import NodeError
+
+from telegrinder.node import scalar_node
+
+
 @scalar_node
 class TextInteger:
     @classmethod
-    def compose(cls, text: Text) -> int:
+    def __compose__(cls, text: Text) -> int:
         if not text.isdigit():
-            raise ComposeError("Text is not digit.")
+            raise NodeError("Text is not a digit.")
         return int(text)
 ```
 
-Получается цепочка, правда?
-
-Мы только что сделали новую ноду, которая композирует ноду, созданную ранее. `TextInteger` работает с сообщениями, содержащими текст, где текст состоит из цифр.
+Теперь можно писать хендлеры, которые вообще не знают, откуда появилось число:
 
 ```python
-pi = 3.141592653589793238
-
 @bot.on.message()
-async def number_handler(r: TextInteger):
-    return f"Thats awesome! So if R = {r}, C = {2 * pi * r}"
+async def number_handler(message: Message, value: TextInteger) -> None:
+    await message.answer(f"{value} + 3 = {value + 3}")
 ```
 
-## Области
+Путь будет таким:
 
-Когда ноды начинают включать более сложную логику (например, подключение к базе данных или доступ к хранилищу), может понадобиться контролировать область ноды. Это просто. В telegrinder есть 3 области:
+`Message -> Text -> TextInteger`
 
-* На событие (per event) — нода создаётся для каждого события, если во время компоновки нода уже была создана, она переиспользуется и не создаётся повторно. Это поведение по умолчанию.
+---
 
-* На вызов (per call) — нода создаётся каждый раз, когда какая-либо нода требует её для компоновки, либо когда её нужно передать в хендлер.
+## Типы нод
 
-* Глобальная (global) — некоторые ноды должны быть созданы только один раз на всю программу, а затем храниться и переиспользоваться при необходимости.
+На практике вам пригодятся несколько форм:
 
+- `scalar_node` для “одного значения одного типа”
+- `DataNode` для дата-классовых контейнеров
+- `generic_node` для обобщённых нод
+- `polymorphic` для нод, которые умеют собираться из разных событий
 
-Посмотрим примеры нод для каждого типа области.
+Например, `Payload` в telegrinder полиморфный: он умеет извлекать payload из `CallbackQuery`, `PreCheckoutQuery`, `ShippingQuery` и даже из сообщения с успешной оплатой.
 
-Подключение к базе данных можно элегантно обрабатывать с помощью нод:
+---
+
+## Области видимости
+
+У нод есть области жизни. Это важно, когда внутри ноды есть дорогая операция или ресурс с очисткой.
+
+В telegrinder доступны три области:
+
+- `PER_EVENT` или “на событие” — значение создаётся один раз на апдейт и переиспользуется в рамках обработки. Это поведение по умолчанию.
+- `PER_CALL` или “на вызов” — нода создаётся каждый раз, когда кто-то её запрашивает.
+- `GLOBAL` или “глобально” — нода создаётся один раз на всё приложение.
+
+### Per call
 
 ```python
-from telegrinder.node import scalar_node, per_call
+import aiosqlite
+import typing
 
-@scalar_node
+from telegrinder.node import per_call, scalar_node
+
+
 @per_call
+@scalar_node
 class DB:
     @classmethod
-    async def compose(cls) -> typing.AsyncGenerator[aiosqlite.Connection, None]:
+    async def __compose__(cls) -> typing.AsyncGenerator[aiosqlite.Connection, None]:
         connection = await aiosqlite.connect("test.db")
-        logger.info("Opening connection")
         yield connection
-        logger.info("Closing connection")
         await connection.close()
-
-@bot.on.message()
-async def some_handler(text: Text, connection: DB):
-    ...
 ```
 
-Тут мы также используем замечательную особенность нод — возможность быть генератором. Мы можем что-то завершить после того, как обработка события завершена: просто используем `yield`, чтобы передать значение процессору, а после обработки управление вернётся обратно, и мы закроем соединение с базой данных (например).
+Здесь есть ещё одна важная возможность: ноды могут быть генераторами. Значение отдаётся через `yield`, а код после `yield` используется как финализация ресурса.
+
+### Global
 
 ```python
-from telegrinder.node import DataNode, global_node
+from telegrinder.node import DataNode, global_node, scalar_node
+
 
 @global_node
 class Settings(DataNode):
     api_url: str
-    some_secret: str
+    secret: str
 
     @classmethod
-    def compose(cls) -> "Settings":
-        return cls(api_url=env["API_URL"], some_secret=env["SOME_SECRET"])
+    def __compose__(cls) -> "Settings":
+        return cls(
+            api_url=env["API_URL"],
+            secret=env["APP_SECRET"],
+        )
 
 
-@scalar_node
 @global_node
+@scalar_node
 class Secret:
     @classmethod
-    def compose(cls) -> str:
+    def __compose__(cls) -> str:
         return generate_secret(16)
 ```
 
-Удачи с нодами!
+Глобальные ноды хороши для конфигурации, клиентов и редко меняющихся объектов.
+
+---
+
+## Практический пример
+
+В [examples/with_nodes.py](https://github.com/timoniq/telegrinder/blob/dev/examples/with_nodes.py) можно посмотреть на более реалистичное использование:
+
+- кастомные правила получают ноды как аргументы
+- ноды используются в обычных сообщениях
+- `DB` переиспользуется между несколькими хендлерами
+- built-in ноды вроде `Photo`, `File`, `ChatSource` и `TextInteger` работают без ручной склейки
+
+Именно в этом месте обычно становится заметно, что ноды полезны не ради “магии”, а ради уменьшения дублирования и нормальной композиции логики.
+
+---
+
+## Что запомнить
+
+- нода описывает, как получить одно значение из других
+- основной метод ноды в текущем API называется `__compose__`
+- ноды работают и в хендлерах, и в правилах
+- по умолчанию ноды живут в пределах одного события
+- сложные зависимости удобно выносить в ноды, а не копировать по хендлерам
 
 [>> Next: Dispatch](6_dispatch.md)

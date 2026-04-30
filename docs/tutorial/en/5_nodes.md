@@ -1,165 +1,215 @@
 # Nodes
 
-Nodes is one of super important telegrinder building blocks. They are like very easy to create and interconnect building pieces. That's why we call them nodes.
+Nodes are telegrinder's dependency injection building blocks. A node describes how to get one value from other values, and telegrinder can use that description in handlers, rules, and internal processing.
 
-Node is something we compose from other nodes.
+For example:
 
-For example from message we can compose text, or user.
+- from `Message` we can get `Text`
+- from `Text` we can get `int`
+- from `CallbackQuery` we can get `Payload`
+- from `Source` we can get a user, chat, or their ids
 
-From text we can compose integer, if the given text consists of digits.
+That is the core idea: you describe dependencies declaratively and telegrinder builds the composition chain for you.
 
-There are root objects that are used to compose everything else, in classic telegrinder bot it is an instance of `Update`, `API` and `Context`.
+## Root values
 
-`Update` is what we received into our bot. It is always bound to some `API`. And `Context` is just a useful storage, a low-level object where all the information about the event-processing path is actually stored.
+During update processing a few root objects are already injected into the graph:
 
----
+- `API`
+- `Update`
+- `Context`
 
-At this point you probably have already grasped the simple idea that inspired nodes. Let's dive into the details on how to implement one.
+Everything else can be composed from there.
 
-In telegrinder we just have to write a class which implements `compose` classmethod. Compose method must return the instance of the node. And, what is of importance, it can accept any other nodes as arguments. They will be automatically bound to the node and altogether resolved in a quite optimized way when time for that comes.
-
-There are multiple types of nodes in telegrinder:
-
-* Scalar node - the node that is strives to just write a composition method for a value of another type. For example, node `Text` is a scalar node. Is is a `str`. And with some inner magic of telegrinder `Text` and `str` are interrecognizible by type-checkers.
-
-* Data node - a node that is a dataclass. Just a combination that is often useful
-
-* Polymorphic node - a node that has multiple implementations. For example, both message and callback query events have a sender, we can provide separate implementations on how to get a user from each type of event and thats it - we get a single polyporphic node which we can use very conveniently to extract user from different event types
-
-* Any node - just any class that implements compose method. If one implements `compose` - it is a node.
+There are many built-in nodes in `telegrinder.node`: `Text`, `TextInteger`, `Source`, `UserSource`, `ChatSource`, `ChatId`, `Payload`, `File`, `Photo`, `Caption`, `Error`, and more.
 
 ---
 
-Lets learn how to write nodes by example:
+## Writing your own node
+
+In the current API a node is defined through a class and a `__compose__` method.
 
 ```python
-# telegrinder.node.text
+from nodnod import NodeError
+
+from telegrinder import Message
 from telegrinder.node import scalar_node
+
 
 @scalar_node
 class Text:
     @classmethod
-    def compose(cls, message: Message) -> str:
+    def __compose__(cls, message: Message) -> str:
         if not message.text:
-            raise ComposeError("Message has no text.")
+            raise NodeError("Message has no text.")
         return message.text.unwrap()
 ```
 
+Important details:
 
-What is going on in this piece of code?
+- `@scalar_node` declares a scalar node
+- telegrinder takes dependencies from `__compose__` parameters
+- if composition fails, raise `NodeError`
+- the result type comes from the return annotation
 
-We declare that there will be an implementation of a scalar node `Text`. It magically tells that the scalar value of `Text` will be `str` from the compose response type hint (`-> str`).
-
-`compose` must return a string of text or raise a compose error.
-
-Now it's ready to use!
+Then the node is available in handlers like a regular argument:
 
 ```python
 @bot.on.message()
-async def text_message_handler(message: Message, text: Text):
+async def text_message_handler(message: Message, text: Text) -> None:
     await message.answer(text.lower())
 ```
 
-The exact same echo bot we made at the start of the tutorial, but so much nicer.
-
-What about rules? Time for a great reveal, it works everywhere, rules included:
+Nodes work in rules as well:
 
 ```python
+from telegrinder.bot.rules import ABCRule
+
+
 class TextIsOfLength(ABCRule):
-    def __init__(self, l: int):
-        self.l = l
+    def __init__(self, length: int) -> None:
+        self.length = length
 
     async def check(self, text: Text) -> bool:
-        return len(text) == self.l
+        return len(text) == self.length
 
 
 @bot.on.message(TextIsOfLength(6))
-async def six_handler():
-    return "Love messages of this length.."
+async def six_handler() -> str:
+    return "I like messages of that length."
 ```
 
 ---
 
-Great, now as we know some basics we can write some more nodes:
+## Chaining nodes
+
+The nice part is that nodes naturally compose from each other:
 
 ```python
+from nodnod import NodeError
+
+from telegrinder.node import scalar_node
+
+
 @scalar_node
 class TextInteger:
     @classmethod
-    def compose(cls, text: Text) -> int:
+    def __compose__(cls, text: Text) -> int:
         if not text.isdigit():
-            raise ComposeError("Text is not digit.")
+            raise NodeError("Text is not a digit.")
         return int(text)
 ```
 
-Some chain is going on, huh?
-
-We just made a new node that composes the node we created just before. `TextInteger` works with messages that contain text, where text is made of digits.
+Now handlers can just ask for the final value:
 
 ```python
-pi = 3.141592653589793238
-
 @bot.on.message()
-async def number_handler(r: TextInteger):
-    return f"Thats awesome! So if R = {r}, C = {2 * pi * r}"
+async def number_handler(message: Message, value: TextInteger) -> None:
+    await message.answer(f"{value} + 3 = {value + 3}")
 ```
+
+The chain is:
+
+`Message -> Text -> TextInteger`
+
+---
+
+## Node shapes
+
+In practice you will mostly meet these forms:
+
+- `scalar_node` for a single typed value
+- `DataNode` for dataclass-like containers
+- `generic_node` for generic nodes
+- `polymorphic` for nodes that can compose from different event types
+
+For example, telegrinder's `Payload` node is polymorphic and can extract payload from multiple event types.
+
+---
 
 ## Scopes
 
-As soon our nodes get a bit of compicated logic, like wrapping a database connection into a node, or some turning storage into a node we might need to control scope of the node. That is simple. In telegrinder we have 3 scopes:
+Nodes also have a lifetime. That matters when a node wraps expensive logic or a resource that must be cleaned up.
 
-* Per event - the node is composed per event, so if during the composition the node was already composed, it will be reused and won't be composed twice. IS DEFAULT BEHAVIOUR
+Telegrinder provides three scopes:
 
-* Per call - the node will be compose each time any node will require it to build itself or if we require it to be delivered into the handler
+- `PER_EVENT` meaning once per update. This is the default.
+- `PER_CALL` meaning compose every time someone asks for it.
+- `GLOBAL` meaning compose once for the whole application.
 
-* Global - some nodes may need to be composed only once during runtime, and later be stored and reused when needed
-
-Lets look at some node examples for each custom scope type.
-
-Database connections may be handled gracefully using nodes:
+### Per call
 
 ```python
-from telegrinder.node import scalar_node, per_call
+import aiosqlite
+import typing
 
-@scalar_node
+from telegrinder.node import per_call, scalar_node
+
+
 @per_call
+@scalar_node
 class DB:
     @classmethod
-    async def compose(cls) -> typing.AsyncGenerator[aiosqlite.Connection, None]:
+    async def __compose__(cls) -> typing.AsyncGenerator[aiosqlite.Connection, None]:
         connection = await aiosqlite.connect("test.db")
-        logger.info("Opening connection")
         yield connection
-        logger.info("Closing connection")
         await connection.close()
-
-@bot.on.message()
-async def some_handler(text: Text, connection: DB):
-    ...
 ```
 
-Here we also used an awesome quality of nodes to work as a generator. We may finalize something after event processing is already done, just use `yield` keyboard to yield control over the value to the processor and after processing the control will be yielded back to you to close a database connection (for example).
+This also shows another useful feature: nodes may be generators. The value is yielded to the processor, and code after `yield` works as finalization.
+
+### Global
 
 ```python
-from telegrinder.node import DataNode, global_node
+from telegrinder.node import DataNode, global_node, scalar_node
+
 
 @global_node
 class Settings(DataNode):
     api_url: str
-    some_secret: str
+    secret: str
 
     @classmethod
-    def compose(cls) -> "Settings":
-        return cls(api_url=env["API_URL"], some_secret=env["SOME_SECRET"])
+    def __compose__(cls) -> "Settings":
+        return cls(
+            api_url=env["API_URL"],
+            secret=env["APP_SECRET"],
+        )
 
 
-@scalar_node
 @global_node
+@scalar_node
 class Secret:
     @classmethod
-    def compose(cls) -> str:
+    def __compose__(cls) -> str:
         return generate_secret(16)
 ```
 
-Have fun with nodes!
+Global nodes are a good fit for configuration, clients, and rarely changing values.
+
+---
+
+## Practical example
+
+Take a look at [examples/with_nodes.py](https://github.com/timoniq/telegrinder/blob/dev/examples/with_nodes.py).
+
+It shows:
+
+- custom rules receiving nodes as arguments
+- built-in nodes in regular message handlers
+- a reusable `DB` node
+- nodes such as `Photo`, `File`, `ChatSource`, and `TextInteger`
+
+That is usually where nodes stop looking magical and start looking practical.
+
+---
+
+## What to remember
+
+- a node describes how to get one value from other values
+- in the current API the main method is `__compose__`
+- nodes work in both handlers and rules
+- the default lifetime is per event
+- complex dependency logic is usually better inside nodes than duplicated in handlers
 
 [>> Next: Dispatch](6_dispatch.md)
