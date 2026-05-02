@@ -130,7 +130,6 @@ async def six_handler() -> str:
 So nodes are not only useful in handlers. They are also great for keeping custom rules clean.
 
 > [!TIP]
-> Life hack:
 > If a rule keeps digging into `message.text`, `message.from_user`, `callback_query.data`, and so on, it is often cleaner to move that part into a node first.
 
 ---
@@ -271,7 +270,6 @@ That means a node can:
 - clean it up afterwards
 
 > [!TIP]
-> Life hack:
 > If you have an "open / use / close" resource like a DB connection, session, or temporary file, a generator node is often the cleanest solution.
 
 ### GLOBAL

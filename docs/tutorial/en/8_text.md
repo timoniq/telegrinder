@@ -59,8 +59,8 @@ api.default_params["parse_mode"] = HTML.PARSE_MODE
 Then you do not need to pass `parse_mode` in every single message.
 
 > [!TIP]
-> Life hack:
-> If your bot mostly sends HTML-formatted text, set `api.default_params["parse_mode"] = HTML.PARSE_MODE` once during initialization. It removes a lot of repetitive noise.
+
+> If your bot mostly sends HTML-formatted text, set `api.default_params["parse_mode"] = HTML.PARSE_MODE` once during initialization. It removes a lot of repetitive noise (boilerplate).
 
 ---
 

@@ -120,7 +120,6 @@ Here `FruitsKeyboard.APPLE` acts both as a button and as a rule.
 That is a very pleasant pattern for menus.
 
 > [!TIP]
-> Life hack:
 > If the same keyboard is used in more than one place, it is usually worth turning it into a class.
 
 ---
@@ -258,7 +257,6 @@ This is especially useful for:
 - menu entries with ids
 
 > [!TIP]
-> Life hack:
 > If you catch yourself splitting strings like `"page/12"` manually, it is probably time to switch to `PayloadMarkupRule`.
 
 ---

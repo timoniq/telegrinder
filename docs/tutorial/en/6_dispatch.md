@@ -110,7 +110,6 @@ bot.run_forever()
 This is usually the moment when things start feeling much more maintainable: the bot can be assembled from pieces instead of being written as one giant script.
 
 > [!TIP]
-> Life hack:
 > Even if the bot is still small, it is often worth splitting at least `start`, `admin`, and `callback_query` into separate files early.
 
 ---
