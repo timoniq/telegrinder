@@ -45,7 +45,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         on their own using invite links, etc., unless unbanned first. The bot must
         be an administrator in the chat for this to work and must have the appropriate
         administrator rights. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target group or username of the target supergroupor channel (in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target group or username of the target supergroupor channel in the format @username.
 
         :param user_id: Unique identifier of the target user.
 
@@ -72,7 +72,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         not a member of the chat, but will be able to join it. So if the user is a member
         of the chat they will also be removed from the chat. If you don't want this,
         use the parameter only_if_banned. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target group or username of the target supergroupor channel (in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target group or username of the target supergroupor channel in the format @username.
 
         :param user_id: Unique identifier of the target user.
 
@@ -100,7 +100,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         in the supergroup for this to work and must have the appropriate administrator
         rights. Pass True for all permissions to lift restrictions from a user.
         Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroupin the format @username.
 
         :param user_id: Unique identifier of the target user.
 
@@ -142,7 +142,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         bot must be an administrator in the chat for this to work and must have the
         appropriate administrator rights. Pass False for all boolean parameters
         to demote a user. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channelin the format @username.
 
         :param user_id: Unique identifier of the target user.
 
@@ -194,7 +194,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
 
         Use this method to set a custom title for an administrator in a supergroup
         promoted by the bot. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroupin the format @username.
 
         :param user_id: Unique identifier of the target user.
 
