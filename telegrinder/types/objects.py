@@ -1951,7 +1951,7 @@ class PaidMediaInfo(Model):
 class PaidMediaLivePhoto(PaidMedia):
     """Object `PaidMediaLivePhoto`, see the [documentation](https://core.telegram.org/bots/api#paidmedialivephoto).
 
-    No description yet.
+    The paid media is a live photo.
     """
 
     type: str = field()
