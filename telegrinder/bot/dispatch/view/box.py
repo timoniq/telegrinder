@@ -56,6 +56,7 @@ class EventViewBox[
     BusinessMessageView: EventView = EventView,
     EditedBusinessMessageView: EventView = EventView,
     DeletedBusinessMessagesView: EventView = EventView,
+    GuestMessageView: EventView = EventView,
     MessageReactionView: EventView = EventView,
     MessageReactionCountView: EventView = EventView,
     InlineQueryView: EventView = EventView,
@@ -94,6 +95,9 @@ class EventViewBox[
     )
     deleted_business_messages: DeletedBusinessMessagesView = dataclasses.field(
         default_factory=event_view(UpdateType.DELETED_BUSINESS_MESSAGES),
+    )
+    guest_message: GuestMessageView = dataclasses.field(
+        default_factory=event_view(UpdateType.GUEST_MESSAGE),
     )
     message_reaction: MessageReactionView = dataclasses.field(default_factory=event_view(UpdateType.MESSAGE_REACTION))
     message_reaction_count: MessageReactionCountView = dataclasses.field(
@@ -146,6 +150,7 @@ class ViewBox[
     BusinessMessageView: EventView = EventView,
     EditedBusinessMessageView: EventView = EventView,
     DeletedBusinessMessagesView: EventView = EventView,
+    GuestMessageView: EventView = EventView,
     MessageReactionView: EventView = EventView,
     MessageReactionCountView: EventView = EventView,
     InlineQueryView: EventView = EventView,
@@ -176,6 +181,7 @@ class ViewBox[
         BusinessMessageView,
         EditedBusinessMessageView,
         DeletedBusinessMessagesView,
+        GuestMessageView,
         MessageReactionView,
         MessageReactionCountView,
         InlineQueryView,

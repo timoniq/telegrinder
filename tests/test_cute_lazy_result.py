@@ -6,7 +6,11 @@ from kungfu.library import Ok, Sum
 from msgspex import decoder
 
 from telegrinder.api.api import API, Token
-from telegrinder.bot.cute_types.message import MessageCute, execute_method_answer, execute_method_edit
+from telegrinder.bot.cute_types.message import (
+    DEFAULT_ANSWER,
+    DEFAULT_EDIT,
+    MessageCute,
+)
 from telegrinder.types.objects import Message
 
 from .test_utils import MockedHttpClient
@@ -47,7 +51,7 @@ async def test_execute_method_answer_is_lazy(mocker):
     spy.reset_mock()
     api.send_message = AsyncMock(return_value=Ok(source_message))
 
-    result = await execute_method_answer(message_cute, "send_message", {})
+    result = await DEFAULT_ANSWER(message_cute, "send_message", {})
 
     assert spy.call_count == 0
     assert result.unwrap().message_id == source_message.message_id
@@ -63,7 +67,7 @@ async def test_execute_method_edit_is_lazy(mocker):
     spy.reset_mock()
     api.edit_message_text = AsyncMock(return_value=Ok(Sum[Message, bool](source_message)))
 
-    result = await execute_method_edit(message_cute, "edit_message_text", {})
+    result = await DEFAULT_EDIT(message_cute, "edit_message_text", {})
 
     assert spy.call_count == 0
     assert result.unwrap().v.message_id == source_message.message_id

@@ -12,10 +12,10 @@ from msgspex.model import UNSET, From, field
 from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.message import (
+    DEFAULT_EDIT,
     MessageCute,
     MessageEditShortcuts,
     ReplyMarkup,
-    execute_method_edit,
 )
 from telegrinder.tools.waiter_machine.hasher import (
     CALLBACK_QUERY_FOR_MESSAGE,
@@ -313,7 +313,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
     @shortcut(
         "edit_message_text",
-        executor=execute_method_edit,
+        executor=DEFAULT_EDIT,
         custom_params={"message_thread_id"},
     )
     async def edit_text(

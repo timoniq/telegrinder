@@ -23,17 +23,26 @@ def compose_method_params[Cute: BaseCute](
     update: Cute,
     *,
     default_params: set[str | tuple[str, str]] | None = None,
-    validators: dict[str, typing.Callable[[Cute], bool]] | None = None,
+    validators: typing.Mapping[str, typing.Callable[[Cute], bool]] | None = None,
+    hooks: typing.Mapping[str, typing.Callable[[typing.Any], tuple[str, typing.Any]]] | None = None,
 ) -> dict[str, typing.Any]:
     default_params = default_params or set()
     validators = validators or {}
+    hooks = hooks or {}
 
     for param in default_params:
         param_name = param if isinstance(param, str) else param[0]
+
         if param_name not in params:
             if param_name in validators and not validators[param_name](update):
                 continue
-            params[param_name] = getattr(update, param if isinstance(param, str) else param[1], None)
+
+            field = getattr(update, param if isinstance(param, str) else param[1], None)
+
+            if param_name in hooks:
+                param_name, field = hooks[param_name](field)
+
+            params[param_name] = field
 
     return params
 
@@ -149,8 +158,7 @@ class BaseCute[T: Model = typing.Any](Model):
         if cls.__cute_annotations__ is None:
             cls.__cute_annotations__ = get_cute_annotations(cls.__annotations__)
 
-        cute: typing.Self = type(Model).model_initialize(  # type: ignore
-            cls,
+        cute = cls.initialize(
             **{
                 field: to_cute(cls, field, value, bound_api) if field in cls.__cute_annotations__ else value
                 for field, value in update.to_dict().items()

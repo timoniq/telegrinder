@@ -87,6 +87,10 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
     )
     """Optional. Messages were deleted from a connected business account."""
 
+    guest_message: Option[MessageCute] = field(default=..., converter=From["MessageCute | None"])
+    """Optional. New guest message. The bot can use the field Message.guest_query_id
+    and the method answerGuestQuery to send a message in response."""
+
     message_reaction: Option[MessageReactionUpdatedCute] = field(
         default=...,
         converter=From["MessageReactionUpdated | None"],

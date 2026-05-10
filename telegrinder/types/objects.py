@@ -1954,11 +1954,11 @@ class PaidMediaLivePhoto(PaidMedia):
     The paid media is a live photo.
     """
 
-    type: str = field()
-    """Type of the paid media, always `live_photo`."""
-
     live_photo: LivePhoto = field()
     """The photo."""
+
+    type: Literal["live_photo"] = field(default="live_photo")
+    """Type of the paid media, always `live_photo`."""
 
 
 class PaidMediaPhoto(PaidMedia):
@@ -5824,9 +5824,6 @@ class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     Represents a live photo to be sent.
     """
 
-    type: str = field()
-    """Type of the result, must be live_photo."""
-
     media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """Video of the live photo to send. Pass a file_id to send a file that exists on
     the Telegram servers (recommended) or pass `attach://<file_attach_name>`
@@ -5840,6 +5837,9 @@ class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     a new one using multipart/form-data under <file_attach_name> name. More
     information on Sending Files: https://core.telegram.org/bots/api#sending-files.
     Sending live photos by a URL is currently unsupported."""
+
+    type: Literal["live_photo"] = field(default="live_photo")
+    """Type of the result, must be live_photo."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the live photo to be sent, 0-1024 characters after
@@ -5872,14 +5872,14 @@ class InputMediaLocation(InputPollMedia, InputPollOptionMedia):
     Represents a location to be sent.
     """
 
-    type: str = field()
-    """Type of the result, must be location."""
-
     latitude: float = field()
     """Latitude of the location."""
 
     longitude: float = field()
     """Longitude of the location."""
+
+    type: Literal["location"] = field(default="location")
+    """Type of the result, must be location."""
 
     horizontal_accuracy: Option[float] = field(default=..., converter=From[float | None])
     """Optional. The radius of uncertainty for the location, measured in meters;
@@ -5932,15 +5932,15 @@ class InputMediaSticker(InputPollOptionMedia):
     Represents a sticker file to be sent.
     """
 
-    type: str = field()
-    """Type of the result, must be sticker."""
-
     media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from
     the Internet, or pass `attach://<file_attach_name>` to upload a new .WEBP,
     .TGS, or .WEBM sticker using multipart/form-data under <file_attach_name>
     name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: Literal["sticker"] = field(default="sticker")
+    """Type of the result, must be sticker."""
 
     emoji: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Emoji associated with the sticker; only for just uploaded stickers."""
@@ -5951,9 +5951,6 @@ class InputMediaVenue(InputPollMedia, InputPollOptionMedia):
 
     Represents a venue to be sent.
     """
-
-    type: str = field()
-    """Type of the result, must be venue."""
 
     latitude: float = field()
     """Latitude of the location."""
@@ -5966,6 +5963,9 @@ class InputMediaVenue(InputPollMedia, InputPollOptionMedia):
 
     address: str = field()
     """Address of the venue."""
+
+    type: Literal["venue"] = field(default="venue")
+    """Type of the result, must be venue."""
 
     foursquare_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Foursquare identifier of the venue."""
@@ -6058,9 +6058,6 @@ class InputPaidMediaLivePhoto(InputPaidMedia):
     The paid media to send is a live photo.
     """
 
-    type: str = field()
-    """Type of the media, must be live_photo."""
-
     media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """Video of the live photo to send. Pass a file_id to send a file that exists on
     the Telegram servers (recommended) or pass `attach://<file_attach_name>`
@@ -6074,6 +6071,9 @@ class InputPaidMediaLivePhoto(InputPaidMedia):
     a new one using multipart/form-data under <file_attach_name> name. More
     information on Sending Files: https://core.telegram.org/bots/api#sending-files.
     Sending live photos by a URL is currently unsupported."""
+
+    type: Literal["live_photo"] = field(default="live_photo")
+    """Type of the media, must be live_photo."""
 
 
 class InputPaidMediaPhoto(InputPaidMedia):

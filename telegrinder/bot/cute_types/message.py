@@ -63,74 +63,100 @@ def _to_edit_result(
     bound_api: API,
     /,
 ) -> Sum[MessageCute, bool]:
-    return Sum[MessageCute, bool](
-        value.only().map(lambda message: _to_message_cute(message, bound_api)).unwrap_or(value.v),  # type: ignore
+    result = (
+        value.only()
+        .map_or_else(
+            lambda _: value.v,
+            lambda message: _to_message_cute(message, bound_api),
+        )
+        .unwrap()
     )
+    return Sum(result)
 
 
-async def execute_method_answer(
-    message: MessageCute,
-    method_name: str,
-    params: dict[str, typing.Any],
-) -> Result[typing.Any, APIError]:
-    params = compose_method_params(
-        params=params,
-        update=message,
-        default_params={"chat_id", "message_thread_id", "business_connection_id"},
-        validators={
-            "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False),
-        },
-    )
-    result = await getattr(message.bound_api, method_name)(**params)
-    return lazy_result(result, lambda value: _to_answer_result(value, message.bound_api))
+def execute_method_answer(
+    *,
+    default_params: set[str | tuple[str, str]] | None = None,
+):
+    async def inner(
+        message: MessageCute,
+        method_name: str,
+        params: dict[str, typing.Any],
+    ) -> Result[typing.Any, APIError]:
+        params = compose_method_params(
+            params=params,
+            update=message,
+            default_params=default_params,
+            validators={
+                "message_thread_id": lambda x: x.is_topic_message.unwrap_or(False),
+            },
+            hooks={
+                "direct_messages_topic": lambda direct_messages_topic: (
+                    "direct_messages_topic_id",
+                    direct_messages_topic.map(lambda m: m.topic_id).unwrap_or_none(),
+                ),
+            },
+        )
+        result = await getattr(message.bound_api, method_name)(**params)
+        return lazy_result(result, lambda value: _to_answer_result(value, message.bound_api))
+
+    return inner
 
 
-async def execute_method_reply(
-    message: MessageCute,
-    method_name: str,
-    params: dict[str, typing.Any],
-) -> Result[typing.Any, APIError]:
-    params.setdefault(
-        "reply_parameters",
-        ReplyParameters(
-            params.get("message_id", message.message_id),
-            params.get("chat_id", message.chat_id),
-        ),
-    )
-    return await execute_method_answer(message, method_name, params)
+def execute_method_reply(
+    *,
+    default_params: set[str | tuple[str, str]] | None = None,
+):
+    reply = execute_method_answer(default_params=default_params)
 
-
-async def execute_method_edit(
-    update: MessageCute | CallbackQueryCute,
-    method_name: str,
-    params: dict[str, typing.Any],
-) -> Result[typing.Any, APIError]:
-    params = compose_method_params(
-        params=params,
-        update=update,
-        default_params={
-            "chat_id",
-            "message_id",
-            "message_thread_id",
-            "inline_message_id",
-            "business_connection_id",
-        },
-        validators={
-            "inline_message_id": lambda x: not x.message_id,
-            "message_thread_id": lambda x: (
-                x.is_topic_message.unwrap_or(False)
-                if isinstance(x, MessageCute)
-                else bool(x.message) and getattr(x.message.unwrap().v, "is_topic_message", False)
+    async def inner(
+        message: MessageCute,
+        method_name: str,
+        params: dict[str, typing.Any],
+    ) -> Result[typing.Any, APIError]:
+        params.setdefault(
+            "reply_parameters",
+            ReplyParameters(
+                message_id=params.get("message_id", message.message_id),
+                chat_id=params.get("chat_id", message.chat_id),
             ),
-        },
-    )
+        )
+        return await reply(message, method_name, params)
 
-    if "inline_message_id" in params:
-        params.pop("message_id", None)
-        params.pop("chat_id", None)
+    return inner
 
-    result = await getattr(update.bound_api, method_name)(**params)
-    return lazy_result(result, lambda value: _to_edit_result(value, update.api))
+
+def execute_method_edit(
+    *,
+    default_params: set[str | tuple[str, str]] | None = None,
+):
+    async def inner(
+        update: MessageCute | CallbackQueryCute,
+        method_name: str,
+        params: dict[str, typing.Any],
+    ) -> Result[typing.Any, APIError]:
+        params = compose_method_params(
+            params=params,
+            update=update,
+            default_params=default_params,
+            validators={
+                "inline_message_id": lambda x: not x.message_id,
+                "message_thread_id": lambda x: (
+                    x.is_topic_message.unwrap_or(False)
+                    if isinstance(x, MessageCute)
+                    else bool(x.message) and getattr(x.message.unwrap().v, "is_topic_message", False)
+                ),
+            },
+        )
+
+        if "inline_message_id" in params:
+            params.pop("message_id", None)
+            params.pop("chat_id", None)
+
+        result = await getattr(update.bound_api, method_name)(**params)
+        return lazy_result(result, lambda value: _to_edit_result(value, update.api))
+
+    return inner
 
 
 def get_entity_value(
@@ -149,11 +175,76 @@ def get_entity_value(
     return option.NOTHING
 
 
+DEFAULT_ANSWER: typing.Final = execute_method_answer(
+    default_params={
+        "chat_id",
+        "business_connection_id",
+        "direct_messages_topic",
+        "message_thread_id",
+    }
+)
+ANSWER_TO_BUSINESS_CONNECTION: typing.Final = execute_method_answer(
+    default_params={
+        "chat_id",
+        "business_connection_id",
+    }
+)
+ANSWER_TO_THREAD: typing.Final = execute_method_answer(
+    default_params={
+        "chat_id",
+        "message_thread_id",
+    }
+)
+ANSWER_TO_THREAD_OR_BUSINESS: typing.Final = execute_method_answer(
+    default_params={
+        "chat_id",
+        "business_connection_id",
+        "message_thread_id",
+    }
+)
+DEFAULT_REPLY: typing.Final = execute_method_reply(
+    default_params={
+        "chat_id",
+        "business_connection_id",
+        "direct_messages_topic",
+        "message_thread_id",
+    }
+)
+REPLY_TO_BUSINESS_CONNECTION: typing.Final = execute_method_reply(
+    default_params={
+        "chat_id",
+        "business_connection_id",
+    }
+)
+REPLY_TO_THREAD: typing.Final = execute_method_reply(
+    default_params={
+        "chat_id",
+        "message_thread_id",
+    }
+)
+REPLY_TO_THREAD_OR_BUSINESS: typing.Final = execute_method_reply(
+    default_params={
+        "chat_id",
+        "business_connection_id",
+        "message_thread_id",
+    }
+)
+DEFAULT_EDIT: typing.Final = execute_method_edit(
+    default_params={
+        "chat_id",
+        "message_id",
+        "message_thread_id",
+        "inline_message_id",
+        "business_connection_id",
+    },
+)
+
+
 class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_audio",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_audio(
         self,
@@ -168,11 +259,11 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         duration: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         performer: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         thumbnail: InputFile | str | None = None,
@@ -223,8 +314,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_animation",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_animation(
         self,
@@ -241,10 +332,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -297,8 +388,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_document",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_document(
         self,
@@ -313,10 +404,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -361,8 +452,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_photo",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_photo(
         self,
@@ -377,10 +468,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         has_spoiler: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -423,8 +514,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_sticker",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_sticker(
         self,
@@ -437,9 +528,9 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         emoji: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -475,8 +566,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_video",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_video(
         self,
@@ -495,9 +586,9 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         start_timestamp: timedelta | int | None = None,
@@ -559,8 +650,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_video_note",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_video_note(
         self,
@@ -574,9 +665,9 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         duration: int | None = None,
         length: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         thumbnail: InputFile | str | None = None,
@@ -617,8 +708,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_voice",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_voice(
         self,
@@ -633,10 +724,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         duration: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -681,8 +772,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_poll",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=ANSWER_TO_THREAD_OR_BUSINESS,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_poll(
         self,
@@ -713,12 +804,12 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         media: InputPollMedia | None = None,
         members_only: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         open_period: int | None = None,
         protect_content: bool | None = None,
         question_entities: list[MessageEntity] | None = None,
         question_parse_mode: str | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         shuffle_options: bool | None = None,
@@ -796,8 +887,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_venue",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_venue(
         self,
@@ -816,9 +907,9 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         google_place_id: str | None = None,
         google_place_type: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -866,8 +957,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_dice",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_dice(
         self,
@@ -879,9 +970,9 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -914,7 +1005,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_game",
-        executor=execute_method_answer,
+        executor=ANSWER_TO_THREAD_OR_BUSINESS,
         custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_game(
@@ -926,7 +1017,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -957,7 +1048,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_invoice",
-        executor=execute_method_answer,
+        executor=DEFAULT_ANSWER,
         custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_invoice(
@@ -976,7 +1067,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         is_flexible: bool | None = None,
         max_tip_amount: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         need_email: bool | None = None,
         need_name: bool | None = None,
         need_phone_number: bool | None = None,
@@ -1063,7 +1154,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_chat_action",
-        executor=execute_method_answer,
+        executor=ANSWER_TO_THREAD_OR_BUSINESS,
         custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_chat_action(
@@ -1072,7 +1163,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.send_chat_action()`, see the [documentation](https://core.telegram.org/bots/api#sendchataction)
@@ -1105,7 +1196,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         media_type: MediaType | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
@@ -1135,12 +1226,12 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param reply_parameters: Description of the message to reply to."""
         media = [media] if not isinstance(media, list) else media
         params = get_params(locals())
-        return await execute_method_answer(self, "send_media_group", params)  # type: ignore
+        return await DEFAULT_ANSWER(self.cute, "send_media_group", params)
 
     @shortcut(
         "send_location",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_location(
         self,
@@ -1156,10 +1247,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         horizontal_accuracy: float | None = None,
         live_period: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
         proximity_alert_radius: int | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -1200,8 +1291,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_contact",
-        executor=execute_method_answer,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_contact(
         self,
@@ -1215,9 +1306,9 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         last_name: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         vcard: str | None = None,
@@ -1255,12 +1346,183 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
+    @shortcut(
+        "send_live_photo",
+        executor=DEFAULT_ANSWER,
+        custom_params={"chat_id", "reply_markup"},
+    )
+    async def answer_live_photo(
+        self,
+        *,
+        live_photo: InputFile | str,
+        photo: InputFile | str,
+        allow_paid_broadcast: bool | None = None,
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = None,
+        has_spoiler: bool | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        protect_content: bool | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_live_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendlivephoto)
+
+        Use this method to send live photos. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
+
+        :param photo: The static photo to send. Pass a file_id as String to send a photo that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
+
+        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_paid_media",
+        executor=DEFAULT_ANSWER,
+        custom_params={"chat_id", "reply_markup"},
+    )
+    async def answer_paid_media(
+        self,
+        *,
+        media: list[InputPaidMedia],
+        star_count: int,
+        allow_paid_broadcast: bool | None = None,
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        payload: str | None = None,
+        protect_content: bool | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[Message, APIError]:
+        """Shortcut `API.send_paid_media()`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
+
+        Use this method to send paid media. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username. If the chat is a channel, all TelegramStar proceeds from this media will be credited to the chat's balance. Otherwise,they will be credited to the bot's balance.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param star_count: The number of Telegram Stars that must be paid to buy access to the media;1-25000.
+
+        :param media: A JSON-serialized array describing the media to be sent; up to 10 items.
+        :param payload: Bot-defined paid media payload, 0-128 bytes. This will not be displayedto the user, use it for your internal processes.
+
+        :param caption: Media caption, 0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the media caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_checklist",
+        executor=ANSWER_TO_BUSINESS_CONNECTION,
+        custom_params={"business_connection_id", "chat_id"},
+    )
+    async def answer_checklist(
+        self,
+        *,
+        checklist: InputChecklist,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        message_effect_id: str | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_checklist()`, see the [documentation](https://core.telegram.org/bots/api#sendchecklist)
+
+        Use this method to send a checklist on behalf of a connected business account.
+        On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot in the \
+        format @username.
+
+        :param checklist: A JSON-serialized object for the checklist to send.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
+
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
+        :param reply_parameters: A JSON-serialized object for description of the message to reply to.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        """
+        ...
+
 
 class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_audio",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_audio(
         self,
@@ -1275,11 +1537,11 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         duration: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         performer: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         thumbnail: InputFile | str | None = None,
@@ -1330,8 +1592,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_animation",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_animation(
         self,
@@ -1348,10 +1610,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1404,8 +1666,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_document",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_document(
         self,
@@ -1420,10 +1682,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1468,8 +1730,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_photo",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_photo(
         self,
@@ -1484,10 +1746,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         has_spoiler: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1530,8 +1792,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_sticker",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_sticker(
         self,
@@ -1544,9 +1806,9 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         emoji: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -1582,8 +1844,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_video",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_video(
         self,
@@ -1602,9 +1864,9 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         start_timestamp: timedelta | int | None = None,
@@ -1666,8 +1928,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_video_note",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_video_note(
         self,
@@ -1681,9 +1943,9 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         duration: int | None = None,
         length: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         thumbnail: InputFile | str | None = None,
@@ -1724,8 +1986,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_voice",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_voice(
         self,
@@ -1740,10 +2002,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         duration: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -1788,8 +2050,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_poll",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=REPLY_TO_THREAD_OR_BUSINESS,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_poll(
         self,
@@ -1820,12 +2082,12 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         media: InputPollMedia | None = None,
         members_only: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         open_period: int | None = None,
         protect_content: bool | None = None,
         question_entities: list[MessageEntity] | None = None,
         question_parse_mode: str | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         shuffle_options: bool | None = None,
@@ -1903,8 +2165,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_venue",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_venue(
         self,
@@ -1923,9 +2185,9 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         google_place_id: str | None = None,
         google_place_type: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -1973,8 +2235,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_dice",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_dice(
         self,
@@ -1986,9 +2248,9 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -2021,7 +2283,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_game",
-        executor=execute_method_reply,
+        executor=REPLY_TO_THREAD_OR_BUSINESS,
         custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_game(
@@ -2033,7 +2295,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -2064,7 +2326,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_invoice",
-        executor=execute_method_reply,
+        executor=DEFAULT_REPLY,
         custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_invoice(
@@ -2083,7 +2345,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         is_flexible: bool | None = None,
         max_tip_amount: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         need_email: bool | None = None,
         need_name: bool | None = None,
         need_phone_number: bool | None = None,
@@ -2186,7 +2448,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
@@ -2220,8 +2482,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_location",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_location(
         self,
@@ -2237,10 +2499,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         horizontal_accuracy: float | None = None,
         live_period: int | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
         proximity_alert_radius: int | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -2281,8 +2543,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
     @shortcut(
         "send_contact",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id"},
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_contact(
         self,
@@ -2296,9 +2558,9 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         last_name: str | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         vcard: str | None = None,
@@ -2336,11 +2598,182 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
         ...
 
+    @shortcut(
+        "send_live_photo",
+        executor=DEFAULT_REPLY,
+        custom_params={"chat_id", "reply_markup"},
+    )
+    async def reply_live_photo(
+        self,
+        *,
+        live_photo: InputFile | str,
+        photo: InputFile | str,
+        allow_paid_broadcast: bool | None = None,
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = None,
+        has_spoiler: bool | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        protect_content: bool | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_live_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendlivephoto)
+
+        Use this method to send live photos. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
+
+        :param photo: The static photo to send. Pass a file_id as String to send a photo that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
+
+        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_paid_media",
+        executor=DEFAULT_REPLY,
+        custom_params={"chat_id", "reply_markup"},
+    )
+    async def reply_paid_media(
+        self,
+        *,
+        media: list[InputPaidMedia],
+        star_count: int,
+        allow_paid_broadcast: bool | None = None,
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        payload: str | None = None,
+        protect_content: bool | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[Message, APIError]:
+        """Shortcut `API.send_paid_media()`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
+
+        Use this method to send paid media. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username. If the chat is a channel, all TelegramStar proceeds from this media will be credited to the chat's balance. Otherwise,they will be credited to the bot's balance.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param star_count: The number of Telegram Stars that must be paid to buy access to the media;1-25000.
+
+        :param media: A JSON-serialized array describing the media to be sent; up to 10 items.
+        :param payload: Bot-defined paid media payload, 0-128 bytes. This will not be displayedto the user, use it for your internal processes.
+
+        :param caption: Media caption, 0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the media caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_checklist",
+        executor=REPLY_TO_BUSINESS_CONNECTION,
+        custom_params={"business_connection_id", "chat_id"},
+    )
+    async def reply_checklist(
+        self,
+        *,
+        checklist: InputChecklist,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        disable_notification: bool | None = None,
+        protect_content: bool | None = None,
+        message_effect_id: str | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_checklist()`, see the [documentation](https://core.telegram.org/bots/api#sendchecklist)
+
+        Use this method to send a checklist on behalf of a connected business account.
+        On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot in the \
+        format @username.
+
+        :param checklist: A JSON-serialized object for the checklist to send.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
+
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message.
+
+        :param reply_parameters: A JSON-serialized object for description of the message to reply to.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard.
+        """
+        ...
+
 
 class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_message_live_location",
-        executor=execute_method_edit,
+        executor=DEFAULT_EDIT,
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_live_location(
@@ -2355,7 +2788,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         inline_message_id: str | None = None,
         live_period: int | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         proximity_alert_radius: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
@@ -2390,7 +2823,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
 
     @shortcut(
         "edit_message_caption",
-        executor=execute_method_edit,
+        executor=DEFAULT_EDIT,
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_caption(
@@ -2402,7 +2835,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         chat_id: int | str | None = None,
         inline_message_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         show_caption_above_media: bool | None = None,
@@ -2442,7 +2875,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         chat_id: int | str | None = None,
         inline_message_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Sum[MessageCute, bool], APIError]: ...
@@ -2459,7 +2892,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         chat_id: int | str | None = None,
         inline_message_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Sum[MessageCute, bool], APIError]: ...
@@ -2488,7 +2921,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         chat_id: int | str | None = None,
         inline_message_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
@@ -2517,8 +2950,13 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
 
         :param reply_markup: A JSON-serialized object for a new inline keyboard."""
         params = get_params(locals())
+
         if not isinstance(media, InputMedia):
-            assert type, "Parameter 'type' is required, because 'media' is a file id or an 'InputFile' object."
+            if type is None:
+                raise AssertionError(
+                    "Parameter 'type' is required, because 'media' is a file id or an 'InputFile' object."
+                )
+
             params["media"] = input_media(
                 params.pop("type"),
                 media,
@@ -2527,11 +2965,11 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
                 parse_mode=parse_mode,
             )
 
-        return await execute_method_edit(self.cute, "edit_message_media", params)
+        return await DEFAULT_EDIT(self.cute, "edit_message_media", params)
 
     @shortcut(
         "edit_message_reply_markup",
-        executor=execute_method_edit,
+        executor=DEFAULT_EDIT,
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_reply_markup(
@@ -2541,7 +2979,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         chat_id: int | str | None = None,
         inline_message_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Sum[MessageCute, bool], APIError]:
@@ -2725,8 +3163,8 @@ class MessageCute(
 
     @shortcut(
         "send_message",
-        executor=execute_method_answer,
-        custom_params={"link_preview_options", "message_thread_id", "chat_id", "text"},
+        executor=DEFAULT_ANSWER,
+        custom_params={"link_preview_options", "message_thread_id", "chat_id", "text", "reply_markup"},
     )
     async def answer(
         self,
@@ -2740,10 +3178,90 @@ class MessageCute(
         entities: list[MessageEntity] | None = None,
         link_preview_options: LinkPreviewOptions | None = None,
         message_effect_id: str | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
+
+        Use this method to send text messages. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut("answer_guest_query", custom_params={"guest_query_id"})
+    async def answer_guest_query(
+        self,
+        *,
+        result: InlineQueryResult,
+        guest_query_id: str | None = None,
+        **other: typing.Any,
+    ) -> Result[SentGuestMessage, APIError]:
+        """Shortcut `API.answer_guest_query()`, see the [documentation](https://core.telegram.org/bots/api#answerguestquery)
+
+        Use this method to reply to a received guest message. On success, a SentGuestMessage
+        object is returned.
+        :param guest_query_id: [`CUSTOM PARAMETER`] Unique identifier for the query to be answered.
+
+        :param result: A JSON-serialized object describing the message to be sent."""
+
+        params = get_params(locals())
+
+        if "guest_query_id" not in params:
+            params["guest_query_id"] = self.guest_query_id.expect("Parameter `guest_query_id` is required.")
+
+        return await self.bound_api.answer_guest_query(**params)
+
+    @shortcut(
+        "send_message",
+        executor=DEFAULT_REPLY,
+        custom_params={"message_thread_id", "chat_id", "message_id", "reply_markup"},
+    )
+    async def reply(
+        self,
+        text: str,
+        *,
+        allow_paid_broadcast: bool | None = None,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = None,
+        entities: list[MessageEntity] | None = None,
+        link_preview_options: LinkPreviewOptions | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        protect_content: bool | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
@@ -2780,60 +3298,45 @@ class MessageCute(
         ...
 
     @shortcut(
-        "send_message",
-        executor=execute_method_reply,
-        custom_params={"message_thread_id", "chat_id", "message_id"},
+        "send_message_draft",
+        executor=ANSWER_TO_THREAD,
+        custom_params={"chat_id"},
     )
-    async def reply(
+    async def stream(
         self,
-        text: str,
         *,
-        allow_paid_broadcast: bool | None = None,
-        business_connection_id: str | None = None,
-        chat_id: int | str | None = None,
-        direct_messages_topic_id: int | None = None,
-        disable_notification: bool | None = None,
-        entities: list[MessageEntity] | None = None,
-        link_preview_options: LinkPreviewOptions | None = None,
-        message_effect_id: str | None = None,
-        message_id: int | None = None,
-        message_thread_id: str | None = None,
+        draft_id: int,
+        chat_id: int | None = None,
+        message_thread_id: int | None = None,
+        text: str | None = None,
         parse_mode: str | None = None,
-        protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
-        reply_parameters: ReplyParameters | None = None,
-        suggested_post_parameters: SuggestedPostParameters | None = None,
+        entities: list[MessageEntity] | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
-        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
+    ) -> Result[bool, APIError]:
+        """Method `sendMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendmessagedraft)
 
-        Use this method to send text messages. On success, the sent Message is returned.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+        Use this method to stream a partial message to a user while the message is
+        being generated. Note that the streamed draft is ephemeral and acts as a
+        temporary 30-second preview - once the output is finalized, you must call
+        sendMessage with the complete message to persist it in the user's chat.
+        Returns True on success.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target private chat.
 
-        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+        :param message_thread_id: Unique identifier for the target message thread.
 
-        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes of drafts \
+        with the same identifier are animated.
 
-        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
-        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+        :param text: Text of the message to be sent, 0-4096 characters after entities parsing. \
+        Pass an empty text to show a `Thinking...` placeholder.
 
-        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
+        more details.
 
-        :param link_preview_options: Link preview generation options for the message.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param protect_content: Protects the contents of the sent message from forwarding and saving.
-
-        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
-
-        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
-        :param reply_parameters: Description of the message to reply to.
-
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        :param entities: A JSON-serialized list of special entities that appear in message text, \
+        which can be specified instead of parse_mode.
+        """
         ...
 
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
@@ -2842,7 +3345,7 @@ class MessageCute(
         *,
         chat_id: int | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
@@ -2871,9 +3374,72 @@ class MessageCute(
         )
         return await self.bound_api.delete_message(**params)
 
+    @shortcut("delete_message_reaction", custom_params={"chat_id", "message_id", "user_id"})
+    async def delete_reaction(
+        self,
+        *,
+        actor_chat_id: int | None = None,
+        chat_id: int | str | None = None,
+        message_id: int | None = None,
+        user_id: int | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.delete_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#deletemessagereaction)
+
+        Use this method to remove a reaction from a message in a group or a supergroup
+        chat. The bot must have the 'can_delete_messages' administrator right
+        in the chat. Returns True on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroup(in the format @username).
+
+        :param message_id: Identifier of the target message.
+
+        :param user_id: Identifier of the user whose reaction will be removed, if the reaction wasadded by a user.
+
+        :param actor_chat_id: Identifier of the chat whose reaction will be removed, if the reaction wasadded by a chat."""
+        params = compose_method_params(
+            params=get_params(locals()),
+            update=self,
+            default_params={"chat_id", "message_id"},
+        )
+
+        if "actor_chat_id" not in params:
+            params["user_id"] = self.from_user.id
+
+        return await self.bound_api.delete_message_reaction(**params)
+
+    @shortcut("delete_all_message_reactions", custom_params={"chat_id"})
+    async def delete_all_reactions(
+        self,
+        *,
+        actor_chat_id: int | None = None,
+        chat_id: int | str | None = None,
+        user_id: int | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.delete_all_message_reactions()`, see the [documentation](https://core.telegram.org/bots/api#deleteallmessagereactions)
+
+        Use this method to remove up to 10000 recent reactions in a group or a supergroup
+        chat added by a given user or chat. The bot must have the 'can_delete_messages'
+        administrator right in the chat. Returns True on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroup(in the format @username).
+
+        :param user_id: Identifier of the user whose reactions will be removed, if the reactionswere added by a user.
+
+        :param actor_chat_id: Identifier of the chat whose reactions will be removed, if the reactionswere added by a chat."""
+        params = compose_method_params(
+            params=get_params(locals()),
+            update=self,
+            default_params={"chat_id"},
+        )
+
+        if "actor_chat_id" not in params:
+            params["user_id"] = self.from_user.id
+
+        return await self.bound_api.delete_all_message_reactions(**params)
+
     @shortcut(
         "edit_message_text",
-        executor=execute_method_edit,
+        executor=DEFAULT_EDIT,
         custom_params={"link_preview_options", "message_thread_id", "message_id"},
     )
     async def edit(
@@ -2886,7 +3452,7 @@ class MessageCute(
         inline_message_id: str | None = None,
         link_preview_options: LinkPreviewOptions | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
@@ -2919,7 +3485,7 @@ class MessageCute(
 
     @shortcut(
         "copy_message",
-        custom_params={"message_thread_id", "chat_id", "message_id", "from_chat_id"},
+        custom_params={"message_thread_id", "chat_id", "message_id", "from_chat_id", "reply_markup"},
     )
     async def copy(
         self,
@@ -2933,10 +3499,10 @@ class MessageCute(
         from_chat_id: int | str | None = None,
         message_effect_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         parse_mode: str | None = None,
         protect_content: bool | None = None,
-        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2993,10 +3559,12 @@ class MessageCute(
             },
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
+
         if isinstance(reply_parameters, dict):
             reply_parameters.setdefault("message_id", params.get("message_id"))
             reply_parameters.setdefault("chat_id", params.get("chat_id"))
             params["reply_parameters"] = ReplyParameters(**reply_parameters)
+
         return await self.bound_api.copy_message(**params)
 
     @shortcut(
@@ -3005,12 +3573,12 @@ class MessageCute(
     )
     async def react(
         self,
-        reaction: (str | ReactionEmoji | ReactionType | list[str | ReactionEmoji | ReactionType] | None) = None,
+        reaction: str | ReactionEmoji | ReactionType | list[str | ReactionEmoji | ReactionType] | None = None,
         *,
         chat_id: int | str | None = None,
         is_big: bool | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.set_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
@@ -3047,7 +3615,7 @@ class MessageCute(
         from_chat_id: int | str | None = None,
         message_effect_id: str | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         protect_content: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         video_start_timestamp: timedelta | int | None = None,
@@ -3098,7 +3666,7 @@ class MessageCute(
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.pin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
@@ -3130,7 +3698,7 @@ class MessageCute(
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
-        message_thread_id: str | None = None,
+        message_thread_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, "APIError"]:
         """Shortcut `API.unpin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
@@ -3152,6 +3720,57 @@ class MessageCute(
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
         return await self.bound_api.unpin_chat_message(**params)
+
+    @shortcut("send_gift")
+    async def answer_gift(
+        self,
+        *,
+        gift_id: str,
+        user_id: int | None = None,
+        chat_id: int | str | None = None,
+        pay_for_upgrade: bool | None = None,
+        text: str | None = None,
+        text_parse_mode: str | None = None,
+        text_entities: list[MessageEntity] | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.send_gift()`, see the [documentation](https://core.telegram.org/bots/api#sendgift)
+
+        Sends a gift to the given user or channel chat. The gift can't be converted
+        to Telegram Stars by the receiver. Returns True on success.
+
+        :param user_id: Required if chat_id is not specified. Unique identifier of the target user \
+        who will receive the gift.
+
+        :param chat_id: Required if user_id is not specified. Unique identifier for the chat or \
+        username of the channel (in the format @username) that will receive the \
+        gift.
+
+        :param gift_id: Identifier of the gift; limited gifts can't be sent to channel chats.
+
+        :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby making \
+        the upgrade free for the receiver.
+
+        :param text: Text that will be shown along with the gift; 0-128 characters.
+
+        :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
+        Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
+        `spoiler`, `custom_emoji`, and `date_time` are ignored.
+
+        :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
+        It can be specified instead of text_parse_mode. Entities other than `bold`, \
+        `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, \
+        and `date_time` are ignored.
+        """
+        params = get_params(locals())
+
+        if user_id is None and self.chat.type == ChatType.PRIVATE:
+            params["user_id"] = self.from_user.id
+
+        elif user_id is None and chat_id is None:
+            params["chat_id"] = self.chat.id
+
+        return await self.bound_api.send_gift(**params)
 
 
 __all__ = ("MessageCute",)

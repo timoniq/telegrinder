@@ -11,8 +11,9 @@ def compose_method_params[Cute: BaseCute](
     params: dict[str, typing.Any],
     update: Cute,
     *,
-    default_params: set[str | tuple[str, str]] | None = None,
-    validators: dict[str, typing.Callable[[Cute], bool]] | None = None,
+    default_params: set[str | tuple[str, str]] | None = ...,
+    validators: dict[str, typing.Callable[[Cute], bool]] | None = ...,
+    hooks: dict[str, typing.Callable[[typing.Any], tuple[str, typing.Any]]] | None = ...,
 ) -> dict[str, typing.Any]: ...
 
 class BaseShortcuts[Cute: BaseCute[typing.Any] = typing.Any]:

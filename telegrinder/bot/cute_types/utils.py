@@ -9,6 +9,7 @@ from telegrinder.types.objects import (
     InputMediaAnimation,
     InputMediaAudio,
     InputMediaDocument,
+    InputMediaLivePhoto,
     InputMediaPhoto,
     InputMediaVideo,
     MessageEntity,
@@ -22,11 +23,12 @@ type InputMedia = typing.Union[
     InputMediaAnimation,
     InputMediaAudio,
     InputMediaDocument,
+    InputMediaLivePhoto,
     InputMediaPhoto,
     InputMediaVideo,
 ]
 
-type MediaType = typing.Literal["animation", "audio", "document", "photo", "video"]
+type MediaType = typing.Literal["animation", "audio", "document", "live_photo", "photo", "video"]
 
 EntitiesDict = collections.defaultdict[int, list[MessageEntity]]
 
@@ -34,6 +36,7 @@ MEDIA_TYPES: typing.Final = (
     ContentType.ANIMATION,
     ContentType.AUDIO,
     ContentType.DOCUMENT,
+    ContentType.LIVE_PHOTO,
     ContentType.PHOTO,
     ContentType.VIDEO,
 )
@@ -41,6 +44,7 @@ INPUT_TYPES: typing.Final = (
     InputMediaAnimation,
     InputMediaAudio,
     InputMediaDocument,
+    InputMediaLivePhoto,
     InputMediaPhoto,
     InputMediaVideo,
 )
