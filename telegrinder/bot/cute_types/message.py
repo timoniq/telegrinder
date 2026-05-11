@@ -1486,35 +1486,30 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
-        protect_content: bool | None = None,
         message_effect_id: str | None = None,
-        reply_parameters: ReplyParameters | None = None,
+        protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_checklist()`, see the [documentation](https://core.telegram.org/bots/api#sendchecklist)
 
         Use this method to send a checklist on behalf of a connected business account.
         On success, the sent Message is returned.
+        :param business_connection_id: [`CUSTOM PARAMETER`] Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
-
-        :param chat_id: Unique identifier for the target chat or username of the target bot in the \
-        format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot in theformat @username.
 
         :param checklist: A JSON-serialized object for the checklist to send.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: A JSON-serialized object for description of the message to reply to.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard.
-        """
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
 
 
@@ -2738,35 +2733,30 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         disable_notification: bool | None = None,
-        protect_content: bool | None = None,
         message_effect_id: str | None = None,
-        reply_parameters: ReplyParameters | None = None,
+        protect_content: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_checklist()`, see the [documentation](https://core.telegram.org/bots/api#sendchecklist)
 
         Use this method to send a checklist on behalf of a connected business account.
         On success, the sent Message is returned.
+        :param business_connection_id: [`CUSTOM PARAMETER`] Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
-
-        :param chat_id: Unique identifier for the target chat or username of the target bot in the \
-        format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot in theformat @username.
 
         :param checklist: A JSON-serialized object for the checklist to send.
 
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
-
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
 
         :param message_effect_id: Unique identifier of the message effect to be added to the message.
 
         :param reply_parameters: A JSON-serialized object for description of the message to reply to.
 
-        :param reply_markup: A JSON-serialized object for an inline keyboard.
-        """
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
 
 
@@ -3307,36 +3297,30 @@ class MessageCute(
         *,
         draft_id: int,
         chat_id: int | None = None,
-        message_thread_id: int | None = None,
-        text: str | None = None,
-        parse_mode: str | None = None,
         entities: list[MessageEntity] | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = None,
+        text: str | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
-        """Method `sendMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendmessagedraft)
+        """Shortcut `API.send_message_draft()`, see the [documentation](https://core.telegram.org/bots/api#sendmessagedraft)
 
         Use this method to stream a partial message to a user while the message is
         being generated. Note that the streamed draft is ephemeral and acts as a
         temporary 30-second preview - once the output is finalized, you must call
         sendMessage with the complete message to persist it in the user's chat.
         Returns True on success.
-
-        :param chat_id: Unique identifier for the target private chat.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target private chat.
 
         :param message_thread_id: Unique identifier for the target message thread.
 
-        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes of drafts \
-        with the same identifier are animated.
+        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes of draftswith the same identifier are animated.
 
-        :param text: Text of the message to be sent, 0-4096 characters after entities parsing. \
-        Pass an empty text to show a `Thinking...` placeholder.
+        :param text: Text of the message to be sent, 0-4096 characters after entities parsing.Pass an empty text to show a `Thinking...` placeholder.
 
-        :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
-        more details.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
 
-        :param entities: A JSON-serialized list of special entities that appear in message text, \
-        which can be specified instead of parse_mode.
-        """
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode."""
         ...
 
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
@@ -3726,42 +3710,31 @@ class MessageCute(
         self,
         *,
         gift_id: str,
-        user_id: int | None = None,
         chat_id: int | str | None = None,
         pay_for_upgrade: bool | None = None,
         text: str | None = None,
-        text_parse_mode: str | None = None,
         text_entities: list[MessageEntity] | None = None,
+        text_parse_mode: str | None = None,
+        user_id: int | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Shortcut `API.send_gift()`, see the [documentation](https://core.telegram.org/bots/api#sendgift)
 
         Sends a gift to the given user or channel chat. The gift can't be converted
         to Telegram Stars by the receiver. Returns True on success.
+        :param user_id: Required if chat_id is not specified. Unique identifier of the target userwho will receive the gift.
 
-        :param user_id: Required if chat_id is not specified. Unique identifier of the target user \
-        who will receive the gift.
-
-        :param chat_id: Required if user_id is not specified. Unique identifier for the chat or \
-        username of the channel (in the format @username) that will receive the \
-        gift.
+        :param chat_id: Required if user_id is not specified. Unique identifier for the chat orusername of the channel (in the format @username) that will receive thegift.
 
         :param gift_id: Identifier of the gift; limited gifts can't be sent to channel chats.
 
-        :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby making \
-        the upgrade free for the receiver.
+        :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby makingthe upgrade free for the receiver.
 
         :param text: Text that will be shown along with the gift; 0-128 characters.
 
-        :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details. \
-        Entities other than `bold`, `italic`, `underline`, `strikethrough`, \
-        `spoiler`, `custom_emoji`, and `date_time` are ignored.
+        :param text_parse_mode: Mode for parsing entities in the text. See formatting options for more details.Entities other than `bold`, `italic`, `underline`, `strikethrough`,`spoiler`, `custom_emoji`, and `date_time` are ignored.
 
-        :param text_entities: A JSON-serialized list of special entities that appear in the gift text. \
-        It can be specified instead of text_parse_mode. Entities other than `bold`, \
-        `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, \
-        and `date_time` are ignored.
-        """
+        :param text_entities: A JSON-serialized list of special entities that appear in the gift text.It can be specified instead of text_parse_mode. Entities other than `bold`,`italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`,and `date_time` are ignored."""
         params = get_params(locals())
 
         if user_id is None and self.chat.type == ChatType.PRIVATE:
