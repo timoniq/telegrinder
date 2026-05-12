@@ -109,9 +109,7 @@ class Context(Externals):
             "raw_update": update,
             "update": update,
             "update_cute": (
-                update.bind(update, api)
-                if isinstance(update, UpdateCute)
-                else UpdateCute.from_update(update, bound_api=api)
+                update if isinstance(update, UpdateCute) else UpdateCute.from_update(update, bound_api=api)
             ),
             "per_event_scope": per_event_scope,
             "exceptions_update": {},

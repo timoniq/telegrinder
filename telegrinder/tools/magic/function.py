@@ -3,6 +3,7 @@ import enum
 import inspect
 import types
 import typing
+from annotationlib import Format
 from functools import cached_property, lru_cache, partial
 
 from telegrinder.tools.magic.annotations import Annotations, MappingAnnotations
@@ -188,7 +189,7 @@ def get_default_args(func: AnyFunction, /) -> dict[str, typing.Any]:
 def get_func_parameters(func: AnyFunction, /) -> FunctionParameters:
     func_params = FunctionParameters(args=[], kwargs=[])
 
-    for k, p in inspect.signature(func).parameters.items():
+    for k, p in inspect.signature(func, annotation_format=Format.STRING).parameters.items():
         if k in ("self", "cls"):
             continue
 

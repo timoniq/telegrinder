@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import typing
-from functools import cached_property
+from functools import cache, cached_property
 
 from kungfu.library import Result, Some, Sum
 from kungfu.library.monad import option
-from msgspex import Option
-from msgspex.model import From, field
+from msgspex import From, Option, decoder, field
 
 from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import MediaType, build_html, compose_reactions, input_media
+from telegrinder.tools.bound_cute import BoundCute, BoundCuteMixin
 from telegrinder.tools.magic.descriptors import additional_property
 from telegrinder.tools.waiter_machine.hasher import (
     BUSINESS_MESSAGE,
@@ -37,41 +37,34 @@ type InputMediaType = str | InputMedia | InputFile
 type ReplyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 
 
-def _to_message_cute(message: Message, bound_api: API, /) -> MessageCute:
-    return MessageCute.from_update(message, bound_api=bound_api)
+def _to_api_method_name(method_name: str, /) -> str:
+    first, *parts = method_name.split("_")
+    return first + "".join(part.capitalize() for part in parts)
 
 
-def _to_message_cute_list(messages: list[Message], bound_api: API, /) -> list[MessageCute]:
-    return [_to_message_cute(message, bound_api) for message in messages]
+@cache
+def _is_cute_result_type(result_type: typing.Any, /) -> bool:
+    origin = typing.get_origin(result_type) or result_type
+
+    if isinstance(origin, type) and (issubclass(origin, BaseCute) or issubclass(origin, BoundCuteMixin)):
+        return True
+
+    return any(_is_cute_result_type(arg) for arg in typing.get_args(result_type))
 
 
-def _to_answer_result(
-    value: typing.Any,
+async def _execute_api_method(
     bound_api: API,
-    /,
-) -> typing.Any:
-    if isinstance(value, bool):
-        return value
+    method_name: str,
+    params: dict[str, typing.Any],
+    result_type: typing.Any,
+) -> Result[typing.Any, APIError]:
+    if not _is_cute_result_type(result_type):
+        return await getattr(bound_api, method_name)(**params)
 
-    return (
-        _to_message_cute(value, bound_api) if not isinstance(value, list) else _to_message_cute_list(value, bound_api)
+    return lazy_result(
+        await bound_api.request_raw(_to_api_method_name(method_name), get_params(params)),
+        lambda raw: decoder.decode(raw, type=result_type, context=dict(ctx_api=bound_api)),
     )
-
-
-def _to_edit_result(
-    value: Sum[Message, bool],
-    bound_api: API,
-    /,
-) -> Sum[MessageCute, bool]:
-    result = (
-        value.only()
-        .map_or_else(
-            lambda _: value.v,
-            lambda message: _to_message_cute(message, bound_api),
-        )
-        .unwrap()
-    )
-    return Sum(result)
 
 
 def execute_method_answer(
@@ -82,9 +75,10 @@ def execute_method_answer(
         message: MessageCute,
         method_name: str,
         params: dict[str, typing.Any],
+        result_type: typing.Any,
     ) -> Result[typing.Any, APIError]:
         params = compose_method_params(
-            params=params,
+            params=get_params(params),
             update=message,
             default_params=default_params,
             validators={
@@ -97,8 +91,7 @@ def execute_method_answer(
                 ),
             },
         )
-        result = await getattr(message.bound_api, method_name)(**params)
-        return lazy_result(result, lambda value: _to_answer_result(value, message.bound_api))
+        return await _execute_api_method(message.bound_api, method_name, params, result_type)
 
     return inner
 
@@ -113,15 +106,17 @@ def execute_method_reply(
         message: MessageCute,
         method_name: str,
         params: dict[str, typing.Any],
+        result_type: typing.Any,
     ) -> Result[typing.Any, APIError]:
-        params.setdefault(
-            "reply_parameters",
-            ReplyParameters(
-                message_id=params.get("message_id", message.message_id),
-                chat_id=params.get("chat_id", message.chat_id),
-            ),
-        )
-        return await reply(message, method_name, params)
+        reply_parameters = params.get("reply_parameters")
+
+        if reply_parameters is None:
+            params["reply_parameters"] = ReplyParameters.initialize(
+                message_id=params.get("message_id") or message.message_id,
+                chat_id=params.get("chat_id") or message.chat_id,
+            )
+
+        return await reply(message, method_name, params, result_type)
 
     return inner
 
@@ -134,9 +129,10 @@ def execute_method_edit(
         update: MessageCute | CallbackQueryCute,
         method_name: str,
         params: dict[str, typing.Any],
+        result_type: typing.Any,
     ) -> Result[typing.Any, APIError]:
         params = compose_method_params(
-            params=params,
+            params=get_params(params),
             update=update,
             default_params=default_params,
             validators={
@@ -153,8 +149,7 @@ def execute_method_edit(
             params.pop("message_id", None)
             params.pop("chat_id", None)
 
-        result = await getattr(update.bound_api, method_name)(**params)
-        return lazy_result(result, lambda value: _to_edit_result(value, update.api))
+        return await _execute_api_method(update.bound_api, method_name, params, result_type)
 
     return inner
 
@@ -244,6 +239,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_audio",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_audio(
@@ -315,6 +311,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_animation",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_animation(
@@ -389,6 +386,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_document",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_document(
@@ -405,7 +403,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
-        parse_mode: str | None = API.default_params["parse_mode"],
+        parse_mode: str | None = None,
         protect_content: bool | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
@@ -453,6 +451,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_photo",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_photo(
@@ -515,6 +514,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_sticker",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_sticker(
@@ -567,6 +567,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_video",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_video(
@@ -651,6 +652,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_video_note",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_video_note(
@@ -709,6 +711,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_voice",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_voice(
@@ -773,6 +776,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_poll",
         executor=ANSWER_TO_THREAD_OR_BUSINESS,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_poll(
@@ -888,6 +892,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_venue",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_venue(
@@ -958,6 +963,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_dice",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_dice(
@@ -1006,6 +1012,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_game",
         executor=ANSWER_TO_THREAD_OR_BUSINESS,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_game(
@@ -1049,6 +1056,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_invoice",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_invoice(
@@ -1155,6 +1163,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_chat_action",
         executor=ANSWER_TO_THREAD_OR_BUSINESS,
+        return_type=bool,
         custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_chat_action(
@@ -1226,11 +1235,12 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param reply_parameters: Description of the message to reply to."""
         media = [media] if not isinstance(media, list) else media
         params = get_params(locals())
-        return await DEFAULT_ANSWER(self.cute, "send_media_group", params)
+        return await DEFAULT_ANSWER(self.cute, "send_media_group", params, list[BoundCute[MessageCute]])
 
     @shortcut(
         "send_location",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_location(
@@ -1292,6 +1302,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_contact",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_contact(
@@ -1349,6 +1360,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_live_photo",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"chat_id", "reply_markup"},
     )
     async def answer_live_photo(
@@ -1415,6 +1427,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_paid_media",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"chat_id", "reply_markup"},
     )
     async def answer_paid_media(
@@ -1438,7 +1451,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_paid_media()`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
 
         Use this method to send paid media. On success, the sent Message is returned.
@@ -1477,6 +1490,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_checklist",
         executor=ANSWER_TO_BUSINESS_CONNECTION,
+        return_type=BoundCute["MessageCute"],
         custom_params={"business_connection_id", "chat_id"},
     )
     async def answer_checklist(
@@ -1517,6 +1531,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_audio",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_audio(
@@ -1588,6 +1603,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_animation",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_animation(
@@ -1662,6 +1678,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_document",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_document(
@@ -1726,6 +1743,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_photo",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_photo(
@@ -1788,6 +1806,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_sticker",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_sticker(
@@ -1840,6 +1859,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_video",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_video(
@@ -1924,6 +1944,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_video_note",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_video_note(
@@ -1982,6 +2003,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_voice",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_voice(
@@ -2046,6 +2068,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_poll",
         executor=REPLY_TO_THREAD_OR_BUSINESS,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_poll(
@@ -2161,6 +2184,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_venue",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_venue(
@@ -2231,6 +2255,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_dice",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_dice(
@@ -2279,6 +2304,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_game",
         executor=REPLY_TO_THREAD_OR_BUSINESS,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_game(
@@ -2322,6 +2348,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_invoice",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_invoice(
@@ -2478,6 +2505,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_location",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_location(
@@ -2539,6 +2567,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_contact",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_contact(
@@ -2596,6 +2625,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_live_photo",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"chat_id", "reply_markup"},
     )
     async def reply_live_photo(
@@ -2662,6 +2692,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_paid_media",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"chat_id", "reply_markup"},
     )
     async def reply_paid_media(
@@ -2685,7 +2716,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_paid_media()`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
 
         Use this method to send paid media. On success, the sent Message is returned.
@@ -2724,6 +2755,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_checklist",
         executor=REPLY_TO_BUSINESS_CONNECTION,
+        return_type=BoundCute["MessageCute"],
         custom_params={"business_connection_id", "chat_id"},
     )
     async def reply_checklist(
@@ -2764,6 +2796,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_message_live_location",
         executor=DEFAULT_EDIT,
+        return_type=Sum[BoundCute["MessageCute"], bool],
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_live_location(
@@ -2814,6 +2847,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_message_caption",
         executor=DEFAULT_EDIT,
+        return_type=Sum[BoundCute["MessageCute"], bool],
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_caption(
@@ -2955,11 +2989,12 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
                 parse_mode=parse_mode,
             )
 
-        return await DEFAULT_EDIT(self.cute, "edit_message_media", params)
+        return await DEFAULT_EDIT(self.cute, "edit_message_media", params, Sum[MessageCute, bool])
 
     @shortcut(
         "edit_message_reply_markup",
         executor=DEFAULT_EDIT,
+        return_type=Sum[BoundCute["MessageCute"], bool],
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_reply_markup(
@@ -3000,7 +3035,7 @@ class MessageCute(
     Message,
     kw_only=True,
 ):
-    reply_to_message: Option[MessageCute] = field(
+    reply_to_message: Option[BoundCute[MessageCute]] = field(
         default=...,
         converter=From["MessageCute | None"],
     )
@@ -3008,7 +3043,7 @@ class MessageCute(
     message. Note that the Message object in this field will not contain further
     reply_to_message fields even if it itself is a reply."""
 
-    pinned_message: Option[Sum[MessageCute, InaccessibleMessage]] = field(
+    pinned_message: Option[Sum[BoundCute[MessageCute], InaccessibleMessage]] = field(
         default=...,
         converter=From["MessageCute | InaccessibleMessage | None"],
     )
@@ -3154,6 +3189,7 @@ class MessageCute(
     @shortcut(
         "send_message",
         executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
         custom_params={"link_preview_options", "message_thread_id", "chat_id", "text", "reply_markup"},
     )
     async def answer(
@@ -3233,6 +3269,7 @@ class MessageCute(
     @shortcut(
         "send_message",
         executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
         custom_params={"message_thread_id", "chat_id", "message_id", "reply_markup"},
     )
     async def reply(
@@ -3290,6 +3327,7 @@ class MessageCute(
     @shortcut(
         "send_message_draft",
         executor=ANSWER_TO_THREAD,
+        return_type=bool,
         custom_params={"chat_id"},
     )
     async def stream(
@@ -3424,6 +3462,7 @@ class MessageCute(
     @shortcut(
         "edit_message_text",
         executor=DEFAULT_EDIT,
+        return_type=Sum[BoundCute["MessageCute"], bool],
         custom_params={"link_preview_options", "message_thread_id", "message_id"},
     )
     async def edit(
@@ -3637,10 +3676,7 @@ class MessageCute(
             },
             validators={"message_thread_id": lambda x: x.is_topic_message.unwrap_or(False)},
         )
-        return lazy_result(
-            await self.bound_api.forward_message(**params),
-            lambda message: MessageCute.from_update(message, bound_api=self.api),
-        )
+        return await _execute_api_method(self.bound_api, "forward_message", params, BoundCute[MessageCute])
 
     @shortcut("pin_chat_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def pin(
@@ -3652,7 +3688,7 @@ class MessageCute(
         message_id: int | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Shortcut `API.pin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
 
         Use this method to add a message to the list of pinned messages in a chat. In
@@ -3684,7 +3720,7 @@ class MessageCute(
         message_id: int | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, "APIError"]:
+    ) -> Result[bool, APIError]:
         """Shortcut `API.unpin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
 
         Use this method to remove a message from the list of pinned messages in a chat.

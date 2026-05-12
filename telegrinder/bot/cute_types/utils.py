@@ -51,6 +51,10 @@ INPUT_TYPES: typing.Final = (
 INPUT_MEDIA_TYPES: typing.Final[dict[ContentType, type[InputMedia]]] = dict(zip(MEDIA_TYPES, INPUT_TYPES))
 
 
+def exclude_bound_parameters(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
+    return {key: value for key, value in params if key not in ("self", "cls")}
+
+
 def build_html(text: str, entities: list[MessageEntity], /) -> str:
     if not text or not entities:
         return ""
@@ -119,6 +123,7 @@ def compose_reactions(
 ) -> list[ReactionType]:
     if not isinstance(reactions, list):
         reactions = [reactions]
+
     return [
         (
             ReactionTypeEmoji(emoji)
@@ -141,4 +146,4 @@ def input_media(
     return INPUT_MEDIA_TYPES[ContentType(type)](**get_params(locals()))
 
 
-__all__ = ("build_html", "compose_reactions", "input_media")
+__all__ = ("build_html", "compose_reactions", "exclude_bound_parameters", "input_media")

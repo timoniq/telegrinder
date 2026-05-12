@@ -8,7 +8,7 @@ from telegrinder.tools.aio import (
     send_generator_value,
     stop_generator,
 )
-from telegrinder.tools.decode import int_timestamp_to_datetime_hook
+from telegrinder.tools.decode import bound_cute_hook, int_timestamp_to_datetime_hook
 from telegrinder.tools.encode import datetime_to_int_timestamp_hook, timedelta_to_int_timedelta
 from telegrinder.tools.formatting import (
     HTML,
@@ -207,6 +207,7 @@ __all__ = (
     "additional_property",
     "blockquote",
     "bold",
+    "bound_cute_hook",
     "bundle",
     "cancel_future",
     "code_inline",

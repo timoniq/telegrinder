@@ -20,6 +20,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     @shortcut(
         "approve_chat_join_request",
         executor=chat_member_interaction,
+        return_type=bool,
         custom_params={"chat_id", "user_id"},
     )
     async def approve(
@@ -42,6 +43,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     @shortcut(
         "decline_chat_join_request",
         executor=chat_member_interaction,
+        return_type=bool,
         custom_params={"chat_id", "user_id"},
     )
     async def decline(

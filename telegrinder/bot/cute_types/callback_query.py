@@ -7,7 +7,7 @@ import msgspec
 from kungfu.library import Nothing, Result, Some, Sum, unwrapping
 from kungfu.library.monad.option import NOTHING
 from msgspex import Option, decoder
-from msgspex.model import UNSET, From, field
+from msgspex.model import From, field
 
 from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
@@ -17,6 +17,8 @@ from telegrinder.bot.cute_types.message import (
     MessageEditShortcuts,
     ReplyMarkup,
 )
+from telegrinder.bot.cute_types.utils import exclude_bound_parameters
+from telegrinder.tools.bound_cute import BoundCute
 from telegrinder.tools.waiter_machine.hasher import (
     CALLBACK_QUERY_FOR_MESSAGE,
     CALLBACK_QUERY_FROM_CHAT,
@@ -31,9 +33,9 @@ CACHED_CALLBACK_DATA_KEY: typing.Final = "cached_callback_data"
 
 
 class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQuery, kw_only=True):
-    message: Option[Sum[MessageCute, InaccessibleMessage]] = field(
-        default=UNSET,
-        converter=From[MessageCute | InaccessibleMessage | None],
+    message: Option[Sum[BoundCute[MessageCute], InaccessibleMessage]] = field(
+        default=...,
+        converter=From[Message | InaccessibleMessage | None],
     )
     """Optional. Message sent by the bot with the callback button that originated
     the query."""
@@ -280,7 +282,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
-        return await MessageCute.copy(self, **get_params(locals()))  # type: ignore
+        return await MessageCute.copy(self, **exclude_bound_parameters(locals()))  # type: ignore
 
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def delete(
@@ -309,11 +311,12 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
 
         :param message_id: Identifier of the message to delete."""
-        return await MessageCute.delete(self, **get_params(locals()))  # type: ignore
+        return await MessageCute.delete(self, **exclude_bound_parameters(locals()))  # type: ignore
 
     @shortcut(
         "edit_message_text",
         executor=DEFAULT_EDIT,
+        return_type=Sum[BoundCute["MessageCute"], bool],
         custom_params={"message_thread_id"},
     )
     async def edit_text(
