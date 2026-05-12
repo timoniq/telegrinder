@@ -187,21 +187,22 @@ class Dispatch[
         self.error_handler = error_handler or ErrorView()  # type: ignore
         self.global_scope = self.global_context.node_global_scope
         self.loop_wrapper = self.global_context.loop_wrapper
-
-        if waiter_machine is None:
-            waiter = (
-                WaiterMachine() if "waiter_machine" not in self.global_context else self.global_context.waiter_machine
-            )
-
-        if middleware_box is None:
-            middlewares = (
-                MiddlewareBox(waiter=WaiterMiddleware(waiter))
+        self.waiter_machine = self.global_context.setdefault_value(
+            "waiter_machine",
+            (WaiterMachine() if "waiter_machine" not in self.global_context else self.global_context.waiter_machine)
+            if waiter_machine is None
+            else waiter_machine,
+        )
+        self.middlewares = self.global_context.setdefault_value(
+            "middleware_box",
+            (
+                MiddlewareBox(waiter=WaiterMiddleware(machine=self.waiter_machine))
                 if "middleware_box" not in self.global_context
                 else self.global_context.middleware_box
             )
-
-        self.waiter_machine = self.global_context.setdefault_value("waiter_machine", waiter)
-        self.middlewares = self.global_context.setdefault_value("middleware_box", middlewares)
+            if middleware_box is None
+            else middleware_box,
+        )
 
     def __setitem__(self, injection_type: typing.Any, injection_value: typing.Any, /) -> None:
         self.global_scope.inject(injection_type, injection_value)

@@ -233,15 +233,15 @@ wheels = [
 
 [[package]]
 name = "msgspex"
-version = "1.5.3"
+version = "1.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "kungfu-fp" },
     { name = "msgspec" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d8/9c/f510729db89f8542d35e881d7aaa131a1d72f9a7b4bb569a80d8bf3e8c9e/msgspex-1.5.3.tar.gz", hash = "sha256:9828d437695044cba6ed82591c226bbca7ea8783cfedc6ff1f67be1cf23f5d40", size = 29429, upload-time = "2026-05-10T11:10:47.706Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9f/8c/76395c18c43574ddf8ed252e2e850cf103c51bb1a573be9356320d80ee59/msgspex-1.5.4.tar.gz", hash = "sha256:dad01ea3ba04effdddf9253d298ca568d241b7309bd51b477ab64e4f561901a3", size = 29430, upload-time = "2026-05-12T20:00:04.812Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/9c/e1d303fc2c02484284991537bf832017480e54ee27a063da47a92c6cd201/msgspex-1.5.3-py3-none-any.whl", hash = "sha256:32977906a32ba2b68cbe19ca31073186566995352f724cb1418028558a30dd15", size = 43170, upload-time = "2026-05-10T11:10:48.872Z" },
+    { url = "https://files.pythonhosted.org/packages/04/f2/6db419c352e53e1c061aabf7ed3aa8226bf5c1643b8de62146c6cadc9be5/msgspex-1.5.4-py3-none-any.whl", hash = "sha256:17a05c52e95665ae74e7e44b9bdb54e8da34aa695c8bc530245739ade788f973", size = 43195, upload-time = "2026-05-12T20:00:06.4Z" },
 ]
 
 [[package]]
@@ -514,7 +514,7 @@ requires-dist = [
     { name = "env-better", specifier = ">=1.0.0" },
     { name = "kungfu-fp", specifier = ">=1.0.0" },
     { name = "loguru", marker = "extra == 'loguru'" },
-    { name = "msgspex", specifier = ">=1.5.3" },
+    { name = "msgspex", specifier = ">=1.5.4" },
     { name = "nodnod", specifier = ">=1.0.1" },
     { name = "structlog", marker = "extra == 'structlog'" },
     { name = "typing-extensions", specifier = ">=4.15.0" },
