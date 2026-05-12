@@ -10,6 +10,7 @@ import libcst as cst
 from telegrinder.modules import logger
 
 type APIMethodsMapping = dict[str, cst.FunctionDef]
+type CuteTypesMapping = dict[str, str]
 
 ANNOTATION_TYPING_ANY: typing.Final[cst.Annotation] = cst.parse_statement("x: typing.Any").body[0].annotation  # type: ignore
 DEFAULT_API_METHODS_CLASS_NAME: typing.Final = "APIMethods"
@@ -28,7 +29,7 @@ def is_cute_class(node: cst.ClassDef) -> bool:
         if (
             isinstance(base.value, cst.Subscript)
             and isinstance(base.value.value, cst.Name)
-            and base.value.value == "BaseCute"
+            and base.value.value.value == "BaseCute"
         ):
             return True
 
@@ -41,6 +42,31 @@ def is_shortcuts_class(node: cst.ClassDef) -> bool:
 
 def is_decorator_name(decorator_call_node: cst.Call, decorator_name: str) -> bool:
     return isinstance(decorator_call_node.func, cst.Name) and decorator_call_node.func.value == decorator_name
+
+
+def get_subscript_first_value(node: cst.Subscript, /) -> cst.BaseExpression | None:
+    if not node.slice or not isinstance(node.slice[0].slice, cst.Index):
+        return None
+
+    return node.slice[0].slice.value
+
+
+def get_dotted_name(node: cst.BaseExpression, /) -> str | None:
+    if isinstance(node, cst.Name):
+        return node.value
+
+    if isinstance(node, cst.Attribute) and (parent := get_dotted_name(node.value)):
+        return f"{parent}.{node.attr.value}"
+
+    return None
+
+
+def get_keyword_arg(node: cst.Call, keyword: str, /) -> cst.Arg | None:
+    for arg in node.args:
+        if arg.keyword is not None and arg.keyword.value == keyword:
+            return arg
+
+    return None
 
 
 def get_func_params(node: cst.FunctionDef) -> tuple[dict[str, cst.Param], dict[str, cst.Param]]:
@@ -109,6 +135,165 @@ def prepare_docstring(
     return None
 
 
+def get_cute_type_mapping(node: cst.ClassDef, /) -> tuple[str, str] | None:
+    if not is_cute_class(node):
+        return None
+
+    for base in node.bases:
+        if (
+            isinstance(base.value, cst.Subscript)
+            and isinstance(base.value.value, cst.Name)
+            and base.value.value.value == "BaseCute"
+            and (model_value := get_subscript_first_value(base.value)) is not None
+            and (model_name := get_dotted_name(model_value))
+        ):
+            return model_name.rsplit(".", maxsplit=1)[-1], node.name.value
+
+    return None
+
+
+def get_result_value_annotation(node: cst.Annotation, /) -> cst.BaseExpression:
+    if (
+        isinstance(node.annotation, cst.Subscript)
+        and isinstance(node.annotation.value, cst.Name)
+        and node.annotation.value.value == "Result"
+        and (result_value := get_subscript_first_value(node.annotation)) is not None
+    ):
+        return result_value
+
+    return node.annotation
+
+
+def make_bound_cute_annotation(cute_type: str, /) -> cst.Subscript:
+    return cst.Subscript(
+        value=cst.Name("BoundCute"),
+        slice=[cst.SubscriptElement(slice=cst.Index(cst.SimpleString(f'"{cute_type}"')))],
+    )
+
+
+class APIReturnTypeTransformer(cst.CSTTransformer):
+    def __init__(self, cute_types: CuteTypesMapping, /) -> None:
+        self.cute_types = cute_types
+        self.uses_bound_cute = False
+
+    def leave_Name(self, original_node: cst.Name, updated_node: cst.Name) -> cst.BaseExpression:
+        if (cute_type := self.cute_types.get(original_node.value)) is not None:
+            self.uses_bound_cute = True
+            return make_bound_cute_annotation(cute_type)
+
+        return updated_node
+
+
+def prepare_shortcut_return_type(
+    api_method_func: cst.FunctionDef,
+    cute_types: CuteTypesMapping,
+    /,
+) -> tuple[cst.Arg | None, bool]:
+    if api_method_func.returns is None:
+        return None, False
+
+    transformer = APIReturnTypeTransformer(cute_types)
+    return_type = get_result_value_annotation(api_method_func.returns).visit(transformer)
+    return (
+        cst.Arg(
+            keyword=cst.Name("return_type"),
+            equal=cst.AssignEqual(
+                whitespace_before=cst.SimpleWhitespace(""),
+                whitespace_after=cst.SimpleWhitespace(""),
+            ),
+            value=return_type,  # type: ignore
+        ),
+        transformer.uses_bound_cute,
+    )
+
+
+def with_shortcut_return_type(node: cst.Call, return_type_arg: cst.Arg, /) -> cst.Call:
+    if get_keyword_arg(node, "executor") is None:
+        return node
+
+    if get_keyword_arg(node, "return_type") is not None:
+        return node.with_changes(
+            args=[
+                return_type_arg.with_changes(comma=arg.comma)
+                if arg.keyword is not None and arg.keyword.value == "return_type"
+                else arg
+                for arg in node.args
+            ],
+        )
+
+    args: list[cst.Arg] = []
+
+    for index, arg in enumerate(node.args):
+        if arg.keyword is not None and arg.keyword.value == "executor":
+            separator = (
+                cst.Comma(whitespace_after=cst.SimpleWhitespace(" "))
+                if arg.comma is cst.MaybeSentinel.DEFAULT
+                else arg.comma
+            )
+            args.append(arg.with_changes(comma=separator))
+            args.append(
+                return_type_arg.with_changes(
+                    comma=separator if index < len(node.args) - 1 else cst.MaybeSentinel.DEFAULT,
+                ),
+            )
+            continue
+
+        args.append(arg)
+
+    return node.with_changes(args=args)
+
+
+class BoundCuteImportCollector(cst.CSTVisitor):
+    def __init__(self) -> None:
+        self.found = False
+
+    def visit_ImportFrom(self, node: cst.ImportFrom) -> bool | None:
+        if node.module is None or get_dotted_name(node.module) != "telegrinder.tools.bound_cute":
+            return False
+
+        if isinstance(node.names, cst.ImportStar):
+            self.found = True
+            return False
+
+        self.found = self.found or any(get_dotted_name(alias.name) == "BoundCute" for alias in node.names)
+        return False
+
+
+def is_import_statement(node: cst.CSTNode, /) -> bool:
+    return (
+        isinstance(node, cst.SimpleStatementLine)
+        and len(node.body) == 1
+        and isinstance(node.body[0], cst.Import | cst.ImportFrom)
+    )
+
+
+def ensure_bound_cute_import(module: cst.Module, /) -> cst.Module:
+    collector = BoundCuteImportCollector()
+    module.visit(collector)
+
+    if collector.found:
+        return module
+
+    body = list(module.body)
+    insert_at = 0
+
+    for index, statement in enumerate(body):
+        if is_import_statement(statement):
+            insert_at = index + 1
+
+    body.insert(insert_at, cst.parse_statement("from telegrinder.tools.bound_cute import BoundCute\n"))
+    return module.with_changes(body=body)
+
+
+def has_shortcut_executor(decorators: typing.Sequence[cst.Decorator], /) -> bool:
+    return any(
+        isinstance(decorator.decorator, cst.Call)
+        and is_decorator_name(decorator.decorator, "shortcut")
+        and get_keyword_arg(decorator.decorator, "executor") is not None
+        for decorator in decorators
+    )
+
+
 def merge_shortcuts(
     *,
     path_api_methods: str | pathlib.Path,
@@ -124,6 +309,12 @@ def merge_shortcuts(
     api_methods_visitor = APIMethodsCollector(api_methods_class_name)
     api_methods_source_tree.visit(api_methods_visitor)
 
+    cute_types_collector = CuteTypesCollector()
+
+    for path in path_cute_types.rglob("*.py"):
+        if path.name != "__init__.py":
+            cst.parse_module(path.read_text(encoding="UTF-8")).visit(cute_types_collector)
+
     for path in path_cute_types.rglob("*.py"):
         if path.name == "__init__.py":
             continue
@@ -137,8 +328,13 @@ def merge_shortcuts(
         transformer = ShortcutsTransformer(
             shortcuts_visitor.shortcuts,
             api_methods_visitor.api_methods,
+            cute_types_collector.cute_types,
         )
         modified_cute_tree = cute_source_tree.visit(transformer)
+
+        if transformer.uses_bound_cute:
+            modified_cute_tree = ensure_bound_cute_import(modified_cute_tree)
+
         modified_cute_tree_code = modified_cute_tree.code
 
         if cute_source_tree.code != modified_cute_tree_code:
@@ -184,13 +380,14 @@ class ShortcutsCollector(cst.CSTVisitor):
                 kwargs = {}
 
                 for arg in decorator.decorator.args:
-                    if isinstance(arg.value, cst.SimpleString):
-                        kwargs["method_name"] = arg.value.value.removeprefix('"').removesuffix('"')
-                    elif isinstance(arg.value, cst.Set):
+                    if arg.keyword is None and isinstance(arg.value, cst.SimpleString):
+                        kwargs["method_name"] = arg.value.evaluated_value
+                    elif (arg.keyword is None or arg.keyword.value == "custom_params") and isinstance(
+                        arg.value,
+                        cst.Set,
+                    ):
                         kwargs["custom_params"] = {
-                            e.value.value.removeprefix('"').removesuffix('"')
-                            for e in arg.value.elements
-                            if isinstance(e.value, cst.SimpleString)
+                            e.value.evaluated_value for e in arg.value.elements if isinstance(e.value, cst.SimpleString)
                         }
 
                 found = True
@@ -226,13 +423,31 @@ class APIMethodsCollector(cst.CSTVisitor):
         return True
 
 
+class CuteTypesCollector(cst.CSTVisitor):
+    def __init__(self) -> None:
+        self.cute_types: CuteTypesMapping = {}
+
+    def visit_ClassDef(self, node: cst.ClassDef) -> bool | None:
+        if (mapping := get_cute_type_mapping(node)) is not None:
+            self.cute_types[mapping[0]] = mapping[1]
+
+        return False
+
+
 class ShortcutsTransformer(cst.CSTTransformer):
-    def __init__(self, shortcuts: list[Shortcut], api_methods: APIMethodsMapping) -> None:
+    def __init__(
+        self,
+        shortcuts: list[Shortcut],
+        api_methods: APIMethodsMapping,
+        cute_types: CuteTypesMapping,
+    ) -> None:
         self.shortcuts = shortcuts
         self.api_methods = api_methods
+        self.cute_types = cute_types
+        self.uses_bound_cute = False
 
     def visit_ClassDef_body(self, node: cst.ClassDef) -> bool | None:
-        return is_cute_class(node)
+        return is_cute_class(node) or is_shortcuts_class(node)
 
     def visit_FunctionDef_asynchronous(self, node: cst.FunctionDef) -> bool | None:
         return node in self.shortcuts
@@ -244,8 +459,10 @@ class ShortcutsTransformer(cst.CSTTransformer):
     ) -> cst.FunctionDef:
         if typing.cast("Shortcut", original_node) in self.shortcuts:
             shortcut = self.shortcuts.pop(self.shortcuts.index(typing.cast("Shortcut", original_node)))
+            api_method_func = self.api_methods[shortcut.method_name]
+            return_type_arg, uses_bound_cute = prepare_shortcut_return_type(api_method_func, self.cute_types)
             shortcut_args, shortcut_kwargs = get_func_params(shortcut.function)
-            api_method_args, api_method_kwargs = get_func_params(self.api_methods[shortcut.method_name])
+            api_method_args, api_method_kwargs = get_func_params(api_method_func)
 
             for apiargs, shortcutargs in (
                 (api_method_args, shortcut_args),
@@ -266,7 +483,22 @@ class ShortcutsTransformer(cst.CSTTransformer):
             params = [
                 shortcut_args.pop("cls", None) or shortcut_args.pop("self", None) or cst.Param(cst.Name("self")),
             ]
+
+            decorators = updated_node.decorators
+
+            if return_type_arg is not None and has_shortcut_executor(updated_node.decorators):
+                decorators = [
+                    decorator.with_changes(
+                        decorator=with_shortcut_return_type(decorator.decorator, return_type_arg),
+                    )
+                    if isinstance(decorator.decorator, cst.Call) and is_decorator_name(decorator.decorator, "shortcut")
+                    else decorator
+                    for decorator in decorators
+                ]
+                self.uses_bound_cute = self.uses_bound_cute or uses_bound_cute
+
             return updated_node.with_changes(
+                decorators=decorators,
                 params=cst.Parameters(
                     params=params + sort_params(shortcut_args.values()),
                     kwonly_params=sort_params(shortcut_kwargs.values()),

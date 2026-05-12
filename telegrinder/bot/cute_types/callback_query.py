@@ -7,16 +7,18 @@ import msgspec
 from kungfu.library import Nothing, Result, Some, Sum, unwrapping
 from kungfu.library.monad.option import NOTHING
 from msgspex import Option, decoder
-from msgspex.model import UNSET, From, field
+from msgspex.model import From, field
 
 from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.message import (
+    DEFAULT_EDIT,
     MessageCute,
     MessageEditShortcuts,
     ReplyMarkup,
-    execute_method_edit,
 )
+from telegrinder.bot.cute_types.utils import exclude_bound_parameters
+from telegrinder.tools.bound_cute import BoundCute
 from telegrinder.tools.waiter_machine.hasher import (
     CALLBACK_QUERY_FOR_MESSAGE,
     CALLBACK_QUERY_FROM_CHAT,
@@ -31,9 +33,9 @@ CACHED_CALLBACK_DATA_KEY: typing.Final = "cached_callback_data"
 
 
 class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQuery, kw_only=True):
-    message: Option[Sum[MessageCute, InaccessibleMessage]] = field(
-        default=UNSET,
-        converter=From[MessageCute | InaccessibleMessage | None],
+    message: Option[Sum[BoundCute[MessageCute], InaccessibleMessage]] = field(
+        default=...,
+        converter=From[Message | InaccessibleMessage | None],
     )
     """Optional. Message sent by the bot with the callback button that originated
     the query."""
@@ -249,13 +251,13 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         field correct_option_id is known to the bot. The method is analogous to
         the method forwardMessage, but the copied message doesn't have a link to
         the original message. Returns the MessageId of the sent message on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param from_chat_id: Unique identifier for the chat where the original message was sent (or channelusername in the format @channelusername).
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or usernameof the target bot, supergroup or channel in the format @username).
 
         :param message_id: Message identifier in the chat specified in from_chat_id.
 
@@ -280,7 +282,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         :param reply_parameters: Description of the message to reply to.
 
         :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
-        return await MessageCute.copy(self, **get_params(locals()))  # type: ignore
+        return await MessageCute.copy(self, **exclude_bound_parameters(locals()))  # type: ignore
 
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
     async def delete(
@@ -306,14 +308,15 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         there. - If the bot has can_manage_direct_messages administrator right
         in a channel, it can delete any message in the corresponding direct messages
         chat. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
 
         :param message_id: Identifier of the message to delete."""
-        return await MessageCute.delete(self, **get_params(locals()))  # type: ignore
+        return await MessageCute.delete(self, **exclude_bound_parameters(locals()))  # type: ignore
 
     @shortcut(
         "edit_message_text",
-        executor=execute_method_edit,
+        executor=DEFAULT_EDIT,
+        return_type=Sum[BoundCute["MessageCute"], bool],
         custom_params={"message_thread_id"},
     )
     async def edit_text(
@@ -340,7 +343,8 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         the time they were sent.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target channel (in the format @channelusername).
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup or channel in theformat @username.
+
         :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.

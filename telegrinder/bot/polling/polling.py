@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import typing
 from http import HTTPStatus
@@ -8,11 +9,12 @@ from msgspex import decoder
 
 from telegrinder.api.api import API
 from telegrinder.api.error import APIServerError, InvalidTokenError
-from telegrinder.bot.cute_types.update import UpdateCute
+from telegrinder.bot.cute_types.update import BaseCute, UpdateCute
 from telegrinder.bot.polling.abc import ABCPolling
-from telegrinder.bot.polling.error_handler import ErrorHandler
+from telegrinder.bot.polling.error_handler import ErrorHandler, StopPolling
 from telegrinder.bot.polling.utils import compute_number
 from telegrinder.modules import logger
+from telegrinder.tools.bound_cute import BoundCute
 from telegrinder.types.objects import Update, UpdateType
 
 DEFAULT_OFFSET: typing.Final = 0
@@ -21,6 +23,8 @@ DEFAULT_MAX_RECONNECTS: typing.Final = 15
 
 
 class Polling(ABCPolling):
+    update_model: type[Update]
+
     __slots__ = (
         "api",
         "timeout",
@@ -48,7 +52,7 @@ class Polling(ABCPolling):
         exclude_updates: set[UpdateType] | None = None,
     ) -> None:
         self.api = api
-        self.update_model = update_model
+        self.update_model = BoundCute[update_model] if issubclass(update_model, BaseCute) else update_model  # type: ignore
         self.timeout = timeout if isinstance(timeout, datetime.timedelta) else datetime.timedelta(seconds=timeout or 0)
         self.timeout_seconds = int(self.timeout.total_seconds())
         self.limit = limit
@@ -59,6 +63,7 @@ class Polling(ABCPolling):
         )
         self.reconnect_after = compute_number(DEFAULT_RECONNECT_AFTER, reconnect_after, 0.0)
         self.max_reconnects = compute_number(DEFAULT_MAX_RECONNECTS, max_reconnects, 0)
+        self._event_stop = asyncio.Event()
         self._running = False
         self._reconnects_counter = 0
         self._error_handler = ErrorHandler(self)
@@ -143,28 +148,46 @@ class Polling(ABCPolling):
 
         raise error from None
 
-    async def listen(self) -> typing.AsyncGenerator[list[Update], None]:
-        logger.debug("Listening polling")
+    def listen(self) -> typing.AsyncGenerator[list[Update], None]:
+        async def inner() -> typing.AsyncGenerator[list[Update], None]:
+            logger.debug("Listening polling")
+
+            with decoder(
+                list[self.update_model],
+                context=dict(ctx_api=self.api),
+            ) as updates_decoder:
+                while self._running:
+                    try:
+                        if (raw := await self.get_updates()) and (updates := updates_decoder.decode(raw)):
+                            yield updates
+                            self.offset = updates[-1].update_id + 1
+
+                        if self._reconnects_counter != 0:
+                            self._reset_reconnects_counter()
+                    except BaseException as error:
+                        if not await self._error_handler.handle(error):
+                            logger.exception("Traceback message below:")
+
+                        if isinstance(error, self.api.http.CONNECTION_TIMEOUT_ERRORS):
+                            self._reconnects_counter += 1
+
         self._running = True
+        self._event_stop.clear()
+        generator = inner()
 
-        with decoder(list[self.update_model]) as updates_decoder:
-            while self._running:
-                try:
-                    if (raw := await self.get_updates()) and (updates := updates_decoder.decode(raw)):
-                        yield updates
-                        self.offset = updates[-1].update_id + 1
+        async def wait_for_stop() -> None:
+            await self._event_stop.wait()
+            await generator.athrow(StopPolling)
 
-                    if self._reconnects_counter != 0:
-                        self._reset_reconnects_counter()
-                except BaseException as error:
-                    if not await self._error_handler.handle(error):
-                        logger.exception("Traceback message below:")
-
-                    if isinstance(error, self.api.http.CONNECTION_TIMEOUT_ERRORS):
-                        self._reconnects_counter += 1
+        asyncio.create_task(wait_for_stop())
+        return generator
 
     def stop(self) -> None:
         self._running = False
+
+        if not self._event_stop.is_set():
+            asyncio.get_running_loop().call_soon_threadsafe(self._event_stop.set)
+
         self._reset_reconnects_counter()
 
 

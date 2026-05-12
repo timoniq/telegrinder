@@ -20,6 +20,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     @shortcut(
         "approve_chat_join_request",
         executor=chat_member_interaction,
+        return_type=bool,
         custom_params={"chat_id", "user_id"},
     )
     async def approve(
@@ -34,7 +35,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
         Use this method to approve a chat join request. The bot must be an administrator
         in the chat for this to work and must have the can_invite_users administrator
         right. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channelin the format @username.
 
         :param user_id: Unique identifier of the target user."""
         ...
@@ -42,6 +43,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     @shortcut(
         "decline_chat_join_request",
         executor=chat_member_interaction,
+        return_type=bool,
         custom_params={"chat_id", "user_id"},
     )
     async def decline(
@@ -56,7 +58,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
         Use this method to decline a chat join request. The bot must be an administrator
         in the chat for this to work and must have the can_invite_users administrator
         right. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channelin the format @username.
 
         :param user_id: Unique identifier of the target user."""
         ...

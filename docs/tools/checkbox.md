@@ -1,93 +1,167 @@
 # Checkbox
 
-Via special scenarios you can easily create some common constructs.
-Scenarios are designed to be easy-to-use and as customizable as possible.
+`Checkbox` is a built-in scenario for quick inline multi-choice flows. It sends a message with inline buttons, tracks button presses through the waiter machine, and returns the final selection as a dictionary.
 
-One of them is checkbox scenario, which is used to create an inline checkbox with particular options.
+This is useful for:
 
-Callback data is generate_noded and processed automatically. Checkbox performs event collection via `asyncio.Event`, so it is extremely easy to integrate such scenario in your funnel bot.
+- short menus with multiple toggles
+- setup wizards
+- confirmation flows with several options
+- lightweight conversational funnels
 
-There is an obvious disadvantage of such way of collecting events: states are supposed to be short.
+`Checkbox` is intentionally short-lived. It keeps the interaction inside a single scenario session and is not meant to replace persistent user state.
 
-# First checkbox
+## Recommended usage
 
-Checkbox is created for each session. In some cases it will be easier for you to create a generator for them. Let's consider a simple case.
-
-You want to create a checkbox to choose accessories user want to buy with their phone. User will be given a list of them.
-
-You need to import required components. The special one for the needs of checkbox scenario will be `telegrinder.Checkbox`. Let's integrate it to your bot.
+In real bots the most convenient entrypoint is usually the `Dispatch` shortcut:
 
 ```python
-from telegrinder import Telegrinder, API, Token, Message, Checkbox, CALLBACK_QUERY_FOR_MESSAGE
+from telegrinder import API, Message, Telegrinder, Token, configure_dotenv, setup_logger
 from telegrinder.rules import Text
 
-api = API(token=Token("..."))
-bot = Telegrinder(api=api)
+configure_dotenv()
+setup_logger()
 
-@bot.on.message(Text("/start"))
-async def start(m: Message):
-    # now we need to create a checkbox
+api = API(token=Token.from_env())
+bot = Telegrinder(api)
 
-    # `msg` will be sent to the user with
-    # the checkbox reply markup. It usually
-    # contains an offering to choose needed options.
 
-    # `ready_text` is the text on the button
-    # which will be used to submit the checkbox.
-
-    # `max_in_row` sets the limit for options in a row
-    checkbox = Checkbox(
-        m.chat.id,
-        msg="Choose accessories you need:",
-        multiple_choice=True,
-        ready_text="That's all",
-        max_in_row=2
-    )
-
-    # now you can add options
-    # into you checkbox. You can do it via .add_option method.
-    # This also can be done in builder interface like this:
-    # Checkbox(...).add_option(...).add_option(...)
-
-    # checkbox option consists of four elements:
-    # `name` of option is needed to later return the pick status
-    # of option in dict
-    # `default_text` is displayed on the button when option is not picked
-    # `picked_text` is opposite
-    # `is_picked` is needed to preset the button state
-
-    checkbox.add_option(
-        name="case",
-        default_text="Case 5$",
-        picked_text="[ Case 5$ ]",
-        is_picked=False
-    )
-
-    checkbox.add_option(
-        "charger", "Charger 9$", "[ Charger 9$ ]",
-        is_picked=True
-    )
-
-    # now your checkbox is ready to use.
-    # picked is a dictionary option name to option state
-    # message_id is the id of the one sent with `msg` text
-    picked, message_id = await checkbox.wait(CALLBACK_QUERY_FOR_MESSAGE, m.api)
-
-    # usually this message is edited
-    # with received information
-    await m.api.edit_message_text(
-        m.chat.id,
-        message_id,
-        text="You picked {}".format(
-            ", ".join([a for a in picked if picked[a]])
-            if picked
-            else "nothing"
+@bot.on.message(Text("/checkbox"))
+async def action(message: Message) -> None:
+    picked, message_id = await (
+        bot.dispatch.checkbox(
+            message.chat_id,
+            message="Check your checkbox",
+            cancel_text="Cancel",
+            max_in_row=2,
         )
+        .add_option("apple", "Apple", "Apple 🍏")
+        .add_option("banana", "Banana", "Banana 🍌", is_picked=True)
+        .add_option("pear", "Pear", "Pear 🍐")
+        .wait(message.api)
     )
+
+    await message.edit(
+        text="You picked: {}".format(", ".join(key for key, value in picked.items() if value)),
+        chat_id=message.chat.id,
+        message_id=message_id,
+    )
+
 
 bot.run_forever()
 ```
 
-# Advanced Usage
+Reference: [examples/checkbox.py](https://github.com/timoniq/telegrinder/blob/dev/examples/checkbox.py)
 
-WIP
+---
+
+## What `wait()` returns
+
+`wait()` returns:
+
+- `dict[Key, bool]` with option states
+- `message_id` of the scenario message
+
+The dictionary preserves your option keys, so you can use strings, enums, or other hashable values as option identifiers.
+
+## Adding options
+
+Each option has:
+
+- `key` used in the resulting dictionary
+- `default_text` shown when the option is not picked
+- `picked_text` shown when the option is picked
+- optional `is_picked` initial state
+- optional `icon_id`
+- optional `style`
+
+Example:
+
+```python
+checkbox = (
+    bot.dispatch.checkbox(chat_id, message="Choose toppings")
+    .add_option("cheese", "Cheese", "Cheese ✅")
+    .add_option("bacon", "Bacon", "Bacon ✅", is_picked=True)
+)
+```
+
+## Constructor parameters
+
+The current `Checkbox` constructor accepts:
+
+```python
+Checkbox(
+    chat_id: int,
+    message: str,
+    *,
+    parse_mode: str | None = None,
+    max_in_row: int = 3,
+    callback_answer: str | None = None,
+    callback_answer_as_alert: bool | None = None,
+    ready_text: str = "Ready",
+    ready_icon_id: str | int | None = None,
+    ready_style: KeyboardButtonStyle | None = None,
+    cancel_text: str | None = None,
+    cancel_icon_id: str | int | None = None,
+    cancel_style: KeyboardButtonStyle | None = None,
+    waiter_machine: WaiterMachine | None = None,
+)
+```
+
+The most commonly used arguments are:
+
+- `message` for the text above the checkbox
+- `max_in_row` for layout
+- `ready_text` to customize the submit button
+- `cancel_text` to add a cancel button
+- `parse_mode` if the scenario message uses formatting
+
+## Button styles
+
+Checkbox buttons use regular `InlineButton` under the hood, so style-aware buttons are supported through the scenario parameters and option styles.
+
+That means you can visually distinguish:
+
+- the ready action
+- the cancel action
+- individual options
+
+via `KeyboardButtonStyle` values.
+
+## Direct construction
+
+If you do not want to use `bot.dispatch.checkbox(...)`, you can instantiate the scenario directly:
+
+```python
+from telegrinder import Checkbox
+
+checkbox = Checkbox(
+    chat_id=message.chat_id,
+    message="Pick your options",
+    waiter_machine=bot.dispatch.callback_query.waiter_machine,
+)
+```
+
+Then call `.add_option(...)` and `.wait(api)` the same way.
+
+The important detail is that `Checkbox` needs a `WaiterMachine`. The dispatch shortcut already provides the correct one for you, which is why it is the recommended path.
+
+## Cancellation behavior
+
+If `cancel_text` is provided, the checkbox renders a separate cancel button.
+
+When the cancel action is pressed:
+
+- the internal option list is cleared
+- the wait loop ends
+- the returned dictionary is empty
+
+That makes cancellation easy to distinguish from a normal completed selection.
+
+## When to use Checkbox vs Choice
+
+Use `Checkbox` when multiple items may be selected.
+
+Use `Choice` when only one item should be selected at the end of the interaction.
+
+Both scenarios are built on the same general mechanism, but `Choice` gives a more natural API for single-select flows.

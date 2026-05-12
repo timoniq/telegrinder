@@ -213,6 +213,7 @@ class ContentType(StrEnum, metaclass=BaseEnumMeta):
     DOCUMENT = "document"
     PAID_MEDIA = "paid_media"
     PHOTO = "photo"
+    LIVE_PHOTO = "live_photo"
     STICKER = "sticker"
     STORY = "story"
     VIDEO = "video"
@@ -281,6 +282,9 @@ class ContentType(StrEnum, metaclass=BaseEnumMeta):
     VIDEO_CHAT_PARTICIPANTS_INVITED = "video_chat_participants_invited"
     WEB_APP_DATA = "web_app_data"
     USER_SHARED = "user_shared"
+    GUEST_QUERY = "guest_query_id"
+    GUEST_QUERY_CALLER_CHAT = "guest_query_caller_chat"
+    GUEST_QUERY_CALLER_USER = "guest_query_caller_user"
     UNKNOWN = "unknown"
 
 
@@ -434,6 +438,7 @@ class UpdateType(StrEnum, metaclass=BaseEnumMeta):
     BUSINESS_MESSAGE = "business_message"
     EDITED_BUSINESS_MESSAGE = "edited_business_message"
     DELETED_BUSINESS_MESSAGES = "deleted_business_messages"
+    GUEST_MESSAGE = "guest_message"
     MESSAGE_REACTION = "message_reaction"
     MESSAGE_REACTION_COUNT = "message_reaction_count"
     INLINE_QUERY = "inline_query"

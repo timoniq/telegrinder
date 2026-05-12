@@ -2,19 +2,18 @@ import dataclasses
 import inspect
 import typing
 from collections import OrderedDict
-from functools import wraps
+from functools import cache, wraps
 
 from kungfu.library.monad.result import Result
 
 from telegrinder.tools.magic.function import get_func_parameters
-from telegrinder.types.utils import get_params
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
     from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts
 
 type Executor[T] = typing.Callable[
-    [T, str, dict[str, typing.Any]],
+    [T, str, dict[str, typing.Any], typing.Any],
     typing.Awaitable[Result[typing.Any, APIError]],
 ]
 type CuteMethod[T, **P, R] = typing.Callable[
@@ -31,7 +30,20 @@ type ShortcutMethod[**P, R] = typing.Callable[
 class Shortcut[T]:
     method_name: str
     executor: Executor[T] | None = dataclasses.field(default=None, kw_only=True)
+    return_type: typing.Any | None = dataclasses.field(default=None, kw_only=True)
     custom_params: set[str] = dataclasses.field(default_factory=lambda: set[str](), kw_only=True)
+
+
+@cache
+def resolve_shortcut_result_type(result_type: typing.Any, /) -> typing.Any:
+    if result_type is None:
+        return typing.Any
+
+    return typing.get_args(result_type)[0] if typing.get_origin(result_type) is Result else result_type
+
+
+def get_shortcut_result_type(func: typing.Callable[..., typing.Any], /) -> typing.Any:
+    return resolve_shortcut_result_type(func.__annotations__.get("return"))
 
 
 @typing.overload
@@ -49,6 +61,7 @@ def shortcut[T: BaseCute, S: BaseShortcuts, **P, R](
     /,
     *,
     executor: Executor[T],
+    return_type: typing.Any = ...,
     custom_params: set[str] = ...,
 ) -> typing.Callable[[CuteMethod[T, P, R] | CuteMethod[S, P, R]], ShortcutMethod[P, R]]: ...
 
@@ -58,11 +71,14 @@ def shortcut[**P, R](
     /,
     *,
     executor: Executor[typing.Any] | None = None,
+    return_type: typing.Any | None = None,
     custom_params: set[str] | None = None,
 ) -> typing.Callable[[CuteMethod[typing.Any, P, R]], ShortcutMethod[P, R]]:
     """Decorate a cute method as a shortcut."""
 
     def wrapper(func: CuteMethod[typing.Any, P, R]) -> ShortcutMethod[P, R]:
+        result_type: typing.Any | None = return_type
+
         @wraps(func)
         async def inner(
             self: typing.Any,
@@ -92,11 +108,19 @@ def shortcut[**P, R](
             if var_kwargs := func_params.get("var_star_kwargs"):
                 params[var_kwargs] = kwargs.copy()
 
-            return await executor(self, method_name, get_params(params))
+            nonlocal result_type
+
+            if result_type is None:
+                result_type = get_shortcut_result_type(func)
+            else:
+                result_type = resolve_shortcut_result_type(result_type)
+
+            return await executor(self, method_name, params, result_type)
 
         inner.__shortcut__ = Shortcut(  # type: ignore
             method_name=method_name,
             executor=executor,
+            return_type=return_type,
             custom_params=custom_params or set(),
         )
         return inner  # type: ignore

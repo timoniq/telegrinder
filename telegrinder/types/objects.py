@@ -81,8 +81,9 @@ class PaidMedia(Model):
     """Base object `PaidMedia`, see the [documentation](https://core.telegram.org/bots/api#paidmedia).
 
     This object describes paid media. Currently, it can be one of
-    - PaidMediaPreview
+    - PaidMediaLivePhoto
     - PaidMediaPhoto
+    - PaidMediaPreview
     - PaidMediaVideo
     """
 
@@ -161,8 +162,23 @@ class InputPaidMedia(Model):
     """Base object `InputPaidMedia`, see the [documentation](https://core.telegram.org/bots/api#inputpaidmedia).
 
     This object describes the paid media to be sent. Currently, it can be one of
+    - InputPaidMediaLivePhoto
     - InputPaidMediaPhoto
     - InputPaidMediaVideo
+    """
+
+
+class InputPollOptionMedia(Model):
+    """Base object `InputPollOptionMedia`, see the [documentation](https://core.telegram.org/bots/api#inputpolloptionmedia).
+
+    This object represents the content of a poll option to be sent. It should be one of
+    - InputMediaAnimation
+    - InputMediaLivePhoto
+    - InputMediaLocation
+    - InputMediaPhoto
+    - InputMediaSticker
+    - InputMediaVenue
+    - InputMediaVideo
     """
 
 
@@ -171,9 +187,25 @@ class InputMedia(Model):
 
     This object represents the content of a media message to be sent. It should be one of
     - InputMediaAnimation
-    - InputMediaDocument
     - InputMediaAudio
+    - InputMediaDocument
+    - InputMediaLivePhoto
     - InputMediaPhoto
+    - InputMediaVideo
+    """
+
+
+class InputPollMedia(Model):
+    """Base object `InputPollMedia`, see the [documentation](https://core.telegram.org/bots/api#inputpollmedia).
+
+    This object represents the content of a poll description or a quiz explanation to be sent. It should be one of
+    - InputMediaAnimation
+    - InputMediaAudio
+    - InputMediaDocument
+    - InputMediaLivePhoto
+    - InputMediaLocation
+    - InputMediaPhoto
+    - InputMediaVenue
     - InputMediaVideo
     """
 
@@ -268,7 +300,7 @@ class Update(Model):
     """Object `Update`, see the [documentation](https://core.telegram.org/bots/api#update).
 
     This object represents an incoming update.
-    At most one of the optional parameters can be present in any given update.
+    At most one of the optional fields can be present in any given update.
     """
 
     update_id: int = field()
@@ -310,6 +342,10 @@ class Update(Model):
         default=..., converter=From["BusinessMessagesDeleted | None"]
     )
     """Optional. Messages were deleted from a connected business account."""
+
+    guest_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. New guest message. The bot can use the field Message.guest_query_id
+    and the method answerGuestQuery to send a message in response."""
 
     message_reaction: Option[MessageReactionUpdated] = field(
         default=..., converter=From["MessageReactionUpdated | None"]
@@ -479,12 +515,16 @@ class User(Model):
     """Optional. True, if privacy mode is disabled for the bot. Returned only in
     getMe."""
 
+    supports_guest_queries: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the bot supports guest queries from chats it is not a member
+    of. Returned only in getMe."""
+
     supports_inline_queries: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the bot supports inline queries. Returned only in getMe."""
 
     can_connect_to_business: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the bot can be connected to a Telegram Business account
-    to receive its messages. Returned only in getMe."""
+    """Optional. True, if the bot can be connected to a user account to manage it.
+    Returned only in getMe."""
 
     has_main_web_app: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the bot has a main Web App. Returned only in getMe."""
@@ -818,6 +858,12 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Tag or custom title of the sender of the message; for supergroups
     only."""
 
+    guest_query_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. The unique identifier for the guest query. Use this identifier
+    with the method answerGuestQuery to send a response message. If non-empty,
+    the message belongs to the chat where the guest bot was summoned, which may
+    not coincide with other existing bot chats sharing the same identifier."""
+
     business_connection_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the business connection from which the
     message was received. If non-empty, the message belongs to a chat of the
@@ -868,6 +914,14 @@ class Message(MaybeInaccessibleMessage):
 
     via_bot: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. Bot through which the message was sent."""
+
+    guest_bot_caller_user: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. For a message sent by a guest bot, this is the user whose original
+    message triggered the bot's response."""
+
+    guest_bot_caller_chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
+    """Optional. For a message sent by a guest bot, this is the chat whose original
+    message triggered the bot's response."""
 
     edit_date: Option[datetime] = field(default=..., converter=From[datetime | int | None])
     """Optional. Date the message was last edited in Unix time."""
@@ -930,6 +984,11 @@ class Message(MaybeInaccessibleMessage):
 
     document: Option[Document] = field(default=..., converter=From["Document | None"])
     """Optional. Message is a general file, information about the file."""
+
+    live_photo: Option[LivePhoto] = field(default=..., converter=From["LivePhoto | None"])
+    """Optional. Message is a live photo, information about the live photo. For
+    backward compatibility, when this field is set, the photo field will also
+    be set."""
 
     paid_media: Option[PaidMediaInfo] = field(default=..., converter=From["PaidMediaInfo | None"])
     """Optional. Message contains paid media; information about the paid media."""
@@ -1387,6 +1446,9 @@ class ExternalReplyInfo(Model):
     document: Option[Document] = field(default=..., converter=From["Document | None"])
     """Optional. Message is a general file, information about the file."""
 
+    live_photo: Option[LivePhoto] = field(default=..., converter=From["LivePhoto | None"])
+    """Optional. Message is a live photo, information about the live photo."""
+
     paid_media: Option[PaidMediaInfo] = field(default=..., converter=From["PaidMediaInfo | None"])
     """Optional. Message contains paid media; information about the paid media."""
 
@@ -1456,9 +1518,9 @@ class ReplyParameters(Model):
 
     chat_id: Option[Sum[int, str]] = field(default=..., converter=From[int | str | None])
     """Optional. If the message to be replied to is from a different chat, unique
-    identifier for the chat or username of the channel (in the format @channelusername).
-    Not supported for messages sent on behalf of a business account and messages
-    from channel direct messages chats."""
+    identifier for the chat or username of the bot, supergroup or channel in
+    the format @username. Not supported for messages sent on behalf of a business
+    account and messages from channel direct messages chats."""
 
     allow_sending_without_reply: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the message should be sent even if the specified message
@@ -1693,6 +1755,41 @@ class Document(Model):
     float type are safe for storing this value."""
 
 
+class LivePhoto(Model):
+    """Object `LivePhoto`, see the [documentation](https://core.telegram.org/bots/api#livephoto).
+
+    This object represents a live photo.
+    """
+
+    file_id: str = field()
+    """Identifier for the video file which can be used to download or reuse the file."""
+
+    file_unique_id: str = field()
+    """Unique identifier for the video file which is supposed to be the same over
+    time and for different bots. Can't be used to download or reuse the file."""
+
+    width: int = field()
+    """Video width as defined by the sender."""
+
+    height: int = field()
+    """Video height as defined by the sender."""
+
+    duration: int = field()
+    """Duration of the video in seconds as defined by the sender."""
+
+    photo: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    """Optional. Available sizes of the corresponding static photo."""
+
+    mime_type: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. MIME type of the file as defined by the sender."""
+
+    file_size: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. File size in bytes. It can be bigger than 2^31 and some programming
+    languages may have difficulty/silent defects in interpreting it. But
+    it has at most 52 significant bits, so a signed 64-bit integer or double-precision
+    float type are safe for storing this value."""
+
+
 class Story(Model):
     """Object `Story`, see the [documentation](https://core.telegram.org/bots/api#story).
 
@@ -1845,10 +1942,36 @@ class PaidMediaInfo(Model):
     star_count: int = field()
     """The number of Telegram Stars that must be paid to buy access to the media."""
 
-    paid_media: list[Sum[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]] = field(
-        converter=From[list["PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo"]]
+    paid_media: list[Sum[PaidMediaLivePhoto, PaidMediaPhoto, PaidMediaPreview, PaidMediaVideo]] = field(
+        converter=From[list["PaidMediaLivePhoto | PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo"]]
     )
     """Information about the paid media."""
+
+
+class PaidMediaLivePhoto(PaidMedia):
+    """Object `PaidMediaLivePhoto`, see the [documentation](https://core.telegram.org/bots/api#paidmedialivephoto).
+
+    The paid media is a live photo.
+    """
+
+    live_photo: LivePhoto = field()
+    """The photo."""
+
+    type: Literal["live_photo"] = field(default="live_photo")
+    """Type of the paid media, always `live_photo`."""
+
+
+class PaidMediaPhoto(PaidMedia):
+    """Object `PaidMediaPhoto`, see the [documentation](https://core.telegram.org/bots/api#paidmediaphoto).
+
+    The paid media is a photo.
+    """
+
+    photo: list[PhotoSize] = field()
+    """The photo."""
+
+    type: Literal["photo"] = field(default="photo")
+    """Type of the paid media, always `photo`."""
 
 
 class PaidMediaPreview(PaidMedia):
@@ -1868,19 +1991,6 @@ class PaidMediaPreview(PaidMedia):
 
     duration: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Duration of the media in seconds as defined by the sender."""
-
-
-class PaidMediaPhoto(PaidMedia):
-    """Object `PaidMediaPhoto`, see the [documentation](https://core.telegram.org/bots/api#paidmediaphoto).
-
-    The paid media is a photo.
-    """
-
-    photo: list[PhotoSize] = field()
-    """The photo."""
-
-    type: Literal["photo"] = field(default="photo")
-    """Type of the paid media, always `photo`."""
 
 
 class PaidMediaVideo(PaidMedia):
@@ -1935,6 +2045,43 @@ class Dice(Model):
     emoji, 1-64 for `🎰` base emoji."""
 
 
+class PollMedia(Model):
+    """Object `PollMedia`, see the [documentation](https://core.telegram.org/bots/api#pollmedia).
+
+    At most one of the optional fields can be present in any given object.
+    """
+
+    animation: Option[Animation] = field(default=..., converter=From["Animation | None"])
+    """Optional. Media is an animation, information about the animation."""
+
+    audio: Option[Audio] = field(default=..., converter=From["Audio | None"])
+    """Optional. Media is an audio file, information about the file; currently,
+    can't be received in a poll option."""
+
+    document: Option[Document] = field(default=..., converter=From["Document | None"])
+    """Optional. Media is a general file, information about the file; currently,
+    can't be received in a poll option."""
+
+    live_photo: Option[LivePhoto] = field(default=..., converter=From["LivePhoto | None"])
+    """Optional. Media is a live photo, information about the live photo."""
+
+    location: Option[Location] = field(default=..., converter=From["Location | None"])
+    """Optional. Media is a shared location, information about the location."""
+
+    photo: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    """Optional. Media is a photo, available sizes of the photo."""
+
+    sticker: Option[Sticker] = field(default=..., converter=From["Sticker | None"])
+    """Optional. Media is a sticker, information about the sticker; currently,
+    for poll options only."""
+
+    venue: Option[Venue] = field(default=..., converter=From["Venue | None"])
+    """Optional. Media is a venue, information about the venue."""
+
+    video: Option[Video] = field(default=..., converter=From["Video | None"])
+    """Optional. Media is a video, information about the video."""
+
+
 class PollOption(Model):
     """Object `PollOption`, see the [documentation](https://core.telegram.org/bots/api#polloption).
 
@@ -1953,6 +2100,9 @@ class PollOption(Model):
     text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the option text. Currently,
     only custom emoji entities are allowed in poll option texts."""
+
+    media: Option[PollMedia] = field(default=..., converter=From["PollMedia | None"])
+    """Optional. Media added to the poll option."""
 
     added_by_user: Option[User] = field(default=..., converter=From["User | None"])
     """Optional. User who added the option; omitted if the option wasn't added
@@ -1989,6 +2139,24 @@ class InputPollOption(Model):
     text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. A JSON-serialized list of special entities that appear in the
     poll option text. It can be specified instead of text_parse_mode."""
+
+    media: Option[
+        Sum[
+            InputMediaAnimation,
+            InputMediaLivePhoto,
+            InputMediaLocation,
+            InputMediaPhoto,
+            InputMediaSticker,
+            InputMediaVenue,
+            InputMediaVideo,
+        ]
+    ] = field(
+        default=...,
+        converter=From[
+            "InputMediaAnimation | InputMediaLivePhoto | InputMediaLocation | InputMediaPhoto | InputMediaSticker | InputMediaVenue | InputMediaVideo | None"
+        ],
+    )
+    """Optional. Media added to the poll option."""
 
 
 class PollAnswer(Model):
@@ -2046,12 +2214,21 @@ class Poll(Model):
     allows_revoting: bool = field()
     """True, if the poll allows to change the chosen answer options."""
 
+    members_only: bool = field()
+    """True if voting is limited to users who have been members of the chat where
+    the poll was originally sent for more than 24 hours."""
+
     question_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities that appear in the question. Currently, only
     custom emoji entities are allowed in poll questions."""
 
     type: PollType = field(default=PollType.REGULAR)
     """Poll type, currently can be `regular` or `quiz`."""
+
+    country_codes: Option[list[str]] = field(default=..., converter=From[list[str] | None])
+    """Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating
+    the countries from which users can vote in the poll. If omitted, then users
+    from any country can participate in the poll."""
 
     correct_option_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
     """Optional. Array of 0-based identifiers of the correct answer options.
@@ -2065,6 +2242,9 @@ class Poll(Model):
     explanation_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities like usernames, URLs, bot commands, etc. that
     appear in the explanation."""
+
+    explanation_media: Option[PollMedia] = field(default=..., converter=From["PollMedia | None"])
+    """Optional. Media added to the quiz explanation."""
 
     open_period: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Amount of time in seconds the poll will be active after creation."""
@@ -2080,6 +2260,10 @@ class Poll(Model):
     description_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
     """Optional. Special entities like usernames, URLs, bot commands, etc. that
     appear in the description."""
+
+    media: Option[PollMedia] = field(default=..., converter=From["PollMedia | None"])
+    """Optional. Media added to the poll description; for polls inside the Message
+    object only."""
 
 
 class ChecklistTask(Model):
@@ -3142,7 +3326,7 @@ class WebAppInfo(Model):
 class ReplyKeyboardMarkup(Model):
     """Object `ReplyKeyboardMarkup`, see the [documentation](https://core.telegram.org/bots/api#replykeyboardmarkup).
 
-    This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a Telegram Business account.
+    This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a business account.
     """
 
     keyboard: list[list[KeyboardButton]] = field()
@@ -3362,7 +3546,7 @@ class KeyboardButtonPollType(Model):
 class ReplyKeyboardRemove(Model):
     """Object `ReplyKeyboardRemove`, see the [documentation](https://core.telegram.org/bots/api#replykeyboardremove).
 
-    Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a Telegram Business account.
+    Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a business account.
     """
 
     remove_keyboard: bool = field()
@@ -3425,7 +3609,7 @@ class InlineKeyboardButton(Model):
     presses the button. The Web App will be able to send an arbitrary message
     on behalf of the user using the method answerWebAppQuery. Available only
     in private chats between a user and the bot. Not supported for messages sent
-    on behalf of a Telegram Business account."""
+    on behalf of a business account."""
 
     login_url: Option[LoginUrl] = field(default=..., converter=From["LoginUrl | None"])
     """Optional. An HTTPS URL used to automatically authorize the user. Can be
@@ -3436,7 +3620,7 @@ class InlineKeyboardButton(Model):
     of their chats, open that chat and insert the bot's username and the specified
     inline query in the input field. May be empty, in which case just the bot's
     username will be inserted. Not supported for messages sent in channel direct
-    messages chats and on behalf of a Telegram Business account."""
+    messages chats and on behalf of a business account."""
 
     switch_inline_query_current_chat: Option[str] = field(default=..., converter=From[str | None])
     """Optional. If set, pressing the button will insert the bot's username and
@@ -3444,8 +3628,7 @@ class InlineKeyboardButton(Model):
     in which case only the bot's username will be inserted. This offers a quick
     way for the user to open your bot in inline mode in the same chat - good for selecting
     something from multiple options. Not supported in channels and for messages
-    sent in channel direct messages chats and on behalf of a Telegram Business
-    account."""
+    sent in channel direct messages chats and on behalf of a business account."""
 
     switch_inline_query_chosen_chat: Option[SwitchInlineQueryChosenChat] = field(
         default=..., converter=From["SwitchInlineQueryChosenChat | None"]
@@ -3453,8 +3636,8 @@ class InlineKeyboardButton(Model):
     """Optional. If set, pressing the button will prompt the user to select one
     of their chats of the specified type, open that chat and insert the bot's
     username and the specified inline query in the input field. Not supported
-    for messages sent in channel direct messages chats and on behalf of a Telegram
-    Business account."""
+    for messages sent in channel direct messages chats and on behalf of a business
+    account."""
 
     copy_text: Option[CopyTextButton] = field(default=..., converter=From["CopyTextButton | None"])
     """Optional. Description of the button that copies the specified text to the
@@ -3572,7 +3755,7 @@ class CallbackQuery(Model):
 class ForceReply(Model):
     """Object `ForceReply`, see the [documentation](https://core.telegram.org/bots/api#forcereply).
 
-    Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a Telegram Business account.
+    Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a user account.
     """
 
     force_reply: bool = field()
@@ -3957,6 +4140,9 @@ class ChatMemberRestricted(ChatMember):
     can_add_web_page_previews: bool = field()
     """True, if the user is allowed to add web page previews to their messages."""
 
+    can_react_to_messages: bool = field()
+    """True, if the user is allowed to react to messages."""
+
     can_edit_tag: bool = field()
     """True, if the user is allowed to edit their own tag."""
 
@@ -4087,8 +4273,13 @@ class ChatPermissions(Model):
     can_add_web_page_previews: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to add web page previews to their messages."""
 
+    can_react_to_messages: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the user is allowed to react to messages. If omitted,
+    defaults to the value of can_send_messages."""
+
     can_edit_tag: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the user is allowed to edit their own tag."""
+    """Optional. True, if the user is allowed to edit their own tag. If omitted,
+    defaults to the value of can_pin_messages."""
 
     can_change_info: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to change the chat title, photo and
@@ -4938,6 +5129,21 @@ class OwnedGifts(Model):
     """Optional. Offset for the next request. If empty, then there are no more results."""
 
 
+class BotAccessSettings(Model):
+    """Object `BotAccessSettings`, see the [documentation](https://core.telegram.org/bots/api#botaccesssettings).
+
+    This object describes the access settings of a bot.
+    """
+
+    is_access_restricted: bool = field()
+    """True, if only selected users can access the bot. The bot's owner can always
+    access it."""
+
+    added_users: Option[list[User]] = field(default=..., converter=From["list[User] | None"])
+    """Optional. The list of other users who have access to the bot if the access
+    is restricted."""
+
+
 class AcceptedGiftTypes(Model):
     """Object `AcceptedGiftTypes`, see the [documentation](https://core.telegram.org/bots/api#acceptedgifttypes).
 
@@ -5037,8 +5243,8 @@ class BotCommandScopeChat(BotCommandScope):
 
     chat_id: Sum[int, str] = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
-    (in the format @supergroupusername). Channel direct messages chats and
-    channel chats aren't supported."""
+    in the format @username. Channel direct messages chats and channel chats
+    aren't supported."""
 
     type: Literal["chat"] = field(default="chat")
     """Scope type, must be chat."""
@@ -5052,8 +5258,8 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
 
     chat_id: Sum[int, str] = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
-    (in the format @supergroupusername). Channel direct messages chats and
-    channel chats aren't supported."""
+    in the format @username. Channel direct messages chats and channel chats
+    aren't supported."""
 
     type: Literal["chat_administrators"] = field(default="chat_administrators")
     """Scope type, must be chat_administrators."""
@@ -5067,8 +5273,8 @@ class BotCommandScopeChatMember(BotCommandScope):
 
     chat_id: Sum[int, str] = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
-    (in the format @supergroupusername). Channel direct messages chats and
-    channel chats aren't supported."""
+    in the format @username. Channel direct messages chats and channel chats
+    aren't supported."""
 
     user_id: int = field()
     """Unique identifier of the target user."""
@@ -5262,7 +5468,7 @@ class ChatOwnerLeft(Model):
     """
 
     new_owner: Option[User] = field(default=..., converter=From["User | None"])
-    """Optional. The user which will be the new owner of the chat if the previous
+    """Optional. The user who will become the new owner of the chat if the previous
     owner does not return to the chat."""
 
 
@@ -5400,6 +5606,16 @@ class SentWebAppMessage(Model):
     is an inline keyboard attached to the message."""
 
 
+class SentGuestMessage(Model):
+    """Object `SentGuestMessage`, see the [documentation](https://core.telegram.org/bots/api#sentguestmessage).
+
+    Describes an inline message sent by a guest bot.
+    """
+
+    inline_message_id: str = field()
+    """Identifier of the sent inline message."""
+
+
 class PreparedInlineMessage(Model):
     """Object `PreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#preparedinlinemessage).
 
@@ -5442,7 +5658,235 @@ class ResponseParameters(Model):
     to wait before the request can be repeated."""
 
 
-class InputMediaPhoto(InputMedia):
+class InputMediaAnimation(InputPollMedia, InputPollOptionMedia, InputMedia):
+    """Object `InputMediaAnimation`, see the [documentation](https://core.telegram.org/bots/api#inputmediaanimation).
+
+    Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
+    """
+
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: Literal["animation"] = field(default="animation")
+    """Type of the result, must be animation."""
+
+    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
+    for the file is supported server-side. The thumbnail should be in JPEG format
+    and less than 200 kB in size. A thumbnail's width and height should not exceed
+    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
+    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
+    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    caption: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Caption of the animation to be sent, 0-1024 characters after
+    entities parsing."""
+
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
+    """Optional. Mode for parsing entities in the animation caption. See formatting
+    options for more details."""
+
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. List of special entities that appear in the caption, which can
+    be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True, if the caption must be shown above the message media."""
+
+    width: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Animation width."""
+
+    height: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Animation height."""
+
+    duration: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Animation duration in seconds."""
+
+    has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the animation needs to be covered with a spoiler animation."""
+
+
+class InputMediaAudio(InputPollMedia, InputMedia):
+    """Object `InputMediaAudio`, see the [documentation](https://core.telegram.org/bots/api#inputmediaaudio).
+
+    Represents an audio file to be treated as music to be sent.
+    """
+
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: Literal["audio"] = field(default="audio")
+    """Type of the result, must be audio."""
+
+    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
+    for the file is supported server-side. The thumbnail should be in JPEG format
+    and less than 200 kB in size. A thumbnail's width and height should not exceed
+    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
+    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
+    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    caption: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Caption of the audio to be sent, 0-1024 characters after entities
+    parsing."""
+
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
+    """Optional. Mode for parsing entities in the audio caption. See formatting
+    options for more details."""
+
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. List of special entities that appear in the caption, which can
+    be specified instead of parse_mode."""
+
+    duration: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Duration of the audio in seconds."""
+
+    performer: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Performer of the audio."""
+
+    title: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Title of the audio."""
+
+
+class InputMediaDocument(InputPollMedia, InputMedia):
+    """Object `InputMediaDocument`, see the [documentation](https://core.telegram.org/bots/api#inputmediadocument).
+
+    Represents a general file to be sent.
+    """
+
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: Literal["document"] = field(default="document")
+    """Type of the result, must be document."""
+
+    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
+    for the file is supported server-side. The thumbnail should be in JPEG format
+    and less than 200 kB in size. A thumbnail's width and height should not exceed
+    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
+    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
+    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    caption: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Caption of the document to be sent, 0-1024 characters after entities
+    parsing."""
+
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
+    """Optional. Mode for parsing entities in the document caption. See formatting
+    options for more details."""
+
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. List of special entities that appear in the caption, which can
+    be specified instead of parse_mode."""
+
+    disable_content_type_detection: Option[Sum[bool, InputFile]] = field(
+        default=..., converter=From["bool | InputFile | None"]
+    )
+    """Optional. Disables automatic server-side content type detection for
+    files uploaded using multipart/form-data. Always True, if the document
+    is sent as part of an album."""
+
+
+class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
+    """Object `InputMediaLivePhoto`, see the [documentation](https://core.telegram.org/bots/api#inputmedialivephoto).
+
+    Represents a live photo to be sent.
+    """
+
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    """Video of the live photo to send. Pass a file_id to send a file that exists on
+    the Telegram servers (recommended) or pass `attach://<file_attach_name>`
+    to upload a new one using multipart/form-data under <file_attach_name>
+    name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+    Sending live photos by a URL is currently unsupported."""
+
+    photo: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    """The static photo to send. Pass a file_id to send a file that exists on the Telegram
+    servers (recommended) or pass `attach://<file_attach_name>` to upload
+    a new one using multipart/form-data under <file_attach_name> name. More
+    information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+    Sending live photos by a URL is currently unsupported."""
+
+    type: Literal["live_photo"] = field(default="live_photo")
+    """Type of the result, must be live_photo."""
+
+    caption: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Caption of the live photo to be sent, 0-1024 characters after
+    entities parsing."""
+
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
+    """Optional. Mode for parsing entities in the live photo caption. See formatting
+    options for more details."""
+
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. List of special entities that appear in the caption, which can
+    be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True, if the caption must be shown above the message media."""
+
+    has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the live photo needs to be covered with a spoiler animation."""
+
+
+class InputMediaLocation(InputPollMedia, InputPollOptionMedia):
+    """Object `InputMediaLocation`, see the [documentation](https://core.telegram.org/bots/api#inputmedialocation).
+
+    Represents a location to be sent.
+    """
+
+    latitude: float = field()
+    """Latitude of the location."""
+
+    longitude: float = field()
+    """Longitude of the location."""
+
+    type: Literal["location"] = field(default="location")
+    """Type of the result, must be location."""
+
+    horizontal_accuracy: Option[float] = field(default=..., converter=From[float | None])
+    """Optional. The radius of uncertainty for the location, measured in meters;
+    0-1500."""
+
+
+class InputMediaPhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     """Object `InputMediaPhoto`, see the [documentation](https://core.telegram.org/bots/api#inputmediaphoto).
 
     Represents a photo to be sent.
@@ -5482,7 +5926,62 @@ class InputMediaPhoto(InputMedia):
     """Optional. Pass True if the photo needs to be covered with a spoiler animation."""
 
 
-class InputMediaVideo(InputMedia):
+class InputMediaSticker(InputPollOptionMedia):
+    """Object `InputMediaSticker`, see the [documentation](https://core.telegram.org/bots/api#inputmediasticker).
+
+    Represents a sticker file to be sent.
+    """
+
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers
+    (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from
+    the Internet, or pass `attach://<file_attach_name>` to upload a new .WEBP,
+    .TGS, or .WEBM sticker using multipart/form-data under <file_attach_name>
+    name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: Literal["sticker"] = field(default="sticker")
+    """Type of the result, must be sticker."""
+
+    emoji: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Emoji associated with the sticker; only for just uploaded stickers."""
+
+
+class InputMediaVenue(InputPollMedia, InputPollOptionMedia):
+    """Object `InputMediaVenue`, see the [documentation](https://core.telegram.org/bots/api#inputmediavenue).
+
+    Represents a venue to be sent.
+    """
+
+    latitude: float = field()
+    """Latitude of the location."""
+
+    longitude: float = field()
+    """Longitude of the location."""
+
+    title: str = field()
+    """Name of the venue."""
+
+    address: str = field()
+    """Address of the venue."""
+
+    type: Literal["venue"] = field(default="venue")
+    """Type of the result, must be venue."""
+
+    foursquare_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Foursquare identifier of the venue."""
+
+    foursquare_type: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,
+    `arts_entertainment/aquarium` or `food/icecream`.)."""
+
+    google_place_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Google Places identifier of the venue."""
+
+    google_place_type: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Google Places type of the venue. (See supported types.)."""
+
+
+class InputMediaVideo(InputPollMedia, InputPollOptionMedia, InputMedia):
     """Object `InputMediaVideo`, see the [documentation](https://core.telegram.org/bots/api#inputmediavideo).
 
     Represents a video to be sent.
@@ -5553,164 +6052,28 @@ class InputMediaVideo(InputMedia):
     """Optional. Pass True if the video needs to be covered with a spoiler animation."""
 
 
-class InputMediaAnimation(InputMedia):
-    """Object `InputMediaAnimation`, see the [documentation](https://core.telegram.org/bots/api#inputmediaanimation).
+class InputPaidMediaLivePhoto(InputPaidMedia):
+    """Object `InputPaidMediaLivePhoto`, see the [documentation](https://core.telegram.org/bots/api#inputpaidmedialivephoto).
 
-    Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
+    The paid media to send is a live photo.
     """
 
     media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+    """Video of the live photo to send. Pass a file_id to send a file that exists on
+    the Telegram servers (recommended) or pass `attach://<file_attach_name>`
+    to upload a new one using multipart/form-data under <file_attach_name>
+    name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+    Sending live photos by a URL is currently unsupported."""
 
-    type: Literal["animation"] = field(default="animation")
-    """Type of the result, must be animation."""
+    photo: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    """The static photo to send. Pass a file_id to send a file that exists on the Telegram
+    servers (recommended) or pass `attach://<file_attach_name>` to upload
+    a new one using multipart/form-data under <file_attach_name> name. More
+    information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+    Sending live photos by a URL is currently unsupported."""
 
-    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
-    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
-    for the file is supported server-side. The thumbnail should be in JPEG format
-    and less than 200 kB in size. A thumbnail's width and height should not exceed
-    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
-    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
-    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
-
-    caption: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Caption of the animation to be sent, 0-1024 characters after
-    entities parsing."""
-
-    parse_mode: Option[str] = field(
-        default_factory=DefaultFactory(
-            on_init=default_parameter_as_option_for_field("parse_mode"),
-            default=UNSET,
-        ),
-        converter=From[str | None],
-    )
-    """Optional. Mode for parsing entities in the animation caption. See formatting
-    options for more details."""
-
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
-    """Optional. List of special entities that appear in the caption, which can
-    be specified instead of parse_mode."""
-
-    show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
-
-    width: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Animation width."""
-
-    height: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Animation height."""
-
-    duration: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Animation duration in seconds."""
-
-    has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the animation needs to be covered with a spoiler animation."""
-
-
-class InputMediaAudio(InputMedia):
-    """Object `InputMediaAudio`, see the [documentation](https://core.telegram.org/bots/api#inputmediaaudio).
-
-    Represents an audio file to be treated as music to be sent.
-    """
-
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
-
-    type: Literal["audio"] = field(default="audio")
-    """Type of the result, must be audio."""
-
-    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
-    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
-    for the file is supported server-side. The thumbnail should be in JPEG format
-    and less than 200 kB in size. A thumbnail's width and height should not exceed
-    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
-    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
-    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
-
-    caption: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Caption of the audio to be sent, 0-1024 characters after entities
-    parsing."""
-
-    parse_mode: Option[str] = field(
-        default_factory=DefaultFactory(
-            on_init=default_parameter_as_option_for_field("parse_mode"),
-            default=UNSET,
-        ),
-        converter=From[str | None],
-    )
-    """Optional. Mode for parsing entities in the audio caption. See formatting
-    options for more details."""
-
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
-    """Optional. List of special entities that appear in the caption, which can
-    be specified instead of parse_mode."""
-
-    duration: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Duration of the audio in seconds."""
-
-    performer: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Performer of the audio."""
-
-    title: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Title of the audio."""
-
-
-class InputMediaDocument(InputMedia):
-    """Object `InputMediaDocument`, see the [documentation](https://core.telegram.org/bots/api#inputmediadocument).
-
-    Represents a general file to be sent.
-    """
-
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
-    """File to send. Pass a file_id to send a file that exists on the Telegram servers
-    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
-    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
-    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
-
-    type: Literal["document"] = field(default="document")
-    """Type of the result, must be document."""
-
-    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
-    """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
-    for the file is supported server-side. The thumbnail should be in JPEG format
-    and less than 200 kB in size. A thumbnail's width and height should not exceed
-    320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails
-    can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`
-    if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
-    More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
-
-    caption: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Caption of the document to be sent, 0-1024 characters after entities
-    parsing."""
-
-    parse_mode: Option[str] = field(
-        default_factory=DefaultFactory(
-            on_init=default_parameter_as_option_for_field("parse_mode"),
-            default=UNSET,
-        ),
-        converter=From[str | None],
-    )
-    """Optional. Mode for parsing entities in the document caption. See formatting
-    options for more details."""
-
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
-    """Optional. List of special entities that appear in the caption, which can
-    be specified instead of parse_mode."""
-
-    disable_content_type_detection: Option[Sum[bool, InputFile]] = field(
-        default=..., converter=From["bool | InputFile | None"]
-    )
-    """Optional. Disables automatic server-side content type detection for
-    files uploaded using multipart/form-data. Always True, if the document
-    is sent as part of an album."""
+    type: Literal["live_photo"] = field(default="live_photo")
+    """Type of the media, must be live_photo."""
 
 
 class InputPaidMediaPhoto(InputPaidMedia):
@@ -7798,8 +8161,9 @@ class TransactionPartnerUser(TransactionPartner):
     """Optional. The duration of the paid subscription. Can be available only
     for `invoice_payment` transactions."""
 
-    paid_media: Option[list[Sum[PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo]]] = field(
-        default=..., converter=From["list[PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo] | None"]
+    paid_media: Option[list[Sum[PaidMediaLivePhoto, PaidMediaPhoto, PaidMediaPreview, PaidMediaVideo]]] = field(
+        default=...,
+        converter=From["list[PaidMediaLivePhoto | PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo] | None"],
     )
     """Optional. Information about the paid media bought by the user; for `paid_media_payment`
     transactions only."""
@@ -8344,6 +8708,7 @@ __all__ = (
     "BackgroundTypePattern",
     "BackgroundTypeWallpaper",
     "Birthdate",
+    "BotAccessSettings",
     "BotCommand",
     "BotCommandScope",
     "BotCommandScopeAllChatAdministrators",
@@ -8463,13 +8828,20 @@ __all__ = (
     "InputMediaAnimation",
     "InputMediaAudio",
     "InputMediaDocument",
+    "InputMediaLivePhoto",
+    "InputMediaLocation",
     "InputMediaPhoto",
+    "InputMediaSticker",
+    "InputMediaVenue",
     "InputMediaVideo",
     "InputMessageContent",
     "InputPaidMedia",
+    "InputPaidMediaLivePhoto",
     "InputPaidMediaPhoto",
     "InputPaidMediaVideo",
+    "InputPollMedia",
     "InputPollOption",
+    "InputPollOptionMedia",
     "InputProfilePhoto",
     "InputProfilePhotoAnimated",
     "InputProfilePhotoStatic",
@@ -8487,6 +8859,7 @@ __all__ = (
     "KeyboardButtonRequestUsers",
     "LabeledPrice",
     "LinkPreviewOptions",
+    "LivePhoto",
     "Location",
     "LocationAddress",
     "LoginUrl",
@@ -8517,6 +8890,7 @@ __all__ = (
     "OwnedGifts",
     "PaidMedia",
     "PaidMediaInfo",
+    "PaidMediaLivePhoto",
     "PaidMediaPhoto",
     "PaidMediaPreview",
     "PaidMediaPurchased",
@@ -8537,6 +8911,7 @@ __all__ = (
     "PhotoSize",
     "Poll",
     "PollAnswer",
+    "PollMedia",
     "PollOption",
     "PollOptionAdded",
     "PollOptionDeleted",
@@ -8558,6 +8933,7 @@ __all__ = (
     "RevenueWithdrawalStateFailed",
     "RevenueWithdrawalStatePending",
     "RevenueWithdrawalStateSucceeded",
+    "SentGuestMessage",
     "SentWebAppMessage",
     "SharedUser",
     "ShippingAddress",

@@ -10,6 +10,10 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.polling.polling import Polling
 
 
+class StopPolling(Exception):
+    pass
+
+
 class ErrorHandler:
     _handlers: dict[type[BaseException], typing.Callable[[BaseException], typing.Any]]
 
@@ -21,6 +25,7 @@ class ErrorHandler:
             InvalidTokenError: self._handle_invalid_token_error,
             asyncio.CancelledError: self._handle_cancelled_error,
             APIServerError: self._handle_api_server_error,
+            StopPolling: logger.debug("Polling was stopped"),
             **{e: self._handle_connection_timeout_error for e in polling.api.http.CONNECTION_TIMEOUT_ERRORS},
             **{e: self._handle_client_connection_error for e in polling.api.http.CLIENT_CONNECTION_ERRORS},
         }

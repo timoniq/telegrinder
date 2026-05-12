@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from functools import cached_property
+from functools import cached_property, wraps
 
 from kungfu.library import Some, Sum
 from msgspec._utils import get_class_annotations
@@ -11,6 +11,7 @@ from nodnod.error import NodeError
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.tools.bound_cute import BoundCuteMixin
 from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.objects import Update
 
@@ -23,17 +24,26 @@ def compose_method_params[Cute: BaseCute](
     update: Cute,
     *,
     default_params: set[str | tuple[str, str]] | None = None,
-    validators: dict[str, typing.Callable[[Cute], bool]] | None = None,
+    validators: typing.Mapping[str, typing.Callable[[Cute], bool]] | None = None,
+    hooks: typing.Mapping[str, typing.Callable[[typing.Any], tuple[str, typing.Any]]] | None = None,
 ) -> dict[str, typing.Any]:
     default_params = default_params or set()
     validators = validators or {}
+    hooks = hooks or {}
 
     for param in default_params:
         param_name = param if isinstance(param, str) else param[0]
+
         if param_name not in params:
             if param_name in validators and not validators[param_name](update):
                 continue
-            params[param_name] = getattr(update, param if isinstance(param, str) else param[1], None)
+
+            field = getattr(update, param if isinstance(param, str) else param[1], None)
+
+            if param_name in hooks:
+                param_name, field = hooks[param_name](field)
+
+            params[param_name] = field
 
     return params
 
@@ -47,6 +57,9 @@ def get_cute_from_generic(generic_args: tuple[typing.Any, ...], /) -> typing.Any
 
         if orig_arg in (Sum, Some, Option):
             return get_cute_from_generic(typing.get_args(arg))
+
+        if issubclass(orig_arg, BoundCuteMixin):
+            return orig_arg.resolve_cute_type()
 
         if issubclass(orig_arg, BaseCute):
             return arg
@@ -132,16 +145,16 @@ class BaseCute[T: Model = typing.Any](Model):
     def __compose__(cls, context: Context) -> typing.Any:
         update_cute = context.update_cute
 
-        if type(update_cute) is cls:
+        if cls is type(update_cute):
             return update_cute
 
-        if type(update_cute.incoming_update) is cls:
+        if cls is type(update_cute.incoming_update):
             return update_cute.incoming_update
 
         raise NodeError(f"Incoming update is not `{cls.__name__}`.")
 
     @classmethod
-    def from_update(cls, update: Update, bound_api: API) -> typing.Self:
+    def from_update(cls, update: T, bound_api: API) -> typing.Self:
         if not cls.__is_resolved_annotations__:
             cls.__is_resolved_annotations__ = True
             cls.__annotations__ = get_class_annotations(cls)
@@ -149,27 +162,31 @@ class BaseCute[T: Model = typing.Any](Model):
         if cls.__cute_annotations__ is None:
             cls.__cute_annotations__ = get_cute_annotations(cls.__annotations__)
 
-        cute: typing.Self = type(Model).model_initialize(  # type: ignore
-            cls,
+        cute = cls.initialize(
             **{
                 field: to_cute(cls, field, value, bound_api) if field in cls.__cute_annotations__ else value
                 for field, value in update.to_dict().items()
             },
         )
-        return cute.bind(update, bound_api) if isinstance(update, Update) else cute._bind_api(bound_api)
+        return cute.bind(update, bound_api) if isinstance(update, Update) else cute.bind_api(bound_api)
 
     @cached_property
     def bound_api(self) -> API: ...
 
     @cached_property
+    @wraps(bound_api.func)
+    def api(self) -> API: ...
+
+    @cached_property
     def bound_update(self) -> Update: ...
 
-    @property
-    def api(self) -> API:
-        return self.bound_api
-
     def bind(self, update: Update, api: API) -> typing.Self:
-        self._set_bounds_in_namespace({BOUND_UPDATE_KEY: update, BOUND_API_KEY: api})
+        self._bind_update(update)
+        self.bind_api(api)
+        return self
+
+    def bind_api(self, api: API, /) -> typing.Self:
+        self._set_bound_in_namespace(BOUND_API_KEY, api)
         return self
 
     def to_dict(
@@ -197,18 +214,12 @@ class BaseCute[T: Model = typing.Any](Model):
 
         return {key: value for key, value in self.__dict__[dct_name].items() if key not in exclude_fields}
 
-    def _set_bounds_in_namespace(self, bounds: dict[str, typing.Any], /) -> None:
-        cuties = [self]
+    def _set_bound_in_namespace(self, key: str, bound: typing.Any) -> typing.Self:
+        self.__dict__[key] = bound  # type: ignore
+        return self
 
-        if isinstance(self, Update):
-            cuties.append(self.incoming_update)
-
-        for cute in cuties:
-            for key, bound in bounds.items():
-                cute.__dict__[key] = bound  # type: ignore
-
-    def _bind_api(self, api: API) -> typing.Self:
-        self._set_bounds_in_namespace({BOUND_API_KEY: api})
+    def _bind_update(self, update: Update, /) -> typing.Self:
+        self._set_bound_in_namespace(BOUND_UPDATE_KEY, update)
         return self
 
 

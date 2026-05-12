@@ -1,5 +1,5 @@
 [telegram-bot-api]
-version = "v9.6"
+version = "v10.0"
 schema_url = "https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/refs/heads/main/api.min.json"
 
 [generator]
@@ -706,6 +706,42 @@ fields = [
 object_name = "InputStoryContentVideo"
 fields = [
     { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputMediaLivePhoto"
+fields = [
+    { name = "type", literals = ["live_photo",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputMediaLocation"
+fields = [
+    { name = "type", literals = ["location",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputMediaSticker"
+fields = [
+    { name = "type", literals = ["sticker",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputMediaVenue"
+fields = [
+    { name = "type", literals = ["venue",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputPaidMediaLivePhoto"
+fields = [
+    { name = "type", literals = ["live_photo",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "PaidMediaLivePhoto"
+fields = [
+    { name = "type", literals = ["live_photo",] },
 ]
 
 [[generator.objects.fields.annotations.literals]]

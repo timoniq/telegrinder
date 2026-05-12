@@ -16,6 +16,7 @@ async def chat_member_interaction(
     update: typing.Any,
     method_name: str,
     params: dict[str, typing.Any],
+    result_type: typing.Any,
 ) -> Result[typing.Any, APIError]:
     params = compose_method_params(
         get_params(params),
@@ -28,7 +29,9 @@ async def chat_member_interaction(
 class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequestCute"]):
     """Shortcut methods for `ChatMemberUpdatedCute`, `ChatJoinRequestCute` objects."""
 
-    @shortcut("ban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
+    @shortcut(
+        "ban_chat_member", executor=chat_member_interaction, return_type=bool, custom_params={"chat_id", "user_id"}
+    )
     async def ban_chat_member(
         self,
         *,
@@ -45,7 +48,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         on their own using invite links, etc., unless unbanned first. The bot must
         be an administrator in the chat for this to work and must have the appropriate
         administrator rights. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target group or username of the target supergroupor channel (in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target group or username of the target supergroupor channel in the format @username.
 
         :param user_id: Unique identifier of the target user.
 
@@ -54,7 +57,9 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         :param revoke_messages: Pass True to delete all messages from the chat for the user that is being removed.If False, the user will be able to see messages in the group that were sentbefore the user was removed. Always True for supergroups and channels."""
         ...
 
-    @shortcut("unban_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
+    @shortcut(
+        "unban_chat_member", executor=chat_member_interaction, return_type=bool, custom_params={"chat_id", "user_id"}
+    )
     async def unban_chat_member(
         self,
         *,
@@ -72,7 +77,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         not a member of the chat, but will be able to join it. So if the user is a member
         of the chat they will also be removed from the chat. If you don't want this,
         use the parameter only_if_banned. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target group or username of the target supergroupor channel (in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target group or username of the target supergroupor channel in the format @username.
 
         :param user_id: Unique identifier of the target user.
 
@@ -82,6 +87,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
     @shortcut(
         "restrict_chat_member",
         executor=chat_member_interaction,
+        return_type=bool,
         custom_params={"chat_id", "user_id"},
     )
     async def restrict_chat_member(
@@ -100,7 +106,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         in the supergroup for this to work and must have the appropriate administrator
         rights. Pass True for all permissions to lift restrictions from a user.
         Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroupin the format @username.
 
         :param user_id: Unique identifier of the target user.
 
@@ -111,7 +117,12 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         :param until_date: Date when restrictions will be lifted for the user; Unix time. If user isrestricted for more than 366 days or less than 30 seconds from the currenttime, they are considered to be restricted forever."""
         ...
 
-    @shortcut("promote_chat_member", executor=chat_member_interaction, custom_params={"chat_id", "user_id"})
+    @shortcut(
+        "promote_chat_member",
+        executor=chat_member_interaction,
+        return_type=bool,
+        custom_params={"chat_id", "user_id"},
+    )
     async def promote_chat_member(
         self,
         *,
@@ -142,7 +153,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         bot must be an administrator in the chat for this to work and must have the
         appropriate administrator rights. Pass False for all boolean parameters
         to demote a user. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target channelin the format @username.
 
         :param user_id: Unique identifier of the target user.
 
@@ -180,6 +191,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
     @shortcut(
         "set_chat_administrator_custom_title",
         executor=chat_member_interaction,
+        return_type=bool,
         custom_params={"chat_id", "user_id"},
     )
     async def set_chat_administrator_custom_title(
@@ -194,7 +206,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
 
         Use this method to set a custom title for an administrator in a supergroup
         promoted by the bot. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroup(in the format @supergroupusername).
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroupin the format @username.
 
         :param user_id: Unique identifier of the target user.
 

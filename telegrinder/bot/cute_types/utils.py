@@ -9,6 +9,7 @@ from telegrinder.types.objects import (
     InputMediaAnimation,
     InputMediaAudio,
     InputMediaDocument,
+    InputMediaLivePhoto,
     InputMediaPhoto,
     InputMediaVideo,
     MessageEntity,
@@ -22,11 +23,12 @@ type InputMedia = typing.Union[
     InputMediaAnimation,
     InputMediaAudio,
     InputMediaDocument,
+    InputMediaLivePhoto,
     InputMediaPhoto,
     InputMediaVideo,
 ]
 
-type MediaType = typing.Literal["animation", "audio", "document", "photo", "video"]
+type MediaType = typing.Literal["animation", "audio", "document", "live_photo", "photo", "video"]
 
 EntitiesDict = collections.defaultdict[int, list[MessageEntity]]
 
@@ -34,6 +36,7 @@ MEDIA_TYPES: typing.Final = (
     ContentType.ANIMATION,
     ContentType.AUDIO,
     ContentType.DOCUMENT,
+    ContentType.LIVE_PHOTO,
     ContentType.PHOTO,
     ContentType.VIDEO,
 )
@@ -41,10 +44,15 @@ INPUT_TYPES: typing.Final = (
     InputMediaAnimation,
     InputMediaAudio,
     InputMediaDocument,
+    InputMediaLivePhoto,
     InputMediaPhoto,
     InputMediaVideo,
 )
 INPUT_MEDIA_TYPES: typing.Final[dict[ContentType, type[InputMedia]]] = dict(zip(MEDIA_TYPES, INPUT_TYPES))
+
+
+def exclude_bound_parameters(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
+    return {key: value for key, value in params if key not in ("self", "cls")}
 
 
 def build_html(text: str, entities: list[MessageEntity], /) -> str:
@@ -115,6 +123,7 @@ def compose_reactions(
 ) -> list[ReactionType]:
     if not isinstance(reactions, list):
         reactions = [reactions]
+
     return [
         (
             ReactionTypeEmoji(emoji)
@@ -137,4 +146,4 @@ def input_media(
     return INPUT_MEDIA_TYPES[ContentType(type)](**get_params(locals()))
 
 
-__all__ = ("build_html", "compose_reactions", "input_media")
+__all__ = ("build_html", "compose_reactions", "exclude_bound_parameters", "input_media")
