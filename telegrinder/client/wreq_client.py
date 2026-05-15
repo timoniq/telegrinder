@@ -81,8 +81,10 @@ class WreqClient(ABCClient):
     )
     CLIENT_CONNECTION_ERRORS: typing.ClassVar = (
         exceptions.ConnectionError,
+        exceptions.ProxyConnectionError,
         exceptions.ConnectionResetError,
         exceptions.TlsError,
+        exceptions.RequestError,
         exceptions.RustPanic,
     )
 
