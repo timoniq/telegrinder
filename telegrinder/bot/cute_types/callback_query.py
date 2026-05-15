@@ -9,7 +9,7 @@ from kungfu.library.monad.option import NOTHING
 from msgspex import Option, decoder
 from msgspex.model import From, field
 
-from telegrinder.api.api import APIError
+from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.message import (
     DEFAULT_EDIT,
@@ -225,17 +225,17 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         self,
         chat_id: int | str | None = None,
         *,
-        allow_paid_broadcast: bool | None = None,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         direct_messages_topic_id: int | None = None,
-        disable_notification: bool | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
         from_chat_id: int | str | None = None,
         message_effect_id: str | None = None,
         message_id: int | None = None,
         message_thread_id: str | None = None,
-        parse_mode: str | None = None,
-        protect_content: bool | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -327,10 +327,10 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         chat_id: int | str | None = None,
         entities: list[MessageEntity] | None = None,
         inline_message_id: str | None = None,
-        link_preview_options: LinkPreviewOptions | None = None,
+        link_preview_options: LinkPreviewOptions | None = API.default_params["link_preview_options"],
         message_id: int | None = None,
         message_thread_id: str | None = None,
-        parse_mode: str | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Sum[MessageCute, bool], APIError]:
