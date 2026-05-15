@@ -472,7 +472,7 @@ class WebhookInfo(Model):
 
     allowed_updates: Option[list[UpdateType]] = field(default=..., converter=From[list[UpdateType] | None])
     """Optional. A list of update types the bot is subscribed to. Defaults to all
-    update types except chat_member."""
+    update types except chat_member, message_reaction, and message_reaction_count."""
 
 
 class User(Model):
@@ -2227,8 +2227,9 @@ class Poll(Model):
 
     country_codes: Option[list[str]] = field(default=..., converter=From[list[str] | None])
     """Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating
-    the countries from which users can vote in the poll. If omitted, then users
-    from any country can participate in the poll."""
+    the countries from which users can vote in the poll. The country code `FT`
+    is used for users with anonymous numbers. If omitted, then users from any
+    country can participate in the poll."""
 
     correct_option_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
     """Optional. Array of 0-based identifiers of the correct answer options.
@@ -6977,7 +6978,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     0-1500."""
 
     live_period: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Period in seconds during which the location can be updated, should
+    """Optional. Period in seconds during which the location can be updated, must
     be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited
     indefinitely."""
 
@@ -7651,7 +7652,7 @@ class InputLocationMessageContent(InputMessageContent):
     0-1500."""
 
     live_period: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Period in seconds during which the location can be updated, should
+    """Optional. Period in seconds during which the location can be updated, must
     be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited
     indefinitely."""
 
