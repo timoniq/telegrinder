@@ -1765,7 +1765,8 @@ class APIMethods:
 
         :param country_codes: A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes \
         indicating the countries from which users can vote in the poll; for channel \
-        chats only. If omitted or empty, then users from any country can participate \
+        chats only. Use `FT` as a country code to allow users with anonymous numbers \
+        to vote. If omitted or empty, then users from any country can participate \
         in the poll.
 
         :param correct_option_ids: A JSON-serialized list of monotonically increasing 0-based identifiers \
@@ -1999,9 +2000,9 @@ class APIMethods:
         :param business_connection_id: Unique identifier of the business connection on behalf of which the action \
         will be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup \
-        or channel in the format @username. Channel chats and channel direct messages \
-        chats aren't supported.
+        :param chat_id: Unique identifier for the target chat or username of the target bot or supergroup \
+        in the format @username. Channel chats and channel direct messages chats \
+        aren't supported.
 
         :param message_thread_id: Unique identifier for the target message thread or topic of a forum; for \
         supergroups and private chats of bots with forum topic mode enabled only. \
@@ -5453,7 +5454,7 @@ class APIMethods:
         in the chat. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @username).
+        in the format @username.
 
         :param message_id: Identifier of the target message.
 
@@ -5485,7 +5486,7 @@ class APIMethods:
         administrator right in the chat. Returns True on success.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
-        (in the format @username).
+        in the format @username.
 
         :param user_id: Identifier of the user whose reactions will be removed, if the reactions \
         were added by a user.
