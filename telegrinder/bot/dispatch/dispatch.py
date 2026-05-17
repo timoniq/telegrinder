@@ -391,10 +391,10 @@ class Dispatch[
                         )
 
     async def feed_raw(self, api: API, raw_update: str | bytes) -> None:
-        await self.feed(api, UpdateCute.from_raw(raw_update))
+        await self.feed_cute(api, UpdateCute.from_raw(raw_update))
 
     async def feed_cute(self, api: API, update_cute: UpdateCute) -> None:
-        await self.feed(api, update_cute)
+        await self.feed(api, update_cute.bind(update_cute, api))
 
     async def wait_many[Event: BaseCute[typing.Any], Data, *Ts](
         self,

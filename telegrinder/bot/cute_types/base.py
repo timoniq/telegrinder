@@ -181,12 +181,16 @@ class BaseCute[T: Model = typing.Any](Model):
     def bound_update(self) -> Update: ...
 
     def bind(self, update: Update, api: API) -> typing.Self:
-        self._bind_update(update)
+        self.bind_update(update)
         self.bind_api(api)
         return self
 
     def bind_api(self, api: API, /) -> typing.Self:
         self._set_bound_in_namespace(BOUND_API_KEY, api)
+        return self
+
+    def bind_update(self, update: Update, /) -> typing.Self:
+        self._set_bound_in_namespace(BOUND_UPDATE_KEY, update)
         return self
 
     def to_dict(
@@ -216,10 +220,6 @@ class BaseCute[T: Model = typing.Any](Model):
 
     def _set_bound_in_namespace(self, key: str, bound: typing.Any) -> typing.Self:
         self.__dict__[key] = bound  # type: ignore
-        return self
-
-    def _bind_update(self, update: Update, /) -> typing.Self:
-        self._set_bound_in_namespace(BOUND_UPDATE_KEY, update)
         return self
 
 

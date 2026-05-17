@@ -798,8 +798,8 @@ class ChatFullInfo(Model):
     chat's name, message replies and link previews."""
 
     paid_message_star_count: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. The number of Telegram Stars a general user have to pay to send
-    a message to the chat."""
+    """Optional. The number of Telegram Stars a general user has to pay to send a
+    message to the chat."""
 
 
 class Message(MaybeInaccessibleMessage):

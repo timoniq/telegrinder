@@ -27,7 +27,7 @@ class BaseCute[T: Model = typing.Any](Model):
     """`API` bound to the cute model."""
 
     bound_update: typing.ClassVar[typing.Final[Update]]
-    """`Update` object bound to the cute model."""
+    """`Update` object if this cute type is an update."""
 
     @classmethod
     def __compose__(cls, update: Update, context: Context) -> typing.Self: ...
@@ -35,6 +35,7 @@ class BaseCute[T: Model = typing.Any](Model):
     def from_update(cls, update: T, bound_api: API) -> typing.Self: ...
     def bind(self, update: Update, api: API) -> typing.Self: ...
     def bind_api(self, api: API, /) -> typing.Self: ...
+    def bind_update(self, update: Update, /) -> typing.Self: ...
     def to_dict(
         self,
         *,
