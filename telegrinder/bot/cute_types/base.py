@@ -1,20 +1,30 @@
 from __future__ import annotations
 
 import typing
-from functools import cached_property, wraps
+from functools import cached_property
 
+import msgspec
 from kungfu.library import Some, Sum
+from kungfu.library.monad.option import NOTHING
+from msgspec import UNSET
 from msgspec._utils import get_class_annotations
-from msgspex import Option, encoder, struct_asdict
+from msgspex import Option, decoder, encoder, struct_asdict
 from msgspex.model import Model
 from nodnod.error import NodeError
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
-from telegrinder.tools.bound_cute import BoundCuteMixin
+from telegrinder.tools.bound_cute import BoundCute, BoundCuteMixin
 from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.objects import Update
 
+if typing.TYPE_CHECKING:
+    _FROM_CALL_SENTINEL: typing.Any = object()
+
+else:
+    from msgspex.model import _FROM_CALL_SENTINEL
+
+_SENTINEL: typing.Final[typing.Any] = object()
 BOUND_API_KEY: typing.Final = "bound_api"
 BOUND_UPDATE_KEY: typing.Final = "bound_update"
 
@@ -135,10 +145,14 @@ def to_cute(
     return wrap_value(cute, cute_cls.__annotations__[field]) if is_wrapped_value else cute
 
 
-class BaseCute[T: Model = typing.Any](Model):
+class BaseCute[T: Model = typing.Any](Model, kw_only=True):
+    if typing.TYPE_CHECKING:
+        __bound_cute__: type[typing.Self]
+
     def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
         cls.__is_resolved_annotations__ = False
         cls.__cute_annotations__ = None
+        cls.__bound_cute__ = BoundCute[cls]  # type: ignore
         super().__init_subclass__(*args, **kwargs)
 
     @classmethod
@@ -170,23 +184,88 @@ class BaseCute[T: Model = typing.Any](Model):
         )
         return cute.bind(update, bound_api) if isinstance(update, Update) else cute.bind_api(bound_api)
 
-    @cached_property
-    def bound_api(self) -> API: ...
+    @classmethod
+    def from_data(
+        cls,
+        __from_call: typing.Any = _SENTINEL,
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> typing.Any:
+        is_from_call = __from_call is _FROM_CALL_SENTINEL
+        is_just_arg = not (is_from_call or __from_call is _SENTINEL)
+
+        bound_api: API = kwargs.pop("ctx_api")
+        data = (
+            cls.__signature__.bind_partial(__from_call).arguments
+            if is_just_arg and not args
+            else cls.__signature__.bind_partial(__from_call, *args).arguments
+            if is_just_arg
+            else cls.__signature__.bind_partial(*args).arguments
+            if args
+            else kwargs
+        )
+
+        if data is not kwargs:
+            data.update(kwargs)
+
+        aliases = cls.__model_aliases_fields__
+        data = {aliases.get(name, name): value for name, value in data.items()}
+
+        if default_fact_map := getattr(cls, "__model_init_default_factory_map__"):
+            for field_name in cls.__model_fields__:
+                if field_name not in data and field_name in default_fact_map:
+                    data[field_name] = default_fact_map[field_name]()
+
+        try:
+            model = cls.from_mapping(data, bound_api)
+        except msgspec.ValidationError as exc:
+            raise TypeError(exc) from None
+
+        optional_fields = cls.__model_optional_fields__
+        nullable_optional_fields = cls.__model_nullable_optional_fields__
+
+        for field, value in data.items():
+            if field in nullable_optional_fields and value is None:
+                msgspec.structs.force_setattr(model, field, NOTHING)
+
+            elif field in optional_fields and (value is None or value is NOTHING):
+                msgspec.structs.force_setattr(model, field, UNSET)
+
+        return model
+
+    @classmethod
+    def from_raw(cls, raw: str | bytes, bound_api: API) -> typing.Self:
+        return decoder.decode(raw, type=cls.__bound_cute__, context=dict(ctx_api=bound_api))
+
+    @classmethod
+    def from_mapping(cls, data: typing.Mapping[str, typing.Any], bound_api: API) -> typing.Self:
+        return decoder.convert(data, type=cls.__bound_cute__, context=dict(ctx_api=bound_api))
+
+    from_dict = from_mapping  # type: ignore
 
     @cached_property
-    @wraps(bound_api.func)
-    def api(self) -> API: ...
+    def api(self) -> API:
+        return self.bound_api
 
     @cached_property
-    def bound_update(self) -> Update: ...
+    def bound_api(self) -> API:
+        raise AttributeError(f"`bound_api` has not been bound to `{self.__class__.__name__}` object")
+
+    @cached_property
+    def bound_update(self) -> Update:
+        raise AttributeError(f"`bound_update` has not been bound to `{self.__class__.__name__}` object")
 
     def bind(self, update: Update, api: API) -> typing.Self:
-        self._bind_update(update)
+        self.bind_update(update)
         self.bind_api(api)
         return self
 
     def bind_api(self, api: API, /) -> typing.Self:
         self._set_bound_in_namespace(BOUND_API_KEY, api)
+        return self
+
+    def bind_update(self, update: Update, /) -> typing.Self:
+        self._set_bound_in_namespace(BOUND_UPDATE_KEY, update)
         return self
 
     def to_dict(
@@ -216,10 +295,6 @@ class BaseCute[T: Model = typing.Any](Model):
 
     def _set_bound_in_namespace(self, key: str, bound: typing.Any) -> typing.Self:
         self.__dict__[key] = bound  # type: ignore
-        return self
-
-    def _bind_update(self, update: Update, /) -> typing.Self:
-        self._set_bound_in_namespace(BOUND_UPDATE_KEY, update)
         return self
 
 

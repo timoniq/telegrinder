@@ -6,6 +6,7 @@ from msgspex.decoder import decoder
 from msgspex.tools import fullname
 
 from telegrinder.tools.bound_cute import BoundCute, BoundCuteMixin
+from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
@@ -24,13 +25,18 @@ def bound_cute_hook(
     bound_cute: BoundCuteMixin,
     obj: dict[str, typing.Any],
     *,
-    ctx_api: API,
+    ctx_api: API | None = None,
 ) -> BaseCute:
-    return decoder.convert(
+    cute = decoder.convert(
         obj,
         type=bound_cute.resolve_cute_type(),
-        context=dict(ctx_api=ctx_api),
-    ).bind_api(ctx_api)
+        context=dict(ctx_api=ctx_api) if ctx_api is not None else None,
+    )
+
+    if isinstance(cute, Update):
+        getattr(cute.bind_update(cute).incoming_update, "bind_update")(cute)
+
+    return cute.bind_api(ctx_api) if ctx_api is not None else cute
 
 
 __all__ = ("int_timestamp_to_datetime_hook",)

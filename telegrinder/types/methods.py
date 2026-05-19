@@ -3934,8 +3934,8 @@ class APIMethods:
         Use this method to change the bot's menu button in a private chat, or the default
         menu button. Returns True on success.
 
-        :param chat_id: Unique identifier for the target private chat. If not specified, default \
-        bot's menu button will be changed.
+        :param chat_id: Unique identifier for the target private chat. If not specified, the bot's \
+        default menu button will be changed.
 
         :param menu_button: A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault. \
         """
@@ -3957,8 +3957,8 @@ class APIMethods:
         Use this method to get the current value of the bot's menu button in a private
         chat, or the default menu button. Returns MenuButton on success.
 
-        :param chat_id: Unique identifier for the target private chat. If not specified, default \
-        bot's menu button will be returned.
+        :param chat_id: Unique identifier for the target private chat. If not specified, the bot's \
+        default menu button will be returned.
         """
 
         method_response = await self.api.request_raw(

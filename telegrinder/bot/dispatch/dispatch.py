@@ -391,7 +391,7 @@ class Dispatch[
                         )
 
     async def feed_raw(self, api: API, raw_update: str | bytes) -> None:
-        await self.feed(api, UpdateCute.from_raw(raw_update))
+        await self.feed(api, UpdateCute.from_raw(raw_update, api))
 
     async def feed_cute(self, api: API, update_cute: UpdateCute) -> None:
         await self.feed(api, update_cute)
