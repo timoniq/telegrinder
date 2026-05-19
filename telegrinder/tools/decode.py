@@ -30,13 +30,13 @@ def bound_cute_hook(
     cute = decoder.convert(
         obj,
         type=bound_cute.resolve_cute_type(),
-        context=dict(ctx_api=ctx_api),
+        context=dict(ctx_api=ctx_api) if ctx_api is not None else None,
     )
 
-    if ctx_api is None:
-        return cute
+    if isinstance(cute, Update):
+        getattr(cute.bind_update(cute).incoming_update, "bind_update")(cute)
 
-    return cute.bind_api(ctx_api) if not isinstance(cute, Update) else cute.bind(cute, ctx_api)
+    return cute.bind_api(ctx_api) if ctx_api is not None else cute
 
 
 __all__ = ("int_timestamp_to_datetime_hook",)

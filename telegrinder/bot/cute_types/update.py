@@ -214,7 +214,7 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
 
     @cached_property
     def incoming_update(self) -> BaseCute:
-        return getattr(self, self.update_type.value).unwrap().bind(self, self.bound_api)
+        return getattr(self, self.update_type.value).unwrap()
 
     def get_event[T: BaseCute](self, event_model: type[T], /) -> Option[T]:
         if isinstance(self.incoming_update, event_model):
