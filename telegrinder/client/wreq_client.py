@@ -33,9 +33,9 @@ USER_AGENT: typing.Final = "CPython/{}.{}; wreq; Telegrinder/{}".format(
     sys.version_info.minor,
     __version__,
 )
-DEFAULT_CONNECTION_TIMEOUT: typing.Final = datetime.timedelta(seconds=30)
-DEFAULT_READ_TIMEOUT: typing.Final = datetime.timedelta(seconds=30)
-DEFAULT_TIMEOUT: typing.Final = datetime.timedelta(seconds=30)
+DEFAULT_CONNECTION_TIMEOUT: typing.Final = datetime.timedelta(seconds=60)
+DEFAULT_READ_TIMEOUT: typing.Final = datetime.timedelta(seconds=60)
+DEFAULT_TIMEOUT: typing.Final = datetime.timedelta(seconds=60)
 DEFAULT_HTTP2_MAX_RETRIES: typing.Final = 10
 DEFAULT_ZSTD: typing.Final = True
 DEFAULT_VERIFY: typing.Final = pathlib.Path(certifi.where())

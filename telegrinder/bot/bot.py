@@ -20,12 +20,12 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
         *,
         dispatch: Dispatch | None = None,
         polling: Polling | None = None,
-        loop_wrapper: LoopWrapper | None = None,
+        loop_wrapper: LoopWrapper = TELEGRINDER_CONTEXT.loop_wrapper,
     ) -> None:
         self.api = api
+        self.loop_wrapper = loop_wrapper
         self.dispatch = typing.cast("Dispatch", dispatch or dp.Dispatch())
         self.polling = typing.cast("Polling", polling or pg.Polling(api))
-        self.loop_wrapper = loop_wrapper or TELEGRINDER_CONTEXT.loop_wrapper
 
     def __repr__(self) -> str:
         return "<{}: api={!r}, dispatch={!r}, polling={!r}, loop_wrapper={!r}>".format(

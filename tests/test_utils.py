@@ -1,3 +1,4 @@
+import datetime
 import typing
 from http import HTTPStatus
 
@@ -16,8 +17,8 @@ class MockedHttpClient(ABCClient):
         self.callback = callback or (lambda method, url, data: None)
 
     @property
-    def timeout(self) -> float:
-        return 0.0
+    def timeout(self) -> datetime.timedelta:
+        return datetime.timedelta(seconds=0.0)
 
     async def request(
         self,

@@ -7,7 +7,7 @@ from telegrinder.bot.polling.polling import Polling
 
 @pytest.mark.asyncio()
 async def test_polling_stop_interrupts_listen(api_instance, monkeypatch):
-    polling = Polling(api_instance)
+    polling = Polling(api_instance, timeout=0.0)
     request_started = asyncio.Event()
 
     async def get_updates():
