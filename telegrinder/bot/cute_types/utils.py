@@ -111,7 +111,7 @@ def build_html(text: str, entities: list[MessageEntity], /) -> str:
                     format=e.date_time_format.unwrap_or_none(),
                 )
 
-        result.append(formatted)
+        result.append(str(formatted))
         utf16_pos = next_utf16_pos
 
     return "".join(result)
