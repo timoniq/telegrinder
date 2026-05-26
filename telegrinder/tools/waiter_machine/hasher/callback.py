@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.tools.waiter_machine.hasher.hasher import Hasher, identity
+from telegrinder.tools.waiter_machine.hasher.hasher import Hasher, hash_data, identity_hash
 from telegrinder.types.enums import UpdateType
 
 if typing.TYPE_CHECKING:
@@ -54,41 +54,29 @@ def get_chat_and_message_for_event(event: CallbackQuery) -> tuple[int, int] | No
     return chat_id, message_id
 
 
-def chat_thread_hash(thread_chat: tuple[int, int]) -> str:
-    return f"{thread_chat[0]}_{thread_chat[1]}"
-
-
-def for_message_in_chat_thread_hash(data: tuple[int, int, int]) -> str:
-    return f"{data[0]}_{data[1]}_{data[2]}"
-
-
-def for_message_in_chat(chat_and_message: tuple[int, int]) -> str:
-    return f"{chat_and_message[0]}_{chat_and_message[1]}"
-
-
 CALLBACK_QUERY_FROM_CHAT: typing.Final = Hasher(
     update_types=CALLBACK_QUERY_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_chat_for_event,
 )
 CALLBACK_QUERY_FROM_CHAT_THREAD: typing.Final = Hasher(
     update_types=CALLBACK_QUERY_UPDATE_TYPES,
-    hash_from_data=chat_thread_hash,
+    hash_from_data=hash_data,
     data_from_event=get_chat_thread_event,
 )
 CALLBACK_QUERY_FOR_MESSAGE: typing.Final = Hasher(
     update_types=CALLBACK_QUERY_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_message_for_event,
 )
 CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE: typing.Final = Hasher(
     update_types=CALLBACK_QUERY_UPDATE_TYPES,
-    hash_from_data=for_message_in_chat,
+    hash_from_data=hash_data,
     data_from_event=get_chat_and_message_for_event,
 )
 CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE: typing.Final = Hasher(
     update_types=CALLBACK_QUERY_UPDATE_TYPES,
-    hash_from_data=for_message_in_chat_thread_hash,
+    hash_from_data=hash_data,
     data_from_event=get_for_message_in_chat_thread_event,
 )
 

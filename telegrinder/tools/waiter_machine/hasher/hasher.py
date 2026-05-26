@@ -29,6 +29,13 @@ def identity[T](x: T, /) -> T:
     return x
 
 
+identity_hash = identity
+
+
+def hash_data(data: typing.Iterable[typing.Any]) -> str:
+    return "_".join(map(str, data))
+
+
 @dataclasses.dataclass(kw_only=True, frozen=True, repr=False)
 class Hasher(typing.Generic[Event, Data]):
     update_types: frozenset[UpdateType]
@@ -36,12 +43,15 @@ class Hasher(typing.Generic[Event, Data]):
     data_from_event: DataFromEvent[Event, Data] | None = dataclasses.field(default=None)
     code: str = dataclasses.field(
         init=False,
+        repr=False,
         default_factory=lambda: secrets.token_hex(8),
     )
 
     @typing.overload
     def __call__[HasherData](
-        self: Hasher[Event, HasherData], data: HasherData, /
+        self: Hasher[Event, HasherData],
+        data: HasherData,
+        /,
     ) -> HasherWithData[Event, HasherData]: ...
 
     @typing.overload
@@ -59,7 +69,7 @@ class Hasher(typing.Generic[Event, Data]):
         return self.hash
 
     def __repr__(self) -> str:
-        return f"<Hasher {self.code}>"
+        return f"<Hasher `{self.code}`: {' | '.join(x.name for x in self.update_types)}>"
 
     @cached_property
     def hash(self) -> int:
@@ -67,12 +77,12 @@ class Hasher(typing.Generic[Event, Data]):
 
     def get_hash_from_data[D](self: Hasher[Event, D], data: D) -> Option[typing.Hashable]:
         if self.hash_from_data is None:
-            raise NotImplementedError
+            return NOTHING
         return _from_optional(self.hash_from_data(data))
 
     def get_data_from_event[E: BaseCute](self: Hasher[E, Data], event: E) -> Option[Data]:
         if not self.data_from_event:
-            raise NotImplementedError
+            return NOTHING
         return _from_optional(self.data_from_event(event))
 
     def get_hash_from_data_from_event[E: BaseCute](

@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.tools.waiter_machine.hasher.hasher import Hasher, identity
+from telegrinder.tools.waiter_machine.hasher.hasher import Hasher, hash_data, identity_hash
 from telegrinder.types.enums import UpdateType
 
 if typing.TYPE_CHECKING:
@@ -42,43 +42,39 @@ def get_paid_media_purchased_user_id_from_event(event: PaidMediaPurchased) -> in
     return event.from_user.id
 
 
-def option_and_user_hash(data: tuple[str, int]) -> str:
-    return f"{data[0]}_{data[1]}"
-
-
 SHIPPING_QUERY: typing.Final = Hasher(
     update_types=SHIPPING_QUERY_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_shipping_query_id_from_event,
 )
 SHIPPING_QUERY_FROM_USER: typing.Final = Hasher(
     update_types=SHIPPING_QUERY_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_shipping_query_user_id_from_event,
 )
 PRE_CHECKOUT_QUERY: typing.Final = Hasher(
     update_types=PRE_CHECKOUT_QUERY_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_pre_checkout_query_id_from_event,
 )
 PRE_CHECKOUT_QUERY_OPTION: typing.Final = Hasher(
     update_types=PRE_CHECKOUT_QUERY_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_pre_checkout_query_option_from_event,
 )
 PRE_CHECKOUT_QUERY_FROM_USER: typing.Final = Hasher(
     update_types=PRE_CHECKOUT_QUERY_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_pre_checkout_query_user_id_from_event,
 )
 PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER: typing.Final = Hasher(
     update_types=PRE_CHECKOUT_QUERY_UPDATE_TYPES,
-    hash_from_data=option_and_user_hash,
+    hash_from_data=hash_data,
     data_from_event=get_pre_checkout_query_option_and_user_id_from_event,
 )
 PAID_MEDIA_PURCHASED_FROM_USER: typing.Final = Hasher(
     update_types=PAID_MEDIA_PURCHASED_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_paid_media_purchased_user_id_from_event,
 )
 

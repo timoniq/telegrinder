@@ -1,6 +1,6 @@
 import typing
 
-from telegrinder.tools.waiter_machine.hasher.hasher import Hasher, identity
+from telegrinder.tools.waiter_machine.hasher.hasher import Hasher, hash_data, identity_hash
 from telegrinder.types.enums import UpdateType
 
 if typing.TYPE_CHECKING:
@@ -42,38 +42,34 @@ def get_inline_message_id_and_user_id_from_chosen_inline_result_event(
     return inline_message_id, event.from_user.id
 
 
-def inline_message_and_user_hash(data: tuple[str, int]) -> str:
-    return f"{data[0]}_{data[1]}"
-
-
 INLINE_QUERY: typing.Final = Hasher(
     update_types=INLINE_QUERY_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_inline_query_id_from_event,
 )
 INLINE_QUERY_FROM_USER: typing.Final = Hasher(
     update_types=INLINE_QUERY_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_user_id_from_inline_query_event,
 )
 CHOSEN_INLINE_RESULT: typing.Final = Hasher(
     update_types=CHOSEN_INLINE_RESULT_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_chosen_inline_result_id_from_event,
 )
 CHOSEN_INLINE_RESULT_FROM_USER: typing.Final = Hasher(
     update_types=CHOSEN_INLINE_RESULT_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_user_id_from_chosen_inline_result_event,
 )
 CHOSEN_INLINE_RESULT_FOR_MESSAGE: typing.Final = Hasher(
     update_types=CHOSEN_INLINE_RESULT_UPDATE_TYPES,
-    hash_from_data=identity,
+    hash_from_data=identity_hash,
     data_from_event=get_inline_message_id_from_chosen_inline_result_event,
 )
 CHOSEN_INLINE_RESULT_FOR_MESSAGE_FROM_USER: typing.Final = Hasher(
     update_types=CHOSEN_INLINE_RESULT_UPDATE_TYPES,
-    hash_from_data=inline_message_and_user_hash,
+    hash_from_data=hash_data,
     data_from_event=get_inline_message_id_and_user_id_from_chosen_inline_result_event,
 )
 
