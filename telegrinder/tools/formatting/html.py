@@ -152,7 +152,7 @@ def date_time(
     return TagFormat(
         s,
         tag=Tag.TIME,
-        unix='"{}"'.format(int(unix.timestamp()) if isinstance(unix, datetime.datetime) else unix),
+        unix='"{}"'.format(int(unix.timestamp() if isinstance(unix, datetime.datetime) else unix)),
         **{"format": f'"{fmt}"'} if fmt else {},
     )
 
@@ -209,7 +209,7 @@ class TagFormat(str):
         return TAG_FORMAT.format(
             tag=self.tag,
             data=self.tag_data,
-            content=self.content,
+            content=str(self.content),
         )
 
 
@@ -219,7 +219,7 @@ class HTML(str, metaclass=HTMLMeta):
     >>> HTML << "Hello, " << bold("World!")
     'Hello, <b>World!</b>'
 
-    >>> HTML << t"Hello, {name:underline}! " << "You are <b>{age}</b> years old."
+    >>> HTML << t"Hello, {name:underline}! " << t"You are <b>{age}</b> years old."
     'Hello, <u>Arseny</u>! You are <b>20</b> years old.'
     """
 
@@ -245,7 +245,8 @@ class HTML(str, metaclass=HTMLMeta):
         else:
             addition = str(other)
 
-        return self.__class__.__new__(self.__class__, self + addition)
+        html_class = type(self)
+        return html_class.__new__(html_class, self + addition)
 
 
 FORMATTERS: types.MappingProxyType[Format, Formatter] = types.MappingProxyType(
