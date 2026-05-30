@@ -7,6 +7,11 @@ from telegrinder.types.enums import UpdateType
 if typing.TYPE_CHECKING:
     from telegrinder.bot.cute_types.message import MessageCute as Message
 
+type ThreadId = int
+type ChatId = int
+type UserId = int
+type BusinessConnectionId = str
+type GuestQueryId = str
 
 GUEST_MESSAGE_UPDATE_TYPES: typing.Final = frozenset((UpdateType.GUEST_MESSAGE,))
 MESSAGE_UPDATE_TYPES: typing.Final = frozenset(
@@ -37,28 +42,28 @@ ANY_MESSAGE_UPDATE_TYPES: typing.Final = frozenset(
 )
 
 
-def get_chat_from_event(event: Message) -> int:
+def get_chat_from_event(event: Message) -> ChatId:
     return event.chat.id
 
 
-def get_user_from_event(event: Message) -> int | None:
+def get_user_from_event(event: Message) -> UserId | None:
     return event.from_.map(lambda user: user.id).unwrap_or_none()
 
 
-def get_thread_id_from_event(event: Message) -> int | None:
+def get_thread_id_from_event(event: Message) -> ThreadId | None:
     return event.message_thread_id.unwrap_or_none()
 
 
-def get_business_connection_id_from_event(event: Message) -> str | None:
+def get_business_connection_id_from_event(event: Message) -> BusinessConnectionId | None:
     return event.business_connection_id.unwrap_or_none()
 
 
-def get_user_in_chat_from_event(event: Message) -> tuple[int, int] | None:
+def get_user_in_chat_from_event(event: Message) -> tuple[ChatId, UserId] | None:
     user_id = get_user_from_event(event)
     return None if user_id is None else (event.chat.id, user_id)
 
 
-def get_user_in_thread_from_event(event: Message) -> tuple[int, int] | None:
+def get_user_in_thread_from_event(event: Message) -> tuple[ThreadId, UserId] | None:
     if event.chat.type != ChatType.PRIVATE:
         return None
 
@@ -69,7 +74,7 @@ def get_user_in_thread_from_event(event: Message) -> tuple[int, int] | None:
     return data[0], data[1]
 
 
-def get_user_in_chat_thread_from_event(event: Message) -> tuple[int, int, int] | None:
+def get_user_in_chat_thread_from_event(event: Message) -> tuple[ThreadId, ChatId, UserId] | None:
     thread_id = event.message_thread_id.unwrap_or_none()
 
     if thread_id is None:
@@ -79,12 +84,12 @@ def get_user_in_chat_thread_from_event(event: Message) -> tuple[int, int, int] |
     return None if data is None else (thread_id, *data)
 
 
-def get_chat_and_thread_id_from_event(event: Message) -> tuple[int, int] | None:
+def get_chat_and_thread_id_from_event(event: Message) -> tuple[ThreadId, ChatId] | None:
     thread_id = get_thread_id_from_event(event)
     return None if thread_id is None else (thread_id, get_chat_from_event(event))
 
 
-def get_guest_query_id_from_event(event: Message) -> str | None:
+def get_guest_query_id_from_event(event: Message) -> GuestQueryId | None:
     return event.guest_query_id.unwrap_or_none()
 
 
