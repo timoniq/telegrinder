@@ -2953,15 +2953,15 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
         Use this method to edit animation, audio, document, live photo, photo,
-        or video messages, or to add media to text messages. If a message is part of
-        a message album, then it can be edited only to an audio for audio albums, only
-        to a document for document albums and to a photo, a live photo, or a video otherwise.
-        When an inline message is edited, a new file can't be uploaded; use a previously
-        uploaded file via its file_id or specify a URL. On success, if the edited
-        message is not an inline message, the edited Message is returned, otherwise
-        True is returned. Note that business messages that were not sent by the bot
-        and do not contain an inline keyboard can only be edited within 48 hours from
-        the time they were sent.
+        or video messages, or to replace a text or a rich message with a media. If a
+        message is part of a message album, then it can be edited only to an audio for
+        audio albums, only to a document for document albums and to a photo, a live
+        photo, or a video otherwise. When an inline message is edited, a new file
+        can't be uploaded; use a previously uploaded file via its file_id or specify
+        a URL. On success, if the edited message is not an inline message, the edited
+        Message is returned, otherwise True is returned. Note that business messages
+        that were not sent by the bot and do not contain an inline keyboard can only
+        be edited within 48 hours from the time they were sent.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
         :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup or channel in theformat @username.
@@ -3352,7 +3352,7 @@ class MessageCute(
 
         :param message_thread_id: Unique identifier for the target message thread.
 
-        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes of draftswith the same identifier are animated.
+        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes to draftswith the same identifier are animated.
 
         :param text: Text of the message to be sent, 0-4096 characters after entities parsing.Pass an empty text to show a `Thinking...` placeholder.
 
@@ -3478,11 +3478,12 @@ class MessageCute(
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         reply_markup: InlineKeyboardMarkup | None = None,
+        rich_message: InputRichMessage | None = None,
         **other: typing.Any,
     ) -> Result[Sum[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
-        Use this method to edit text and game messages. On success, if the edited
+        Use this method to edit text, rich and game messages. On success, if the edited
         message is not an inline message, the edited Message is returned, otherwise
         True is returned. Note that business messages that were not sent by the bot
         and do not contain an inline keyboard can only be edited within 48 hours from
@@ -3495,13 +3496,15 @@ class MessageCute(
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
 
-        :param text: New text of the message, 1-4096 characters after entities parsing.
+        :param text: New text of the message, 1-4096 characters after entity parsing; requiredif rich_message isn't specified.
 
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
 
         :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
 
         :param link_preview_options: Link preview generation options for the message.
+
+        :param rich_message: New rich content of the message; required if text isn't specified.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
