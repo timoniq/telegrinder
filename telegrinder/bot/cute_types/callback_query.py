@@ -332,11 +332,12 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         message_thread_id: str | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         reply_markup: InlineKeyboardMarkup | None = None,
+        rich_message: InputRichMessage | None = None,
         **other: typing.Any,
     ) -> Result[Sum[MessageCute, bool], APIError]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
-        Use this method to edit text and game messages. On success, if the edited
+        Use this method to edit text, rich and game messages. On success, if the edited
         message is not an inline message, the edited Message is returned, otherwise
         True is returned. Note that business messages that were not sent by the bot
         and do not contain an inline keyboard can only be edited within 48 hours from
@@ -349,13 +350,15 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
 
-        :param text: New text of the message, 1-4096 characters after entities parsing.
+        :param text: New text of the message, 1-4096 characters after entity parsing; requiredif rich_message isn't specified.
 
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
 
         :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
 
         :param link_preview_options: Link preview generation options for the message.
+
+        :param rich_message: New rich content of the message; required if text isn't specified.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...

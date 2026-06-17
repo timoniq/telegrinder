@@ -41,6 +41,7 @@ except ImportError:
 TYPEGEN_DIR: typing.Final = pathlib.Path(__file__).parent
 TAB: typing.Final = "    "
 MAX_LENGTH_LINE_CHUNK: typing.Final = 60
+IGNORE_SUBTYPES: typing.Final = frozenset(("RichBlock", "RichText"))
 TYPES: typing.Final = {
     "String": "str",
     "Integer": "int",
@@ -232,7 +233,16 @@ class ObjectGenerator(ABCGenerator):
     ) -> None:
         self.objects = objects
         self.config = config
-        self.parent_types: dict[str, list[str]] = {obj.name: obj.subtypes for obj in objects if obj.subtypes}
+        self.parent_types: dict[str, list[str]] = {
+            obj.name: subtypes
+            for obj in objects
+            if obj.name not in IGNORE_SUBTYPES
+            and (
+                subtypes := [
+                    subtype for subtype in obj.subtypes if not subtype.startswith("Array") and subtype not in TYPES
+                ]
+            )
+        }
 
     def get_literal_types_field(self, object_name: str, field_name: str) -> ObjectsFieldsLiteralTypesField | None:
         for object_literal_types in self.config.generator.objects.fields.annotations.literals:
@@ -355,18 +365,17 @@ class ObjectGenerator(ABCGenerator):
                     self.parent_types,
                     as_union=True,
                 )
-                converted_type_with_quotes = convert_to_python_type(
-                    field.types[0],
-                    self.parent_types,
-                    as_union=True,
-                    as_forward_ref=True,
-                )
 
                 if not field.required or "|" in converted_type:
                     if not (
                         "|" in converted_type and any(x in converted_type.split("|") for x in TYPES.values())
                     ) and not any(x == converted_type.split("[")[0] for x in TYPES.values()):
-                        converted_type = converted_type_with_quotes
+                        converted_type = convert_to_python_type(
+                            field.types[0],
+                            self.parent_types,
+                            as_union=True,
+                            as_forward_ref=True,
+                        )
 
                     converter = converted_type
                 else:

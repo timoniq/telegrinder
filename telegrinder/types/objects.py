@@ -29,6 +29,38 @@ class TransactionPartner(Model):
     """
 
 
+class RichText(Model):
+    """Base object `RichText`, see the [documentation](https://core.telegram.org/bots/api#richtext).
+
+    This object represents a rich formatted text. Currently, it can be either a String for plain text, an Array of RichText, or any of the following types:
+    - RichTextBold
+    - RichTextItalic
+    - RichTextUnderline
+    - RichTextStrikethrough
+    - RichTextSpoiler
+    - RichTextDateTime
+    - RichTextTextMention
+    - RichTextSubscript
+    - RichTextSuperscript
+    - RichTextMarked
+    - RichTextCode
+    - RichTextCustomEmoji
+    - RichTextMathematicalExpression
+    - RichTextUrl
+    - RichTextEmailAddress
+    - RichTextPhoneNumber
+    - RichTextBankCardNumber
+    - RichTextMention
+    - RichTextHashtag
+    - RichTextCashtag
+    - RichTextBotCommand
+    - RichTextAnchor
+    - RichTextAnchorLink
+    - RichTextReference
+    - RichTextReferenceLink
+    """
+
+
 class StoryAreaType(Model):
     """Base object `StoryAreaType`, see the [documentation](https://core.telegram.org/bots/api#storyareatype).
 
@@ -38,6 +70,34 @@ class StoryAreaType(Model):
     - StoryAreaTypeLink
     - StoryAreaTypeWeather
     - StoryAreaTypeUniqueGift
+    """
+
+
+class RichBlock(Model):
+    """Base object `RichBlock`, see the [documentation](https://core.telegram.org/bots/api#richblock).
+
+    This object represents a block in a rich formatted message. Currently, it can be any of the following types:
+    - RichBlockParagraph
+    - RichBlockSectionHeading
+    - RichBlockPreformatted
+    - RichBlockFooter
+    - RichBlockDivider
+    - RichBlockMathematicalExpression
+    - RichBlockAnchor
+    - RichBlockList
+    - RichBlockBlockQuotation
+    - RichBlockPullQuotation
+    - RichBlockCollage
+    - RichBlockSlideshow
+    - RichBlockTable
+    - RichBlockDetails
+    - RichBlockMap
+    - RichBlockAnimation
+    - RichBlockAudio
+    - RichBlockPhoto
+    - RichBlockVideo
+    - RichBlockVoiceNote
+    - RichBlockThinking
     """
 
 
@@ -131,8 +191,9 @@ class MenuButton(Model):
 class InputMessageContent(Model):
     """Base object `InputMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputmessagecontent).
 
-    This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
+    This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following types:
     - InputTextMessageContent
+    - InputRichMessageContent
     - InputLocationMessageContent
     - InputVenueMessageContent
     - InputContactMessageContent
@@ -173,6 +234,7 @@ class InputPollOptionMedia(Model):
 
     This object represents the content of a poll option to be sent. It should be one of
     - InputMediaAnimation
+    - InputMediaLink
     - InputMediaLivePhoto
     - InputMediaLocation
     - InputMediaPhoto
@@ -541,6 +603,10 @@ class User(Model):
     """Optional. True, if other bots can be created to be controlled by the bot.
     Returned only in getMe."""
 
+    supports_join_request_queries: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the bot supports join request queries and can be assigned
+    to process them. Returned only in getMe."""
+
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -801,6 +867,10 @@ class ChatFullInfo(Model):
     """Optional. The number of Telegram Stars a general user has to pay to send a
     message to the chat."""
 
+    guard_bot: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. The bot that processes join request queries in the chat. The field
+    is only available to chat administrators."""
+
 
 class Message(MaybeInaccessibleMessage):
     """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message).
@@ -973,6 +1043,9 @@ class Message(MaybeInaccessibleMessage):
 
     effect_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the message effect added to the message."""
+
+    rich_message: Option[RichMessage] = field(default=..., converter=From["RichMessage | None"])
+    """Optional. Message is a rich formatted message."""
 
     animation: Option[Animation] = field(default=..., converter=From["Animation | None"])
     """Optional. Message is an animation, information about the animation. For
@@ -2045,6 +2118,16 @@ class Dice(Model):
     emoji, 1-64 for `🎰` base emoji."""
 
 
+class Link(Model):
+    """Object `Link`, see the [documentation](https://core.telegram.org/bots/api#link).
+
+    Represents an HTTP link.
+    """
+
+    url: str = field()
+    """URL of the link."""
+
+
 class PollMedia(Model):
     """Object `PollMedia`, see the [documentation](https://core.telegram.org/bots/api#pollmedia).
 
@@ -2061,6 +2144,9 @@ class PollMedia(Model):
     document: Option[Document] = field(default=..., converter=From["Document | None"])
     """Optional. Media is a general file, information about the file; currently,
     can't be received in a poll option."""
+
+    link: Option[Link] = field(default=..., converter=From["Link | None"])
+    """Optional. The HTTP link attached to the poll option."""
 
     live_photo: Option[LivePhoto] = field(default=..., converter=From["LivePhoto | None"])
     """Optional. Media is a live photo, information about the live photo."""
@@ -2143,6 +2229,7 @@ class InputPollOption(Model):
     media: Option[
         Sum[
             InputMediaAnimation,
+            InputMediaLink,
             InputMediaLivePhoto,
             InputMediaLocation,
             InputMediaPhoto,
@@ -2153,7 +2240,7 @@ class InputPollOption(Model):
     ] = field(
         default=...,
         converter=From[
-            "InputMediaAnimation | InputMediaLivePhoto | InputMediaLocation | InputMediaPhoto | InputMediaSticker | InputMediaVenue | InputMediaVideo | None"
+            "InputMediaAnimation | InputMediaLink | InputMediaLivePhoto | InputMediaLocation | InputMediaPhoto | InputMediaSticker | InputMediaVenue | InputMediaVideo | None"
         ],
     )
     """Optional. Media added to the poll option."""
@@ -4110,8 +4197,8 @@ class ChatMemberRestricted(ChatMember):
     """True, if the user is a member of the chat at the moment of the request."""
 
     can_send_messages: bool = field()
-    """True, if the user is allowed to send text messages, contacts, giveaways,
-    giveaway winners, invoices, locations and venues."""
+    """True, if the user is allowed to send text messages, rich messages, contacts,
+    giveaways, giveaway winners, invoices, locations and venues."""
 
     can_send_audios: bool = field()
     """True, if the user is allowed to send audios."""
@@ -4230,6 +4317,11 @@ class ChatJoinRequest(Model):
     invite_link: Option[ChatInviteLink] = field(default=..., converter=From["ChatInviteLink | None"])
     """Optional. Chat invite link that was used by the user to send the join request."""
 
+    query_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Identifier of the join request query. If present, then the bot
+    must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery
+    within 10 seconds."""
+
     @property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
@@ -4243,8 +4335,8 @@ class ChatPermissions(Model):
     """
 
     can_send_messages: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the user is allowed to send text messages, contacts,
-    giveaways, giveaway winners, invoices, locations and venues."""
+    """Optional. True, if the user is allowed to send text messages, rich messages,
+    contacts, giveaways, giveaway winners, invoices, locations and venues."""
 
     can_send_audios: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to send audios."""
@@ -5672,7 +5764,7 @@ class InputMediaAnimation(InputPollMedia, InputPollOptionMedia, InputMedia):
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["animation"] = field(default="animation")
-    """Type of the result, must be animation."""
+    """Type of the media, must be animation."""
 
     thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
@@ -5730,7 +5822,7 @@ class InputMediaAudio(InputPollMedia, InputMedia):
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["audio"] = field(default="audio")
-    """Type of the result, must be audio."""
+    """Type of the media, must be audio."""
 
     thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
@@ -5782,7 +5874,7 @@ class InputMediaDocument(InputPollMedia, InputMedia):
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["document"] = field(default="document")
-    """Type of the result, must be document."""
+    """Type of the media, must be document."""
 
     thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
@@ -5819,6 +5911,19 @@ class InputMediaDocument(InputPollMedia, InputMedia):
     is sent as part of an album."""
 
 
+class InputMediaLink(InputPollOptionMedia):
+    """Object `InputMediaLink`, see the [documentation](https://core.telegram.org/bots/api#inputmedialink).
+
+    Represents an HTTP link to be sent.
+    """
+
+    type: str = field()
+    """Type of the media, must be link."""
+
+    url: str = field()
+    """HTTP URL of the link."""
+
+
 class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     """Object `InputMediaLivePhoto`, see the [documentation](https://core.telegram.org/bots/api#inputmedialivephoto).
 
@@ -5840,7 +5945,7 @@ class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     Sending live photos by a URL is currently unsupported."""
 
     type: Literal["live_photo"] = field(default="live_photo")
-    """Type of the result, must be live_photo."""
+    """Type of the media, must be live_photo."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the live photo to be sent, 0-1024 characters after
@@ -5880,7 +5985,7 @@ class InputMediaLocation(InputPollMedia, InputPollOptionMedia):
     """Longitude of the location."""
 
     type: Literal["location"] = field(default="location")
-    """Type of the result, must be location."""
+    """Type of the media, must be location."""
 
     horizontal_accuracy: Option[float] = field(default=..., converter=From[float | None])
     """Optional. The radius of uncertainty for the location, measured in meters;
@@ -5900,7 +6005,7 @@ class InputMediaPhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["photo"] = field(default="photo")
-    """Type of the result, must be photo."""
+    """Type of the media, must be photo."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the photo to be sent, 0-1024 characters after entities
@@ -5941,7 +6046,7 @@ class InputMediaSticker(InputPollOptionMedia):
     name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["sticker"] = field(default="sticker")
-    """Type of the result, must be sticker."""
+    """Type of the media, must be sticker."""
 
     emoji: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Emoji associated with the sticker; only for just uploaded stickers."""
@@ -5966,7 +6071,7 @@ class InputMediaVenue(InputPollMedia, InputPollOptionMedia):
     """Address of the venue."""
 
     type: Literal["venue"] = field(default="venue")
-    """Type of the result, must be venue."""
+    """Type of the media, must be venue."""
 
     foursquare_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Foursquare identifier of the venue."""
@@ -5995,7 +6100,7 @@ class InputMediaVideo(InputPollMedia, InputPollOptionMedia, InputMedia):
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
     type: Literal["video"] = field(default="video")
-    """Type of the result, must be video."""
+    """Type of the media, must be video."""
 
     thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
@@ -6354,6 +6459,822 @@ class InputSticker(Model):
     of up to 64 characters. For `regular` and `custom_emoji` stickers only."""
 
 
+class RichMessage(Model):
+    """Object `RichMessage`, see the [documentation](https://core.telegram.org/bots/api#richmessage).
+
+    Rich formatted message.
+    """
+
+    blocks: list[RichBlock] = field()
+    """Content of the message."""
+
+    is_rtl: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the rich message must be shown right-to-left."""
+
+
+class InputRichMessage(Model):
+    """Object `InputRichMessage`, see the [documentation](https://core.telegram.org/bots/api#inputrichmessage).
+
+    Describes a rich message to be sent. Exactly one of the fields html or markdown must be used.
+    """
+
+    html: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Content of the rich message to send described using HTML formatting.
+    See rich message formatting options for more details."""
+
+    markdown: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Content of the rich message to send described using Markdown
+    formatting. See rich message formatting options for more details."""
+
+    is_rtl: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the rich message must be shown right-to-left."""
+
+    skip_entity_detection: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True to skip automatic detection of entities (e.g., URLs,
+    email addresses, username mentions, hashtags, cashtags, bot commands,
+    or phone numbers) in the text."""
+
+
+class RichTextBold(RichText):
+    """Object `RichTextBold`, see the [documentation](https://core.telegram.org/bots/api#richtextbold).
+
+    A bold text.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `bold`."""
+
+    text: RichText = field()
+    """The text."""
+
+
+class RichTextItalic(RichText):
+    """Object `RichTextItalic`, see the [documentation](https://core.telegram.org/bots/api#richtextitalic).
+
+    An italicized text.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `italic`."""
+
+    text: RichText = field()
+    """The text."""
+
+
+class RichTextUnderline(RichText):
+    """Object `RichTextUnderline`, see the [documentation](https://core.telegram.org/bots/api#richtextunderline).
+
+    An underlined text.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `underline`."""
+
+    text: RichText = field()
+    """The text."""
+
+
+class RichTextStrikethrough(RichText):
+    """Object `RichTextStrikethrough`, see the [documentation](https://core.telegram.org/bots/api#richtextstrikethrough).
+
+    A strikethrough text.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `strikethrough`."""
+
+    text: RichText = field()
+    """The text."""
+
+
+class RichTextSpoiler(RichText):
+    """Object `RichTextSpoiler`, see the [documentation](https://core.telegram.org/bots/api#richtextspoiler).
+
+    A text covered by a spoiler.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `spoiler`."""
+
+    text: RichText = field()
+    """The text."""
+
+
+class RichTextDateTime(RichText):
+    """Object `RichTextDateTime`, see the [documentation](https://core.telegram.org/bots/api#richtextdatetime).
+
+    Formatted date and time.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `date_time`."""
+
+    text: RichText = field()
+    """The text."""
+
+    unix_time: datetime = field(converter=From[datetime | int])
+    """The Unix time associated with the entity."""
+
+    date_time_format: str = field()
+    """The string that defines the formatting of the date and time. See date-time
+    entity formatting for more details."""
+
+
+class RichTextTextMention(RichText):
+    """Object `RichTextTextMention`, see the [documentation](https://core.telegram.org/bots/api#richtexttextmention).
+
+    A mention of a Telegram user by their identifier.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `text_mention`."""
+
+    text: RichText = field()
+    """The text."""
+
+    user: User = field()
+    """The mentioned user."""
+
+
+class RichTextSubscript(RichText):
+    """Object `RichTextSubscript`, see the [documentation](https://core.telegram.org/bots/api#richtextsubscript).
+
+    A subscript text.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `subscript`."""
+
+    text: RichText = field()
+    """The text."""
+
+
+class RichTextSuperscript(RichText):
+    """Object `RichTextSuperscript`, see the [documentation](https://core.telegram.org/bots/api#richtextsuperscript).
+
+    A superscript text.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `superscript`."""
+
+    text: RichText = field()
+    """The text."""
+
+
+class RichTextMarked(RichText):
+    """Object `RichTextMarked`, see the [documentation](https://core.telegram.org/bots/api#richtextmarked).
+
+    A marked text.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `marked`."""
+
+    text: RichText = field()
+    """The text."""
+
+
+class RichTextCode(RichText):
+    """Object `RichTextCode`, see the [documentation](https://core.telegram.org/bots/api#richtextcode).
+
+    A monowidth text.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `code`."""
+
+    text: RichText = field()
+    """The text."""
+
+
+class RichTextCustomEmoji(RichText):
+    """Object `RichTextCustomEmoji`, see the [documentation](https://core.telegram.org/bots/api#richtextcustomemoji).
+
+    A custom emoji.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `custom_emoji`."""
+
+    custom_emoji_id: str = field()
+    """Unique identifier of the custom emoji. Use getCustomEmojiStickers to
+    get full information about the sticker."""
+
+    alternative_text: str = field()
+    """Alternative emoji for the custom emoji."""
+
+
+class RichTextMathematicalExpression(RichText):
+    """Object `RichTextMathematicalExpression`, see the [documentation](https://core.telegram.org/bots/api#richtextmathematicalexpression).
+
+    A mathematical expression.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `mathematical_expression`."""
+
+    expression: str = field()
+    """The expression in LaTeX format."""
+
+
+class RichTextUrl(RichText):
+    """Object `RichTextUrl`, see the [documentation](https://core.telegram.org/bots/api#richtexturl).
+
+    A text with a link.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `url`."""
+
+    text: RichText = field()
+    """The text."""
+
+    url: str = field()
+    """URL of the link."""
+
+
+class RichTextEmailAddress(RichText):
+    """Object `RichTextEmailAddress`, see the [documentation](https://core.telegram.org/bots/api#richtextemailaddress).
+
+    A text with an email address.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `email_address`."""
+
+    text: RichText = field()
+    """The text."""
+
+    email_address: str = field()
+    """The email address."""
+
+
+class RichTextPhoneNumber(RichText):
+    """Object `RichTextPhoneNumber`, see the [documentation](https://core.telegram.org/bots/api#richtextphonenumber).
+
+    A text with a phone number.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `phone_number`."""
+
+    text: RichText = field()
+    """The text."""
+
+    phone_number: str = field()
+    """The phone number."""
+
+
+class RichTextBankCardNumber(RichText):
+    """Object `RichTextBankCardNumber`, see the [documentation](https://core.telegram.org/bots/api#richtextbankcardnumber).
+
+    A text with a bank card number.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `bank_card_number`."""
+
+    text: RichText = field()
+    """The text."""
+
+    bank_card_number: str = field()
+    """The bank card number."""
+
+
+class RichTextMention(RichText):
+    """Object `RichTextMention`, see the [documentation](https://core.telegram.org/bots/api#richtextmention).
+
+    A mention by a username.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `mention`."""
+
+    text: RichText = field()
+    """The text."""
+
+    username: str = field()
+    """The username."""
+
+
+class RichTextHashtag(RichText):
+    """Object `RichTextHashtag`, see the [documentation](https://core.telegram.org/bots/api#richtexthashtag).
+
+    A hashtag.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `hashtag`."""
+
+    text: RichText = field()
+    """The text."""
+
+    hashtag: str = field()
+    """The hashtag."""
+
+
+class RichTextCashtag(RichText):
+    """Object `RichTextCashtag`, see the [documentation](https://core.telegram.org/bots/api#richtextcashtag).
+
+    A cashtag.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `cashtag`."""
+
+    text: RichText = field()
+    """The text."""
+
+    cashtag: str = field()
+    """The cashtag."""
+
+
+class RichTextBotCommand(RichText):
+    """Object `RichTextBotCommand`, see the [documentation](https://core.telegram.org/bots/api#richtextbotcommand).
+
+    A bot command.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `bot_command`."""
+
+    text: RichText = field()
+    """The text."""
+
+    bot_command: str = field()
+    """The bot command."""
+
+
+class RichTextAnchor(RichText):
+    """Object `RichTextAnchor`, see the [documentation](https://core.telegram.org/bots/api#richtextanchor).
+
+    An anchor.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `anchor`."""
+
+    name: str = field()
+    """The name of the anchor."""
+
+
+class RichTextAnchorLink(RichText):
+    """Object `RichTextAnchorLink`, see the [documentation](https://core.telegram.org/bots/api#richtextanchorlink).
+
+    A link to an anchor.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `anchor_link`."""
+
+    text: RichText = field()
+    """The link text."""
+
+    anchor_name: str = field()
+    """The name of the anchor. If the name is empty, then the link brings back to the
+    top of the message."""
+
+
+class RichTextReference(RichText):
+    """Object `RichTextReference`, see the [documentation](https://core.telegram.org/bots/api#richtextreference).
+
+    A reference.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `reference`."""
+
+    text: RichText = field()
+    """Text of the reference."""
+
+    name: str = field()
+    """The name of the reference."""
+
+
+class RichTextReferenceLink(RichText):
+    """Object `RichTextReferenceLink`, see the [documentation](https://core.telegram.org/bots/api#richtextreferencelink).
+
+    A link to a reference.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `reference_link`."""
+
+    text: RichText = field()
+    """The link text."""
+
+    reference_name: str = field()
+    """The name of the reference."""
+
+
+class RichBlockCaption(Model):
+    """Object `RichBlockCaption`, see the [documentation](https://core.telegram.org/bots/api#richblockcaption).
+
+    Caption of a rich formatted block.
+    """
+
+    text: RichText = field()
+    """Block caption."""
+
+    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Block credit which corresponds to the HTML tag <cite>."""
+
+
+class RichBlockTableCell(Model):
+    """Object `RichBlockTableCell`, see the [documentation](https://core.telegram.org/bots/api#richblocktablecell).
+
+    Cell in a table.
+    """
+
+    align: str = field()
+    """Horizontal cell content alignment. Currently, must be one of `left`, `center`,
+    or `right`."""
+
+    valign: str = field()
+    """Vertical cell content alignment. Currently, must be one of `top`, `middle`,
+    or `bottom`."""
+
+    text: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Text in the cell. If omitted, then the cell is invisible."""
+
+    is_header: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the cell is a header cell."""
+
+    colspan: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. The number of columns the cell spans if it is bigger than 1."""
+
+    rowspan: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. The number of rows the cell spans if it is bigger than 1."""
+
+
+class RichBlockListItem(Model):
+    """Object `RichBlockListItem`, see the [documentation](https://core.telegram.org/bots/api#richblocklistitem).
+
+    An item of a list.
+    """
+
+    label: str = field()
+    """Label of the item."""
+
+    blocks: list[RichBlock] = field()
+    """The content of the item."""
+
+    has_checkbox: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the item has a checkbox."""
+
+    is_checked: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the item has a checked checkbox."""
+
+    value: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. For ordered lists, the numeric value of the item label."""
+
+    type: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. For ordered lists, the type of the item label; must be one of `a`
+    for lowercase letters, `A` for uppercase letters, `i` for lowercase Roman
+    numerals, `I` for uppercase Roman numerals, or `1` for decimal numbers."""
+
+
+class RichBlockParagraph(RichBlock):
+    """Object `RichBlockParagraph`, see the [documentation](https://core.telegram.org/bots/api#richblockparagraph).
+
+    A text paragraph, corresponding to the HTML tag <p>.
+    """
+
+    type: str = field()
+    """Type of the block, always `paragraph`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+
+class RichBlockSectionHeading(RichBlock):
+    """Object `RichBlockSectionHeading`, see the [documentation](https://core.telegram.org/bots/api#richblocksectionheading).
+
+    A section heading, corresponding to the HTML tags <h1>, <h2>, <h3>, <h4>, <h5>, or <h6>.
+    """
+
+    type: str = field()
+    """Type of the block, always `heading`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+    size: int = field()
+    """Relative size of the text font; 1-6, 1 is the largest, 6 is the smallest."""
+
+
+class RichBlockPreformatted(RichBlock):
+    """Object `RichBlockPreformatted`, see the [documentation](https://core.telegram.org/bots/api#richblockpreformatted).
+
+    A preformatted text block, corresponding to the nested HTML tags <pre> and <code>.
+    """
+
+    type: str = field()
+    """Type of the block, always `pre`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+    language: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. The programming language of the text."""
+
+
+class RichBlockFooter(RichBlock):
+    """Object `RichBlockFooter`, see the [documentation](https://core.telegram.org/bots/api#richblockfooter).
+
+    A footer, corresponding to the HTML tag <footer>.
+    """
+
+    type: str = field()
+    """Type of the block, always `footer`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+
+class RichBlockDivider(RichBlock):
+    """Object `RichBlockDivider`, see the [documentation](https://core.telegram.org/bots/api#richblockdivider).
+
+    A divider, corresponding to the HTML tag <hr/>.
+    """
+
+    type: str = field()
+    """Type of the block, always `divider`."""
+
+
+class RichBlockMathematicalExpression(RichBlock):
+    """Object `RichBlockMathematicalExpression`, see the [documentation](https://core.telegram.org/bots/api#richblockmathematicalexpression).
+
+    A block with a mathematical expression in LaTeX format, corresponding to the custom HTML tag <tg-math-block>.
+    """
+
+    type: str = field()
+    """Type of the block, always `mathematical_expression`."""
+
+    expression: str = field()
+    """The mathematical expression in LaTeX format."""
+
+
+class RichBlockAnchor(RichBlock):
+    """Object `RichBlockAnchor`, see the [documentation](https://core.telegram.org/bots/api#richblockanchor).
+
+    A block with an anchor, corresponding to the HTML tag <a> with the attribute name.
+    """
+
+    type: str = field()
+    """Type of the block, always `anchor`."""
+
+    name: str = field()
+    """The name of the anchor."""
+
+
+class RichBlockList(RichBlock):
+    """Object `RichBlockList`, see the [documentation](https://core.telegram.org/bots/api#richblocklist).
+
+    A list of blocks, corresponding to the HTML tag <ul> or <ol> with multiple nested tags <li>.
+    """
+
+    type: str = field()
+    """Type of the block, always `list`."""
+
+    items: list[RichBlockListItem] = field()
+    """Items of the list."""
+
+
+class RichBlockBlockQuotation(RichBlock):
+    """Object `RichBlockBlockQuotation`, see the [documentation](https://core.telegram.org/bots/api#richblockblockquotation).
+
+    A block quotation, corresponding to the HTML tag <blockquote>.
+    """
+
+    type: str = field()
+    """Type of the block, always `blockquote`."""
+
+    blocks: list[RichBlock] = field()
+    """Content of the block."""
+
+    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Credit of the block."""
+
+
+class RichBlockPullQuotation(RichBlock):
+    """Object `RichBlockPullQuotation`, see the [documentation](https://core.telegram.org/bots/api#richblockpullquotation).
+
+    A quotation with centered text, loosely corresponding to the HTML tag <aside>.
+    """
+
+    type: str = field()
+    """Type of the block, always `pullquote`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Credit of the block."""
+
+
+class RichBlockCollage(RichBlock):
+    """Object `RichBlockCollage`, see the [documentation](https://core.telegram.org/bots/api#richblockcollage).
+
+    A collage, corresponding to the custom HTML tag <tg-collage>.
+    """
+
+    type: str = field()
+    """Type of the block, always `collage`."""
+
+    blocks: list[RichBlock] = field()
+    """Elements of the collage."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class RichBlockSlideshow(RichBlock):
+    """Object `RichBlockSlideshow`, see the [documentation](https://core.telegram.org/bots/api#richblockslideshow).
+
+    A slideshow, corresponding to the custom HTML tag <tg-slideshow>.
+    """
+
+    type: str = field()
+    """Type of the block, always `slideshow`."""
+
+    blocks: list[RichBlock] = field()
+    """Elements of the slideshow."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class RichBlockTable(RichBlock):
+    """Object `RichBlockTable`, see the [documentation](https://core.telegram.org/bots/api#richblocktable).
+
+    A table, corresponding to the HTML tag <table>.
+    """
+
+    type: str = field()
+    """Type of the block, always `table`."""
+
+    cells: list[list[RichBlockTableCell]] = field()
+    """Cells of the table."""
+
+    is_bordered: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the table has borders."""
+
+    is_striped: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the table is striped."""
+
+    caption: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Caption of the table."""
+
+
+class RichBlockDetails(RichBlock):
+    """Object `RichBlockDetails`, see the [documentation](https://core.telegram.org/bots/api#richblockdetails).
+
+    An expandable block for details disclosure, corresponding to the HTML tag <details>.
+    """
+
+    type: str = field()
+    """Type of the block, always `details`."""
+
+    summary: RichText = field()
+    """Always shown summary of the block."""
+
+    blocks: list[RichBlock] = field()
+    """Content of the block."""
+
+    is_open: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the content of the block is visible by default."""
+
+
+class RichBlockMap(RichBlock):
+    """Object `RichBlockMap`, see the [documentation](https://core.telegram.org/bots/api#richblockmap).
+
+    A block with a map, corresponding to the custom HTML tag <tg-map>.
+    """
+
+    type: str = field()
+    """Type of the block, always `map`."""
+
+    location: Location = field()
+    """Location of the center of the map."""
+
+    zoom: int = field()
+    """Map zoom level; 13-20."""
+
+    width: int = field()
+    """Expected width of the map."""
+
+    height: int = field()
+    """Expected height of the map."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class RichBlockAnimation(RichBlock):
+    """Object `RichBlockAnimation`, see the [documentation](https://core.telegram.org/bots/api#richblockanimation).
+
+    A block with an animation, corresponding to the HTML tag <video>.
+    """
+
+    type: str = field()
+    """Type of the block, always `animation`."""
+
+    animation: Animation = field()
+    """The animation."""
+
+    has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the media preview is covered by a spoiler animation."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class RichBlockAudio(RichBlock):
+    """Object `RichBlockAudio`, see the [documentation](https://core.telegram.org/bots/api#richblockaudio).
+
+    A block with a music file, corresponding to the HTML tag <audio>.
+    """
+
+    type: str = field()
+    """Type of the block, always `audio`."""
+
+    audio: Audio = field()
+    """The audio."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class RichBlockPhoto(RichBlock):
+    """Object `RichBlockPhoto`, see the [documentation](https://core.telegram.org/bots/api#richblockphoto).
+
+    A block with a photo, corresponding to the HTML tag <photo>.
+    """
+
+    type: str = field()
+    """Type of the block, always `photo`."""
+
+    photo: list[PhotoSize] = field()
+    """Available sizes of the photo."""
+
+    has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the media preview is covered by a spoiler animation."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class RichBlockVideo(RichBlock):
+    """Object `RichBlockVideo`, see the [documentation](https://core.telegram.org/bots/api#richblockvideo).
+
+    A block with a video, corresponding to the HTML tag <video>.
+    """
+
+    type: str = field()
+    """Type of the block, always `video`."""
+
+    video: Video = field()
+    """The video."""
+
+    has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the media preview is covered by a spoiler animation."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class RichBlockVoiceNote(RichBlock):
+    """Object `RichBlockVoiceNote`, see the [documentation](https://core.telegram.org/bots/api#richblockvoicenote).
+
+    A block with a voice note, corresponding to the HTML tag <audio>.
+    """
+
+    type: str = field()
+    """Type of the block, always `voice_note`."""
+
+    voice_note: Voice = field()
+    """The voice note."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class RichBlockThinking(RichBlock):
+    """Object `RichBlockThinking`, see the [documentation](https://core.telegram.org/bots/api#richblockthinking).
+
+    A block with a "Thinking..." placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji, which are recommended for usage in the block.
+    """
+
+    type: str = field()
+    """Type of the block, always `thinking`."""
+
+    text: RichText = field()
+    """Text of the block. See https://t.me/addemoji/AIActions for examples
+    of custom emoji, which are recommended for usage in the block."""
+
+
 class InlineQuery(Model):
     """Object `InlineQuery`, see the [documentation](https://core.telegram.org/bots/api#inlinequery).
 
@@ -6421,13 +7342,14 @@ class InlineQueryResultArticle(InlineQueryResult):
 
     input_message_content: Sum[
         InputTextMessageContent,
+        InputRichMessageContent,
         InputLocationMessageContent,
         InputVenueMessageContent,
         InputContactMessageContent,
         InputInvoiceMessageContent,
     ] = field(
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent"
         ]
     )
     """Content of the message to be sent."""
@@ -6515,6 +7437,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -6523,7 +7446,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the photo."""
@@ -6592,6 +7515,7 @@ class InlineQueryResultGif(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -6600,7 +7524,7 @@ class InlineQueryResultGif(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the GIF animation."""
@@ -6669,6 +7593,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -6677,7 +7602,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the video animation."""
@@ -6746,6 +7671,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -6754,7 +7680,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the video. This field
@@ -6809,6 +7735,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -6817,7 +7744,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the audio."""
@@ -6867,6 +7794,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -6875,7 +7803,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the voice recording."""
@@ -6929,6 +7857,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -6937,7 +7866,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the file."""
@@ -6997,6 +7926,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7005,7 +7935,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the location."""
@@ -7063,6 +7993,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7071,7 +8002,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the venue."""
@@ -7117,6 +8048,7 @@ class InlineQueryResultContact(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7125,7 +8057,7 @@ class InlineQueryResultContact(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the contact."""
@@ -7207,6 +8139,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7215,7 +8148,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the photo."""
@@ -7266,6 +8199,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7274,7 +8208,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the GIF animation."""
@@ -7325,6 +8259,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7333,7 +8268,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the video animation."""
@@ -7360,6 +8295,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7368,7 +8304,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the sticker."""
@@ -7419,6 +8355,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7427,7 +8364,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the file."""
@@ -7481,6 +8418,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7489,7 +8427,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the video."""
@@ -7536,6 +8474,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7544,7 +8483,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the voice message."""
@@ -7588,6 +8527,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     input_message_content: Option[
         Sum[
             InputTextMessageContent,
+            InputRichMessageContent,
             InputLocationMessageContent,
             InputVenueMessageContent,
             InputContactMessageContent,
@@ -7596,7 +8536,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     ] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the audio."""
@@ -7633,6 +8573,16 @@ class InputTextMessageContent(InputMessageContent):
         converter=From["LinkPreviewOptions | None"],
     )
     """Optional. Link preview generation options for the message."""
+
+
+class InputRichMessageContent(InputMessageContent):
+    """Object `InputRichMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputrichmessagecontent).
+
+    Represents the content of a rich message to be sent as the result of an inline query.
+    """
+
+    rich_message: InputRichMessage = field()
+    """The message to be sent."""
 
 
 class InputLocationMessageContent(InputMessageContent):
@@ -8829,6 +9779,7 @@ __all__ = (
     "InputMediaAnimation",
     "InputMediaAudio",
     "InputMediaDocument",
+    "InputMediaLink",
     "InputMediaLivePhoto",
     "InputMediaLocation",
     "InputMediaPhoto",
@@ -8846,6 +9797,8 @@ __all__ = (
     "InputProfilePhoto",
     "InputProfilePhotoAnimated",
     "InputProfilePhotoStatic",
+    "InputRichMessage",
+    "InputRichMessageContent",
     "InputSticker",
     "InputStoryContent",
     "InputStoryContentPhoto",
@@ -8859,6 +9812,7 @@ __all__ = (
     "KeyboardButtonRequestManagedBot",
     "KeyboardButtonRequestUsers",
     "LabeledPrice",
+    "Link",
     "LinkPreviewOptions",
     "LivePhoto",
     "Location",
@@ -8934,6 +9888,58 @@ __all__ = (
     "RevenueWithdrawalStateFailed",
     "RevenueWithdrawalStatePending",
     "RevenueWithdrawalStateSucceeded",
+    "RichBlock",
+    "RichBlockAnchor",
+    "RichBlockAnimation",
+    "RichBlockAudio",
+    "RichBlockBlockQuotation",
+    "RichBlockCaption",
+    "RichBlockCollage",
+    "RichBlockDetails",
+    "RichBlockDivider",
+    "RichBlockFooter",
+    "RichBlockList",
+    "RichBlockListItem",
+    "RichBlockMap",
+    "RichBlockMathematicalExpression",
+    "RichBlockParagraph",
+    "RichBlockPhoto",
+    "RichBlockPreformatted",
+    "RichBlockPullQuotation",
+    "RichBlockSectionHeading",
+    "RichBlockSlideshow",
+    "RichBlockTable",
+    "RichBlockTableCell",
+    "RichBlockThinking",
+    "RichBlockVideo",
+    "RichBlockVoiceNote",
+    "RichMessage",
+    "RichText",
+    "RichTextAnchor",
+    "RichTextAnchorLink",
+    "RichTextBankCardNumber",
+    "RichTextBold",
+    "RichTextBotCommand",
+    "RichTextCashtag",
+    "RichTextCode",
+    "RichTextCustomEmoji",
+    "RichTextDateTime",
+    "RichTextEmailAddress",
+    "RichTextHashtag",
+    "RichTextItalic",
+    "RichTextMarked",
+    "RichTextMathematicalExpression",
+    "RichTextMention",
+    "RichTextPhoneNumber",
+    "RichTextReference",
+    "RichTextReferenceLink",
+    "RichTextSpoiler",
+    "RichTextStrikethrough",
+    "RichTextSubscript",
+    "RichTextSuperscript",
+    "RichTextTextMention",
+    "RichTextUnderline",
+    "RichTextUrl",
     "SentGuestMessage",
     "SentWebAppMessage",
     "SharedUser",

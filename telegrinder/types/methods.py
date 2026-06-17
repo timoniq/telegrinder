@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API version `10.0`, released `May 8, 2026`."""
+    """Telegram Bot API version `10.1`, released `June 11, 2026`."""
 
     default_params = DEFAULT_PARAMETERS
 
@@ -1961,7 +1961,7 @@ class APIMethods:
 
         :param message_thread_id: Unique identifier for the target message thread.
 
-        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes of drafts \
+        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes to drafts \
         with the same identifier are animated.
 
         :param text: Text of the message to be sent, 0-4096 characters after entities parsing. \
@@ -2746,6 +2746,54 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "declineChatJoinRequest",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def answer_chat_join_request_query(
+        self,
+        *,
+        chat_join_request_query_id: str,
+        result: str,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `answerChatJoinRequestQuery`, see the [documentation](https://core.telegram.org/bots/api#answerchatjoinrequestquery)
+
+        Use this method to process a received chat join request query. Returns True
+        on success.
+
+        :param chat_join_request_query_id: Unique identifier of the join request query.
+
+        :param result: Result of the query. Must be either `approve` to allow the user to join the \
+        chat, `decline` to disallow the user to join the chat, or `queue` to leave \
+        the decision to other administrators.
+        """
+
+        method_response = await self.api.request_raw(
+            "answerChatJoinRequestQuery",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def send_chat_join_request_web_app(
+        self,
+        *,
+        chat_join_request_query_id: str,
+        web_app_url: str,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `sendChatJoinRequestWebApp`, see the [documentation](https://core.telegram.org/bots/api#sendchatjoinrequestwebapp)
+
+        Use this method to process a received chat join request query by showing
+        a Mini App to the user before deciding the outcome. Returns True on success.
+
+        :param chat_join_request_query_id: Unique identifier of the join request query.
+
+        :param web_app_url: The URL of the Mini App to be opened.
+        """
+
+        method_response = await self.api.request_raw(
+            "sendChatJoinRequestWebApp",
             get_params(locals()),
         )
         return full_result(method_response, bool)
@@ -4959,20 +5007,21 @@ class APIMethods:
     async def edit_message_text(
         self,
         *,
-        text: str,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,
         message_id: int | None = None,
         inline_message_id: str | None = None,
+        text: str | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
         entities: list[MessageEntity] | None = None,
         link_preview_options: LinkPreviewOptions | None = DEFAULT_PARAMETERS["link_preview_options"],
+        rich_message: InputRichMessage | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[Sum[Message, bool], APIError]:
         """Method `editMessageText`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
-        Use this method to edit text and game messages. On success, if the edited
+        Use this method to edit text, rich and game messages. On success, if the edited
         message is not an inline message, the edited Message is returned, otherwise
         True is returned. Note that business messages that were not sent by the bot
         and do not contain an inline keyboard can only be edited within 48 hours from
@@ -4991,7 +5040,8 @@ class APIMethods:
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of the \
         inline message.
 
-        :param text: New text of the message, 1-4096 characters after entities parsing.
+        :param text: New text of the message, 1-4096 characters after entity parsing; required \
+        if rich_message isn't specified.
 
         :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
         more details.
@@ -5000,6 +5050,8 @@ class APIMethods:
         which can be specified instead of parse_mode.
 
         :param link_preview_options: Link preview generation options for the message.
+
+        :param rich_message: New rich content of the message; required if text isn't specified.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
@@ -5079,15 +5131,15 @@ class APIMethods:
         """Method `editMessageMedia`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
         Use this method to edit animation, audio, document, live photo, photo,
-        or video messages, or to add media to text messages. If a message is part of
-        a message album, then it can be edited only to an audio for audio albums, only
-        to a document for document albums and to a photo, a live photo, or a video otherwise.
-        When an inline message is edited, a new file can't be uploaded; use a previously
-        uploaded file via its file_id or specify a URL. On success, if the edited
-        message is not an inline message, the edited Message is returned, otherwise
-        True is returned. Note that business messages that were not sent by the bot
-        and do not contain an inline keyboard can only be edited within 48 hours from
-        the time they were sent.
+        or video messages, or to replace a text or a rich message with a media. If a
+        message is part of a message album, then it can be edited only to an audio for
+        audio albums, only to a document for document albums and to a photo, a live
+        photo, or a video otherwise. When an inline message is edited, a new file
+        can't be uploaded; use a previously uploaded file via its file_id or specify
+        a URL. On success, if the edited message is not an inline message, the edited
+        Message is returned, otherwise True is returned. Note that business messages
+        that were not sent by the bot and do not contain an inline keyboard can only
+        be edited within 48 hours from the time they were sent.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
         to be edited was sent.
@@ -5967,6 +6019,105 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "deleteStickerSet",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def send_rich_message(
+        self,
+        *,
+        chat_id: int | str,
+        rich_message: InputRichMessage,
+        business_connection_id: str | None = None,
+        message_thread_id: int | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = DEFAULT_PARAMETERS["disable_notification"],
+        protect_content: bool | None = DEFAULT_PARAMETERS["protect_content"],
+        allow_paid_broadcast: bool | None = DEFAULT_PARAMETERS["allow_paid_broadcast"],
+        message_effect_id: str | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+        **other: typing.Any,
+    ) -> Result[Message, APIError]:
+        """Method `sendRichMessage`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessage)
+
+        Use this method to send rich messages. If the message contains a block with
+        a media element, then the bot must have the right to send the media to the chat.
+        On success, the sent Message is returned.
+
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
+        will be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup \
+        or channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; for \
+        forum supergroups and private chats of bots with forum topic mode enabled \
+        only.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
+        required if the message is sent to a direct messages chat.
+
+        :param rich_message: The message to be sent.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound. \
+
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcasting \
+        limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will \
+        be withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for private \
+        chats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested post \
+        to send; for direct messages chats only. If the message is sent as a reply \
+        to another suggested post, then that suggested post is automatically declined. \
+
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inline \
+        keyboard, custom reply keyboard, instructions to remove a reply keyboard \
+        or to force a reply from the user.
+        """
+
+        method_response = await self.api.request_raw(
+            "sendRichMessage",
+            get_params(locals()),
+        )
+        return full_result(method_response, Message)
+
+    async def send_rich_message_draft(
+        self,
+        *,
+        chat_id: int,
+        draft_id: int,
+        rich_message: InputRichMessage,
+        message_thread_id: int | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Method `sendRichMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessagedraft)
+
+        Use this method to stream a partial rich message to a user while the message
+        is being generated. Note that the streamed draft is ephemeral and acts as
+        a temporary 30-second preview - once the output is finalized, you must call
+        sendRichMessage with the complete message to persist it in the user's chat.
+        Returns True on success.
+
+        :param chat_id: Unique identifier for the target private chat.
+
+        :param message_thread_id: Unique identifier for the target message thread.
+
+        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes to drafts \
+        with the same identifier are animated.
+
+        :param rich_message: The partial message to be streamed.
+        """
+
+        method_response = await self.api.request_raw(
+            "sendRichMessageDraft",
             get_params(locals()),
         )
         return full_result(method_response, bool)
