@@ -2785,7 +2785,9 @@ class APIMethods:
         """Method `sendChatJoinRequestWebApp`, see the [documentation](https://core.telegram.org/bots/api#sendchatjoinrequestwebapp)
 
         Use this method to process a received chat join request query by showing
-        a Mini App to the user before deciding the outcome. Returns True on success.
+        a Mini App to the user before deciding the outcome. Call answerChatJoinRequestQuery
+        to resolve the join request query based on the user interaction with the
+        Mini App. Returns True on success.
 
         :param chat_join_request_query_id: Unique identifier of the join request query.
 
@@ -6047,7 +6049,8 @@ class APIMethods:
         On success, the sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
-        will be sent.
+        will be sent. Bot can send rich messages on behalf of a business account only \
+        if the corresponding user can send rich messages.
 
         :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup \
         or channel in the format @username.
