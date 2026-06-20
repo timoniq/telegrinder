@@ -4318,9 +4318,9 @@ class ChatJoinRequest(Model):
     """Optional. Chat invite link that was used by the user to send the join request."""
 
     query_id: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Identifier of the join request query. If present, then the bot
-    must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery
-    within 10 seconds."""
+    """Optional. Identifier of the join request query; for bots assigned to process
+    join request only. If present, then the bot must call sendChatJoinRequestWebApp
+    or directly call answerChatJoinRequestQuery within 10 seconds."""
 
     @property
     def chat_id(self) -> int:
@@ -7210,7 +7210,7 @@ class RichBlockAudio(RichBlock):
 class RichBlockPhoto(RichBlock):
     """Object `RichBlockPhoto`, see the [documentation](https://core.telegram.org/bots/api#richblockphoto).
 
-    A block with a photo, corresponding to the HTML tag <photo>.
+    A block with a photo, corresponding to the HTML tag <img>.
     """
 
     type: str = field()
