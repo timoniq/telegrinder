@@ -43,7 +43,7 @@ dependencies = [
     "choicelib (>=0.1.5)",
     "env-better (>=1.0.0)",
     "kungfu-fp (>=1.0.0)",
-    "msgspex (>=1.5.4)",
+    "msgspex (>=1.6.0)",
     "nodnod (>=1.0.2)",
     "vbml2 (>=2.0.1)",
     "wreq (>=0.12.0)",
@@ -64,11 +64,11 @@ Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.17,<1",
+    "ruff>=0.15.18,<1",
     "basedpyright>=1.39.8,<2",
     "tomlkit>=0.15.0,<1",
     "libcst>=1.8.6,<2",
-    "pytest>=9.1.0,<10",
+    "pytest>=9.1.1,<10",
     "pytest-asyncio>=1.4.0,<2",
     "pytest-cov>=7.1.0,<8",
     "pytest-mock>=3.15.1,<4",
