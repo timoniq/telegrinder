@@ -25,7 +25,9 @@ type MiddlewareResult = bool | typing.Awaitable[bool | None] | None
 
 async def run_pre_middleware(middleware: ABCMiddleware, context: Context) -> bool:
     if middleware.is_pre:
-        return bool(await run_middleware(middleware, context, composable=middleware.pre_composable))
+        # Only an explicit `False` (or a compose failure, which run_middleware maps to False)
+        # stops dispatch. A pre-middleware returning None is a valid "pass" per MiddlewareResult.
+        return await run_middleware(middleware, context, composable=middleware.pre_composable) is not False
     return True
 
 
@@ -50,6 +52,9 @@ async def run_middleware(
                     middleware_name := fullname(middleware),
                     NodeError(f"* failed to compose middleware `{middleware_name}`", from_error=error),
                 )
+                # A middleware that fails to compose is a failure: fail closed so a pre-middleware
+                # does not silently let dispatch continue as if it had passed.
+                return False
 
 
 class ABCMiddleware(ABC):

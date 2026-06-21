@@ -14,7 +14,9 @@ class LimitedDict[Key, Value](UserDict[Key, Value]):
         """
         deleted_item = None
 
-        if len(self.queue) >= self.maxlimit:
+        # Only evict when actually adding a new key at capacity. Re-setting an existing key does
+        # not grow the dict, so evicting an unrelated oldest entry would silently lose it.
+        if key not in self.queue and len(self.queue) >= self.maxlimit:
             deleted_item = self.pop(self.queue.popleft(), None)
 
         if key not in self.queue:

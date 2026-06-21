@@ -89,8 +89,11 @@ type AnyType = typing.Any
 
 
 @lru_cache(maxsize=None)
-def _register_waiter_close_node_global_scope() -> None:
-    asyncio.create_task(wait_for_close_node_global_scope())
+def _register_waiter_close_node_global_scope() -> asyncio.Task[None]:
+    # Return (and thus cache via lru_cache) the task so a strong reference is kept for the
+    # process lifetime. Otherwise the orphaned task can be garbage-collected mid-runtime,
+    # running its `finally` and closing the global node scope while the bot is still running.
+    return asyncio.create_task(wait_for_close_node_global_scope())
 
 
 @asynccontextmanager

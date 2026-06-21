@@ -1,4 +1,5 @@
 import base64
+import binascii
 import typing
 
 import kungfu
@@ -59,7 +60,12 @@ class StartCommand(
         param: str | None = ctx.pop("param", None)
 
         if param is not None and self.decode_deep_link_param:
-            param = base64.urlsafe_b64decode(param.encode()).decode()
+            try:
+                param = base64.urlsafe_b64decode(param.encode()).decode()
+            except binascii.Error, UnicodeDecodeError:
+                # `param` is attacker-controlled (everything after `/start `); a malformed
+                # base64 / non-UTF-8 payload must not raise out of the rule check.
+                return False
 
         validated_param = self.validator(param) if self.validator and param is not None else param
 

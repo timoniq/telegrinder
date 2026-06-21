@@ -47,7 +47,12 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
         :param is_access_restricted: Pass True, if only selected users can access the bot. The bot's owner canalways access it.
 
         :param added_user_ids: A JSON-serialized list of up to 10 identifiers of users who will have accessto the bot in addition to its owner. Ignored if is_access_restricted isfalse."""
-        ...
+        return await self.bound_api.set_managed_bot_access_settings(
+            user_id=self.user.id if user_id is None else user_id,
+            is_access_restricted=is_access_restricted,
+            added_user_ids=added_user_ids,
+            **other,
+        )
 
     @shortcut("get_managed_bot_access_settings", custom_params={"user_id"})
     async def get_access_settings(
@@ -61,7 +66,10 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
         Use this method to get the access settings of a managed bot. Returns a BotAccessSettings
         object on success.
         :param user_id: [`CUSTOM PARAMETER`] User identifier of the managed bot whose access settings will be returned."""
-        ...
+        return await self.bound_api.get_managed_bot_access_settings(
+            user_id=self.user.id if user_id is None else user_id,
+            **other,
+        )
 
 
 __all__ = ("ManagedBotUpdatedCute",)

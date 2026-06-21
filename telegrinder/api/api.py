@@ -51,7 +51,19 @@ def retryer[T: API, **P, R](func: APIRequestMethod[T, P, R], /) -> APIRequestMet
                 await asyncio.sleep(10.0)
 
             elif result.error.migrate_to_chat_id:
-                kwargs["chat_id"] = result.error.migrate_to_chat_id.value
+                # `chat_id` lives in the request payload (the `data` dict), which methods
+                # pass as the second positional argument, not in `**kwargs`.
+                if "data" in kwargs:
+                    data = kwargs["data"]
+                elif len(args) > 1:
+                    data = args[1]
+                else:
+                    data = None
+
+                if not isinstance(data, dict):
+                    return result
+
+                data["chat_id"] = result.error.migrate_to_chat_id.value
 
             else:
                 return result
@@ -144,7 +156,7 @@ class API(APIMethods):
         )
 
         if response.get("ok", False) is True:
-            return Ok(response["result"])
+            return Ok(response.get("result"))
 
         return Error(
             APIError(

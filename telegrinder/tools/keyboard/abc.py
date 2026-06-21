@@ -56,13 +56,13 @@ class ABCKeyboard(typing.Protocol):
         return self
 
     def format_text(self, **format_data: typing.Any) -> typing.Self:
-        copy_keyboard = self.copy()
+        keyboard = self.copy()
 
-        for row in self.keyboard:
+        for row in keyboard.keyboard:
             for button in row:
-                button.update(dict(text=button["text"].format(**format_data)))
+                button["text"] = button["text"].format(**format_data)
 
-        return copy_keyboard
+        return keyboard
 
     def merge(self, other: typing.Self, /) -> typing.Self:
         self.keyboard.extend(copy_keyboard(other.keyboard))

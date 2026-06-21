@@ -45,14 +45,14 @@ def link(href: FormatString, /, *, text: str | None = None) -> TagFormat:
     return TagFormat(
         text or href,
         tag=Tag.HYPERLINK,
-        href=f'"{href}"',
+        href=f'"{html.escape(str(href), quote=True)}"',
     )
 
 
 def pre_code(s: FormatString, /, *, lang: str | None = None) -> TagFormat:
     if not lang:
         return TagFormat(s, tag=Tag.PRE)
-    return pre_code(TagFormat(s, tag=Tag.CODE, **{"class": f"language-{lang}"}))
+    return pre_code(TagFormat(s, tag=Tag.CODE, **{"class": f'"language-{html.escape(str(lang), quote=True)}"'}))
 
 
 def spoiler(s: FormatString, /) -> TagFormat:
@@ -69,7 +69,7 @@ def mention(s: FormatString, /, *, user_id: int) -> TagFormat:
 
 
 def tg_emoji(s: FormatString, /, *, emoji_id: str | int) -> TagFormat:
-    return TagFormat(s, tag=Tag.EMOJI, **{"emoji-id": f'"{emoji_id}"'})
+    return TagFormat(s, tag=Tag.EMOJI, **{"emoji-id": f'"{html.escape(str(emoji_id), quote=True)}"'})
 
 
 def underline(s: FormatString, /) -> TagFormat:
@@ -80,7 +80,9 @@ def _apply_formats(value: typing.Any, format_spec: str | None = None) -> str:
     if not format_spec:
         return html.escape(str(value))
 
-    result: FormatString = html.escape(str(value))
+    # Pass the raw value to the first formatter: TagFormat.__new__ escapes it once. Pre-escaping
+    # here would double-escape (e.g. `&` -> `&amp;amp;`) and disagree with the direct-call path.
+    result: FormatString = value
 
     for fmt in (f.strip() for f in format_spec.split(UNION_SPECIFIERS_SEPARATOR)):
         if fmt in FORMATTERS:
@@ -88,7 +90,7 @@ def _apply_formats(value: typing.Any, format_spec: str | None = None) -> str:
         else:
             raise ValueError(f"Unknown format: `{fmt}`")
 
-    return result.formatting() if isinstance(result, TagFormat) else result
+    return result.formatting() if isinstance(result, TagFormat) else str(result)
 
 
 def escape(s: FormatString, /) -> str:
@@ -153,7 +155,7 @@ def date_time(
         s,
         tag=Tag.TIME,
         unix='"{}"'.format(int(unix.timestamp() if isinstance(unix, datetime.datetime) else unix)),
-        **{"format": f'"{fmt}"'} if fmt else {},
+        **{"format": f'"{html.escape(str(fmt), quote=True)}"'} if fmt else {},
     )
 
 
@@ -203,7 +205,7 @@ class TagFormat(str):
 
     @property
     def tag_data(self) -> str:
-        return ",".join(f" {k}={v}" if v is not None else f" {k}" for k, v in self.data.items())
+        return "".join(f" {k}={v}" if v is not None else f" {k}" for k, v in self.data.items())
 
     def formatting(self) -> str:
         return TAG_FORMAT.format(

@@ -45,10 +45,12 @@ def parse_query_params(
     params_: dict[str, typing.Any] = {}
 
     for key, value in params.items():
-        if value in (False, None):
+        # Identity checks, not `in`/`==`: `0 == False` and `1 == True`, so membership tests
+        # would drop integer ids of 0 and turn id 1 into a value-less flag.
+        if value is False or value is None:
             continue
 
-        if value in (True, NO_VALUE):
+        if value is True or value is NO_VALUE:
             no_value_params.add(key)
             continue
 

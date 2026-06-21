@@ -33,8 +33,8 @@ class ErrorHandler:
     async def handle(self, error: BaseException) -> bool:
         error_class = type(error)
 
-        if error_class is SystemExit:
-            self._handle_system_exit(error)  # type: ignore
+        if isinstance(error, SystemExit):
+            await self._handle_system_exit(error)
 
         if error_class not in self._handlers:
             return False
@@ -62,7 +62,9 @@ class ErrorHandler:
         self._polling.stop()
 
     async def _handle_connection_timeout_error(self, _: BaseException) -> None:
-        if self._polling.reconnects_counter > self._polling.max_reconnects:
+        # `>=`: the counter is incremented only after this handler runs, so `>` would allow one
+        # reconnect beyond max_reconnects before giving up.
+        if self._polling.reconnects_counter >= self._polling.max_reconnects:
             logger.error(
                 "Failed to reconnect to Telegram API server after {} attempts, stopping polling",
                 self._polling.max_reconnects,

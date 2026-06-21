@@ -47,15 +47,17 @@ class FilterMiddleware(ABCMiddleware):
             async with compose(source_node, context, agent=agent) as result:
                 match result:
                     case Error(_):
-                        return False
+                        # This source node cannot classify the update (no value to compare
+                        # against the held ones): it is not subject to this hold, pass it on.
+                        continue
                     case Ok(value) if value not in source_filter:
-                        return False
+                        # The update does not match any value held for this source node, so
+                        # this hold does not apply to it: keep checking the remaining holds.
+                        continue
                     case _:
                         for filter in source_filter[result.value]:
                             if not await check_rule(filter, context):
                                 return False
-
-            return True
 
         return True
 

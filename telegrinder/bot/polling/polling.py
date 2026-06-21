@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import datetime
 import typing
 from http import HTTPStatus
@@ -42,6 +43,7 @@ class Polling(ABCPolling):
         "_request_timeout",
         "_event_stop",
         "_error_handler",
+        "_stop_task",
     )
 
     def __init__(
@@ -78,6 +80,7 @@ class Polling(ABCPolling):
         self._timeout_seconds = int(self.timeout.total_seconds())
         self._event_stop = asyncio.Event()
         self._error_handler = ErrorHandler(self)
+        self._stop_task: asyncio.Task[None] | None = None
 
     def __repr__(self) -> str:
         return (
@@ -188,9 +191,15 @@ class Polling(ABCPolling):
 
         async def wait_for_stop() -> None:
             await self._event_stop.wait()
-            await generator.athrow(StopPolling)
+            # The generator may be suspended at an inner await (the long-poll request) and so be
+            # "already running", which makes athrow() raise RuntimeError. Either way the loop
+            # terminates: stop() also clears _running, rechecked once the in-flight request
+            # returns. Suppress so the task does not leak an unretrieved exception.
+            with contextlib.suppress(StopPolling, StopAsyncIteration, RuntimeError):
+                await generator.athrow(StopPolling)
 
-        asyncio.create_task(wait_for_stop())
+        # Keep a strong reference so the task is not garbage-collected mid-flight.
+        self._stop_task = asyncio.create_task(wait_for_stop())
         return generator
 
     def stop(self) -> None:

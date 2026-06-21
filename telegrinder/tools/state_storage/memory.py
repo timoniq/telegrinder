@@ -21,7 +21,8 @@ class MemoryStateStorage[T = Payload](ABCStateStorage[T]):
         self.storage[user_id] = StateData(key, payload)
 
     async def delete(self, user_id: int) -> None:
-        self.storage.pop(user_id)
+        # Deleting state should be idempotent: a user with no stored state must not raise.
+        self.storage.pop(user_id, None)
 
 
 __all__ = ("MemoryStateStorage",)
