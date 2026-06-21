@@ -66,8 +66,9 @@ class MiddlewareBox(BaseMiddlewareBox, Singleton):
         if self.filter:
             yield self.filter
 
-        if self.media_group:
-            yield self.media_group
+        # The media-group middleware must always run: it is what populates `media_groups`,
+        # so gating it on that (now-always-empty) dict would prevent it from ever running.
+        yield self.media_group
 
         if self.waiter:
             yield self.waiter

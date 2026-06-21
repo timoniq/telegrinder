@@ -77,9 +77,15 @@ class mutation[**P, IntoState: State, BoundState: State | None]:  # noqa: N801
         return new_state
 
     def __get__(self, instance: State, owner: typing.Any) -> typing.Self:
-        if instance is not None:
-            self.from_state = instance
-        return self
+        if instance is None:
+            return self
+        # Return a fresh per-access bound copy instead of stashing `from_state` on the shared
+        # descriptor. The descriptor is a single class attribute, so writing the bound state onto
+        # it and reading it back across the `await` in __call__ lets concurrent mutations of
+        # different states clobber one another (one user's mutation persisted onto another's).
+        bound = type(self)(self.construct_mutation)
+        bound.from_state = instance
+        return bound
 
 
 __all__ = ("mutation",)

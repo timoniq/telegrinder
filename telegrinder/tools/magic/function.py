@@ -150,9 +150,12 @@ def resolve_kwonly_arg_names(
     exclude: set[str] | None = None,
 ) -> tuple[str, ...]:
     func = _unwrap_func(func)
+    # Keyword-only args occupy co_varnames[co_argcount : co_argcount + co_kwonlyargcount].
+    # `self`/`cls` live in the positional region (< co_argcount), so the default start_idx=1
+    # (skip the bound first arg) maps to the start of the kwonly region, not one past it.
     return _resolve_arg_names(
         func,
-        start_idx=func.__code__.co_argcount + start_idx,
+        start_idx=func.__code__.co_argcount + start_idx - 1,
         stop_idx=func.__code__.co_argcount + func.__code__.co_kwonlyargcount,
         exclude=exclude,
     )

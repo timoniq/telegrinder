@@ -53,7 +53,10 @@ def compose_method_params[Cute: BaseCute](
             if param_name in hooks:
                 param_name, field = hooks[param_name](field)
 
-            params[param_name] = field
+            # A hook can rename the key (e.g. direct_messages_topic -> direct_messages_topic_id),
+            # so the outer `param_name not in params` guard checked the source key, not this one.
+            # setdefault avoids clobbering a value the caller passed under the renamed key.
+            params.setdefault(param_name, field)
 
     return params
 

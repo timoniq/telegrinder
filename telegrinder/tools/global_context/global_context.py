@@ -337,7 +337,9 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
         """
         if not isinstance(__value, type(self)):
             return NotImplemented
-        return self.__ctx_name__ == __value.__ctx_name__ and self == __value
+        # `self == __value` here would re-enter this method and recurse forever; compare the
+        # stored variables via dict equality instead.
+        return self.__ctx_name__ == __value.__ctx_name__ and dict.__eq__(self, __value)
 
     def __setitem__(self, __name: str, __value: CtxValueT | CtxVariable[CtxValueT]) -> None:
         with self.lock_context:
@@ -388,6 +390,10 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
         """Getting a context variable."""
         if is_dunder(__name):
             return object.__getattribute__(self, __name)
+        # Missing variables must raise AttributeError (not UnwrapError) so that protocols
+        # like hasattr()/getattr(..., default) behave correctly on a GlobalContext.
+        if self.get(__name).unwrap_or_none() is None:
+            raise AttributeError(__name)
         return self.__getitem__(__name)
 
     @root_protection
@@ -465,12 +471,19 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
         return list(dict.values(self))
 
     def update(self, other: typing.Self) -> None:
-        with self.lock_context:
-            dict.update(self, dict(other.items()))
+        # Route through set_context_variables so const protection is enforced, instead of
+        # writing raw GlobalCtxVar objects directly via dict.update (which bypasses it).
+        self.set_context_variables({name: var.value for name, var in other.items()})
 
     def copy(self) -> typing.Self:
         """Copy context. Returns copied context without ctx_name."""
-        copied_ctx = self.__class__(thread_safe=self.thread_safe)
+        # Build a fresh, unregistered, anonymous instance directly: going through
+        # `self.__class__(...)` would route into `__new__`, which returns the existing
+        # singleton (named subclass) or the shared anonymous instance, so the "copy" would
+        # alias the original instead of being an independent snapshot.
+        copied_ctx = dict.__new__(type(self))
+        object.__setattr__(copied_ctx, "__ctx_name__", None)
+        object.__setattr__(copied_ctx, "__thread_safe__", self.thread_safe)
         copied_ctx.set_context_variables({name: var.value for name, var in self.dict().items()})
         return copied_ctx
 
@@ -549,7 +562,9 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
 
     def rename(self, old_var_name: str, new_var_name: str) -> Result[_, str]:
         with self.lock_context:
-            var = self.get(old_var_name).unwrap()
+            var = self.get(old_var_name).unwrap_or_none()
+            if var is None:
+                return Error(f"Variable {old_var_name!r} is not defined in {self.ctx_name!r}.")
             if var.const:
                 return Error(f"Unable to rename variable {old_var_name!r}, because it's a constant.")
 
@@ -593,7 +608,9 @@ class GlobalContext[CtxValueT = typing.Any](ABCGlobalContext, dict[str, GlobalCt
             if not self.__ctx_name__:
                 return Error("Cannot delete unnamed context.")
 
-            ctx = self.__storage__.get(self.ctx_name).unwrap()
+            ctx = self.__storage__.get(self.ctx_name).unwrap_or_none()
+            if ctx is None:
+                return Error(f"Context {self.ctx_name!r} is not defined in storage.")
             dict.clear(ctx)
             self.__storage__.delete(self.ctx_name)
 

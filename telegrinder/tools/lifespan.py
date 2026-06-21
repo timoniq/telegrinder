@@ -128,17 +128,24 @@ class Lifespan:
         if not isinstance(other, self.__class__):
             return NotImplemented
 
-        return self.__class__(
+        new = self.__class__(
             startup_tasks=self.startup_tasks + other.startup_tasks,
+            startup_coro_task_functions=self.startup_coro_task_functions + other.startup_coro_task_functions,
             shutdown_tasks=self.shutdown_tasks + other.shutdown_tasks,
+            shutdown_coro_task_functions=self.shutdown_coro_task_functions + other.shutdown_coro_task_functions,
         )
+        new.lifespan_function = self.lifespan_function or other.lifespan_function
+        return new
 
     def __iadd__(self, other: object, /) -> typing.Self:
         if not isinstance(other, self.__class__):
             return NotImplemented
 
         self.startup_tasks.extend(other.startup_tasks)
+        self.startup_coro_task_functions.extend(other.startup_coro_task_functions)
         self.shutdown_tasks.extend(other.shutdown_tasks)
+        self.shutdown_coro_task_functions.extend(other.shutdown_coro_task_functions)
+        self.lifespan_function = self.lifespan_function or other.lifespan_function
         return self
 
     async def __aenter__(self) -> None:
@@ -174,14 +181,15 @@ class Lifespan:
         from telegrinder.node.compose import compose_once
 
         while tasks:
-            async with compose_once(tasks.pop(0)) as result:
+            task = tasks.pop(0)
+            async with compose_once(task) as result:
                 match result:
                     case Error(error):
                         logger.error(
                             "Coroutine task function `{}` failed with error: {}\n",
-                            fullname(tasks.pop(0)),
+                            fullname(task),
                             NodeError(
-                                f"* failed to compose coroutine task function `{fullname(tasks.pop(0))}`",
+                                f"* failed to compose coroutine task function `{fullname(task)}`",
                                 from_error=error,
                             ),
                         )

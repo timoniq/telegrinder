@@ -40,7 +40,7 @@ class ManagedBotCreatedBotName:
 class ManagedBotCreatedBotUsername:
     @classmethod
     def __compose__(cls, managed_bot_created_bot: ManagedBotCreatedBot) -> BotUsername:
-        return managed_bot_created_bot.username.unwrap()
+        return managed_bot_created_bot.username.expect(NodeError("Managed bot has no username."))
 
 
 __all__ = (

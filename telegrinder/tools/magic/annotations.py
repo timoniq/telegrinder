@@ -155,9 +155,12 @@ def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, Ann
     index = 0
     generic_alias_args = dict[TypeParameter, typing.Any]()
 
-    for parameter in parameters:
+    for param_position, parameter in enumerate(parameters):
         if isinstance(parameter, typing.TypeVarTuple):
-            stop_index = len(args) - index
+            # A TypeVarTuple absorbs everything except the args claimed by the parameters that
+            # follow it; the count to leave depends on what comes after, not before.
+            remaining_after = len(parameters) - param_position - 1
+            stop_index = len(args) - remaining_after
             generic_alias_args[parameter] = args[index:stop_index]
             index = stop_index
             continue

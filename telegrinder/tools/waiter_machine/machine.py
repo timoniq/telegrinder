@@ -127,11 +127,20 @@ class WaiterMachine:
             raise LookupError("Waiter with hash `{}` is not found for hasher `{}`.".format(waiter_hash, hasher))
 
         try:
-            await short_state.cancel()
+            if context.get("expired"):
+                # Lifetime expiry: wake the waiter gracefully (set its event) so wait() returns
+                # and raises a catchable LookupError, instead of cancelling the awaiting future
+                # (which surfaces as an uncatchable CancelledError in the wait() caller).
+                short_state.release()
+            else:
+                await short_state.cancel()
         finally:
             if on_drop := short_state.actions.get("on_drop"):
                 context["short_state"] = short_state
-                await maybe_awaitable(bundle(on_drop, context)())
+                # start_idx=0: on_drop is a user callback (plain function or bound method);
+                # bundle already excludes self/cls by name, so positionally skipping the first
+                # parameter would drop a real argument of a plain-function callback.
+                await maybe_awaitable(bundle(on_drop, context, start_idx=0)())
 
     async def drop_state[Event: BaseCute, HasherData](
         self,

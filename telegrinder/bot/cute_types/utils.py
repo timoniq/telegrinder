@@ -52,7 +52,9 @@ INPUT_MEDIA_TYPES: typing.Final[dict[ContentType, type[InputMedia]]] = dict(zip(
 
 
 def exclude_bound_parameters(params: dict[str, typing.Any], /) -> dict[str, typing.Any]:
-    return {key: value for key, value in params if key not in ("self", "cls")}
+    return {
+        key: value for key, value in (*params.pop("other", {}).items(), *params.items()) if key not in ("self", "cls")
+    }
 
 
 def build_html(text: str, entities: list[MessageEntity], /) -> str:

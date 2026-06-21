@@ -155,7 +155,7 @@ def execute_method_edit(
 
 
 def get_entity_value(
-    entity_value: typing.Literal["user", "url", "custom_emoji_id", "language", "date_time_format", "unixtime"],
+    entity_value: typing.Literal["user", "url", "custom_emoji_id", "language", "date_time_format", "unix_time"],
     entities: option.Option[list[MessageEntity]],
     caption_entities: option.Option[list[MessageEntity]],
 ) -> option.Option[typing.Any]:
@@ -3086,7 +3086,7 @@ class MessageCute(
     @property
     def unixtime(self) -> option.Option[datetime]:
         """The Unix time associated with the `date_time` entity."""
-        return get_entity_value("unixtime", self.entities, self.caption_entities)
+        return get_entity_value("unix_time", self.entities, self.caption_entities)
 
     @property
     def date_time_format(self) -> option.Option[DateTimeFormatSeq]:

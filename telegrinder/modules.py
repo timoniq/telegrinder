@@ -828,7 +828,7 @@ class _LoggerProxy:
                     if self.logger_module != "loguru"
                     else level_name
                 )
-                if not hasattr(self.logger, "isEnabledFor") and self.logger.isEnabledFor(level):  # type: ignore
+                if hasattr(self.logger, "isEnabledFor") and not self.logger.isEnabledFor(level):  # type: ignore
                     return self
 
             return getattr(self.logger if not is_async else self.async_logger, __name)

@@ -27,7 +27,9 @@ def is_dunder(name: str, /) -> bool:
 
 
 def copy_keyboard(keyboard: RawKeyboard, /) -> RawKeyboard:
-    return [row.copy() for row in keyboard if row]
+    # Copy the button dicts too, not just the row lists: a shared button dict lets a mutation
+    # on the copy (e.g. `format_text`) leak back into the original keyboard.
+    return [[button.copy() for button in row] for row in keyboard if row]
 
 
 def freaky_keyboard_merge[T: BaseKeyboard = typing.Any](

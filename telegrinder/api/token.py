@@ -12,7 +12,8 @@ class Token(str):
         return super().__new__(cls, token)
 
     def __repr__(self) -> str:
-        return f"<Token: {self.bot_id}:{self.token[:9]}...>"
+        # Never expose any part of the secret: repr() is the form used for logging/tracebacks.
+        return f"<Token: bot_id={self.bot_id}>"
 
     @classmethod
     def from_env(cls, var_name: str = "BOT_TOKEN", /) -> typing.Self:

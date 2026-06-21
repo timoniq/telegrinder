@@ -153,7 +153,6 @@ class WreqClient(ABCClient):
 
     async def request_text(
         self,
-        *,
         url: str,
         method: Method = "GET",
         data: Data | None = None,
@@ -163,7 +162,6 @@ class WreqClient(ABCClient):
 
     async def request_bytes(
         self,
-        *,
         url: str,
         method: Method = "GET",
         data: Data | None = None,
@@ -173,7 +171,6 @@ class WreqClient(ABCClient):
 
     async def request_content(
         self,
-        *,
         url: str,
         method: Method = "GET",
         data: Data | None = None,
@@ -183,7 +180,6 @@ class WreqClient(ABCClient):
 
     async def request_json(
         self,
-        *,
         url: str,
         method: Method = "GET",
         data: Data | None = None,
@@ -192,7 +188,8 @@ class WreqClient(ABCClient):
         return json.loads(await self.request_bytes(url=url, method=method, data=data, **kwargs))
 
     async def close(self) -> None:
-        return None
+        # wreq.Client owns a connection pool that must be released; the previous no-op leaked it.
+        self._client.close()
 
 
 __all__ = ("WreqClient", "WreqMultipartBuilder")

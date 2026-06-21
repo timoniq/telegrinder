@@ -128,7 +128,7 @@ class TaskGroup[T](asyncio.TaskGroup):
         name: str | None = None,
         context: Context | None = None,
     ) -> asyncio.Task[T]:
-        task = super().create_task(coro)
+        task = super().create_task(coro, name=name, context=context)
         self._all_tasks.add(task)
         return task
 

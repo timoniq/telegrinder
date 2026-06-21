@@ -28,6 +28,11 @@ DESERIALIZE_EXCEPTIONS: typing.Final[frozenset[type[BaseException]]] = frozenset
             msgspec.ValidationError,
             binascii.Error,
             ValueError,
+            # Attacker-controlled bytes can decode to a too-short list / a non-list, which
+            # makes `ModelParser.compose` raise while positionally indexing the payload.
+            # Keep these inside the Result boundary instead of escaping into dispatch.
+            LookupError,
+            TypeError,
             brotli.error if brotli is not None else None,  # type: ignore
         ),
     ),
