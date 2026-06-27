@@ -44,7 +44,7 @@ dependencies = [
     "env-better (>=1.0.0)",
     "kungfu-fp (>=1.0.0)",
     "msgspex (>=1.6.0)",
-    "nodnod (>=1.0.2)",
+    "nodnod (>=1.1.0)",
     "vbml2 (>=2.0.1)",
     "wreq (>=0.12.0)",
     "typing-extensions (>=4.15.0)",
@@ -64,8 +64,8 @@ Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.18,<1",
-    "basedpyright>=1.39.8,<2",
+    "ruff>=0.15.20,<1",
+    "basedpyright>=1.39.9,<2",
     "tomlkit>=0.15.0,<1",
     "libcst>=1.8.6,<2",
     "pytest>=9.1.1,<10",
