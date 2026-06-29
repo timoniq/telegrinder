@@ -157,14 +157,14 @@ wheels = [
 
 [[package]]
 name = "kungfu-fp"
-version = "1.1.0"
+version = "1.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/75/e1/bfed503150a2c081cab7f45f3a14adc000045382754e5f844ae4cb350707/kungfu_fp-1.1.0.tar.gz", hash = "sha256:7a8cc753cfbf88de058267deda34ccd19751088489bdaceacf5d6709a979019e", size = 36038, upload-time = "2026-06-28T20:24:50.822Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/05/4178794dc60a907cf6e9c1bb1190a572ad05c0fb75882a846846c6af6ba0/kungfu_fp-1.1.1.tar.gz", hash = "sha256:1735243d9f40ca1c14192fccf74bc025e7656fcd35b5846ecd90c1d9219f2dac", size = 36033, upload-time = "2026-06-29T20:17:03.123Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e4/f6/35151df9f0dfc71cff797bf0700c7af37d4f9f8168a21603aa41b1cd6a76/kungfu_fp-1.1.0-py3-none-any.whl", hash = "sha256:40cffe634271175b70a8175a320e16a576cd2f2417b05e79c474ce0678751acb", size = 19087, upload-time = "2026-06-28T20:24:51.849Z" },
+    { url = "https://files.pythonhosted.org/packages/da/80/56cc23b0d38b116c7da27d0f24303f9b3184250925db506fe8b0a9fdeeee/kungfu_fp-1.1.1-py3-none-any.whl", hash = "sha256:511f82fa5f63bc16dca79e937682ffd592a61e431d7d10953321dbf0784dd2c2", size = 19080, upload-time = "2026-06-29T20:17:04.2Z" },
 ]
 
 [[package]]
@@ -512,7 +512,7 @@ requires-dist = [
     { name = "certifi", specifier = ">=2026.6.17" },
     { name = "choicelib", specifier = ">=0.1.5" },
     { name = "env-better", specifier = ">=1.0.0" },
-    { name = "kungfu-fp", specifier = ">=1.1.0" },
+    { name = "kungfu-fp", specifier = ">=1.1.1" },
     { name = "loguru", marker = "extra == 'loguru'" },
     { name = "msgspex", specifier = ">=1.6.0" },
     { name = "nodnod", specifier = ">=1.1.0" },
