@@ -3098,7 +3098,7 @@ class SuggestedPostPaid(Model):
 
     currency: Literal[Currency.XTR, Currency.TON] = field()
     """Currency in which the payment was made. Currently, one of `XTR` for Telegram
-    Stars or `TON` for toncoins."""
+    Stars or `TON` for TON grams."""
 
     suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
     """Optional. Message containing the suggested post. Note that the Message
@@ -3107,7 +3107,7 @@ class SuggestedPostPaid(Model):
 
     amount: Option[int] = field(default=..., converter=From[int | None])
     """Optional. The amount of the currency that was received by the channel in
-    nanotoncoins; for payments in toncoins only."""
+    nanograms; for payments in TON grams only."""
 
     star_amount: Option[StarAmount] = field(default=..., converter=From["StarAmount | None"])
     """Optional. The amount of Telegram Stars that was received by the channel;
@@ -3287,13 +3287,13 @@ class SuggestedPostPrice(Model):
 
     currency: Literal[Currency.XTR, Currency.TON] = field()
     """Currency in which the post will be paid. Currently, must be one of `XTR` for
-    Telegram Stars or `TON` for toncoins."""
+    Telegram Stars or `TON` for TON grams."""
 
     amount: int = field()
     """The amount of the currency that will be paid for the post in the smallest units
-    of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price
-    in Telegram Stars must be between 5 and 100000, and price in nanotoncoins
-    must be between 10000000 and 10000000000000."""
+    of the currency, i.e. Telegram Stars or nanograms. Currently, price in
+    Telegram Stars must be between 5 and 100000, and price in nanograms must
+    be between 10000000 and 10000000000000."""
 
 
 class SuggestedPostInfo(Model):
@@ -5085,11 +5085,11 @@ class UniqueGiftInfo(Model):
     )
     """Optional. For gifts bought from other users, the currency in which the payment
     for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON`
-    for toncoins."""
+    for TON grams."""
 
     last_resale_amount: Option[int] = field(default=..., converter=From[int | None])
     """Optional. For gifts bought from other users, the price paid for the gift
-    in either Telegram Stars or nanotoncoins."""
+    in either Telegram Stars or nanograms."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Unique identifier of the received gift for the bot; only present
