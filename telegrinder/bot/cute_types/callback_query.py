@@ -203,7 +203,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
         :param text: Text of the notification. If not specified, nothing will be shown to theuser, 0-200 characters.
 
-        :param show_alert: If True, an alert will be shown by the client instead of a notification atthe top of the chat screen. Defaults to false.
+        :param show_alert: If True, an alert will be shown by the client instead of a notification atthe top of the chat screen. Defaults to False.
 
         :param url: URL that will be opened by the user's client. If you have created a Game andaccepted the conditions via @BotFather, specify the URL that opens yourgame - note that this will only work if the query comes from a callback_gamebutton. Otherwise, you may use links like t.me/your_bot?start=XXXX thatopen your bot with a parameter.
 
@@ -269,7 +269,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the new caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Ignoredif a new caption isn't specified.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media. Ignored ifa new caption isn't specified.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
@@ -358,7 +358,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
         :param link_preview_options: Link preview generation options for the message.
 
-        :param rich_message: New rich content of the message; required if text isn't specified.
+        :param rich_message: New rich content of the message; required if text isn't specified. Directupload of new files isn't supported when an inline message is edited.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...

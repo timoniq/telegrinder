@@ -210,6 +210,34 @@ class InputStoryContent(Model):
     """
 
 
+class InputRichBlock(Model):
+    """Base object `InputRichBlock`, see the [documentation](https://core.telegram.org/bots/api#inputrichblock).
+
+    This object represents a block in a rich formatted message to be sent. Currently, it can be any of the following types:
+    - InputRichBlockParagraph
+    - InputRichBlockSectionHeading
+    - InputRichBlockPreformatted
+    - InputRichBlockFooter
+    - InputRichBlockDivider
+    - InputRichBlockMathematicalExpression
+    - InputRichBlockAnchor
+    - InputRichBlockList
+    - InputRichBlockBlockQuotation
+    - InputRichBlockPullQuotation
+    - InputRichBlockCollage
+    - InputRichBlockSlideshow
+    - InputRichBlockTable
+    - InputRichBlockDetails
+    - InputRichBlockMap
+    - InputRichBlockAnimation
+    - InputRichBlockAudio
+    - InputRichBlockPhoto
+    - InputRichBlockVideo
+    - InputRichBlockVoiceNote
+    - InputRichBlockThinking
+    """
+
+
 class InputProfilePhoto(Model):
     """Base object `InputProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#inputprofilephoto).
 
@@ -481,6 +509,9 @@ class Update(Model):
     managed_bot: Option[ManagedBotUpdated] = field(default=..., converter=From["ManagedBotUpdated | None"])
     """Optional. A new bot was created to be managed by the bot, or token or owner
     of a managed bot was changed."""
+
+    subscription: Option[BotSubscriptionUpdated] = field(default=..., converter=From["BotSubscriptionUpdated | None"])
+    """Optional. User payment subscription has changed."""
 
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
@@ -871,6 +902,9 @@ class ChatFullInfo(Model):
     """Optional. The bot that processes join request queries in the chat. The field
     is only available to chat administrators."""
 
+    community: Option[Community] = field(default=..., converter=From["Community | None"])
+    """Optional. The Community to which the chat belongs."""
+
 
 class Message(MaybeInaccessibleMessage):
     """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message).
@@ -879,11 +913,11 @@ class Message(MaybeInaccessibleMessage):
     """
 
     message_id: int = field()
-    """Unique message identifier inside this chat. In specific instances (e.g.,
-    message containing a video sent to a big chat), the server might automatically
-    schedule a message instead of sending it immediately. In such cases, this
-    field will be 0 and the relevant message will be unusable until it is actually
-    sent."""
+    """Unique message identifier inside this chat; 0 for ephemeral messages.
+    In specific instances (e.g., a message containing a video sent to a big chat),
+    the server might automatically schedule a message instead of sending it
+    immediately. In such cases, this field will be 0 and the relevant message
+    will be unusable until it is actually sent."""
 
     date: datetime = field(converter=From[datetime | int])
     """Date the message was sent in Unix time. It is always a positive number, representing
@@ -928,6 +962,14 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Tag or custom title of the sender of the message; for supergroups
     only."""
 
+    receiver_user: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. For ephemeral messages, the user who received the message."""
+
+    ephemeral_message_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. For ephemeral messages, identifier of the ephemeral message
+    inside this chat. The identifier may be reused for another ephemeral message
+    after the message is deleted or expires."""
+
     guest_query_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The unique identifier for the guest query. Use this identifier
     with the method answerGuestQuery to send a response message. If non-empty,
@@ -961,7 +1003,8 @@ class Message(MaybeInaccessibleMessage):
     reply_to_message: Option[Message] = field(default=..., converter=From["Message | None"])
     """Optional. For replies in the same chat and message thread, the original
     message. Note that the Message object in this field will not contain further
-    reply_to_message fields even if it itself is a reply."""
+    reply_to_message fields even if it itself is a reply. If the message is a
+    reply to an ephemeral message, then this field may be omitted."""
 
     external_reply: Option[ExternalReplyInfo] = field(default=..., converter=From["ExternalReplyInfo | None"])
     """Optional. Information about the message that is being replied to, which
@@ -1246,6 +1289,14 @@ class Message(MaybeInaccessibleMessage):
         default=..., converter=From["ChecklistTasksAdded | None"]
     )
     """Optional. Service message: tasks were added to a checklist."""
+
+    community_chat_added: Option[CommunityChatAdded] = field(default=..., converter=From["CommunityChatAdded | None"])
+    """Optional. Service message: chat added to a Community."""
+
+    community_chat_removed: Option[CommunityChatRemoved] = field(
+        default=..., converter=From["CommunityChatRemoved | None"]
+    )
+    """Optional. Service message: chat removed from a Community."""
 
     direct_message_price_changed: Option[DirectMessagePriceChanged] = field(
         default=..., converter=From["DirectMessagePriceChanged | None"]
@@ -1585,27 +1636,35 @@ class ReplyParameters(Model):
     Describes reply parameters for the message that is being sent.
     """
 
-    message_id: int = field()
-    """Identifier of the message that will be replied to in the current chat, or
-    in the chat chat_id if it is specified."""
+    message_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Identifier of the message that will be replied to in the current
+    chat, or in the chat chat_id if it is specified. Required if ephemeral_message_id
+    isn't specified."""
 
     chat_id: Option[Sum[int, str]] = field(default=..., converter=From[int | str | None])
     """Optional. If the message to be replied to is from a different chat, unique
     identifier for the chat or username of the bot, supergroup or channel in
     the format @username. Not supported for messages sent on behalf of a business
-    account and messages from channel direct messages chats."""
+    account, messages from channel direct messages chats and ephemeral messages."""
+
+    ephemeral_message_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Identifier of the incoming ephemeral message that will be replied
+    to in the current chat. A reply to an ephemeral message must itself be an ephemeral
+    message. An ephemeral message may only be replied to within 15 seconds of
+    being sent. Required if message_id isn't specified."""
 
     allow_sending_without_reply: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the message should be sent even if the specified message
     to be replied to is not found. Always False for replies in another chat or
-    forum topic. Always True for messages sent on behalf of a business account."""
+    forum topic, and sent ephemeral messages. Always True for messages sent
+    on behalf of a business account."""
 
     quote: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Quoted part of the message to be replied to; 0-1024 characters
     after entities parsing. The quote must be an exact substring of the message
     to be replied to, including bold, italic, underline, strikethrough, spoiler,
     custom_emoji, and date_time entities. The message will fail to send if
-    the quote isn't found in the original message."""
+    the quote isn't found in the original message. Ignored for ephemeral messages."""
 
     quote_parse_mode: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Mode for parsing entities in the quote. See formatting options
@@ -2470,39 +2529,6 @@ class InputChecklist(Model):
     checklist."""
 
 
-class ChecklistTasksDone(Model):
-    """Object `ChecklistTasksDone`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksdone).
-
-    Describes a service message about checklist tasks marked as done or not done.
-    """
-
-    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
-    """Optional. Message containing the checklist whose tasks were marked as
-    done or not done. Note that the Message object in this field will not contain
-    the reply_to_message field even if it itself is a reply."""
-
-    marked_as_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
-    """Optional. Identifiers of the tasks that were marked as done."""
-
-    marked_as_not_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
-    """Optional. Identifiers of the tasks that were marked as not done."""
-
-
-class ChecklistTasksAdded(Model):
-    """Object `ChecklistTasksAdded`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksadded).
-
-    Describes a service message about tasks added to a checklist.
-    """
-
-    tasks: list[ChecklistTask] = field()
-    """List of tasks added to the checklist."""
-
-    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
-    """Optional. Message containing the checklist to which the tasks were added.
-    Note that the Message object in this field will not contain the reply_to_message
-    field even if it itself is a reply."""
-
-
 class Location(Model):
     """Object `Location`, see the [documentation](https://core.telegram.org/bots/api#location).
 
@@ -2629,6 +2655,25 @@ class ManagedBotUpdated(Model):
     def user_id(self) -> int:
         """`user_id` instead of `user.id`."""
         return self.user.id
+
+
+class BotSubscriptionUpdated(Model):
+    """Object `BotSubscriptionUpdated`, see the [documentation](https://core.telegram.org/bots/api#botsubscriptionupdated).
+
+    This object contains information about changes to a user payment subscription toward the current bot.
+    """
+
+    user: User = field()
+    """User who subscribed for payments toward the bot."""
+
+    invoice_payload: str = field()
+    """Bot-specified invoice payload."""
+
+    state: str = field()
+    """The new state of the subscription. Currently, it can be one of `canceled`
+    if the user canceled the subscription, `active` if the user re-enabled
+    a previously canceled subscription, or `failed` if payment for the subscription
+    failed."""
 
 
 class PollOptionAdded(Model):
@@ -2825,6 +2870,56 @@ class ChatBackground(Model):
         converter=From["BackgroundTypeFill | BackgroundTypeWallpaper | BackgroundTypePattern | BackgroundTypeChatTheme"]
     )
     """Type of the background."""
+
+
+class ChecklistTasksDone(Model):
+    """Object `ChecklistTasksDone`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksdone).
+
+    Describes a service message about checklist tasks marked as done or not done.
+    """
+
+    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the checklist whose tasks were marked as
+    done or not done. Note that the Message object in this field will not contain
+    the reply_to_message field even if it itself is a reply."""
+
+    marked_as_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
+    """Optional. Identifiers of the tasks that were marked as done."""
+
+    marked_as_not_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
+    """Optional. Identifiers of the tasks that were marked as not done."""
+
+
+class ChecklistTasksAdded(Model):
+    """Object `ChecklistTasksAdded`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksadded).
+
+    Describes a service message about tasks added to a checklist.
+    """
+
+    tasks: list[ChecklistTask] = field()
+    """List of tasks added to the checklist."""
+
+    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the checklist to which the tasks were added.
+    Note that the Message object in this field will not contain the reply_to_message
+    field even if it itself is a reply."""
+
+
+class CommunityChatAdded(Model):
+    """Object `CommunityChatAdded`, see the [documentation](https://core.telegram.org/bots/api#communitychatadded).
+
+    Describes a service message about a chat being added to a community.
+    """
+
+    community: Community = field()
+    """The new community to which the chat belongs."""
+
+
+class CommunityChatRemoved(Model):
+    """Object `CommunityChatRemoved`, see the [documentation](https://core.telegram.org/bots/api#communitychatremoved).
+
+    Describes a service message about a chat being removed from a community. Currently holds no information.
+    """
 
 
 class ForumTopicCreated(Model):
@@ -3034,7 +3129,7 @@ class DirectMessagePriceChanged(Model):
     """
 
     are_direct_messages_enabled: bool = field()
-    """True, if direct messages are enabled for the channel chat; false otherwise."""
+    """True, if direct messages are enabled for the channel chat; False otherwise."""
 
     direct_message_star_count: Option[int] = field(default=..., converter=From[int | None])
     """Optional. The new number of Telegram Stars that must be paid by users for
@@ -3422,20 +3517,20 @@ class ReplyKeyboardMarkup(Model):
 
     is_persistent: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Requests clients to always show the keyboard when the regular
-    keyboard is hidden. Defaults to false, in which case the custom keyboard
+    keyboard is hidden. Defaults to False, in which case the custom keyboard
     can be hidden and opened with a keyboard icon."""
 
     resize_keyboard: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Requests clients to resize the keyboard vertically for optimal
     fit (e.g., make the keyboard smaller if there are just two rows of buttons).
-    Defaults to false, in which case the custom keyboard is always of the same
+    Defaults to False, in which case the custom keyboard is always of the same
     height as the app's standard keyboard."""
 
     one_time_keyboard: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Requests clients to hide the keyboard as soon as it's been used.
     The keyboard will still be available, but clients will automatically display
     the usual letter-keyboard in the chat - the user can press a special button
-    in the input field to see the custom keyboard again. Defaults to false."""
+    in the input field to see the custom keyboard again. Defaults to False."""
 
     input_field_placeholder: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The placeholder to be shown in the input field when the keyboard
@@ -3861,6 +3956,23 @@ class ForceReply(Model):
     sender of the original message."""
 
 
+class Community(Model):
+    """Object `Community`, see the [documentation](https://core.telegram.org/bots/api#community).
+
+    Represents a community (a group of chats).
+    """
+
+    id: int = field()
+    """Unique identifier for this community. This number may have more than 32
+    significant bits and some programming languages may have difficulty/silent
+    defects in interpreting it. But it has at most 52 significant bits, so a signed
+    64-bit integer or double-precision float type are safe for storing this
+    identifier."""
+
+    name: str = field()
+    """Name of the community."""
+
+
 class ChatPhoto(Model):
     """Object `ChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#chatphoto).
 
@@ -4000,7 +4112,7 @@ class ChatAdministratorRights(Model):
 
     can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit the tags of regular members;
-    for groups and supergroups only. If omitted defaults to the value of can_pin_messages."""
+    for groups and supergroups only. If omitted, defaults to the value of can_pin_messages."""
 
 
 class ChatMemberUpdated(Model):
@@ -4159,7 +4271,7 @@ class ChatMemberAdministrator(ChatMember):
 
     can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit the tags of regular members;
-    for groups and supergroups only. If omitted defaults to the value of can_pin_messages."""
+    for groups and supergroups only. If omitted, defaults to the value of can_pin_messages."""
 
     custom_title: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Custom title for this user."""
@@ -4319,7 +4431,7 @@ class ChatJoinRequest(Model):
 
     query_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Identifier of the join request query; for bots assigned to process
-    join request only. If present, then the bot must call sendChatJoinRequestWebApp
+    join requests only. If present, then the bot must call sendChatJoinRequestWebApp
     or directly call answerChatJoinRequestQuery within 10 seconds."""
 
     @property
@@ -4386,7 +4498,7 @@ class ChatPermissions(Model):
     supergroups."""
 
     can_manage_topics: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the user is allowed to create forum topics. If omitted
+    """Optional. True, if the user is allowed to create forum topics. If omitted,
     defaults to the value of can_pin_messages."""
 
 
@@ -5287,6 +5399,10 @@ class BotCommand(Model):
     description: str = field()
     """Description of the command; 1-256 characters."""
 
+    is_ephemeral: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the command sends an ephemeral message, which can be
+    seen only by the sender of the message and the bot."""
+
 
 class BotCommandScopeDefault(BotCommandScope):
     """Object `BotCommandScopeDefault`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopedefault).
@@ -5794,7 +5910,7 @@ class InputMediaAnimation(InputPollMedia, InputPollOptionMedia, InputMedia):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     width: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Animation width."""
@@ -5966,7 +6082,7 @@ class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the live photo needs to be covered with a spoiler animation."""
@@ -6026,7 +6142,7 @@ class InputMediaPhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the photo needs to be covered with a spoiler animation."""
@@ -6140,7 +6256,7 @@ class InputMediaVideo(InputPollMedia, InputPollOptionMedia, InputMedia):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     width: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Video width."""
@@ -6156,6 +6272,43 @@ class InputMediaVideo(InputPollMedia, InputPollOptionMedia, InputMedia):
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the video needs to be covered with a spoiler animation."""
+
+
+class InputMediaVoiceNote(Model):
+    """Object `InputMediaVoiceNote`, see the [documentation](https://core.telegram.org/bots/api#inputmediavoicenote).
+
+    Represents a voice message file to be sent.
+    """
+
+    type: str = field()
+    """Type of the media, must be voice_note."""
+
+    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    """File to send. Pass a file_id to send a file that exists on the Telegram servers
+    (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
+    or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
+    under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    caption: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Caption of the voice message to be sent, 0-1024 characters after
+    entities parsing."""
+
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
+    """Optional. Mode for parsing entities in the voice message caption. See formatting
+    options for more details."""
+
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. List of special entities that appear in the caption, which can
+    be specified instead of parse_mode."""
+
+    duration: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Duration of the voice message in seconds."""
 
 
 class InputPaidMediaLivePhoto(InputPaidMedia):
@@ -6475,16 +6628,58 @@ class RichMessage(Model):
 class InputRichMessage(Model):
     """Object `InputRichMessage`, see the [documentation](https://core.telegram.org/bots/api#inputrichmessage).
 
-    Describes a rich message to be sent. Exactly one of the fields html or markdown must be used.
+    Describes a rich message to be sent. Exactly one of the fields html, markdown, or blocks must be used.
     """
+
+    blocks: Option[
+        list[
+            Sum[
+                InputRichBlockParagraph,
+                InputRichBlockSectionHeading,
+                InputRichBlockPreformatted,
+                InputRichBlockFooter,
+                InputRichBlockDivider,
+                InputRichBlockMathematicalExpression,
+                InputRichBlockAnchor,
+                InputRichBlockList,
+                InputRichBlockBlockQuotation,
+                InputRichBlockPullQuotation,
+                InputRichBlockCollage,
+                InputRichBlockSlideshow,
+                InputRichBlockTable,
+                InputRichBlockDetails,
+                InputRichBlockMap,
+                InputRichBlockAnimation,
+                InputRichBlockAudio,
+                InputRichBlockPhoto,
+                InputRichBlockVideo,
+                InputRichBlockVoiceNote,
+                InputRichBlockThinking,
+            ]
+        ]
+    ] = field(
+        default=...,
+        converter=From[
+            "list[InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking] | None"
+        ],
+    )
+    """Optional. Content of the rich message to send described as a list of blocks."""
 
     html: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Content of the rich message to send described using HTML formatting.
-    See rich message formatting options for more details."""
+    See rich message formatting options for more details. Use media field to
+    specify the media used in the message."""
 
     markdown: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Content of the rich message to send described using Markdown
-    formatting. See rich message formatting options for more details."""
+    formatting. See rich message formatting options for more details. Use
+    media field to specify the media used in the message."""
+
+    media: Option[list[InputRichMessageMedia]] = field(
+        default=..., converter=From["list[InputRichMessageMedia] | None"]
+    )
+    """Optional. List of media that are specified in the markdown or html fields
+    using tg://photo?id=, tg://video?id=, and tg://audio?id= links."""
 
     is_rtl: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the rich message must be shown right-to-left."""
@@ -6493,6 +6688,26 @@ class InputRichMessage(Model):
     """Optional. Pass True to skip automatic detection of entities (e.g., URLs,
     email addresses, username mentions, hashtags, cashtags, bot commands,
     or phone numbers) in the text."""
+
+
+class InputRichMessageMedia(Model):
+    """Object `InputRichMessageMedia`, see the [documentation](https://core.telegram.org/bots/api#inputrichmessagemedia).
+
+    Describes a media element embedded in an outgoing rich message.
+    """
+
+    id: str = field()
+    """Unique identifier of the media used in a tg://photo?id=, tg://video?id=,
+    or tg://audio?id= link. 1-64 characters, only A-Z, a-z, 0-9, _ and - are
+    allowed."""
+
+    media: Sum[InputMediaAnimation, InputMediaAudio, InputMediaPhoto, InputMediaVideo, InputMediaVoiceNote] = field(
+        converter=From[
+            "InputMediaAnimation | InputMediaAudio | InputMediaPhoto | InputMediaVideo | InputMediaVoiceNote"
+        ]
+    )
+    """The media to be sent. Everything except the media itself and its properties
+    is ignored."""
 
 
 class RichTextBold(RichText):
@@ -7264,7 +7479,7 @@ class RichBlockVoiceNote(RichBlock):
 class RichBlockThinking(RichBlock):
     """Object `RichBlockThinking`, see the [documentation](https://core.telegram.org/bots/api#richblockthinking).
 
-    A block with a "Thinking..." placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji, which are recommended for usage in the block.
+    A block with a "Thinking..." placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block.
     """
 
     type: str = field()
@@ -7272,7 +7487,512 @@ class RichBlockThinking(RichBlock):
 
     text: RichText = field()
     """Text of the block. See https://t.me/addemoji/AIActions for examples
-    of custom emoji, which are recommended for usage in the block."""
+    of custom emoji that are recommended for usage in the block."""
+
+
+class InputRichBlockListItem(Model):
+    """Object `InputRichBlockListItem`, see the [documentation](https://core.telegram.org/bots/api#inputrichblocklistitem).
+
+    An item of a list to be sent.
+    """
+
+    blocks: list[
+        Sum[
+            InputRichBlockParagraph,
+            InputRichBlockSectionHeading,
+            InputRichBlockPreformatted,
+            InputRichBlockFooter,
+            InputRichBlockDivider,
+            InputRichBlockMathematicalExpression,
+            InputRichBlockAnchor,
+            InputRichBlockList,
+            InputRichBlockBlockQuotation,
+            InputRichBlockPullQuotation,
+            InputRichBlockCollage,
+            InputRichBlockSlideshow,
+            InputRichBlockTable,
+            InputRichBlockDetails,
+            InputRichBlockMap,
+            InputRichBlockAnimation,
+            InputRichBlockAudio,
+            InputRichBlockPhoto,
+            InputRichBlockVideo,
+            InputRichBlockVoiceNote,
+            InputRichBlockThinking,
+        ]
+    ] = field(
+        converter=From[
+            list[
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+            ]
+        ]
+    )
+    """The content of the item."""
+
+    has_checkbox: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the item has a checkbox."""
+
+    is_checked: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the item has a checked checkbox."""
+
+    value: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. For ordered lists, the numeric value of the item label."""
+
+    type: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. For ordered lists, the type of the item label; must be one of `a`
+    for lowercase letters, `A` for uppercase letters, `i` for lowercase Roman
+    numerals, `I` for uppercase Roman numerals, or `1` for decimal numbers."""
+
+
+class InputRichBlockParagraph(InputRichBlock):
+    """Object `InputRichBlockParagraph`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockparagraph).
+
+    A text paragraph, corresponding to the HTML tag <p>.
+    """
+
+    type: str = field()
+    """Type of the block, always `paragraph`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+
+class InputRichBlockSectionHeading(InputRichBlock):
+    """Object `InputRichBlockSectionHeading`, see the [documentation](https://core.telegram.org/bots/api#inputrichblocksectionheading).
+
+    A section heading, corresponding to the HTML tags <h1>, <h2>, <h3>, <h4>, <h5>, or <h6>.
+    """
+
+    type: str = field()
+    """Type of the block, always `heading`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+    size: int = field()
+    """Relative size of the text font; 1-6, 1 is the largest, 6 is the smallest."""
+
+
+class InputRichBlockPreformatted(InputRichBlock):
+    """Object `InputRichBlockPreformatted`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockpreformatted).
+
+    A preformatted text block, corresponding to the nested HTML tags <pre> and <code>.
+    """
+
+    type: str = field()
+    """Type of the block, always `pre`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+    language: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. The programming language of the text."""
+
+
+class InputRichBlockFooter(InputRichBlock):
+    """Object `InputRichBlockFooter`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockfooter).
+
+    A footer, corresponding to the HTML tag <footer>.
+    """
+
+    type: str = field()
+    """Type of the block, always `footer`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+
+class InputRichBlockDivider(InputRichBlock):
+    """Object `InputRichBlockDivider`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockdivider).
+
+    A divider, corresponding to the HTML tag <hr/>.
+    """
+
+    type: str = field()
+    """Type of the block, always `divider`."""
+
+
+class InputRichBlockMathematicalExpression(InputRichBlock):
+    """Object `InputRichBlockMathematicalExpression`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockmathematicalexpression).
+
+    A block with a mathematical expression in LaTeX format, corresponding to the custom HTML tag <tg-math-block>.
+    """
+
+    type: str = field()
+    """Type of the block, always `mathematical_expression`."""
+
+    expression: str = field()
+    """The mathematical expression in LaTeX format."""
+
+
+class InputRichBlockAnchor(InputRichBlock):
+    """Object `InputRichBlockAnchor`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockanchor).
+
+    A block with an anchor, corresponding to the HTML tag <a> with the attribute name.
+    """
+
+    type: str = field()
+    """Type of the block, always `anchor`."""
+
+    name: str = field()
+    """The name of the anchor."""
+
+
+class InputRichBlockList(InputRichBlock):
+    """Object `InputRichBlockList`, see the [documentation](https://core.telegram.org/bots/api#inputrichblocklist).
+
+    A list of blocks, corresponding to the HTML tag <ul> or <ol> with multiple nested tags <li>.
+    """
+
+    type: str = field()
+    """Type of the block, always `list`."""
+
+    items: list[InputRichBlockListItem] = field()
+    """Items of the list."""
+
+
+class InputRichBlockBlockQuotation(InputRichBlock):
+    """Object `InputRichBlockBlockQuotation`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockblockquotation).
+
+    A block quotation, corresponding to the HTML tag <blockquote>.
+    """
+
+    type: str = field()
+    """Type of the block, always `blockquote`."""
+
+    blocks: list[
+        Sum[
+            InputRichBlockParagraph,
+            InputRichBlockSectionHeading,
+            InputRichBlockPreformatted,
+            InputRichBlockFooter,
+            InputRichBlockDivider,
+            InputRichBlockMathematicalExpression,
+            InputRichBlockAnchor,
+            InputRichBlockList,
+            InputRichBlockBlockQuotation,
+            InputRichBlockPullQuotation,
+            InputRichBlockCollage,
+            InputRichBlockSlideshow,
+            InputRichBlockTable,
+            InputRichBlockDetails,
+            InputRichBlockMap,
+            InputRichBlockAnimation,
+            InputRichBlockAudio,
+            InputRichBlockPhoto,
+            InputRichBlockVideo,
+            InputRichBlockVoiceNote,
+            InputRichBlockThinking,
+        ]
+    ] = field(
+        converter=From[
+            list[
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+            ]
+        ]
+    )
+    """Content of the block."""
+
+    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Credit of the block."""
+
+
+class InputRichBlockPullQuotation(InputRichBlock):
+    """Object `InputRichBlockPullQuotation`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockpullquotation).
+
+    A quotation with centered text, loosely corresponding to the HTML tag <aside>.
+    """
+
+    type: str = field()
+    """Type of the block, always `pullquote`."""
+
+    text: RichText = field()
+    """Text of the block."""
+
+    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Credit of the block."""
+
+
+class InputRichBlockCollage(InputRichBlock):
+    """Object `InputRichBlockCollage`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockcollage).
+
+    A collage, corresponding to the custom HTML tag <tg-collage>.
+    """
+
+    type: str = field()
+    """Type of the block, always `collage`."""
+
+    blocks: list[
+        Sum[
+            InputRichBlockParagraph,
+            InputRichBlockSectionHeading,
+            InputRichBlockPreformatted,
+            InputRichBlockFooter,
+            InputRichBlockDivider,
+            InputRichBlockMathematicalExpression,
+            InputRichBlockAnchor,
+            InputRichBlockList,
+            InputRichBlockBlockQuotation,
+            InputRichBlockPullQuotation,
+            InputRichBlockCollage,
+            InputRichBlockSlideshow,
+            InputRichBlockTable,
+            InputRichBlockDetails,
+            InputRichBlockMap,
+            InputRichBlockAnimation,
+            InputRichBlockAudio,
+            InputRichBlockPhoto,
+            InputRichBlockVideo,
+            InputRichBlockVoiceNote,
+            InputRichBlockThinking,
+        ]
+    ] = field(
+        converter=From[
+            list[
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+            ]
+        ]
+    )
+    """Elements of the collage."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class InputRichBlockSlideshow(InputRichBlock):
+    """Object `InputRichBlockSlideshow`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockslideshow).
+
+    A slideshow, corresponding to the custom HTML tag <tg-slideshow>.
+    """
+
+    type: str = field()
+    """Type of the block, always `slideshow`."""
+
+    blocks: list[
+        Sum[
+            InputRichBlockParagraph,
+            InputRichBlockSectionHeading,
+            InputRichBlockPreformatted,
+            InputRichBlockFooter,
+            InputRichBlockDivider,
+            InputRichBlockMathematicalExpression,
+            InputRichBlockAnchor,
+            InputRichBlockList,
+            InputRichBlockBlockQuotation,
+            InputRichBlockPullQuotation,
+            InputRichBlockCollage,
+            InputRichBlockSlideshow,
+            InputRichBlockTable,
+            InputRichBlockDetails,
+            InputRichBlockMap,
+            InputRichBlockAnimation,
+            InputRichBlockAudio,
+            InputRichBlockPhoto,
+            InputRichBlockVideo,
+            InputRichBlockVoiceNote,
+            InputRichBlockThinking,
+        ]
+    ] = field(
+        converter=From[
+            list[
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+            ]
+        ]
+    )
+    """Elements of the slideshow."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class InputRichBlockTable(InputRichBlock):
+    """Object `InputRichBlockTable`, see the [documentation](https://core.telegram.org/bots/api#inputrichblocktable).
+
+    A table, corresponding to the HTML tag <table>.
+    """
+
+    type: str = field()
+    """Type of the block, always `table`."""
+
+    cells: list[list[RichBlockTableCell]] = field()
+    """Cells of the table."""
+
+    is_bordered: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the table has borders."""
+
+    is_striped: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the table is striped."""
+
+    caption: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Caption of the table."""
+
+
+class InputRichBlockDetails(InputRichBlock):
+    """Object `InputRichBlockDetails`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockdetails).
+
+    An expandable block for details disclosure, corresponding to the HTML tag <details>.
+    """
+
+    type: str = field()
+    """Type of the block, always `details`."""
+
+    summary: RichText = field()
+    """Always shown summary of the block."""
+
+    blocks: list[
+        Sum[
+            InputRichBlockParagraph,
+            InputRichBlockSectionHeading,
+            InputRichBlockPreformatted,
+            InputRichBlockFooter,
+            InputRichBlockDivider,
+            InputRichBlockMathematicalExpression,
+            InputRichBlockAnchor,
+            InputRichBlockList,
+            InputRichBlockBlockQuotation,
+            InputRichBlockPullQuotation,
+            InputRichBlockCollage,
+            InputRichBlockSlideshow,
+            InputRichBlockTable,
+            InputRichBlockDetails,
+            InputRichBlockMap,
+            InputRichBlockAnimation,
+            InputRichBlockAudio,
+            InputRichBlockPhoto,
+            InputRichBlockVideo,
+            InputRichBlockVoiceNote,
+            InputRichBlockThinking,
+        ]
+    ] = field(
+        converter=From[
+            list[
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+            ]
+        ]
+    )
+    """Content of the block."""
+
+    is_open: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the content of the block is visible by default."""
+
+
+class InputRichBlockMap(InputRichBlock):
+    """Object `InputRichBlockMap`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockmap).
+
+    A block with a map, corresponding to the custom HTML tag <tg-map>. The map's width and height must not exceed 10000 in total. The width and height ratio must be at most 20.
+    """
+
+    type: str = field()
+    """Type of the block, always `map`."""
+
+    location: Location = field()
+    """Location of the center of the map."""
+
+    zoom: int = field()
+    """Map zoom level; 0-24."""
+
+    width: int = field()
+    """Map width; 0-10000."""
+
+    height: int = field()
+    """Map height; 0-10000."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class InputRichBlockAnimation(InputRichBlock):
+    """Object `InputRichBlockAnimation`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockanimation).
+
+    A block with an animation, corresponding to the HTML tag <video>.
+    """
+
+    type: str = field()
+    """Type of the block, always `animation`."""
+
+    animation: InputMediaAnimation = field()
+    """The animation. Caption is ignored."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class InputRichBlockAudio(InputRichBlock):
+    """Object `InputRichBlockAudio`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockaudio).
+
+    A block with a music file, corresponding to the HTML tag <audio>.
+    """
+
+    type: str = field()
+    """Type of the block, always `audio`."""
+
+    audio: InputMediaAudio = field()
+    """The audio. Caption is ignored."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class InputRichBlockPhoto(InputRichBlock):
+    """Object `InputRichBlockPhoto`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockphoto).
+
+    A block with a photo, corresponding to the HTML tag <img>.
+    """
+
+    type: str = field()
+    """Type of the block, always `photo`."""
+
+    photo: InputMediaPhoto = field()
+    """The photo. Caption is ignored."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class InputRichBlockVideo(InputRichBlock):
+    """Object `InputRichBlockVideo`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockvideo).
+
+    A block with a video, corresponding to the HTML tag <video>.
+    """
+
+    type: str = field()
+    """Type of the block, always `video`."""
+
+    video: InputMediaVideo = field()
+    """The video. Caption is ignored."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class InputRichBlockVoiceNote(InputRichBlock):
+    """Object `InputRichBlockVoiceNote`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockvoicenote).
+
+    A block with a voice note, corresponding to the HTML tag <audio>.
+    """
+
+    type: str = field()
+    """Type of the block, always `voice_note`."""
+
+    voice_note: InputMediaVoiceNote = field()
+    """The voice note. Caption is ignored."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class InputRichBlockThinking(InputRichBlock):
+    """Object `InputRichBlockThinking`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockthinking).
+
+    A block with a "Thinking..." placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block.
+    """
+
+    type: str = field()
+    """Type of the block, always `thinking`."""
+
+    text: RichText = field()
+    """Text of the block. See https://t.me/addemoji/AIActions for examples
+    of custom emoji that are recommended for usage in the block."""
 
 
 class InlineQuery(Model):
@@ -7429,7 +8149,7 @@ class InlineQueryResultPhoto(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -7507,7 +8227,7 @@ class InlineQueryResultGif(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -7585,7 +8305,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -7651,7 +8371,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     video_width: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Video width."""
@@ -8131,7 +8851,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -8191,7 +8911,7 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -8251,7 +8971,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -8410,7 +9130,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True, if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -8706,7 +9426,7 @@ class InputInvoiceMessageContent(InputMessageContent):
     in Telegram Stars."""
 
     suggested_tip_amounts: Option[list[int]] = field(default=..., converter=From[list[int] | None])
-    """Optional. A JSON-serialized array of suggested amounts of tip in the smallest
+    """Optional. A JSON-serialized Array of suggested amounts of tip in the smallest
     units of the currency (integer, not float/double). At most 4 suggested
     tip amounts can be specified. The suggested tip amounts must be positive,
     passed in a strictly increased order and must not exceed max_tip_amount."""
@@ -9672,6 +10392,7 @@ __all__ = (
     "BotDescription",
     "BotName",
     "BotShortDescription",
+    "BotSubscriptionUpdated",
     "BusinessBotRights",
     "BusinessConnection",
     "BusinessIntro",
@@ -9714,6 +10435,9 @@ __all__ = (
     "ChecklistTasksAdded",
     "ChecklistTasksDone",
     "ChosenInlineResult",
+    "Community",
+    "CommunityChatAdded",
+    "CommunityChatRemoved",
     "Contact",
     "CopyTextButton",
     "DateTimeFormatSeq",
@@ -9786,6 +10510,7 @@ __all__ = (
     "InputMediaSticker",
     "InputMediaVenue",
     "InputMediaVideo",
+    "InputMediaVoiceNote",
     "InputMessageContent",
     "InputPaidMedia",
     "InputPaidMediaLivePhoto",
@@ -9797,8 +10522,32 @@ __all__ = (
     "InputProfilePhoto",
     "InputProfilePhotoAnimated",
     "InputProfilePhotoStatic",
+    "InputRichBlock",
+    "InputRichBlockAnchor",
+    "InputRichBlockAnimation",
+    "InputRichBlockAudio",
+    "InputRichBlockBlockQuotation",
+    "InputRichBlockCollage",
+    "InputRichBlockDetails",
+    "InputRichBlockDivider",
+    "InputRichBlockFooter",
+    "InputRichBlockList",
+    "InputRichBlockListItem",
+    "InputRichBlockMap",
+    "InputRichBlockMathematicalExpression",
+    "InputRichBlockParagraph",
+    "InputRichBlockPhoto",
+    "InputRichBlockPreformatted",
+    "InputRichBlockPullQuotation",
+    "InputRichBlockSectionHeading",
+    "InputRichBlockSlideshow",
+    "InputRichBlockTable",
+    "InputRichBlockThinking",
+    "InputRichBlockVideo",
+    "InputRichBlockVoiceNote",
     "InputRichMessage",
     "InputRichMessageContent",
+    "InputRichMessageMedia",
     "InputSticker",
     "InputStoryContent",
     "InputStoryContentPhoto",
