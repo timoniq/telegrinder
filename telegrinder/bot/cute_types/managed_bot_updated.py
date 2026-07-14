@@ -44,9 +44,9 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
         Use this method to change the access settings of a managed bot. Returns True
         on success.
         :param user_id: [`CUSTOM PARAMETER`] User identifier of the managed bot whose access settings will be changed.
-        :param is_access_restricted: Pass True, if only selected users can access the bot. The bot's owner canalways access it.
+        :param is_access_restricted: Pass True if only selected users can access the bot. The bot's owner can alwaysaccess it.
 
-        :param added_user_ids: A JSON-serialized list of up to 10 identifiers of users who will have accessto the bot in addition to its owner. Ignored if is_access_restricted isfalse."""
+        :param added_user_ids: A JSON-serialized list of up to 10 identifiers of users who will have accessto the bot in addition to its owner. Ignored if is_access_restricted isFalse."""
         return await self.bound_api.set_managed_bot_access_settings(
             user_id=self.user.id if user_id is None else user_id,
             is_access_restricted=is_access_restricted,

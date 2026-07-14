@@ -38,7 +38,7 @@ class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
         No more than 50 results per query are allowed.
         :param inline_query_id: [`CUSTOM PARAMETER`] Unique identifier for the answered query.
 
-        :param results: A JSON-serialized array of results for the inline query.
+        :param results: A JSON-serialized Array of results for the inline query.
 
         :param cache_time: The maximum amount of time in seconds that the result of the inline querymay be cached on the server. Defaults to 300.
 

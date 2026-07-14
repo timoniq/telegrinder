@@ -248,6 +248,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -259,6 +260,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         parse_mode: str | None = API.default_params["parse_mode"],
         performer: str | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -280,6 +282,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Audio caption, 0-1024 characters after entities parsing.
@@ -320,6 +326,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -332,6 +339,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -353,6 +361,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent animation in seconds.
 
@@ -367,7 +379,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
@@ -395,6 +407,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -405,6 +418,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -424,6 +438,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
@@ -460,6 +478,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -470,6 +489,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -487,6 +507,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
 
@@ -494,7 +518,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
 
@@ -523,6 +547,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -530,6 +555,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -546,6 +572,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
 
@@ -576,6 +606,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -589,6 +620,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -613,6 +645,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent video in seconds.
 
@@ -630,7 +666,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
 
@@ -661,6 +697,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -669,6 +706,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -687,6 +725,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
 
@@ -720,6 +762,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -730,6 +773,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -750,6 +794,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
@@ -841,17 +889,18 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: Pass True, if the poll allows multiple answers, defaults to False.
+        :param allows_multiple_answers: Pass True if the poll allows multiple answers, defaults to False.
 
-        :param allows_revoting: Pass True, if the poll allows to change chosen answer options, defaultsto False for quizzes and to True for regular polls.
+        :param allows_revoting: Pass True if the poll allows to change chosen answer options, defaults toFalse for quizzes and to True for regular polls.
 
-        :param shuffle_options: Pass True, if the poll options must be shown in random order.
+        :param shuffle_options: Pass True if the poll options must be shown in random order.
 
-        :param allow_adding_options: Pass True, if answer options can be added to the poll after creation; notsupported for anonymous polls and quizzes.
+        :param allow_adding_options: Pass True if answer options can be added to the poll after creation; not supportedfor anonymous polls and quizzes.
 
-        :param hide_results_until_closes: Pass True, if poll results must be shown only after the poll closes.
+        :param hide_results_until_closes: Pass True if poll results must be shown only after the poll closes.
 
-        :param members_only: Pass True, if voting is limited to users who have been members of the chatwhere the poll is being sent for more than 24 hours; for channel chats only.
+        :param members_only: Pass True if voting is limited to users who have been members of the chat wherethe poll is being sent for more than 24 hours; for channel chats only.
+
         :param country_codes: A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codesindicating the countries from which users can vote in the poll; for channelchats only. Use `FT` as a country code to allow users with anonymous numbersto vote. If omitted or empty, then users from any country can participatein the poll.
 
         :param correct_option_ids: A JSON-serialized list of monotonically increasing 0-based identifiersof the correct answer options, required for polls in quiz mode.
@@ -904,6 +953,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         title: str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -914,6 +964,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -930,6 +981,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param latitude: Latitude of the venue.
 
@@ -1119,7 +1174,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency(integer, not float/double). For example, for a maximum tip of US$ 1.45pass max_tip_amount = 145. See the exp parameter in currencies.json, itshows the number of digits past the decimal point for each currency (2 forthe majority of currencies). Defaults to 0. Not supported for paymentsin Telegram Stars.
 
-        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest unitsof the currency (integer, not float/double). At most 4 suggested tip amountscan be specified. The suggested tip amounts must be positive, passed ina strictly increased order and must not exceed max_tip_amount.
+        :param suggested_tip_amounts: A JSON-serialized Array of suggested amounts of tips in the smallest unitsof the currency (integer, not float/double). At most 4 suggested tip amountscan be specified. The suggested tip amounts must be positive, passed ina strictly increased order and must not exceed max_tip_amount.
 
         :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of thesent message will have a Pay button, allowing multiple users to pay directlyfrom the forwarded message, using the same invoice. If non-empty, forwardedcopies of the sent message will have a URL button with a deep link to the bot(instead of a Pay button), with the value used as the start parameter.
 
@@ -1214,7 +1269,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         Use this method to send a group of photos, live photos, videos, documents
         or audios as an album. Documents and audio files can be only grouped in an
-        album with messages of the same type. On success, an array of Message objects
+        album with messages of the same type. On success, an Array of Message objects
         that were sent is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
@@ -1224,7 +1279,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the messages will be sent;required if the messages are sent to a direct messages chat.
 
-        :param media: A JSON-serialized array describing messages to be sent, must include 2-10items.
+        :param media: A JSON-serialized Array describing messages to be sent, must include 2-10items.
 
         :param disable_notification: Sends messages silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent messages from forwarding and saving.
@@ -1250,6 +1305,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         longitude: float,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -1260,6 +1316,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
         proximity_alert_radius: int | None = None,
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1276,12 +1333,16 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param latitude: Latitude of the location.
 
         :param longitude: Longitude of the location.
 
         :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
-        :param live_period: Period in seconds during which the location will be updated (see Live Locations,should be between 60 and 86400, or 0x7FFFFFFF for live locations that canbe edited indefinitely.
+        :param live_period: Period in seconds during which the location will be updated (see Live Locations),must be between 60 and 86400, or 0x7FFFFFFF for live locations that can beedited indefinitely. Must be 0 for ephemeral messages.
 
         :param heading: For live locations, a direction in which the user is moving, in degrees.Must be between 1 and 360 if specified.
 
@@ -1312,6 +1373,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         phone_number: str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -1319,6 +1381,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1335,6 +1398,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param phone_number: Contact's phone number.
 
@@ -1370,6 +1437,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         photo: InputFile | str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1380,6 +1448,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -1397,6 +1466,10 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
 
         :param photo: The static photo to send. Pass a file_id as String to send a photo that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
@@ -1407,7 +1480,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
 
@@ -1465,7 +1538,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param star_count: The number of Telegram Stars that must be paid to buy access to the media;1-25000.
 
-        :param media: A JSON-serialized array describing the media to be sent; up to 10 items.
+        :param media: A JSON-serialized Array describing the media to be sent; up to 10 items.
         :param payload: Bot-defined paid media payload, 0-128 bytes. This will not be displayedto the user, use it for your internal processes.
 
         :param caption: Media caption, 0-1024 characters after entities parsing.
@@ -1474,7 +1547,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
@@ -1540,6 +1613,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1551,6 +1625,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         parse_mode: str | None = API.default_params["parse_mode"],
         performer: str | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1572,6 +1647,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Audio caption, 0-1024 characters after entities parsing.
@@ -1612,6 +1691,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1624,6 +1704,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -1645,6 +1726,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent animation in seconds.
 
@@ -1659,7 +1744,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation.
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
@@ -1687,6 +1772,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1697,6 +1783,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -1716,6 +1803,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
@@ -1752,6 +1843,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1762,6 +1854,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -1779,6 +1872,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
 
@@ -1786,7 +1883,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
 
@@ -1815,6 +1912,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -1822,6 +1920,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1838,6 +1937,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
 
@@ -1868,6 +1971,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1881,6 +1985,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -1905,6 +2010,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent video in seconds.
 
@@ -1922,7 +2031,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
 
@@ -1953,6 +2062,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -1961,6 +2071,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1979,6 +2090,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
 
@@ -2012,6 +2127,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -2022,6 +2138,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2042,6 +2159,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
@@ -2133,17 +2254,18 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param type: Poll type, `quiz` or `regular`, defaults to `regular`.
 
-        :param allows_multiple_answers: Pass True, if the poll allows multiple answers, defaults to False.
+        :param allows_multiple_answers: Pass True if the poll allows multiple answers, defaults to False.
 
-        :param allows_revoting: Pass True, if the poll allows to change chosen answer options, defaultsto False for quizzes and to True for regular polls.
+        :param allows_revoting: Pass True if the poll allows to change chosen answer options, defaults toFalse for quizzes and to True for regular polls.
 
-        :param shuffle_options: Pass True, if the poll options must be shown in random order.
+        :param shuffle_options: Pass True if the poll options must be shown in random order.
 
-        :param allow_adding_options: Pass True, if answer options can be added to the poll after creation; notsupported for anonymous polls and quizzes.
+        :param allow_adding_options: Pass True if answer options can be added to the poll after creation; not supportedfor anonymous polls and quizzes.
 
-        :param hide_results_until_closes: Pass True, if poll results must be shown only after the poll closes.
+        :param hide_results_until_closes: Pass True if poll results must be shown only after the poll closes.
 
-        :param members_only: Pass True, if voting is limited to users who have been members of the chatwhere the poll is being sent for more than 24 hours; for channel chats only.
+        :param members_only: Pass True if voting is limited to users who have been members of the chat wherethe poll is being sent for more than 24 hours; for channel chats only.
+
         :param country_codes: A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codesindicating the countries from which users can vote in the poll; for channelchats only. Use `FT` as a country code to allow users with anonymous numbersto vote. If omitted or empty, then users from any country can participatein the poll.
 
         :param correct_option_ids: A JSON-serialized list of monotonically increasing 0-based identifiersof the correct answer options, required for polls in quiz mode.
@@ -2196,6 +2318,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         title: str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -2206,6 +2329,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2222,6 +2346,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param latitude: Latitude of the venue.
 
@@ -2411,7 +2539,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency(integer, not float/double). For example, for a maximum tip of US$ 1.45pass max_tip_amount = 145. See the exp parameter in currencies.json, itshows the number of digits past the decimal point for each currency (2 forthe majority of currencies). Defaults to 0. Not supported for paymentsin Telegram Stars.
 
-        :param suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the smallest unitsof the currency (integer, not float/double). At most 4 suggested tip amountscan be specified. The suggested tip amounts must be positive, passed ina strictly increased order and must not exceed max_tip_amount.
+        :param suggested_tip_amounts: A JSON-serialized Array of suggested amounts of tips in the smallest unitsof the currency (integer, not float/double). At most 4 suggested tip amountscan be specified. The suggested tip amounts must be positive, passed ina strictly increased order and must not exceed max_tip_amount.
 
         :param start_parameter: Unique deep-linking parameter. If left empty, forwarded copies of thesent message will have a Pay button, allowing multiple users to pay directlyfrom the forwarded message, using the same invoice. If non-empty, forwardedcopies of the sent message will have a URL button with a deep link to the bot(instead of a Pay button), with the value used as the start parameter.
 
@@ -2479,7 +2607,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         Use this method to send a group of photos, live photos, videos, documents
         or audios as an album. Documents and audio files can be only grouped in an
-        album with messages of the same type. On success, an array of Message objects
+        album with messages of the same type. On success, an Array of Message objects
         that were sent is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
@@ -2489,7 +2617,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the messages will be sent;required if the messages are sent to a direct messages chat.
 
-        :param media: A JSON-serialized array describing messages to be sent, must include 2-10items.
+        :param media: A JSON-serialized Array describing messages to be sent, must include 2-10items.
 
         :param disable_notification: Sends messages silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent messages from forwarding and saving.
@@ -2515,6 +2643,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         longitude: float,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -2525,6 +2654,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
         proximity_alert_radius: int | None = None,
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2541,12 +2671,16 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param latitude: Latitude of the location.
 
         :param longitude: Longitude of the location.
 
         :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
-        :param live_period: Period in seconds during which the location will be updated (see Live Locations,should be between 60 and 86400, or 0x7FFFFFFF for live locations that canbe edited indefinitely.
+        :param live_period: Period in seconds during which the location will be updated (see Live Locations),must be between 60 and 86400, or 0x7FFFFFFF for live locations that can beedited indefinitely. Must be 0 for ephemeral messages.
 
         :param heading: For live locations, a direction in which the user is moving, in degrees.Must be between 1 and 360 if specified.
 
@@ -2577,6 +2711,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         phone_number: str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -2584,6 +2719,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2600,6 +2736,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param phone_number: Contact's phone number.
 
@@ -2635,6 +2775,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         photo: InputFile | str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -2645,6 +2786,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -2662,6 +2804,10 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+
         :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
 
         :param photo: The static photo to send. Pass a file_id as String to send a photo that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
@@ -2672,7 +2818,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
 
@@ -2730,7 +2876,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param star_count: The number of Telegram Stars that must be paid to buy access to the media;1-25000.
 
-        :param media: A JSON-serialized array describing the media to be sent; up to 10 items.
+        :param media: A JSON-serialized Array describing the media to be sent; up to 10 items.
         :param payload: Bot-defined paid media payload, 0-128 bytes. This will not be displayedto the user, use it for your internal processes.
 
         :param caption: Media caption, 0-1024 characters after entities parsing.
@@ -2739,7 +2885,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
@@ -2885,7 +3031,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
@@ -2970,7 +3116,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
 
         :param inline_message_id: Required if chat_id and message_id are not specified. Identifier of theinline message.
 
-        :param media: A JSON-serialized object for a new media content of the message.
+        :param media: A JSON-serialized object for the new media content of the message.
 
         :param reply_markup: A JSON-serialized object for a new inline keyboard."""
         params = get_params(locals())
@@ -3198,6 +3344,7 @@ class MessageCute(
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -3207,6 +3354,7 @@ class MessageCute(
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -3222,6 +3370,10 @@ class MessageCute(
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
@@ -3278,6 +3430,7 @@ class MessageCute(
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
+        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -3288,6 +3441,7 @@ class MessageCute(
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -3303,6 +3457,10 @@ class MessageCute(
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
+
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
 
         :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
@@ -3504,7 +3662,7 @@ class MessageCute(
 
         :param link_preview_options: Link preview generation options for the message.
 
-        :param rich_message: New rich content of the message; required if text isn't specified.
+        :param rich_message: New rich content of the message; required if text isn't specified. Directupload of new files isn't supported when an inline message is edited.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
@@ -3561,7 +3719,7 @@ class MessageCute(
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the new caption,which can be specified instead of parse_mode.
 
-        :param show_caption_above_media: Pass True, if the caption must be shown above the message media. Ignoredif a new caption isn't specified.
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media. Ignored ifa new caption isn't specified.
 
         :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param protect_content: Protects the contents of the sent message from forwarding and saving.
