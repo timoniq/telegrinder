@@ -252,7 +252,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param text: Text of the message to be sent, 1-4096 characters after entities parsing. \
 
@@ -423,7 +423,7 @@ class APIMethods:
         Use this method to copy messages of any kind. Service messages, paid media
         messages, giveaway messages, giveaway winners messages, and invoice
         messages can't be copied. A quiz poll can be copied only if the value of the
-        field correct_option_id is known to the bot. The method is analogous to
+        field correct_option_ids is known to the bot. The method is analogous to
         the method forwardMessage, but the copied message doesn't have a link to
         the original message. Returns the MessageId of the sent message on success.
 
@@ -503,7 +503,7 @@ class APIMethods:
         can't be found or copied, they are skipped. Service messages, paid media
         messages, giveaway messages, giveaway winners messages, and invoice
         messages can't be copied. A quiz poll can be copied only if the value of the
-        field correct_option_id is known to the bot. The method is analogous to
+        field correct_option_ids is known to the bot. The method is analogous to
         the method forwardMessages, but the copied messages don't have a link to
         the original message. Album grouping is kept for copied messages. On success,
         an Array of MessageId of the sent messages is returned.
@@ -585,7 +585,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
@@ -683,7 +683,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and must \
         not exceed 10 MB in size. Pass a file_id as String to send a video that exists \
@@ -790,7 +790,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
@@ -896,7 +896,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
@@ -1008,7 +1008,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
@@ -1133,7 +1133,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param animation: Animation to send. Pass a file_id as String to send an animation that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
@@ -1246,7 +1246,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
@@ -1338,7 +1338,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that exists \
         on the Telegram servers (recommended) or upload a new video using multipart/form-data. \
@@ -1574,7 +1574,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param latitude: Latitude of the location.
 
@@ -1670,7 +1670,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param latitude: Latitude of the venue.
 
@@ -1762,7 +1762,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param phone_number: Contact's phone number.
 
@@ -5904,7 +5904,7 @@ class APIMethods:
         See ephemeral message sending for more details.
 
         :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggerred the message if any.
+        triggered the message if any.
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
