@@ -285,7 +285,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Audio caption, 0-1024 characters after entities parsing.
@@ -363,7 +363,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent animation in seconds.
@@ -441,7 +441,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
@@ -509,7 +509,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
@@ -575,7 +575,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
 
@@ -647,7 +647,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent video in seconds.
@@ -728,7 +728,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
 
@@ -797,7 +797,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
@@ -984,7 +984,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param latitude: Latitude of the venue.
 
@@ -1335,7 +1335,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param latitude: Latitude of the location.
 
@@ -1401,7 +1401,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param phone_number: Contact's phone number.
 
@@ -1468,7 +1468,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
 
@@ -1650,7 +1650,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Audio caption, 0-1024 characters after entities parsing.
@@ -1728,7 +1728,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent animation in seconds.
@@ -1806,7 +1806,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
@@ -1874,7 +1874,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
@@ -1940,7 +1940,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
 
@@ -2012,7 +2012,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent video in seconds.
@@ -2093,7 +2093,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
 
@@ -2162,7 +2162,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
@@ -2349,7 +2349,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param latitude: Latitude of the venue.
 
@@ -2673,7 +2673,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param latitude: Latitude of the location.
 
@@ -2739,7 +2739,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param phone_number: Contact's phone number.
 
@@ -2806,7 +2806,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
 
@@ -3373,7 +3373,7 @@ class MessageCute(
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
@@ -3460,7 +3460,7 @@ class MessageCute(
 
         :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
 
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggerred the message if any.
+        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
 
         :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
@@ -3698,7 +3698,7 @@ class MessageCute(
         Use this method to copy messages of any kind. Service messages, paid media
         messages, giveaway messages, giveaway winners messages, and invoice
         messages can't be copied. A quiz poll can be copied only if the value of the
-        field correct_option_id is known to the bot. The method is analogous to
+        field correct_option_ids is known to the bot. The method is analogous to
         the method forwardMessage, but the copied message doesn't have a link to
         the original message. Returns the MessageId of the sent message on success.
         :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.

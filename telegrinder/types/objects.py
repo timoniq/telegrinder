@@ -1272,7 +1272,7 @@ class Message(MaybeInaccessibleMessage):
     proximity_alert_triggered: Option[ProximityAlertTriggered] = field(
         default=..., converter=From["ProximityAlertTriggered | None"]
     )
-    """Optional. Service message. A user in the chat triggered another user's
+    """Optional. Service message: a user in the chat triggered another user's
     proximity alert while sharing Live Location."""
 
     boost_added: Option[ChatBoostAdded] = field(default=..., converter=From["ChatBoostAdded | None"])
